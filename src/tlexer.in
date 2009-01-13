@@ -1,0 +1,163 @@
+{
+
+open Util
+open Trealparser
+
+(* Note added due to LGPL terms.
+
+This file was edited by Valerio Bigiani, AKA The Bigg, starting from
+6 November 2005. All changes for this file are listed in
+diffs/src.dlexer.mll.diff file, as the output of a diff -Bw -c -N command.
+
+It was originally taken from Westley Weimer's WeiDU 185. *)
+
+  type tToken =
+    | EOF
+    | SOUND of string
+    | STRING of string
+    | INLINED_FILE of (string * string)
+    | STRING_REF of int
+    | TRANS_REF of int
+    | FORCED_STRING_REF of int
+    | START_FROM_TP
+    | START_FROM_TPA
+    | START_FROM_TPP
+(* do not edit or remove the following line.
+PUT TYPE LIST *)
+
+
+  (* The following functions should probably be implemented by
+   * some automatic translator, given the definition of tToken.
+   * ocamlyacc does this (to some degree), but Elkhound does not.
+   *)
+
+  (* break out the token kind as an integer *)
+  let tokenKind (t:tToken) : int =
+  begin
+    match t with
+    | EOF                  -> 0
+    | SOUND(_)             -> 1
+    | STRING(_)            -> 2
+    | INLINED_FILE(_)      -> 3
+    | STRING_REF(_)        -> 4
+    | TRANS_REF(_)         -> 5
+    | FORCED_STRING_REF(_) -> 6
+    | START_FROM_TP        -> 7
+    | START_FROM_TPA       -> 8
+    | START_FROM_TPP       -> 9
+(* do not edit or remove the following line.
+PUT TOKEN TO INT *)
+  end
+
+  (* render a token kind code as a string *)
+  let tokenKindDesc (t:int) : string =
+  begin
+    match t with
+    | 0 ->       "EOF"
+    | 1 ->       "[]"
+    | 2 ->       "~~"
+    | 3 ->       "<<<<<<<<"
+    | 4 ->       "@"
+    | 5 ->       "#"
+    | 6 ->       "!"
+    | 7 ->       "START_FROM_TP"
+    | 8 ->       "START_FROM_TPA"
+    | 9 ->       "START_FROM_TPP"
+(* do not edit or remove the following line.
+PUT INT TO STRING *)
+    | _ ->       (failwith "bad token kind")
+  end
+
+
+(*
+** Keyword hashtable
+*)
+
+let string_of lb = (Lexing.lexeme lb)
+
+let lexicon = Hashtbl.create 211
+let _ = List.iter
+    (fun (key, token) -> Hashtbl.add lexicon key token)
+    [
+(* do not edit or remove the following line.
+PUT LEXICON *)
+    ]
+
+(*
+** Buffer processor
+*)
+
+
+
+
+}
+
+let decdigit = ['0'-'9']
+let octdigit = ['0'-'7']
+let letter = ['a' - 'z' 'A'-'Z']
+
+let blank = [' ' '\012' '\r']
+
+rule initial = parse
+  "/*"  { adj lexbuf ; let _ = comment lexbuf in initial lexbuf}
+| "//"  { adj lexbuf ; endline lexbuf }
+| blank	{ adj lexbuf ; initial lexbuf}
+| '\t'  { tab (); initial lexbuf }
+| '\n'  { newline (); initial lexbuf }
+
+(* do not edit or remove the following line.
+PUT SYMBOLS *)
+
+| "["[^']']*"]" { str_adj lexbuf ; SOUND(strip (string_of lexbuf)) }
+| "~"[^'~']*"~"
+| '"'[^'"']*'"'
+| '%'[^'%']*'%'  { str_adj lexbuf ; STRING(strip (string_of lexbuf)) }
+| ['0'-'9''A'-'Z''a'-'z''_']['0'-'9''A'-'Z''a'-'z''#''_''-''.''\'']* {
+    adj lexbuf ; try Hashtbl.find lexicon (string_of lexbuf)
+    with _ -> STRING(string_of lexbuf) }
+| '#'['-']?['0'-'9']+ { adj lexbuf ;
+      let str = string_of lexbuf in
+      let str = String.sub str 1 ((String.length str) - 1) in
+      STRING_REF((int_of_string str)) }
+| '!'['-']?['0'-'9']+ { adj lexbuf ;
+      let str = string_of lexbuf in
+      let str = String.sub str 1 ((String.length str) - 1) in
+      FORCED_STRING_REF((int_of_string str)) }
+| '@'['-']?['0'-'9']+ { adj lexbuf ;
+      let str = string_of lexbuf in
+      let str = String.sub str 1 ((String.length str) - 1) in
+      TRANS_REF((int_of_string str)) }
+| "~~~~~" { adj lexbuf ; let buf = Buffer.create 255 in widestring buf lexbuf }
+| "<<<<<<<<" [' ']* ([^'\n''\r']* as name) ('\r'?)'\n' {
+  adj lexbuf ;
+  let buf = Buffer.create 10240 in
+  inlined name buf lexbuf }
+| eof   { EOF }
+| _	{ lex_error (Printf.sprintf "invalid character [%s]\n HINT: Don't use MS Word to edit your .tp2 files - use ConTEXT (http://www.context.cx instead)." (string_of
+lexbuf)) }
+and comment = parse
+      "*/"	{ adj lexbuf ; () }
+|     '\n'      { newline (); comment lexbuf }
+|     "/*"      { adj lexbuf ; let _ = comment lexbuf in comment lexbuf }
+|     eof       { lex_error "unterminated comment" }
+|     _ 	{ adj lexbuf ; comment lexbuf }
+and widestring buf = parse
+|     "~~~~~"    { adj lexbuf ; STRING(Buffer.contents buf) }
+|     eof        { lex_error "unterminated ~~~~~ string" }
+|     '\n'       { newline (); Buffer.add_char buf '\n';widestring buf lexbuf}
+|     _          { adj lexbuf ; let str = string_of lexbuf in
+                   Buffer.add_string buf str ; widestring buf lexbuf }
+and inlined name buf = parse
+|     ">>>>>>>>"{ newline() ;
+                  INLINED_FILE(name,(Buffer.contents buf)) }
+|     eof       { lex_error "unterminated inlined file" }
+|     '\n'      { newline (); Buffer.add_char buf '\n' ;
+                  inlined name buf lexbuf }
+|     _         { adj lexbuf ;
+                  let str = string_of lexbuf in
+                  Buffer.add_string buf str ;
+                  inlined name buf lexbuf }
+and endline = parse
+        '\n' 			{ newline (); initial lexbuf}
+|	_			{ adj lexbuf ; endline lexbuf}
+|       eof                     { EOF }

@@ -1,0 +1,150 @@
+############################################################################
+# Configuration for Makefile. Uncomment the one relative to your platform.
+############################################################################
+#
+# Configuration (uncomment exactly one). Hopefully it'll have been autodetected anyway.
+#
+# (0) X86 / Windows / Cygwin, using MINGW as the C compiler
+# export ARCHOS    = x86_WIN32
+# export OCAMLDIR  = C:\\ocaml\\bin
+# export OCAMLLIB  = C:\\ocaml\\lib
+# export CAMLP4LIB = C:\\ocaml\\lib\\camlp4
+# export OBJEXT    = o
+# export ARCH_FILE = arch_mingw
+# export CASE_FILE = case_ins_win
+# export ARCH_C_FILES = createprocess_win32
+# export WEIDU_ARCH = x86
+# export WEIDU_OS = win32
+# PROJECT_CMODULES   = reg
+# PROJECT2_CMODULES  = reg
+# PROJECT3_CMODULES  = reg
+# export GLOB      = glob_win32
+# export USEOPT = .opt
+#
+# (1) X86 / Linux, using GCC as the C Compiler
+# export ARCHOS    = x86_LINUX
+# export OCAMLDIR  = /usr/bin
+# export OCAMLLIB  = /usr/lib/ocaml/3.09.2
+# export CAMLP4LIB = /usr/lib/ocaml/3.09.2/camlp4
+# export OBJEXT    = o
+# export ARCH_FILE = arch_unix
+# export CASE_FILE = case_ins_linux
+# export GLOB      = glob_unix
+# export WEIDU_ARCH = x86
+# export WEIDU_OS = unix
+# export USEOPT = .opt
+#
+# (2) Mac OS X, using GCC as the C compiler
+# export ARCHOS    = x86_LINUX
+# export OCAMLDIR  = /usr/local/bin
+# export OCAMLLIB  = /usr/local/lib/ocaml
+# export CAMLP4LIB = /usr/local/lib/ocaml/camlp4
+# export OBJEXT    = o
+# export ARCH_FILE = arch_osx
+# export CASE_FILE = case_ins_mac
+# export GLOB      = glob_unix
+# export WEIDU_ARCH = mac
+# export WEIDU_OS = osx
+# export USEOPT = .opt
+#
+# (3) X86 / Windows / Cygwin, using MSVC as the C compiler
+# export ARCHOS    = x86_WIN32
+# export OCAMLDIR  = C:\\ocaml-3.08-msvc\\bin
+# export OCAMLLIB  = C:\\ocaml-3.08-msvc\\lib
+# export CAMLP4LIB = C:\\ocaml-3.08-msvc\\lib\\camlp4
+# export HAVE_MSVC = 1
+# export OBJEXT    = obj
+# export ARCH_FILE = arch_win32
+# export CASE_FILE = case_ins_win
+# export ARCH_C_FILES = createprocess_win32
+# export GLOB      = glob_win32
+# export ITEMLIST = 1
+# export WEIDU_ARCH = x86
+# export WEIDU_OS = win32
+# export USEOPT = .opt
+#
+# (4) X86 / CYGWIN, using GCC as the C Compiler
+# export ARCHOS    = x86_CYGWIN
+# export OCAMLDIR  = /bin
+# export OCAMLLIB  = /lib/ocaml
+# export CAMLP4LIB = /lib/ocaml/camlp4
+# export OBJEXT    = o
+# export ARCH_FILE = arch_cygwin
+# export CASE_FILE = case_ins_win
+# PROJECT_CMODULES   = reg
+# PROJECT2_CMODULES   = reg
+# export GLOB      = glob_unix
+# export WEIDU_ARCH = x86
+# export WEIDU_OS = win32
+# export USEOPT = .opt
+#
+# (5) X86 / Windows / Cygwin, using MinGW as the C compiler
+#export ARCHOS    = x86_WIN32
+#export OCAMLDIR  = C:\\ocaml-3.07-mingw\\bin
+#export OCAMLLIB  = C:\\ocaml-3.07-mingw\\lib
+#export CAMLP4LIB = C:\\ocaml-3.07-mingw\\lib\\camlp4
+#export HAVE_MINGW = 1
+#export OBJEXT    = o
+#export ARCH_FILE = arch_win32
+#export CASE_FILE = case_ins_nochange
+#export ARCH_C_FILES = createprocess_win
+#export GLOB      = glob_win32
+#export ITEMLIST = 1
+#export WEIDU_ARCH = x86
+#export WEIDU_OS = win32
+#export USEOPT = .opt
+#
+
+# Autodetection:
+# We try to auto-detect X86/Windows/Cygwin, X86/Linux and OSX10.4.
+ifdef WINDIR
+	# (0) X86 / Windows / Cygwin, using MINGW as the C compiler
+	export ARCHOS    = x86_WIN32
+	export OCAMLDIR  = C:\\ocaml\\bin
+	export OCAMLLIB  = C:\\ocaml\\lib
+	export CAMLP4LIB = C:\\ocaml\\lib\\camlp4
+	export OBJEXT    = o
+	export ARCH_FILE = arch_mingw
+	export CASE_FILE = case_ins_win
+	export ARCH_C_FILES = createprocess_win32
+	export WEIDU_ARCH = x86
+	export WEIDU_OS = win32
+	PROJECT_CMODULES   = reg
+	PROJECT2_CMODULES  = reg
+	PROJECT3_CMODULES  = reg
+	export GLOB      = glob_win32
+	export USEOPT = .opt
+else
+	uname=$(shell uname)
+	ifeq "$(uname)" "Linux"
+		# (1) X86 / Linux, using GCC as the C Compiler
+		export ARCHOS    = x86_LINUX
+		export OCAMLDIR  = /usr/bin
+		export OCAMLLIB  = /usr/lib/ocaml/3.10.2
+		export CAMLP4LIB = /usr/lib/ocaml/3.10.2/camlp4
+		export OBJEXT    = o
+		export ARCH_FILE = arch_unix
+		export CASE_FILE = case_ins_linux
+		export GLOB      = glob_unix
+		export WEIDU_ARCH = x86
+		export WEIDU_OS = unix
+		export USEOPT = .opt
+	else
+		ifeq "$(uname)" "Darwin"
+			# (2) Mac OS X, using GCC as the C compiler
+			export ARCHOS    = x86_LINUX
+			export OCAMLDIR  = /usr/local/bin
+			export OCAMLLIB  = /usr/local/lib/ocaml
+			export CAMLP4LIB = /usr/local/lib/ocaml/camlp4
+			export OBJEXT    = o
+			export ARCH_FILE = arch_osx
+			export CASE_FILE = case_ins_mac
+			export GLOB      = glob_unix
+			export WEIDU_ARCH = mac
+			export WEIDU_OS = osx
+			export USEOPT = .opt
+		endif
+	endif
+endif
+
+export COMPILEFLAGS = -w y -ccopt -w 

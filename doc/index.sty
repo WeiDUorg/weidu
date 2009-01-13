@@ -1,0 +1,394 @@
+%% 
+%% This is file `index.sty', generated on <1995/6/22> 
+%% with the docstrip utility (2.2i).
+%% 
+%% The original source files were:
+%% 
+%% index.doc  (with options: `style')
+%% 
+%% IMPORTANT NOTICE:
+%% You are not allowed to distribute this file.
+%% For distribution of the original source see
+%% the copyright notice in the file index.doc .
+%% 
+
+\def\fileversion{v3.02}
+\def\filedate{15 September 1993}
+\def\docdate {15 September 1993}
+
+%% \CheckSum{692}
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%%
+\@ifundefined{newindex}{}{\endinput}
+
+\typeout{Style-Option: `index' \fileversion\space <\filedate> (dmj)}
+\def\@ifundefined#1{%
+    \expandafter\ifx\csname#1\endcsname\relax
+        \expandafter\@leftmark
+    \else
+        \expandafter\@rightmark
+    \fi
+}
+
+\long\def\@leftmark#1#2{#1}
+\long\def\@rightmark#1#2{#2}
+\def\disableindex#1{%
+    \@for\@tempa:=#1\do{%
+        \@namedef{disable@\@tempa}{}%
+        \@ifundefined{tf@\@tempa}{}{%
+            \typeout{index.sty> Warning! It's too late to disable the
+                `\@tempa' index; the output}%
+            \typeout{index.sty> file \jobname.\@tempa\space has already
+                been opened for output. You should}%
+            \typeout{index.sty> put the \string\disableindex\space
+                command before the declaration of the}%
+            \typeout{index.sty> `\@tempa' index.}%
+        }%
+    }%
+}
+\newif\if@newindex
+
+\def\newindex#1{%
+    \@ifundefined{idx@#1}%
+        {\@newindextrue\@newindex{#1}}%
+        {%
+            \@latexerr{Index type `\string#1' already defined}\@ehc
+            \expandafter\@gobble\@gobbletwo
+        }%
+}
+
+\def\renewindex#1{%
+    \@ifundefined{idx@#1}%
+        {%
+            \@newindextrue
+            \@latexerr{Index type `\string#1' not defined}\@ehc
+        }%
+        {\@newindexfalse}%
+    \@newindex{#1}%
+}
+\begingroup
+    \def\do{\noexpand\do\noexpand}%
+    \xdef\@preamblecmds{%
+        \@preamblecmds
+        \do\newindex
+        \do\renewindex
+        \do\disableindex
+    }
+\endgroup
+\def\my@newtoks{\csname newtoks\endcsname}
+
+\def\@newindex#1#2#3{%
+    \@namedef{idx@#1}{#2:#3}%
+    \if@filesw
+        \@ifundefined{disable@#1}{%
+            \if@newindex
+                \expandafter\newwrite\csname tf@#1\endcsname
+                \expandafter\my@newtoks\csname idxtitle@#1\endcsname
+            \else
+                \immediate\closeout\@nameuse{tf@#1}%
+            \fi
+            \immediate\openout\@nameuse{tf@#1}=\jobname.#2 %
+            \typeout{index.sty> Writing index file \jobname.#2 }%
+        }
+        {\typeout{index.sty> Index `#2' disabled -- not opening
+                      \jobname.#2 }}%
+    \fi
+    \expandafter\csname idxtitle@#1\endcsname
+}
+\def\@second#1:#2\@nil{#2}
+\def\@nearverbatim{\expandafter\@meaning\meaning}
+
+\def\@meaning#1>{}
+\edef\makeindex{%
+    \noexpand\newindex{default}{idx}{ind}{%
+        \expandafter\ifx\csname indexname\endcsname\relax
+            Index%
+        \else
+            \indexname
+        \fi
+    }%
+}
+\newif\if@silentindex\@silentindextrue
+
+\newif\if@addtoindex\@addtoindextrue
+
+\newif\ifproofmode\proofmodefalse
+\def\index{\protect\p@index}
+
+\def\p@index{%
+    \if@silentindex\@bsphack\fi
+    \@ifstar{\@silentindexfalse\@xindex}{\@silentindextrue\@xindex}%
+}
+
+\def\@xindex{\@ifnextchar[{\@index}{\@index[default]}}
+\def\@index[#1]{%
+    \ifx\index\@gobble
+        \@addtoindexfalse
+    \fi
+    \def\@tempf{\@@index{#1}}%
+    \if@addtoindex
+        \@ifundefined{idx@#1}%
+            {%
+              \def\@tempf{%
+                  \@latexerr{Index type `\string#1' undefined}%
+                  \@ehc
+                  \@silentindextrue
+                  \@gobble
+              }%
+            }%
+            {}%
+    \fi
+    \@tempf
+}
+
+\def\@@index#1#2{%
+    \if@addtoindex
+        \if@filesw\@wrindex{#1}{#2}\fi
+        \ifproofmode\@showidx{#2}\fi
+    \fi
+    \if@silentindex\expandafter\@esphack\else\@silentindextrue#2\fi
+}
+
+\def\@wrindex#1#2{%
+    \begingroup
+        \let\thepage\relax
+        \def\@tempa{#2}%
+        \edef\@tempa{%
+           \write\@auxout{%
+              \string\@vwritefile{#1}{%
+                  \string\indexentry{\@nearverbatim\@tempa}{\thepage}%
+              }%
+           }%
+        }%
+    \expandafter\endgroup\@tempa
+    \if@nobreak\ifvmode\nobreak\fi\fi
+}
+\@ifundefined{seename}{\def\seename{see}}{}
+
+\def\see#1#2{{\em \seename\/} #1}
+
+\def\printindex{\@ifnextchar [{\@printindex}{\@printindex[default]}}
+
+\def\@printindex[#1]{%
+    \def\@indextype{#1}%
+    \@ifundefined{idx@#1}%
+        {\@latexerr{Index type `\string#1' undefined}\@ehc}%
+        {%
+            \edef\@tempa{\@nameuse{idx@#1}}%
+            \@input{\jobname.\expandafter\@second\@tempa\@nil}%
+        }%
+}
+\def\@indexstar@{\index*}
+\def\idx@activehat{%
+    \relax
+    \ifmmode\expandafter\sp\else\expandafter\@indexstar@\fi
+}
+
+\def\idx@activebar{
+    \relax
+    \ifmmode\expandafter\sb\else\expandafter\index\fi
+}
+\newif\if@shortindexing
+
+\begingroup
+
+    \catcode`\^=\active
+    \catcode`\_=\active
+
+    \gdef\shortindexingon{%
+        \@shortindexingtrue
+        \chardef\old@idxhatcode=\catcode`\^\relax
+        \chardef\old@idxbarcode=\catcode`\_\relax
+        \catcode`\^=\active
+        \catcode`\_=\active
+        \let\old@idxhat=^%
+        \let\old@idxbar=_%
+        \let^\idx@activehat
+        \let_\idx@activebar
+    }
+
+    \gdef\shortindexingoff{%
+        \if@shortindexing
+            \@shortindexingfalse
+            \let^=\old@idxhat
+            \let_=\old@idxbar
+            \catcode`\^=\old@idxhatcode
+            \catcode`\_=\old@idxbarcode
+        \fi
+    }
+
+\endgroup
+\expandafter\ifx\csname indexname\endcsname\relax
+
+    \typeout{index.sty> Uh oh!  It looks like your document style
+        doesn't use \string\indexname.}
+    \typeout{index.sty> I'll have to redefine the
+        \string\theindex\space environment, using}
+    \typeout{index.sty> the `book' style default.}
+
+    \def\indexname{Index}
+    \def\theindex{%
+        \@restonecoltrue
+        \if@twocolumn\@restonecolfalse\fi
+        \columnseprule\z@ \columnsep 35\p@
+        \edef\@indexname{%
+            \expandafter\the\@nameuse{idxtitle@\@indextype}%
+        }%
+        \twocolumn[\@makeschapterhead{\@indexname}]%
+        \@mkboth{\uppercase{\@indexname}}{\uppercase{\@indexname}}%
+        \thispagestyle{plain}%
+        \parindent\z@
+        \parskip\z@ plus .3\p@\relax\let\item\@idxitem
+    }
+
+\else
+
+    \@temptokena={%
+       \edef\indexname{\the\@nameuse{idxtitle@\@indextype}}%
+    }
+    \toks0=\expandafter{\theindex}
+    \edef\theindex{\the\@temptokena\the\toks0}
+
+\fi
+\def\@vwritefile{%
+    \ifx\@writefile\@gobbletwo
+        \expandafter\@gobbletwo
+    \else
+        \expandafter\x@vwritefile
+    \fi
+}
+
+\def\x@vwritefile#1{%
+    \@ifundefined{tf@#1}{\@gobbletwo}{\y@vwritefile}{#1}%
+}
+
+\long\def\y@vwritefile#1#2{%
+    \def\@tempa{#2}%
+    \immediate\write\csname tf@#1\endcsname{\@nearverbatim\@tempa}%
+}
+\newinsert\@indexbox
+
+\dimen\@indexbox=\maxdimen
+\begingroup
+    \catcode`\@=\active
+    \expandafter\gdef\csname\string @sanitizeat\endcsname
+        {\def @{\char`\@}}
+\endgroup
+\newtoks\indexproofstyle
+
+\indexproofstyle{\footnotesize\csname reset@font\endcsname\tt}
+
+\def\@showidx#1{%
+    \insert\@indexbox{%
+        \@sanitizeat
+        \the\indexproofstyle
+        \hsize\marginparwidth
+        \hangindent\marginparsep \parindent\z@
+        \everypar{}\let\par\@@par \parfillskip\@flushglue
+        \lineskip\normallineskip
+        \baselineskip .8\normalbaselineskip\sloppy
+        \raggedright \leavevmode
+        \vrule \@height .7\normalbaselineskip \@width \z@\relax#1\relax
+        \vrule \@height\z@ \@depth.3\normalbaselineskip \@width\z@\relax
+    }%
+    \ifhmode\penalty\@M \hskip\z@skip\fi
+}
+
+\def\@leftidx{\hskip-\marginparsep \hskip-\marginparwidth}
+
+\def\@rightidx{\hskip\columnwidth \hskip\marginparsep}
+
+\def\@mkidx{%
+    \vbox to \z@{%
+        \rlap{%
+            \if@twocolumn
+                \if@firstcolumn \@leftidx \else \@rightidx \fi
+            \else
+                \if@twoside
+                    \ifodd\c@page \@rightidx \else \@leftidx \fi
+                \else
+                    \@rightidx
+                \fi
+            \fi
+            \box\@indexbox
+        }%
+        \vss
+    }%
+}
+
+\def\raggedbottom{%
+    \def\@textbottom{\vskip\z@ plus.0001fil}%
+    \let\@texttop\@mkidx
+}
+
+\def\flushbottom{\let\@textbottom\relax \let\@texttop\@mkidx}
+
+\let\@texttop\@mkidx
+\def\addcontentsline#1#2#3{%
+    \if@filesw
+        \begingroup
+            \let\label\@gobble
+            \let\glossary\@gobble
+            \def\protect##1{\string##1\space}%
+            \@temptokena{\thepage}%
+            \edef\@tempa{%
+               \write\@auxout{%
+                  \string\@vwritefile{#1}{\string\contentsline{#2}{#3}%
+                                          {\the\@temptokena}}%
+               }%
+            }%
+            \@tempa
+        \endgroup
+        \if@nobreak\ifvmode\nobreak\fi\fi
+    \fi
+}
+\def\@starttoc#1{%
+    \begingroup
+        \@addtoindexfalse
+        \makeatletter
+        \@input{\jobname.#1}%
+        \if@filesw
+            \expandafter\newwrite\csname tf@#1\endcsname
+            \immediate\openout \csname tf@#1\endcsname \jobname.#1\relax
+        \fi
+        \global\@nobreakfalse
+    \endgroup
+}
+\def\markboth#1#2{%
+    \gdef\@themark{{#1}{#2}}%
+    \begingroup
+        \let\protect\noexpand
+        \let\label\relax
+        \let\glossary\relax
+        \mark{\@themark}%
+    \endgroup
+    \if@nobreak\ifvmode\nobreak\fi\fi
+}
+
+\def\markright#1{%
+    \begingroup
+        \let\protect\noexpand
+        \let\label\relax
+        \let\glossary\relax
+        \expandafter\@markright\@themark{#1}%
+        \mark{\@themark}%
+    \endgroup
+    \if@nobreak\ifvmode\nobreak\fi\fi
+}
+\endinput
+%% 
+%% End of file `index.sty'.

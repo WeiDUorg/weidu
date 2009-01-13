@@ -1,0 +1,416 @@
+{
+
+open Util
+open Toldparser
+
+(* Note added due to LGPL terms.
+
+This file was edited by Valerio Bigiani, AKA The Bigg, starting from
+6 November 2005. All changes for this file are listed in
+diffs/src.dlexer.mll.diff file, as the output of a diff -Bw -c -N command.
+
+It was originally taken from Westley Weimer's WeiDU 185. *)
+
+(*
+** Keyword hashtable
+*)
+
+let string_of lb = (Lexing.lexeme lb)
+
+let lexicon = Hashtbl.create 211
+let _ = List.iter
+    (fun (key, token) -> Hashtbl.add lexicon key token)
+    [
+      ("LOOKUP_IDS_SYMBOL_OF_INT", SET_IDS_SYMBOL_OF_INT) ;
+      ("ACTION_DEFINE_ARRAY", ACTION_DEFINE_ARRAY) ;
+	    ("ACTION_BASH_FOR", ACTION_BASH_FOR) ;
+	    ("ACTION_FOR_EACH", ACTION_FOR_EACH) ;
+	    ("ACTION_PHP_EACH", ACTION_PHP_EACH) ;
+      ("ACTION_IF", ACTION_IF) ;
+      ("ACTION_READLN", ACTION_READLN);
+      ("ADD_CRE_ITEM", ADD_CRE_ITEM) ;
+      ("ADD_GAME_NPC", PATCH_GAM) ;
+      ("ADD_KIT", ADD_KIT) ;
+      ("ADD_KNOWN_SPELL", ADD_KNOWN_SPELL) ;
+      ("ADD_MEMORIZED_SPELL", ADD_MEMORIZED_SPELL) ;
+      ("ADD_MAP_NOTE", ADD_MAP_NOTE);
+      ("ADD_MUSIC", ADD_MUSIC) ;
+      ("ADD_PROJECTILE", ADD_PROJECTILE) ;
+      ("ADD_SPELL", ADD_SPELL) ;
+      ("ADD_STORE_ITEM", ADD_STORE_ITEM) ;
+      ("AFTER", AFTER) ;
+      ("ALLOW_MISSING", ALLOW_MISSING) ;
+      ("ALWAYS", ALWAYS) ;
+      ("APPEND", APPEND);
+      ("APPEND_COL", APPEND_COL);
+      ("APPEND_FILE", APPEND_FILE);
+      ("APPEND_FILE_EVALUATE", APPEND_FILE_EVALUATE);
+      ("APPEND_OUTER", APPEND_OUTER);
+      ("APPLY_BCS_PATCH", APPLY_BCS_PATCH) ;
+      ("APPLY_BCS_PATCH_OR_COPY", APPLY_BCS_PATCH_OR_COPY) ;
+      ("AS", AS) ;
+      ("ASK_EVERY_COMPONENT", ASK_EVERY_COMPONENT);
+      ("AT_EXIT", AT_EXIT);
+      ("AT_INTERACTIVE_EXIT", AT_INTERACTIVE_EXIT) ;
+      ("AT_INTERACTIVE_NOW", AT_INTERACTIVE_NOW) ;
+      ("AT_INTERACTIVE_UNINSTALL", AT_INTERACTIVE_UNINSTALL) ;
+      ("AT_NOW", AT_NOW) ;
+      ("AT_UNINSTALL", AT_UNINSTALL) ;
+      ("AUTHOR", AUTHOR);
+      ("AUTO_TRA", AUTO_TRA);
+      ("A_B_P", APPLY_BCS_PATCH) ;
+      ("BACKUP", BACKUP) ;
+      ("BEFORE", BEFORE) ;
+      ("BEGIN", BEGIN) ;
+      ("MAKE_BIFF", BIFF) ;
+      ("BUT_ONLY_IF_IT_CHANGES", BUT_ONLY_IF_IT_CHANGES);
+      ("BUT_ONLY", BUT_ONLY_IF_IT_CHANGES) ;
+      ("CASE_INSENSITIVE", CASE_INSENSITIVE) ;
+      ("CASE_SENSITIVE", CASE_SENSITIVE) ;
+      ("CLEAR_IDS_MAP", CLEAR_IDS_MAP) ;
+      ("CLEAR_MEMORY", CLEAR_MEMORY);
+      ("CLEAR_ARRAY", PATCH_CLEAR_ARRAY) ;
+      ("COMPILE", COMPILE);
+      ("COMPILE_BAF_TO_BCS", COMPILE_BAF_TO_BCS);
+      ("COMPILE_D_TO_DLG", COMPILE_D_TO_DLG);
+      ("COPY", COPY);
+      ("COPY_KIT", COPY_KIT);
+      ("COPY_ALL_GAM_FILES", COPY_ALL_GAM_FILES);
+      ("COPY_EXISTING", COPY_EXISTING);
+      ("COPY_EXISTING_REGEXP", COPY_EXISTING_REGEXP);
+      ("COPY_LARGE", COPY_LARGE);
+      ("COPY_RANDOM", COPY_RANDOM);
+      ("COUNT_2DA_ROWS", COUNT_2DA_ROWS) ;
+      ("COUNT_2DA_COLS", COUNT_2DA_COLS) ;
+      ("COUNT_REGEXP_INSTANCES", COUNT_REGEXP_INSTANCES) ;
+      ("DECOMPILE_BCS_TO_BAF", DECOMPILE_BCS_TO_BAF);
+      ("DECOMPILE_DLG_TO_D", DECOMPILE_DLG_TO_D);
+      ("DEFINE_ACTION_MACRO", DEFINE_ACTION_MACRO) ;
+      ("DEFINE_ARRAY", PATCH_DEFINE_ARRAY) ;
+      ("DEFINE_ASSOCIATIVE_ARRAY", DEFINE_ASSOCIATIVE_ARRAY) ;
+      ("DEFINE_MACRO_ACTION", DEFINE_ACTION_MACRO) ;
+      ("DEFINE_MACRO_PATCH", DEFINE_PATCH_MACRO) ;
+      ("DEFINE_PATCH_MACRO", DEFINE_PATCH_MACRO) ;
+      ("DELETE_BYTES", DELETE_BYTES);
+      ("DEPRECATED", DEPRECATED);
+      ("DESCRIBE_ITEM", DESCRIBE_ITEM) ;
+      ("DESIGNATED", DESIGNATED);
+      ("EDIT_SAV_FILE", EDIT_SAV_FILE) ;
+      ("ELSE", ELSE) ;
+      ("END", END) ;
+      ("EQUIP", EQUIP);
+      ("EVALUATE_REGEXP", EVALUATE_REGEXP);
+      ("EXACT_MATCH", EXACT_MATCH);
+      ("EXTEND",EXTEND_BOTTOM) ;
+      ("EXTEND_BOTTOM", EXTEND_BOTTOM) ;
+      ("EXTEND_BOTTOM_REGEXP", EXTEND_BOTTOM_REGEXP) ;
+      ("EXTEND_TOP", EXTEND_TOP) ;
+      ("EXTEND_TOP_REGEXP", EXTEND_TOP_REGEXP) ;
+      ("EXTEND_MOS", EXTEND_MOS);
+      ("EVALUATE_BUFFER", EVALUATE_BUFFER) ;
+      ("FAIL", FAIL);
+      ("FILE_IS_IN_COMPRESSED_BIF",FILE_IS_IN_COMPRESSED_BIF);
+      ("FIRST", FIRST) ;
+      ("FOR", FOR) ;
+      ("FORBID_COMPONENT", FORBID_COMPONENT) ;
+      ("FORBID_FILE", FORBID_FILE) ;
+      ("FORCED_SUBCOMPONENT", FORCED_SUBCOMPONENT) ;
+      ("FROM", FROM) ;
+      ("GAME_IS", GAME_IS) ;
+      ("GET_DIRECTORY_ARRAY", GET_DIRECTORY_ARRAY) ;
+      ("GET_FILE_ARRAY", GET_FILE_ARRAY) ;
+      ("GET_STRREF", GET_STRREF) ;
+      ("GLOB", GLOB);
+      ("GROUP", GROUP) ;
+      ("IDS_OF_SYMBOL", IDS_OF_SYMBOL) ;
+      ("IF", IF) ;
+      ("IF_EVAL", IF_EVAL) ;
+      ("IF_FILE_EXISTS", IF_FILE_EXISTS) ;
+      ("IF_SIZE_IS", IF_SIZE_IS) ;
+      ("IN", IN) ;
+      ("INCLUDE", INCLUDE) ;
+      ("ACTION_INCLUDE", INCLUDE) ;
+      ("PATCH_INCLUDE", PATCH_INCLUDE) ;
+      ("INNER_ACTION", INNER_ACTION) ;
+      ("INNER_PATCH", INNER_PATCH) ;
+      ("INNER_PATCH_FILE", INNER_PATCH_FILE) ;
+      ("INNER_PATCH_SAVE", INNER_PATCH_SAVE) ;
+      ("INSERT_2DA_ROW", INSERT_2DA_ROW) ;
+      ("INSERT_BYTES", INSERT_BYTES);
+      ("INSERT_FILE", INSERT_FILE);
+      ("INSTALL_BY_DEFAULT", INSTALL_BY_DEFAULT) ;
+      ("IS_AN_INT", IS_AN_INT);
+      ("I_S_I", IF_SIZE_IS) ;
+      ("LANGUAGE", LANGUAGE) ;
+      ("LAST", LAST) ;
+      ("LAUNCH_ACTION_MACRO", LAUNCH_ACTION_MACRO) ;
+      ("LAUNCH_PATCH_MACRO", LAUNCH_PATCH_MACRO) ;
+      ("LAUNCH_MACRO_PATCH", LAUNCH_PATCH_MACRO) ;
+      ("LAUNCH_MACRO_ACTION", LAUNCH_ACTION_MACRO) ;
+      ("LOAD", LOAD) ;
+      ("LOAD_TRA", LOAD_TRA) ;
+      ("LOCAL_SET", LOCAL_SET) ;
+      ("LOCAL_SPRINT", LOCAL_SPRINT) ;
+      ("LOCAL_TEXT_SPRINT", LOCAL_TEXT_SPRINT) ;
+      ("MENU_STYLE", MENU_STYLE) ;
+      ("MKDIR", MKDIR) ;
+      ("MOD_IS_INSTALLED", MOD_IS_INSTALLED) ;
+      ("MODDER", MODDER) ;
+      ("NO_IF_EVAL_BUG", NO_IF_EVAL_BUG);
+      ("NO_LOG_RECORD", NO_LOG_RECORD) ;
+      ("NULL", NULL) ;
+      ("OUTER_FOR", OUTER_FOR) ;
+      ("OUTER_INNER_PATCH", OUTER_PATCH) ;
+      ("OUTER_INNER_PATCH_SAVE", OUTER_PATCH_SAVE) ;
+      ("OUTER_PATCH", OUTER_PATCH) ;
+      ("OUTER_PATCH_SAVE", OUTER_PATCH_SAVE) ;
+      ("OUTER_SET", OUTER_SET) ;
+      ("OUTER_SPRINT", OUTER_SPRINT) ;
+      ("OUTER_TEXT_SPRINT", OUTER_TEXT_SPRINT) ;
+      ("OUTER_WHILE", OUTER_WHILE);
+	    ("PATCH_BASH_FOR", PATCH_BASH_FOR) ;
+	    ("PATCH_DEFINE_ARRAY", PATCH_DEFINE_ARRAY) ;
+	    ("PATCH_PHP_EACH", PATCH_PHP_EACH) ;
+	    ("PATCH_FOR_EACH", PATCH_FOR_EACH) ;
+      ("PATCH_GAM", PATCH_GAM) ;
+      ("PATCH_IF", PATCH_IF) ;
+      ("PATCH_SILENT", PATCH_SILENT) ;
+      ("PATCH_PRINT", PATCH_PRINT);
+      ("PATCH_VERBOSE", PATCH_VERBOSE);
+      ("PHP_EACH", PATCH_PHP_EACH) ;
+      ("SPRINT", SPRINT);
+      ("SNPRINT", SNPRINT);
+      ("PRINT", PRINT);
+      ("PRETTY_PRINT_2DA", PRETTY_PRINT_2DA);
+      ("QUOTE", QUOTE);
+      ("RANDOM", RANDOM);
+      ("RANDOM_SEED", RANDOM_SEED);
+      ("PATCH_RANDOM_SEED", PATCH_RANDOM_SEED);
+      ("PATCH_READLN", PATCH_READLN);
+      ("READ_2DA_ENTRIES_NOW", READ_2DA_ENTRIES_NOW) ;
+      ("READ_2DA_ENTRY", READ_2DA_ENTRY) ;
+      ("READ_2DA_ENTRY_FORMER", READ_2DA_ENTRY_FORMER) ;
+      ("READ_ASCII", READ_ASCII);
+      ("READ_STRREF", READ_STRREF);
+      ("READ_BYTE", READ_BYTE) ;
+      ("READ_SBYTE", READ_SBYTE) ;
+      ("READ_SSHORT", READ_SSHORT) ;
+      ("READ_LONG", READ_LONG) ;
+      ("READ_SHORT", READ_SHORT) ;
+      ("REINCLUDE", REINCLUDE) ;
+      ("ACTION_REINCLUDE", REINCLUDE) ;
+      ("PATCH_REINCLUDE", PATCH_REINCLUDE) ;
+      ("REMOVE_CRE_ITEM", REMOVE_CRE_ITEM) ;
+      ("REMOVE_KNOWN_SPELL", REMOVE_KNOWN_SPELL) ;
+      ("REMOVE_MEMORIZED_SPELL", REMOVE_MEMORIZED_SPELL) ;
+      ("REMOVE_STORE_ITEM", REMOVE_STORE_ITEM) ;
+      ("REPLACE", REPLACE) ;
+      ("REPLACE_BCS_BLOCK", REPLACE_BCS_BLOCK) ;
+      ("REPLACE_BCS_BLOCK_REGEXP", REPLACE_BCS_BLOCK_REGEXP) ;
+      ("REPLACE_CRE_ITEM", REPLACE_CRE_ITEM);
+      ("REPLACE_EVALUATE", REPLACE_EVALUATE) ;
+      ("REPLACE_TEXTUALLY", REPLACE_TEXTUALLY) ;
+      ("REQUIRE_COMPONENT", REQUIRE_COMPONENT) ;
+      ("REQUIRE_FILE", REQUIRE_FILE) ;
+      ("REQUIRE_PREDICATE", REQUIRE_PREDICATE) ;
+      ("R_B_B", REPLACE_BCS_BLOCK) ;
+      ("R_B_B_RE", REPLACE_BCS_BLOCK_REGEXP) ;
+      ("SAY", SAY) ;
+      ("SAY_EVALUATED", SAY_EVALUATED) ;
+      ("SCRIPT_STYLE", SCRIPT_STYLE) ;
+      ("SET", SET);
+      ("SET_2DA_ENTRY", SET_2DA_ENTRY) ;
+      ("SET_2DA_ENTRY_LATER", SET_2DA_ENTRY_LATER) ;
+      ("SET_2DA_ENTRIES_NOW", SET_2DA_ENTRIES_NOW) ;
+      ("SILENT", SILENT) ;
+      ("SPACES", SPACES) ;
+      ("STATE_WHICH_SAYS", STATE_WHICH_SAYS) ;
+      ("STRING_COMPARE", STRING_COMPARE) ;
+      ("STRING_COMPARE_CASE", STRING_COMPARE_CASE) ;
+      ("STRING_EQUAL", STRING_EQUAL) ;
+      ("STRING_EQUAL_CASE", STRING_EQUAL_CASE) ;
+      ("STRING_COMPARE_REGEXP", STRING_MATCHES_REGEXP) ;
+      ("STRING_MATCHES_REGEXP", STRING_MATCHES_REGEXP) ;
+      ("STRING_CONTAINS_REGEXP", STRING_CONTAINS_REGEXP) ;
+      ("STRING_SET", STRING_SET) ;
+      ("STRING_SET_EVALUATE", STRING_SET_EVALUATE) ;
+      ("STRING_SET_RANGE", STRING_SET_RANGE) ;
+      ("STR_CMP", STRING_COMPARE) ;
+      ("SUBCOMPONENT", SUBCOMPONENT) ;
+      ("SUB_COMPONENT", SUBCOMPONENT) ;
+      ("TEXT_SPRINT", TEXT_SPRINT) ;
+      ("THEN", THEN) ;
+      ("TO_LOWER", TO_LOWER) ;
+      ("TO_UPPER", TO_UPPER) ;
+      ("TWOHANDED", TWOHANDED);
+      ("UNINSTALL", UNINSTALL) ;
+      ("UNLESS", UNLESS) ;
+      ("USING", USING) ;
+      ("VARIABLE_IS_SET", VARIABLE_IS_SET) ;
+      ("VERBOSE", VERBOSE) ;
+      ("WHILE", WHILE) ;
+      ("WRITE_ASCII", WRITE_ASCII) ;
+      ("WRITE_ASCII_TERMINATE", WRITE_ASCII_TERMINATED) ;
+      ("WRITE_ASCIIT", WRITE_ASCII_TERMINATED) ;
+      ("WRITE_BYTE", WRITE_BYTE) ;
+      ("WRITE_EVALUATED_ASCII", WRITE_EVALUATED_ASCII) ;
+      ("WRITE_ASCIIE", WRITE_EVALUATED_ASCII) ;
+      ("WRITE_FILE", WRITE_FILE) ;
+      ("WRITE_LONG", WRITE_LONG) ;
+      ("WRITE_SHORT", WRITE_SHORT) ;
+      
+      ("ITM_V10_HEADERS", ITM_V10_HEADERS) ;
+      ("ITM_V10_GEN_EFFECTS", ITM_V10_GEN_EFFECTS) ;
+      ("WMP_AREAS", WMP_AREAS) ;
+      ("WMP_LINKS", WMP_LINKS) ;
+
+
+      ("ITM_V10_HEAD_EFFECTS", ITM_V10_HEAD_EFFECTS) ;
+
+      (* predicates *)
+      ("FILE_EXISTS", FILE_EXISTS ) ;
+      ("FILE_MD5", FILE_MD5 ) ;
+      ("FILE_EXISTS_IN_GAME", FILE_EXISTS_IN_GAME ) ;
+      ("FILE_SIZE", FILE_SIZE ) ;
+      ("FILE_CONTAINS", FILE_CONTAINS ) ;
+      ("FILE_CONTAINS_EVALUATED", FILE_CONTAINS_EVALUATED ) ;
+      ("AND", AND) ;
+      ("OR", OR) ;
+      ("NOT", NOT) ;
+
+      ("BAND", BAND) ;
+      ("BOR", BOR) ;
+      ("BNOT", BNOT) ;
+      ("BXOR", BXOR) ;
+      ("BLSL", BLSL) ;
+      ("BLSR", BLSR) ;
+      ("BASR", BASR) ;
+    ]
+
+
+let newlexicon = Hashtbl.create 211
+let _ = List.iter
+    (fun (key) -> Hashtbl.add newlexicon key true)
+    [
+(*
+PUT LEXICON *)
+    ]
+(*
+** Buffer processor
+*)
+
+
+
+
+}
+
+let decdigit = ['0'-'9']
+let octdigit = ['0'-'7']
+let letter = ['a' - 'z' 'A'-'Z']
+
+let blank = [' ' '\012' '\r']
+
+rule initial = parse
+  "/*"  { adj lexbuf ; let _ = comment lexbuf in initial lexbuf}
+| "//"  { adj lexbuf ; endline lexbuf }
+| blank	{ adj lexbuf ; initial lexbuf}
+| '\t'  { tab (); initial lexbuf }
+| '\n'  { newline (); initial lexbuf }
+| '('   { adj lexbuf ; LPAREN }
+| ')'   { adj lexbuf ; RPAREN }
+| '?'   { adj lexbuf ; QUESTION }
+| '$'   { adj lexbuf ; DOLLARS }
+| ':'   { adj lexbuf ; COLON }
+| ';'   { adj lexbuf ; SEMICOLON }
+| '+'   { adj lexbuf ; PLUS }
+| '-'   { adj lexbuf ; MINUS }
+| '*'   { adj lexbuf ; TIMES }
+| "**"   { adj lexbuf ; TIMESTIMES }
+| '/'   { adj lexbuf ; DIVIDE }
+| '='   { adj lexbuf ; EQUALS }
+| '>'   { adj lexbuf ; GT }
+| '<'   { adj lexbuf ; LT }
+| '+'   { adj lexbuf ; PLUS }
+| '^'   { adj lexbuf ; STRING_CONCAT }
+
+| "+="  { adj lexbuf ; PLUS_EQUALS }
+| "-="  { adj lexbuf ; MINUS_EQUALS }
+| "*="  { adj lexbuf ; TIMES_EQUALS }
+| "/="  { adj lexbuf ; DIVIDE_EQUALS }
+| "|="  { adj lexbuf ; OR_EQUALS }
+| "&="  { adj lexbuf ; AND_EQUALS }
+| "<<=" { adj lexbuf ; BLSL_EQUALS }
+| ">>=" { adj lexbuf ; BLSR_EQUALS }
+| "^^=" { adj lexbuf ; BXOR_EQUALS }
+
+| "!"   { adj lexbuf ; NOT }
+| "&"  { adj lexbuf ; BAND }
+| "|"  { adj lexbuf ; BOR }
+| "^^" { adj lexbuf ; BXOR }
+| "&&"  { adj lexbuf ; AND }
+| "||"  { adj lexbuf ; OR }
+| "<<"  { adj lexbuf ; BLSL }
+| ">>"  { adj lexbuf ; BLSR }
+| "`"   { adj lexbuf ; BNOT }
+
+| ">="   { adj lexbuf ; GTE }
+| "<="   { adj lexbuf ; LTE }
+| "=>"   { adj lexbuf ; EQUALSGREATER }
+| "=="  { adj lexbuf ; EQUALSEQUALS }
+| "!="  { adj lexbuf ; NOTEQUALS }
+| "["[^']']*"]" { str_adj lexbuf ; SOUND(strip (string_of lexbuf)) }
+| "~"[^'~']*"~"
+| '"'[^'"']*'"'
+| '%'[^'%']*'%'  { str_adj lexbuf ; STRING(strip (string_of lexbuf)) }
+| ['0'-'9''A'-'Z''a'-'z''_']['0'-'9''A'-'Z''a'-'z''#''_''-''.']* {
+    adj lexbuf ; let str = string_of lexbuf in
+		match (Hashtbl.mem lexicon str, Hashtbl.mem newlexicon str) with
+		| true, false -> raise Not_found
+		| _, true -> Hashtbl.find lexicon str
+		| false, false -> STRING str }
+| '#'['-']?['0'-'9']+ { adj lexbuf ;
+      let str = string_of lexbuf in
+      let str = String.sub str 1 ((String.length str) - 1) in
+      STRING_REF((int_of_string str)) }
+| '!'['-']?['0'-'9']+ { adj lexbuf ;
+      let str = string_of lexbuf in
+      let str = String.sub str 1 ((String.length str) - 1) in
+      FORCED_STRING_REF((int_of_string str)) }
+| '@'['-']?['0'-'9']+ { adj lexbuf ;
+      let str = string_of lexbuf in
+      let str = String.sub str 1 ((String.length str) - 1) in
+      TRANS_REF((int_of_string str)) }
+| "~~~~~" { adj lexbuf ; let buf = Buffer.create 255 in widestring buf lexbuf }
+| "<<<<<<<<" [' ']* ([^'\n''\r']* as name) ('\r'?)'\n' {
+  adj lexbuf ;
+  let buf = Buffer.create 10240 in
+  inlined name buf lexbuf }
+| eof   { EOF }
+| _	{ lex_error (Printf.sprintf "invalid character [%s]\n HINT: Don't use MS Word to edit your .tp2 files - use ConTEXT (http://www.context.cx instead)." (string_of
+lexbuf)) }
+and comment = parse
+      "*/"	{ adj lexbuf ; () }
+|     '\n'      { newline (); comment lexbuf }
+|     "/*"      { adj lexbuf ; let _ = comment lexbuf in comment lexbuf }
+|     eof       { lex_error "unterminated comment" }
+|     _ 	{ adj lexbuf ; comment lexbuf }
+and widestring buf = parse
+|     "~~~~~"    { adj lexbuf ; STRING(Buffer.contents buf) }
+|     eof        { lex_error "unterminated ~~~~~ string" }
+|     '\n'       { newline (); Buffer.add_char buf '\n';widestring buf lexbuf}
+|     _          { adj lexbuf ; let str = string_of lexbuf in
+                   Buffer.add_string buf str ; widestring buf lexbuf }
+and inlined name buf = parse
+|     ">>>>>>>>"{ adj lexbuf ;
+                  INLINED_FILE(name,(Buffer.contents buf)) }
+|     eof       { lex_error "unterminated inlined file" }
+|     '\n'      { newline (); Buffer.add_char buf '\n' ;
+                  inlined name buf lexbuf }
+|     _         { adj lexbuf ;
+                  let str = string_of lexbuf in
+                  Buffer.add_string buf str ;
+                  inlined name buf lexbuf }
+and endline = parse
+        '\n' 			{ newline (); initial lexbuf}
+|	_			{ adj lexbuf ; endline lexbuf}
+|       eof                     { EOF }

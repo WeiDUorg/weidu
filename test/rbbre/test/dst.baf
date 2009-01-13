@@ -1,0 +1,8 @@
+IF
+    Global("GlobalVar1","GLOBAL",0)
+THEN
+    RESPONSE #100
+    SetGlobal("GlobalVar2","GLOBAL",1)
+    SetGlobal("GlobalVar3","GLOBAL",1)
+    SetGlobalTimer("CurseTimer","LOCALS",12345)
+END

@@ -1,0 +1,134 @@
+# Note added due to LGPL terms.
+#
+# This file was edited by Valerio Bigiani, AKA The Bigg, starting from
+# 6 November 2005. All changes for this file are listed in
+# diffs/Makefile.diff file, as the output of a diff -Bw -c -N command.
+#
+# It was originally taken from Westley Weimer's WeiDU 185.
+
+############################################################################
+# Makefile for WeiGui
+############################################################################
+# Requires GNU Make. Raise your hand if you can't find gnu make somewhere?
+# Thought so.
+
+include Configuration
+
+# Just a target to be used by default
+.PHONY: weigui all
+all : weigui
+
+####
+#### OCAML stuff
+####
+# Debugging. Set ECHO= to debug this Makefile
+# ECHO := @
+
+RELEASE    := 1
+NATIVECAML := 1
+# UNSAFE     := 1
+
+# Put here all the byproducts of make
+OBJDIR      := obj-tk/$(ARCHOS)
+DEPENDDIR   := obj-tk/.depend
+
+# First stuff that makes the executable
+WEIDU_BASE_MODULES  := case_ins stats arch version parsing tph util modder var arch2 xor \
+	eff_table key cbif biff tlk load cre \
+        ids idslexer idslexer2 idsparser \
+        bcs bcslexer bcsparser \
+        dlg dc \
+        baflexer bafparser \
+        diff sav mos tp dlexer dparser \
+        smutil useract lexerint parsetables arraystack objpool glr lrparse \
+        automate kit tpstate tphelp trealparser tlexer toldparser toldlexer tparser parsewrappers  tppe tpuninstall tppatch tpaction tpwork
+ifdef ITEMLIST
+WEIDU_BASE_MODULES  += pretty itemlist
+endif
+WEIDU_MODULES  =  myarg $(WEIDU_BASE_MODULES) main
+
+MODULES        = $(WEIDU_MODULES) iwgconf iwgrule iwglexer iwgparser iwg2 myarg weinstall tolower
+SOURCEDIRS     := src zlib glob xdiff elkhound
+MLLS           := dlexer.mll idslexer.mll idslexer2.mll bcslexer.mll baflexer.mll iwglexer.mll tlexer.mll toldlexer.mll
+MLYS           := dparser.mly idsparser.mly bcsparser.mly bafparser.mly iwgparser.mly toldparser.mly
+GRS            := trealparser.gr
+
+$(OBJDIR)/mytop :
+	ocamlmktop -o ${OBJDIR}/mytop str.cma unix.cma
+
+src/tph.ml : src/tph/include/* src/tph/define/* src/make_tph.ml $(OBJDIR)/mytop
+	./${OBJDIR}/mytop -w p src/make_tph.ml
+
+$(OBJDIR)/trealparser.ml : $(OBJDIR)/trealparserin.ml $(OBJDIR)/mytop src/make_par.ml
+	./$(OBJDIR)/mytop src/make_par.ml $(OBJDIR)
+
+$(OBJDIR)/trealparser.mli : $(OBJDIR)/trealparserin.mli
+	cp $(OBJDIR)/trealparserin.mli $(OBJDIR)/trealparser.mli
+
+src/tlexer.mll : src/tlexer.in src/trealparserin.gr src/make_tll.ml $(OBJDIR)/mytop
+	./${OBJDIR}/mytop -w p src/make_tll.ml
+
+src/trealparserin.gr : src/trealparserin.in src/aliases.in src/make_gr.ml $(OBJDIR)/mytop
+	./${OBJDIR}/mytop -w p src/make_gr.ml
+
+src/toldlexer.mll : src/toldlexer.in src/trealparserin.gr src/make_old_mll.ml $(OBJDIR)/mytop
+	./${OBJDIR}/mytop -w p src/make_old_mll.ml
+
+src/arch.ml : src/$(ARCH_FILE).ml
+	cp src/$(ARCH_FILE).ml src/arch.ml
+
+src/case_ins.ml : src/$(CASE_FILE).ml
+	cp src/$(CASE_FILE).ml src/case_ins.ml
+
+src/tparser.ml : src/tparser.in
+	cp src/tparser.in src/tparser.ml
+
+src/arch2.ml :
+	echo "let associate_these a = Var.set_string \"WEIDU_ARCH\" \"$(WEIDU_ARCH)\" ; Var.set_string \"WEIDU_OS\" \"$(WEIDU_OS)\"; Var.set_string \"WEIDU_VER\" !Util.weidu_version" > src/arch2.ml
+	echo "let _ = associate_these ()" >> src/arch2.ml
+
+$(OBJDIR)/tparser.cmx : src/trealparserin.in src/tlexer.in src/make_gr.ml src/aliases.in src/make_tll.ml
+
+# Include now the common set of rules for OCAML
+include Makefile.msvc
+include Makefile.ocaml
+CAMLFLAGS      += -I zlib -I xdiff -I +labltk
+
+# rule for weigui
+
+PROJECT3_EXECUTABLE = $(OBJDIR)/weigui$(EXE)
+PROJECT3_MODULES    =  $(WEIDU_BASE_MODULES) weigui
+ifdef HAVE_MSVC
+PROJECT3_CMODULES   = reg
+PROJECT3_CLIBS      = advapi32.lib
+endif
+ifdef HAVE_MINGW
+PROJECT3_CMODULES   = reg
+PROJECT3_CLIBS      = -ladvapi32
+endif
+#PROJECT2_CMODULES   += eff_strings
+PROJECT3_CMODULES   += zlib adler32 inflate uncompr inftrees zutil inffast $(GLOB) xdiff
+PROJECT3_CMODULES   += xemit xpatchi xutils xdiffi xprepare $(ARCH_C_FILES)
+PROJECT3_CMODULES   += crc32 compress deflate trees
+
+PROJECT3_LIBS       = unix str labltk
+.PHONY: weigui
+weigui: $(PROJECT3_EXECUTABLE)
+$(PROJECT3_EXECUTABLE) : $(PROJECT3_MODULES:%=$(OBJDIR)/%.$(CMO)) \
+                        $(PROJECT3_CMODULES:%=$(OBJDIR)/%.$(OBJEXT))
+	@$(NARRATIVE) Linking $(COMPILETOWHAT) $@
+	$(CAMLLINK) -o $@ \
+	                  -I +labltk \
+                    $(PROJECT3_LIBS:%=%.$(CMXA)) \
+                    $(PROJECT3_LIBS:%=-cclib -l%) \
+                    $(PROJECT3_CLIBS:%=-cclib %) \
+                    $^
+	cp $(PROJECT3_EXECUTABLE) .
+
+clean:
+	rm -f $(PROJECT_EXECUTABLE) $(PROJECT_EXECUTABLE2) $(PROJECT_EXECUTABLE3) \
+	$(PROJECT_EXECUTABLE4)  src/arch.ml src/arch2.ml src/case_ins.ml \
+	src/*parser*.ml src/*parser*.mli src/*lexer*.ml src/*lexer*.mli src/*.cmi \
+	src/tlexer.mll src/trealparserin.gr $(OBJDIR)/mytop* \
+	src/toldlexer.mll src/tph.ml
+	find obj-tk -exec rm {} \;

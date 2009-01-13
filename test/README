@@ -1,0 +1,21 @@
+WeiDU regression tests:
+
+auto-test/dialogu-test.sh
+        Extracts about 2700 DLG files from Dialog.Bif, converts them all to
+        D files, reads those D files in and creates DLG files, reads those
+        in to create D files, and then compares the two sets of D files. 
+
+good-syntax/*.D
+        Test of various syntax formulations. All should compile correctly
+        and generate DLG Files. However, these DLG files are probably
+        non-sensical. WARNING: Do not use them in a running game.
+
+bad-syntax/*.D
+        All of these files should have syntax errors.
+
+no-game/*.D
+        Small tests that work even if you don't have any Infinity Engine
+        games. 
+
+quitch/*.TP2
+        A small test made to demonstrate a bug that Quitch reported. 

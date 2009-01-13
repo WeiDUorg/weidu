@@ -1,0 +1,38 @@
+		DEFINE_PATCH_MACRO ~tb#factorial~ BEGIN
+			LOCAL_SET tb#factorial_index = tb#factorial_index
+			PATCH_IF !(tb#factorial_index = 1) THEN BEGIN
+      	tb#factorial_result *= tb#factorial_index
+      	tb#factorial_index -= 1
+      	LAUNCH_PATCH_MACRO ~tb#factorial~
+			END
+		END
+		
+		DEFINE_ACTION_MACRO ~tb#fix_file_size~ BEGIN
+			LOCAL_SPRINT file ~~
+			LOCAL_SPRINT old ~~
+			LOCAL_SET i = 0
+			ACTION_IF ! (FILE_EXISTS_IN_GAME ~tb#removedF%tb#fix_file_size_category%.txt~) THEN BEGIN
+				<<<<<<<< tb#fix_file_size_base.txt
+
+				>>>>>>>>
+				COPY ~tb#fix_file_size_base.txt~ ~override/tb#removedF%tb#fix_file_size_category%.txt~
+				COPY_EXISTING_REGEXP ~%tb#fix_file_size_regexp%~ ~override~
+					PATCH_IF SOURCE_SIZE < %tb#fix_file_size_min% THEN BEGIN
+						SPRINT file ~%SOURCE_FILE%~
+						INNER_ACTION BEGIN
+							APPEND ~tb#removedF%tb#fix_file_size_category%.txt~ ~%file%~
+						END
+					END
+				BUT_ONLY
+				
+				COPY_EXISTING ~tb#removedF%tb#fix_file_size_category%.txt~ ~override~
+					READ_2DA_ENTRIES_NOW tb#fix_file_size_list 1
+					FOR (i = 0; i < tb#fix_file_size_list; i+= 1) BEGIN
+						READ_2DA_ENTRY_FORMER tb#fix_file_size_list i 0 old
+						INNER_ACTION BEGIN
+							COPY_EXISTING ~%tb#fix_file_size_target%~ ~override/%old%~
+						END
+					END
+				BUT_ONLY
+			END
+		END

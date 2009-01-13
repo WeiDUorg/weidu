@@ -1,0 +1,8 @@
+The files contained here are tpa files that DEFINE one or more general-purpose
+MACROS and/or FUNCTIONS. These files are included before installing each
+component, so make sure they don't set stray variables and/or do other,
+non-DEFINE actions. As a general guideline, for any of your MACROs, there
+should be an equally named FUNCTION that does the same thing (eventually as a
+wrapper). However, you're free to develop stuff as only FUNCTION and/or MACRO
+if it makes sense to do so.
+Name your files <author prefix>macros.tpa and/or <author prefix>functions.tpa.

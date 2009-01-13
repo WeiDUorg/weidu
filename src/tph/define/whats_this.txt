@@ -1,0 +1,4 @@
+The files contained here are tpa and/or tpp files that execute actions and/or
+patches that should be used whenever a certain WeiDU command is executed, but
+are coded in tp* rather than in OCaml for various reasons.
+Name your files <author prefix><description>.tp{a,p}.

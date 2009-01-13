@@ -1,0 +1,6 @@
+BEGIN A
+
+IF ~~ THEN BEGIN s1
+  SAY ~Hello~
+  IF ~~ THEN EXIT
+END

@@ -1,0 +1,13 @@
+Vastly out-of-date to-do list of things I'll never get to:
+
+allow_missing should cover all of the "COPY_TRANS out of range" errors
+edit 2da entry (rol, col, new_val)
+
+allow people to specify their tp2 language on the command line
+--automate CRE sounds
+
+allow copying (but no patches) big files
+
+update docs to reflect chain3/interject/interject_copy trans powers:
+  DO actions allowed, chain can end in exit or copy_trans, initial
+  conditions

@@ -1,0 +1,17 @@
+BACKUP ~test/backup~
+AUTHOR "frichard@nospam.org"
+LANGUAGE ~English~
+         ~english~
+         ~test/english/test.tra~
+
+BEGIN "Testing Feature"
+COMPILE ~test/test1.baf~
+COPY ~override/test1.bcs~ ~override/test1.bcs~
+REPLACE_BCS_BLOCK_REGEXP ~test/src.bcs~ ~test/dst.bcs~
+COMPILE ~test/test2.baf~
+COPY ~override/test2.bcs~ ~override/test2.bcs~
+REPLACE_BCS_BLOCK_REGEXP ~test/src.bcs~ ~test/dst.bcs~
+
+
+
+

@@ -1,0 +1,9 @@
+// This TP2-file and 2 D-file set were created to test the bug that Quitch
+// reported where the game would fail to roll-back the state correctly. 
+
+BACKUP ~backup~
+AUTHOR ~weimer@cs.berkeley.edu~
+BEGIN ~Test Component (when it fails, fix B and then say re-install)~
+
+COMPILE ~a.d~
+        ~b.d~
