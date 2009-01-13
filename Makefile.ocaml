@@ -336,6 +336,7 @@ endif
 # FIXDEPEND:=cat
 DEPINCLUDES= -I $(OBJDIR) $(SOURCEDIRS:%=-I %)
 $(DEPENDDIR)/%.d: %.ml
+	-mkdir -p obj{,-tk}/{.depend,x86_LINUX,X86_WIN32,X86_CYGWIN}
 	@$(NARRATIVE) Generating dependency information for $<
 	@$(COMMAND) $(CAMLDEP) $(DEPINCLUDES) $<
 	$(ECHO)$(CAMLDEP) $(DEPINCLUDES) $< | $(FIXDEPEND) > $@
