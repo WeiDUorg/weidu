@@ -6943,7 +6943,7 @@ This is a PATCH macro.
 \item SET opcode_to_delete to the opcode of the effect you want to delete. Opcode of (-1) will match all effects.
 \end{itemize}
 
-\verb+DELETE_CRE_EFFECT+: deletes all effects with specified opcode from a creature.
+\verb+DELETE_CRE_EFFECT+: deletes all effects with specified opcode from a creature. (Warning: doesn't check EFF version)
 This is a PATCH macro.
 \begin{itemize}
 \item SET opcode_to_delete to the opcode of the effect you want to delete. Opcode of (-1) will match all effects.
@@ -6988,7 +6988,7 @@ This is a PATCH macro.
 \item Syntax is the same as of ADD_SPELL_EFFECT
 \end{list}
 
-\verb+ADD_CRE_EFFECT+: adds an effect to a creature. All variables except probability1 are 0 by default.
+\verb+ADD_CRE_EFFECT+: adds an effect to a creature. All variables except probability1 are 0 by default. (Warning: doesn't check EFF version)
 This is a PATCH macro.
 \begin{itemize}
 \item SET opcode to opcode
