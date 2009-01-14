@@ -2869,7 +2869,7 @@ global option to your \ttref{TP2} file. \\
        A typical example is \t{COPY "mymod/sword.itm"
        "override/m\#sword.itm"}.
        
-       \ 
+       \\ 
        
        \ttref{COPY} commands set the user-defined \DEFINE{SOURCE!DIRECTORY}, 
        \DEFINE{SOURCE!FILESPEC}, \DEFINE{SOURCE!FILE}, 
@@ -2886,14 +2886,14 @@ global option to your \ttref{TP2} file. \\
        are similarly based on toFile. In addition, \DEFINE{SOURCE!SIZE} is
        set to the size (in bytes) of the source file. 
 
-       \ 
+       \\ 
 
        This is generally only useful if you have enabled globbing. Any
        user-defined \ttref{variables} in toFile are replaced with their
        values. You may also reference these \ttref{variables} in 
        \ttref{patch}es.
 
-       \
+       \\
 
        See the \ttref{Module Distribution} section for information about
        finding a good unique prefix for your mod-created resources. 
@@ -2912,7 +2912,7 @@ global option to your \ttref{TP2} file. \\
        the game \ttref{BIFF}s will be copied to the directory specified by
        toDir.
 
-       \
+       \\
 
        If \ttref{GLOB} is specified, matching files in \t{override} will
        also be patched and copied. If a file appears in both the
@@ -2960,7 +2960,7 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
       
       After the special EVALUATE!BUFFER is executed, all other patches are executed.
 
-      \
+      \\
 
       First, this loads all of the traFiles presented. If any of their
       paths contain \t{\%s}, the \t{\%s} is replaced with the
@@ -4502,7 +4502,7 @@ is & string & You may name the variable whatever you like, but stay
 away from the special characters used in \ttref{regexp}s. When you want to
 obtain the value of a variable, enclose it in \t{\%}s.
 
-\
+\\
 
 Example: If a file contains the two binary integers 33 and 77, then after
 executing:
