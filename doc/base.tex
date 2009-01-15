@@ -3451,7 +3451,7 @@ the directory / filename distinction must be enforced. \\
 
 \\
 
-\DEFINE{optcase} && Allows you to decide wether regexp matching is case-sensitive
+\DEFINE{optcase} && Allows you to decide whether regexp matching is case-sensitive
 or not. \\
 is  & & Uses the WeiDU default (which is undocumented and varies with the action).
       Please specify case-sensitiveness manually. \\
@@ -3462,7 +3462,7 @@ or & \DEFINE{CASE!INSENSITIVE} & matching is case-insensitive. \\
 
 \\
 
-\DEFINE{optexact} && Allows you to decide wether regexp matching is exact. \\
+\DEFINE{optexact} && Allows you to decide whether regexp matching is exact. \\
 is  & & Uses the WeiDU default (which is undocumented and varies with the action).
       Please specify matching policy manually. \\
 or & \DEFINE{EXACT!MATCH} & only the given string is searched for. \\
@@ -4271,7 +4271,7 @@ second value is evaluated and returned, otherwise the third value is
 evaluated and returned.  \\
 
 or & \ttref{String} \DEFINE{STRING!COMPARE} \ttref{String} &
-This is legacy synthax for \ttref{STRING!EQUAL}:
+This is legacy syntax for \ttref{STRING!EQUAL}:
 This expressione valuates to 0 if and only if its two string arguments are
 equal (have the same length and the same contents). Otherwise it will evaluate
 to a negative or positive integer, depending on whether the first string argument
@@ -4285,7 +4285,7 @@ Note also that \ttref{STRING!EQUAL} and \ttref{STRING!COMPARE} are similar,
 but \ttref{STRING!EQUAL} has more intuitive return values. \\
 
 or & \ttref{String} \DEFINE{STRING!COMPARE!CASE} \ttref{String} &
-This is legacy synthax for \ttref{STRING!EQUAL!CASE}:
+This is legacy syntax for \ttref{STRING!EQUAL!CASE}:
 As \ttref{STRING!COMPARE}, but the comparison ignores case. That is,
 \t{"ANOMEN"} and \t{"aNoMeN"} are considered equal.\\
 
@@ -4331,15 +4331,15 @@ or -1 if String is not associated in File.ids. \\
 
 or & \DEFINE{VARIABLE!IS!SET} \ttref{String} &
 Returns true if the variable String is set (there's a variable called either
-\verb+String+ or \verb+%String%+, regardless of wether it is a string or an
+\verb+String+ or \verb+%String%+, regardless of whether it is a string or an
 integer).  \\
 
-or & \DEFSYN{VARIABLE!IS!SET} \ttref{String} &
+or & \DEFSYN{IS!AN!INT} \ttref{String} &
 Returns true if the variable String is set to an integer (there's a variable called either
 \verb+String+ or \verb+%String%+ with integer value).  \\
 
 or & \DEFINE{MOD!IS!INSTALLED} modTp2Name modComponent &
-Returns true if the modComponent of modTp2Name is installed. The synthax
+Returns true if the modComponent of modTp2Name is installed. The syntax
 is the same as with \ttref {REQUIRE!PREDICATE}.  \\
 
 or & \DEFINE{STATE!WHICH!SAYS} \ttref{text} \t{FROM} \ttref{String} &
@@ -6292,7 +6292,7 @@ BEGIN ~Print Hello World and do nothing~
 LAUNCH_ACTION_MACRO ~HW~
 \end{verbatim}
 
-So, the synthax is quite simple:
+So, the syntax is quite simple:
 \begin{verbatim}
 DEFINE_ACTION_MACRO name-of-the-macro BEGIN
   local variables list
@@ -6609,7 +6609,7 @@ after your MODDER statement, for example:
 MODDER setup_tra fail area_variables none missing_extern warn
 \end{verbatim}
 
-Each option can be set to either NONE, WARN or FAIL with the above synthax,
+Each option can be set to either NONE, WARN or FAIL with the above syntax,
 with the obvious meaning. If none is choosen, WARN is assumed. WARN may generate false positives.
 In this case, "INSTALLED WITH WARNINGS" is not displayed.
 
