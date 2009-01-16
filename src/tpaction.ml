@@ -1921,7 +1921,7 @@ try
 			| "TP2" -> (enqueue_tp2_filename) str
 			| _ ->
 				let str = Arch.handle_view_command str !skip_at_view in
-				ignore (Unix.system (if exact then str else Arch.slash_to_backslash str))
+				ignore (exec_command str exact)
 			end
 	
 	| TP_At_Uninstall(str,exact) -> ()

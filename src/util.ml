@@ -149,6 +149,7 @@ Will be unable to UNINSTALL later.\n" backup_filename (Printexc.to_string e))
 
 let log_file = ref "" 
 let append_to_log = ref false 
+let log_extern = ref false
 
 let init_log version filename =
   try
@@ -482,6 +483,27 @@ let open_for_writing_internal backup filename binary =
   out_chn 
 
 let open_for_writing = open_for_writing_internal true
+
+let exec_command cmd exact =
+  let cmd = if exact then cmd else Arch.slash_to_backslash cmd in
+  let ret = if !log_extern then
+    begin
+      (* copy stdout + stderr to logfile *)
+      let proc_stdout = Unix.open_process_in (cmd ^ " 2>&1") in
+      begin
+        try
+          while true do
+            let s = input_line proc_stdout in
+            (* input_line doesn't strip the \r on windows *)
+            let s = if s.[String.length s - 1] != '\r' then s else
+              String.sub s 0 (String.length s - 1) in
+            log_and_print "%s\n" s
+          done
+        with _ -> ()
+      end ;
+      Unix.close_process_in proc_stdout
+    end else Unix.system cmd
+  in ret
 
 let execute_at_exit = ref ([] : (string*bool) list)
 

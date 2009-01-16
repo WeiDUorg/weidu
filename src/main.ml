@@ -409,6 +409,7 @@ let main () =
 		"--log", Myarg.String (fun s -> init_log Version.version s),"X\tlog output and details to X" ;
 		"--autolog", Myarg.Unit (fun () -> init_log Version.version "WSETUP.DEBUG"), "\tlog output and details to WSETUP.DEBUG" ;
 		"--logapp", Myarg.Set append_to_log,"\tappend to log instead of overwriting" ; 
+		"--log-extern", Myarg.Set log_extern,"\talso log output from commands invoked by WeiDU " ; 
 		"--debug-assign", Myarg.Set Var.debug_assign,"\tPrint out all values assigned to TP2 variables" ;
 		"--debug-value", Myarg.Set Tp.debug_pe,"\tPrint out all value expressions" ;
 		"--continue", Myarg.Set Tp.continue_on_error,"\tcontinue despite TP2 action errors" ;
@@ -1566,7 +1567,7 @@ problem and try again.\n" path ;
 					) (List.rev !toproc);
 					List.iter (fun (s,e) ->
 						log_or_print "Executing: [%s]\n" s ;
-						ignore (Unix.system (if e then s else Arch.slash_to_backslash s)))
+						ignore (exec_command s e))
 					!execute_at_exit;
 					execute_at_exit := [];
 			end
@@ -1775,7 +1776,7 @@ with e ->
 
 List.iter (fun (s,e) ->
 	log_or_print "Executing: [%s]\n" s ;
-	ignore (Unix.system (if e then s else Arch.slash_to_backslash s)))
+	ignore (exec_command s e))
 		!execute_at_exit
 
 ;;
