@@ -10,3 +10,4 @@ src/toldlexer.mll
 src/tparser.ml
 src/tph.ml
 src/trealparserin.gr
+*.cmi
