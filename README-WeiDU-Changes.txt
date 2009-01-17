@@ -1,3 +1,7 @@
+Version 211:
+  * Ton of readme fixes (Taimon, vit-mg, Mike1072).
+  * {READ,GET}_STRREF_{F,S,FS} for getting the female/sound string references.
+
 Version 210:
   * LAUNCH_*_FUNCTION can define variables local to the function.
   * Various fixed to {GAME,ENGINE}_IS.
@@ -6,8 +10,6 @@ Version 210:
   * IS_AN_INT, VARIABLE_IS_SET don't have side effects with $() expressions.
   * I_C_T4 adds the fromaction to all transitions.
   * No "file not found" warning for FILE_MD5.
-  * Ton of readme fixes (Taimon, vit-mg, Mike1072).
-  * {READ,GET}_STRREF_{F,S,FS} for getting the female/sound string references.
 
 Version 209:
 	* Various tweaks to compiling process. I hate Make; thankfully Taimon doesn't.
