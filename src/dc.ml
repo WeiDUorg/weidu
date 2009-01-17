@@ -277,7 +277,7 @@ let pretty_print_no_quote tlk i female sound =
   else begin
     try
       let lse = Hashtbl.find strings_added_ht i in
-      match sound, female with
+      match female,sound with
       	| false,false -> lse.lse_male
       	| true ,false -> lse.lse_female
       	| false,true  -> lse.lse_male_sound
