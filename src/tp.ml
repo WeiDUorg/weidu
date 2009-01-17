@@ -260,9 +260,9 @@ and tp_patch =
   | TP_PatchByte of tp_patchexp * tp_patchexp
   | TP_PatchShort of tp_patchexp * tp_patchexp
   | TP_PatchLong of tp_patchexp * tp_patchexp
-  | TP_PatchGetStrRef of tp_patchexp * tp_pe_string
+  | TP_PatchGetStrRef of tp_patchexp * tp_pe_string * bool * bool
   | TP_PatchReadAscii of tp_patchexp * tp_pe_string * (string option) * tp_patchexp * bool
-  | TP_PatchReadStrRef of tp_patchexp * tp_pe_string * (string option)
+  | TP_PatchReadStrRef of tp_patchexp * tp_pe_string * (string option) * bool * bool
   | TP_PatchReadByte of tp_patchexp * tp_pe_string * (tp_patchexp option)
   | TP_PatchReadSByte of tp_patchexp * tp_pe_string * (tp_patchexp option)
   | TP_PatchReadSShort of tp_patchexp * tp_pe_string * (tp_patchexp option)

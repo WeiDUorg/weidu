@@ -270,15 +270,19 @@ let rec single_string_of_tlk_string_safe game ts =
   | Dlg.TLK_Index(idx) -> 
         Tlk.pretty_print game.Load.dialog idx 
 
-let pretty_print_no_quote tlk i = 
-  let alt = Array.length tlk in 
-  if i < alt then 
-    Tlk.pretty_print_q tlk i false 
+let pretty_print_no_quote tlk i female sound =
+  let alt = Array.length tlk in
+  if i < alt then
+    Tlk.pretty_print_q tlk i false sound
   else begin
     try
       let lse = Hashtbl.find strings_added_ht i in
-      lse.lse_male 
-    with Not_found -> Tlk.pretty_print_q tlk i false 
+      match sound, female with
+      	| false,false -> lse.lse_male
+      	| true ,false -> lse.lse_female
+      	| false,true  -> lse.lse_male_sound
+      	| true ,true  -> lse.lse_female_sound
+    with Not_found -> Tlk.pretty_print_q tlk i false sound
   end 
 
 

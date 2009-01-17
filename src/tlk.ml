@@ -68,31 +68,35 @@ let weidu_quotify s =
             with Not_found -> true then "~~~~~"
     else failwith ("cannot put WeiDU quotes around " ^ s)
   in
-  quotes ^ s ^ quotes 
+  quotes ^ s ^ quotes
 
-let pretty_print_q tlk i quot =
+let pretty_print_q tlk i quot sound =
   if i >= 0 && i < Array.length tlk then begin
     let e = tlk.(i) in
     let s1 = if quot then weidu_quotify e.text else e.text in
-    if (e.sound_name <> "") && quot then 
-      s1 ^ " [" ^ e.sound_name ^ "]"
-    else 
-      s1
-  end else 
-    Printf.sprintf "<Invalid Strref %d>" i 
+    if sound then
+    	e.sound_name
+		else begin
+			if (e.sound_name <> "") && quot then
+	      s1 ^ " [" ^ e.sound_name ^ "]"
+	    else
+	      s1
+    end
+  end else
+    Printf.sprintf "<Invalid Strref %d>" i
 
-let pretty_print tlk i = pretty_print_q tlk i true
+let pretty_print tlk i = pretty_print_q tlk i true false
 
-let short_print tlk_str len = 
-  let e = tlk_str.text in 
+let short_print tlk_str len =
+  let e = tlk_str.text in
   let e = if String.length e > len then (String.sub e 0 (len - 3)) ^ "..." else e in
-  weidu_quotify e 
+  weidu_quotify e
 
-let cr_lf = (Str.regexp "[\r\n]+") 
+let cr_lf = (Str.regexp "[\r\n]+")
 
-let one_line_pretty_print tlk i = 
+let one_line_pretty_print tlk i =
   let res = pretty_print tlk i in
-  Str.global_replace cr_lf "" res 
+  Str.global_replace cr_lf "" res
 
 let pretty_print_opt tlk_opt i =
   match tlk_opt with

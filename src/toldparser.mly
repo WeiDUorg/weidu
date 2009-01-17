@@ -802,9 +802,9 @@ tp_patch   :
      Tp.twohanded_weapon = $9 ;})}
 | APPLY_BCS_PATCH STRING { Tp.TP_PatchApplyBCSPatch($2,None) }
 | APPLY_BCS_PATCH_OR_COPY STRING STRING { Tp.TP_PatchApplyBCSPatch($2,Some($3)) }
-| GET_STRREF patch_exp STRING { Tp.TP_PatchGetStrRef($2,Tp.PE_LiteralString $3) }
-| READ_STRREF patch_exp STRING { Tp.TP_PatchReadStrRef($2,Tp.PE_LiteralString $3,None) }
-| READ_STRREF patch_exp STRING ELSE STRING { Tp.TP_PatchReadStrRef($2,Tp.PE_LiteralString $3,Some($5) ) }
+| GET_STRREF patch_exp STRING { Tp.TP_PatchGetStrRef($2,Tp.PE_LiteralString $3,false,false) }
+| READ_STRREF patch_exp STRING { Tp.TP_PatchReadStrRef($2,Tp.PE_LiteralString $3,None,false,false) }
+| READ_STRREF patch_exp STRING ELSE STRING { Tp.TP_PatchReadStrRef($2,Tp.PE_LiteralString $3,Some($5),false,false) }
 | READ_ASCII patch_exp STRING LPAREN patch_exp RPAREN optional_null_terminated
 { Tp.TP_PatchReadAscii($2,Tp.PE_LiteralString $3,None,$5,$7) }
 | READ_ASCII patch_exp STRING ELSE STRING LPAREN patch_exp RPAREN optional_null_terminated

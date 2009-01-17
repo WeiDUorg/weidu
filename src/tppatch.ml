@@ -8,7 +8,7 @@ open Tppe
 (************************************************************************
  * change location "where" in "buff" to point to str-ref "what"
  ************************************************************************)
-let process_patch1 patch_filename game buff p =
+let rec process_patch1 patch_filename game buff p =
   Stats.time "READ_*" (fun () ->
   let bounds_check idx size retfun eo ef =
     let len = String.length buff in
@@ -65,20 +65,34 @@ let process_patch1 patch_filename game buff p =
         (fun () -> int32_of_str_off buff where) eo
         (fun v -> (eval_pe buff game v)) in
       Var.set_int32 name value
-  | TP_PatchGetStrRef(which,name) ->
+  | TP_PatchGetStrRef(which,name,female,sound) ->
       let which = Int32.to_int (eval_pe buff game which) in
       let name = Var.get_string (eval_pe_str name) in
-      let value = Dc.pretty_print_no_quote game.Load.dialog which in
+      let value = Dc.pretty_print_no_quote
+				(
+					if female then begin
+						match game.Load.dialogf with
+							| None -> game.Load.dialog
+							| Some x -> x
+					end else game.Load.dialog
+				)
+				which female sound in
       Var.set_string name value
-  | TP_PatchReadStrRef(where,name,eo) ->
-      let where = Int32.to_int (eval_pe buff game where) in
-      let name = Var.get_string (eval_pe_str name) in
-      let value = bounds_check where 4
+  | TP_PatchReadStrRef(where,name,eo,female,sound) ->
+  		let w = Int32.to_int (eval_pe buff game where) in
+      ignore (bounds_check w 4
         (fun () ->
-          let i = int_of_str_off buff where in
-          Dc.pretty_print_no_quote game.Load.dialog i) eo
-        (fun v -> (Var.get_string v)) in
-      Var.set_string name value
+        	process_patch1 patch_filename game buff
+						(TP_PatchGetStrRef(TP_PE_Long_At where,name,female,sound))
+				)
+				eo
+        (
+					fun v -> let v = Var.get_string v in
+					let name = Var.get_string (eval_pe_str name) in
+      		Var.set_string name v
+				)
+			)
+
   | TP_PatchReadAscii(where,name,eo,size,null_terminated) ->
       let where = Int32.to_int (eval_pe buff game where) in
       let size = Int32.to_int (eval_pe buff game size) in
