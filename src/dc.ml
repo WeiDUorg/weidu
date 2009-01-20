@@ -564,7 +564,7 @@ let rec process_action game a = match a with
     dlg.Dlg.state.(num).Dlg.state_trigger_weight <- Dlg.Offset(w)
 
   | Replace_Action_Text(nl,s_from,s_to,use_regexp) ->
-    let r = Str.regexp s_from in
+    let r = Str.regexp_case_fold s_from in
     let process dlg =
       Array.iter (fun state ->
         Array.iter (fun trans ->
@@ -858,7 +858,7 @@ let rec process_action game a = match a with
           match trans.Dlg.action with
             None -> ()
           | Some(str) -> trans.Dlg.action <- Some(Str.global_replace
-                             (Str.regexp oldt) newt str);
+                             (Str.regexp_case_fold oldt) newt str);
           in
           match transition_indices with
           | [] -> (* do them all *)
@@ -881,7 +881,7 @@ let rec process_action game a = match a with
           match trans.Dlg.trans_trigger with
             None -> ()
           | Some(str) -> trans.Dlg.trans_trigger <- Some(Str.global_replace
-                             (Str.regexp oldt) newt str);
+                             (Str.regexp_case_fold oldt) newt str);
           in
           match transition_indices with
           | [] -> (* do them all *)
