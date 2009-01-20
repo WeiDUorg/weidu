@@ -2908,7 +2908,7 @@ global option to your \ttref{TP2} file. \\
        \ttref{patch} \Slist
        \ttref{when} \Slist &
        Behaves like \ttref{COPY!EXISTING} except that fromFileRegexp may
-       contain \ttref{regexp} regular exprsesions. All matching files in
+       contain regular expressions (\ttref{regexp}s). All matching files in
        the game \ttref{BIFF}s will be copied to the directory specified by
        toDir.
 
@@ -3403,7 +3403,7 @@ COMPILE ~.../mymod-inlined/myfile.baf~
 \\
 
 \DEFINE{directory-file-regexp} & & This is a directory path and a \ttref{regexp} string.
-It's used by \ttref{BIFF}, \ttref{ACTION!BASH!FOR} and \ttref{PATCH!BASH!FOR}
+It's used by \ttref{MAKE!BIFF}, \ttref{ACTION!BASH!FOR} and \ttref{PATCH!BASH!FOR}
 for listing patterns to be matched. Please note that
 the directory / filename distinction must be enforced. \\
 is & directory \ttref{regexp} & get a list of all files in directory that match \ttref{regexp}.
