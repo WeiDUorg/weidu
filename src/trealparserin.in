@@ -361,6 +361,24 @@ nonterm(Tp.tp_action) Tp_Action {
   -> OUTER_PATCH e1:STRING BEGIN e2:Tp_Patch_List END [ Tp.TP_Outer_Inner_Buff(e1,e2) ]
   -> OUTER_PATCH_SAVE e1:Patch_String_Left e2:STRING BEGIN e3:Tp_Patch_List END [ Tp.TP_Outer_Inner_Buff_Save(e1,e2,e3) ]
   -> OUTER_SET e1:Patch_String_Left EQUALS e2:Patch_Exp [ Tp.TP_Outer_Set(e1,e2) ]
+  -> OUTER_SET e1:Patch_String_Left PLUS_EQUALS e2:Patch_Exp
+     [ Tp.TP_Outer_Set(e1,(Tp.PE_Add(Tp.PE_String e1,e2))) ]
+  -> OUTER_SET e1:Patch_String_Left MINUS_EQUALS e2:Patch_Exp
+     [ Tp.TP_Outer_Set(e1,(Tp.PE_Sub(Tp.PE_String e1,e2))) ]
+  -> OUTER_SET e1:Patch_String_Left TIMES_EQUALS e2:Patch_Exp
+     [ Tp.TP_Outer_Set(e1,(Tp.PE_Mul(Tp.PE_String e1,e2))) ]
+  -> OUTER_SET e1:Patch_String_Left DIVIDE_EQUALS e2:Patch_Exp
+     [ Tp.TP_Outer_Set(e1,(Tp.PE_Div(Tp.PE_String e1,e2))) ]
+  -> OUTER_SET e1:Patch_String_Left OR_EQUALS e2:Patch_Exp
+     [ Tp.TP_Outer_Set(e1,(Tp.PE_BOR(Tp.PE_String e1,e2))) ]
+  -> OUTER_SET e1:Patch_String_Left AND_EQUALS e2:Patch_Exp
+     [ Tp.TP_Outer_Set(e1,(Tp.PE_BAND(Tp.PE_String e1,e2))) ]
+  -> OUTER_SET e1:Patch_String_Left BLSL_EQUALS e2:Patch_Exp
+     [ Tp.TP_Outer_Set(e1,(Tp.PE_BLSL(Tp.PE_String e1,e2))) ]
+  -> OUTER_SET e1:Patch_String_Left BLSR_EQUALS e2:Patch_Exp
+     [ Tp.TP_Outer_Set(e1,(Tp.PE_BLSR(Tp.PE_String e1,e2))) ]
+  -> OUTER_SET e1:Patch_String_Left BXOR_EQUALS e2:Patch_Exp
+     [ Tp.TP_Outer_Set(e1,(Tp.PE_BXOR(Tp.PE_String e1,e2))) ]
   -> OUTER_SPRINT e1:Patch_String_Left e2:Dlg_Or_Patch_String_Right [ Tp.TP_Outer_Sprint(e1,e2) ]
   -> OUTER_TEXT_SPRINT e1:Patch_String_Left e2:Patch_String_Right [ Tp.TP_Outer_Text_Sprint(e1,e2) ]
 	-> ACTION_DEFINE_ASSOCIATIVE_ARRAY e1:Patch_String_Left BEGIN e2:Associative_String_List END
