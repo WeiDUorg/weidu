@@ -3258,21 +3258,21 @@ or & \DEFINE{OUTER!SPRINT} \ttref{variable} stringWithVars &
   This works somewhat like \t{sprintf()} but it not as cool. \\
 or & \DEFINE{OUTER!SET} \ttref{variable} \t{=} \ttref{value} &
   Update \ttref{variable} so that it is equal to \ttref{value}. \\
-or & \ttref{OUTER_SET} \ttref{variable} \t{+=} \ttref{value} &
+or & \ttref{OUTER!SET} \ttref{variable} \t{+=} \ttref{value} &
   Equivalent to \t{OUTER_SET variable = variable + value}. \\
-or & \ttref{OUTER_SET} \ttref{variable} \t{-=} \ttref{value} &
+or & \ttref{OUTER!SET} \ttref{variable} \t{-=} \ttref{value} &
   Equivalent to \t{OUTER_SET variable = variable - value}. \\
-or & \ttref{OUTER_SET} \ttref{variable} \t{*=} \ttref{value} &
+or & \ttref{OUTER!SET} \ttref{variable} \t{*=} \ttref{value} &
   Equivalent to \t{OUTER_SET variable = variable * value}. \\
-or & \ttref{OUTER_SET} \ttref{variable} \t{/=} \ttref{value} &
+or & \ttref{OUTER!SET} \ttref{variable} \t{/=} \ttref{value} &
   Equivalent to \t{OUTER_SET variable = variable / value}. \\
-or & \ttref{OUTER_SET} \ttref{variable} \t{\&=} \ttref{value} &
+or & \ttref{OUTER!SET} \ttref{variable} \t{\&=} \ttref{value} &
   Equivalent to \t{OUTER_SET variable = variable BAND value}. \\
-or & \ttref{OUTER_SET} \ttref{variable} \t{|=} \ttref{value} &
+or & \ttref{OUTER!SET} \ttref{variable} \t{|=} \ttref{value} &
   Equivalent to \t{OUTER_SET variable = variable BOR value}. \\
-or & \ttref{OUTER_SET} \ttref{variable} \t{<<=} \ttref{value} &
+or & \ttref{OUTER!SET} \ttref{variable} \t{<<=} \ttref{value} &
   Equivalent to \t{OUTER_SET variable = variable BLSL value}. \\
-or & \ttref{OUTER_SET} \ttref{variable} \t{>>=} \ttref{value} &
+or & \ttref{OUTER!SET} \ttref{variable} \t{>>=} \ttref{value} &
   Equivalent to \t{OUTER_SET variable = variable BLSR value}. \\
 or & \DEFINE{OUTER!INNER!PATCH} buffString \t{BEGIN} \ttref{patch} \Slist \t{END} &
   Any WeiDU variables inside \t{\%}s within buffString are replaced by
