@@ -3631,18 +3631,17 @@ or & \DEFINE{WRITE!ASCII} \ttref{offset} ascString
   The ASCII ascString is written to the file starting at offset. 
   If you specify a \t{requiredSize} then exactly that many bytes are
   written (if ascString is smaller, it is padded with \t{NUL}s; if
-  ascString is larger, it is truncated). 
-  If you do not specify a requiredSize, the terminating \t{NUL} is not
-  written. \\
+  ascString is larger, it is truncated). If you do not specify a requiredSize,
+  the terminating \t{NUL} is not written. \\
 or & \DEFINE{WRITE!ASCII!TERMINATE} \ttref{offset} ascString &
   The ASCII ascString is written to the file starting at offset.
-  If you do not specify a requiredSize, the terminating \t{NUL} \em{is}
-  written. \\
+  The terminating \t{NUL} \emph{is} written. You may use 
+  \t{WRITE!ASCIIT} as a synonym. \\
 or & \DEFINE{WRITE!EVALUATED!ASCII} \ttref{offset} ascString
     \Ob \t{\#requiredSize} \Oe &
   The ASCII ascString is evaluated (so \t{\%variable\%} is replaced by its
   value) and written to the file starting at offset (as in
-  \ttref{WRITE!ASCII}. \\
+  \ttref{WRITE!ASCII}). You may use \t{WRITE!ASCIIE} as a synonym. \\
 or & \DEFINE{WRITE!FILE} \ttref{offset} filename &
   The entire contents of ``filename'' (which may contain variables) are
   loaded and copied over the current file starting at offset
@@ -3810,6 +3809,10 @@ or & \DEFINE{CLEAR!ARRAY} \ttref{String} &
     `Forgets' that the array \t{string} exists until its values are recalled.
     The actual variables' values are kept, the only effect is that \t{*PHP!EACH}
     will not consider old values.
+\\
+
+or & \DEFINE{PATCH!CLEAR!ARRAY} \ttref{String} &
+    A synonym of \ttref{CLEAR!ARRAY}.
 \\
 
 
