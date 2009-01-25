@@ -484,20 +484,51 @@ let open_for_writing_internal backup filename binary =
 
 let open_for_writing = open_for_writing_internal true
 
+
+(* filter to avoid logging progress bars from external programs *)
+type filter_mode = Copy | Strip ;;
+let create_filter = function () ->
+  let mode = ref Copy in
+  let buf = Buffer.create 80 in
+  let f = function str ->
+    let str = Str.global_replace (Str.regexp "\r\n") "\n" str in
+    let strlen = String.length str in
+    let pos = ref 0 in
+    while !pos < strlen do
+        match !mode with
+          Copy  ->
+            let newpos = try String.index_from str !pos '\r'
+                         with Not_found -> strlen in
+            Buffer.add_substring buf str !pos (newpos - !pos) ;
+            if newpos != strlen then mode := Strip ;
+            pos := newpos
+        | Strip ->
+            let newpos = try String.index_from str !pos '\n'
+                         with Not_found -> strlen in
+            if newpos != strlen then mode := Copy ;
+            pos := newpos
+    done ;
+    let res = Buffer.contents buf in
+    Buffer.clear buf ;
+    res
+  in f
+
 let exec_command cmd exact =
   let cmd = if exact then cmd else Arch.slash_to_backslash cmd in
   let ret = if !log_extern then
     begin
       (* copy stdout + stderr to logfile *)
       let proc_stdout = Unix.open_process_in (cmd ^ " 2>&1") in
+      let s = String.create 80 in
+      let filter = create_filter () in
       begin
         try
           while true do
-            let s = input_line proc_stdout in
-            (* input_line doesn't strip the \r on windows *)
-            let s = if s.[String.length s - 1] != '\r' then s else
-              String.sub s 0 (String.length s - 1) in
-            log_and_print "%s\n" s
+            let read = input proc_stdout s 0 80 in
+            if read = 0 then raise End_of_file ;
+            let text = String.sub s 0 read in
+            if not !be_silent then begin output_string stdout text ; flush stdout end ;
+            log_only "%s" (filter text)
           done
         with _ -> ()
       end ;
