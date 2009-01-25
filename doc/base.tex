@@ -4326,15 +4326,22 @@ contains the second \ttref{regexp}. Thus \t{"AR1005" STRING!CONTAINS!REGEXP
 "[w-z]"} evaluates to 1 (``mismatch''). \\
 
 or & \DEFINE{GAME!IS} \ttref{String} & Returns true if the IE game variant
-is one from the String, otherwise it returns false. String is a list of
-whitespace separated entries, chosen between (case doesn't matter)
+is one of the entries in String, otherwise it returns false. String is a list of
+whitespace-separated entries, chosen from (case doesn't matter)
 \verb+bg2=soa, tob, iwd2, pst, bg1, totsc, iwd=iwd1, how, tolm=totlm, tutu, tutu_totsc, bgt+.
-In the list, \verb+bg2=soa+ means that bg2 and soa are synonyms. Please note that
-the items in list are defined to be mutually exclusive (except tob will detect both plain tob
-and tob with bgt installed, for legacy purposes), so bg2 will detect a
-soa-only game, without either tob or tutu installed. As such, a mod which is
-useable with any flavor of bg2 and any flavor of tutu would contain
+In the list, \verb+bg2=soa+ means that \verb+bg2+ and \verb+soa+ are synonyms,
+and you can use whichever one you like. Please note that the items in the list are
+defined to be mutually exclusive (except \verb+tob+ will detect both plain ToB
+and ToB with BGT installed, for legacy purposes), so \verb+bg2+ will detect a
+SoA-only game, without either ToB or Tutu installed. As such, a mod which is
+useable with any flavor of BG2 and any flavor of Tutu would contain
 \verb+REQUIRE_PREDICATE GAME_IS ~bg2 tob tutu tutu_totsc~+ . \\
+
+or & \DEFINE{ENGINE!IS} \ttref{String} & Functions like \ttref{GAME!IS} 
+except \verb+bg2=soa+ will detect SoA-based Tutu games in addition to SoA games,
+and \verb+tob+ will detect ToB-based Tutu games in addition to ToB and BGT games.
+As such, a mod that requires Throne of Bhaal's engine enhancements could use
+\verb+REQUIRE_PREDICATE ENGINE_IS ~tob~+ . \\
 
 or & \DEFINE{IDS!OF!SYMBOL} (File \ttref{String}) &
 Will return the number associated with String in File.ids,
@@ -7488,7 +7495,6 @@ Currently undocumented:
 \item {\tt REPLACE!BCS!BLOCK!REGEXP}.
 \item Fred's BCS diff stuff.
 \item {\tt --trbify}, \t{TRB} files.
-\item {\tt ENGINE!IS}.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
