@@ -2984,7 +2984,11 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
       to get reproducible results when using random functions. If you
       specify a string that is not a valid integer the system initializes
       itself (e.g., by using the current time).  \\
-  or & \DEFSYN{APPEND} filename newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe  &
+  or & \DEFINE{ACTION!READLN} \ttref{variable} &
+      Waits for the user to provided an enter-terminated string and store it in
+      variable. Said string will be stored and re-used at reinstall time. See the
+      \ttref{READLN} tutorial. \\
+or & \DEFSYN{APPEND} filename newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe  &
       If there are no \ttref{when} conditions or they are all true, the
       ASCII text newText is appended to the existing file filename (which
       is read from the game \ttref{BIFF}s or the \t{override} folder).
@@ -3287,6 +3291,14 @@ or & \DEFINE{OUTER!INNER!PATCH!SAVE} savevar buffString \t{BEGIN} \ttref{patch} 
   savevar. \\
 or & \DEFINE{OUTER!PATCH!SAVE} savevar buffString \t{BEGIN} \ttref{patch} \Slist \t{END} &
   Equal to \ttref{OUTER!INNER!PATCH!SAVE}, if you feel that OUTER!INNER sounds wrong. \\
+or & \DEFINE{OUTER!WHILE} \ttref{value} \t{BEGIN} 
+  \ttref{TP2 Action} \Slist \t{END} & 
+  If \ttref{value} is non-zero, execute the given \ttref{TP2 Action} \Slist and
+  then repeat, re-evaluating the \ttref{value}. 
+  {\em Be very careful when using this command. } You can easily describe
+  an infinite loop. See the \ttref{WHILE} loop tutorial for more
+  information.
+  \\
 or & \DEFINE{OUTER!FOR} \t{(} \ttref{patch} \Slist \t{;}
                         \ttref{value} \t{;}
                         \ttref{patch} \Slist \t{)}
@@ -3751,7 +3763,7 @@ or & \Ob \ttref{SET} \Oe \ttref{variable} \t{<<=} \ttref{value} &
 or & \Ob \ttref{SET} \Oe \ttref{variable} \t{>>=} \ttref{value} &
   Equivalent to \t{SET variable = variable BLSR value}. \\
 
-or & \DEFINE{WHILE} \ttref{value} \t{BEGIN} 
+or & \DEFSYN{WHILE} \ttref{value} \t{BEGIN} 
   \ttref{patch} \Slist \t{END} & 
   If \ttref{value} is non-zero, execute the given \ttref{patch} \Slist and
   then repeat, re-evaluating the \ttref{value}. 
@@ -3890,7 +3902,7 @@ d e f
 g h i
 4 4 4
 \end{verbatim} \\
-or & \DEFSYN{READLN} \ttref{variable} &
+or & \DEFINE{PATCH!READLN} \ttref{variable} &
   Waits for the user to provided an enter-terminated string and store it in
   variable. Said string will be stored and re-used at reinstall time. See the
   \ttref{READLN} tutorial. \\
@@ -5338,7 +5350,7 @@ Finally, if \t{newEntry} is a string that contains any
 That's the end of this tutorial.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\ttref{WHILE} Loops (Last update: v189)}
+\subsection{\DEFINE{WHILE} Loops (Last update: v189)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial was thoughtfully provided by Idobek, and shamelessly edited
@@ -5377,22 +5389,22 @@ READ_LONG 0x64 "abilitiesoffset"
 READ_SHORT 0x68 "#abilities"
 \end{verbatim}
 So far, so good. Here's where the fun begins. We want to patch examine
-every ability in the item. We need to use a \ttref{WHILE} loop to patch the
+every ability in the item. We need to use a \t{WHILE} loop to patch the
 abilities one by one. We open the loop like so:
 \begin{verbatim}
 WHILE ("%#abilities%" > 0) BEGIN
 \end{verbatim}
-For the \ttref{WHILE} loop to progress and close we need to modify the
+For the \t{WHILE} loop to progress and close we need to modify the
 "\#abilities" variable. We use the \ttref{SET} command to do this:
 
 \begin{verbatim}
 SET "#abilities" = ("%#abilities%" - 1)
 END
 \end{verbatim}
-These lines are placed at the end of the \ttref{WHILE} loop. WeiDU will
+These lines are placed at the end of the \t{WHILE} loop. WeiDU will
 process the abilities from last to first and reduce the "\#abilities"
 variable by one each time. Once the "\#abilities" variable hits zero the
-\ttref{WHILE} loop will stop.
+\t{WHILE} loop will stop.
 
 OK, now we need to find out what type of ability we are looking at. Within
 an item an ability is 0x38 bytes, abilities also count from 0 within items
@@ -5465,14 +5477,14 @@ So what have we done? Let's list the steps involved:
 \item First off we copied all the item files ready for patching.
 \item Then we the read in the item category.
 \item We also read in the number of abilities and the file location of those abilities.
-\item We open a \ttref{WHILE} loop based upon the number of abilities.
-\item Within the \ttref{WHILE} loop, we read in the ability type.
+\item We open a \t{WHILE} loop based upon the number of abilities.
+\item Within the \t{WHILE} loop, we read in the ability type.
 \item Next we defined a new variable to indicate that we had not yet patched any melee type abilities.
 \item We opened  \ttref{PATCH!IF} statement.
 \item We patched melee abilities to do 2D6 damage.
 \item We closed this \ttref{PATCH!IF} loop.
 \item We repeated steps 6-9 to give the ranged abilities 1D12 damage.
-\item We closed our main \ttref{WHILE} loop by reducing the number of abilities by 1 and indicating that it should stop if the number of abilities reached 0.
+\item We closed our main \t{WHILE} loop by reducing the number of abilities by 1 and indicating that it should stop if the number of abilities reached 0.
 \item We used an \ttref{IF!EVAL} statement to ensure the patch is only applied to axes.
 \end{enumerate}
 
