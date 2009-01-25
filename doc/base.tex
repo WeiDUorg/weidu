@@ -579,6 +579,7 @@ or & {\tt EXTERN} filename stateNumber & Transfer to the given state in the give
 or & {\tt COPY!TRANS} filename stateNumber & At the end of the
 \ttref{CHAIN} text, copy all transitions from the given state in the
 given file. This is useful for interjections (see \ttref{INTERJECT}).  \\
+or & {\tt COPY!TRANS!LATE} filename stateNumber & Same as above, but only copy after all the other \ttref{D Action}s have been applied. \\
 or & {\tt EXIT} & At the end of the \ttref{CHAIN} text, exit the dialogue.\\
 or & {\tt END} \ttref{transition} \Slist & Execute the given \ttref{transition}s
 after the final state in the \ttref{CHAIN}. \\
@@ -673,6 +674,8 @@ or & \DEFINE{COPY!TRANS} filename \ttref{stateLabel} &
 <font color="#3159D1">COPY_TRANS</font> PLAYER1 <font color="#0000FF">33</font>
 <font color="#3159D1">IF</font> <font color="#868626">~After()~</font> <font color="#3159D1">THEN</font> <font color="#3159D1">EXTERN</font> SOLA <font color="#0000FF">55</font></pre>
 \end{rawhtml} \\
+or & \DEFINE{COPY!TRANS!LATE} filename \ttref{stateLabel} &
+    Same as \ttref{COPY!TRANS}, but is invoked after all other \ttref{D Action}s. \\
 
 \\
 
