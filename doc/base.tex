@@ -3055,7 +3055,7 @@ P Q R 3 <br>
     If \ttref{value} evaluates to true (non-zero), the \ttref{TP2 Action}s
     in the \t{THEN}-branch are executed. Otherwise, if an \t{ELSE}-branch
     is present, its commands are executed. Otherwise nothing happens. \\
-  or & \DEFINE{AT!EXIT} commandToRun &
+  or & \DEFINE{AT!EXIT} commandToRun \Ob \t{EXACT} \Oe &
     Whenever this \ttref{component} attemps to be installed, commandToRun
     is executed.  Variables (e.g., \t{\%LANGUAGE\%}) in the string
     commandToRun are replaced by their values. Note that the command is
@@ -3080,8 +3080,9 @@ P Q R 3 <br>
     WeiDU doesn't handle, like extracting WAVs from an MP3, make a batch
     file and run it from here. 
     \end{itemize}
-    In any case, slashes and backslashes will be converted appropriately
-    for the underlying operating system. The most common use is:
+    Slashes and backslashes will be converted appropriately for the
+    underlying operating system. If \verb+EXACT+ is specified, \verb+/+
+    and \verb+\+ will instead be preserved as they are. The most common usage is:
 \begin{verbatim}
 AT_INTERACTIVE_EXIT ~VIEW mymod\README.txt~
 \end{verbatim}
@@ -3096,24 +3097,24 @@ END ELSE BEGIN
 END
 \end{verbatim}
     \\
-  or & \DEFINE{AT!INTERACTIVE!EXIT} commandToRun &
+  or & \DEFINE{AT!INTERACTIVE!EXIT} commandToRun \Ob \t{EXACT} \Oe &
     As \ttref{AT!EXIT}, but the command is only executed if the user
     specifically asked for the \ttref{component} to be installed or
     upgraded. \\
-  or & \DEFINE{AT!UNINSTALL} commandToRun &
+  or & \DEFINE{AT!UNINSTALL} commandToRun \Ob \t{EXACT} \Oe &
     As \ttref{AT!EXIT}, but when this \ttref{component} is removed,
     commandToRun is executed.\\
-  or & \DEFINE{AT!INTERACTIVE!UNINSTALL} commandToRun &
+  or & \DEFINE{AT!INTERACTIVE!UNINSTALL} commandToRun \Ob \t{EXACT} \Oe &
     As \ttref{AT!EXIT}, but whenever the user specifically asks for this
     \ttref{component} to be removed, commandToRun is executed.
     Only the \t{\%LANGUAGE\%} variable is guaranteed to be
     replaced, so do not count on any others. \\
-  or & \DEFINE{AT!NOW} commandToRun &
+  or & \DEFINE{AT!NOW} commandToRun \Ob \t{EXACT} \Oe &
     As \ttref{AT!EXIT}, but commandToRun is executed when found, rather than
     at the end of the installation. Use with oggdec, tisunpack, wav2acm...
     but not with readmes (you'll create dozens of windows), nor with --make-biff
     (you'll crash the installation).\\
-  or & \DEFINE{AT!INTERACTIVE!NOW} commandToRun &
+  or & \DEFINE{AT!INTERACTIVE!NOW} commandToRun \Ob \t{EXACT} \Oe &
     As \ttref{AT!NOW}, but commandToRun is executed only if the installation is
     run interactively.\\
   or & \DEFINE{MAKE!BIFF} name-of-biff \t{BEGIN} \ttref{directory-file-regexp} \Slist \t{END} &
