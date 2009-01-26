@@ -300,6 +300,7 @@ try
 					Hashtbl.find action_functions str
 				with _ -> failwith (Printf.sprintf "Unknown function: %s" str)
 			in
+			let i_did_pop = ref false in
 			begin try
 				Var.var_push();
 				List.iter (fun (a,b) ->
@@ -326,12 +327,13 @@ try
 					Hashtbl.add final_returns a v;
 				) f_rets;
 				Var.var_pop();
+				i_did_pop := true;
 				List.iter (fun (a,b) ->
 					let a = eval_pe_str a in
 					let b = eval_pe_str b in
-					Var.set_string a (Hashtbl.find final_returns b);
+					Var.set_string a (try Hashtbl.find final_returns b with Not_found -> failwith (Printf.sprintf "Unknown return value: %s" b));
 				) rets;
-			with e -> (Var.var_pop(); raise e); end
+			with e -> (if not !i_did_pop then Var.var_pop(); raise e); end
 
 	| TP_Launch_Action_Macro(str) ->
 		let (decl, actions) =

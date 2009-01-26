@@ -3,6 +3,8 @@ Version 211:
   * {READ,GET}_STRREF_{F,S,FS} for getting the female/sound string references.
   * REPLACE_ACTION_TEXT, REPLACE_TRANS_{ACTION,TRIGGER} are case insensitive.
   * --log-extern for logging the output of AT_* calls. Coded by Taimon.
+  * Detailed error message if LAUNCH_*_FUNCTION specifies a not-defined return
+  	value.
 
 Version 210:
   * LAUNCH_*_FUNCTION can define variables local to the function.
