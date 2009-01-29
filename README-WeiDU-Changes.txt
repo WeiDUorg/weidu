@@ -5,6 +5,7 @@ Version 211:
   * --log-extern for logging the output of AT_* calls. Coded by Taimon.
   * Detailed error message if LAUNCH_*_FUNCTION specifies a not-defined return
   	value.
+  * MOD_IS_INSTALLED (and probably something else) is now case-insensitive.
 
 Version 210:
   * LAUNCH_*_FUNCTION can define variables local to the function.

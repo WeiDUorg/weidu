@@ -74,6 +74,8 @@ let get_last_module_index tp_file =
  * Evaluate a TP2 Patch Expression
  ************************************************************************)
 let log_match a b =
+	let a = String.uppercase a in
+	let b = String.uppercase b in
   Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase a)) =
   Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase b))
 
