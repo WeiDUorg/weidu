@@ -6,6 +6,7 @@ Version 211:
   * Detailed error message if LAUNCH_*_FUNCTION specifies a not-defined return
   	value.
   * MOD_IS_INSTALLED (and probably something else) is now case-insensitive.
+  * AT_* EXACT doesn't alter the case.
 
 Version 210:
   * LAUNCH_*_FUNCTION can define variables local to the function.
