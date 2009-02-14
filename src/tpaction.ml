@@ -1908,7 +1908,7 @@ try
 			match b with
 			| "TP2" -> (enqueue_tp2_filename) str
 			| _ ->
-				let str = if exact then str else Arch.handle_view_command str !skip_at_view exact in
+				let str = if exact then str else Arch.handle_view_command str !skip_at_view in
 				if List.mem (str,exact) !execute_at_exit then
 					()
 				else
