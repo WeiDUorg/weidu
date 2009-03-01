@@ -3556,11 +3556,11 @@ or & \DEFINE{SNPRINT} \ttref{value} \ttref{variable} stringWithVars &
 
 or & \DEFINE{SPACES} \ttref{variable} stringWithVars &
   \verb+%variable%+ will be inited to a string the same length as stringWithVars,
-  but made entirely of spaces. \verb+SPACES var ~123~+ will crate \verb+%var% = "   "+.
+  but made entirely of spaces. \verb+SPACES var ~123~+ will create \verb+%var% = "   "+.
 \\
 or & \DEFINE{QUOTE} \ttref{variable} stringWithVars &
   \verb+%variable%+ will be inited to a string that will match exactly stringWithVars.
-  \verb+SPACES var ~some\thing^~+ will crate \verb+%var% = "some\\thing\^"+.
+  \verb+QUOTE var ~some\thing^~+ will create \verb+%var% = "some\\thing\^"+.
 \\
 or & \DEFSYN{REPLACE} \ttref{optcase} \ttref{optexact} \ttref{regexp} \ttref{text}
    &
