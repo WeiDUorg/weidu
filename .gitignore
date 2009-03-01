@@ -12,3 +12,5 @@ src/tph.ml
 src/trealparserin.gr
 *.cmi
 diffs/*
+*.rej
+*.orig
