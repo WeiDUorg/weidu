@@ -154,7 +154,7 @@ nonterm (Tp.tp_flag) Tp_Flag {
       in
       Tp.Script_Style(n)
 		]
-	-> README e1:STRING [ Tp.Readme e1 ]
+	-> README e1:String_List [ Tp.Readme e1 ]
 }
 
 nonterm(string list) Upper_String_List_Rev {

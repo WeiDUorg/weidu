@@ -97,21 +97,29 @@ let rec handle_tp
 
 	List.iter (fun flag ->
 		match flag with
-		| Readme(str) -> begin
-			let str = Var.get_string str in
-			let str = "VIEW " ^ str in
-			let str = Arch.handle_view_command str !skip_at_view in
-			let answer = ref "" in
-			if !always_uninstall || !always_yes || !sometimes_reinstall ||
-			    !force_uninstall_these <> [] || !force_install_these <> [] then
-				answer := "Y";
-			if !skip_at_view || not !interactive then answer := "N";
-			while !answer <> "Y" && !answer <> "N" do
-				log_and_print "\nWould you like to display the readme? [Y]es [N]o\n";
-				answer := String.uppercase (read_line())
-			done;
-			if !answer = "Y" then
-				ignore (Unix.system (Arch.slash_to_backslash str));
+		| Readme(str_l) -> begin
+			let rec walk str_l =
+				match str_l with
+				| str::tail ->
+					let str = Var.get_string str in
+					if file_exists str then begin
+						let str = "VIEW " ^ str in
+						let str = Arch.handle_view_command str !skip_at_view in
+						let answer = ref "" in
+						if !always_uninstall || !always_yes || !sometimes_reinstall ||
+						    !force_uninstall_these <> [] || !force_install_these <> [] then
+							answer := "Y";
+						if !skip_at_view || not !interactive then answer := "N";
+						while !answer <> "Y" && !answer <> "N" do
+							log_and_print "\nWould you like to display the readme? [Y]es [N]o\n";
+							answer := String.uppercase (read_line())
+						done;
+						if !answer = "Y" then
+							ignore (Unix.system (Arch.slash_to_backslash str));
+						end
+					else walk tail
+				| [] -> log_and_print "\nCouldn't open the readme: file not found.\n"
+				in walk str_l
 			end
 		| _ -> ()
 	)  tp.flags

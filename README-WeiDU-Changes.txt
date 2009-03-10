@@ -7,6 +7,8 @@ Version 211:
   	value.
   * MOD_IS_INSTALLED (and probably something else) is now case-insensitive.
   * AT_* EXACT doesn't alter the case.
+  * README can accept any number of file names. All are tried in order, and the
+    first one will be opened.
 
 Version 210:
   * LAUNCH_*_FUNCTION can define variables local to the function.

@@ -41,7 +41,7 @@ type tp_flag =
 | Allow_Missing of string list
 | Script_Style of Load.script_style
 | Load_Macro of string list
-| Readme of string
+| Readme of string list
 
 and wrapper =
 | Start_From_Tp  of tp_file

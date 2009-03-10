@@ -2727,9 +2727,12 @@ global option to your \ttref{TP2} file. \\
   or & \DEFINE{ALWAYS} \ttref{TP2 Action} \Slist \t{END} &
        This flag specified a \ttref{TP2 Action} that is executed at the beginning
        of each \ttref{Component}, before the component-specific \ttref{TP2 Action}.  \\
-  or & \DEFINE{README} file &
+  or & \DEFINE{README} file \Slist &
        The given file is displayed to the user after choosing the language, but
-       before installing any component.
+       before installing any component. If more than one file name is provided,
+       they are checked for existance in the order they're provided, and the first available
+       one will be opened. If you wish to open multiple readme files, use multiple README
+       statements.
   \\
   or & \DEFSYN{MODDER} String \Slist &
        Enable additional debug info. By default, these messages are verbose but do
