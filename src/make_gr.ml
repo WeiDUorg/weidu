@@ -71,6 +71,10 @@ DO NOT EDIT THIS BY HAND. */\n\n";
 		try
 			while true do
 				let line = input_line i in
+				let line =
+						if line.[(String.length line) - 1] != '\r' then line
+						else String.sub line 0 ((String.length line) - 1)
+				in
 				output_string o line;
 				output_char o '\n';
 				if line = "// BEGIN TOKEN LIST" then output_tokens o aliases;
