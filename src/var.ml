@@ -72,26 +72,60 @@ let remove_local name =
   let name = "%" ^ name ^ "%" in
   Hashtbl.remove !variables name
 
+(* var_subst:
+ * Str.global_substitute replacement for replacing variables inside a string
+ * It takes a (string -> option string) function and depending on whether the
+ * return value is None or not resumes parsing at different positions.
+ *   None:     resume directly after the start of the current match
+ *   Some(s):  resume after the end of the current match (like global_substitute)
+ *)
+let var_subst reg subst s =
+  let slen = String.length s in
+  let buf = Buffer.create slen in
+  let start_search = ref 0 in
+  let res =
+    begin
+      try
+        while true do
+          let start_match = Str.search_forward reg s !start_search in
+          let after_last_match = Str.match_end () in
+          Buffer.add_substring buf s !start_search (start_match - !start_search) ;
+          let ret = subst s in
+          match ret with
+          | None ->
+              start_search := start_match + 1 ;
+              Buffer.add_substring buf s start_match 1
+          | Some(str) ->
+              start_search := after_last_match;
+              Buffer.add_string buf str
+        done
+      with Not_found ->
+        Buffer.add_substring buf s !start_search (slen - !start_search)
+    end ;
+    Buffer.contents buf
+  in res
+
+
 let variable_regexp = Str.regexp "%[^%]+%"
 
 let get_string_special reg str =
   let res =
-  Str.global_substitute reg
+  var_subst reg
     (fun whole_thing -> (* "%foo%" *)
       let quoted_substr = Str.matched_string whole_thing in
       try
         (match Hashtbl.find !variables quoted_substr with
-        | Int32(v) -> Int32.to_string v
-        | String(s) -> s)
+        | Int32(v) -> Some(Int32.to_string v)
+        | String(s) -> Some(s))
       with Not_found -> if reg <> variable_regexp then begin
 	      try
 	      	let try_substr = String.sub quoted_substr 1 (String.length quoted_substr - 2) in
 	      	let try_substr = "%" ^ try_substr ^ "%" in
 	        (match Hashtbl.find !variables try_substr with
-	        | Int32(v) -> Int32.to_string v
-	        | String(s) -> s)
-	      with Not_found ->  quoted_substr
-			end else quoted_substr
+	        | Int32(v) -> Some(Int32.to_string v)
+	        | String(s) -> Some(s))
+	      with Not_found -> None
+			end else None
     ) str
   in
   (if !debug_assign then Util.log_and_print "GET ~%s~ = ~%s~\n" str res) ;
