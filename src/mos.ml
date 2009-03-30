@@ -72,30 +72,14 @@ let mos_of_str buff =
 	mos
 ;;
 
-let print_pixel x c1 =
-	match x with
-		|Trans -> Printf.sprintf "trans @ %d" c1;
-		|Pixel (a,b,c,d) -> Printf.sprintf "pixel = %d %d %d %d @ %d" a b c d c1;
-;;
-
-let count_pixel x transCnt pixelCnt =
-	match x with
-		|Trans -> incr transCnt;
-		|Pixel (a,b,c,d) -> incr pixelCnt;
-;;
-
 let reduce_palette i j mos palette xMax yMax =
 	let curLen = (Hashtbl.length palette) in
-(* 	log_and_print "reduce_palette %d %d %d %d %d\n" i j !xMax !yMax curLen; *)
 	let cpalette = ref [] in
 	Hashtbl.iter (fun a b -> cpalette := (a,b) :: !cpalette) palette;
 	let cpalette = ref (List.sort (fun (a,b) (a1,b1) -> compare b b1) !cpalette) in
 	let cnt = ref curLen in
-	let transCnt = ref 0 in
-	let pixelCnt = ref 0 in
 	while !cnt > 254 do
 		let x,c1 = List.hd !cpalette in
-		count_pixel x transCnt pixelCnt;
 		cpalette := List.tl !cpalette;
 		let cmp x x1 =
 			match (x,x1) with
@@ -125,11 +109,9 @@ let reduce_palette i j mos palette xMax yMax =
 			done;
 			decr cnt
 		end else begin
-(* 			log_and_print "No candidate found for %s\n" (print_pixel x c1); *)
 			cpalette := List.rev((x,c1) :: List.rev !cpalette)
 		end
 	done;
-(* 	log_and_print "Trans %d Pixel %d\n" !transCnt !pixelCnt; *)
 	Hashtbl.clear palette;
 	List.iter (fun (a,b) -> Hashtbl.add palette a b) !cpalette;
 ;;
