@@ -9,6 +9,7 @@ Version 211:
   * AT_* EXACT doesn't alter the case.
   * README can accept any number of file names. All are tried in order, and the
     first one will be opened.
+  * EXTEND_MOS respects transparency tiles for compatibility with TutuGUI.
 
 Version 210:
   * LAUNCH_*_FUNCTION can define variables local to the function.

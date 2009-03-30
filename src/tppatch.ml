@@ -2331,7 +2331,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 					| _ -> (0,0)
 				in
 				let (xStart,yStart) = startPos in
-				let new_mos = Array.init nxSizeP (fun i -> (Array.make nySizeP (0,0,0,0)) ) in
+				let new_mos = Array.init nxSizeP (fun i -> (Array.make nySizeP (Mos.Pixel(0,0,0,0))) ) in
 				let getY i =
 					if isdup then begin
 						if first = 'V' then begin

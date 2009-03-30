@@ -1,5 +1,9 @@
 open Util
 
+type pixel_type =
+| Trans
+| Pixel of int*int*int*int
+
 let size_of_str buff =
 	let isCompressed = match String.sub buff 0 4 with
 		| "MOS " -> false
@@ -34,8 +38,8 @@ let mos_of_str buff =
 	let ySizeB = short_of_str_off buff 0x0e in
 	let bSize  =   int_of_str_off buff 0x10 in
 	let poff   =   int_of_str_off buff 0x14 in
-	let mos = Array.init xSizeP (fun i -> (Array.make ySizeP (0,0,0,0))) in
-	let palette = Array.make 256 (0,0,0,0) in
+	let mos = Array.init xSizeP (fun i -> (Array.make ySizeP (Pixel(0,0,0,0)))) in
+	let palette = Array.make 256 (Pixel(0,0,0,0)) in
 	let pal_off = ref 24 in
 	let off_off = ref (24 + xSizeB * ySizeB * 1024) in
 	let img_off = ref (24 + xSizeB * ySizeB * 1028) in
@@ -50,7 +54,7 @@ let mos_of_str buff =
 				incr pal_off;
 				let q = byte_of_str_off buff (!pal_off) in
 				incr pal_off;
-				palette.(k) <- (r,g,b,q);
+				palette.(k) <- if (k,r,g,b,q) = (0,0,255,0,0) then Trans else Pixel(r,g,b,q);
 			done;
 			off_off := !off_off + 4;
 			let xMax = ref bSize in
@@ -68,39 +72,64 @@ let mos_of_str buff =
 	mos
 ;;
 
+let print_pixel x c1 =
+	match x with
+		|Trans -> Printf.sprintf "trans @ %d" c1;
+		|Pixel (a,b,c,d) -> Printf.sprintf "pixel = %d %d %d %d @ %d" a b c d c1;
+;;
+
+let count_pixel x transCnt pixelCnt =
+	match x with
+		|Trans -> incr transCnt;
+		|Pixel (a,b,c,d) -> incr pixelCnt;
+;;
+
 let reduce_palette i j mos palette xMax yMax =
 	let curLen = (Hashtbl.length palette) in
+(* 	log_and_print "reduce_palette %d %d %d %d %d\n" i j !xMax !yMax curLen; *)
 	let cpalette = ref [] in
 	Hashtbl.iter (fun a b -> cpalette := (a,b) :: !cpalette) palette;
 	let cpalette = ref (List.sort (fun (a,b) (a1,b1) -> compare b b1) !cpalette) in
-	for cnt = curLen downto 257 do
+	let cnt = ref curLen in
+	let transCnt = ref 0 in
+	let pixelCnt = ref 0 in
+	while !cnt > 254 do
 		let x,c1 = List.hd !cpalette in
+		count_pixel x transCnt pixelCnt;
 		cpalette := List.tl !cpalette;
-		let (a,b,c,d) = x in
-		let cmp (a,b,c,d) (a1,b1,c1,d1) =
-			let e q = q * q in
-			e(a-a1)+e(b-b1)+e(c-c1)+e(d-d1)
+		let cmp x x1 =
+			match (x,x1) with
+				| Pixel(a,b,c,d),Pixel(a1,b1,c1,d1) ->
+					let e q = q * q in
+					e(a-a1)+e(b-b1)+e(c-c1)+e(d-d1)
+				| _ -> max_int
 		in
 		let diff = ref max_int in
-		let curr = ref (0,0,0,0) in
+		let curr = ref (x) in
 		List.iter (fun (a,b) ->
 			if cmp a x < !diff then begin
 				diff := cmp a x;
 				curr := a
 			end
 		) !cpalette;
-		let (a,b,c,d) = !curr in
-		let tmp_p = ref [] in
-		List.iter (fun (x1,cnt) ->
-			tmp_p := (if x1 = !curr then (x1,cnt+c1) else (x1,cnt)) :: !tmp_p
-		) !cpalette;
-		cpalette := (List.sort (fun (a,b) (a1,b1) -> compare b b1) !tmp_p);
-		for k = 0 to !yMax - 1 do
-			for l = 0 to !xMax - 1 do
-				if mos.(j * 64 + l).(i * 64 + k) = x then mos.(j * 64 + l).(i * 64 + k) <- !curr;
-			done
-		done;
+		if (x <> !curr) then begin
+			let tmp_p = ref [] in
+			List.iter (fun (x1,cnt) ->
+				tmp_p := (if x1 = !curr then (x1,cnt+c1) else (x1,cnt)) :: !tmp_p
+			) !cpalette;
+			cpalette := (List.sort (fun (a,b) (a1,b1) -> compare b b1) !tmp_p);
+			for k = 0 to !yMax - 1 do
+				for l = 0 to !xMax - 1 do
+					if mos.(j * 64 + l).(i * 64 + k) = x then mos.(j * 64 + l).(i * 64 + k) <- !curr;
+				done
+			done;
+			decr cnt
+		end else begin
+(* 			log_and_print "No candidate found for %s\n" (print_pixel x c1); *)
+			cpalette := List.rev((x,c1) :: List.rev !cpalette)
+		end
 	done;
+(* 	log_and_print "Trans %d Pixel %d\n" !transCnt !pixelCnt; *)
 	Hashtbl.clear palette;
 	List.iter (fun (a,b) -> Hashtbl.add palette a b) !cpalette;
 ;;
@@ -138,22 +167,40 @@ let str_of_mos mos =
 			let curLen = (Hashtbl.length palette) in
 			String.blit (str_of_int (!img_off - (24 + xSizeB * ySizeB * 1028))) 0 result !off_off 4;
 			off_off := !off_off + 4;
-			if curLen > 256 then reduce_palette i j mos palette xMax yMax;
+			reduce_palette i j mos palette xMax yMax;
 			let m = ref 0 in
 			let table = Hashtbl.create 256 in
+			let old_pal_off = !pal_off in
+			let hasTrans = ref false in
 			Hashtbl.iter (fun x _ ->
-				Hashtbl.add table x !m;
-				let (a,b,c,d) = x in
-				String.blit (str_of_byte a) 0 result !pal_off 1;
-				incr pal_off;
-				String.blit (str_of_byte b) 0 result !pal_off 1;
-				incr pal_off;
-				String.blit (str_of_byte c) 0 result !pal_off 1;
-				incr pal_off;
-				String.blit (str_of_byte d) 0 result !pal_off 1;
-				incr pal_off;
-				incr m;
+				match x with
+				| Trans ->
+					hasTrans := true
+				| Pixel(a,b,c,d) ->
+					()
 			) palette;
+			if !hasTrans then (incr m; pal_off := !pal_off + 4);
+			Hashtbl.iter (fun x _ ->
+				match x with
+				| Trans ->
+					Hashtbl.add table x 0;
+					String.blit (str_of_byte 0) 0 result (0+old_pal_off) 1;
+					String.blit (str_of_byte 255) 0 result (1+old_pal_off) 1;
+					String.blit (str_of_byte 0) 0 result (2+old_pal_off) 1;
+					String.blit (str_of_byte 0) 0 result (3+old_pal_off) 1;
+				| Pixel(a,b,c,d) ->
+					Hashtbl.add table x !m;
+					String.blit (str_of_byte a) 0 result !pal_off 1;
+					incr pal_off;
+					String.blit (str_of_byte b) 0 result !pal_off 1;
+					incr pal_off;
+					String.blit (str_of_byte c) 0 result !pal_off 1;
+					incr pal_off;
+					String.blit (str_of_byte d) 0 result !pal_off 1;
+					incr pal_off;
+					incr m;
+			) palette;
+			if !m >= 256 then failwith "Over 256 individual colors";
 			while !m < 256 do
 					String.blit (str_of_int 0) 0 result !pal_off 4;
 					pal_off := !pal_off + 4;
