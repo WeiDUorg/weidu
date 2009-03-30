@@ -2670,14 +2670,14 @@ will read the file, ask the user questions, and then perform the
 installation. Uninstallation and upgrading are also handled. 
 
 See the file \t{examples/mymod.tp2} for a commented example of how this all
-works. 
+works.
 
 Here is the context-free grammar syntax for the \ttref{TP2} file format:
 
 \begin{tabular}{cp{10in}|p{10in}}
 
-\DEFINE{TP2 File} & & 
-  A \ttref{TP2 File} is a text file that contains a number of 
+\DEFINE{TP2 File} & &
+  A \ttref{TP2 File} is a text file that contains a number of
   mod \ttref{Component}s. \ttref{TP2 File}s tell WeiDU how to install
   various parts of your mod on an end-user's computer. \\
 
@@ -2694,13 +2694,13 @@ Here is the context-free grammar syntax for the \ttref{TP2} file format:
        A \ttref{TP2 File} is basically a prologue and then a list of
        \ttref{Component}s. The \ttref{BACKUP} declaration tells WeiDU where
        to put backed-up versions of files that would be overwritten so that
-       they can be uninstalled later. This directory will be created 
+       they can be uninstalled later. This directory will be created
        automatically if it is missing. The \ttref{AUTHOR} directive gives an
        email address for users to send bugs to if there are problems during
        the installation. The \DEFINE{TP2!AUTHOR} \ttref{variable} is set to
        the ``emailAddress'' value. The \DEFINE{TP2!FILE!NAME} \ttref{variable}
-	   is set to the name of the tp2 file. 
-       \ttref{TP2 Flag}s set global options. 
+	   is set to the name of the tp2 file.
+       \ttref{TP2 Flag}s set global options.
        \ttref{Language}s are
        the various languages in which your mod is available. The
        Finally, the \ttref{Component}s make up the actual meat of
@@ -2776,7 +2776,7 @@ global option to your \ttref{TP2} file. \\
        language.  \\
 \\
 
-\DEFINE{Component} & & 
+\DEFINE{Component} & &
   A \ttref{Component} is a contiguous group of files and actions that a
   user can install, uninstall or upgrade. \\
 
@@ -3046,7 +3046,7 @@ P Q R 3 <br>
     Loads existingFile (which may be \ttref{BAF} or \ttref{BCS}), prepends
     all of newBCS to the top of it, applies all of the \ttref{patch}es, and
     then copies it to the \t{override} folder. User variables in
-    the filenames existingFile and newFile are replaced by their values. 
+    the filenames existingFile and newFile are replaced by their values.
     Use \ttref{EVALUATE!BUFFER} if you want to evaluate variables inside
     the body of newFile before parsing it. \\
   or & \DEFSYN{EXTEND!BOTTOM} existingBCS newFile \ttref{patch} \Slist &
@@ -3873,7 +3873,7 @@ or & \DEFSYN{SET!2DA!ENTRY!LATER} string \ttref{value} \ttref{value} \ttref{valu
   Similar to \t{SET!2DA!ENTRY}, memorizes the 2da changes in the RAM without
   flushing them to the file. See the \ttref{SET!2DA!ENTRY!LATER} tutorial. \\
 or & \DEFSYN{SET!2DA!ENTRIES!NOW} string \ttref{value} & To be used with
-  \t{SET!2DA!ENTRY!LATER}: flushes the file changes in one go. See the 
+  \t{SET!2DA!ENTRY!LATER}: flushes the file changes in one go. See the
   \ttref{SET!2DA!ENTRIES!NOW} tutorial. \\
 or & \DEFINE{PRETTY!PRINT!2DA} & Indents the 3rd line in the current file (which
   should be a  2da file). \\
@@ -3908,6 +3908,9 @@ d e f
 g h i
 4 4 4
 \end{verbatim} \\
+or & \DEFINE{REMOVE!2DA!ROW} \t{\ttref{value}1 \ttref{value}2} &
+  the Value1-th row from the 2da file containing at least value2 items will be removed.
+\\
 or & \DEFINE{PATCH!READLN} \ttref{variable} &
   Waits for the user to provided an enter-terminated string and store it in
   variable. Said string will be stored and re-used at reinstall time. See the
