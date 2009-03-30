@@ -333,7 +333,7 @@ and tp_patch =
   | TP_Patch_Gam of string * string * tp_patchexp * tp_patchexp
   | TP_Add_Cre_Item of tp_add_cre_item
   | TP_Replace_Cre_Item of tp_add_cre_item
-  | TP_Add_S_Item of store_args * string * ((string * int) list) * tp_patchexp * tp_patchexp * tp_patchexp * string * tp_patchexp * (string option)
+  | TP_Add_S_Item of store_args * string * tp_store_position * tp_patchexp * tp_patchexp * tp_patchexp * string * tp_patchexp * (string option)
   | TP_Remove_Cre_Item of string list
   | TP_Set_BG2_Proficiency of tp_patchexp * tp_patchexp
   | TP_Remove_Known_Spell of string list
@@ -362,6 +362,12 @@ and tp_decompress_where =
 	| TP_DW_Variable of tp_pe_string
 	| TP_DW_IntoFile of tp_patchexp * tp_patchexp
 
+and tp_store_position =
+	| TP_Store_First
+	| TP_Store_Last
+	| TP_Store_At of tp_patchexp
+	| TP_Store_After of string
+	| TP_Store_Before of string
 
 and tp_constraint =
   | TP_Contains of tp_pe_string

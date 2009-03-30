@@ -752,11 +752,12 @@ patch_exp : patch_STRING_right              { Tp.PE_String($1) }
 | IS_AN_INT patch_STRING_left { Tp.PE_IsAnInt($2) }
 ;
 
-optional_store_position : { [] }
-| AFTER STRING            { [ ($2,1) ] }
-| BEFORE STRING           { [ ($2,2) ] }
-| LAST                    { [ ("",3) ] }
-| FIRST                   { [] } /* same as default */
+optional_store_position :
+{ Tp.TP_Store_First }
+| AFTER STRING { Tp.TP_Store_After $2 }
+| BEFORE STRING { Tp.TP_Store_Before $2 }
+| LAST { Tp.TP_Store_Last }
+| FIRST { Tp.TP_Store_First }
 ;
 
 tp_patch_list :   { [] }

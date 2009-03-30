@@ -2045,10 +2045,6 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
       (* Create the new item *)
       let item = Var.get_string item in
       let item = String.uppercase item in
-      let before_what = ref "" in
-      let before_or_after = ref 0 in
-      List.iter ( fun (name, pos) -> before_what := Var.get_string name ; before_or_after := pos ) where ;
-      let before_what_list = Str.split (Str.regexp "[\t ]") !before_what in
 
       let item_buff = String.make 28 '\000' in
       String.blit item 0 item_buff 0 (String.length item);
@@ -2162,48 +2158,50 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
         write_int buff 0x38 (numisale + 1);
         let added = ref false in
         let buff_ref = ref (Str.string_before buff (isaleoffset)) in
-        if (!before_or_after = 1) or (!before_or_after = 2) then begin
-          let item_reg = List.map (fun x ->
-            let y = if String.length x > 8 then Str.string_before x 8 else x in
-            (y ^ String.make (8 - (String.length y)) '.')
-          ) before_what_list in
-(*           if !debug_ocaml then begin
-            log_and_print "item_reg is -%s-\n" item_reg ;
-          end ; *)
-          let item_reg = List.map Str.regexp_case_fold item_reg in
-          let item_string = Str.string_after (Str.string_before buff (isaleoffset + 28 * numisale)) isaleoffset in
-          let length = (String.length item_string) / 28 in
-(*           if !debug_ocaml then log_and_print "item_string:\"%s\", with %d items\n" item_string length ; *)
-          List.iter (fun this_test ->
-            if not !added then
-              for i = 0 to length - 1 do
-                let this_one_long = Str.string_before (Str.string_after item_string (i * 28)) 28 in
-                if not !added then begin
-                  let this_one = Str.string_before (this_one_long) 8 in
-                  if !debug_ocaml then log_and_print "Item %d is \"%s\"\n" i this_one ;
-                  if Str.string_match this_test this_one 0 then begin
-                    buff_ref := Printf.sprintf "%s%s%s" !buff_ref
-                    (* t_i_l i_b
-                       i_b t_i_l *)
-                      (if !before_or_after = 1 then this_one_long else item_buff)
-                      (if !before_or_after = 1 then item_buff else this_one_long) ;
-                    added := true
-                  end
-                  else buff_ref := !buff_ref ^ this_one_long
-                end else buff_ref := !buff_ref ^ this_one_long ;
-              done ;
-          ) item_reg ;
-          if not !added then log_and_print "Not found space for %s %s %s.\n" item (if !before_or_after = 1
-              then "after" else "before") !before_what ;
+        begin match where with
+	        | TP_Store_Before before_what
+	        | TP_Store_After before_what ->
+	          let before_what_list = Str.split (Str.regexp "[\t ]") before_what in
+						let item_reg = List.map (fun x ->
+	            let y = if String.length x > 8 then Str.string_before x 8 else x in
+	            (y ^ String.make (8 - (String.length y)) '.')
+	          ) before_what_list in
+	          let item_reg = List.map Str.regexp_case_fold item_reg in
+	          let item_string = Str.string_after (Str.string_before buff (isaleoffset + 28 * numisale)) isaleoffset in
+	          let length = (String.length item_string) / 28 in
+	          List.iter (fun this_test ->
+	            if not !added then
+	              for i = 0 to length - 1 do
+	                let this_one_long = Str.string_before (Str.string_after item_string (i * 28)) 28 in
+	                if not !added then begin
+	                  let this_one = Str.string_before (this_one_long) 8 in
+	                  if !debug_ocaml then log_and_print "Item %d is \"%s\"\n" i this_one ;
+	                  if Str.string_match this_test this_one 0 then begin
+	                    buff_ref := Printf.sprintf "%s%s%s" !buff_ref
+	                    (* t_i_l i_b
+	                       i_b t_i_l *)
+	                      (if where = TP_Store_After before_what then this_one_long else item_buff)
+	                      (if where = TP_Store_After before_what then item_buff else this_one_long) ;
+	                    added := true
+	                  end
+	                  else buff_ref := !buff_ref ^ this_one_long
+	                end else buff_ref := !buff_ref ^ this_one_long ;
+	              done ;
+	          ) item_reg ;
+	          if not !added then log_and_print "Not found space for %s %s %s.\n" item (if where = TP_Store_After before_what
+	              then "after" else "before") before_what ;
+	        | _ -> ()
         end ;
-        let after = Str.string_after buff (match !added, !before_or_after with
+        let after = Str.string_after buff (match !added, where with
           | (true,_)
-          | (false,3) -> isaleoffset + 28 *numisale
-          | _     -> isaleoffset
+          | (false,TP_Store_Last) -> isaleoffset + 28 * numisale
+          | (false,TP_Store_At x) -> isaleoffset + 28 * Int32.to_int (eval_pe buff game x)
+					| _     -> isaleoffset
         ) in
         if not !added then begin
-          let before = Str.string_before buff (match !before_or_after with
-            | 3 -> isaleoffset + 28 *numisale
+          let before = Str.string_before buff (match where with
+            | TP_Store_Last -> isaleoffset + 28 *numisale
+          	| TP_Store_At x -> isaleoffset + 28 * Int32.to_int (eval_pe buff game x)
             | _ -> isaleoffset
           ) in
           buff_ref := before ^ item_buff

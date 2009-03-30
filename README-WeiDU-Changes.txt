@@ -10,6 +10,7 @@ Version 211:
   * README can accept any number of file names. All are tried in order, and the
     first one will be opened.
   * EXTEND_MOS respects transparency tiles for compatibility with TutuGUI.
+  * ADD_STORE_ITEM blah AT 5 added for devSin.
 
 Version 210:
   * LAUNCH_*_FUNCTION can define variables local to the function.
