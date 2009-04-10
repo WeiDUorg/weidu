@@ -2192,18 +2192,22 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	              then "after" else "before") before_what ;
 	        | _ -> ()
         end ;
+        let fix x =
+          let x = Int32.to_int (eval_pe buff game x) in
+          if x > numisale then (log_and_print "ADD_STORE_ITEM AT %d out of range 0-%d - defaulting to %d" x numisale numisale;numisale)
+          else if x < 0 then (log_and_print "ADD_STORE_ITEM AT %d out of range 0-%d - defaulting to 0" x numisale;0)
+          else x
+        in
         let after = Str.string_after buff (match !added, where with
           | (true,_)
           | (false,TP_Store_Last) -> isaleoffset + 28 * numisale
-          | (false,TP_Store_At x) -> (let x = Int32.to_int (eval_pe buff game x) in if (x < 0 || x > numisale) then failwith
-                (Printf.sprintf "ADD_STORE_ITEM AT %d out of bounds 0 %d" x numisale);
-                isaleoffset + 28 * x)
+          | (false,TP_Store_At x) -> isaleoffset + 28 * (fix x)
 					| _     -> isaleoffset
         ) in
         if not !added then begin
           let before = Str.string_before buff (match where with
-            | TP_Store_Last -> isaleoffset + 28 *numisale
-          	| TP_Store_At x -> isaleoffset + 28 * Int32.to_int (eval_pe buff game x)
+            | TP_Store_Last -> isaleoffset + 28 * numisale
+          	| TP_Store_At x -> isaleoffset + 28 * (fix x)
             | _ -> isaleoffset
           ) in
           buff_ref := before ^ item_buff
