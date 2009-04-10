@@ -1,4 +1,5 @@
 obj/*
+obj-tk/*
 *.exe
 *.html
 *.dll
