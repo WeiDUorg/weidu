@@ -12,6 +12,7 @@ Version 211:
   * EXTEND_MOS respects transparency tiles for compatibility with TutuGUI.
   * ADD_STORE_ITEM blah AT 5 added for devSin.
   * Correctly evaluate variables in strings like ~50% %var%~.
+  * EXTEND_TOP/BOTTOM ~scripts/myfile.bs~ ~myfile.baf~ now works.
 
 Version 210:
   * LAUNCH_*_FUNCTION can define variables local to the function.

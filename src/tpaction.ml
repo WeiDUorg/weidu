@@ -1875,8 +1875,12 @@ try
 					handle_script_buffer dest dest_buff
 				in 
 	
-				let destpath = "override/" ^ dest in 
-				Stats.time "saving files" (fun () -> 
+				let destpath =
+          try
+            ignore(String.index dest '/'); dest
+          with _ -> "override/" ^ dest
+        in
+				Stats.time "saving files" (fun () ->
 				let out = open_for_writing destpath true in
 				Bcs.save_bcs game (Bcs.Save_BCS_OC(out)) (match a with
 					TP_Extend_Top(_,_,_,_,_) -> src_script @ dest_script
