@@ -453,7 +453,13 @@ try
 		log_and_print "Clearing the IDS map.\n" ;
 		Bcs.clear_ids_map game ;
 	
-	| TP_Silent -> be_silent := true ;
+  	| TP_ActionClearArray(arr) ->
+		let arr = eval_pe_str arr in
+		while Hashtbl.mem !Var.arrays arr do
+			Hashtbl.remove !Var.arrays arr
+		done;
+
+  | TP_Silent -> be_silent := true ;
 	| TP_Verbose -> be_silent := false ;
 	
 	| TP_CopyRandom(slistlist,plist,wlist) ->

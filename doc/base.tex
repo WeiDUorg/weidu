@@ -2980,6 +2980,11 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
   or & \DEFINE{CLEAR!IDS!MAP} & force WeiDU to remove all loaded IDSes in memory
       (otherwise, if you compile a script, append to an IDS and compile another script, WeiDU
       will not handle the new IDS entry). \\
+  or & \DEFINE{ACTION!CLEAR!ARRAY} \ttref{String} &
+    `Forgets' that the array \t{string} exists until its values are recalled.
+    The actual variables' values are kept, the only effect is that \t{*PHP!EACH}
+    will not consider old values.
+  \\
   or & \DEFINE{SILENT} & makes WeiDU skip all messages; it's reenabled once a component
       is installed (or fails to), or a PRINT, PATCH!PRINT, VERBOSE or PATCH!VERBOSE is found. \\
   or & \DEFINE{VERBOSE} & undoes the latest SILENT command. \\

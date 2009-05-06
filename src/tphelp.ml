@@ -77,7 +77,7 @@ and pe_str_str s = match s with
   | PE_Evaluate(s) -> Printf.sprintf "EVALUATE_BUFFER %s" (pe_str_str s)
   | PE_Lowercase(s) -> Printf.sprintf "LOWERCASE %s" (pe_str_str s)
   | PE_Uppercase(s) -> Printf.sprintf "UPPERCASE %s" (pe_str_str s)
-  | PE_Dollars(s,a,r1,r2) -> let result = List.fold_left 
+  | PE_Dollars(s,a,r1,r2) -> let result = List.fold_left
 			(fun acc this -> acc ^ " " ^ (pe_str_str this)) ("$" ^ (pe_str_str s) ^ "(") a in
       Printf.sprintf "%s)" result
 
@@ -86,6 +86,7 @@ let action_to_str a = match a with
   | TP_Copy _ -> "COPY"
   | TP_ClearMemory -> "CLEAR_MEMORY"
   | TP_Clear_Ids_Map -> "CLEAR_IDS_MAP"
+  | TP_ActionClearArray _ -> "ACTION_CLEAR_ARRAY"
   | TP_CopyLarge _ -> "COPY_LARGE"
   | TP_CopyAllGamFiles _ -> "COPY_ALL_GAM_FILES"
   | TP_CopyRandom _ -> "COPY_RANDOM"

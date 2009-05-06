@@ -284,7 +284,8 @@ nonterm(Tp.tp_action) Tp_Action {
 		BEGIN e4:Tp_Action_List END [ Tp.TP_ActionPHPEach(e1,e2,e3,e4) ]
 	-> CLEAR_MEMORY [ Tp.TP_ClearMemory ]
 	-> CLEAR_IDS_MAP [ Tp.TP_Clear_Ids_Map ]
-	-> COPY e1:Optional_Backup e2:Optional_Glob e3:Str_Str_List e4:Tp_Patch_List e5:Tp_When_List
+	-> ACTION_CLEAR_ARRAY e1:Patch_String_Left [ Tp.TP_ActionClearArray(e1) ]
+  -> COPY e1:Optional_Backup e2:Optional_Glob e3:Str_Str_List e4:Tp_Patch_List e5:Tp_When_List
 			[ Tp.TP_Copy {
 				Tp.copy_get_existing = false;
         Tp.copy_use_regexp = false;
