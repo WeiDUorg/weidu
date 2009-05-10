@@ -322,12 +322,12 @@
 		    READ_LONG 0x6a ___#fx_off
 		    READ_SHORT 0x6e ___#eqfx_index
 		    READ_SHORT 0x70 ___#eqfx_num
-		
+
 		    INSERT_BYTES (___#fx_off + ___#eqfx_index) 0x30
-		
+
 		    WRITE_SHORT  (___#fx_off + ___#eqfx_index) opcode
 		    WRITE_BYTE  (___#fx_off + ___#eqfx_index + 0x02) target
-		
+
 		    WRITE_BYTE  (___#fx_off + ___#eqfx_index + 0x03) power
 		    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x04) parameter1
 		    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x08) parameter2
@@ -341,10 +341,10 @@
 		    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x20) dicesize
 		    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x24) savingthrow
 		    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x28) savebonus
-		
+
 		    //correcting global effects number
 		    WRITE_SHORT 0x70 (___#eqfx_num + 1)
-		
+
 		    //correcting 1st effect ___#index1es
 		    FOR (___#index2 = 0 ; ___#index2 < ___#abil_num ; ___#index2 = ___#index2 + 1) BEGIN
 		      READ_SHORT (___#abil_off + ___#index2 * 0x38 + 0x20) ___#1effect_index
@@ -370,12 +370,16 @@
 		  SET dicesize = 0
 		  SET savingthrow = 0
 		  SET savebonus = 0
-		
+
 		  END
 		END
 		
-		
-		
+		DEFINE_PATCH_MACRO ~ADD_SPELL_CFEFFECT~ BEGIN
+		  LAUNCH_PATCH_MACRO ~ADD_ITEM_EQEFFECT~
+		END
+
+
+
 		//adds the effect to the item. Need parameters: ___#opcode target use_level fail_strref timing mr_bypass duration probability ~%resource%~
 		DEFINE_PATCH_MACRO ~ADD_ITEM_EFFECT~ BEGIN
 		  PATCH_IF (SOURCE_SIZE > 0x71) THEN BEGIN // protects against invalid files

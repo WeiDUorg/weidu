@@ -1,4 +1,5 @@
 Version 211:
+  * In macro-world, ADD_SPELL_CFEFFECT added.
   * Ton of readme fixes (Taimon, vit-mg, Mike1072).
   * {READ,GET}_STRREF_{F,S,FS} for getting the female/sound string references.
   * REPLACE_ACTION_TEXT, REPLACE_TRANS_{ACTION,TRIGGER} are case insensitive.
