@@ -645,13 +645,22 @@ let emit_d dlg out_name dt dft o ot only_state reprint_d_action
 end
 
 let dlg_compare o d1 d2 dt dft reprint_d_action =
-  if Array.length d1.state > Array.length d2.state then
-    failwith "Initial dialogue is longer than the resulting one"
-  else begin
+  if Array.length d1.state > Array.length d2.state then begin
+    Printf.bprintf o "\n// NOTICE: initial dialogue has more states than the resulting one.\n";
+    Printf.bprintf o "// State %d and following don't exist in the resulting file.\n" (Array.length d2.state);
+    Printf.bprintf o "// They're overwritten with a blank state because I can't delete them.\n"
+  end else begin
     Printf.bprintf o "REPLACE ~%s~\n\n" d1.name ;
     for i = 0 to (Array.length d1.state) - 1 do
       let s1 = d1.state.(i) in
-      let s2 = d2.state.(i) in
+      let s2 = try d2.state.(i) with _ -> {
+        resp_str = Local_String({ lse_male = Printf.sprintf "State #%d that shouldn't exist" i ; lse_male_sound = "";
+                    lse_female = ""; lse_female_sound = "";}) ;
+        trans = [||];
+        state_trigger = "False()";
+        state_trigger_weight = Not_Specified;
+        symbolic_label = (Printf.sprintf "state_that_should_not_exist_%d" i) ;
+      } in
       if s1 = s2 then
         ()
       else
