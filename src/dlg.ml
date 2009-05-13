@@ -445,8 +445,8 @@ let emit_d dlg out_name dt dft o ot only_state reprint_d_action
               if Hashtbl.mem tc_of_tlk_index male then
                 Hashtbl.find tc_of_tlk_index male
               else begin
-                incr trans_count ; 
-                Hashtbl.add tc_of_tlk_index male !trans_count ; 
+                incr trans_count ;
+                Hashtbl.add tc_of_tlk_index male !trans_count ;
                 Printf.fprintf ot "@%-3d = " !trans_count ; 
                 if !use_trans_ref then 
                   Printf.fprintf ot "#%d /* " i ;
@@ -488,7 +488,7 @@ let emit_d dlg out_name dt dft o ot only_state reprint_d_action
           let old_comments = !comments in
           comments := false ; 
           let str = reprint_d_action s 
-            ((fun i -> ts (TLK_Index(Int32.to_int i)))) in 
+            ((fun i -> ts (TLK_Index(Int32.to_int i)))) in
           comments := old_comments ; 
           Printf.sprintf " DO ~%s~" str 
           end 
@@ -581,8 +581,8 @@ let emit_d dlg out_name dt dft o ot only_state reprint_d_action
       Printf.bprintf o "\n%sIF " (if str = "" || not !comments then "" else "/* ");
       if not trivial_weighting then 
         print_weight o i s.state_trigger s.state_trigger_weight ;
-      Printf.bprintf o "~%s~ THEN BEGIN %s%d" 
-        (convert_raw_text_out s.state_trigger) 
+      Printf.bprintf o "~%s~ THEN BEGIN %s%d"
+        (convert_raw_text_out s.state_trigger)
         str i;
 
       if !emit_from && !comments then begin 
@@ -645,35 +645,39 @@ let emit_d dlg out_name dt dft o ot only_state reprint_d_action
 end
 
 let dlg_compare o d1 d2 dt dft reprint_d_action =
+  let oldlength = Array.length d2.state in
   if Array.length d1.state > Array.length d2.state then begin
-    Printf.bprintf o "\n// NOTICE: initial dialogue has more states than the resulting one.\n";
+    Printf.bprintf o "//////////////////////////////////////////////////\n// NOTICE: initial dialogue has more states than the resulting one.\n";
     Printf.bprintf o "// State %d and following don't exist in the resulting file.\n" (Array.length d2.state);
-    Printf.bprintf o "// They're overwritten with a blank state because I can't delete them.\n"
-  end else begin
-    Printf.bprintf o "REPLACE ~%s~\n\n" d1.name ;
-    for i = 0 to (Array.length d1.state) - 1 do
-      let s1 = d1.state.(i) in
-      let s2 = try d2.state.(i) with _ -> {
-        resp_str = Local_String({ lse_male = Printf.sprintf "State #%d that shouldn't exist" i ; lse_male_sound = "";
-                    lse_female = ""; lse_female_sound = "";}) ;
-        trans = [||];
-        state_trigger = "False()";
-        state_trigger_weight = Not_Specified;
+    Printf.bprintf o "// They're overwritten with a blank state because I can't delete them.\n//////////////////////////////////////////////////\n"
+  end;
+  Printf.bprintf o "REPLACE ~%s~\n\n" d1.name ;
+  let d2 = {d2 with state = if Array.length d1.state > Array.length d2.state then begin
+    Array.init (Array.length d1.state) (fun i ->
+      if i < (Array.length d2.state) then d2.state.(i)
+      else { d1.state.(i) with
+        state_trigger = "False()\n" ^ d1.state.(i).state_trigger;
         symbolic_label = (Printf.sprintf "state_that_should_not_exist_%d" i) ;
-      } in
-      if s1 = s2 then
-        ()
-      else
-        emit_d d2 d2.name dt dft o (None) (Some(i)) reprint_d_action false false
-    done;
-    Printf.bprintf o "\nEND\n";
-    Printf.bprintf o "APPEND ~%s~\n\n" d1.name ;
-    for i = (Array.length d1.state) to (Array.length d2.state) - 1 do
-      let s1 = d2.state.(i) in
-       emit_d d2 d2.name dt dft o (None) (Some(i)) reprint_d_action false false
-    done;
-    Printf.bprintf o "\nEND\n"
-  end
+      }
+    )
+  end else d2.state} in
+  for i = 0 to (Array.length d1.state) - 1 do
+    let s1 = d1.state.(i) in
+    let s2 = d2.state.(i) in
+    if oldlength = i then
+      Printf.bprintf o "//////////////////////////////////////////////////\n// NOTICE: states that should be deleted start from here.\n//////////////////////////////////////////////////\n";
+    if s1 = s2 then
+      ()
+    else
+      emit_d d2 d2.name dt dft o (None) (Some(i)) reprint_d_action false false
+  done;
+  Printf.bprintf o "\nEND\n";
+  Printf.bprintf o "APPEND ~%s~\n\n" d1.name ;
+  for i = (Array.length d1.state) to (Array.length d2.state) - 1 do
+    let s1 = d2.state.(i) in
+     emit_d d2 d2.name dt dft o (None) (Some(i)) reprint_d_action false false
+  done;
+  Printf.bprintf o "\nEND\n"
 
 let make_state_trans says called trans =
   { resp_str = says ;

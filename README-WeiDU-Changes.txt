@@ -15,6 +15,8 @@ Version 211:
   * Correctly evaluate variables in strings like ~50% %var%~.
   * EXTEND_TOP/BOTTOM ~scripts/myfile.bs~ ~myfile.baf~ now works.
   * Added ACTION_CLEAR_ARRAY.
+  * OUTER_SET var += -= *= etc. added.
+  * --dcmp-from --dcmp-to 'works' if from has less states than to.
 
 Version 210:
   * LAUNCH_*_FUNCTION can define variables local to the function.
