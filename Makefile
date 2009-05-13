@@ -248,7 +248,8 @@ windows_zip : weidu weinstall weigui tolower clean
 	upx --best ToLower.exe || echo "No EXE Compression"
 	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU/*.exe WeiDU/COPYING WeiDU/README* WeiDU/*.dll WeiDU/examples )
 src_zip : clean
-	(cd .. ; zip -9r WeiDU-Src-$(VER).zip WeiDU -x WeiDU/WeiDU.exe -x WeiDU/ToLower.exe -x WeiDU/WeInstall.exe -x WeiDU/WeiGUI.exe -x WeiDU/*.dll )
+	(cd .. ; zip -9r WeiDU-Src-$(VER).zip WeiDU/* -x WeiDU/WeiDU.exe -x WeiDU/ToLower.exe \
+   -x WeiDU/WeInstall.exe -x WeiDU/WeiGUI.exe -x WeiDU/*.dll; )
 build : weidu
 	rm iwg2* weimorph* || true
 	cp weid*$(EXE) ../WeiDU-Linux/WeiDU || true
