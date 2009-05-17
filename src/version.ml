@@ -6,7 +6,7 @@ diffs/src.version.ml.diff file, as the output of a diff -Bw -c -N command.
 
 It was originally taken from Westley Weimer's WeiDU 185. *)
 
-let version = "21011"
+let version = "21012"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
