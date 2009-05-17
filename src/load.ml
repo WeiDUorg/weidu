@@ -11,9 +11,9 @@ open Util
 open Cbif
 
 let registry_game_paths () = 
-  let str_list = "." :: !Arch.registry_paths in 
-  List.map (fun str -> 
-    if str = "." then str else Case_ins.filename_dirname str 
+  let str_list = "." :: "../" :: "../../" :: "../../../" :: "../../../../" :: !Arch.registry_paths in
+  List.map (fun str ->
+    if str = "." then str else Case_ins.filename_dirname str
   ) str_list 
 
 let game_paths = ref [] 

@@ -97,3 +97,12 @@ external win_check_UAC : unit -> bool = "win_check_UAC"
 let check_UAC () =
 	win_check_UAC ()
 ;;
+
+let game_path_by_type name =
+  match String.lowercase name with
+  | "bg2"  -> registry_path ()
+  | "bg"   -> bg_registry_path ()
+  | "iwd"  -> iwd_registry_path ()
+  | "iwd2" -> iwd2_registry_path ()
+  | "pst"  -> pst_registry_path ()
+  | _ -> failwith (Printf.sprintf "Unknown game: %s" name)

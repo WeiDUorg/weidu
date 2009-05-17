@@ -247,6 +247,7 @@ let main () =
 	let usageMsg = Printf.sprintf "\t\tWeiDU (version %s: \"%s\")\n\nusage: WeiDU [options] BAF,BCS,D,DLG,TRA,TP,TP2-files\n\nGeneral Input Options:\n" version comment in
 	let argDescr = [
 		"--game", Myarg.String Load.add_game_path, "X\tset main game directory to X" ;
+		"--game-by-type", Myarg.String (fun x -> Load.add_game_path(Arch.game_path_by_type x)), "X\tset main game directory to the one where X is installed (BG,BG2,IWD,IWD2,PST)";
 		"--nogame", Myarg.Set no_game,"\tdo not load any default game files" ;
 		"--search", Myarg.String Load.add_override_path, "X\tlook in X for input files (cumulative)" ;
 		"--search-ids", Myarg.String Load.add_ids_path, "X\tlook in X for input IDS files (cumulative)" ;

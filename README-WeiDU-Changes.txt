@@ -17,6 +17,11 @@ Version 211:
   * Added ACTION_CLEAR_ARRAY.
   * OUTER_SET var += -= *= etc. added.
   * --dcmp-from --dcmp-to 'works' if from has less states than to.
+  * --game-by-type for setting the game path using the game directories in the
+    register. Doesn't work on Mac or Linux.
+  * If there is no chitin.key in ./ (and --game and friends is not specified),
+    try looking for a game installation in ../, ../../, etc (up to four levels
+    of depth).
 
 Version 210:
   * LAUNCH_*_FUNCTION can define variables local to the function.

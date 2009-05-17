@@ -82,3 +82,7 @@ let get_version f =
 let check_UAC () =
 	false
 ;;
+
+let game_path_by_type name =
+  failwith "--game-by-path not available on this architecture"
+
