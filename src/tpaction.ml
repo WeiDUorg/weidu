@@ -1330,26 +1330,16 @@ try
 		| Some(_) -> Dc.pop_trans ())
 		end
 	
-	| TP_String_Set_Evaluate(lst,tra_file_opt) -> begin
-		(match tra_file_opt with
-		| None -> ()
-		| Some(tra_file) ->
-			begin
-			let tra_file = Var.get_string tra_file in
-			Dc.push_copy_trans ();
-			handle_tra_filename (Arch.backslash_to_slash tra_file)
-			end
-		) ;
-		List.iter (fun (pe,str) ->
-			let i = Int32.to_int (eval_pe "" game pe) in
-			if !debug_ocaml then log_and_print "Setting %d to \"%s\"\n" i
-				(Dc.single_string_of_tlk_string game str) ;
-			Dc.set_string game i str false ;
-		) lst ;
-		(match tra_file_opt with
-		| None -> ()
-		| Some(_) -> Dc.pop_trans ())
-		end
+	| TP_String_Set_Evaluate(lst,tra_file_opt) ->
+		(* eval pe to string and wrap around TP_String_Set *)
+		let eval_lst = List.map (fun (pe,str) ->
+			let eval_s = match pe with
+				| PE_String(s) -> Var.get_string (eval_pe_str s)
+				| _ -> Int32.to_string (eval_pe "" game pe)
+			in
+			(eval_s,str)
+		) lst in
+		process_action tp (TP_String_Set(eval_lst,tra_file_opt))
 	
 	| TP_Alter_TLK (pl) ->
 			let b = get_pe_int "0" in
