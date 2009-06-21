@@ -1086,8 +1086,8 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 
   | TP_PatchASCII(where,what,evaluate,reqdSize) ->
       let where = Int32.to_int (eval_pe buff game where) in
-      let what = if evaluate then Var.get_string what 
-                             else what in 
+      let what = if evaluate then Var.get_string (eval_pe_str what)
+                             else eval_pe_str what in 
       let what = match reqdSize with
       | None -> what
       | Some(i) -> 

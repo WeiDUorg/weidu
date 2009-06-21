@@ -23,6 +23,7 @@ Version 211:
     try looking for a game installation in ../, ../../, etc (up to four levels
     of depth).
   * STRING_SET_EVALUATE also accepts strings as first argument
+  * WRITE_EVALUATED_ASCII now also allows arrays as second argument
 
 Version 210:
   * LAUNCH_*_FUNCTION can define variables local to the function.

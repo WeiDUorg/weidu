@@ -858,12 +858,12 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> WRITE_SHORT e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchShort(e1,e2) ]
 	-> WRITE_LONG e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchLong(e1,e2) ]
 	-> WRITE_ASCII e1:Patch_Exp e2:STRING
-			[ Tp.TP_PatchASCII(e1,e2,false,None) ]
+			[ Tp.TP_PatchASCII(e1,Tp.PE_LiteralString e2,false,None) ]
 	-> WRITE_ASCII e1:Patch_Exp e2:STRING e3:String_Ref_Or_Pe
-			[ Tp.TP_PatchASCII(e1,e2,false,Some e3) ]
-	-> WRITE_EVALUATED_ASCII e1:Patch_Exp e2:STRING
+			[ Tp.TP_PatchASCII(e1,Tp.PE_LiteralString e2,false,Some e3) ]
+	-> WRITE_EVALUATED_ASCII e1:Patch_Exp e2:Patch_String_Right
 			[ Tp.TP_PatchASCII(e1,e2,true,None) ]
-	-> WRITE_EVALUATED_ASCII e1:Patch_Exp e2:STRING e3:String_Ref_Or_Pe
+	-> WRITE_EVALUATED_ASCII e1:Patch_Exp e2:Patch_String_Right e3:String_Ref_Or_Pe
 			[ Tp.TP_PatchASCII(e1,e2,true,Some e3) ]
 	-> WRITE_ASCII_TERMINATED e1:Patch_Exp e2:STRING [ Tp.TP_PatchASCIITerminated(e1,e2) ]
 	-> INSERT_BYTES e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchInsertBytes(e1,e2) ]

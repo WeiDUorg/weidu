@@ -827,10 +827,11 @@ tp_patch   :
 | WRITE_BYTE patch_exp patch_exp { Tp.TP_PatchByte($2,$3) }
 | WRITE_SHORT patch_exp patch_exp { Tp.TP_PatchShort($2,$3) }
 | WRITE_LONG patch_exp patch_exp { Tp.TP_PatchLong($2,$3) }
-| WRITE_ASCII patch_exp STRING { Tp.TP_PatchASCII($2,$3,false,None) }
-| WRITE_ASCII patch_exp STRING string_ref_or_pe { Tp.TP_PatchASCII($2,$3,false,Some($4)) }
-| WRITE_EVALUATED_ASCII patch_exp STRING { Tp.TP_PatchASCII($2,$3,true,None) }
-| WRITE_EVALUATED_ASCII patch_exp STRING string_ref_or_pe { Tp.TP_PatchASCII($2,$3,true,Some($4)) }
+| WRITE_ASCII patch_exp STRING { Tp.TP_PatchASCII($2,Tp.PE_LiteralString $3,false,None) }
+| WRITE_ASCII patch_exp STRING string_ref_or_pe {
+    Tp.TP_PatchASCII($2,Tp.PE_LiteralString $3,false,Some($4)) }
+| WRITE_EVALUATED_ASCII patch_exp patch_STRING_right { Tp.TP_PatchASCII($2,$3,true,None) }
+| WRITE_EVALUATED_ASCII patch_exp patch_STRING_right string_ref_or_pe { Tp.TP_PatchASCII($2,$3,true,Some($4)) }
 | WRITE_ASCII_TERMINATED patch_exp STRING { Tp.TP_PatchASCIITerminated($2,$3) }
 | INSERT_BYTES patch_exp patch_exp { Tp.TP_PatchInsertBytes($2,$3) }
 | DELETE_BYTES patch_exp patch_exp { Tp.TP_PatchDeleteBytes($2,$3) }

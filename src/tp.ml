@@ -298,7 +298,7 @@ and tp_patch =
   | TP_PatchSnprint of tp_patchexp * tp_pe_string * tp_pe_tlk_string
   | TP_PatchASCII of
       tp_patchexp (* where? *)
-    * string (* what? *)
+    * tp_pe_string (* what? *)
     * bool (* evaluate? *)
     * (tp_patchexp option) (* minimum size? *)
   | TP_PatchASCIITerminated of
