@@ -754,8 +754,8 @@ patch_exp : patch_STRING_right              { Tp.PE_String($1) }
 
 optional_store_position :
 { Tp.TP_Store_First }
-| AFTER STRING { Tp.TP_Store_After $2 }
-| BEFORE STRING { Tp.TP_Store_Before $2 }
+| AFTER patch_STRING_right { Tp.TP_Store_After $2 }
+| BEFORE patch_STRING_right { Tp.TP_Store_Before $2 }
 | LAST { Tp.TP_Store_Last }
 | FIRST { Tp.TP_Store_First }
 ;

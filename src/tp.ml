@@ -367,8 +367,8 @@ and tp_store_position =
 	| TP_Store_First
 	| TP_Store_Last
 	| TP_Store_At of tp_patchexp
-	| TP_Store_After of string
-	| TP_Store_Before of string
+	| TP_Store_After of tp_pe_string
+	| TP_Store_Before of tp_pe_string
 
 and tp_constraint =
   | TP_Contains of tp_pe_string

@@ -746,8 +746,8 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
 
 nonterm (Tp.tp_store_position) Optional_Store_Position {
 	-> { Tp.TP_Store_First }
-	-> AFTER e1:STRING [ Tp.TP_Store_After e1 ]
-	-> BEFORE e1:STRING [ Tp.TP_Store_Before e1 ]
+	-> AFTER e1:Patch_String_Right [ Tp.TP_Store_After e1 ]
+	-> BEFORE e1:Patch_String_Right [ Tp.TP_Store_Before e1 ]
 	-> LAST [ Tp.TP_Store_Last ]
 	-> FIRST { Tp.TP_Store_First }
 	-> AT e1:Patch_Exp { Tp.TP_Store_At e1 }

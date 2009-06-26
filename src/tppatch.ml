@@ -2159,8 +2159,9 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
         let added = ref false in
         let buff_ref = ref (Str.string_before buff (isaleoffset)) in
         begin match where with
-	        | TP_Store_Before before_what
-	        | TP_Store_After before_what ->
+	        | TP_Store_Before store_pos_arg
+	        | TP_Store_After store_pos_arg ->
+	          let before_what = Var.get_string (eval_pe_str store_pos_arg) in
 	          let before_what_list = Str.split (Str.regexp "[\t ]") before_what in
 						let item_reg = List.map (fun x ->
 	            let y = if String.length x > 8 then Str.string_before x 8 else x in
@@ -2180,15 +2181,15 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	                    buff_ref := Printf.sprintf "%s%s%s" !buff_ref
 	                    (* t_i_l i_b
 	                       i_b t_i_l *)
-	                      (if where = TP_Store_After before_what then this_one_long else item_buff)
-	                      (if where = TP_Store_After before_what then item_buff else this_one_long) ;
+	                      (if where = TP_Store_After store_pos_arg then this_one_long else item_buff)
+	                      (if where = TP_Store_After store_pos_arg then item_buff else this_one_long) ;
 	                    added := true
 	                  end
 	                  else buff_ref := !buff_ref ^ this_one_long
 	                end else buff_ref := !buff_ref ^ this_one_long ;
 	              done ;
 	          ) item_reg ;
-	          if not !added then log_and_print "Not found space for %s %s %s.\n" item (if where = TP_Store_After before_what
+	          if not !added then log_and_print "Not found space for %s %s %s.\n" item (if where = TP_Store_After store_pos_arg
 	              then "after" else "before") before_what ;
 	        | _ -> ()
         end ;
