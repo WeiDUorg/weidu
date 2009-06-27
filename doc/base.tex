@@ -6972,40 +6972,41 @@ This is an ACTION macro.
 \\
 
 The following macros were provided by Gort. Note that, differently from the standalone versions, you \emph{need}
-to set all the needed values - they aren't initialized automatically.
+to set all the needed values - they aren't initialized automatically. This is untrue in the FUNCTION version
+(they are initialized to either 0 or the empty string, except for probability1 which is initialized to 100).
 
 \verb+DELETE_SPELL_EFFECT+: deletes all extended effects with specified opcode from a spell.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SET opcode_to_delete to the opcode of the effect you want to delete. Opcode of (-1) will match all effects.
 \end{itemize}
 
 \verb+DELETE_ITEM_EFFECT+: deletes all extended effects with specified opcode from an item.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SET opcode_to_delete to the opcode of the effect you want to delete. Opcode of (-1) will match all effects.
 \end{itemize}
 
 \verb+DELETE_ITEM_EQEFFECT+: deletes all equipping effects with specified opcode from an item.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SET opcode_to_delete to the opcode of the effect you want to delete. Opcode of (-1) will match all effects.
 \end{itemize}
 
 \verb+DELETE_CRE_EFFECT+: deletes all effects with specified opcode from a creature. (Warning: doesn't check EFF version)
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SET opcode_to_delete to the opcode of the effect you want to delete. Opcode of (-1) will match all effects.
 \end{itemize}
 
 \verb+ITEM_EFFECT_TO_SPELL+: copies all extended effects from the current item to the first extended header of a spell.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT ~new_itm_spl~ to a spell you want to copy effects to.
 \end{itemize}
 
 \verb+ADD_SPELL_EFFECT+: adds an extended effect to a spell. All variables except probability1 are 0 by default.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SET opcode to opcode
 \item SET target to target type
@@ -7026,19 +7027,19 @@ This is a PATCH macro.
 \end{itemize}
 
 \verb+ADD_ITEM_EFFECT+: adds an extended effect to an item.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{list}{}{}
 \item Syntax is the same as of ADD_SPELL_EFFECT
 \end{list}
 
 \verb+ADD_ITEM_EQEFFECT+: adds an equipping effect to an item.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{list}{}{}
 \item Syntax is the same as of ADD_SPELL_EFFECT
 \end{list}
 
 \verb+ADD_CRE_EFFECT+: adds an effect to a creature. All variables except probability1 are 0 by default. (Warning: doesn't check EFF version)
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SET opcode to opcode
 \item SET timing to timing type
@@ -7073,25 +7074,25 @@ This is a PATCH macro.
 \end{itemize}
 
 \verb+DELETE_CRE_ITEM+: deletes all matching items from a creature. Regexp alowed.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT item_to_delete to the item you want to delete.
 \end{itemize}
 
 \verb+DELETE_STORE_ITEM+: deletes all matching items from a store. Regexp alowed.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT item_to_delete to the item you want to delete.
 \end{itemize}
 
 \verb+DELETE_AREA_ITEM+: deletes all matching items from an area. Regexp alowed.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT item_to_delete to the item you want to delete.
 \end{itemize}
 
 \verb+REPLACE_STORE_ITEM+: replaces all matching items in a store with another item. Regexp alowed.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT old_item to the item you want to be replaced
 \item SPRINT new_item to the new item
@@ -7103,7 +7104,7 @@ This is a PATCH macro.
 \end{itemize}
 
 \verb+REPLACE_AREA_ITEM+: replaces all matching items in an area with another item. Regexp alowed.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT old_item to the item you want to be replaced
 \item SPRINT new_item to the new item
@@ -7114,9 +7115,9 @@ This is a PATCH macro.
 \end{itemize}
 
 \verb+ADD_AREA_ITEM+: adds an item to a container of an area.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
-\item SET item_to_add to the item you want to add
+\item SET item_to_add to the item you want to add 
 \item SET container_to_add_to to number of container the item should be added to.
 \item SPRINT flags to flags the item should have (usual weidu syntax: STOLEN, IDENTIFIED&STOLEN, etc). Default - no flags.
 \item SET charges1 to amount in stock/number of charges of first magical ability (default 0)
@@ -7125,21 +7126,21 @@ This is a PATCH macro.
 \end{itemize}
 
 \verb+ADD_CRE_ITEM_FLAGS+: adds flags to all matching items posessed by a creature. Regexp allowed.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT item_to_change to the item the flags should be added to
 \item SPRINT flags to flags you need to add (usual weidu syntax: STOLEN, IDENTIFIED&STOLEN, etc).
 \end{itemize}
 
 \verb+REMOVE_CRE_ITEM_FLAGS+: removes flags from all matching items posessed by a creature. Regexp allowed.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT item_to_change to the item the flags should be removed from
 \item SPRINT flags to flags you need to remove (usual weidu syntax: STOLEN, IDENTIFIED&STOLEN, etc).
 \end{itemize}
 
 \verb+SET_CRE_ITEM_FLAGS+: set flags to all matching items posessed by a creature. Regexp allowed.
-This is a PATCH macro.
+This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT item_to_change to the item which flags should be set
 \item SPRINT flags to flags you need to set (usual weidu syntax: STOLEN, IDENTIFIED&STOLEN, etc).
@@ -7160,6 +7161,49 @@ This is an ACTION macro.
 \item SET overwrite to 2 if you want new soundset to overwrite the old one completely. Set it to 1 if you want to overwrite old string references only with non-empty new references (may keep some old). Set it to 0 it you want to overwrite only empty old references with new ones.
 \end{itemize}
 
+\verb+ADD_AREA_REGION_TRIGGER+: adds an area region to the current are file.
+This is a PATCH macro and function.
+\begin{itemize}
+\item SPRINT AREA_RT_NAME   name to assign new region
+\item SET AREA_RT_TYPE  type of trigger -- 0=proximity;1=info;2=travel
+\item SET AREA_RT_BBOX_LOW_X bounding box low x value LEFT
+\item SET AREA_RT_BBOX_LOW_Y bounding box low y value TOP
+\item SET AREA_RT_BBOX_HIGH_X bounding box high x value RIGHT
+\item SET AREA_RT_BBOX_HIGH_Y bounding box high y value BOTTOM
+\item SET AREA_RT_VERTEX_PAIRS number of x y coordinate pairs making up new region
+\item SET AREA_RT_FLAGS flag values set in bit format from right to left 1 turns on 0 turns off
+\item SET AREA_RT_TRAP_DET_DIFF trap detection difficulty percentage
+\item SET AREA_RT_TRAP_REM_DIFF trap removal difficulty percentage
+\item SET AREA_RT_TRAP_IS_SET Is the region trapped? 0=no;1=yes
+\item SET AREA_RT_TRAP_DETECTED Is the region trap already detected? 0=no;1=yes
+\item SET AREA_RT_LAUNCH_POINT_X Main use point x value
+\item SET AREA_RT_LAUNCH_POINT_Y Main use point y value
+\item SPRINT AREA_RT_KEY_ITEM key item reference if one is required
+\item SPRINT AREA_RT_REGION_SCRIPT region script
+\item SET AREA_RT_ALT_USE_POINT_X alternate use point x value
+\item SET AREA_RT_ALT_USE_POINT_Y alternate use point y value
+
+\\
+The vertex points are seperated by their X & Y values
+You may have as many pairs as you need. Just copy this set and increment the #.
+Example: For the X values: AREA_RT_VERTEX_X0, AREA_RT_VERTEX_X1, AREA_RT_VERTEX_X2
+         For the Y values: AREA_RT_VERTEX_Y0, AREA_RT_VERTEX_Y1, AREA_RT_VERTEX_Y2
+\item SET AREA_RT_VERTEX_X0 Point #0 X value
+\item SET AREA_RT_VERTEX_Y0 Point #0 Y value
+
+\\
+if travel trigger set these
+\item SET AREA_RT_CURSOR_INDEX a point in cursors.bam -- used for travel triggers
+\item SPRINT AREA_RT_DEST_AREA destination area for travel triggers
+\item SPRINT AREA_RT_ENTRANCE_NAME entrance name in destincation area for travel triggers
+
+\\
+if info trigger set these
+\item SPRINT AREA_RT_INFO_TEXT text to be displayed for info triggers
+
+\\
+if using on PST set this if you need to
+\item SPRINT AREA_RT_DIALOG_FILE dialog file if the region can talk in pst\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\DEFINE{Module Distribution}: \t{Setup-MyMod.exe}}

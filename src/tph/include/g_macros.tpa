@@ -1,57 +1,9 @@
-		//initializing variables to avoid failing. Very important!
-		
-		//nil
 		OUTER_PATCH ___#qwerty BEGIN
 		  WRITE_BYTE 0 0
 		  READ_ASCII 0 ___#nil (1)
 		END
-		
 
-/* 		//optional vars for area macro:
-		OUTER_SPRINT flags ~%___#nil%~
-		OUTER_SET charges1 = 0
-		OUTER_SET charges2 = 0
-		OUTER_SET charges3 = 0
-		
-		//for store macro:
-		OUTER_SET number_in_stock = 0
-		
-		//for effect macro:
-		OUTER_SET opcode = 0
-		OUTER_SET timing = 0
-		OUTER_SET power = 0
-		OUTER_SET parameter1 = 0
-		OUTER_SET parameter2 = 0
-		OUTER_SET target = 0
-		OUTER_SET resist_dispel = 0
-		OUTER_SET duration = 0
-		OUTER_SPRINT resource ~%___#nil%~
-		OUTER_SET dicenumber = 0
-		OUTER_SET dicesize = 0
-		OUTER_SET savingthrow = 0
-		OUTER_SET savebonus = 0
-		OUTER_SET probability1 = 100
-		OUTER_SET probability2 = 0
-		OUTER_SET header = 0
-		
-		OUTER_SET school = 0
-		OUTER_SET lowestafflvl = 0
-		OUTER_SET highestafflvl = 0
-		OUTER_SET parameter3 = 0
-		OUTER_SET parameter4 = 0
-		OUTER_SPRINT vvcresource ~%___#nil%~
-		OUTER_SPRINT resource2 ~%___#nil%~
-		OUTER_SET casterx = 0
-		OUTER_SET castery = 0
-		OUTER_SET targetx = 0
-		OUTER_SET targety = 0
-		OUTER_SPRINT effsource ~%___#nil%~
-		OUTER_SPRINT effvar ~%___#nil%~
-		OUTER_SET casterlvl = 0
-		OUTER_SET sectype = 0 */
 
-		
-		
 		//copies all effects from an item and store them in spell. new_itm_spl required (which should already lie in override folder. .spl is NOT implied)
 		DEFINE_PATCH_MACRO ~ITEM_EFFECT_TO_SPELL~ BEGIN
 		  PATCH_IF (SOURCE_SIZE > 0x71) BEGIN
@@ -1066,3 +1018,251 @@
 		END
 		BUT_ONLY_IF_IT_CHANGES
 		END
+
+
+    DEFINE_PATCH_MACRO ~ADD_AREA_REGION~ BEGIN
+       PATCH_IF (%SOURCE_SIZE% > 0xd4) BEGIN
+      //update vertex indices for info points
+        READ_LONG 0x5c info_off
+        READ_SHORT 0x5a info_num
+        FOR (i= 0; i < "%info_num%"; i += 1) BEGIN
+         READ_SHORT ("%info_off%" + (%i% * 0xc4) + 0x2c) info_vertex_first_idx
+         PATCH_IF ("%info_vertex_first_idx%" >= 0) BEGIN
+          WRITE_SHORT ("%info_off%" + (%i% * 0xc4) + 0x2c) ("%info_vertex_first_idx%" + %AREA_RT_VERTEX_PAIRS%)
+         END
+        END
+      //update vertex indices for containers
+        READ_LONG 0x70 container_off
+        READ_SHORT 0x74 container_num
+        FOR (i = 0; i< "%container_num%"; i += 1) BEGIN
+         READ_LONG ("%container_off%" + (%i% * 0xc0) + 0x50) container_vertex_first_idx
+         PATCH_IF ("%container_vertex_first_idx%" >= 0) BEGIN
+          WRITE_LONG ("%container_off%" + (%i% * 0xc0) + 0x50) ("%container_vertex_first_idx%" + %AREA_RT_VERTEX_PAIRS%)
+         END
+        END
+      //update vertex indices for doors
+        READ_LONG 0xa8 door_off
+        READ_SHORT 0xa4 door_num
+        FOR (i = 0; i < "%door_num%"; i += 1) BEGIN
+         READ_LONG ("%door_off%" + (%i% * 0xc8) + 0x2c) door_vertex_open_first_idx
+         PATCH_IF ("%door_vertex_open_first_idx%" >= 0) BEGIN
+          WRITE_LONG ("%door_off%" + (%i% * 0xc8) + 0x2c) ("%door_vertex_open_first_idx%" + %AREA_RT_VERTEX_PAIRS%)
+         END
+         READ_LONG ("%door_off%" + (%i% * 0xc8) + 0x34) door_vertex_closed_first_idx
+         PATCH_IF ("%door_vertex_closed_first_idx%" >= 0) BEGIN
+          WRITE_LONG ("%door_off%" + (%i% * 0xc8) + 0x34) ("%door_vertex_closed_first_idx%" + %AREA_RT_VERTEX_PAIRS%)
+         END
+         READ_LONG ("%door_off%" + (%i% * 0xc8) + 0x48) door_vertex_impede_closed_first_idx
+         PATCH_IF ("%door_vertex_impede_closed_first_idx%" >= 0) BEGIN
+          WRITE_LONG ("%door_off%" + (%i% * 0xc8) + 0x48) ("%door_vertex_impede_closed_first_idx%" + %AREA_RT_VERTEX_PAIRS%)
+         END
+         READ_LONG ("%door_off%" + (%i% * 0xc8) + 0x50) door_vertex_impede_open_first_idx
+         PATCH_IF ("%door_vertex_impede_open_first_idx%" >= 0) BEGIN
+          WRITE_LONG ("%door_off%" + (%i% * 0xc8) + 0x50) ("%door_vertex_impede_open_first_idx%" + %AREA_RT_VERTEX_PAIRS%)
+         END
+        END
+      //insert triggers space
+        READ_LONG 0x5c info_off
+        READ_SHORT 0x5a info_num
+        WRITE_SHORT 0x5a (%info_num% + 1)
+        SET new_bytes = (0xc4 * 1)
+        SET cmp_loc = %info_off%
+        SET check_num = %info_num%
+        INSERT_BYTES (%cmp_loc%) (%new_bytes%)
+      // Write info for new trigger
+        WRITE_EVALUATED_ASCII (%info_off% + 0) ~%AREA_RT_NAME%~ (32)      //name
+        WRITE_SHORT (%info_off% + 0x20) %AREA_RT_TYPE%          //type 0=proximity;1=info;2=travel
+        WRITE_SHORT (%info_off% + 0x22) %AREA_RT_BBOX_LOW_X%    //low x
+        WRITE_SHORT (%info_off% + 0x24) %AREA_RT_BBOX_LOW_Y%    //low y
+        WRITE_SHORT (%info_off% + 0x26) %AREA_RT_BBOX_HIGH_X%   //high x
+        WRITE_SHORT (%info_off% + 0x28) %AREA_RT_BBOX_HIGH_Y%   //high y
+        WRITE_SHORT (%info_off% + 0x2a) %AREA_RT_VERTEX_PAIRS%  //num of vertices
+        WRITE_LONG (%info_off% + 0x2c) 0                        //index of vertices --automatically 0
+        PATCH_IF (%AREA_RT_TYPE% = 2) BEGIN
+         WRITE_LONG (%info_off% + 0x34) %AREA_RT_CURSOR_INDEX%          //a point in cursors.bam -- used for travel triggers
+         WRITE_EVALUATED_ASCII (%info_off% + 0x38) ~%AREA_RT_DEST_AREA%~ (8)      //destination area for travel triggers
+         WRITE_EVALUATED_ASCII (%info_off% + 0x40) ~%AREA_RT_ENTRANCE_NAME%~ (32) //entrance name in destincation area for travel triggers
+        END
+        READ_LONG (%info_off% + 0x60) ~flag_bits~
+        WRITE_LONG (%info_off% + 0x60) (%flag_bits% BOR %AREA_RT_FLAGS%) //flags set by bit
+        PATCH_IF (%AREA_RT_TYPE% = 1) BEGIN
+         WRITE_LONG (%info_off% + 0x64) ~%AREA_RT_INFO_TEXT%~             //information text for info triggers
+        END
+        WRITE_SHORT (%info_off% + 0x68) %AREA_RT_TRAP_DET_DIFF%
+        WRITE_SHORT (%info_off% + 0x6a) %AREA_RT_TRAP_REM_DIFF%
+        WRITE_SHORT (%info_off% + 0x6c) %AREA_RT_TRAP_IS_SET%
+        WRITE_SHORT (%info_off% + 0x63) %AREA_RT_TRAP_DETECTED%
+        WRITE_SHORT (%info_off% + 0x70) %AREA_RT_LAUNCH_POINT_X%
+        WRITE_SHORT (%info_off% + 0x72) %AREA_RT_LAUNCH_POINT_Y%
+        WRITE_EVALUATED_ASCII (%info_off% + 0x74) ~%AREA_RT_KEY_ITEM%~
+        WRITE_EVALUATED_ASCII (%info_off% + 0x7c) ~%AREA_RT_REGION_SCRIPT%~ (8)
+        WRITE_SHORT (%info_off% + 0x84) %AREA_RT_ALT_USE_POINT_X%
+        WRITE_SHORT (%info_off% + 0x86) %AREA_RT_ALT_USE_POINT_Y%
+        PATCH_IF (GAME_IS ~pst~) BEGIN
+         WRITE_ASCII (%info_off% + 0xbc) ~%AREA_RT_DIALOG_FILE%~ (8)
+        END
+      //check other offsets and update as needed
+        READ_LONG 0x54 actor_off
+        PATCH_IF (%actor_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x54 (%actor_off% + %new_bytes%) //actor_off
+        END
+        READ_LONG 0x60 spawn_off
+        PATCH_IF (%spawn_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x60 (%spawn_off% + %new_bytes%) //spawn_off
+        END
+        READ_LONG 0x68 entrance_off
+        PATCH_IF (%entrance_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x68 (%entrance_off% + %new_bytes%) //entrance_off
+        END
+        READ_LONG 0x70 container_off
+        PATCH_IF (%container_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x70 (%container_off% + %new_bytes%) //container_off
+        END
+        READ_LONG 0x78 item_off
+        PATCH_IF (%item_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x78 (%item_off% + %new_bytes%) //item_off
+        END
+        READ_LONG 0x7c vertex_off
+        PATCH_IF (%vertex_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x7c (%vertex_off% + %new_bytes%) //vertex_off
+        END
+        READ_LONG 0x84 ambient_off
+        PATCH_IF (%ambient_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x84 (%ambient_off% + %new_bytes%) //ambient_off
+        END
+        READ_LONG 0x88 variable_off
+        PATCH_IF (%variable_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x88 (%variable_off% + %new_bytes%) //variable_off
+        END
+        READ_LONG 0xa8 door_off
+        PATCH_IF (%door_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0xa8 (%door_off% + %new_bytes%) //door_off
+        END
+        READ_LONG 0xa0 explored_off
+        PATCH_IF (%explored_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0xa0 (%explored_off% + %new_bytes%) //explored_off
+        END
+        READ_LONG 0xb0 anim_off
+        PATCH_IF (%anim_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0xb0 (%anim_off% + %new_bytes%) //anim_off
+        END
+        READ_LONG 0xb8 tiled_off
+        PATCH_IF (%tiled_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0xb8 (%tiled_off% + %new_bytes%) //tiled_off
+        END
+        READ_LONG 0xbc song_off
+        PATCH_IF (%song_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0xbc (%song_off% + %new_bytes%) //song_off
+        END
+        READ_LONG 0xc0 rest_off
+        PATCH_IF (%rest_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0xc0 (%rest_off% + %new_bytes%) //rest_off
+        END
+        PATCH_IF !(GAME_IS ~pst~) BEGIN
+         READ_LONG 0xc4 automap_off
+         PATCH_IF (%automap_off% >= %cmp_loc%) BEGIN
+          WRITE_LONG 0xc4 (%automap_off% + %new_bytes%) //automap_off
+         END
+         READ_LONG 0xcc pro_traps_off
+         PATCH_IF (%pro_traps_off% >= %cmp_loc%) BEGIN
+          WRITE_LONG 0xcc (%pro_traps_off% + %new_bytes%) //automap_off
+         END
+        END
+        PATCH_IF (GAME_IS ~pst~) BEGIN
+         READ_LONG 0xc8 automap_off
+         PATCH_IF (%automap_off% >= %cmp_loc%) BEGIN
+          WRITE_LONG 0xc8 (%automap_off% + %new_bytes%) //automap_off
+         END
+        END
+      //insert space for vertices for triggers
+        READ_LONG 0x7c vertex_off
+        READ_SHORT 0x80 vertex_num
+        WRITE_SHORT 0x80 (%vertex_num% + %AREA_RT_VERTEX_PAIRS%)
+        SET new_bytes = (0x4 * %AREA_RT_VERTEX_PAIRS%)
+        SET check_num = %vertex_num%
+        SET cmp_loc = %vertex_off%
+        INSERT_BYTES (%cmp_loc%) (%new_bytes%)
+      // verticies for new trigger
+        FOR (index=0;index<(%AREA_RT_VERTEX_PAIRS%);index+=1) BEGIN
+         SPRINT AREA_RT_VERTEX_X ~AREA_RT_VERTEX_X%index%~
+         SET AREA_RT_VERTEX_X = EVALUATE_BUFFER ~%%AREA_RT_VERTEX_X%%~
+         SPRINT AREA_RT_VERTEX_Y ~AREA_RT_VERTEX_Y%index%~
+         SET AREA_RT_VERTEX_Y = EVALUATE_BUFFER ~%%AREA_RT_VERTEX_Y%%~
+         WRITE_SHORT (%vertex_off% +( %index%*4) +0) %AREA_RT_VERTEX_X%
+         WRITE_SHORT (%vertex_off% +( %index%*4) +2) %AREA_RT_VERTEX_Y%
+        END
+      //check other offsets and update as needed
+        READ_LONG 0x54 actor_off
+        PATCH_IF (%actor_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x54 (%actor_off% + %new_bytes%) //actor_off
+        END
+        READ_LONG 0x60 spawn_off
+        PATCH_IF (%spawn_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x60 (%spawn_off% + %new_bytes%) //spawn_off
+        END
+        READ_LONG 0x68 entrance_off
+        PATCH_IF (%entrance_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x68 (%entrance_off% + %new_bytes%) //entrance_off
+        END
+        READ_LONG 0x70 container_off
+        PATCH_IF (%container_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x70 (%container_off% + %new_bytes%) //container_off
+        END
+        READ_LONG 0x78 item_off
+        PATCH_IF (%item_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x78 (%item_off% + %new_bytes%) //item_off
+        END
+        READ_LONG 0x5c info_off
+        PATCH_IF (%info_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x5c (%info_off% + %new_bytes%) //info_off
+        END
+        READ_LONG 0x84 ambient_off
+        PATCH_IF (%ambient_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x84 (%ambient_off% + %new_bytes%) //ambient_off
+        END
+        READ_LONG 0x88 variable_off
+        PATCH_IF (%variable_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0x88 (%variable_off% + %new_bytes%) //variable_off
+        END
+        READ_LONG 0xa8 door_off
+        PATCH_IF (%door_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0xa8 (%door_off% + %new_bytes%) //door_off
+        END
+        READ_LONG 0xa0 explored_off
+        PATCH_IF (%explored_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0xa0 (%explored_off% + %new_bytes%) //explored_off
+        END
+        READ_LONG 0xb0 anim_off
+        PATCH_IF (%anim_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0xb0 (%anim_off% + %new_bytes%) //anim_off
+        END
+        READ_LONG 0xb8 tiled_off
+        PATCH_IF (%tiled_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0xb8 (%tiled_off% + %new_bytes%) //tiled_off
+        END
+        READ_LONG 0xbc song_off
+        PATCH_IF (%song_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0xbc (%song_off% + %new_bytes%) //song_off
+        END
+        READ_LONG 0xc0 rest_off
+        PATCH_IF (%rest_off% >= %cmp_loc%) BEGIN
+         WRITE_LONG 0xc0 (%rest_off% + %new_bytes%) //rest_off
+        END
+        PATCH_IF !(GAME_IS ~pst~) BEGIN
+         READ_LONG 0xc4 automap_off
+         PATCH_IF (%automap_off% >= %cmp_loc%) BEGIN
+          WRITE_LONG 0xc4 (%automap_off% + %new_bytes%) //automap_off
+         END
+         READ_LONG 0xcc pro_traps_off
+         PATCH_IF (%pro_traps_off% >= %cmp_loc%) BEGIN
+          WRITE_LONG 0xcc (%pro_traps_off% + %new_bytes%) //automap_off
+         END
+        END
+        PATCH_IF (GAME_IS ~pst~) BEGIN
+         READ_LONG 0xc8 automap_off
+         PATCH_IF (%automap_off% >= %cmp_loc%) BEGIN
+          WRITE_LONG 0xc8 (%automap_off% + %new_bytes%) //automap_off
+         END
+        END
+       END
+    END

@@ -22,7 +22,8 @@ Version 211:
   * If there is no chitin.key in ./ (and --game and friends is not specified),
     try looking for a game installation in ../, ../../, etc (up to four levels
     of depth).
-  * STRING_SET_EVALUATE also accepts strings as first argument
+  * STRING_SET_EVALUATE also accepts strings as first argument.
+  *Qwinn's ADD_AREA_REGION_TRIGGER macro added.
 
 Version 210:
   * LAUNCH_*_FUNCTION can define variables local to the function.
