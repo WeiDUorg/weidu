@@ -298,7 +298,7 @@ and tp_patch =
   | TP_PatchSnprint of tp_patchexp * tp_pe_string * tp_pe_tlk_string
   | TP_PatchASCII of
       tp_patchexp (* where? *)
-    * string (* what? *)
+    * tp_pe_string (* what? *)
     * bool (* evaluate? *)
     * (tp_patchexp option) (* minimum size? *)
   | TP_PatchASCIITerminated of
@@ -367,8 +367,8 @@ and tp_store_position =
 	| TP_Store_First
 	| TP_Store_Last
 	| TP_Store_At of tp_patchexp
-	| TP_Store_After of string
-	| TP_Store_Before of string
+	| TP_Store_After of tp_pe_string
+	| TP_Store_Before of tp_pe_string
 
 and tp_constraint =
   | TP_Contains of tp_pe_string

@@ -4286,7 +4286,7 @@ or & \ttref{value} \DEFINE{BOR} \ttref{value} & Bitwise Or.
 or & \ttref{value} \DEFINE{BXOR} \ttref{value} & Bitwise Exclusive Or. 
 \t{0b101 BXOR 0b110 = 0b011}. Synonym: \DEFSYN{^^}.  \\
 or & \DEFINE{BNOT} \ttref{value} & Bitwise Not. 
-\t{BNOT 0b111 = 0b1111111111111111111111111111000}. Synonym: \DEFSYN{\verb+~+}. \\
+\t{BNOT 0b111 = 0b1111111111111111111111111111000}. Synonym: \DEFSYN{\verb+`+}. \\
 or & \ttref{value} \DEFINE{BLSL} \ttref{value} & Bitwise Logical Shift Left. 
 \t{0b101 BLSL 2 = 0b10100}. Synonym: \DEFSYN{<<}. \\
 or & \ttref{value} \DEFINE{BLSR} \ttref{value} & Bitwise Logical Shift Right. 
@@ -4388,22 +4388,19 @@ Returns true if the variable String is set to an integer (there's a variable cal
 
 or & \DEFINE{MOD!IS!INSTALLED} modTp2Name modComponent &
 Returns true if the modComponent of modTp2Name is installed. The syntax
-is the same as with \ttref {REQUIRE!PREDICATE}.  \\
+is the same as with \ttref {REQUIRE!COMPONENT}.  \\
 
 or & \DEFINE{STATE!WHICH!SAYS} \ttref{text} \t{FROM} \ttref{String} &
-  Returns:
+  String must be an in-game or in-override .dlg file. Returns:
   \begin{enumerate}
-  \item fails the installation if it can't evaluate the text (an \t{@x} reference out of bounds)
-  \item -3 if the text is not currently in the tlk or in the list of strings
-    to add
+  \item Fails the installation if it can't evaluate the text (an \t{@x} reference out of bounds)
+  \item -3 if the text is not currently in the tlk or in the list of strings to add
   \item -2 if the text is spoken (= \verb+SAY ~Foo~+) at least twice in the file String
-    (String must be an in-game or in-override .dlg file)
   \item -1 if the text is never spoken in the file String
-    (String must be an in-game or in-override .dlg file)
   \end{enumerate}
-  otherwise it returns the number of the state in which text is spoken in the file String
-    (String must be an in-game or in-override .dlg file). \t{@x} references are taken from
-    the loaded TRA files (the ones defined in the \ttref{Language} part).
+  Otherwise it returns the number of the state in which text is spoken in the file String.
+  \t{@x} references are taken from the loaded TRA files (the ones defined in the 
+  \ttref{Language} part).
 \\
 
 or & \DEFSYN{STATE!WHICH!SAYS} \t{\ttref{value} IN \ttref{String}1 FROM \ttref{String}2} &

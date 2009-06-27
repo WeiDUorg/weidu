@@ -428,7 +428,7 @@ and copy_large_file name out reason =
 
 let load_file name =
   if Hashtbl.mem inlined_files name then
-    Hashtbl.find inlined_files (Arch.backslash_to_slash name)
+    String.copy (Hashtbl.find inlined_files (Arch.backslash_to_slash name))
   else
   try begin
     Stats.time "loading files" (fun () ->

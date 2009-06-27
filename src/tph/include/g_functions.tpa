@@ -1,0 +1,230 @@
+DEFINE_PATCH_FUNCTION ~DELETE_SPELL_EFFECT~
+  INT_VAR opcode_to_delete = 0
+BEGIN
+  LAUNCH_PATCH_MACRO ~DELETE_SPELL_EFFECT~
+END
+
+DEFINE_PATCH_FUNCTION ~DELETE_ITEM_EFFECT~
+  INT_VAR opcode_to_delete = 0
+BEGIN
+  LAUNCH_PATCH_MACRO ~DELETE_ITEM_EFFECT~
+END
+
+DEFINE_PATCH_FUNCTION ~DELETE_ITEM_EQEFFECT~
+  INT_VAR opcode_to_delete = 0
+BEGIN
+  LAUNCH_PATCH_MACRO ~DELETE_ITEM_EQEFFECT~
+END
+
+DEFINE_PATCH_FUNCTION ~DELETE_CRE_EFFECT~
+  INT_VAR opcode_to_delete = 0
+BEGIN
+  LAUNCH_PATCH_MACRO ~DELETE_CRE_EFFECT~
+END
+
+DEFINE_PATCH_FUNCTION ~ITEM_EFFECT_TO_SPELL~
+  STR_VAR new_itm_spl = 0
+BEGIN
+  LAUNCH_PATCH_MACRO ~ITEM_EFFECT_TO_SPELL~
+END
+
+DEFINE_PATCH_FUNCTION ~ADD_SPELL_EFFECT~
+  INT_VAR opcode = 0
+          target = 0
+          timing = 0
+          parameter1 = 0
+          parameter2 = 0
+          power = 0
+          resist_dispel = 0
+          duration = 0
+          probability1 = 100
+          probability2 = 0
+          dicenumber = 0
+          dicesize = 0
+          savingthrow = 0
+          savebonus = 0
+          header = 0
+  STR_VAR resource = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~ADD_SPELL_EFFECT~
+END
+
+DEFINE_PATCH_FUNCTION ~ADD_ITEM_EFFECT~
+  INT_VAR opcode = 0
+          target = 0
+          timing = 0
+          parameter1 = 0
+          parameter2 = 0
+          power = 0
+          resist_dispel = 0
+          duration = 0
+          probability1 = 100
+          probability2 = 0
+          dicenumber = 0
+          dicesize = 0
+          savingthrow = 0
+          savebonus = 0
+          header = 0
+  STR_VAR resource = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~ADD_ITEM_EFFECT~
+END
+
+DEFINE_PATCH_FUNCTION ~ADD_ITEM_EQEFFECT~
+  INT_VAR opcode = 0
+          target = 0
+          timing = 0
+          parameter1 = 0
+          parameter2 = 0
+          power = 0
+          resist_dispel = 0
+          duration = 0
+          probability1 = 100
+          probability2 = 0
+          dicenumber = 0
+          dicesize = 0
+          savingthrow = 0
+          savebonus = 0
+          header = 0
+  STR_VAR resource = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~ADD_ITEM_EQEFFECT~
+END
+
+DEFINE_PATCH_FUNCTION ~ADD_CRE_EFFECT~
+  INT_VAR opcode = 0
+          target = 0
+          timing = 0
+          parameter1 = 0
+          parameter2 = 0
+          power = 0
+          resist_dispel = 0
+          duration = 0
+          probability1 = 100
+          probability2 = 0
+          dicenumber = 0
+          dicesize = 0
+          savingthrow = 0
+          savebonus = 0
+          header = 0
+          parameter3 = 0
+          parameter4 = 0
+          school = 0
+          lowestafflvl = 0
+          highestafflvl = 0
+          casterx = 0
+          castery = 0
+          targetx = 0
+          targety = 0
+          casterlvl = 0
+          sectype = 0
+  STR_VAR resource = ~~
+          resource2 = ~~
+          vvcresource = ~~
+          effresource = ~~
+          effvar = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~ADD_CRE_EFFECT~
+END
+
+DEFINE_PATCH_FUNCTION ~DELETE_CRE_ITEM~
+  STR_VAR item_to_delete = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~DELETE_CRE_ITEM~
+END
+
+DEFINE_PATCH_FUNCTION ~DELETE_STORE_ITEM~
+  STR_VAR item_to_delete = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~DELETE_STORE_ITEM~
+END
+
+DEFINE_PATCH_FUNCTION ~DELETE_AREA_ITEM~
+  STR_VAR item_to_delete = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~DELETE_AREA_ITEM~
+END
+
+DEFINE_PATCH_FUNCTION ~REPLACE_STORE_ITEM~
+  INT_VAR number_in_stock = 0
+          charges1 = 0
+          charges2 = 0
+          charges3 = 0
+  STR_VAR flags = ~~
+          old_item = ~~
+          new_item = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~REPLACE_STORE_ITEM~
+END
+
+DEFINE_PATCH_FUNCTION ~REPLACE_AREA_ITEM~
+  INT_VAR charges1 = 0
+          charges2 = 0
+          charges3 = 0
+  STR_VAR flags = ~~
+          old_item = ~~
+          new_item = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~REPLACE_AREA_ITEM~
+END
+
+
+DEFINE_PATCH_FUNCTION ~ADD_AREA_ITEM~
+  INT_VAR container_to_add_to = 0
+          charges1 = 0
+          charges2 = 0
+          charges3 = 0
+  STR_VAR flags = ~~
+          item_to_add = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~ADD_AREA_ITEM~
+END
+
+DEFINE_PATCH_FUNCTION ~ADD_CRE_ITEM_FLAGS~
+  STR_VAR item_to_change = ~~
+          flags = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~ADD_CRE_ITEM_FLAGS~
+END
+
+DEFINE_PATCH_FUNCTION ~REMOVE_CRE_ITEM_FLAGS~
+  STR_VAR item_to_change = ~~
+          flags = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~REMOVE_CRE_ITEM_FLAGS~
+END
+
+DEFINE_PATCH_FUNCTION ~SET_CRE_ITEM_FLAGS~
+  STR_VAR item_to_change = ~~
+          flags = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~SET_CRE_ITEM_FLAGS~
+END
+
+DEFINE_PATCH_FUNCTION ~ADD_AREA_REGION_TRIGGER~
+  INT_VAR AREA_RT_TYPE = 0
+          AREA_RT_BBOX_LOW_X = 0
+          AREA_RT_BBOX_LOW_Y = 0
+          AREA_RT_BBOX_HIGH_X = 0
+          AREA_RT_BBOX_HIGH_Y = 0
+          AREA_RT_VERTEX_PAIRS = 0
+          AREA_RT_FLAGS = 0
+          AREA_RT_TRAP_DET_DIFF = 0
+          AREA_RT_TRAP_REM_DIFF = 0
+          AREA_RT_TRAP_IS_SET = 0
+          AREA_RT_TRAP_DETECTED = 0
+          AREA_RT_LAUNCH_POINT_X = 0
+          AREA_RT_LAUNCH_POINT_Y = 0
+          AREA_RT_ALT_USE_POINT_X = 0
+          AREA_RT_ALT_USE_POINT_Y = 0
+          AREA_RT_CURSOR_INDEX = 0
+  STR_VAR AREA_RT_NAME = ~~
+          AREA_RT_KEY_ITEM = ~~
+          AREA_RT_REGION_SCRIPT = ~~
+          AREA_RT_DEST_AREA = ~~
+          AREA_RT_ENTRANCE_NAME = ~~
+          AREA_RT_INFO_TEXT = ~~
+BEGIN
+  LAUNCH_PATCH_MACRO ~ADD_AREA_REGION_TRIGGER~
+END
+
