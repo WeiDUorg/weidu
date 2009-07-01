@@ -696,6 +696,7 @@
 		        SET ___#delta = (___#delta + 1)
 		        SET ___#index1 = (___#index1 - 1) //step back
 		        SET ___#4sale_num = (___#4sale_num - 1)
+
 		      END
 		      SET ___#index1 = (___#index1 + 1)
 		    END
@@ -1022,245 +1023,268 @@
 
     DEFINE_PATCH_MACRO ~ADD_AREA_REGION_TRIGGER~ BEGIN
        PATCH_IF (%SOURCE_SIZE% > 0xd4) BEGIN
-      //update vertex indices for info points
+      //read values for existing regions
         READ_LONG 0x5c info_off
         READ_SHORT 0x5a info_num
-        FOR (i= 0; i < "%info_num%"; i += 1) BEGIN
-         READ_SHORT ("%info_off%" + (%i% * 0xc4) + 0x2c) info_vertex_first_idx
-         PATCH_IF ("%info_vertex_first_idx%" >= 0) BEGIN
-          WRITE_SHORT ("%info_off%" + (%i% * 0xc4) + 0x2c) ("%info_vertex_first_idx%" + %AREA_RT_VERTEX_PAIRS%)
-         END
-        END
-      //update vertex indices for containers
-        READ_LONG 0x70 container_off
-        READ_SHORT 0x74 container_num
-        FOR (i = 0; i< "%container_num%"; i += 1) BEGIN
-         READ_LONG ("%container_off%" + (%i% * 0xc0) + 0x50) container_vertex_first_idx
-         PATCH_IF ("%container_vertex_first_idx%" >= 0) BEGIN
-          WRITE_LONG ("%container_off%" + (%i% * 0xc0) + 0x50) ("%container_vertex_first_idx%" + %AREA_RT_VERTEX_PAIRS%)
-         END
-        END
-      //update vertex indices for doors
-        READ_LONG 0xa8 door_off
-        READ_SHORT 0xa4 door_num
-        FOR (i = 0; i < "%door_num%"; i += 1) BEGIN
-         READ_LONG ("%door_off%" + (%i% * 0xc8) + 0x2c) door_vertex_open_first_idx
-         PATCH_IF ("%door_vertex_open_first_idx%" >= 0) BEGIN
-          WRITE_LONG ("%door_off%" + (%i% * 0xc8) + 0x2c) ("%door_vertex_open_first_idx%" + %AREA_RT_VERTEX_PAIRS%)
-         END
-         READ_LONG ("%door_off%" + (%i% * 0xc8) + 0x34) door_vertex_closed_first_idx
-         PATCH_IF ("%door_vertex_closed_first_idx%" >= 0) BEGIN
-          WRITE_LONG ("%door_off%" + (%i% * 0xc8) + 0x34) ("%door_vertex_closed_first_idx%" + %AREA_RT_VERTEX_PAIRS%)
-         END
-         READ_LONG ("%door_off%" + (%i% * 0xc8) + 0x48) door_vertex_impede_closed_first_idx
-         PATCH_IF ("%door_vertex_impede_closed_first_idx%" >= 0) BEGIN
-          WRITE_LONG ("%door_off%" + (%i% * 0xc8) + 0x48) ("%door_vertex_impede_closed_first_idx%" + %AREA_RT_VERTEX_PAIRS%)
-         END
-         READ_LONG ("%door_off%" + (%i% * 0xc8) + 0x50) door_vertex_impede_open_first_idx
-         PATCH_IF ("%door_vertex_impede_open_first_idx%" >= 0) BEGIN
-          WRITE_LONG ("%door_off%" + (%i% * 0xc8) + 0x50) ("%door_vertex_impede_open_first_idx%" + %AREA_RT_VERTEX_PAIRS%)
-         END
-        END
-      //insert triggers space
-        READ_LONG 0x5c info_off
-        READ_SHORT 0x5a info_num
+        READ_SHORT 0x80 vertex_num //need this value to assign index value for new vertexes in the new region
+      //set size values for 1 new section of each
+        SET ab_RT_Size = 0xc4
+      //set read size values for region trigger and vertex writes
+        SET ab_SoW_Name = 8 //Name
+        SET ab_SoW_Type = 2 //Type
+        SET ab_SoW_BbLX = 2 //Bounding Box - low x value
+        SET ab_SoW_BbLY = 2 //Bounding Box - low y value
+        SET ab_SoW_BbHX = 2 //Bounding Box - High x value
+        SET ab_SoW_BbHY = 2 //Bounding Box - High y value
+        SET ab_SoW_VxPr = 2 //Number of Vertex Pairs for current region
+        SET ab_SoW_VxId = 4 //Index into all Vertex Pairs for current region
+        SET ab_SoW_CuId = 4 //Cursor Index - points to a graphic in cursors.bam
+        SET ab_SoW_Dest = 8 //Destination Area
+        SET ab_SoW_EntN = 8 //Entrance Name
+        SET ab_SoW_Fbit = 4 //Flag bits written as 0b00000 (a combination of up to thirty-two 0s and 1s are allowed)
+        SET ab_SoW_Itxt = 4 //Info text
+        SET ab_SoW_TDtD = 2 //Trap Detection Difficulty
+        SET ab_SoW_TRmD = 2 //Trap Removal Difficulty
+        SET ab_SoW_TSet = 2 //Trap is set
+        SET ab_SoW_TDet = 2 //Trap is detected
+        SET ab_SoW_LPoX = 2 //Launch Point X
+        SET ab_SoW_LPoY = 2 //Launch Point Y
+        SET ab_SoW_KeyI = 8 //Key Item
+        SET ab_SoW_Rbcs = 8 //Region Script file
+        SET ab_SoW_ALPX = 2 //Alternate Launch Point X
+        SET ab_SoW_ALPY = 2 //Alternate Launch Point Y
+        SET ab_SoW_Dial = 8 //Dialog file (used only in PST)
+      //Set location into region for each value that can be written
+        SET ab_LoF_Name = 0x0 //Name
+        SET ab_LoF_Type = 0x20 //Type
+        SET ab_LoF_BbLX = 0x22 //Bounding Box - low x value
+        SET ab_LoF_BbLY = 0x24 //Bounding Box - low y value
+        SET ab_LoF_BbHX = 0x26 //Bounding Box - High x value
+        SET ab_LoF_BbHY = 0x28 //Bounding Box - High y value
+        SET ab_LoF_VxPr = 0x2a //Number of Vertex Pairs for current region
+        SET ab_LoF_VxId = 0x2c //Index into all Vertex Pairs for current region
+        SET ab_LoF_CuId = 0x34 //Cursor Index - points to a graphic in cursors.bam
+        SET ab_LoF_Dest = 0x38 //Destination Area
+        SET ab_LoF_EntN = 0x40 //Entrance Name
+        SET ab_LoF_Fbit = 0x60 //Flag bits written as 0b00000 (a combination of up to thirty-two 0s and 1s are allowed)
+        SET ab_LoF_Itxt = 0x64 //Info text
+        SET ab_LoF_TDtD = 0x68 //Trap Detection Difficulty
+        SET ab_LoF_TRmD = 0x6a //Trap Removal Difficulty
+        SET ab_LoF_TSet = 0x6c //Trap is set
+        SET ab_LoF_TDet = 0x6e //Trap is detected
+        SET ab_LoF_LPoX = 0x70 //Launch Point X
+        SET ab_LoF_LPoY = 0x72 //Launch Point Y
+        SET ab_LoF_KeyI = 0x74 //Key Item
+        SET ab_LoF_Rbcs = 0x7c //Region Script file
+        SET ab_LoF_ALPX = 0x84 //Alternate Launch Point X
+        SET ab_LoF_ALPY = 0x86 //Alternate Launch Point Y
+        SET ab_LoF_Dial = 0xbc //Dialog file (used only in PST)
+      //Set location to add new region trigger - it is at the end of existing region triggers
+        SET ab_RT_NLoc = (%info_off% + (%ab_RT_Size% * %info_num%))
+        SET new_bytes = %ab_RT_Size% //because I'm lazy and don't want to change the pre-existing variable name
+      //update number of region triggers by one and insert one section worth of space
         WRITE_SHORT 0x5a (%info_num% + 1)
-        SET new_bytes = (0xc4 * 1)
-        SET cmp_loc = %info_off%
-        SET check_num = %info_num%
-        INSERT_BYTES (%info_off% + (0xc4 * %info_num%)) (%new_bytes%)
-      // Write info for new trigger
-        WRITE_EVALUATED_ASCII (%info_off% + 0) ~%AREA_RT_NAME%~ (32)      //name
-        WRITE_SHORT (%info_off% + 0x20) %AREA_RT_TYPE%          //type 0=proximity;1=info;2=travel
-        WRITE_SHORT (%info_off% + 0x22) %AREA_RT_BBOX_LOW_X%    //low x
-        WRITE_SHORT (%info_off% + 0x24) %AREA_RT_BBOX_LOW_Y%    //low y
-        WRITE_SHORT (%info_off% + 0x26) %AREA_RT_BBOX_HIGH_X%   //high x
-        WRITE_SHORT (%info_off% + 0x28) %AREA_RT_BBOX_HIGH_Y%   //high y
-        WRITE_SHORT (%info_off% + 0x2a) %AREA_RT_VERTEX_PAIRS%  //num of vertices
-        WRITE_LONG (%info_off% + 0x2c) 0                        //index of vertices --automatically 0
-        PATCH_IF (%AREA_RT_TYPE% = 2) BEGIN
-         WRITE_LONG (%info_off% + 0x34) %AREA_RT_CURSOR_INDEX%          //a point in cursors.bam -- used for travel triggers
-         WRITE_EVALUATED_ASCII (%info_off% + 0x38) ~%AREA_RT_DEST_AREA%~ (8)      //destination area for travel triggers
-         WRITE_EVALUATED_ASCII (%info_off% + 0x40) ~%AREA_RT_ENTRANCE_NAME%~ (32) //entrance name in destincation area for travel triggers
-        END
-        READ_LONG (%info_off% + 0x60) ~flag_bits~
-        WRITE_LONG (%info_off% + 0x60) (%flag_bits% BOR %AREA_RT_FLAGS%) //flags set by bit
-        PATCH_IF (%AREA_RT_TYPE% = 1) BEGIN
-         WRITE_LONG (%info_off% + 0x64) ~%AREA_RT_INFO_TEXT%~             //information text for info triggers
-        END
-        WRITE_SHORT (%info_off% + 0x68) %AREA_RT_TRAP_DET_DIFF%
-        WRITE_SHORT (%info_off% + 0x6a) %AREA_RT_TRAP_REM_DIFF%
-        WRITE_SHORT (%info_off% + 0x6c) %AREA_RT_TRAP_IS_SET%
-        WRITE_SHORT (%info_off% + 0x63) %AREA_RT_TRAP_DETECTED%
-        WRITE_SHORT (%info_off% + 0x70) %AREA_RT_LAUNCH_POINT_X%
-        WRITE_SHORT (%info_off% + 0x72) %AREA_RT_LAUNCH_POINT_Y%
-        WRITE_EVALUATED_ASCII (%info_off% + 0x74) ~%AREA_RT_KEY_ITEM%~
-        WRITE_EVALUATED_ASCII (%info_off% + 0x7c) ~%AREA_RT_REGION_SCRIPT%~ (8)
-        WRITE_SHORT (%info_off% + 0x84) %AREA_RT_ALT_USE_POINT_X%
-        WRITE_SHORT (%info_off% + 0x86) %AREA_RT_ALT_USE_POINT_Y%
-        PATCH_IF (GAME_IS ~pst~) BEGIN
-         WRITE_ASCII (%info_off% + 0xbc) ~%AREA_RT_DIALOG_FILE%~ (8)
+        INSERT_BYTES %ab_RT_NLoc% %ab_RT_Size%
+      //assign index for new vertex points
+        WRITE_LONG (%info_off% + 0x2c) %vertex_num%
+      //Pass through a patch for each to locate those fields to be written that are of specific lengths
+        PATCH_FOR_EACH s1 IN ~Name~ ~Type~ ~BbLX~ ~BbLY~ ~BbHX~ ~BbHY~ ~VxPr~ ~VxId~ ~CuId~ ~Dest~ ~EntN~ ~Fbit~ ~Itxt~ ~TDtD~ ~TRmD~ ~TSet~ ~TDet~ ~LPoX~ ~LPoY~ ~KeyI~ ~Rbcs~ ~ALPX~ ~ALPY~ ~Dial~ BEGIN
+      //Deal with those fields that are 2 bytes
+         PATCH_IF ($ab_SoW("%s1%") = 2) BEGIN
+      //But only do those whose user assigned variables are set
+          PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") ) BEGIN
+           SET ab_Loc_of_field = $ab_LoF("%s1%")
+           WRITE_SHORT (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%")
+          END
+         END
+      //Deal with those fields that are 4 bytes
+         PATCH_IF ($ab_SoW("%s1%") = 4) BEGIN
+      //But only do those whose user assigned variables are set
+          PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") ) BEGIN
+           SET ab_Loc_of_field = $ab_LoF("%s1%")
+           WRITE_LONG (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%")
+          END
+         END
+      //Deal with those fields that are 8 bytes
+         PATCH_IF ($ab_SoW("%s1%") = 8) BEGIN
+      //But only do those whose user assigned variables are set
+          PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") )
+               AND ( (~%s1%~ STRING_EQUAL_CASE ~Name~)
+                  OR (~%s1%~ STRING_EQUAL_CASE ~EntN~) ) BEGIN
+            SET ab_Loc_of_field = $ab_LoF("%s1%")
+            WRITE_EVALUATED_ASCII (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%") #32
+           END
+           PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") )
+                AND ( (~%s1%~ STRING_EQUAL_CASE ~Dest~)
+                   OR (~%s1%~ STRING_EQUAL_CASE ~KeyI~)
+                   OR (~%s1%~ STRING_EQUAL_CASE ~Rbcs~)
+                   OR (~%s1%~ STRING_EQUAL_CASE ~Dial~) ) BEGIN
+            SET ab_Loc_of_field = $ab_LoF("%s1%")
+            WRITE_EVALUATED_ASCII (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%") #8
+           END
+          END
+         END
         END
       //check other offsets and update as needed
         READ_LONG 0x54 actor_off
-        PATCH_IF (%actor_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%actor_off% >= %info_off%) BEGIN
          WRITE_LONG 0x54 (%actor_off% + %new_bytes%) //actor_off
         END
         READ_LONG 0x60 spawn_off
-        PATCH_IF (%spawn_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%spawn_off% >= %info_off%) BEGIN
          WRITE_LONG 0x60 (%spawn_off% + %new_bytes%) //spawn_off
         END
         READ_LONG 0x68 entrance_off
-        PATCH_IF (%entrance_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%entrance_off% >= %info_off%) BEGIN
          WRITE_LONG 0x68 (%entrance_off% + %new_bytes%) //entrance_off
         END
         READ_LONG 0x70 container_off
-        PATCH_IF (%container_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%container_off% >= %info_off%) BEGIN
          WRITE_LONG 0x70 (%container_off% + %new_bytes%) //container_off
         END
         READ_LONG 0x78 item_off
-        PATCH_IF (%item_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%item_off% >= %info_off%) BEGIN
          WRITE_LONG 0x78 (%item_off% + %new_bytes%) //item_off
         END
         READ_LONG 0x7c vertex_off
-        PATCH_IF (%vertex_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%vertex_off% >= %info_off%) BEGIN
          WRITE_LONG 0x7c (%vertex_off% + %new_bytes%) //vertex_off
         END
         READ_LONG 0x84 ambient_off
-        PATCH_IF (%ambient_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%ambient_off% >= %info_off%) BEGIN
          WRITE_LONG 0x84 (%ambient_off% + %new_bytes%) //ambient_off
         END
         READ_LONG 0x88 variable_off
-        PATCH_IF (%variable_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%variable_off% >= %info_off%) BEGIN
          WRITE_LONG 0x88 (%variable_off% + %new_bytes%) //variable_off
         END
         READ_LONG 0xa8 door_off
-        PATCH_IF (%door_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%door_off% >= %info_off%) BEGIN
          WRITE_LONG 0xa8 (%door_off% + %new_bytes%) //door_off
         END
         READ_LONG 0xa0 explored_off
-        PATCH_IF (%explored_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%explored_off% >= %info_off%) BEGIN
          WRITE_LONG 0xa0 (%explored_off% + %new_bytes%) //explored_off
         END
         READ_LONG 0xb0 anim_off
-        PATCH_IF (%anim_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%anim_off% >= %info_off%) BEGIN
          WRITE_LONG 0xb0 (%anim_off% + %new_bytes%) //anim_off
         END
         READ_LONG 0xb8 tiled_off
-        PATCH_IF (%tiled_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%tiled_off% >= %info_off%) BEGIN
          WRITE_LONG 0xb8 (%tiled_off% + %new_bytes%) //tiled_off
         END
         READ_LONG 0xbc song_off
-        PATCH_IF (%song_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%song_off% >= %info_off%) BEGIN
          WRITE_LONG 0xbc (%song_off% + %new_bytes%) //song_off
         END
         READ_LONG 0xc0 rest_off
-        PATCH_IF (%rest_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%rest_off% >= %info_off%) BEGIN
          WRITE_LONG 0xc0 (%rest_off% + %new_bytes%) //rest_off
         END
         PATCH_IF !(GAME_IS ~pst~) BEGIN
          READ_LONG 0xc4 automap_off
-         PATCH_IF (%automap_off% >= %cmp_loc%) BEGIN
+         PATCH_IF (%automap_off% >= %info_off%) BEGIN
           WRITE_LONG 0xc4 (%automap_off% + %new_bytes%) //automap_off
          END
          READ_LONG 0xcc pro_traps_off
-         PATCH_IF (%pro_traps_off% >= %cmp_loc%) BEGIN
+         PATCH_IF (%pro_traps_off% >= %info_off%) BEGIN
           WRITE_LONG 0xcc (%pro_traps_off% + %new_bytes%) //automap_off
          END
         END
         PATCH_IF (GAME_IS ~pst~) BEGIN
          READ_LONG 0xc8 automap_off
-         PATCH_IF (%automap_off% >= %cmp_loc%) BEGIN
+         PATCH_IF (%automap_off% >= %info_off%) BEGIN
           WRITE_LONG 0xc8 (%automap_off% + %new_bytes%) //automap_off
          END
         END
-      //insert space for vertices for triggers
+      //read values needed for Vertex section
         READ_LONG 0x7c vertex_off
         READ_SHORT 0x80 vertex_num
-        WRITE_SHORT 0x80 (%vertex_num% + %AREA_RT_VERTEX_PAIRS%)
-        SET new_bytes = (0x4 * %AREA_RT_VERTEX_PAIRS%)
-        SET check_num = %vertex_num%
-        SET cmp_loc = %vertex_off%
+      //update number of All Vertex Pairs by new amount
+        WRITE_SHORT 0x80 (%vertex_num% + %ab_RT_VxPr%)
+        SET new_bytes = (0x4 * %ab_RT_VxPr%)
+      //Insert space for all of the new vertex pairs
         INSERT_BYTES (%vertex_off% + (0x4 * %vertex_num%)) (%new_bytes%)
-      // verticies for new trigger
-        FOR (index=0;index<(%AREA_RT_VERTEX_PAIRS%);index+=1) BEGIN
-         SPRINT AREA_RT_VERTEX_X ~AREA_RT_VERTEX_X%index%~
-         SET AREA_RT_VERTEX_X = EVALUATE_BUFFER ~%%AREA_RT_VERTEX_X%%~
-         SPRINT AREA_RT_VERTEX_Y ~AREA_RT_VERTEX_Y%index%~
-         SET AREA_RT_VERTEX_Y = EVALUATE_BUFFER ~%%AREA_RT_VERTEX_Y%%~
-         WRITE_SHORT (%vertex_off% +( %index%*4) +0) %AREA_RT_VERTEX_X%
-         WRITE_SHORT (%vertex_off% +( %index%*4) +2) %AREA_RT_VERTEX_Y%
+      //vertex points for new trigger
+        FOR (index=0;index<(%ab_RT_VxPr%);index+=1) BEGIN
+         PATCH_IF (VARIABLE_IS_SET $ab_RT_Vx_X("%index%") ) BEGIN
+          WRITE_SHORT (%vertex_off% +( %index%*4) +0) $ab_RT_Vx_X("%index%")
+         END
+         PATCH_IF (VARIABLE_IS_SET $ab_RT_Vx_Y("%index%") ) BEGIN
+          WRITE_SHORT (%vertex_off% +( %index%*4) +2) $ab_RT_Vx_Y("%index%")
+         END
         END
       //check other offsets and update as needed
         READ_LONG 0x54 actor_off
-        PATCH_IF (%actor_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%actor_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0x54 (%actor_off% + %new_bytes%) //actor_off
         END
         READ_LONG 0x60 spawn_off
-        PATCH_IF (%spawn_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%spawn_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0x60 (%spawn_off% + %new_bytes%) //spawn_off
         END
         READ_LONG 0x68 entrance_off
-        PATCH_IF (%entrance_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%entrance_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0x68 (%entrance_off% + %new_bytes%) //entrance_off
         END
         READ_LONG 0x70 container_off
-        PATCH_IF (%container_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%container_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0x70 (%container_off% + %new_bytes%) //container_off
         END
         READ_LONG 0x78 item_off
-        PATCH_IF (%item_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%item_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0x78 (%item_off% + %new_bytes%) //item_off
         END
         READ_LONG 0x5c info_off
-        PATCH_IF (%info_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%info_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0x5c (%info_off% + %new_bytes%) //info_off
         END
         READ_LONG 0x84 ambient_off
-        PATCH_IF (%ambient_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%ambient_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0x84 (%ambient_off% + %new_bytes%) //ambient_off
         END
         READ_LONG 0x88 variable_off
-        PATCH_IF (%variable_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%variable_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0x88 (%variable_off% + %new_bytes%) //variable_off
         END
         READ_LONG 0xa8 door_off
-        PATCH_IF (%door_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%door_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0xa8 (%door_off% + %new_bytes%) //door_off
         END
         READ_LONG 0xa0 explored_off
-        PATCH_IF (%explored_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%explored_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0xa0 (%explored_off% + %new_bytes%) //explored_off
         END
         READ_LONG 0xb0 anim_off
-        PATCH_IF (%anim_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%anim_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0xb0 (%anim_off% + %new_bytes%) //anim_off
         END
         READ_LONG 0xb8 tiled_off
-        PATCH_IF (%tiled_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%tiled_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0xb8 (%tiled_off% + %new_bytes%) //tiled_off
         END
         READ_LONG 0xbc song_off
-        PATCH_IF (%song_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%song_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0xbc (%song_off% + %new_bytes%) //song_off
         END
         READ_LONG 0xc0 rest_off
-        PATCH_IF (%rest_off% >= %cmp_loc%) BEGIN
+        PATCH_IF (%rest_off% >= %vertex_off%) BEGIN
          WRITE_LONG 0xc0 (%rest_off% + %new_bytes%) //rest_off
         END
         PATCH_IF !(GAME_IS ~pst~) BEGIN
          READ_LONG 0xc4 automap_off
-         PATCH_IF (%automap_off% >= %cmp_loc%) BEGIN
+         PATCH_IF (%automap_off% >= %vertex_off%) BEGIN
           WRITE_LONG 0xc4 (%automap_off% + %new_bytes%) //automap_off
          END
          READ_LONG 0xcc pro_traps_off
-         PATCH_IF (%pro_traps_off% >= %cmp_loc%) BEGIN
+         PATCH_IF (%pro_traps_off% >= %vertex_off%) BEGIN
           WRITE_LONG 0xcc (%pro_traps_off% + %new_bytes%) //automap_off
          END
         END
         PATCH_IF (GAME_IS ~pst~) BEGIN
          READ_LONG 0xc8 automap_off
-         PATCH_IF (%automap_off% >= %cmp_loc%) BEGIN
+         PATCH_IF (%automap_off% >= %vertex_off%) BEGIN
           WRITE_LONG 0xc8 (%automap_off% + %new_bytes%) //automap_off
          END
         END
