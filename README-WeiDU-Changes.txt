@@ -1,3 +1,6 @@
+Version 212:
+  * Various fixes to ADD_AREA_REGION_TRIGGER.
+
 Version 211:
   * In macro-world, ADD_SPELL_CFEFFECT added.
   * Ton of readme fixes (Taimon, vit-mg, Mike1072).

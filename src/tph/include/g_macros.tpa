@@ -1020,7 +1020,7 @@
 		END
 
 
-    DEFINE_PATCH_MACRO ~ADD_AREA_REGION~ BEGIN
+    DEFINE_PATCH_MACRO ~ADD_AREA_REGION_TRIGGER~ BEGIN
        PATCH_IF (%SOURCE_SIZE% > 0xd4) BEGIN
       //update vertex indices for info points
         READ_LONG 0x5c info_off
@@ -1068,7 +1068,7 @@
         SET new_bytes = (0xc4 * 1)
         SET cmp_loc = %info_off%
         SET check_num = %info_num%
-        INSERT_BYTES (%cmp_loc%) (%new_bytes%)
+        INSERT_BYTES (%info_off% + (0xc4 * %info_num%)) (%new_bytes%)
       // Write info for new trigger
         WRITE_EVALUATED_ASCII (%info_off% + 0) ~%AREA_RT_NAME%~ (32)      //name
         WRITE_SHORT (%info_off% + 0x20) %AREA_RT_TYPE%          //type 0=proximity;1=info;2=travel
@@ -1181,7 +1181,7 @@
         SET new_bytes = (0x4 * %AREA_RT_VERTEX_PAIRS%)
         SET check_num = %vertex_num%
         SET cmp_loc = %vertex_off%
-        INSERT_BYTES (%cmp_loc%) (%new_bytes%)
+        INSERT_BYTES (%vertex_off% + (0x4 * %vertex_num%)) (%new_bytes%)
       // verticies for new trigger
         FOR (index=0;index<(%AREA_RT_VERTEX_PAIRS%);index+=1) BEGIN
          SPRINT AREA_RT_VERTEX_X ~AREA_RT_VERTEX_X%index%~
