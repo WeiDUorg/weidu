@@ -1086,7 +1086,7 @@
         WRITE_SHORT 0x5a (%info_num% + 1)
         INSERT_BYTES %ab_RT_NLoc% %ab_RT_Size%
       //assign index for new vertex points
-        WRITE_LONG (%info_off% + 0x2c) %vertex_num%
+        WRITE_LONG (%ab_RT_NLoc% + %ab_LoF_VxId%) %vertex_num%
       //Pass through a patch for each to locate those fields to be written that are of specific lengths
         PATCH_FOR_EACH s1 IN ~Name~ ~Type~ ~BbLX~ ~BbLY~ ~BbHX~ ~BbHY~ ~VxPr~ ~VxId~ ~CuId~ ~Dest~ ~EntN~ ~Fbit~ ~Itxt~ ~TDtD~ ~TRmD~ ~TSet~ ~TDet~ ~LPoX~ ~LPoY~ ~KeyI~ ~Rbcs~ ~ALPX~ ~ALPY~ ~Dial~ BEGIN
       //Deal with those fields that are 2 bytes
@@ -1100,9 +1100,16 @@
       //Deal with those fields that are 4 bytes
          PATCH_IF ($ab_SoW("%s1%") = 4) BEGIN
       //But only do those whose user assigned variables are set
-          PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") ) BEGIN
+          PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") )
+               AND !(~%s1%~ STRING_EQUAL_CASE ~fbit~) BEGIN
            SET ab_Loc_of_field = $ab_LoF("%s1%")
            WRITE_LONG (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%")
+          END
+          PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") )
+               AND (~%s1%~ STRING_EQUAL_CASE ~fbit~) BEGIN
+           SET ab_Loc_of_field = $ab_LoF("%s1%")
+           READ_LONG (%ab_RT_NLoc% + %ab_Loc_of_field%) ~flag_bits~
+           WRITE_LONG (%ab_RT_NLoc% + %ab_Loc_of_field%) (%flag_bits% BOR $ab_RT("%s1%"))
           END
          END
       //Deal with those fields that are 8 bytes
@@ -1205,14 +1212,15 @@
         WRITE_SHORT 0x80 (%vertex_num% + %ab_RT_VxPr%)
         SET new_bytes = (0x4 * %ab_RT_VxPr%)
       //Insert space for all of the new vertex pairs
-        INSERT_BYTES (%vertex_off% + (0x4 * %vertex_num%)) (%new_bytes%)
+        SET ab_Vx_NLoc = (%vertex_off% + (0x4 * %vertex_num%))
+        INSERT_BYTES %ab_Vx_NLoc% %new_bytes%
       //vertex points for new trigger
         FOR (index=0;index<(%ab_RT_VxPr%);index+=1) BEGIN
          PATCH_IF (VARIABLE_IS_SET $ab_RT_Vx_X("%index%") ) BEGIN
-          WRITE_SHORT (%vertex_off% +( %index%*4) +0) $ab_RT_Vx_X("%index%")
+          WRITE_SHORT (%ab_Vx_NLoc% +( %index%*4) +0) $ab_RT_Vx_X("%index%")
          END
          PATCH_IF (VARIABLE_IS_SET $ab_RT_Vx_Y("%index%") ) BEGIN
-          WRITE_SHORT (%vertex_off% +( %index%*4) +2) $ab_RT_Vx_Y("%index%")
+          WRITE_SHORT (%ab_Vx_NLoc% +( %index%*4) +2) $ab_RT_Vx_Y("%index%")
          END
         END
       //check other offsets and update as needed
