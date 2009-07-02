@@ -4893,6 +4893,7 @@ wrap them in percent signs.
 We want to tell WeiDU only to do this if the shield slot is
 *empty*.  This is where \ttref{PATCH!IF} comes in handy.  The way a creature
 file is setup is that if a slot is set to -1, it means it's empty.  WeiDU
+
 doesn't read unsigned bytes, so if the value is indeed -1, it will come out
 as 65535 as the value.  So, this is the statement we use to tell WeiDU only
 to execute all of the above code if "\%shield\%" is -1:
@@ -7159,48 +7160,42 @@ This is an ACTION macro.
 \end{itemize}
 
 \verb+ADD_AREA_REGION_TRIGGER+: adds an area region to the current are file.
-This is a PATCH macro and function.
+This is a PATCH macro and function. Unlike other macros you do not need to set every variable. You are only required to set those values that you need to write. 
 \begin{itemize}
-\item SPRINT AREA_RT_NAME   name to assign new region
-\item SET AREA_RT_TYPE  type of trigger -- 0=proximity;1=info;2=travel
-\item SET AREA_RT_BBOX_LOW_X bounding box low x value LEFT
-\item SET AREA_RT_BBOX_LOW_Y bounding box low y value TOP
-\item SET AREA_RT_BBOX_HIGH_X bounding box high x value RIGHT
-\item SET AREA_RT_BBOX_HIGH_Y bounding box high y value BOTTOM
-\item SET AREA_RT_VERTEX_PAIRS number of x y coordinate pairs making up new region
-\item SET AREA_RT_FLAGS flag values set in bit format from right to left 1 turns on 0 turns off
-\item SET AREA_RT_TRAP_DET_DIFF trap detection difficulty percentage
-\item SET AREA_RT_TRAP_REM_DIFF trap removal difficulty percentage
-\item SET AREA_RT_TRAP_IS_SET Is the region trapped? 0=no;1=yes
-\item SET AREA_RT_TRAP_DETECTED Is the region trap already detected? 0=no;1=yes
-\item SET AREA_RT_LAUNCH_POINT_X Main use point x value
-\item SET AREA_RT_LAUNCH_POINT_Y Main use point y value
-\item SPRINT AREA_RT_KEY_ITEM key item reference if one is required
-\item SPRINT AREA_RT_REGION_SCRIPT region script
-\item SET AREA_RT_ALT_USE_POINT_X alternate use point x value
-\item SET AREA_RT_ALT_USE_POINT_Y alternate use point y value
+\item SPRINT ab_RT_Name -- Name to assign to new region
+\item SET ab_RT_Type -- Type of trigger -- 0=proximity;1=info;2=travel 
+\item SET ab_RT_BbLX -- Bounding Box - low x value  - LEFT
+\item SET ab_RT_BbLY -- Bounding Box - low y value  - TOP
+\item SET ab_RT_BbHX -- Bounding Box - High x value - RIGHT
+\item SET ab_RT_BbHY -- Bounding Box - High y value - BOTTOM
+\item SET ab_RT_VxPr -- Number of Vertex Pairs for current region
+\item SET ab_RT_CuId -- Cursor Index - points to a graphic in cursors.bam
+\item SPRINT ab_RT_Dest -- Destination Area
+\item SPRINT ab_RT_EntN -- Entrance Name
+\item SET ab_RT_Fbit -- Flag bits set in bit format which are read right to left - 0=off; 1=on
+\item SET ab_RT_Itxt -- Info text
+\item SET ab_RT_TDtD -- Trap Detection Difficulty
+\item SET ab_RT_TRmD -- Trap Removal Difficulty
+\item SET ab_RT_TSet -- Trap is set - 0=no; 1=yes
+\item SET ab_RT_TDet -- Trap is detected - 0=no; 1=yes
+\item SET ab_RT_LPoX -- Launch Point X
+\item SET ab_RT_LPoY -- Launch Point Y
+\item SPRINT ab_RT_KeyI -- Key Item
+\item SET ab_RT_Rbcs -- Region Script file
+\item SET ab_RT_ALPX -- Alternate Launch Point X
+\item SET ab_RT_ALPY -- Alternate Launch Point Y
+\item SET ab_RT_Dial -- Dialog file (used only in PST)
 
 \\
 The vertex points are seperated by their X & Y values
 You may have as many pairs as you need. Just copy this set and increment the #.
-Example: For the X values: AREA_RT_VERTEX_X0, AREA_RT_VERTEX_X1, AREA_RT_VERTEX_X2
-         For the Y values: AREA_RT_VERTEX_Y0, AREA_RT_VERTEX_Y1, AREA_RT_VERTEX_Y2
-\item SET AREA_RT_VERTEX_X0 Point #0 X value
-\item SET AREA_RT_VERTEX_Y0 Point #0 Y value
+Example: For the X values: ab_RT_Vx_X_0, ab_RT_Vx_X_1, ab_RT_Vx_X_2
+         For the Y values: ab_RT_Vx_Y_0, ab_RT_Vx_Y_1, ab_RT_Vx_Y_2
+\item SET ab_RT_Vx_X_0 -- Point #0 X value
+\item SET ab_RT_Vx_Y_0 -- Point #0 Y value
 
 \\
-if travel trigger set these
-\item SET AREA_RT_CURSOR_INDEX a point in cursors.bam -- used for travel triggers
-\item SPRINT AREA_RT_DEST_AREA destination area for travel triggers
-\item SPRINT AREA_RT_ENTRANCE_NAME entrance name in destincation area for travel triggers
-
-\\
-if info trigger set these
-\item SPRINT AREA_RT_INFO_TEXT text to be displayed for info triggers
-
-\\
-if using on PST set this if you need to
-\item SPRINT AREA_RT_DIALOG_FILE dialog file if the region can talk in pst\end{itemize}
+NOTE: The original code released in WeiDU v211 has been overhauled and re-released in v212. Therefore, the user defined variable names have been changed. If you used the 211 version you will need to update your mod to use the variables in this version. Sorry for the inconvenience...
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\DEFINE{Module Distribution}: \t{Setup-MyMod.exe}}
