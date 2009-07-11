@@ -254,22 +254,20 @@ let read_compressed_biff_internal fd filename start size chunk_fun =
         failwith "BIFC decompression error"
       end ;  *)
       end_unc_offset := !unc_offset + uncmplen;
-      let uncmp = 
-        if !unc_offset < start then begin
-          let res = Str.string_after uncmp (start - !unc_offset) in
-          (* log_and_print "Early %d < %d (%d)\n" !unc_offset start 
-            (String.length res); *)
-          res 
-        end else if !unc_offset + uncmplen > (start + size) then begin
+
+      (* drop unwanted stuff from the beginning ... *)
+      let uncmp =
+        if !unc_offset < start then
+            Str.string_after uncmp (start - !unc_offset)
+        else uncmp
+      in
+      (* ... and/or the end of the uncompressed chunk *)
+      let uncmp =
+        if !unc_offset + uncmplen > (start + size) then begin
           let too_much = ((!unc_offset + uncmplen) - (start+size)) in
-          let res = Str.string_before uncmp (uncmplen - too_much) in 
-          (* log_and_print "End %d + %d > %d + %d (%d)\n" 
-            !unc_offset uncmplen start size (String.length res); *)
-          res 
-        end else begin
-          (* log_and_print "Middle (%d)\n" (String.length uncmp); *)
-          uncmp
-        end
+          let res = Str.string_before uncmp ((String.length uncmp) - too_much) in
+          res
+        end else uncmp
       in 
       chunk_fun uncmp 
     end ;
