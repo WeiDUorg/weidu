@@ -258,6 +258,7 @@ let rec find_best_file lst =
 
 let uninstall game handle_tp2_filename tp2 i interactive =
   log_or_print "uninstall: %s %d\n" tp2 i ;
+  Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i);
   let worked = ref true in 
   if not (already_installed tp2 i) then begin
     log_and_print "Internal Error: trying to uninstall non-installed mod component [%s] %d\n" tp2 i ;(try assert false with Assert_failure(file,line,col) -> set_errors file line);
