@@ -1,6 +1,7 @@
 Version 212:
   * Various fixes to ADD_AREA_REGION_TRIGGER.
   * Make %COMPONENT_NUMBER% available at uninstall time.
+  * Don't link to porn sites from the readme.
 
 Version 211:
   * In macro-world, ADD_SPELL_CFEFFECT added.
