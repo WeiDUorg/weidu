@@ -2,6 +2,8 @@ Version 212:
   * Various fixes to ADD_AREA_REGION_TRIGGER.
   * Make %COMPONENT_NUMBER% available at uninstall time.
   * Don't link to porn sites from the readme.
+  * --traify-comment doesn't break if you use ~~s to wrap your DO actions in
+    a .D file.
 
 Version 211:
   * In macro-world, ADD_SPELL_CFEFFECT added.

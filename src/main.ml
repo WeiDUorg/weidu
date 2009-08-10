@@ -1327,7 +1327,7 @@ If you are unsure, disable UAC and re-run this mod.\n\n"; *)
 									if lse.lse_male <> "" (* ||
 											lse.lse_male_sound <> "" *) then begin
 										let comment_string = (if !traify_comment then
-											(Printf.sprintf " /* ~" ^ lse.lse_male ^ "~ */") else "")
+											(Printf.sprintf " /* " ^ lse.lse_male ^ " */") else "")
 										in
 										Printf.fprintf traout "@%-4d = ~%s~" !counter lse.lse_male ;
 										replace ("~" ^ lse.lse_male ^ "~" ) comment_string;
@@ -1403,7 +1403,7 @@ If you are unsure, disable UAC and re-run this mod.\n\n"; *)
 							if lse.lse_male <> "" (* ||
 								 lse.lse_male_sound <> "" *) then begin
 								let comment_string = (if !traify_comment then
-									(Printf.sprintf " /* ~" ^ lse.lse_male ^ "~ */") else "")
+									(Printf.sprintf " /* " ^ lse.lse_male ^ " */") else "")
 								in
 								Printf.fprintf traout "@%-4d = ~%s~" !counter lse.lse_male ;
 								replace ("~" ^ lse.lse_male ^ "~" ) comment_string;
