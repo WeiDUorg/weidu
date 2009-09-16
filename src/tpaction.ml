@@ -1334,7 +1334,12 @@ try
 		(* eval pe to string and wrap around TP_String_Set *)
 		let eval_lst = List.map (fun (pe,str) ->
 			let eval_s = match pe with
-				| PE_String(s) -> Var.get_string (eval_pe_str s)
+				| PE_String(s) ->
+					begin try
+						Int32.to_string (eval_pe "" game pe)
+					with _ ->
+						Var.get_string (eval_pe_str s)
+					end
 				| _ -> Int32.to_string (eval_pe "" game pe)
 			in
 			(eval_s,str)

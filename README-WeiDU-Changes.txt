@@ -4,6 +4,8 @@ Version 212:
   * Don't link to porn sites from the readme.
   * --traify-comment doesn't break if you use ~~s to wrap your DO actions in
     a .D file.
+  * Fix STRING_SET_EVALUATE when the given pe is an unescaped string.
+
 
 Version 211:
   * In macro-world, ADD_SPELL_CFEFFECT added.
