@@ -998,7 +998,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
             Str.replace_first my_regexp this_replacement old_after
           in
           work_buff := (old_before ^ new_after) ;
-          i := start_idx + 1
+          i := start_idx + String.length this_replacement
         done
       with _ -> () ) ;
       !work_buff

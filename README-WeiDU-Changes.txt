@@ -5,6 +5,7 @@ Version 212:
   * --traify-comment doesn't break if you use ~~s to wrap your DO actions in
     a .D file.
   * Fix STRING_SET_EVALUATE when the given pe is an unescaped string.
+  * Fix REPLACE_EVALUATE to avoid loops.
 
 
 Version 211:
