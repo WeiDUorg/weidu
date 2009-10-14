@@ -230,19 +230,7 @@ let str_of_int32 i =
   result 
 
 let str_of_int i =
-  let d = i land 255 in
-  let i = i lsr 8 in
-  let c = i land 255 in
-  let i = i lsr 8 in
-  let b = i land 255 in
-  let i = i lsr 8 in
-  let a = i land 255 in
-  let i = i lsr 8 in
-  let result = String.make 4 (Char.chr a) in
-  result.[0] <- (Char.chr d) ;
-  result.[1] <- (Char.chr c) ;
-  result.[2] <- (Char.chr b) ;
-  result 
+  str_of_int32 (Int32.of_int i)
 
 let str_of_short i =
   let d = i land 255 in
