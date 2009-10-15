@@ -1348,7 +1348,7 @@ try
 	
 	| TP_Alter_TLK (pl) ->
 			let b = get_pe_int "0" in
-			let e = get_pe_int (string_of_int (Array.length game.Load.dialog - 1)) in
+			let e = get_pe_int (string_of_int (Array.length game.Load.dialog + Queue.length !Dc.strings_to_add - 1)) in
 			process_action tp (TP_Alter_TLK_Range(b,e,pl))
 	
 	| TP_Alter_TLK_Range (b,e,pl) ->
@@ -1363,13 +1363,21 @@ try
 	| TP_Alter_TLK_List(lst,pl) -> begin
 			List.iter (fun x ->
 				let i = Int32.to_int (eval_pe "" game x) in
-				let male = game.Load.dialog.(i) in
+				let male = if (i < Array.length game.Load.dialog) then
+					game.Load.dialog.(i)
+				else
+					fst (Tlk.lse_to_tlk_string (Hashtbl.find Dc.strings_added_ht i))
+				in
 				let newmale = List.fold_left (fun acc elt ->
 					process_patch2 "dialog.tlk" game acc elt) male.Tlk.text pl in
 				let soundmale = male.Tlk.sound_name in
 				let newfemale, soundfemale = match game.Load.dialogf with
 					Some dialogf ->
-						let female = dialogf.(i) in
+						let female = if (i < Array.length game.Load.dialog) then
+							dialogf.(i)
+						else
+							snd (Tlk.lse_to_tlk_string (Hashtbl.find Dc.strings_added_ht i))
+						in
 						(List.fold_left (fun acc elt ->
 							process_patch2 "dialog.tlk" game acc elt) female.Tlk.text pl, female.Tlk.sound_name)
 					| None -> newmale, soundmale
