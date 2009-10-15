@@ -338,7 +338,14 @@ let set_string (g : Load.game) (i :int) (ts : Dlg.tlk_string)
 	  g.Load.dialog.(i) <- m ;
   end else begin
 	let orig_lse = Hashtbl.find strings_added_ht i in
+	let orig_tlk = Tlk.lse_to_tlk_string orig_lse in
 	let new_lse = {lse_male = m.Tlk.text; lse_male_sound = m.Tlk.sound_name; lse_female = f.Tlk.text; lse_female_sound = f.Tlk.sound_name} in
+	  (match g.Load.dialogf with
+	    Some(a) -> g.Load.str_sets <- (i,fst orig_tlk, snd orig_tlk) ::
+					  g.Load.str_sets ;
+	  | None -> g.Load.str_sets <- (i,fst orig_tlk, snd orig_tlk)
+					  :: g.Load.str_sets ;
+	  ) ;
 	Hashtbl.remove strings_added_ht i;
 	Hashtbl.remove strings_to_add_ht orig_lse;
 	Hashtbl.add strings_added_ht i new_lse;
