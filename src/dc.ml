@@ -393,6 +393,7 @@ let resolve_label (file,label) game =
     let dlg =
       try Hashtbl.find available_dlgs file
       with _ -> begin
+			if Modder.get "MISSING_EXTERN" = Modder.None then () else
 				begin
 					try
 						Load.skip_next_load_error := true;
