@@ -8,6 +8,8 @@ Version 212:
   * Fix REPLACE_EVALUATE to avoid loops.
   * SAY offset #-1 does work. Don't you love 31 bit integers?
   * Can STRING_SET recently added strings.
+  * EVALUATE_BUFFER -> EVAL.
+  * Compiling D files is now faster (fixed regression).
 
 Version 211:
   * In macro-world, ADD_SPELL_CFEFFECT added.
