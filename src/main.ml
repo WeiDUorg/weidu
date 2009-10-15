@@ -1712,11 +1712,11 @@ problem and try again.\n" path ;
 	backup_dir := None ; 
 
 	(* make sure we add all those strings! *)
-	if not (Queue.is_empty Dc.strings_to_add) then begin
+	if not (Queue.is_empty !Dc.strings_to_add) then begin
 		if (!output_dialog = None && !output_dialogf = None) then begin
-			log_or_print "You did not specify '--tlkout dialog.tlk', so %d strings were not saved.\n" (Queue.length Dc.strings_to_add);
+			log_or_print "You did not specify '--tlkout dialog.tlk', so %d strings were not saved.\n" (Queue.length !Dc.strings_to_add);
 		end else begin 
-			let dc_lse_strapp_list = Dc.strings_to_add in 
+			let dc_lse_strapp_list = !Dc.strings_to_add in 
 			Load.append_strings game dc_lse_strapp_list
 		end
 	end ;

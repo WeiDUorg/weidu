@@ -131,7 +131,7 @@ let get_c3du_counter () =
   incr c3du_counter ;
   ans
 
-let strings_to_add = Queue.create () (* LSEs stored in order-of-creation *)
+let strings_to_add = ref (Queue.create ()) (* LSEs stored in order-of-creation *)
 let strings_added_ht = Hashtbl.create 255
 let strings_to_add_ht = Hashtbl.create 32767
 let cur_index = ref 0
@@ -207,7 +207,7 @@ let rec resolve_tlk_string_internal can_create warn_mess game ts =
             end else begin
               if not can_create then raise Not_found else begin
                 let index = !cur_index in
-                Queue.add (lse) strings_to_add ;
+                Queue.add (lse) !strings_to_add ;
                 Hashtbl.add strings_to_add_ht lse index ;
                 Hashtbl.add strings_added_ht index lse ;
                 incr cur_index ;
@@ -291,14 +291,16 @@ let set_string (g : Load.game) (i :int) (ts : Dlg.tlk_string)
   let rec process ts = match ts with
     Dlg.TLK_Index(i) ->
       if (allow_strref) then begin
-        if (i < 0 || i > Array.length g.Load.dialog) then begin
+        if (i < 0 || i >= Array.length g.Load.dialog + Queue.length !strings_to_add) then begin
           log_and_print "SET_STRING %d out of range 0 -- %d\n"
-            i (Array.length g.Load.dialog) ;
+            i (Array.length g.Load.dialog + Queue.length !strings_to_add) ;
         end ;
-        ((g.Load.dialog.(i)) ,
-        (match g.Load.dialogf with
-         | None -> g.Load.dialog.(i)
-         | Some(t) -> t.(i)))
+        if (i < Array.length g.Load.dialog) then
+		((g.Load.dialog.(i)) ,
+		(match g.Load.dialogf with
+		 | None -> g.Load.dialog.(i)
+		 | Some(t) -> t.(i)))
+	else (Tlk.lse_to_tlk_string (Hashtbl.find strings_added_ht i))
       end else failwith "SET_STRING does not allow #strrefs"
   | Dlg.Local_String(lse) -> Tlk.lse_to_tlk_string lse
   | Dlg.Trans_String(idx) ->
@@ -316,24 +318,42 @@ let set_string (g : Load.game) (i :int) (ts : Dlg.tlk_string)
   							Tlk.sound_name = Var.get_string m.Tlk.sound_name} in
   let f = {f with Tlk.text = Var.get_string f.Tlk.text;
   							Tlk.sound_name = Var.get_string f.Tlk.sound_name} in
-  if (i < 0 || i > Array.length g.Load.dialog) then begin
+  if (i < 0 || i >= Array.length g.Load.dialog + Queue.length !strings_to_add) then begin
     log_and_print "SET_STRING %d out of range 0 -- %d\n"
-      i (Array.length g.Load.dialog) ;
+      i (Array.length g.Load.dialog + Queue.length !strings_to_add) ;
     failwith "SET_STRING out of range"
   end ;
   (*
   log_or_print "SET_STRING #%d to %s\n" i (Tlk.short_print m 18);
   *)
-  (match g.Load.dialogf with
-    Some(a) -> g.Load.str_sets <- (i,g.Load.dialog.(i),a.(i)) ::
-                                  g.Load.str_sets ;
-               a.(i) <- f ;
-               g.Load.dialogf_mod <- true
-  | None -> g.Load.str_sets <- (i,g.Load.dialog.(i),g.Load.dialog.(i))
-                                  :: g.Load.str_sets ;
-  ) ;
-  g.Load.dialog.(i) <- m ;
-  g.Load.dialog_mod <- true ;
+  if (i < Array.length g.Load.dialog) then begin
+	  (match g.Load.dialogf with
+	    Some(a) -> g.Load.str_sets <- (i,g.Load.dialog.(i),a.(i)) ::
+					  g.Load.str_sets ;
+		       a.(i) <- f ;
+		       g.Load.dialogf_mod <- true
+	  | None -> g.Load.str_sets <- (i,g.Load.dialog.(i),g.Load.dialog.(i))
+					  :: g.Load.str_sets ;
+	  ) ;
+	  g.Load.dialog.(i) <- m ;
+  end else begin
+	let orig_lse = Hashtbl.find strings_added_ht i in
+	let new_lse = {lse_male = m.Tlk.text; lse_male_sound = m.Tlk.sound_name; lse_female = f.Tlk.text; lse_female_sound = f.Tlk.sound_name} in
+	Hashtbl.remove strings_added_ht i;
+	Hashtbl.remove strings_to_add_ht orig_lse;
+	Hashtbl.add strings_added_ht i new_lse;
+	Hashtbl.add strings_to_add_ht new_lse i;
+	let newQueue = Queue.create () in
+	while not (Queue.is_empty !strings_to_add) do
+		let elt = Queue.take !strings_to_add in
+		if (elt != orig_lse) then
+			Queue.add elt newQueue
+		else
+			Queue.add new_lse newQueue
+	done;
+	strings_to_add := newQueue;
+  end;
+	  g.Load.dialog_mod <- true ;
   ()
 
 let set_string_while_loading forced_index ts =
