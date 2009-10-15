@@ -6,7 +6,8 @@ Version 212:
     a .D file.
   * Fix STRING_SET_EVALUATE when the given pe is an unescaped string.
   * Fix REPLACE_EVALUATE to avoid loops.
-
+  * SAY offset #-1 does work. Don't you love 31 bit integers?
+  * Can STRING_SET recently added strings.
 
 Version 211:
   * In macro-world, ADD_SPELL_CFEFFECT added.
