@@ -61,7 +61,6 @@ let get_next_point argl =
 
 let valid_var_area s =
   let s = String.uppercase s in
-  if !debug_ocaml then log_and_print "valid_var_area %s\n" s;
   let ans = (s = "GLOBAL" || s = "LOCALS" || s = "KAPUTZ" || s = "MYAREA" || s = "" ||
   ( Str.string_match (Str.regexp "AR[0-9][0-9][0-9][0-9]") s 0) || file_exists_in_game (the_game ()) (s ^ ".ARE")) in
   ans
