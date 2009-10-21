@@ -10,6 +10,7 @@ Version 212:
   * Can STRING_SET recently added strings.
   * EVALUATE_BUFFER -> EVAL.
   * Compiling D files is now faster (fixed regression).
+  * GAME_IS: added CA, check are and not mve files.
 
 Version 211:
   * In macro-world, ADD_SPELL_CFEFFECT added.

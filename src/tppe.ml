@@ -330,27 +330,28 @@ let rec eval_pe buff game p =
   | PE_GameIs(game_list,game_or_engine) -> begin
       let game_list = Str.split many_whitespace_regexp (Var.get_string game_list) in
       let f x = (eval_pe buff game (Pred_File_Exists_In_Game (PE_LiteralString x))) = 1l in
-      let tutu = if game_or_engine then f "_eregost.mve" else false in
-      let  bgt = if game_or_engine then f "bgintro.mve"  else false in
-      let  bg2 = f "xpbonus.2da"  in
-      let  tob = f "xnewarea.2da" && f "areaflag.ids" in
-      let iwd2 = f "subrace.ids"  in
-      let  pst = f "baator.mve"   in
-      let  bg1 = f "beregost.mve" in
-      let tosc = f "durlag.mve"   in
-      let iwd1 = f "avalanch.mve" in
-      let  how = f "howdrag.mve"  in
-      let tolm = f "ar9700.tis"   in
-      let ttsc = f "_durlag.mve"  in
+      let tutu = if game_or_engine then f "fw0125.are" else false in
+      let  bgt = if game_or_engine then f "ar7200.are" else false in
+      let   ca = if game_or_engine then f "tc1300.are" else false in
+      let  bg2 = f "ar0803.are"   in
+      let  tob = f "ar6111.are"   in
+      let iwd2 = f "ar6050.are"   in
+      let  pst = f "ar0104a.are"  in
+      let  bg1 = f "ar0125.are"   in
+      let tosc = f "ar2003.are"   in
+      let iwd1 = f "ar2116.are"   in
+      let  how = f "ar9109.are"   in
+      let tolm = f "ar9715.are"   in
+      let ttsc = f "fw2003.are"   in
       let res = List.exists (fun this ->
           match String.uppercase this with
           | "BG2"
-          | "SOA"        -> bg2 && not tutu && not tob
-          | "TOB"        -> bg2 && not tutu &&     tob
+          | "SOA"        -> bg2 && not tutu && not tob && not ca
+          | "TOB"        -> bg2 && not tutu &&     tob && not ca
           | "IWD2"       -> iwd2
           | "PST"        -> pst
           | "BG1"        -> bg1 && not tosc && not bg2
-          | "TOTSC"      -> bg1 && tosc && not bg2
+          | "TOTSC"      -> bg1 &&     tosc && not bg2 && not iwd1
           | "IWD"
           | "IWD1"       -> iwd1 && not how && not tolm
           | "HOW"        -> iwd1 &&     how && not tolm
@@ -359,6 +360,7 @@ let rec eval_pe buff game p =
           | "TUTU_TOTSC"
           | "TUTU+TOTSC" -> tutu &&     ttsc
           | "BGT"        -> bgt
+	  | "CA"         -> ca
 					| _ -> failwith (Printf.sprintf "No rule to identify %s" (String.uppercase this))
       ) game_list in
       if res then 1l else 0l;
