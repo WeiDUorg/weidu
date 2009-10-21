@@ -1627,6 +1627,7 @@ problem and try again.\n" path ;
 						let (a,b) = (String.uppercase a, String.uppercase b) in
 						let a_stem = Str.global_replace (Str.regexp "^OVERRIDE[/\\]") "" a in
 						if (List.mem a_stem change_log) then begin
+							log_and_print "%s\n" line;
 							let m = Tpstate.get_nth_module tp2 comp true in
 							Dc.push_trans();
 								(try
@@ -1643,7 +1644,8 @@ problem and try again.\n" path ;
 			end;
 		) !Tp.the_log;
 		List.iter (fun file1 ->
-			let file = "OVERRIDE/" ^ (String.uppercase file1) in
+			let file1 = String.uppercase file1 in
+			let file = if Filename.check_suffix file1 ".EXE" || Filename.check_suffix file1 ".KEY" then file1 else "OVERRIDE/" ^ file1 in
 			let file_log = List.rev (get_file file) in
 			let (base,ext) = split file1 in
 			let i = ref 0 in
