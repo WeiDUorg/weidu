@@ -1667,7 +1667,9 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
         [("[ \t]QITEM[ \t]"," QITEM1 QITEM2 QITEM3 ");
          ("[ \t]QUIVER[ \t]"," QUIVER1 QUIVER2 QUIVER3 ");
          ("[ \t]RING[ \t]"," LRING RRING ");
+		 ("[ \t]WEAPON[ \t]"," WEAPON1 WEAPON2 WEAPON3 WEAPON4 ");
          ("[ \t]INV[ \t]", " INV1 INV2 INV3 INV4 INV5 INV6 INV7 INV8 INV9 INV10 INV11 INV12 INV13 INV14 INV15 INV16 ")]
+		 
       } in
       let possible_slots = List.map (fun str -> match String.uppercase str with
         | "HELMET"    -> 0

@@ -13,6 +13,7 @@ Version 212:
   * GAME_IS: added CA, check are and not mve files.
   * Will --change-log *.exe and *.key from ./, rather than the override.
   * Fix zlib decompression issues.
+  * WEAPON = WEAPON1...4 in ADD_CRE_ITEM.
 
 Version 211:
   * In macro-world, ADD_SPELL_CFEFFECT added.
