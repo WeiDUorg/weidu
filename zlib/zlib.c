@@ -86,13 +86,13 @@ CAMLprim value mlgz_uncompress(value v_src, value v_pos, value v_len, value unc_
 
   pos = Int_val(v_pos);
   len = Int_val(v_len);
-  in_buf = String_val(v_src) + pos;
   if(pos < 0 || len < 0 || pos + len > string_length(v_src))
     invalid_argument("Gz.uncompress");
 
-  out_buf_len = unc_len ; 
+  out_buf_len = Int_val(unc_len);
   v_ret = caml_alloc_string(Int_val(unc_len));
-  out_buf = String_val(v_ret); 
+  out_buf = String_val(v_ret);
+  in_buf = String_val(v_src) + pos;
 
   if(out_buf == NULL)
     raise_out_of_memory();
@@ -116,6 +116,7 @@ CAMLprim value mlgz_uncompress(value v_src, value v_pos, value v_len, value unc_
       free(out_buf);
       raise_out_of_memory();
     } else {
+      // FIXME: check for additional values like Z_DATA_ERROR
       fflush(stdout); 
       out_len = Int_val(unc_len);
       break; 

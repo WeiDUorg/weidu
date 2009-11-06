@@ -12,6 +12,7 @@ Version 212:
   * Compiling D files is now faster (fixed regression).
   * GAME_IS: added CA, check are and not mve files.
   * Will --change-log *.exe and *.key from ./, rather than the override.
+  * Fix zlib decompression issues.
 
 Version 211:
   * In macro-world, ADD_SPELL_CFEFFECT added.
