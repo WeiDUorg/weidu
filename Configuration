@@ -120,8 +120,8 @@ else
 		# (1) X86 / Linux, using GCC as the C Compiler
 		export ARCHOS    = x86_LINUX
 		export OCAMLDIR  = /usr/bin
-		export OCAMLLIB  = /usr/lib/ocaml/3.10.2
-		export CAMLP4LIB = /usr/lib/ocaml/3.10.2/camlp4
+		export OCAMLLIB  = /usr/lib/ocaml
+		export CAMLP4LIB = /usr/lib/ocaml/camlp4
 		export OBJEXT    = o
 		export ARCH_FILE = arch_unix
 		export CASE_FILE = case_ins_linux
