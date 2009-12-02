@@ -1,5 +1,12 @@
 Version 213:
-  * --save-components-name added.
+  * --save-components-name added. It will reprint WeiDU.log, while outputting
+    the component names (useful if you're used to using --quick-log).
+  * --safe-exit added, will save weidu.log after it begins the installation of
+    every component. This means that quitting mid-installation will be
+	recoverable by the standard uninstall procedure, IF you don't use strange
+	stuff (assume that all mods that don't contain biffing and don't backup the
+	override will work correctly). Also, you can't uninstall (or reinstall)
+	anything while under --safe-exit.
 
 Version 212:
   * Various fixes to ADD_AREA_REGION_TRIGGER.

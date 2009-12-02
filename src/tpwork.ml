@@ -399,6 +399,17 @@ let rec handle_tp
 	          be_silent := true;
 	          process_action_real our_lang game this_tp2_filename tp (TP_Include Tph.list_of_includes);
 	          be_silent := old_silent;
+			  
+			  if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] && !safe_exit then begin
+			    let old_log = !the_log in
+				the_log := !the_log @
+	            [ ((String.uppercase this_tp2_filename),!our_lang_index,i,Some(package_name),Installed) ];
+				let old_tp_quick_log = !Tp.quick_log in
+				Tp.quick_log := true;
+				Tpstate.save_log game handle_tp2_filename handle_tra_filename get_tra_list_filename;
+				Tp.quick_log := old_tp_quick_log;
+				the_log := old_log;
+			  end ;
 	
 	          List.iter (fun flag -> match flag with
 	            Always(al) -> List.iter (process_action_real our_lang game this_tp2_filename tp) al
@@ -448,7 +459,13 @@ let rec handle_tp
 	          | None -> ()) ;
 	          uninstall_tp2_component game tp this_tp2_filename i false ;
 	          print_log () ;
-	          raise e
+			  if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] && !safe_exit then begin
+			  let old_tp_quick_log = !Tp.quick_log in
+				Tp.quick_log := true;
+				Tpstate.save_log game handle_tp2_filename handle_tra_filename get_tra_list_filename;
+				Tp.quick_log := old_tp_quick_log;
+			  end ;
+			  raise e
 	        end );
 	        log_and_print "\n\n" ;
 	        record_strset_uninstall_info game strset_backup_filename ;

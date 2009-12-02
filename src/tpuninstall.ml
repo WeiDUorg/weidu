@@ -7,6 +7,10 @@ open Tppe
 (************************************************************************
  * Uninstall STRSET 
  ************************************************************************)
+
+let safe_exit = ref false
+;; 
+ 
 let uninstall_strset game filename = 
   if (file_exists filename) then begin
     (try
@@ -139,6 +143,7 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
     handle_al m.mod_parts
 
 let uninstall_tp2_component game tp2 tp_file i interactive =
+  if !safe_exit then failwith "Can't uninstall components with --safe-exit.";
   Stats.time "tp2 uninstall" (fun () ->
   try
     let result = tp2 in
