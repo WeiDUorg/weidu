@@ -89,6 +89,7 @@ let main () =
 	let list_lang = ref None in
 	let list_comp = ref None in
 	let list_comp_lang = ref 0 in
+	let save_comp_name = ref false in
 
 	let make_an_itemlist = ref false in
 	let make_an_xplist = ref false in
@@ -280,6 +281,7 @@ let main () =
 			Myarg.String (fun s -> list_comp := Some s);
 			Myarg.Int (fun s -> list_comp_lang := s);
 		], "\tX Y lists all components in X using language Y";
+		"--save-components-name", Myarg.Set save_comp_name, "\trewrites weidu.log, printing every component name";
 		"--change-log",Myarg.String (fun s -> change_log := s :: !change_log), "\tgenerates a changelog for the given resource (cumulative)";
 		"--change-log-list",Myarg.List (fun s -> change_log := s :: !change_log), "\tgenerates a changelog for the given resource (cumulative)";
 		"--change-log-rest",Myarg.Rest (fun s -> change_log := s :: !change_log), "\tgenerates a changelog for the given resource (cumulative)";
@@ -1046,6 +1048,14 @@ If you are unsure, disable UAC and re-run this mod.\n\n"; *)
 			output_theout (Tpstate.sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filename
 			(List.rev !fake_log) tp2_ht tra_ht false false
 			);
+	end;
+	
+	if !save_comp_name then begin
+		let old_tp_quick_log = !Tp.quick_log in
+		Tp.quick_log := false;
+		load_log();
+		Tpstate.save_log game handle_tp2_filename handle_tra_filename get_tra_list_filename;
+		Tp.quick_log := old_tp_quick_log
 	end;
 
 	(* Regex on BIFF contents *)

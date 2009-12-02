@@ -1,3 +1,6 @@
+Version 213:
+  * --save-components-name added.
+
 Version 212:
   * Various fixes to ADD_AREA_REGION_TRIGGER.
   * Make %COMPONENT_NUMBER% available at uninstall time.
