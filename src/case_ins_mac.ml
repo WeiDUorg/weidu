@@ -16,6 +16,7 @@ let unix_chmod s p = Unix.chmod (backslash_to_slash s) p ;;
 let unix_unlink s = Unix.unlink (backslash_to_slash s) ;;
 let unix_mkdir s p = Unix.mkdir (backslash_to_slash s) p ;;
 let unix_opendir s = Unix.opendir (backslash_to_slash s) ;;
+let unix_rename s d = Unix.rename (backslash_to_slash s) (backslash_to_slash d);;
 
 let weidu_executable = "WeiDU" ;;
 

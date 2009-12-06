@@ -128,6 +128,7 @@ let backup_ht = Hashtbl.create 511
 let backup_dir = ref None
 let backup_list_chn = ref None
 let mappings_list_chn = ref None
+let move_list_chn = ref None
 
 let set_backup_dir str i =
   let i = Printf.sprintf "%d" i in 
@@ -137,12 +138,17 @@ let set_backup_dir str i =
   (match !backup_list_chn with
     Some(c) -> close_out c
   | None -> ()) ; 
+  (match !move_list_chn with
+    Some(c) -> close_out c
+  | None -> ()) ; 
   let backup_filename = (backup_dir_name ^ "/UNINSTALL." ^ i) in
   let mappings_filename = (backup_dir_name ^ "/MAPPINGS." ^ i) in
+  let move_filename = (backup_dir_name ^ "/MOVE." ^ i) in
   Hashtbl.clear backup_ht ; 
   (try
     backup_list_chn := Some(Case_ins.perv_open_out_bin backup_filename);
     mappings_list_chn := Some(Case_ins.perv_open_out_bin mappings_filename);
+	move_list_chn := Some(Case_ins.perv_open_out_bin move_filename);
   with e -> 
     log_and_print "WARNING: unable to open [%s]: %s
 Will be unable to UNINSTALL later.\n" backup_filename (Printexc.to_string e))

@@ -151,6 +151,22 @@ let uninstall_tp2_component game tp2 tp_file i interactive =
     let u_filename = (Printf.sprintf "%s/UNINSTALL.%d" d i) in
     let m_filename = (Printf.sprintf "%s/MAPPINGS.%d" d i) in
     let u_strset_filename = (Printf.sprintf "%s/UNSETSTR.%d" d i) in
+	let move_filename = (Printf.sprintf "%s/MOVE.%d" d i) in
+	(
+		try begin
+			let inchan = Case_ins.perv_open_in_bin move_filename in
+			try
+				while true do
+					let line = input_line inchan in
+					let pieces = Str.split (Str.regexp " ") line in
+					match pieces with
+					a :: b :: [] -> Case_ins.unix_rename b a
+					| _ -> ()
+				done
+			with End_of_file -> (close_in inchan)
+			| _ -> ()
+		end with _ -> ()
+	);
     uninstall_strset game u_strset_filename ;
     let file_list = ref [] in
     let mappings_list = Hashtbl.create 300 in

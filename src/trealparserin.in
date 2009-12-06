@@ -297,6 +297,7 @@ nonterm(Tp.tp_action) Tp_Action {
         Tp.copy_at_end = false ;
         Tp.copy_save_inlined = (e1 = 2) ;
 			}]
+	-> MOVE e1:Str_Str_List [ Tp.TP_Move(e1) ]
 	-> COPY_ALL_GAM_FILES e1:Tp_Patch_List e2:Tp_When_List [ Tp.TP_CopyAllGamFiles(e1,e2) ]
 	-> COPY_LARGE e1:Optional_Plus e2:Optional_Glob e3:Str_Str_List [ Tp.TP_CopyLarge {
 			Tp.copy_large_use_glob= (match e2 with Some x -> x | None -> false);

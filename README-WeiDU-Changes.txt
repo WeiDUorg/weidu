@@ -7,6 +7,7 @@ Version 213:
 	stuff (assume that all mods that don't contain biffing and don't backup the
 	override will work correctly). Also, you can't uninstall (or reinstall)
 	anything while under --safe-exit.
+  * MOVE tp2 action added. Don't use.
 
 Version 212:
   * Various fixes to ADD_AREA_REGION_TRIGGER.

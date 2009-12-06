@@ -51,6 +51,22 @@ let str = action_to_str a in
 Stats.time str (fun () ->
 try
 (match a with
+	| TP_Move(filelist) ->
+		List.iter (fun (src,dst) ->
+			let src = Var.get_string src in
+			let dst = Var.get_string dst in
+			(
+				let ok = ref true in
+				try ignore (String.index src ' '); ok := false with _ -> ();
+				try ignore (String.index dst ' '); ok := false with _ -> ();
+				if not !ok then failwith "MOVE and the file name contains a space";
+				match !move_list_chn with
+				| Some(chn) -> output_string chn (src ^ " " ^ dst ^ "\n") ; flush chn
+				| None -> ()
+			);
+			Case_ins.unix_rename src dst;
+			
+		) filelist
 	| TP_Require_File(file,error_msg) ->
 			log_and_print "Checking for required files ...\n" ;
 			let file = Arch.backslash_to_slash file in

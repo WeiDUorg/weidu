@@ -12,6 +12,7 @@ let unix_chmod s p = Unix.chmod s p ;;
 let unix_unlink s = Unix.unlink s ;;
 let unix_mkdir s p = Unix.mkdir s p ;;
 let unix_opendir s = Unix.opendir s ;;
+let unix_rename s d = Unix.rename s d;;
 
 let weidu_executable = "WeiDU.exe" ;;
 
