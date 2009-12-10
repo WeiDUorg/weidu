@@ -8,6 +8,7 @@ Version 213:
 	override will work correctly). Also, you can't uninstall (or reinstall)
 	anything while under --safe-exit.
   * MOVE tp2 action added. Don't use.
+  * Fixed an embarassing bug detecting BG1 (&TotSC) via GAME_IS.
 
 Version 212:
   * Various fixes to ADD_AREA_REGION_TRIGGER.
