@@ -1,5 +1,8 @@
 open Util
 
+exception Cre22
+;;
+
 type cre = {
   (* the buffer *)
   main_body : string;
@@ -26,7 +29,7 @@ let cre_of_string buff =
   let head_length = match String.sub buff 0 8 with
     | "CRE V1.0" -> 0x2d4
     | "CRE V1.2" -> 0x378
-    | "CRE V2.2" -> failwith "unsupported CRE version: 2.2"
+    | "CRE V2.2" -> raise Cre22
     | "CRE V9.0" -> 0x33c
     | _ -> failwith "not a vaild CRE file"
   in
@@ -147,7 +150,7 @@ let string_of_cre cre =
   let head_length = match String.sub main_body 0 8 with
     | "CRE V1.0" -> 0x2d4
     | "CRE V1.2" -> 0x378
-    | "CRE V2.2" -> failwith "unsupported CRE version: 2.2"
+    | "CRE V2.2" -> raise Cre22
     | "CRE V9.0" -> 0x33c
     | _ -> failwith "not a vaild CRE file"
   in

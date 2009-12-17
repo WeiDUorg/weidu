@@ -1736,61 +1736,158 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
           0     
       in
 
-      let cre = Cre.cre_of_string buff in
-      let items = ref cre.Cre.items in
+      begin try
+		  let cre = Cre.cre_of_string buff in
+		  let items = ref cre.Cre.items in
 
-      let get_empty_inv_slot () =
-        try
-          List.find (fun inv_slot ->
-            (* no item is using this slot *)
-            not (List.exists (fun (name, (unknown, q1, q2, q3, flags, slots)) ->
-              List.mem inv_slot slots
-            ) !items)
-          ) [21; 22; 23; 24; 25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36]
-        with Not_found ->
-          (try assert false with Assert_failure(file,line,col) -> set_errors file line) ;
-          log_and_print "WARNING: ADD_CRE_ITEM: Could not find empty inventory slot. Defaulting to INV16.\n" ;
-          36
-      in
+		  let get_empty_inv_slot () =
+			try
+			  List.find (fun inv_slot ->
+				(* no item is using this slot *)
+				not (List.exists (fun (name, (unknown, q1, q2, q3, flags, slots)) ->
+				  List.mem inv_slot slots
+				) !items)
+			  ) [21; 22; 23; 24; 25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36]
+			with Not_found ->
+			  (try assert false with Assert_failure(file,line,col) -> set_errors file line) ;
+			  log_and_print "WARNING: ADD_CRE_ITEM: Could not find empty inventory slot. Defaulting to INV16.\n" ;
+			  36
+		  in
 
-      let move_to_inv slot =
-        (* find item which is currently in the slot and change slots *)
-        items := List.map (
-          fun ((name, (unknown, q1, q2, q3, flags, slots)) as item) ->
-            if List.mem slot slots then
-              (name, (unknown, q1, q2, q3, flags, (List.map (fun s ->
-                if s = slot then (get_empty_inv_slot () ) else s
-              ) slots)))
-            else item
-        ) !items ;
-        ()
-      in
-      
-      (* find empty slot in possible_slots *)
-      let target_slot = 
-        try
-          List.find (fun slot ->
-            not (List.exists (fun (name, (unknown, q1, q2, q3, flags, slots)) ->
-              List.mem slot slots
-            ) !items)
-          ) possible_slots
-        with Not_found ->
-          (* defaulting to first element in possible_slots, move item to inv *)
-          let def_slot = List.hd possible_slots in
-          move_to_inv def_slot ;
-          def_slot
-      in
-      let equipped = ref cre.Cre.equipped in
-      let is_twohanded = not i.twohanded_weapon in
+		  let move_to_inv slot =
+			(* find item which is currently in the slot and change slots *)
+			items := List.map (
+			  fun ((name, (unknown, q1, q2, q3, flags, slots)) as item) ->
+				if List.mem slot slots then
+				  (name, (unknown, q1, q2, q3, flags, (List.map (fun s ->
+					if s = slot then (get_empty_inv_slot () ) else s
+				  ) slots)))
+				else item
+			) !items ;
+			()
+		  in
+		  
+		  (* find empty slot in possible_slots *)
+		  let target_slot = 
+			try
+			  List.find (fun slot ->
+				not (List.exists (fun (name, (unknown, q1, q2, q3, flags, slots)) ->
+				  List.mem slot slots
+				) !items)
+			  ) possible_slots
+			with Not_found ->
+			  (* defaulting to first element in possible_slots, move item to inv *)
+			  let def_slot = List.hd possible_slots in
+			  move_to_inv def_slot ;
+			  def_slot
+		  in
+		  let equipped = ref cre.Cre.equipped in
+		  let is_twohanded = not i.twohanded_weapon in
 
-      if i.equip && target_slot >= 9 && target_slot <= 12 then begin
-        (* move potential shield to inv if two-handed *)
-        if is_twohanded then move_to_inv 2 ;
-        equipped := target_slot - 9
-      end ;
-      (* finally add the item *)
-      items := List.append !items [(i.item_name, (0, i_charge1, i_charge2, i_charge3, new_flags, [target_slot]))] ;
-      Cre.string_of_cre { cre with Cre.items = !items; Cre.equipped = !equipped } 
+		  if i.equip && target_slot >= 9 && target_slot <= 12 then begin
+			(* move potential shield to inv if two-handed *)
+			if is_twohanded then move_to_inv 2 ;
+			equipped := target_slot - 9
+		  end ;
+		  (* finally add the item *)
+		  items := List.append !items [(i.item_name, (0, i_charge1, i_charge2, i_charge3, new_flags, [target_slot]))] ;
+		  Cre.string_of_cre { cre with Cre.items = !items; Cre.equipped = !equipped } 
+	  with Cre.Cre22 ->
+	      let item_buff = String.make 20 '\000' in
+		  String.blit i.item_name 0 item_buff 0 (String.length i.item_name);
+		  write_short item_buff 0xa i_charge1;
+		  write_short item_buff 0xc i_charge2;
+		  write_short item_buff 0xe i_charge3;
+
+
+			let rec find_empty_slot islot_off lst = match lst with
+			| [] -> List.hd possible_slots
+			| hd :: tl ->
+			  let in_slot = short_of_str_off buff (islot_off + hd) in
+			  if in_slot = 65535 then hd
+			  else find_empty_slot islot_off tl 
+			in
+
+		  write_int item_buff 0x10 new_flags;
+
+		  let write_empty_inv_slot buff off itm =
+			let i = ref 0 in
+			while !i < 16 do
+			  let slot = short_of_str_off buff (off + (!i * 2)) in
+			  if slot = 65535 then begin
+				write_short buff (off + (!i * 2)) itm;
+				i := 16 ;
+			  end else
+				incr i
+			done
+		  in
+
+		  (* Check for version *)
+
+		  let cre_v = String.sub buff 0 8 in
+		  (match cre_v with
+		  | "CRE V2.2" ->
+
+			(* Read in the offsets we need to update and grab the plus state *)
+
+			let islot_off = int_of_str_off buff 0x612 in
+			let itype = find_empty_slot islot_off possible_slots in
+			let items_off = int_of_str_off buff 0x616 in
+			let num_items = int_of_str_off buff 0x61a in
+			let possible_plus = i.twohanded_weapon in
+			write_int buff 0x612 (islot_off + 20);
+			write_int buff 0x61a (num_items + 1);
+
+			(* Check and see if we want to equip the item *)
+			if i.equip then begin
+			  (* If it's a two-handed weapon, empty the shield slot. *)
+			  if not possible_plus then begin
+				let shield_slot = short_of_str_off buff (islot_off + 4) in
+				write_empty_inv_slot buff (islot_off + 42) shield_slot ;
+				write_short buff (islot_off + 4) 65535 ;
+				let slot = short_of_str_off buff (islot_off + itype) in
+				if slot <> 65535 then begin
+				  write_empty_inv_slot buff (islot_off + 42) slot;
+				  write_short buff (islot_off + itype) num_items;
+				end else
+				  write_short buff (islot_off + itype) num_items;
+			  end else (* possible_plus *) begin
+				(* Not a two-handed weapon, just empty the slot and move any item
+				   in the slot to the inventory *)
+				let slot = short_of_str_off buff (islot_off + itype) in
+				if slot = 65535 then
+				  write_short buff (islot_off + itype) num_items
+				else begin
+				  write_empty_inv_slot buff (islot_off + 42) slot ;
+				  write_short buff (islot_off + itype) num_items;
+				end;
+			  end;
+			end (* end of: if equip *) else begin
+			  (* We're not equipping anything here, so just move any
+				 item that may be in the slot to inventory *)
+			  let slot = short_of_str_off buff (islot_off + itype) in
+			  if slot <> 65535 then begin
+				write_empty_inv_slot buff (islot_off + 42) slot;
+				write_short buff (islot_off + itype) num_items
+			  end else
+				write_short buff (islot_off + itype) num_items
+			end;
+
+			(* Check if it's a weapon and select the appropriate slot *)
+			(* let real_slot = find_empty_slot islot_off possible_slots in *)
+			let real_slot = itype in
+			if i.equip && real_slot >= 18 && real_slot <= 24 then begin
+			  let i_num = (real_slot - 16) / 2 in
+			  write_short buff (islot_off + 76) (i_num - 1)
+			end ;
+			(* Splice it all together *)
+			let splice_off = items_off + (num_items * 20) in
+			let before_buff = Str.string_before buff splice_off in
+			let after_buff = Str.string_after buff splice_off in
+			before_buff ^ item_buff ^ after_buff
+		 | _ -> failwith ("ERROR: ADD_CRE_ITEM: Unknown cre version: " ^ cre_v)) ;
+
+	  end
 
   | TP_Replace_Cre_Item(i) ->
       let i = { i with

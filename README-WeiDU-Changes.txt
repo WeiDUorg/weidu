@@ -9,6 +9,7 @@ Version 213:
 	anything while under --safe-exit.
   * MOVE tp2 action added. Don't use.
   * Fixed an embarassing bug detecting BG1 (&TotSC) via GAME_IS.
+  * ADD_CRE_ITEM works with IWD2 (again). I hate whoever coded that game.
 
 Version 212:
   * Various fixes to ADD_AREA_REGION_TRIGGER.
