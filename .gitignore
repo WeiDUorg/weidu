@@ -15,3 +15,4 @@ src/trealparserin.gr
 diffs/*
 *.rej
 *.orig
+*~
