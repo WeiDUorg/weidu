@@ -35,7 +35,7 @@
 (* Pretty printer 
    This module contains several fast, but sub-optimal heuristics to pretty-print 
    structured text. 
-*)
+ *)
 
 let debug =  false
 
@@ -162,20 +162,20 @@ let rec flatten (acc: doc) = function
 (* We keep a stack of active aligns. *)
 type align = 
     { mutable gainBreak: int;  (* This is the gain that is associated with 
-                                 * taking the break associated with this 
-                                 * alignment mark. If this is 0, then there 
-                                 * is no break associated with the mark *)
+                                * taking the break associated with this 
+                                * alignment mark. If this is 0, then there 
+                                * is no break associated with the mark *)
       mutable isTaken: bool ref; (* If breakGain is > 0 then this is a ref 
                                   * cell that must be set to true when the 
                                   * break is taken. These ref cells are also 
                                   * int the "breaks" list  *)
-            deltaFromPrev: int ref; (* The column of this alignment mark - 
-                                     * the column of the previous mark. 
-                                     * Shared with the deltaToNext of the 
-                                     * previous active align  *)
-             deltaToNext: int ref  (* The column of the next alignment mark - 
-                                    * the columns of this one. Shared with 
-                                    * deltaFromPrev of the next active align *)
+      deltaFromPrev: int ref; (* The column of this alignment mark - 
+                               * the column of the previous mark. 
+                               * Shared with the deltaToNext of the 
+                               * previous active align  *)
+      deltaToNext: int ref  (* The column of the next alignment mark - 
+                             * the columns of this one. Shared with 
+                             * deltaFromPrev of the next active align *)
     } 
       
 (* We use references to avoid the need to pass data around all the time *)
@@ -276,7 +276,7 @@ let movingRight (abscol: int) : int =
           breakingAlign.gainBreak <- 0;
           if breakingAlign != topalign then begin
             breakingAlign.deltaToNext := 
-               !(breakingAlign.deltaToNext) - theGain;
+              !(breakingAlign.deltaToNext) - theGain;
             topAlignAbsCol := !topAlignAbsCol - theGain
           end;
           tryAgain (abscol - theGain)
@@ -326,8 +326,8 @@ let rec scan (abscol: int) (d: doc) : int =
             (1 + abscol) topalign.gainBreak;
         movingRight (1 + abscol)
       end
-    
-      
+	  
+	  
 (* The actual function that takes a document and prints it *)
 let emitDoc 
     (emitString: string -> int -> unit) (* emit a number of copies of a 
@@ -480,7 +480,7 @@ let sprint ~(width : int)  doc : string =
 
 let a =3    
 
-                                        (* The rest is based on printf.ml *)
+    (* The rest is based on printf.ml *)
 external format_int: string -> int -> string = "format_int"
 external format_float: string -> float -> string = "format_float"
 
@@ -510,12 +510,12 @@ let gprintf (finish : doc -> doc)
     finish dc
   in
   let flen    = String.length format in
-                                        (* Reading a format character *)
+  (* Reading a format character *)
   let fget    = String.unsafe_get format in
-                                        (* Output a literal sequence of 
-                                         * characters, starting at i. The 
-                                         * character at i does not need to be 
-                                         * checked.  *) 
+  (* Output a literal sequence of 
+   * characters, starting at i. The 
+   * character at i does not need to be 
+   * checked.  *) 
   let rec literal acc i = 
     let rec skipChars j = 
       if j >= flen || 
@@ -528,7 +528,7 @@ let gprintf (finish : doc -> doc)
         skipChars (succ j)
     in
     skipChars (succ i)
-                                        (* the main collection function *)
+      (* the main collection function *)
   and collect (acc: doc) (i: int) = 
     if i >= flen then begin
       Obj.magic (dfinish acc) 
@@ -565,7 +565,7 @@ let gprintf (finish : doc -> doc)
             Obj.magic(fun n ->
               collect (dctext1 acc
                          (format_int (String.sub format i 
-                                                  (j-i+1)) n))
+                                        (j-i+1)) n))
                 (succ j))
         | 'f' | 'e' | 'E' | 'g' | 'G' ->
             Obj.magic(fun f ->
@@ -588,7 +588,7 @@ let gprintf (finish : doc -> doc)
         if i + 1 < flen then begin
           match fget (succ i) with
 
-                                        (* Now the special format characters *)
+            (* Now the special format characters *)
             '[' ->                      (* align *)
               let newacc = 
                 if !alignDepth > !printDepth then
@@ -655,14 +655,14 @@ let flushOften = ref false
 let dprintf format     = gprintf (fun x -> x) format
 let fprintf chn format = 
   let f d = fprint chn 80 d; d in
-	(* weimeric hack begins -- flush output to streams *)
+  (* weimeric hack begins -- flush output to streams *)
   let res = gprintf f format in
-	(* save the value we would have returned, flush the channel and then 
-         * return it -- this allows us to see debug input near infinite loops 
-         * *)
+  (* save the value we would have returned, flush the channel and then 
+   * return it -- this allows us to see debug input near infinite loops 
+   * *)
   if !flushOften then flush chn;
   res
-	(* weimeric hack ends *)
+    (* weimeric hack ends *)
 
 let printf format = fprintf stdout format
 let eprintf format = fprintf stderr format
@@ -682,9 +682,9 @@ let eprintf format = fprintf stderr format
 
 
 (*
-let sprintf format = gprintf (fun x -> sprint 80 x) format
-let printf  format = gprintf (fun x -> fprint stdout 80 x) format
-*)
+  let sprintf format = gprintf (fun x -> sprint 80 x) format
+  let printf  format = gprintf (fun x -> fprint stdout 80 x) format
+ *)
 
 
 

@@ -1,37 +1,37 @@
 (* Note added due to LGPL terms.
 
-This file was edited by Valerio Bigiani, AKA The Bigg, starting from
-6 November 2005. All changes for this file are listed in
-diffs/src.key.ml.diff file, as the output of a diff -Bw -c -N command.
+   This file was edited by Valerio Bigiani, AKA The Bigg, starting from
+   6 November 2005. All changes for this file are listed in
+   diffs/src.key.ml.diff file, as the output of a diff -Bw -c -N command.
 
-It was originally taken from Westley Weimer's WeiDU 185. *)
+   It was originally taken from Westley Weimer's WeiDU 185. *)
 
 (* Infinity Engine [KEY] *)
 
 open Util
 
 type key_biff = {
-          length    : int ; 
-          filename  : string ;
-          locations : int ;
-} 
+    length    : int ; 
+    filename  : string ;
+    locations : int ;
+  } 
 
 and key_resource = {
-          res_name       : string ;
-          res_type       : int ;
-          other_index    : int ;
-          tis_index      : int ; 
-          bif_index      : int ;
-} 
+    res_name       : string ;
+    res_type       : int ;
+    other_index    : int ;
+    tis_index      : int ; 
+    bif_index      : int ;
+  } 
 
 and key = {
-          biff     : key_biff array ; 
-          resource : key_resource array ;
-          resfind  : ((string*string), key_resource) Hashtbl.t ; 
-}
+    biff     : key_biff array ; 
+    resource : key_resource array ;
+    resfind  : ((string*string), key_resource) Hashtbl.t ; 
+  }
 
 let null_key () = { biff = [| |] ; resource = [| |] ;
-  resfind = Hashtbl.create 1 } 
+		    resfind = Hashtbl.create 1 } 
 
 let key_ext_ht = Hashtbl.create 101 
 let ext_key_ht = Hashtbl.create 101
@@ -73,7 +73,7 @@ let _ =
   assoc "WFX" 0x005 ;
   assoc "WMP" 0x3f7 ;
   ()
-  
+    
 let ext_of_key key = 
   try 
     Hashtbl.find ext_key_ht key 
@@ -112,7 +112,7 @@ let save_key key outchan = begin
       Buffer.add_string biff_buff (str_of_int filename_offset) ;
       Buffer.add_string biff_buff (str_of_short filename_length) ;
       Buffer.add_string biff_buff (str_of_short b.locations) ;
-    ) key.biff ;
+	       ) key.biff ;
 
     let res_offset = base_name_offset + (Buffer.length biff_name_buff) in
     Buffer.add_string buff (str_of_int (res_offset));
@@ -122,71 +122,71 @@ let save_key key outchan = begin
       Buffer.add_string res_buff res_name ;
       Buffer.add_string res_buff (str_of_short r.res_type) ;
       let bitfield : Int32.t = Int32.logor
-        (Int32.logor (Int32.of_int r.other_index)
-                     (Int32.shift_left (Int32.of_int r.bif_index) 20))
-                     (Int32.shift_left (Int32.of_int r.tis_index) 14)
+          (Int32.logor (Int32.of_int r.other_index)
+             (Int32.shift_left (Int32.of_int r.bif_index) 20))
+          (Int32.shift_left (Int32.of_int r.tis_index) 14)
       in
       Buffer.add_string res_buff (str_of_int32 bitfield) ;
-    ) key.resource ;
-  ) () ;
+	       ) key.resource ;
+			   ) () ;
   Stats.time "saving files" (fun () ->
-  Buffer.output_buffer outchan buff ;
-  Buffer.output_buffer outchan biff_buff ;
-  Buffer.output_buffer outchan biff_name_buff ;
-  Buffer.output_buffer outchan res_buff ;
-  close_out outchan
-  ) () ;
+    Buffer.output_buffer outchan buff ;
+    Buffer.output_buffer outchan biff_buff ;
+    Buffer.output_buffer outchan biff_name_buff ;
+    Buffer.output_buffer outchan res_buff ;
+    close_out outchan
+			    ) () ;
   log_or_print "KEY saved (%d biffs, %d resources)\n"
-     (Array.length key.biff)
-     (Array.length key.resource)
-  end
+    (Array.length key.biff)
+    (Array.length key.resource)
+end
 
 
 let load_key filename buff = begin
   Stats.time "unmarshal KEY" (fun () -> 
-  if String.length buff < 8 || String.sub buff 0 8 <> "KEY V1  " then begin
-    failwith "not a valid KEY file (wrong sig)"
-  end ; 
-  let num_bif = int_of_str_off buff 8 in
-  let num_resource = int_of_str_off buff 12 in
-  let offset_bif = int_of_str_off buff 16 in
-  let offset_resource = int_of_str_off buff 20 in
-  let resfind = Hashtbl.create (num_resource * 2) in 
-  let result = 
-  {
-    resfind = resfind ; 
-    biff = Array.init num_bif (fun i -> 
-      let off = offset_bif + (i * 12) in 
-      let off_file = int_of_str_off buff (off + 4) in
-      let len_file = short_of_str_off buff (off + 8) in
+    if String.length buff < 8 || String.sub buff 0 8 <> "KEY V1  " then begin
+      failwith "not a valid KEY file (wrong sig)"
+    end ; 
+    let num_bif = int_of_str_off buff 8 in
+    let num_resource = int_of_str_off buff 12 in
+    let offset_bif = int_of_str_off buff 16 in
+    let offset_resource = int_of_str_off buff 20 in
+    let resfind = Hashtbl.create (num_resource * 2) in 
+    let result = 
       {
-        length = int_of_str_off buff off ;
-        filename = String.uppercase (get_string_of_size buff off_file len_file) ;
-        locations = short_of_str_off buff (off + 10) ;
-      } 
-    ) ;
-    resource = Array.init num_resource (fun i ->
-      let off = offset_resource + (i * 14) in 
-      let bitfield = int32_of_str_off buff (off + 10) in
-      let res = 
-      {
-        res_name = String.uppercase (get_string_of_size buff off 8) ;
-        res_type = short_of_str_off buff (off + 8) ;
-        other_index = Int32.to_int
-                    (Int32.logand bitfield (Int32.of_int 16383)) ;
-        bif_index = Int32.to_int (Int32.shift_right bitfield 20);
-        tis_index = Int32.to_int
-                    (Int32.logand (Int32.shift_right bitfield 14)
-                                  (Int32.of_int 63)) ;
-      } in
-      let ext_str = ext_of_key res.res_type in
-      Hashtbl.add resfind (res.res_name,ext_str) res ;
-      res
-    ) ;
-  } in
-  log_or_print "[%s] %d BIFFs, %d resources\n" filename num_bif num_resource ;
-  result
-  ) () ;
+       resfind = resfind ; 
+       biff = Array.init num_bif (fun i -> 
+	 let off = offset_bif + (i * 12) in 
+	 let off_file = int_of_str_off buff (off + 4) in
+	 let len_file = short_of_str_off buff (off + 8) in
+	 {
+          length = int_of_str_off buff off ;
+          filename = String.uppercase (get_string_of_size buff off_file len_file) ;
+          locations = short_of_str_off buff (off + 10) ;
+	} 
+				 ) ;
+       resource = Array.init num_resource (fun i ->
+	 let off = offset_resource + (i * 14) in 
+	 let bitfield = int32_of_str_off buff (off + 10) in
+	 let res = 
+	   {
+            res_name = String.uppercase (get_string_of_size buff off 8) ;
+            res_type = short_of_str_off buff (off + 8) ;
+            other_index = Int32.to_int
+              (Int32.logand bitfield (Int32.of_int 16383)) ;
+            bif_index = Int32.to_int (Int32.shift_right bitfield 20);
+            tis_index = Int32.to_int
+              (Int32.logand (Int32.shift_right bitfield 14)
+                 (Int32.of_int 63)) ;
+	  } in
+	 let ext_str = ext_of_key res.res_type in
+	 Hashtbl.add resfind (res.res_name,ext_str) res ;
+	 res
+					  ) ;
+     } in
+    log_or_print "[%s] %d BIFFs, %d resources\n" filename num_bif num_resource ;
+    result
+			     ) () ;
 end
 
 
@@ -202,14 +202,14 @@ let find_resource key name ext =
   let rtype = key_of_ext true ext in 
   let name = String.uppercase name in 
   try 
-    Array.iter (fun res ->
-      if res.res_type = rtype && 
-         res.res_name = name then 
-        raise (Found(res))
-    ) key.resource ;
-    raise Not_found 
+  Array.iter (fun res ->
+  if res.res_type = rtype && 
+  res.res_name = name then 
+  raise (Found(res))
+  ) key.resource ;
+  raise Not_found 
   with Found(r) -> r
-  *)
+ *)
 
 let other_path_separators = Str.regexp "[:\\]"
 
@@ -227,15 +227,15 @@ let bif_exists_in_key key name = begin
   Array.iter (fun b ->
     let b = String.uppercase b.filename in
     if String.compare (String.uppercase name) b = 0 then result := true;
-  ) key.biff ;
+	     ) key.biff ;
   !result;
 end
 
 let list_biff key o = begin
   Array.iter (fun b ->
     o (Printf.sprintf "[%s]\t%9d bytes, %3d locations\n" 
-      b.filename b.length b.locations)
-  ) key.biff
+	 b.filename b.length b.locations)
+	     ) key.biff
 end
 
 let list_biff_contents key o bl = begin
@@ -244,40 +244,40 @@ let list_biff_contents key o bl = begin
     let up_name = String.uppercase biff.filename in 
     if List.mem up_name bl then 
       o (Printf.sprintf "[%s] contains %8s.%3s at index %d\n"
-        biff.filename r.res_name ( ext_of_key r.res_type )
-        (if ext_of_key r.res_type = "TIS" then 
-          r.tis_index else r.other_index))
-  ) key.resource
+           biff.filename r.res_name ( ext_of_key r.res_type )
+           (if ext_of_key r.res_type = "TIS" then 
+             r.tis_index else r.other_index))
+	     ) key.resource
 end
 
 let list_key key o = begin
   Array.iter (fun r ->
     o (Printf.sprintf "%s.%s\n" r.res_name (ext_of_key r.res_type))
-  ) key.resource
+	     ) key.resource
 end
 
 let list_of_key_resources key use_override =
   let from_key = Array.to_list (Array.map (fun r ->
     Printf.sprintf "%s.%s" r.res_name (ext_of_key r.res_type)) key.resource) in
   if use_override then begin
-  	let found = Hashtbl.create 3000 in
-		List.iter (fun x -> Hashtbl.add found x true) from_key;
-		let from_override = try
-			let dh = Case_ins.unix_opendir "override" in
-			let lst = ref [] in
-			(try
-				while true do
-					let next = Unix.readdir dh in
-					if ((Case_ins.unix_stat ("override/" ^ next)).Unix.st_kind =
-						 Unix.S_REG) && not (Hashtbl.mem found (String.uppercase next)) then
-						lst := (String.uppercase next) :: !lst
-				done
-			with End_of_file -> () );
-			Unix.closedir dh ;
-			!lst
-		with _ -> [] in
-		from_key @ from_override
-	end else from_key
+    let found = Hashtbl.create 3000 in
+    List.iter (fun x -> Hashtbl.add found x true) from_key;
+    let from_override = try
+      let dh = Case_ins.unix_opendir "override" in
+      let lst = ref [] in
+      (try
+	while true do
+	  let next = Unix.readdir dh in
+	  if ((Case_ins.unix_stat ("override/" ^ next)).Unix.st_kind =
+	      Unix.S_REG) && not (Hashtbl.mem found (String.uppercase next)) then
+	    lst := (String.uppercase next) :: !lst
+	done
+      with End_of_file -> () );
+      Unix.closedir dh ;
+      !lst
+    with _ -> [] in
+    from_key @ from_override
+  end else from_key
 
 
 
@@ -287,7 +287,7 @@ let remove_biff key filename =
   Array.iteri (fun i b -> 
     if (String.uppercase b.filename) = filename then 
       idx := Some(i) 
-  ) key.biff ; 
+	      ) key.biff ; 
   let i = match !idx with
   | Some(i) -> i
   | None -> failwith "BIFF not found in KEY (try --list-biffs)"
@@ -296,10 +296,10 @@ let remove_biff key filename =
   let counter = ref 0 in 
   let filtered = List.filter (fun r -> 
     if r.bif_index = i then (incr counter ; false) else true 
-  ) reslist in
+			     ) reslist in
   let modified = List.map (fun r ->
     if r.bif_index > i then { r with bif_index = r.bif_index - 1 } else r
-  ) filtered in 
+			  ) filtered in 
   let newres = Array.of_list modified in 
 
   let before = Array.sub key.biff 0 i in
@@ -308,7 +308,7 @@ let remove_biff key filename =
   log_and_print "Removing references to %d resources in [%s]\n" !counter
     filename ; 
   { key with biff = newbiff ;
-             resource = newres ; }
+    resource = newres ; }
 
 
 

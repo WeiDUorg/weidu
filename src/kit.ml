@@ -26,13 +26,13 @@ let extract game o output_dir min_num =
   let rec get_line_starting_with line_list s_regexp = match line_list with
     [] -> raise Not_found
   | hd :: tl -> 
-    begin
-      try
-        let i = Str.search_forward s_regexp hd 0 in
-        if i = 0 then hd
-        else raise Not_found
-      with _ -> get_line_starting_with tl s_regexp 
-    end 
+      begin
+	try
+          let i = Str.search_forward s_regexp hd 0 in
+          if i = 0 then hd
+          else raise Not_found
+	with _ -> get_line_starting_with tl s_regexp 
+      end 
   in 
   let get_line line_list str = 
     let s_regexp = Str.regexp str in
@@ -55,19 +55,19 @@ let extract game o output_dir min_num =
           let buff, _ = Load.load_resource "extract kit" game true ktw "2DA" in
           kittable_list := (ktw,(lines buff)) :: !kittable_list 
         with _ -> () 
-      ) ktw 
+		) ktw 
     end 
-  ) kittable_l ;
+	    ) kittable_l ;
 
   let kittable_mentions id =
     let partial = List.filter (fun (nom, lines) ->
       List.exists (fun line ->
         let words = words line in 
         List.length words > 1 && (
-          try int_of_string (List.nth words 1) == id
-          with _ -> false)
-      ) lines
-    ) !kittable_list in
+        try int_of_string (List.nth words 1) == id
+        with _ -> false)
+		  ) lines
+			      ) !kittable_list in
     List.map (fun (nom,_) -> nom) partial
   in 
 
@@ -83,7 +83,7 @@ let extract game o output_dir min_num =
       end else begin
         res := w.(!where) :: !res
       end 
-    ) ll ;
+	      ) ll ;
     List.rev !res
   in 
 
@@ -95,95 +95,95 @@ let extract game o output_dir min_num =
           let spl = Str.string_after word 3 in 
           Hashtbl.add abils spl true 
         end 
-      ) (words line)
-    ) (lines buff)
+		) (words line)
+	      ) (lines buff)
   in 
 
   List.iter (fun kitlist_line ->
     let kitlist_w = words kitlist_line in 
     try 
       if (List.length kitlist_w >= 9) && 
-          int_of_string (List.hd kitlist_w) > min_num then begin  
-        let id = int_of_string (List.hd kitlist_w) in 
-        let name = List.nth kitlist_w 1 in
-        let lower = List.nth kitlist_w 2 in
-        let mixed = List.nth kitlist_w 3 in
-        let help = List.nth kitlist_w 4 in
-        let abilities = List.nth kitlist_w 5 in
-        let prof = List.nth kitlist_w 6 in
-        let unusable = List.nth kitlist_w 7 in
-        let klass = List.nth kitlist_w 8 in
-        log_and_print "Kit.extract: Processing %s\n" name ; 
+        int_of_string (List.hd kitlist_w) > min_num then begin  
+          let id = int_of_string (List.hd kitlist_w) in 
+          let name = List.nth kitlist_w 1 in
+          let lower = List.nth kitlist_w 2 in
+          let mixed = List.nth kitlist_w 3 in
+          let help = List.nth kitlist_w 4 in
+          let abilities = List.nth kitlist_w 5 in
+          let prof = List.nth kitlist_w 6 in
+          let unusable = List.nth kitlist_w 7 in
+          let klass = List.nth kitlist_w 8 in
+          log_and_print "Kit.extract: Processing %s\n" name ; 
 
 
-        o (Printf.sprintf "ADD_KIT ~%s~\n" name) ;
-        o (Printf.sprintf "~%s~\n" (get_line clasweap_l name)) ;
-        o (Printf.sprintf "~%s" name) ;
-        List.iter (fun w -> o (Printf.sprintf " %s " w))
-          (get_col weapprof_l name) ;
-        o (Printf.sprintf "~\n" ) ;
-        List.iter (fun ll -> 
-          o (Printf.sprintf "~%s~\n" (get_line ll name)) ;
-        ) [ abclasrq_l ; abclsmod_l ; abdcdsrq_l ; abdcscrq_l ;
-            alignmnt_l ; dualclas_l ; ] ;
+          o (Printf.sprintf "ADD_KIT ~%s~\n" name) ;
+          o (Printf.sprintf "~%s~\n" (get_line clasweap_l name)) ;
+          o (Printf.sprintf "~%s" name) ;
+          List.iter (fun w -> o (Printf.sprintf " %s " w))
+            (get_col weapprof_l name) ;
+          o (Printf.sprintf "~\n" ) ;
+          List.iter (fun ll -> 
+            o (Printf.sprintf "~%s~\n" (get_line ll name)) ;
+		    ) [ abclasrq_l ; abclsmod_l ; abdcdsrq_l ; abdcscrq_l ;
+			alignmnt_l ; dualclas_l ; ] ;
 
-        let buff, _ = 
-          try Load.load_resource "extract kit" game true abilities "2DA" 
-          with _ -> Load.load_resource "extract kit" game true "clabfi01" "2DA" in
-        let dst = Printf.sprintf "%s/%s.2DA" output_dir abilities in 
-        o (Printf.sprintf "~%s~\n" dst) ; 
-        let oc = Case_ins.perv_open_out_bin dst in
-        output_string oc buff ;
-        close_out oc ;
-        process_ability buff; 
+          let buff, _ = 
+            try Load.load_resource "extract kit" game true abilities "2DA" 
+            with _ -> Load.load_resource "extract kit" game true "clabfi01" "2DA" in
+          let dst = Printf.sprintf "%s/%s.2DA" output_dir abilities in 
+          o (Printf.sprintf "~%s~\n" dst) ; 
+          let oc = Case_ins.perv_open_out_bin dst in
+          output_string oc buff ;
+          close_out oc ;
+          process_ability buff; 
 
-        o (Printf.sprintf "~" ) ;
-        List.iter (fun s -> o (Printf.sprintf " %s " s))
-          (kittable_mentions id) ;
-        o (Printf.sprintf "~\n" ) ;
+          o (Printf.sprintf "~" ) ;
+          List.iter (fun s -> o (Printf.sprintf " %s " s))
+            (kittable_mentions id) ;
+          o (Printf.sprintf "~\n" ) ;
 
-        o (Printf.sprintf "~%s %s~\n" unusable klass) ;
+          o (Printf.sprintf "~%s %s~\n" unusable klass) ;
 
-        let ll = try 
-                    let the_line = get_line luabbr_l name in
-                    let the_words = words the_line in
-                    List.nth the_words 1
+          let ll = try 
+            let the_line = get_line luabbr_l name in
+            let the_words = words the_line in
+            List.nth the_words 1
           with _ -> "Fi0" 
-        in 
-        o (Printf.sprintf "~%s~\n" ll) ;
+          in 
+          o (Printf.sprintf "~%s~\n" ll) ;
 
-        o (Printf.sprintf "~" ) ;
-        List.iter (fun w -> o (Printf.sprintf " %s " w)) 
-          (get_col tfstweap_l name) ;
-        o (Printf.sprintf "~\n" ) ;
+          o (Printf.sprintf "~" ) ;
+          List.iter (fun w -> o (Printf.sprintf " %s " w)) 
+            (get_col tfstweap_l name) ;
+          o (Printf.sprintf "~\n" ) ;
 
-        List.iter (fun str ->
-          let i = int_of_string str in 
-          let male = Tlk.pretty_print game.Load.dialog i in 
-          let female = Tlk.pretty_print_opt game.Load.dialogf i in
-          if (female = "" || male = female) then 
-            o (Printf.sprintf "SAY %s\n" male)
-          else 
-            o (Printf.sprintf "SAY %s %s\n" male female)
-        ) [ lower ; mixed ; help ] ; 
+          List.iter (fun str ->
+            let i = int_of_string str in 
+            let male = Tlk.pretty_print game.Load.dialog i in 
+            let female = Tlk.pretty_print_opt game.Load.dialogf i in
+            if (female = "" || male = female) then 
+              o (Printf.sprintf "SAY %s\n" male)
+            else 
+              o (Printf.sprintf "SAY %s %s\n" male female)
+		    ) [ lower ; mixed ; help ] ; 
 
-        o "\n\n/**************************************************************************/\n\n" 
-      end 
+          o "\n\n/**************************************************************************/\n\n" 
+	end 
     with e -> begin
       log_and_print "\nKit.extract: ~%s~\n\t%s\n\n" kitlist_line 
         (Printexc.to_string e) ; exit 1 
-      end 
-  ) kitlist_l ;
+    end 
+	    ) kitlist_l ;
 
   Hashtbl.iter (fun k _ -> 
     try 
-    let buff, _ = Load.load_resource "extract kit" game true k "SPL" in 
-    let dst = Printf.sprintf "%s/%s.SPL" output_dir k in 
-    let oc = Case_ins.perv_open_out_bin dst in
-    output_string oc buff ;
-    close_out oc ;
+      let buff, _ = Load.load_resource "extract kit" game true k "SPL" in 
+      let dst = Printf.sprintf "%s/%s.SPL" output_dir k in 
+      let oc = Case_ins.perv_open_out_bin dst in
+      output_string oc buff ;
+      close_out oc ;
     with _ -> () 
-  ) abils ;
+	       ) abils ;
   Automate.automate game [output_dir] 0 o ;
 
   () 

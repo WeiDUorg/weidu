@@ -1,8 +1,8 @@
 (* Note added due to LGPL terms.
 
-This file was created by Valerio Bigiani, AKA The Bigg, starting from
-28 April 2006, and taken from the src/main.ml file from Westley Weimer's
-WeiDU 185, as subsequently edited by me. *)
+   This file was created by Valerio Bigiani, AKA The Bigg, starting from
+   28 April 2006, and taken from the src/main.ml file from Westley Weimer's
+   WeiDU 185, as subsequently edited by me. *)
 
 open Util
 open Version
@@ -14,17 +14,17 @@ let win = openTk ();;
 let parse_buffer filename buffer sort_of_file parse_lex_fun =
   try
     begin
-    let lexbuf : Lexing.lexbuf = lex_init_from_string filename buffer in
-    try
-      let result = Stats.time sort_of_file
-        (fun () -> parse_lex_fun lexbuf) () in
-      pop_context () ;
-      log_or_print "[%s] parsed\n" filename ;
-      result
-    with e ->
-      (try input_error "" (Printexc.to_string e) with _ -> () ) ;
-      pop_context () ;
-      raise e
+      let lexbuf : Lexing.lexbuf = lex_init_from_string filename buffer in
+      try
+	let result = Stats.time sort_of_file
+            (fun () -> parse_lex_fun lexbuf) () in
+	pop_context () ;
+	log_or_print "[%s] parsed\n" filename ;
+	result
+      with e ->
+	(try input_error "" (Printexc.to_string e) with _ -> () ) ;
+	pop_context () ;
+	raise e
     end
   with e ->
     log_and_print "ERROR: parsing [%s]: %s\n"
@@ -35,7 +35,7 @@ let parse_buffer filename buffer sort_of_file parse_lex_fun =
 let load_log () =
   try
     let result = parse_file true (File Tp.log_name) "parsing .log files"
-      (Dparser.log_file Dlexer.initial) in
+	(Dparser.log_file Dlexer.initial) in
     List.map (fun (a,b,c,d) -> ((String.uppercase a),b,c,d,Tp.Installed)) result
   with e ->
     log_or_print "WARNING: parsing log [%s]: %s\n" Tp.log_name
@@ -53,17 +53,17 @@ let handle_tp2_filename filename =
 let get_tra_list_filename filename =
   if file_exists filename || Hashtbl.mem inlined_files filename then begin
     let result =
-    (match split (String.uppercase filename) with
-    | _, "TRB" ->
-      let inchan = Case_ins.perv_open_in_bin filename in
-      let result = Stats.time "parsing .trb files"
-        Marshal.from_channel inchan in
-      close_in inchan ;
-      result
-    | _, _ ->
-      let result = parse_file true (File filename) "parsing .tra files"
-        (Dparser.tra_file Dlexer.initial) in
-      result)
+      (match split (String.uppercase filename) with
+      | _, "TRB" ->
+	  let inchan = Case_ins.perv_open_in_bin filename in
+	  let result = Stats.time "parsing .trb files"
+              Marshal.from_channel inchan in
+	  close_in inchan ;
+	  result
+      | _, _ ->
+	  let result = parse_file true (File filename) "parsing .tra files"
+              (Dparser.tra_file Dlexer.initial) in
+	  result)
     in
     result
   end else []
@@ -97,7 +97,7 @@ let get_component_name a b c =
             )
         in
         Stats.time "adding translation strings" Dc.add_trans_strings x
-      ) l.Tp.lang_tra_files ;
+		) l.Tp.lang_tra_files ;
     with _ -> ()) ;
     let m = Tpstate.get_nth_module tp2 c true in
     let comp_str = Dc.single_string_of_tlk_string_safe game m.Tp.mod_name in
@@ -143,7 +143,7 @@ let redraw_mod_list mod_list =
     Listbox.insert mod_list ~index:`End ~texts:[match component_name with
     | "???" -> Printf.sprintf "%s %d %d (unknown name) %s" a b c (if force_reinst then "*" else "")
     | _ -> (strip_tp2 a) ^ ": " ^ component_name ^  (if force_reinst then " *" else "")];
-  ) !current_stuff;
+	    ) !current_stuff;
 ;;
 
 (* Specialistic GUI *)
@@ -250,9 +250,9 @@ let inst_button_position popup orig_mod_log tp2_file tp2_parsed lang components 
   let temp_g () =
     let x = Listbox.curselection temp_mod_log in
     let x = ref (match x with
-      | [`Num(y)] -> y
-      | _ -> failwith "Problem decrypting your position choice"
-    )
+    | [`Num(y)] -> y
+    | _ -> failwith "Problem decrypting your position choice"
+		)
     in
     let uninst_if_pres the_l =
       let a1 = String.uppercase tp2_file in
@@ -290,7 +290,7 @@ let inst_button_position popup orig_mod_log tp2_file tp2_parsed lang components 
         found_force_reinst := true;
         List.iter (fun y ->
           current_stuff := (String.uppercase tp2_file,lang,y,get_component_name tp2_file lang y,true) :: !current_stuff
-        ) components;
+		  ) components;
         i_did_it := true;
       end;
       current_stuff := (a1,a2,a3,a4,a5 || !found_force_reinst) :: !current_stuff;
@@ -298,7 +298,7 @@ let inst_button_position popup orig_mod_log tp2_file tp2_parsed lang components 
     if not !i_did_it then begin
       List.iter (fun y ->
         current_stuff := (String.uppercase tp2_file,lang,y,get_component_name tp2_file lang y,true) :: !current_stuff
-      ) components;
+		) components;
     end ;
     current_stuff := List.rev !current_stuff;
     redraw_mod_list orig_mod_log;
@@ -331,10 +331,10 @@ let inst_button_comps popup orig_mod_log tp2_file tp2_parsed lang =
       let the_comp = Tpstate.get_nth_module tp2_parsed i false in
       let isok = List.fold_left (fun acc this -> 
         match this with
-          | Tp.TPM_Deprecated(_) -> false
-          (* | Tp.TPM_Require_foo(_) -> let condition_matched = some_magic in condition_matched && acc *)
-          | _ -> acc
-      ) true the_comp.Tp.mod_flags in
+        | Tp.TPM_Deprecated(_) -> false
+              (* | Tp.TPM_Require_foo(_) -> let condition_matched = some_magic in condition_matched && acc *)
+        | _ -> acc
+				) true the_comp.Tp.mod_flags in
       if isok then begin
         let name = get_component_name tp2_file lang i in
         Hashtbl.add shown_ht !counter i;
@@ -374,9 +374,9 @@ let inst_button_lang popup orig_mod_log tp2_file =
       Hashtbl.add tp2_ht tp2_file res ; res
   in
   match tp2.Tp.languages with
-      [] -> inst_button_comps popup orig_mod_log tp2_file tp2 0;
-    | [l] -> inst_button_comps popup orig_mod_log tp2_file tp2 0;
-    | _ ->
+    [] -> inst_button_comps popup orig_mod_log tp2_file tp2 0;
+  | [l] -> inst_button_comps popup orig_mod_log tp2_file tp2 0;
+  | _ ->
       let but_frm = Frame.create popup in
       let temp_undo = Button.create ~text:"Cancel" but_frm in
       let temp_proc = Button.create ~text:"Next" but_frm in
@@ -385,16 +385,16 @@ let inst_button_lang popup orig_mod_log tp2_file =
       let temp_sb = Scrollbar.create temp_frame_log ~command:(Listbox.yview temp_mod_log) in
       Listbox.configure temp_mod_log ~yscrollcommand:(Scrollbar.set temp_sb);
       let arr = Array.of_list tp2.Tp.languages in
-        Array.iteri (fun i l ->
-          Listbox.insert temp_mod_log ~index:`End ~texts:[l.Tp.lang_name]) arr ;
+      Array.iteri (fun i l ->
+        Listbox.insert temp_mod_log ~index:`End ~texts:[l.Tp.lang_name]) arr ;
       let temp_frame_lab = Frame.create popup in
       let temp_label = Label.create ~text:"Choose the language" popup in
       let temp_f () = destroy popup in
       let temp_g () =
         let x = Listbox.curselection temp_mod_log in
         let x = match x with
-          | [`Num(x)] -> x
-          | _ -> 0
+        | [`Num(x)] -> x
+        | _ -> 0
         in
         destroy temp_frame_lab;
         destroy temp_frame_log;
@@ -431,9 +431,9 @@ let inst_button_tp2 orig_mod_log () =
           if file_size file >= 0 then Listbox.insert ~index:`End ~texts:[file] temp_mod_log;
         in
         match y.Unix.st_kind with
-          | Unix.S_REG -> if (String.uppercase(snd (split x))) = "TP2" then check_and_do x;
-          | Unix.S_DIR -> check_and_do (x ^ "/" ^ x ^ ".tp2"); check_and_do (x ^ "/setup-" ^ x ^ ".tp2")
-          | _ -> ()
+        | Unix.S_REG -> if (String.uppercase(snd (split x))) = "TP2" then check_and_do x;
+        | Unix.S_DIR -> check_and_do (x ^ "/" ^ x ^ ".tp2"); check_and_do (x ^ "/setup-" ^ x ^ ".tp2")
+        | _ -> ()
       done;
     with End_of_file -> ()
   end;
@@ -468,8 +468,8 @@ let proceed original_stuff skip_readme () =
   List.iter (fun(tp2,lang,comp,_,_) ->
     incr counter;
     if (List.exists (fun (a,b,c,d,e) -> (a = tp2) && (c = comp) && e) !current_stuff) ||
-       (List.exists (fun (a,b,c) -> (a = tp2) && (c = comp)) !uninstall_me) then howmany := !counter;
-  ) (List.rev original_stuff);
+    (List.exists (fun (a,b,c) -> (a = tp2) && (c = comp)) !uninstall_me) then howmany := !counter;
+	    ) (List.rev original_stuff);
   let os = ref (List.rev original_stuff) in
   for i = 1 to !howmany do
     let ((tp2,lang,comp,_,_),b) = (List.hd !os, List.tl !os) in
@@ -528,10 +528,10 @@ let main () =
   let original_stuff = List.map (fun (a,b,c,_,_) ->
     let component_name = get_component_name a b c in
     (a,b,c,component_name,false)
-  ) original_stuff in
+				) original_stuff in
   current_stuff := original_stuff;
   Button.configure undo ~command:(let x () = current_stuff := original_stuff; redraw_mod_list mod_log;
-                                             uninstall_me := [] in x);
+    uninstall_me := [] in x);
   Button.configure uninst ~command:(uninst_button mod_log); 
   Button.configure reinst ~command:(reinst_button mod_log);
   Button.configure inst ~command:(inst_button_tp2 mod_log);

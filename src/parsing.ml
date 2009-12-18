@@ -25,40 +25,40 @@ open Lexing
 (* Internal interface to the parsing engine *)
 
 type parser_env =
-  { mutable s_stack : int array;        (* States *)
-    mutable v_stack : Obj.t array;      (* Semantic attributes *)
-    mutable symb_start_stack : position array; (* Start positions *)
-    mutable symb_end_stack : position array;   (* End positions *)
-    mutable stacksize : int;            (* Size of the stacks *)
-    mutable stackbase : int;            (* Base sp for current parse *)
-    mutable curr_char : int;            (* Last token read *)
-    mutable lval : Obj.t;               (* Its semantic attribute *)
-    mutable symb_start : position;      (* Start pos. of the current symbol*)
-    mutable symb_end : position;        (* End pos. of the current symbol *)
-    mutable asp : int;                  (* The stack pointer for attributes *)
-    mutable rule_len : int;             (* Number of rhs items in the rule *)
-    mutable rule_number : int;          (* Rule number to reduce by *)
-    mutable sp : int;                   (* Saved sp for parse_engine *)
-    mutable state : int;                (* Saved state for parse_engine *)
-    mutable errflag : int }             (* Saved error flag for parse_engine *)
+    { mutable s_stack : int array;        (* States *)
+      mutable v_stack : Obj.t array;      (* Semantic attributes *)
+      mutable symb_start_stack : position array; (* Start positions *)
+      mutable symb_end_stack : position array;   (* End positions *)
+      mutable stacksize : int;            (* Size of the stacks *)
+      mutable stackbase : int;            (* Base sp for current parse *)
+      mutable curr_char : int;            (* Last token read *)
+      mutable lval : Obj.t;               (* Its semantic attribute *)
+      mutable symb_start : position;      (* Start pos. of the current symbol*)
+      mutable symb_end : position;        (* End pos. of the current symbol *)
+      mutable asp : int;                  (* The stack pointer for attributes *)
+      mutable rule_len : int;             (* Number of rhs items in the rule *)
+      mutable rule_number : int;          (* Rule number to reduce by *)
+      mutable sp : int;                   (* Saved sp for parse_engine *)
+      mutable state : int;                (* Saved state for parse_engine *)
+      mutable errflag : int }             (* Saved error flag for parse_engine *)
 
 type parse_tables =
-  { actions : (parser_env -> Obj.t) array;
-    transl_const : int array;
-    transl_block : int array;
-    lhs : string;
-    len : string;
-    defred : string;
-    dgoto : string;
-    sindex : string;
-    rindex : string;
-    gindex : string;
-    tablesize : int;
-    table : string;
-    check : string;
-    error_function : string -> unit;
-    names_const : string;
-    names_block : string }
+    { actions : (parser_env -> Obj.t) array;
+      transl_const : int array;
+      transl_block : int array;
+      lhs : string;
+      len : string;
+      defred : string;
+      dgoto : string;
+      sindex : string;
+      rindex : string;
+      gindex : string;
+      tablesize : int;
+      table : string;
+      check : string;
+      error_function : string -> unit;
+	names_const : string;
+	names_block : string }
 
 exception YYexit of Obj.t
 exception Parse_error
@@ -80,8 +80,8 @@ type parser_output =
   | Call_error_function
 
 external parse_engine :
-    parse_tables -> parser_env -> parser_input -> Obj.t -> parser_output
-    = "caml_parse_engine"
+      parse_tables -> parser_env -> parser_input -> Obj.t -> parser_output
+	  = "caml_parse_engine"
 
 let make_env () = 
   { s_stack = Array.create 100 0;
@@ -113,15 +113,15 @@ let grow_stacks() =
   and new_v = Array.create newsize (Obj.repr ())
   and new_start = Array.create newsize dummy_pos
   and new_end = Array.create newsize dummy_pos in
-    Array.blit env.s_stack 0 new_s 0 oldsize;
-    env.s_stack <- new_s;
-    Array.blit env.v_stack 0 new_v 0 oldsize;
-    env.v_stack <- new_v;
-    Array.blit env.symb_start_stack 0 new_start 0 oldsize;
-    env.symb_start_stack <- new_start;
-    Array.blit env.symb_end_stack 0 new_end 0 oldsize;
-    env.symb_end_stack <- new_end;
-    env.stacksize <- newsize
+  Array.blit env.s_stack 0 new_s 0 oldsize;
+  env.s_stack <- new_s;
+  Array.blit env.v_stack 0 new_v 0 oldsize;
+  env.v_stack <- new_v;
+  Array.blit env.symb_start_stack 0 new_start 0 oldsize;
+  env.symb_start_stack <- new_start;
+  Array.blit env.symb_end_stack 0 new_end 0 oldsize;
+  env.symb_end_stack <- new_end;
+  env.stacksize <- newsize
 
 let clear_parser() =
   let env = henv () in 
@@ -159,13 +159,13 @@ let yyparse tables start lexer lexbuf =
         tables.error_function "syntax error";
         loop Error_detected (Obj.repr ()) in
   (*
-  let init_asp = env.asp
-  and init_sp = env.sp
-  and init_stackbase = env.stackbase
-  and init_state = env.state
-  and init_curr_char = env.curr_char
-  and init_errflag = env.errflag in
-  *)
+    let init_asp = env.asp
+    and init_sp = env.sp
+    and init_stackbase = env.stackbase
+    and init_state = env.state
+    and init_curr_char = env.curr_char
+    and init_errflag = env.errflag in
+   *)
   (let env = henv () in 
   env.stackbase <- env.sp + 1;
   env.curr_char <- start;
@@ -176,13 +176,13 @@ let yyparse tables start lexer lexbuf =
     let curr_char = (henv ()).curr_char in
     env := List.tl !env ;
     (*
-    env.asp <- init_asp;
-    env.sp <- init_sp;
-    env.stackbase <- init_stackbase;
-    env.state <- init_state;
-    env.curr_char <- init_curr_char;
-    env.errflag <- init_errflag;
-    *)
+      env.asp <- init_asp;
+      env.sp <- init_sp;
+      env.stackbase <- init_stackbase;
+      env.state <- init_state;
+      env.curr_char <- init_curr_char;
+      env.errflag <- init_errflag;
+     *)
     match exn with
       YYexit v ->
         Obj.magic v

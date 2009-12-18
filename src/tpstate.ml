@@ -11,14 +11,14 @@ let clear_memory = ref false
 let strings_to_print_at_exit : (string * string) list ref = ref []
 
 let append_to_strings_to_print_at_exit comment name =
-	strings_to_print_at_exit := (comment,name) ::
-	List.filter (fun (c,n) -> n <> name) !strings_to_print_at_exit
+  strings_to_print_at_exit := (comment,name) ::
+    List.filter (fun (c,n) -> n <> name) !strings_to_print_at_exit
 ;;
 
 let rec get_menu_style fl = match fl with
-    [] -> 0
-  | Menu_Style(i) :: tl -> int_of_string i
-  | hd :: tl -> get_menu_style tl
+  [] -> 0
+| Menu_Style(i) :: tl -> int_of_string i
+| hd :: tl -> get_menu_style tl
 
 (************************************************************************
  * Common hashtables.
@@ -28,9 +28,9 @@ let loaded_tpp: (string,tp_patch list)Hashtbl.t = Hashtbl.create 5
 let action_macros: (string,tp_local_declaration list * tp_action list)Hashtbl.t = Hashtbl.create 10
 let patch_macros: (string,tp_local_declaration list * tp_patch list)Hashtbl.t = Hashtbl.create 10
 let action_functions: (string,(tp_pe_string * tp_patchexp) list *
-	   (tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_action list) Hashtbl.t = Hashtbl.create 10
+			 (tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_action list) Hashtbl.t = Hashtbl.create 10
 let patch_functions: (string,(tp_pe_string * tp_patchexp) list *
-	   (tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_patch list) Hashtbl.t = Hashtbl.create 10
+			(tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_patch list) Hashtbl.t = Hashtbl.create 10
 let readln_strings: (tp_pe_string * string) list ref = ref []
 
 (************************************************************************
@@ -41,17 +41,17 @@ let get_nth_module tp_file n print_why =
   let last = ref (-1) in
   let rec process lst = match lst with
   | [] ->
-    if print_why then 
-      log_or_print "%s's %dth component not found." tp_file.tp_filename n;
-    raise Not_found
+      if print_why then 
+	log_or_print "%s's %dth component not found." tp_file.tp_filename n;
+      raise Not_found
   | hd :: tl ->
-    begin
-      List.iter (fun x -> match x with
-      | TPM_Designated(i) -> last := pred i
-      | _ -> ()) hd.mod_flags ;
-      incr last;
-      if (!last = n) then hd else process tl
-    end
+      begin
+	List.iter (fun x -> match x with
+	| TPM_Designated(i) -> last := pred i
+	| _ -> ()) hd.mod_flags ;
+	incr last;
+	if (!last = n) then hd else process tl
+      end
   in
   process lst 
 
@@ -67,15 +67,15 @@ let get_last_module_index tp_file =
     in 
     last := this_one ;
     max !last acc
-  ) 0 tp_file.module_list
+		 ) 0 tp_file.module_list
 
 
 (************************************************************************
  * Evaluate a TP2 Patch Expression
  ************************************************************************)
 let log_match a b =
-	let a = String.uppercase a in
-	let b = String.uppercase b in
+  let a = String.uppercase a in
+  let b = String.uppercase b in
   Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase a)) =
   Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase b))
 
@@ -108,8 +108,8 @@ let temporarily_uninstalled tp2 i =
  * Determine what has been installed. 
  ************************************************************************)
 let str_of_str_opt sopt = match sopt with
-    Some(str) -> "~" ^ str ^ "~"
-  | None -> ""
+  Some(str) -> "~" ^ str ^ "~"
+| None -> ""
 
 let print_log () = 
   List.iter (fun (n,i1,i2,sopt,st) ->
@@ -117,18 +117,18 @@ let print_log () =
       Installed -> "Installed"
     | Temporarily_Uninstalled -> "Temporarily_Uninstalled"
     | Permanently_Uninstalled -> "Permanently_Uninstalled")
-    (str_of_str_opt sopt)
-  ) !the_log
+      (str_of_str_opt sopt)
+	    ) !the_log
 
 let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filename log tp2_ht tra_ht vocal intro =
   let out = Buffer.create 10000 in
   if vocal then (log_or_print "Saving This Log:\n" ; print_log ());
   if intro then begin
-		Printf.bprintf out "// Log of Currently Installed WeiDU Mods\n" ;
-	  Printf.bprintf out "// The top of the file is the 'oldest' mod\n" ;
-	  Printf.bprintf out "// ~TP2_File~ #language_number #component_number%s"
-	    (if !quick_log then "\n" else " // [Subcomponent Name -> ] Component Name [ : Version]\n") ;
-	end;
+    Printf.bprintf out "// Log of Currently Installed WeiDU Mods\n" ;
+    Printf.bprintf out "// The top of the file is the 'oldest' mod\n" ;
+    Printf.bprintf out "// ~TP2_File~ #language_number #component_number%s"
+      (if !quick_log then "\n" else " // [Subcomponent Name -> ] Component Name [ : Version]\n") ;
+  end;
   let newline_regexp = one_newline_or_cr_regexp in
   List.iter (fun (a,b,c,sopt,d) ->
     let str =
@@ -150,7 +150,7 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
               let l = List.nth tp2.languages b in
               List.iter (fun s ->
                 let x =
-                (* log_or_print "*** Loading %s for %s.\n" s a; *)
+                  (* log_or_print "*** Loading %s for %s.\n" s a; *)
                   try Hashtbl.find tra_ht s
                   with _ ->
                     (let x = get_tra_list_filename (Arch.backslash_to_slash s) in
@@ -158,7 +158,7 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
                     )
                 in
                 Stats.time "adding translation strings" Dc.add_trans_strings x
-              ) l.lang_tra_files ;
+			) l.lang_tra_files ;
             with _ -> ()) ;
             let m = get_nth_module tp2 c true in
             let comp_str = Dc.single_string_of_tlk_string_safe game m.mod_name in
@@ -174,11 +174,11 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
               | None    -> ""
               | Some(x) -> "" ^ (Dc.single_string_of_tlk_string_safe game x) ^ " -> ") in
             let rec get_version lst = match lst with
-            	| Version(lse) :: _ -> ": " ^ Dc.single_string_of_tlk_string_safe game lse
-            	|	_ :: tl -> get_version tl
-							| [] -> ""
-						in
-						let version = get_version tp2.flags in
+            | Version(lse) :: _ -> ": " ^ Dc.single_string_of_tlk_string_safe game lse
+            |	_ :: tl -> get_version tl
+	    | [] -> ""
+	    in
+	    let version = get_version tp2.flags in
             Dc.clear_state () ;
             Dc.pop_trans ();
             (comp_str, subcomp_str,version)
@@ -195,22 +195,22 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
           (String.uppercase a) b c
       end
     in
-  match d with
-    Installed -> Buffer.add_string out str
-  | Temporarily_Uninstalled ->
-      log_and_print "Internal Error: saving a log with temporarily uninstalled module %s" str
-  | Permanently_Uninstalled ->
-      Printf.bprintf out "// Recently Uninstalled: %s" str
-  ) log ;
+    match d with
+      Installed -> Buffer.add_string out str
+    | Temporarily_Uninstalled ->
+	log_and_print "Internal Error: saving a log with temporarily uninstalled module %s" str
+    | Permanently_Uninstalled ->
+	Printf.bprintf out "// Recently Uninstalled: %s" str
+	    ) log ;
   Buffer.contents out
 
 let save_log game handle_tp2_filename handle_tra_filename get_tra_list_filename =
   let tp2_ht = Hashtbl.create 511 in
   let tra_ht = Hashtbl.create 511 in
-	let s = sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filename !the_log tp2_ht tra_ht true true in
-	let out = Case_ins.perv_open_out log_name in
-	output_string out s;
-	close_out out
+  let s = sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filename !the_log tp2_ht tra_ht true true in
+  let out = Case_ins.perv_open_out log_name in
+  output_string out s;
+  close_out out
 
 type default_action = TP_Install | TP_Uninstall | TP_Skip | TP_Ask
 

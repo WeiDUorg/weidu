@@ -8,8 +8,8 @@ open Dlg
 open Iwgconf
 
 type rule =
-  Replace of string * (string list)
-| ReplaceWithConverted of string * (string list) 
+    Replace of string * (string list)
+  | ReplaceWithConverted of string * (string list) 
 
 let convert_at_end = ref ([] : ((string * string) list))
 
@@ -28,9 +28,9 @@ let override = ref "override"
 
 let save_in_override_truly_generic n e args fn =
   let path = Printf.sprintf "%s/%s/%s.%s" 
-    (config.target).Load.game_path
-    !override
-    n e 
+      (config.target).Load.game_path
+      !override
+      n e 
   in 
   let oc = Case_ins.perv_open_out_gen args 0o666 path in
   fn oc ; 
@@ -49,34 +49,34 @@ let save_in_override_generic n e fn =
 
 let load_target_res r e =
   Stats.time "LOAD" (fun () -> 
-  try 
-    Load.skip_next_load_error := true ; 
-    let buff,_ = Load.load_resource "weimorph" config.target true r e in
-    buff
-  with exc -> 
-    error e "%8s: resource not found in target: %s\n" 
-      (Printexc.to_string exc) r ; raise exc 
-  ) () 
+    try 
+      Load.skip_next_load_error := true ; 
+      let buff,_ = Load.load_resource "weimorph" config.target true r e in
+      buff
+    with exc -> 
+      error e "%8s: resource not found in target: %s\n" 
+	(Printexc.to_string exc) r ; raise exc 
+		    ) () 
 
 let load_source_res r e =
   Stats.time "LOAD" (fun () -> 
-  try 
-    Load.skip_next_load_error := true ; 
-    let buff,_ = Load.load_resource "weimorph" config.source true r e in
-    buff
-  with exc -> 
-    error e "%8s: resource not found in source: %s\n" 
-      (Printexc.to_string exc) r ; raise exc 
-  ) () 
+    try 
+      Load.skip_next_load_error := true ; 
+      let buff,_ = Load.load_resource "weimorph" config.source true r e in
+      buff
+    with exc -> 
+      error e "%8s: resource not found in source: %s\n" 
+	(Printexc.to_string exc) r ; raise exc 
+		    ) () 
 
 type convert_eff_args = { 
-  ce_is_shield : bool ;
-} 
+    ce_is_shield : bool ;
+  } 
 
 type convert_bcs_args = {
-  cb_is_cutscene : bool ;
-  cb_is_infopoint : bool ; 
-} 
+    cb_is_cutscene : bool ;
+    cb_is_infopoint : bool ; 
+  } 
 let default_convert_bcs_args = {
   cb_is_cutscene = false ;
   cb_is_infopoint = false ;
@@ -84,91 +84,91 @@ let default_convert_bcs_args = {
 
 
 type spl = { 
-  mutable s_gname : int ; 
-  mutable s_iname : int ; 
-  mutable s_sound : string ;
-  mutable s_loc : int ;
-  mutable s_type : int ; (* inventory item "S1" *)
-  mutable s_wiz : int ;
-  mutable s_pri : int ;
-  mutable s_school1 : int ;
-  mutable s_school2 : int ;
-  mutable s_cat : int ;
-  mutable s_lev : int ;
-  mutable s_icon : string ; (* BG2 prof required *) 
-  mutable s_desc : int;
-  mutable s_global : eff array ;
-  mutable s_abil: abil array ;
-} 
+    mutable s_gname : int ; 
+    mutable s_iname : int ; 
+    mutable s_sound : string ;
+    mutable s_loc : int ;
+    mutable s_type : int ; (* inventory item "S1" *)
+    mutable s_wiz : int ;
+    mutable s_pri : int ;
+    mutable s_school1 : int ;
+    mutable s_school2 : int ;
+    mutable s_cat : int ;
+    mutable s_lev : int ;
+    mutable s_icon : string ; (* BG2 prof required *) 
+    mutable s_desc : int;
+    mutable s_global : eff array ;
+    mutable s_abil: abil array ;
+  } 
 and itm = { 
-  mutable i_gname : int ; 
-  mutable i_iname : int ; 
-  mutable i_flags : int ;
-  mutable i_cat : int ;
-  mutable i_inv : string ; (* inventory item "S1" *)
-  mutable i_u1 : Int32.t ;
-  mutable i_u2 : int ;
-  mutable i_u3 : int ;
-  mutable i_u4 : int ;
-  mutable i_u5 : int ;
-  mutable i_prof : int ; (* BG2 prof required *) 
-  mutable i_price : int;
-  mutable i_stack: int;
-  mutable i_icon : string ;
-  mutable i_gicon : string ;
-  mutable i_lore : int;
-  mutable i_weight : int ;
-  mutable i_gdesc : int;
-  mutable i_idesc : int;
-  mutable i_cicon : string ; 
-  mutable i_enchant : int;
-  mutable i_equipped : eff array ;
-  mutable i_abil: abil array ;
-}
+    mutable i_gname : int ; 
+    mutable i_iname : int ; 
+    mutable i_flags : int ;
+    mutable i_cat : int ;
+    mutable i_inv : string ; (* inventory item "S1" *)
+    mutable i_u1 : Int32.t ;
+    mutable i_u2 : int ;
+    mutable i_u3 : int ;
+    mutable i_u4 : int ;
+    mutable i_u5 : int ;
+    mutable i_prof : int ; (* BG2 prof required *) 
+    mutable i_price : int;
+    mutable i_stack: int;
+    mutable i_icon : string ;
+    mutable i_gicon : string ;
+    mutable i_lore : int;
+    mutable i_weight : int ;
+    mutable i_gdesc : int;
+    mutable i_idesc : int;
+    mutable i_cicon : string ; 
+    mutable i_enchant : int;
+    mutable i_equipped : eff array ;
+    mutable i_abil: abil array ;
+  }
 and abil = {
-  mutable a_type : int;
-  mutable a_iloc : int;
-  mutable a_icon : string ;
-  mutable a_targ : int;
-  mutable a_range : int;
-  mutable a_launch : int;
-  mutable a_speed : int;
-  mutable a_tohit : int;
-  mutable a_dicesize : int;
-  mutable a_numdice : int;
-  mutable a_dmgbonus : int;
-  mutable a_dmgtype : int;
-  mutable a_charges : int;
-  mutable a_whendrained : int;
-  mutable a_allowstr : int ;
-  mutable a_recharge : int;
-  mutable a_attacktype : int;
-  mutable a_proj : int;
-  mutable a_anim1 : int;
-  mutable a_anim2 : int;
-  mutable a_anim3 : int;
-  mutable a_is1 : int;
-  mutable a_is2 : int;
-  mutable a_is3 : int;
-  mutable a_eff : eff array ;
-} 
+    mutable a_type : int;
+    mutable a_iloc : int;
+    mutable a_icon : string ;
+    mutable a_targ : int;
+    mutable a_range : int;
+    mutable a_launch : int;
+    mutable a_speed : int;
+    mutable a_tohit : int;
+    mutable a_dicesize : int;
+    mutable a_numdice : int;
+    mutable a_dmgbonus : int;
+    mutable a_dmgtype : int;
+    mutable a_charges : int;
+    mutable a_whendrained : int;
+    mutable a_allowstr : int ;
+    mutable a_recharge : int;
+    mutable a_attacktype : int;
+    mutable a_proj : int;
+    mutable a_anim1 : int;
+    mutable a_anim2 : int;
+    mutable a_anim3 : int;
+    mutable a_is1 : int;
+    mutable a_is2 : int;
+    mutable a_is3 : int;
+    mutable a_eff : eff array ;
+  } 
 and eff = {
-  mutable e_opcode : int;
-  mutable e_target : int;
-  mutable e_power : int;
-  mutable e_arg1 : int;
-  mutable e_arg2 : int;
-  mutable e_duration : int;
-  mutable e_disres : int;
-  mutable e_time : int;
-  mutable e_prob1: int;
-  mutable e_prob2: int;
-  mutable e_resref : string;
-  mutable e_numdice : int;
-  mutable e_dicesize : int;
-  mutable e_savetype : int;
-  mutable e_savebonus : int;
-} 
+    mutable e_opcode : int;
+    mutable e_target : int;
+    mutable e_power : int;
+    mutable e_arg1 : int;
+    mutable e_arg2 : int;
+    mutable e_duration : int;
+    mutable e_disres : int;
+    mutable e_time : int;
+    mutable e_prob1: int;
+    mutable e_prob2: int;
+    mutable e_resref : string;
+    mutable e_numdice : int;
+    mutable e_dicesize : int;
+    mutable e_savetype : int;
+    mutable e_savebonus : int;
+  } 
 
 let empty_effect () = {
   e_opcode = 0;
@@ -186,141 +186,141 @@ let empty_effect () = {
   e_dicesize = 0;
   e_savetype = 0;
   e_savebonus = 0;
-  } 
+} 
 
 
 type cre = {
-  mutable  c_name : int ;
-  mutable  c_xpv : int ;
-  mutable  c_status : int ;
-  mutable  c_chp : int ; 
-  mutable  c_mhp : int ; 
-  mutable  c_anim : int; 
-  mutable  c_color : string ; (* seven chars *)
-  mutable  c_sport : string ;
-  mutable  c_lport : string ;
-  mutable  c_ac : int;
-  mutable  c_s_f: int; (* save fort *)
-  mutable  c_s_r: int; (* ref *)
-  mutable  c_s_w: int; (* will *)
-  mutable  c_res : int array ;
-  mutable  c_mdam_res : int ; 
-  mutable  c_orig_level : int array ; 
-  mutable  c_lev: (c_class * int) list ;
-  mutable  c_sound : int array ;
-  mutable  c_skill : (int * int) list ;  (* use SKILLS.IDS values *)
-  mutable  c_feat  : (Int32.t * int) list ;  (* use FEATS.IDS values *)
-  mutable  c_featweapon : int ;          (* weapon feat level *) 
-  mutable  c_subrace : int ;
-  mutable  c_attr : int array ; 
-  mutable  c_orig_kit : int;
-  mutable  c_script : string list ; 
-  mutable  c_ea : int;
-  mutable  c_general : int;
-  mutable  c_race : int;
-  mutable  c_orig_class : int; 
-  mutable  c_class : int;
-  mutable  c_specific : int;
-  mutable  c_gender : int;
-  mutable  c_align : int ;
-  mutable  c_variable : string;
-  mutable  c_items : c_item list ; 
-  mutable  c_dialog : string ; 
-  mutable  c_spells : (int * string) array ; 
-  (* effects *) 
-  (* spells *) 
-} 
+    mutable  c_name : int ;
+    mutable  c_xpv : int ;
+    mutable  c_status : int ;
+    mutable  c_chp : int ; 
+    mutable  c_mhp : int ; 
+    mutable  c_anim : int; 
+    mutable  c_color : string ; (* seven chars *)
+    mutable  c_sport : string ;
+    mutable  c_lport : string ;
+    mutable  c_ac : int;
+    mutable  c_s_f: int; (* save fort *)
+    mutable  c_s_r: int; (* ref *)
+    mutable  c_s_w: int; (* will *)
+    mutable  c_res : int array ;
+    mutable  c_mdam_res : int ; 
+    mutable  c_orig_level : int array ; 
+    mutable  c_lev: (c_class * int) list ;
+    mutable  c_sound : int array ;
+    mutable  c_skill : (int * int) list ;  (* use SKILLS.IDS values *)
+    mutable  c_feat  : (Int32.t * int) list ;  (* use FEATS.IDS values *)
+    mutable  c_featweapon : int ;          (* weapon feat level *) 
+    mutable  c_subrace : int ;
+    mutable  c_attr : int array ; 
+    mutable  c_orig_kit : int;
+    mutable  c_script : string list ; 
+    mutable  c_ea : int;
+    mutable  c_general : int;
+    mutable  c_race : int;
+    mutable  c_orig_class : int; 
+    mutable  c_class : int;
+    mutable  c_specific : int;
+    mutable  c_gender : int;
+    mutable  c_align : int ;
+    mutable  c_variable : string;
+    mutable  c_items : c_item list ; 
+    mutable  c_dialog : string ; 
+    mutable  c_spells : (int * string) array ; 
+    (* effects *) 
+    (* spells *) 
+  } 
 and c_item = {
-  mutable ci_name : string ;
-  ci_q1 : int ;
-  ci_q2 : int ;
-  ci_q3 : int ;
-  mutable ci_flags : int ; 
-  ci_slot : int ; 
-} 
+    mutable ci_name : string ;
+    ci_q1 : int ;
+    ci_q2 : int ;
+    ci_q3 : int ;
+    mutable ci_flags : int ; 
+    ci_slot : int ; 
+  } 
 and c_class =
-  CC_Barb | CC_Bard | CC_Cler | CC_Drui | CC_Figh | CC_Monk | CC_Pala |
-  CC_Rang | CC_Rogu | CC_Sorc | CC_Wiz
+    CC_Barb | CC_Bard | CC_Cler | CC_Drui | CC_Figh | CC_Monk | CC_Pala |
+    CC_Rang | CC_Rogu | CC_Sorc | CC_Wiz
 
 let class_to_short_str c = match c with 
-  | CC_Barb -> "b"
-  | CC_Bard -> "B"
-  | CC_Cler -> "c"
-  | CC_Drui -> "d"
-  | CC_Figh -> "f"
-  | CC_Monk -> "m"
-  | CC_Pala -> "p"
-  | CC_Rang -> "R"
-  | CC_Rogu -> "r"
-  | CC_Sorc -> "s"
-  | CC_Wiz ->  "w"
+| CC_Barb -> "b"
+| CC_Bard -> "B"
+| CC_Cler -> "c"
+| CC_Drui -> "d"
+| CC_Figh -> "f"
+| CC_Monk -> "m"
+| CC_Pala -> "p"
+| CC_Rang -> "R"
+| CC_Rogu -> "r"
+| CC_Sorc -> "s"
+| CC_Wiz ->  "w"
 
 let rec lev_to_short_str lst = match lst with
-  | [] -> ""
-  | (c,i) :: tl -> Printf.sprintf "%s%d%s" 
-    (class_to_short_str c) i (lev_to_short_str tl)
+| [] -> ""
+| (c,i) :: tl -> Printf.sprintf "%s%d%s" 
+      (class_to_short_str c) i (lev_to_short_str tl)
 
 let mask_of_class c = match c with 
-    CC_Barb -> 1
-  | CC_Bard -> 2
-  | CC_Cler -> 4
-  | CC_Drui -> 8
-  | CC_Figh -> 16
-  | CC_Monk -> 32
-  | CC_Pala -> 64
-  | CC_Rang -> 128
-  | CC_Rogu -> 256
-  | CC_Sorc -> 512
-  | CC_Wiz ->  1024
+  CC_Barb -> 1
+| CC_Bard -> 2
+| CC_Cler -> 4
+| CC_Drui -> 8
+| CC_Figh -> 16
+| CC_Monk -> 32
+| CC_Pala -> 64
+| CC_Rang -> 128
+| CC_Rogu -> 256
+| CC_Sorc -> 512
+| CC_Wiz ->  1024
 let name_of_class c = match c with 
-    CC_Barb -> "Barb"
-  | CC_Bard -> "Bard"
-  | CC_Cler -> "Cler"
-  | CC_Drui -> "Drui"
-  | CC_Figh -> "Figh"
-  | CC_Monk -> "Monk"
-  | CC_Pala -> "Pala"
-  | CC_Rang -> "Rang"
-  | CC_Rogu -> "Rogu"
-  | CC_Sorc -> "Sorc"
-  | CC_Wiz ->  "Wiz"
+  CC_Barb -> "Barb"
+| CC_Bard -> "Bard"
+| CC_Cler -> "Cler"
+| CC_Drui -> "Drui"
+| CC_Figh -> "Figh"
+| CC_Monk -> "Monk"
+| CC_Pala -> "Pala"
+| CC_Rang -> "Rang"
+| CC_Rogu -> "Rogu"
+| CC_Sorc -> "Sorc"
+| CC_Wiz ->  "Wiz"
 
 let cre_can_use_weapons c =
   try 
-  if c.c_general = 4 then false else 
-  match (Bcs.ids_of_int (config.target) "ANIMATE" (Int32.of_int c.c_anim)).i_name with
-  | "Abishai, White" | "BOY" | "Bat, Inside" | "Bear, Black" | "Bear, Brown" 
-  | "Bear, Cave" | "Bear, Polar" | "Beetle" | "Beetle, Bombadier" |
-  "Beetle, Boring" | "Beetle, Fire" | "Beetle, Rhinocerous" | "Beholder" |
-  "Boar, Arctic" | "Carrion Crawler" | "Cat" | "Cat Great, Leopard" | 
-  "Cat Great, Panther" | "Chicken" | "Chimera" | "Cornugon" | "Cow" | 
-  "Creeping Doom" | "Deer" | "Dog, Wild" | "Doom Guard" | 
-  "Dragon, Black (BG2)" | "Dragon, White Young" | "Drider, Female" | 
-  "Drider, Male" | "Drowned Dead" | "Elemental, Air (BG2)" | 
-  "Elemental, Air Small (BG2)" | "Elemental, Earth" | "Elemental, Fire" | 
-  "Elemental, Fire (Small)(BG2)" | "Elemental, Shambling Mound" | 
-  "Elemental, Water" | "Elemental, Water Small" | "Ettercap" | "FAT_MAN" 
-  | "FAT_WOMAN" | "GIRL" | "Glabrezu" | "Golem, Clay (BG2)" | "Golem, Ice" 
-  | "Golem, Iron" | "HARLOT_WOMAN" | "Harpy" | "Hook Horror" 
-  | "Invisible - Giant" | "Invisible - Huge" | "Invisible - Medium" 
-  | "Invisible - Small" | "Invisible - Tiny" | "Keg 1" | "Keg 2" | "Keg 3" 
-  | "Myconid, Blue" | "Myconid, Red" | "NOBLE_MAN" | "NOBLE_WOMAN" 
-  | "Otyugh" | "PEASANT_MAN" | "PEASANT_WOMAN" | "Rat" | "Raver" 
-  | "Remorhaz" | "SLAVE" | "SLEEPING_DWARF" | "SLEEPING_MAN_HALFLING" 
-  | "SLEEPING_MAN_HUMAN" | "STATIC_BOY" | "STATIC_GIRL" 
-  | "STATIC_NOBLE_MAN_CHAIR" | "Slime, Green" | "Slime, Mustard" 
-  | "Slime, Ochre" | "Slime, Olive" | "Snake" | "Spider, Giant" 
-  | "Spider, Huge" | "Spider, Phase" | "Spider, Small" | "Spider, Sword" 
-  | "Spider, Wraith" | "Umber Hulk" | "Water Weird" | "Werewolf" 
-  | "Werewolf, Greater" | "Will O' Wisp" | "Wolf" | "Wolf, Winter" | "Worg" 
-  | "Wyvern" | "Wyvern, White (Big)" | "Yuan Ti" | "Yuan Ti, Elite" 
-  | "Yuan Ti, Halfbreed" | "Yuan Ti, Priest" | "Zombie" | "Zombie 2" 
-  | "Imp" | "Mindflayer" | "Slayer" 
-  | "Troll" | "Troll, Ice"| "Troll, Scrag" | "Troll, Snow"
-  | "Djinni" | "Djinni w/legs" 
-  | "Dog, War" 
-  -> false 
-  | _ -> true 
+    if c.c_general = 4 then false else 
+    match (Bcs.ids_of_int (config.target) "ANIMATE" (Int32.of_int c.c_anim)).i_name with
+    | "Abishai, White" | "BOY" | "Bat, Inside" | "Bear, Black" | "Bear, Brown" 
+    | "Bear, Cave" | "Bear, Polar" | "Beetle" | "Beetle, Bombadier" |
+      "Beetle, Boring" | "Beetle, Fire" | "Beetle, Rhinocerous" | "Beholder" |
+      "Boar, Arctic" | "Carrion Crawler" | "Cat" | "Cat Great, Leopard" | 
+      "Cat Great, Panther" | "Chicken" | "Chimera" | "Cornugon" | "Cow" | 
+      "Creeping Doom" | "Deer" | "Dog, Wild" | "Doom Guard" | 
+      "Dragon, Black (BG2)" | "Dragon, White Young" | "Drider, Female" | 
+      "Drider, Male" | "Drowned Dead" | "Elemental, Air (BG2)" | 
+      "Elemental, Air Small (BG2)" | "Elemental, Earth" | "Elemental, Fire" | 
+      "Elemental, Fire (Small)(BG2)" | "Elemental, Shambling Mound" | 
+      "Elemental, Water" | "Elemental, Water Small" | "Ettercap" | "FAT_MAN" 
+    | "FAT_WOMAN" | "GIRL" | "Glabrezu" | "Golem, Clay (BG2)" | "Golem, Ice" 
+    | "Golem, Iron" | "HARLOT_WOMAN" | "Harpy" | "Hook Horror" 
+    | "Invisible - Giant" | "Invisible - Huge" | "Invisible - Medium" 
+    | "Invisible - Small" | "Invisible - Tiny" | "Keg 1" | "Keg 2" | "Keg 3" 
+    | "Myconid, Blue" | "Myconid, Red" | "NOBLE_MAN" | "NOBLE_WOMAN" 
+    | "Otyugh" | "PEASANT_MAN" | "PEASANT_WOMAN" | "Rat" | "Raver" 
+    | "Remorhaz" | "SLAVE" | "SLEEPING_DWARF" | "SLEEPING_MAN_HALFLING" 
+    | "SLEEPING_MAN_HUMAN" | "STATIC_BOY" | "STATIC_GIRL" 
+    | "STATIC_NOBLE_MAN_CHAIR" | "Slime, Green" | "Slime, Mustard" 
+    | "Slime, Ochre" | "Slime, Olive" | "Snake" | "Spider, Giant" 
+    | "Spider, Huge" | "Spider, Phase" | "Spider, Small" | "Spider, Sword" 
+    | "Spider, Wraith" | "Umber Hulk" | "Water Weird" | "Werewolf" 
+    | "Werewolf, Greater" | "Will O' Wisp" | "Wolf" | "Wolf, Winter" | "Worg" 
+    | "Wyvern" | "Wyvern, White (Big)" | "Yuan Ti" | "Yuan Ti, Elite" 
+    | "Yuan Ti, Halfbreed" | "Yuan Ti, Priest" | "Zombie" | "Zombie 2" 
+    | "Imp" | "Mindflayer" | "Slayer" 
+    | "Troll" | "Troll, Ice"| "Troll, Scrag" | "Troll, Snow"
+    | "Djinni" | "Djinni w/legs" 
+    | "Dog, War" 
+      -> false 
+    | _ -> true 
   with _ -> false 
 
 (* IWD2 doesn't do <CHARNAME> and friends the way we are used to *) 
@@ -365,14 +365,14 @@ let player6 = { empty_op with o_identifiers = Int32.of_int 26 }
 let protagonist = { empty_op with o_identifiers = Int32.of_int 27 } 
 
 let ids_pair_of_opcode_arg i = match i with
-  | 2 -> "OBJECT","OBJECT"
-  | 3 -> "GENERAL","GENERAL"
-  | 4 -> "RACE","RACE"
-  | 5 -> "CLASS","CLASS"
-  | 6 -> "SPECIFIC","SPECIFIC" 
-  | 7 -> "GENDER","GENDER"
-  | 8 -> "ALIGN","ALIGNMNT" 
-  | _ -> "",""
+| 2 -> "OBJECT","OBJECT"
+| 3 -> "GENERAL","GENERAL"
+| 4 -> "RACE","RACE"
+| 5 -> "CLASS","CLASS"
+| 6 -> "SPECIFIC","SPECIFIC" 
+| 7 -> "GENDER","GENDER"
+| 8 -> "ALIGN","ALIGNMNT" 
+| _ -> "",""
 
 
 (***********************************************************************
@@ -394,7 +394,7 @@ let read_eff buff off = {
   e_dicesize = int_of_str_off buff (off + 32) ;
   e_savetype = int_of_str_off buff (off + 36) ;
   e_savebonus = int_of_str_off buff (off + 40) ;
-  } 
+} 
 let write_eff buff off e = 
   write_short buff (off + 0) e.e_opcode ;
   write_byte buff (off + 2) e.e_target ;
@@ -441,7 +441,7 @@ let read_spl_abil buff off = {
   a_is2 = 0 ;
   a_is3 = 0 ;
   a_eff = [||] ; 
-  },(short_of_str_off buff (off + 30)),(short_of_str_off buff (off +32))
+},(short_of_str_off buff (off + 30)),(short_of_str_off buff (off +32))
 
 let write_spl_abil buff off a eff_index = 
   write_byte buff (off + 0)  a.a_type ;
@@ -491,7 +491,7 @@ let read_abil buff off = {
   a_is2 = short_of_str_off buff (off + 52) ;
   a_is3 = short_of_str_off buff (off + 54) ;
   a_eff = [||] ; 
-  },(short_of_str_off buff (off + 30)),(short_of_str_off buff (off +32))
+},(short_of_str_off buff (off + 30)),(short_of_str_off buff (off +32))
 
 let write_abil buff off a eff_index = 
   write_byte buff (off + 0)  a.a_type ;
@@ -561,19 +561,19 @@ let read_itm buff =
     let abil, num_eff, eff_index = read_abil buff (abil_off + (n * 0x38)) in
     num_effs := num_eff + !num_effs ;
     (abil,num_eff,eff_index) 
-  ) in 
+				  ) in 
   let effs = Array.init !num_effs (fun n ->
     (* log_and_print "... reading eff %d\n" n ;  *)
     read_eff buff (eff_off + (n * 48))
-  ) in 
+				  ) in 
 
   (if num_equip <> 0 then i.i_equipped <- Array.sub effs 0 num_equip );
   (if num_abil <> 0 then 
-  i.i_abil <- Array.map (fun (a,num_eff,eff_index) ->
-    if num_eff > 0 then 
-    { a with a_eff = Array.sub effs eff_index num_eff ; } 
-    else a 
-  ) abils ); 
+    i.i_abil <- Array.map (fun (a,num_eff,eff_index) ->
+      if num_eff > 0 then 
+	{ a with a_eff = Array.sub effs eff_index num_eff ; } 
+      else a 
+			  ) abils ); 
   i 
 
 let serialize_itm i =
@@ -630,17 +630,17 @@ let serialize_itm i =
     let off = abil_offset + (n * 0x38) in 
     write_abil buff off a !eff_index ;
     eff_index := !eff_index + (Array.length a.a_eff) 
-  ) i.i_abil ;
+	      ) i.i_abil ;
 
   (* gather all of the effects *) 
   let all_effs = Array.fold_left (fun acc elt ->
     Array.append acc (elt.a_eff) 
-  ) i.i_equipped i.i_abil in
+				 ) i.i_equipped i.i_abil in
 
   Array.iteri (fun n e ->
     let off = eff_offset + (n * 48) in 
     write_eff buff off e
-  ) all_effs ;
+	      ) all_effs ;
   buff 
 
 (***********************************************************************
@@ -649,21 +649,21 @@ let serialize_itm i =
 let read_spl buff r = 
   (if (String.length buff < 0x72) then failwith "SPL is too small") ;
   let s = { 
-          s_gname = int_of_str_off buff 8 ;
-          s_iname = int_of_str_off buff 0xc ;
-          s_sound = get_string_of_size buff 0x10 8 ;
-          s_loc = short_of_str_off buff 0x18 ;
-          s_type = short_of_str_off buff 0x1c ;
-          s_wiz = short_of_str_off buff 0x1e ;
-          s_pri = short_of_str_off buff 0x20 ;
-          s_school1 = short_of_str_off buff 0x22; 
-          s_school2 = short_of_str_off buff 0x25; 
-          s_cat = byte_of_str_off buff 0x27 ; 
-          s_lev = int_of_str_off buff 0x34 ;
-          s_icon = get_string_of_size buff 0x3a 8 ; 
-          s_desc = int_of_str_off buff 0x50 ; 
-          s_global = [| |] ;
-          s_abil= [| |] ;
+    s_gname = int_of_str_off buff 8 ;
+    s_iname = int_of_str_off buff 0xc ;
+    s_sound = get_string_of_size buff 0x10 8 ;
+    s_loc = short_of_str_off buff 0x18 ;
+    s_type = short_of_str_off buff 0x1c ;
+    s_wiz = short_of_str_off buff 0x1e ;
+    s_pri = short_of_str_off buff 0x20 ;
+    s_school1 = short_of_str_off buff 0x22; 
+    s_school2 = short_of_str_off buff 0x25; 
+    s_cat = byte_of_str_off buff 0x27 ; 
+    s_lev = int_of_str_off buff 0x34 ;
+    s_icon = get_string_of_size buff 0x3a 8 ; 
+    s_desc = int_of_str_off buff 0x50 ; 
+    s_global = [| |] ;
+    s_abil= [| |] ;
   } in 
   let abil_off = int_of_str_off buff 0x64 in
   let num_abil = short_of_str_off buff 0x68 in 
@@ -674,17 +674,17 @@ let read_spl buff r =
     let abil, num_eff, eff_index = read_spl_abil buff (abil_off + (n * 40)) in
     num_effs := num_eff + !num_effs ;
     (abil,num_eff,eff_index) 
-  ) in 
+				  ) in 
   let effs = Array.init !num_effs (fun n ->
     read_eff buff (eff_off + (n * 48))
-  ) in 
+				  ) in 
   (if num_equip <> 0 then s.s_global <- Array.sub effs 0 num_equip );
   (if num_abil <> 0 then 
-  s.s_abil <- Array.map (fun (a,num_eff,eff_index) ->
-    if num_eff > 0 then 
-    { a with a_eff = Array.sub effs eff_index num_eff ; } 
-    else a 
-  ) abils ); 
+    s.s_abil <- Array.map (fun (a,num_eff,eff_index) ->
+      if num_eff > 0 then 
+	{ a with a_eff = Array.sub effs eff_index num_eff ; } 
+      else a 
+			  ) abils ); 
   s 
 
 let serialize_spl s r =
@@ -702,19 +702,19 @@ let serialize_spl s r =
   String.blit "SPL V2.0" 0 buff 0 8 ; 
 
   (try 
-  write_int buff 8 s.s_gname ;
-  write_int buff 0xc s.s_iname ;
-  write_resref buff 0x10 s.s_sound ; 
-  write_short buff 0x18 s.s_loc ;
-  write_short buff 0x1c s.s_type ;
-  write_short buff 0x1e s.s_wiz ;
-  write_short buff 0x20 s.s_pri ;
-  write_short buff 0x22 s.s_school1 ;
-  write_short buff 0x25 s.s_school2 ;
-  write_byte buff 0x27 s.s_cat ;
-  write_int buff 0x34 s.s_lev ;
-  write_resref buff 0x3a s.s_icon ; 
-  write_int buff 0x50 s.s_desc ;
+    write_int buff 8 s.s_gname ;
+    write_int buff 0xc s.s_iname ;
+    write_resref buff 0x10 s.s_sound ; 
+    write_short buff 0x18 s.s_loc ;
+    write_short buff 0x1c s.s_type ;
+    write_short buff 0x1e s.s_wiz ;
+    write_short buff 0x20 s.s_pri ;
+    write_short buff 0x22 s.s_school1 ;
+    write_short buff 0x25 s.s_school2 ;
+    write_byte buff 0x27 s.s_cat ;
+    write_int buff 0x34 s.s_lev ;
+    write_resref buff 0x3a s.s_icon ; 
+    write_int buff 0x50 s.s_desc ;
   with e -> error "SPL" "%s: error serializing header\n" r ; raise e) ;
 
   let abil_offset = 0x82 in 
@@ -732,20 +732,20 @@ let serialize_spl s r =
       let off = abil_offset + (n * 40) in 
       write_spl_abil buff off a !eff_index ;
       eff_index := !eff_index + (Array.length a.a_eff) 
-    ) s.s_abil ;
+		) s.s_abil ;
   with e -> error "SPL" "%s: error serializing abilities\n" r ; raise e) ;
 
   (* gather all of the effects *) 
   let all_effs = try Array.fold_left (fun acc elt ->
-      Array.append acc (elt.a_eff) ) s.s_global s.s_abil 
+    Array.append acc (elt.a_eff) ) s.s_global s.s_abil 
   with e -> error "SPL" "%s: error gathering effects\n" r ; raise e ; 
   in
 
   ( try Array.iteri (fun n e ->
     let off = eff_offset + (n * 48) in 
     write_eff buff off e
-  ) all_effs with e -> 
-    error "SPL" "%s: error serializing effects\n" r ; raise e ) ;
+		    ) all_effs with e -> 
+		      error "SPL" "%s: error serializing effects\n" r ; raise e ) ;
   buff 
 
 
@@ -762,28 +762,28 @@ let rename r e =
   let r = String.uppercase r in 
   let e = if e = "WED" then "ARE" else e in 
   try 
-      Hashtbl.find rename_ht (r,e)
+    Hashtbl.find rename_ht (r,e)
   with Not_found -> begin
     let r' = 
-        if e = "BMP" || e = "MOS" || (String.length r = 8) then begin
-          let str2 = String.copy r in
-          str2.[0] <- '_' ;
-          str2
-        end else if e = "ARE" || e = "WED" then 
-          let str = 
-            match config.source_variant, config.target_variant with
-            | BG1, BG2 -> 
-                let tmp = String.copy r in
-                tmp.[0] <- 'F' ; tmp.[1] <- 'W' ;
-                tmp 
-            | _ -> Printf.sprintf "AR%04d" !area_counter 
-          in 
-          error "ARE" "Source %s becomes %s\n" r str ;
-          incr area_counter ; 
-          str 
-        else begin
-          "_" ^ r 
-        end 
+      if e = "BMP" || e = "MOS" || (String.length r = 8) then begin
+        let str2 = String.copy r in
+        str2.[0] <- '_' ;
+        str2
+      end else if e = "ARE" || e = "WED" then 
+        let str = 
+          match config.source_variant, config.target_variant with
+          | BG1, BG2 -> 
+              let tmp = String.copy r in
+              tmp.[0] <- 'F' ; tmp.[1] <- 'W' ;
+              tmp 
+          | _ -> Printf.sprintf "AR%04d" !area_counter 
+        in 
+        error "ARE" "Source %s becomes %s\n" r str ;
+        incr area_counter ; 
+        str 
+      else begin
+        "_" ^ r 
+      end 
     in 
     if (Hashtbl.mem mapping (r',e)) then begin (* collide *) 
       let r'' = Printf.sprintf "_%X_%s" (!rename_counter) r in
@@ -826,12 +826,12 @@ let add_to_key new_name old_name ext =
           Hashtbl.add add_to_key_list ht_key true 
         with Not_found -> 
           (* it's not in the source BIFFs, so it better be in the source
-          override! *) 
+             override! *) 
           begin 
-          try 
-            let buff = load_source_res old_name ext in
-            save_in_override new_name ext buff
-          with _ -> () 
+            try 
+              let buff = load_source_res old_name ext in
+              save_in_override new_name ext buff
+            with _ -> () 
           end 
       end 
     end 
@@ -842,11 +842,11 @@ let find_exact_path_of_bif game bif_file =
       match lst with
         [] -> game.Load.game_path ^ "/" ^ bif_file 
       | hd :: tl ->
-        let perhaps = hd ^ "/" ^ bif_file in 
-        log_only "BIFF may be in hard-drive CD-path [%s]\n" perhaps ; 
-        if file_exists perhaps then 
-          perhaps
-        else trial tl 
+          let perhaps = hd ^ "/" ^ bif_file in 
+          log_only "BIFF may be in hard-drive CD-path [%s]\n" perhaps ; 
+          if file_exists perhaps then 
+            perhaps
+          else trial tl 
     in
     trial (game.Load.cd_path_list)
   in biff_path 
@@ -856,79 +856,79 @@ let process_add_to_key () =
   let skip3 str = String.sub str 3 ((String.length str) - 3) in 
   let slash = Str.regexp "[:/\\]+" in
   let slash_to_backslash str = Str.global_replace slash "\\\\" str in 
-  let non_backslash = Str.regexp "[^\\]+" in
-  let bs_to_elipsis str = Str.global_replace non_backslash ".." str in 
-  let elipsis_path = skip3 ((bs_to_elipsis (config.target).Load.game_path)) in 
+let non_backslash = Str.regexp "[^\\]+" in
+let bs_to_elipsis str = Str.global_replace non_backslash ".." str in 
+let elipsis_path = skip3 ((bs_to_elipsis (config.target).Load.game_path)) in 
 
-  let next_bif_index = ref ( Array.length (config.target).Load.key.Key.biff ) in
+let next_bif_index = ref ( Array.length (config.target).Load.key.Key.biff ) in
 
-  let index_of_bif_ht = Hashtbl.create 51 in 
-  let added_res_ht = Hashtbl.create 511 in 
-  let added_old_res_ht = Hashtbl.create 511 in 
+let index_of_bif_ht = Hashtbl.create 51 in 
+let added_res_ht = Hashtbl.create 511 in 
+let added_old_res_ht = Hashtbl.create 511 in 
 
-  let new_bif_list = ref [] in 
-  let new_resource_list = ref [] in 
+let new_bif_list = ref [] in 
+let new_resource_list = ref [] in 
 
-  let handle_new_bif b = 
-    try
-      Hashtbl.find index_of_bif_ht b.Key.filename 
-    with Not_found -> begin
-      let i = !next_bif_index in
-      Hashtbl.add index_of_bif_ht b.Key.filename i ;
-      incr next_bif_index ;
-      let exact_path = (find_exact_path_of_bif config.source b.Key.filename) in 
-      let hacked_path = slash_to_backslash 
-          (elipsis_path ^ "\\" ^ (skip3 exact_path)) in
-      new_bif_list := 
-        { b with Key.filename = hacked_path ;
-          Key.locations = 1
-        } ::
-        !new_bif_list ;
-      i 
-    end 
-  in 
+let handle_new_bif b = 
+  try
+    Hashtbl.find index_of_bif_ht b.Key.filename 
+  with Not_found -> begin
+    let i = !next_bif_index in
+    Hashtbl.add index_of_bif_ht b.Key.filename i ;
+    incr next_bif_index ;
+    let exact_path = (find_exact_path_of_bif config.source b.Key.filename) in 
+    let hacked_path = slash_to_backslash 
+        (elipsis_path ^ "\\" ^ (skip3 exact_path)) in
+			  new_bif_list := 
+			    { b with Key.filename = hacked_path ;
+			      Key.locations = 1
+			    } ::
+			    !new_bif_list ;
+	 i 
+  end 
+in 
 
-  let handle_new_res old_r new_name new_bif_index =
-    if Hashtbl.mem added_res_ht new_name then
-      ()
-    else begin
-      let new_r = { old_r with
-        Key.res_name = new_name ;
-        Key.bif_index = new_bif_index ; } in
-      Hashtbl.add added_res_ht new_name true ;
-      (if (Hashtbl.mem added_old_res_ht old_r) then begin
-        let third_name = Hashtbl.find added_old_res_ht old_r in 
-        error "KEY" "Double-linking Source's %8s.%s (links to %8s, %8s)\n"
-          old_r.Key.res_name 
-          (Key.ext_of_key old_r.Key.res_type) new_name 
-          third_name 
-      end ); 
-      Hashtbl.add added_old_res_ht old_r new_name ; 
-      new_resource_list := new_r :: !new_resource_list 
-    end
-  in 
+let handle_new_res old_r new_name new_bif_index =
+  if Hashtbl.mem added_res_ht new_name then
+    ()
+  else begin
+    let new_r = { old_r with
+		  Key.res_name = new_name ;
+		  Key.bif_index = new_bif_index ; } in
+    Hashtbl.add added_res_ht new_name true ;
+    (if (Hashtbl.mem added_old_res_ht old_r) then begin
+      let third_name = Hashtbl.find added_old_res_ht old_r in 
+      error "KEY" "Double-linking Source's %8s.%s (links to %8s, %8s)\n"
+        old_r.Key.res_name 
+        (Key.ext_of_key old_r.Key.res_type) new_name 
+        third_name 
+    end ); 
+    Hashtbl.add added_old_res_ht old_r new_name ; 
+    new_resource_list := new_r :: !new_resource_list 
+  end
+in 
 
-  Hashtbl.iter (fun (new_name, old_name, ext) _ -> 
-      try 
-        let res = Key.find_resource (config.source).Load.key old_name ext in
-        let old_bif = (config.source).Load.key.Key.biff.(res.Key.bif_index) in
-        log_only "%s.%s is in %s\\%s\n" old_name ext 
-          (config.source).Load.game_path old_bif.Key.filename ;
+Hashtbl.iter (fun (new_name, old_name, ext) _ -> 
+  try 
+    let res = Key.find_resource (config.source).Load.key old_name ext in
+    let old_bif = (config.source).Load.key.Key.biff.(res.Key.bif_index) in
+    log_only "%s.%s is in %s\\%s\n" old_name ext 
+      (config.source).Load.game_path old_bif.Key.filename ;
 
-        let new_biff_index = handle_new_bif old_bif in 
-        handle_new_res res new_name new_biff_index
-      with e ->
-        error "KEY" "Cannot add %8s.%s to KEY: %s (in Source)\n" 
-          old_name ext (Printexc.to_string e) 
-  ) add_to_key_list ;
-  { 
-    Key.biff = Array.append (config.target).Load.key.Key.biff 
-        (Array.of_list (List.rev !new_bif_list)) ; 
-    Key.resource = Array.append 
-        (config.target).Load.key.Key.resource 
-        (Array.of_list !new_resource_list) ;
-    Key.resfind = (config.target).Load.key.Key.resfind 
-  }
+    let new_biff_index = handle_new_bif old_bif in 
+    handle_new_res res new_name new_biff_index
+  with e ->
+    error "KEY" "Cannot add %8s.%s to KEY: %s (in Source)\n" 
+      old_name ext (Printexc.to_string e) 
+	     ) add_to_key_list ;
+{ 
+  Key.biff = Array.append (config.target).Load.key.Key.biff 
+    (Array.of_list (List.rev !new_bif_list)) ; 
+  Key.resource = Array.append 
+    (config.target).Load.key.Key.resource 
+    (Array.of_list !new_resource_list) ;
+  Key.resfind = (config.target).Load.key.Key.resfind 
+}
 
 type twoda = (string , (string array)) Hashtbl.t 
 
@@ -945,7 +945,7 @@ let load_2da game r =
     let key = List.hd words in 
     let arr = Array.of_list (List.tl words) in 
     Hashtbl.add res key arr 
-  ) lines ;
+	    ) lines ;
   res 
 
 type int_2da = (int,(int array)) Hashtbl.t 
@@ -956,30 +956,30 @@ let conv_to_int a =
     let k' = try int_of_string k with _ -> 0 in
     let e' = Array.map (fun elt -> try int_of_string elt with _ -> 0) e in
     Hashtbl.add res k' e' 
-  ) a ; res
+	       ) a ; res
 
 type spell_max_data = 
-  { s_stat : int_2da ;
-    s_brd : int_2da ;
-    s_clr : int_2da ;
-    s_drd : int_2da ;
-    s_pal : int_2da ;
-    s_rgr : int_2da ;
-    s_sor : int_2da ;
-    s_wiz : int_2da ; } 
+    { s_stat : int_2da ;
+      s_brd : int_2da ;
+      s_clr : int_2da ;
+      s_drd : int_2da ;
+      s_pal : int_2da ;
+      s_rgr : int_2da ;
+      s_sor : int_2da ;
+      s_wiz : int_2da ; } 
 
 let spell_max = ref None 
 
 let setup_max_spell () = 
   let sm = 
-  { s_stat = conv_to_int (load_2da config.target "MXSPLBON") ;
-    s_brd = conv_to_int (load_2da config.target "MXSPLBRD") ;
-    s_clr = conv_to_int (load_2da config.target "MXSPLCLR") ;
-    s_drd = conv_to_int (load_2da config.target "MXSPLDRD") ;
-    s_pal = conv_to_int (load_2da config.target "MXSPLPAL") ;
-    s_rgr = conv_to_int (load_2da config.target "MXSPLRGR") ;
-    s_sor = conv_to_int (load_2da config.target "MXSPLSOR") ;
-    s_wiz = conv_to_int (load_2da config.target "MXSPLWIZ") ; } in
+    { s_stat = conv_to_int (load_2da config.target "MXSPLBON") ;
+      s_brd = conv_to_int (load_2da config.target "MXSPLBRD") ;
+      s_clr = conv_to_int (load_2da config.target "MXSPLCLR") ;
+      s_drd = conv_to_int (load_2da config.target "MXSPLDRD") ;
+      s_pal = conv_to_int (load_2da config.target "MXSPLPAL") ;
+      s_rgr = conv_to_int (load_2da config.target "MXSPLRGR") ;
+      s_sor = conv_to_int (load_2da config.target "MXSPLSOR") ;
+      s_wiz = conv_to_int (load_2da config.target "MXSPLWIZ") ; } in
   spell_max := Some(sm) ; sm 
 
 
@@ -997,7 +997,7 @@ let max_spell_of c =
         Array.iteri (fun i v -> 
           res.(i) <- res.(i) + v ;
           if v <> 0 then res.(i) <- res.(i) + sb.(i) + fake_stat_bonus;
-        ) new_arr 
+		    ) new_arr 
       with _ -> (* no stat bonus *) 
         Array.iteri (fun i v -> res.(i) <- res.(i) + v) new_arr 
     end with _ -> () 
@@ -1006,14 +1006,14 @@ let max_spell_of c =
     match cl with
     | CC_Bard -> add_in s.s_brd i 5 0
     | CC_Cler -> add_in s.s_clr i 2 1 (* we don't do domain spells here,
-      so we just give all clerics one extra spell/level *) 
+					 so we just give all clerics one extra spell/level *) 
     | CC_Drui -> add_in s.s_drd i 2 0
     | CC_Pala -> add_in s.s_pal i 2 0
     | CC_Rang -> add_in s.s_rgr i 2 0
     | CC_Sorc -> add_in s.s_sor i 5 0
     | CC_Wiz ->  add_in s.s_wiz i 1 0
     | _ -> () 
-  ) c.c_lev ;
+	    ) c.c_lev ;
   res 
 
 let lvl_of_spl_ht = Hashtbl.create 1023 
@@ -1041,43 +1041,43 @@ let random_arrow : (string array) array = Array.make 3 [| |]
 
 type wmp = w_entry array 
 and w_entry = {
-  w_background : string ;
-  w_width : int ;
-  w_height : int ;
-  w_unknown1 : int ;
-  w_name : int ;
-  w_unknown2 : int ;
-  w_unknown3 : int ;
-  w_mapicons : string;
-  mutable w_area_entry : area_entry array ;
-  (* mutable w_area_link : area_link array ; *) 
-} and area_entry = { 
-  wa_name : string;
-  wa_area : string ;
-  mutable wa_longname : string ;
-  mutable wa_status : int;
-  wa_bamseq : int;
-  wa_x : int;
-  wa_y : int;
-  wa_name2 : int; 
-  wa_name3 : int; 
-  wa_loading : string; 
-  mutable wa_north : area_link array ; 
-  mutable wa_west : area_link array ; 
-  mutable wa_south : area_link array ; 
-  mutable wa_east : area_link array ; 
-} and area_link = { 
-  wl_area_index : int ;
-  wl_entry : string ;
-  wl_time : int;
-  wl_unknown : int; 
-  wl_rand1 : string ;
-  wl_rand2 : string ;
-  wl_rand3 : string ;
-  wl_rand4 : string ;
-  wl_rand5 : string ;
-  wl_rand_prob : int ;
-} 
+    w_background : string ;
+    w_width : int ;
+    w_height : int ;
+    w_unknown1 : int ;
+    w_name : int ;
+    w_unknown2 : int ;
+    w_unknown3 : int ;
+    w_mapicons : string;
+    mutable w_area_entry : area_entry array ;
+    (* mutable w_area_link : area_link array ; *) 
+  } and area_entry = { 
+    wa_name : string;
+    wa_area : string ;
+    mutable wa_longname : string ;
+    mutable wa_status : int;
+    wa_bamseq : int;
+    wa_x : int;
+    wa_y : int;
+    wa_name2 : int; 
+    wa_name3 : int; 
+    wa_loading : string; 
+    mutable wa_north : area_link array ; 
+    mutable wa_west : area_link array ; 
+    mutable wa_south : area_link array ; 
+    mutable wa_east : area_link array ; 
+  } and area_link = { 
+    wl_area_index : int ;
+    wl_entry : string ;
+    wl_time : int;
+    wl_unknown : int; 
+    wl_rand1 : string ;
+    wl_rand2 : string ;
+    wl_rand3 : string ;
+    wl_rand4 : string ;
+    wl_rand5 : string ;
+    wl_rand_prob : int ;
+  } 
 
 
 (***********************************************************************
@@ -1090,12 +1090,12 @@ let serialize_wmp w =
   let num_area_link = Array.fold_left (fun acc elt ->
     acc + 
       (Array.fold_left (fun acc elt -> acc + 
-        (Array.length elt.wa_north) +
-        (Array.length elt.wa_west) +
-        (Array.length elt.wa_south) +
-        (Array.length elt.wa_east) 
-      ) 0 elt.w_area_entry)
-    ) 0 w in
+          (Array.length elt.wa_north) +
+          (Array.length elt.wa_west) +
+          (Array.length elt.wa_south) +
+          (Array.length elt.wa_east) 
+		       ) 0 elt.w_area_entry)
+				      ) 0 w in
   let header_size = 16 in
   let w_entry_size = num_w_entry * 184 in
   let w_entry_offset = 16 in 
@@ -1104,7 +1104,7 @@ let serialize_wmp w =
   let area_link_size = num_area_link * 216 in 
   let area_link_offset = area_entry_offset + area_entry_size in 
   let total_size = header_size + w_entry_size + area_entry_size +
-    area_link_size in 
+      area_link_size in 
   let buff = String.make total_size '\000' in 
   String.blit "WMAPV1.0" 0 buff 0 8 ; 
   write_int buff 0x8 num_w_entry ;
@@ -1180,9 +1180,9 @@ let serialize_wmp w =
       write_int buff (off+0x68) !area_link_j ; 
       write_int buff (off+0x6c) (Array.length ae.wa_east); 
       Array.iter (fun al -> write_area_link al) ae.wa_east; 
-    ) a.w_area_entry ; 
+		) a.w_area_entry ; 
 
-  ) w ;
+	      ) w ;
   buff
 
 (***********************************************************************
@@ -1191,22 +1191,22 @@ let serialize_wmp w =
 let read_bg2_eff_file buff = 
   let off = 0 in 
   { 
-  e_opcode = int_of_str_off buff (off + 0x10) ;
-  e_target = int_of_str_off buff (off + 0x14) ;
-  e_power = int_of_str_off buff (off + 0x18) ;
-  e_arg1 = int_of_str_off buff (off + 0x1c) ;
-  e_arg2 = int_of_str_off buff (off + 0x20) ;
-  e_duration = short_of_str_off buff (off + 0x24) ;
-  e_time = short_of_str_off buff (off + 0x28) ;
-  e_prob1= short_of_str_off buff (off + 0x2c) ;
-  e_prob2= short_of_str_off buff (off + 0x2e) ;
-  e_resref = get_string_of_size buff (off+0x30) 8 ; 
-  e_savetype = int_of_str_off buff (off + 0x38) ;
-  e_savebonus = int_of_str_off buff (off + 0x3c) ;
-  e_numdice = int_of_str_off buff (off + 0x40) ;
-  e_dicesize = int_of_str_off buff (off + 0x44) ;
-  e_disres = 0; 
-}
+    e_opcode = int_of_str_off buff (off + 0x10) ;
+    e_target = int_of_str_off buff (off + 0x14) ;
+    e_power = int_of_str_off buff (off + 0x18) ;
+    e_arg1 = int_of_str_off buff (off + 0x1c) ;
+    e_arg2 = int_of_str_off buff (off + 0x20) ;
+    e_duration = short_of_str_off buff (off + 0x24) ;
+    e_time = short_of_str_off buff (off + 0x28) ;
+    e_prob1= short_of_str_off buff (off + 0x2c) ;
+    e_prob2= short_of_str_off buff (off + 0x2e) ;
+    e_resref = get_string_of_size buff (off+0x30) 8 ; 
+    e_savetype = int_of_str_off buff (off + 0x38) ;
+    e_savebonus = int_of_str_off buff (off + 0x3c) ;
+    e_numdice = int_of_str_off buff (off + 0x40) ;
+    e_dicesize = int_of_str_off buff (off + 0x44) ;
+    e_disres = 0; 
+  }
 
 (***********************************************************************
  * XP 
@@ -1233,7 +1233,7 @@ let convert_xp_award i =
 let convert_challenge_rating i =
   max 1 ((i * 2) / 3)
 let convert_xp_award_int i = 
-    Int32.to_int (convert_xp_award (Int32.of_int i))
+  Int32.to_int (convert_xp_award (Int32.of_int i))
 
 let convert_xp_to_level_int32 bg2_xp =
   get_xplevel () ;
@@ -1247,12 +1247,12 @@ let convert_xp_to_level_int32 bg2_xp =
   Int32.of_int (!i - 1)
 
 let number_of_classes_in_bg2_class c = match c with 
-  | 7 | 8 | 9 | 13 | 14 | 15 | 16 | 18 
-    -> 2
-  | 10 | 17 
-    -> 3
-  | _ 
-    -> 1
+| 7 | 8 | 9 | 13 | 14 | 15 | 16 | 18 
+  -> 2
+| 10 | 17 
+  -> 3
+| _ 
+  -> 1
 
 let random_hair = ref (Array.make 0 0)
 let random_skin = ref (Array.make 0 0)
@@ -1278,8 +1278,8 @@ let balance_quotes fn s =
  ***********************************************************************)
 let already_converted = Hashtbl.create 65535
 type possibly_converted =
-  Converted of string
-| Unconverted of string
+    Converted of string
+  | Unconverted of string
 let random_spawn_ht = Hashtbl.create 31 
 let convert_spawngrp () = begin
   let s = load_2da (config.source) "SPAWNGRP" in 
@@ -1291,7 +1291,7 @@ let convert_spawngrp () = begin
     let contents = List.map (fun str -> 
       try let a = Hashtbl.find s str in Unconverted(a.(i))
       with _ -> Converted("None")
-    ) [ "1" ; "2" ; "3" ; "4" ; "5" ; "6" ; "7" ; "8" ] in
+			    ) [ "1" ; "2" ; "3" ; "4" ; "5" ; "6" ; "7" ; "8" ] in
 
     Hashtbl.add random_spawn_ht name (contents)
   done ;
@@ -1308,7 +1308,7 @@ let convert_interdia () = begin
       Hashtbl.add already_converted (lhs,"interdia") arr.(0) ;
       Hashtbl.add already_converted ((rename lhs "CRE"),"interdia") arr.(0)
     end 
-  ) s
+	       ) s
 end 
 
 let join_dlg_ht = Hashtbl.create 31 
@@ -1332,7 +1332,7 @@ let convert_pdialog () = begin
       Hashtbl.add join_dlg_ht arr.(1) lhs ;
       Hashtbl.add join_dlg_ht (rename arr.(1) "DLG") lhs ;
     end 
-  ) s ;
+	       ) s ;
   close_out oc
 end
 
@@ -1347,65 +1347,65 @@ let parse_tra filename =
 let is_summon_spell a =
   try 
     begin 
-    match Int32.to_int a.a_4 with
-    | 1150
-    | 1250
-    | 1350
-    | 1402
-    | 1410
-    | 1501
-    | 1602
-    | 1605
-    | 1615
-    | 1702
-    | 1704
-    | 1723
-    | 1750
-    | 1850
-    | 1901
-    | 1950
-    | 2124
-    | 2230
-    | 2309
-    | 2407
-    | 2418
-    | 2428
-    | 2501
-    | 2505
-    | 2512
-    | 2513
-    | 2514
-    | 2515
-    | 2516
-    | 2520
-    | 2598
-    | 2599
-    | 2611
-    | 2621
-    | 2622
-    | 2626
-    | 2627
-    | 2628
-    | 2629
-    | 2703
-    | 2713
-    | 2715
-    | 2716
-    | 2803
-    | 2809
-    | 2899
-    | 2902
-    | 2905
-    | 3177
-    | 3183
-    | 3227
-    | 3228
-    | 3282
-    | 3283
-    | 3284
-    | 3968
-    -> true
-    | _ -> false 
+      match Int32.to_int a.a_4 with
+      | 1150
+      | 1250
+      | 1350
+      | 1402
+      | 1410
+      | 1501
+      | 1602
+      | 1605
+      | 1615
+      | 1702
+      | 1704
+      | 1723
+      | 1750
+      | 1850
+      | 1901
+      | 1950
+      | 2124
+      | 2230
+      | 2309
+      | 2407
+      | 2418
+      | 2428
+      | 2501
+      | 2505
+      | 2512
+      | 2513
+      | 2514
+      | 2515
+      | 2516
+      | 2520
+      | 2598
+      | 2599
+      | 2611
+      | 2621
+      | 2622
+      | 2626
+      | 2627
+      | 2628
+      | 2629
+      | 2703
+      | 2713
+      | 2715
+      | 2716
+      | 2803
+      | 2809
+      | 2899
+      | 2902
+      | 2905
+      | 3177
+      | 3183
+      | 3227
+      | 3228
+      | 3282
+      | 3283
+      | 3284
+      | 3968
+	-> true
+      | _ -> false 
     end
   with _ -> false 
 

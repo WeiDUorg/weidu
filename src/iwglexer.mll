@@ -1,10 +1,10 @@
 {
-open Util
+ open Util
 open Iwgparser
 
 (*
-** Keyword hashtable
-*)
+ ** Keyword hashtable
+ *)
 
 let lexicon = Hashtbl.create 211
 let _ = List.iter 
@@ -15,8 +15,8 @@ let _ = List.iter
 
 let blank = [' ' '\012' '\r']
 
-rule initial = parse 	
-  "/*"  { adj lexbuf ; let _ = comment lexbuf in initial lexbuf}
+    rule initial = parse 	
+    "/*"  { adj lexbuf ; let _ = comment lexbuf in initial lexbuf}
 | "//"  { adj lexbuf ; endline lexbuf }
 | blank	{ adj lexbuf ; initial lexbuf}
 | '\t'  { tab (); initial lexbuf }
@@ -35,12 +35,12 @@ rule initial = parse
 | '~'[^'~']*'~' 
 | '%'[^'%']*'%' { str_adj lexbuf ; TILDE_STRING(strip (Lexing.lexeme lexbuf))}
 and comment = parse 	
-      "*/"	{ adj lexbuf ; () }
+    "*/"	{ adj lexbuf ; () }
 |     '\n'      { newline (); comment lexbuf }
 |     "/*"      { adj lexbuf ; let _ = comment lexbuf in comment lexbuf } 
 |     eof       { lex_error "unterminated comment" } 
 |     _ 	{ adj lexbuf ; comment lexbuf }
 and endline = parse 
-        '\n' 			{ newline (); initial lexbuf}
+    '\n' 			{ newline (); initial lexbuf}
 |	_			{ adj lexbuf ; endline lexbuf}
 |       eof                     { EOF }

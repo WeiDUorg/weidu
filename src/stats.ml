@@ -4,12 +4,12 @@ type t = { mutable start : float;
            mutable above_me : float ;
          }
 
-                                        (* Create the top level *)
+      (* Create the top level *)
 let top = { start = 0.0; above_me = 0.0 ; }
 
-                                        (* The stack of current path through 
-                                         * the hierarchy. The first is the 
-                                         * leaf. *)
+    (* The stack of current path through 
+     * the hierarchy. The first is the 
+     * leaf. *)
 let stack : t list ref = ref [top]
 
 let record = Hashtbl.create 127 
@@ -53,12 +53,12 @@ let print chn msg =
   Hashtbl.iter (fun name time ->
     total := !total +. time ; 
     l := (name,time) :: !l 
-  ) record ;
+	       ) record ;
   let l = List.sort (fun (a,b) (c,d) -> compare b d) !l in 
   Printf.fprintf chn "%s" msg ; 
   List.iter (fun (l,t) ->
     Printf.fprintf chn "%-30s %7.3f\n" l t
-  ) l ;
+	    ) l ;
   Printf.fprintf chn "%-30s %7.3f\n" "TOTAL" !total 
 
 

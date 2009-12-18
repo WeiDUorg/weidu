@@ -1,10 +1,10 @@
 (* Note added due to LGPL terms.
 
-This file was edited by Valerio Bigiani, AKA The Bigg, starting from
-6 November 2005. All changes for this file are listed in
-diffs/src.arch_osx.ml.diff file, as the output of a diff -Bw -c -N command.
+   This file was edited by Valerio Bigiani, AKA The Bigg, starting from
+   6 November 2005. All changes for this file are listed in
+   diffs/src.arch_osx.ml.diff file, as the output of a diff -Bw -c -N command.
 
-It was originally taken from Westley Weimer's WeiDU 185. *)
+   It was originally taken from Westley Weimer's WeiDU 185. *)
 
 (* Mac OSX Arch-Specific Definitions *)
 
@@ -16,7 +16,7 @@ let slash_to_backslash s =
 
 let backslash_to_slash s =
   let s = Str.global_replace (Str.regexp "\\\\") "/" s in
-  s
+				s
 
 
 (* how to view a text file *)
@@ -43,38 +43,38 @@ let create_process_env = Unix.create_process_env
 let biff_path_separator = ":"
 
 (* On OSX, TOB baldur.ini has: 
-[Alias]
-CD5:=:CD5:
-HD0:=:
-CD1:=:CD1:
-CD2:=:CD2:
-CD3:=:CD3:
-CD4:=:CD4:
-*) 
+   [Alias]
+   CD5:=:CD5:
+   HD0:=:
+   CD1:=:CD1:
+   CD2:=:CD2:
+   CD3:=:CD3:
+   CD4:=:CD4:
+ *) 
 let cd_regexp = Str.regexp "\\(CD[0-9]\\)"
 (* doesn't work: 
-let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)"  *)
+   let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)"  *)
 
 let is_weidu_executable f =
-	try
-		let i = Case_ins.perv_open_in_bin f in
-		let buff = String.create 4 in
-		let signature = input i buff 0 4 in
-		Str.string_match (Str.regexp_case_fold "setup-.*") f 0 && buff = "\xfe\xed\xfa\xce"
-	with _ -> false
+  try
+    let i = Case_ins.perv_open_in_bin f in
+    let buff = String.create 4 in
+    let signature = input i buff 0 4 in
+    Str.string_match (Str.regexp_case_fold "setup-.*") f 0 && buff = "\xfe\xed\xfa\xce"
+  with _ -> false
 
 let get_version f =
-	let exec = Printf.sprintf "./%s --exit" f in
-	Printf.printf "{%s} queried%!" f;
-	let ic,oc,ec = Unix.open_process_full exec (Unix.environment()) in
-	let line = input_line ic in
-	ignore (Unix.close_process_full (ic,oc,ec));
-	let s = Str.global_replace ( Str.regexp_case_fold ".*version \\([0-9]+\\).*") "\\1" line in
-	int_of_string s
+  let exec = Printf.sprintf "./%s --exit" f in
+  Printf.printf "{%s} queried%!" f;
+  let ic,oc,ec = Unix.open_process_full exec (Unix.environment()) in
+  let line = input_line ic in
+  ignore (Unix.close_process_full (ic,oc,ec));
+  let s = Str.global_replace ( Str.regexp_case_fold ".*version \\([0-9]+\\).*") "\\1" line in
+  int_of_string s
 ;;
 
 let check_UAC () =
-	false
+  false
 ;;
 
 let game_path_by_type name =

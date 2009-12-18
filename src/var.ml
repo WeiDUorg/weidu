@@ -1,10 +1,10 @@
 (* Note added due to LGPL terms.
 
-This file was edited by Valerio Bigiani, AKA The Bigg, starting from
-6 November 2005. All changes for this file are listed in
-diffs/src.var.ml.diff file, as the output of a diff -Bw -c -N command.
+   This file was edited by Valerio Bigiani, AKA The Bigg, starting from
+   6 November 2005. All changes for this file are listed in
+   diffs/src.var.ml.diff file, as the output of a diff -Bw -c -N command.
 
-It was originally taken from Westley Weimer's WeiDU 185. *)
+   It was originally taken from Westley Weimer's WeiDU 185. *)
 
 (*
  * TP2 Patch Variables
@@ -26,17 +26,17 @@ let variables_stack = ref []
 let arrays_stack = ref []
 
 let var_pop () =
-	variables := List.hd !variables_stack;
-	variables_stack := List.tl !variables_stack;
-	arrays := List.hd !arrays_stack;
-	arrays_stack := List.tl !arrays_stack;
+  variables := List.hd !variables_stack;
+  variables_stack := List.tl !variables_stack;
+  arrays := List.hd !arrays_stack;
+  arrays_stack := List.tl !arrays_stack;
 ;;
 
 let var_push () =
-	variables_stack := !variables :: !variables_stack;
-	variables := Hashtbl.copy !variables;
+  variables_stack := !variables :: !variables_stack;
+  variables := Hashtbl.copy !variables;
   arrays_stack := !arrays :: !arrays_stack;
-	arrays := Hashtbl.copy !arrays;
+  arrays := Hashtbl.copy !arrays;
 ;;
 
 let cli_variables : string list option ref = ref None
@@ -49,9 +49,9 @@ let set_int32 name value =
 let set_int name value = set_int32 name (Int32.of_int value)
 
 let get_int32 name =
-	  match Hashtbl.find !variables name with
-	  | Int32(v) -> v
-	  | String(s) -> Int32.of_string s
+  match Hashtbl.find !variables name with
+  | Int32(v) -> v
+  | String(s) -> Int32.of_string s
 
 let set_string name value =
   let name = "%" ^ name ^ "%" in
@@ -110,23 +110,23 @@ let variable_regexp = Str.regexp "%[^%]+%"
 
 let get_string_special reg str =
   let res =
-  var_subst reg
-    (fun whole_thing -> (* "%foo%" *)
-      let quoted_substr = Str.matched_string whole_thing in
-      try
-        (match Hashtbl.find !variables quoted_substr with
-        | Int32(v) -> Some(Int32.to_string v)
-        | String(s) -> Some(s))
-      with Not_found -> if reg <> variable_regexp then begin
-	      try
-	      	let try_substr = String.sub quoted_substr 1 (String.length quoted_substr - 2) in
-	      	let try_substr = "%" ^ try_substr ^ "%" in
-	        (match Hashtbl.find !variables try_substr with
-	        | Int32(v) -> Some(Int32.to_string v)
-	        | String(s) -> Some(s))
-	      with Not_found -> None
-			end else None
-    ) str
+    var_subst reg
+      (fun whole_thing -> (* "%foo%" *)
+	let quoted_substr = Str.matched_string whole_thing in
+	try
+          (match Hashtbl.find !variables quoted_substr with
+          | Int32(v) -> Some(Int32.to_string v)
+          | String(s) -> Some(s))
+	with Not_found -> if reg <> variable_regexp then begin
+	  try
+	    let try_substr = String.sub quoted_substr 1 (String.length quoted_substr - 2) in
+	    let try_substr = "%" ^ try_substr ^ "%" in
+	    (match Hashtbl.find !variables try_substr with
+	    | Int32(v) -> Some(Int32.to_string v)
+	    | String(s) -> Some(s))
+	  with Not_found -> None
+	end else None
+      ) str
   in
   (if !debug_assign then Util.log_and_print "GET ~%s~ = ~%s~\n" str res) ;
   res
@@ -142,7 +142,7 @@ let get_string_exact str =
 let clear_var a =
   let var_spec = Hashtbl.copy !variables in
   Hashtbl.iter ( fun a b -> Hashtbl.remove !variables a
-  ) var_spec ;
+		) var_spec ;
   Hashtbl.clear !variables
 
 let assoc name value =

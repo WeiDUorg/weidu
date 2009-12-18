@@ -1,7 +1,7 @@
 (* Pervasives FS calls *)
 let backslash_to_slash s =
   let s = Str.global_replace (Str.regexp "\\\\") "/" s in
-  s
+				s
 
 let perv_open_out s = open_out (String.lowercase (backslash_to_slash s)) ;;
 let perv_open_out_gen m i s = open_out_gen m i (String.lowercase (backslash_to_slash s)) ;;

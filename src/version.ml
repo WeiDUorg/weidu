@@ -1,10 +1,10 @@
 (* Note added due to LGPL terms.
 
-This file was edited by Valerio Bigiani, AKA The Bigg, starting from
-6 November 2005. All changes for this file are listed in
-diffs/src.version.ml.diff file, as the output of a diff -Bw -c -N command.
+   This file was edited by Valerio Bigiani, AKA The Bigg, starting from
+   6 November 2005. All changes for this file are listed in
+   diffs/src.version.ml.diff file, as the output of a diff -Bw -c -N command.
 
-It was originally taken from Westley Weimer's WeiDU 185. *)
+   It was originally taken from Westley Weimer's WeiDU 185. *)
 
 let version = "21204"
 

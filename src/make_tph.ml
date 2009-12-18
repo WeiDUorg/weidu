@@ -4,7 +4,7 @@ let my_read size fd buff name =
     let this_chunk = Unix.read fd buff !sofar (size - !sofar) in
     if this_chunk = 0 then begin
       failwith (Printf.sprintf "read %d of %d bytes from [%s]"
-        !sofar size name) 
+		  !sofar size name) 
     end else 
       sofar := !sofar + this_chunk
   done 
@@ -19,32 +19,32 @@ let load_file name =
   Str.global_replace (Str.regexp "\\([\\\"\']\\)") "\\\\\\1" buff
 
 let main () =
-	let o = open_out "src/tph.ml" in
-	output_string o "(* DO NOT EDIT, file generated automatically by src/make_tph.ml from src/tph/* *)
+  let o = open_out "src/tph.ml" in
+  output_string o "(* DO NOT EDIT, file generated automatically by src/make_tph.ml from src/tph/* *)
 let list_of_stuff = [";
-	let file_define  = Sys.readdir "src/tph/define"  in
-	let file_include = Sys.readdir "src/tph/include" in
-	List.iter (fun (dir, files) ->
-		Array.iter (fun file ->
-			let file = String.lowercase file in
-			let ext = Str.global_replace (Str.regexp ".*\\.") "" file in
-			if ext = "tpa" || ext = "tpp" then begin
-				let contents = load_file ("src/tph/" ^ dir ^ "/" ^ file) in
-				Printf.fprintf o "(\"%s\",\"%s  \");\n" file contents;
-			end
-		)files
-	) [("define",file_define); ("include",file_include)];
-	output_string o "]\n";
-	output_string o "let list_of_includes = [";
-	Array.iter (fun file ->
-		let file = String.lowercase file in
-		let ext = Str.global_replace (Str.regexp ".*\\.") "" file in
-		if ext = "tpa" || ext = "tpp" then Printf.fprintf o "\t\"%s\";\n" file
-	) file_include;
-	output_string o "]\n";
-	close_out o;
+let file_define  = Sys.readdir "src/tph/define"  in
+let file_include = Sys.readdir "src/tph/include" in
+List.iter (fun (dir, files) ->
+  Array.iter (fun file ->
+    let file = String.lowercase file in
+    let ext = Str.global_replace (Str.regexp ".*\\.") "" file in
+    if ext = "tpa" || ext = "tpp" then begin
+      let contents = load_file ("src/tph/" ^ dir ^ "/" ^ file) in
+      Printf.fprintf o "(\"%s\",\"%s  \");\n" file contents;
+    end
+	     )files
+	  ) [("define",file_define); ("include",file_include)];
+output_string o "]\n";
+output_string o "let list_of_includes = [";
+Array.iter (fun file ->
+  let file = String.lowercase file in
+  let ext = Str.global_replace (Str.regexp ".*\\.") "" file in
+  if ext = "tpa" || ext = "tpp" then Printf.fprintf o "\t\"%s\";\n" file
+	   ) file_include;
+output_string o "]\n";
+close_out o;
 ;;
 
 try
-	main ()
+  main ()
 with e -> print_endline (Printexc.to_string e)

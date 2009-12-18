@@ -1,10 +1,10 @@
 (* Note added due to LGPL terms.
 
-This file was edited by Valerio Bigiani, AKA The Bigg, starting from
-6 November 2005. All changes for this file are listed in
-diffs/src.arch_mingw.ml.diff file, as the output of a diff -Bw -c -N command.
+   This file was edited by Valerio Bigiani, AKA The Bigg, starting from
+   6 November 2005. All changes for this file are listed in
+   diffs/src.arch_mingw.ml.diff file, as the output of a diff -Bw -c -N command.
 
-It was originally taken from Westley Weimer's WeiDU 185. *)
+   It was originally taken from Westley Weimer's WeiDU 185. *)
 
 (* MinGW Arch-Specific Definitions *)
 
@@ -23,7 +23,7 @@ let registry_paths = ref [
   (iwd2_registry_path ()) ;
   (pst_registry_path ()) ;
   "C:\\Program Files\\Black Isle\\BGII - SoA\\" ;
-  "D:\\Program Files\\Black Isle\\BGII - SoA\\" 
+    "D:\\Program Files\\Black Isle\\BGII - SoA\\" 
 ]
 
 let slash_to_backslash s =
@@ -51,53 +51,53 @@ let handle_view_command s skip =
 external glob : string -> (string -> unit) -> unit = "myglob"
 
 external weidu_win_create_process : 
-  string -> string -> string option -> 
-  Unix.file_descr -> Unix.file_descr -> Unix.file_descr -> 
-  int  = "weidu_win_create_process" "weidu_win_create_process_native"
+    string -> string -> string option -> 
+      Unix.file_descr -> Unix.file_descr -> Unix.file_descr -> 
+	int  = "weidu_win_create_process" "weidu_win_create_process_native"
 
 let create_process_env prog args env fd1 fd2 fd3 =
   weidu_win_create_process prog (String.concat " " (Array.to_list args))
-  (Some(String.concat "\000" (Array.to_list env) ^ "\000"))
-  fd1 fd2 fd3 
+    (Some(String.concat "\000" (Array.to_list env) ^ "\000"))
+    fd1 fd2 fd3 
 
 let biff_path_separator = "\\\\"
 
 let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)" 
 
 let is_weidu_executable f =
-	Str.string_match (Str.regexp_case_fold "setup-.*exe") f 0
+  Str.string_match (Str.regexp_case_fold "setup-.*exe") f 0
 
 
 let get_version f =
-	let newstdin, newstdin' = Unix.pipe () in
-	let newstdout, newstdout' = Unix.pipe () in
-	let newstderr, newstderr' = Unix.pipe () in
-	let pid = create_process_env
-		f [| "WeiDU-Backup" ; "--game bar" |] [| |] newstdin newstdout' newstderr'
-	in
-	Printf.printf "{%s} Queried (pid = %d)%!" f pid ;
-	let ic = Unix.in_channel_of_descr newstdout in
-	let line = input_line ic in
-	let version =
-		try
-		let s = Str.global_replace ( Str.regexp_case_fold ".*version \\([0-9]+\\).*") "\\1" line in
-		int_of_string s
-		with _ -> -1
-	in
-	(try Unix.close newstdin with _ -> ()) ;
-	(try Unix.close newstdout with _ -> ()) ;
-	(try Unix.close newstderr with _ -> ()) ;
-	(try Unix.close newstdin' with _ -> ()) ;
-	(try Unix.close newstdout' with _ -> ()) ;
-	(try Unix.close newstderr' with _ -> ()) ;
-	let pid', ps = Unix.waitpid [] pid in
-	version
+  let newstdin, newstdin' = Unix.pipe () in
+  let newstdout, newstdout' = Unix.pipe () in
+  let newstderr, newstderr' = Unix.pipe () in
+  let pid = create_process_env
+      f [| "WeiDU-Backup" ; "--game bar" |] [| |] newstdin newstdout' newstderr'
+  in
+  Printf.printf "{%s} Queried (pid = %d)%!" f pid ;
+  let ic = Unix.in_channel_of_descr newstdout in
+  let line = input_line ic in
+  let version =
+    try
+      let s = Str.global_replace ( Str.regexp_case_fold ".*version \\([0-9]+\\).*") "\\1" line in
+      int_of_string s
+    with _ -> -1
+  in
+  (try Unix.close newstdin with _ -> ()) ;
+  (try Unix.close newstdout with _ -> ()) ;
+  (try Unix.close newstderr with _ -> ()) ;
+  (try Unix.close newstdin' with _ -> ()) ;
+  (try Unix.close newstdout' with _ -> ()) ;
+  (try Unix.close newstderr' with _ -> ()) ;
+  let pid', ps = Unix.waitpid [] pid in
+  version
 ;;
 
 external win_check_UAC : unit -> bool = "win_check_UAC"
 
 let check_UAC () =
-	win_check_UAC ()
+  win_check_UAC ()
 ;;
 
 let game_path_by_type name =

@@ -3,11 +3,11 @@
 
 (* Note added due to LGPL terms.
 
-This file was edited by Valerio Bigiani, AKA The Bigg, starting from
-6 November 2005. All changes for this file are listed in
-diffs/src.tp.ml.diff file, as the output of a diff -Bw -c -N command.
+   This file was edited by Valerio Bigiani, AKA The Bigg, starting from
+   6 November 2005. All changes for this file are listed in
+   diffs/src.tp.ml.diff file, as the output of a diff -Bw -c -N command.
 
-It was originally taken from Westley Weimer's WeiDU 185. *)
+   It was originally taken from Westley Weimer's WeiDU 185. *)
 
 (* Talk-Patcher / Installer *)
 open Util
@@ -30,79 +30,79 @@ let continue_on_error = ref false
 let debug_pe = ref false
 
 type tp_flag =
-| Version of Dlg.tlk_string
-| Auto_Tra of string
-| TP_No_If_Eval of unit
-| Menu_Style of string
-| Ask_Every_Component
-| Always of tp_action list
-| Define_Action_Macro of string * tp_local_declaration list * tp_action list
-| Define_Patch_Macro of string * tp_local_declaration list * tp_patch list
-| Allow_Missing of string list
-| Script_Style of Load.script_style
-| Load_Macro of string list
-| Readme of string list
+  | Version of Dlg.tlk_string
+  | Auto_Tra of string
+  | TP_No_If_Eval of unit
+  | Menu_Style of string
+  | Ask_Every_Component
+  | Always of tp_action list
+  | Define_Action_Macro of string * tp_local_declaration list * tp_action list
+  | Define_Patch_Macro of string * tp_local_declaration list * tp_patch list
+  | Allow_Missing of string list
+  | Script_Style of Load.script_style
+  | Load_Macro of string list
+  | Readme of string list
 
 and wrapper =
-| Start_From_Tp  of tp_file
-| Start_From_Tpa of tp_action list
-| Start_From_Tpp of tp_patch list
+  | Start_From_Tp  of tp_file
+  | Start_From_Tpa of tp_action list
+  | Start_From_Tpp of tp_patch list
 
 and tp_file = {
-  mutable tp_filename  : string ;
-  backup    : string ;
-  author    : string ;
-  flags     : tp_flag list ;
-  languages : tp_lang list ;
-  module_list : tp_mod list ;
-}
+    mutable tp_filename  : string ;
+    backup    : string ;
+    author    : string ;
+    flags     : tp_flag list ;
+    languages : tp_lang list ;
+    module_list : tp_mod list ;
+  }
 
 and tp_lang = {
-  lang_name : string ;
-  lang_dir_name : string ;
-  lang_tra_files : string list ;
-}
+    lang_name : string ;
+    lang_dir_name : string ;
+    lang_tra_files : string list ;
+  }
 
 and tp_mod = {
-  mod_name : Dlg.tlk_string ;
-  mod_parts : tp_action list;
-  mod_flags : tp_mod_flag list ;
-}
+    mod_name : Dlg.tlk_string ;
+    mod_parts : tp_action list;
+    mod_flags : tp_mod_flag list ;
+  }
 
 and tp_mod_flag =
-| TPM_Deprecated of Dlg.tlk_string (* should be uninstalled when encountered *)
-| TPM_RequireComponent of string * int * Dlg.tlk_string
-| TPM_ForbidComponent of string * int * Dlg.tlk_string
-| TPM_RequirePredicate of tp_patchexp * Dlg.tlk_string
-| TPM_SubComponents of Dlg.tlk_string * tp_patchexp * bool (* is forced? *)
-| TPM_Designated of int
-| TPM_NotInLog
-| TPM_InstallByDefault
-| TPM_Group of Dlg.tlk_string
+  | TPM_Deprecated of Dlg.tlk_string (* should be uninstalled when encountered *)
+  | TPM_RequireComponent of string * int * Dlg.tlk_string
+  | TPM_ForbidComponent of string * int * Dlg.tlk_string
+  | TPM_RequirePredicate of tp_patchexp * Dlg.tlk_string
+  | TPM_SubComponents of Dlg.tlk_string * tp_patchexp * bool (* is forced? *)
+  | TPM_Designated of int
+  | TPM_NotInLog
+  | TPM_InstallByDefault
+  | TPM_Group of Dlg.tlk_string
 
 and tp_copy_args = {
-  copy_get_existing    : bool ;  (* get from biffs? *)
-  copy_use_regexp      : bool ;
-  copy_use_glob        : bool ;
-  copy_file_list       : ( string * string ) list ; (* (source,dest) list *)
-  copy_patch_list      : tp_patch list ;
-  copy_constraint_list : tp_constraint list ;
-  copy_backup          : bool ; (* normally TRUE *)
-  copy_at_end          : bool ;
+    copy_get_existing    : bool ;  (* get from biffs? *)
+    copy_use_regexp      : bool ;
+    copy_use_glob        : bool ;
+    copy_file_list       : ( string * string ) list ; (* (source,dest) list *)
+    copy_patch_list      : tp_patch list ;
+    copy_constraint_list : tp_constraint list ;
+    copy_backup          : bool ; (* normally TRUE *)
+    copy_at_end          : bool ;
     (* write all of the output *after* doing all of the processing for
      * all souce files *)
-  copy_save_inlined    : bool ; (* the result is not saved to the HD, but stored in the inlined Hashtable *)
-}
+    copy_save_inlined    : bool ; (* the result is not saved to the HD, but stored in the inlined Hashtable *)
+  }
 
 and tp_copy_large_args = {
-  copy_large_use_glob       : bool ;
-  copy_large_file_list      : ( string * string ) list ; (* (source,dest) list *)
-  copy_large_backup         : bool ; (* normally TRUE *)
-}
+    copy_large_use_glob       : bool ;
+    copy_large_file_list      : ( string * string ) list ; (* (source,dest) list *)
+    copy_large_backup         : bool ; (* normally TRUE *)
+  }
 
 and store_args = {
-  overwrite_store_item  : bool ; (* normally TRUE *)
-}
+    overwrite_store_item  : bool ; (* normally TRUE *)
+  }
 
 and tp_action =
   | TP_ActionBashFor of ((string * (bool option) * string) list) * (tp_action list)
@@ -122,7 +122,7 @@ and tp_action =
   | TP_Compile of bool * (string list) * (tp_patch list) * (string list) (* eval, DLG, TRA *)
   | TP_Launch_Action_Macro of string
   | TP_Launch_Action_Function of string * (tp_pe_string * tp_patchexp) list *
-	   (tp_pe_string * tp_pe_string) list * (tp_pe_string * tp_pe_string) list
+	(tp_pe_string * tp_pe_string) list * (tp_pe_string * tp_pe_string) list
   | TP_Reinclude of string list
   | TP_Include of string list
   | TP_Load_Tra of string list
@@ -131,9 +131,9 @@ and tp_action =
   | TP_Define_Action_Macro of string * tp_local_declaration list * tp_action list
   | TP_Define_Patch_Macro of string * tp_local_declaration list * tp_patch list
   | TP_Define_Patch_Function of string * (tp_pe_string * tp_patchexp) list *
-	   (tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_patch list
+	(tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_patch list
   | TP_Define_Action_Function of string * (tp_pe_string * tp_patchexp) list *
-	   (tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_action list
+	(tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_action list
   | TP_Biff of string * ((string * (bool option) * string) list)
   | TP_Mkdir of string list
   | TP_Outer_For of (tp_patch list) * tp_patchexp * (tp_patch list) * (tp_action list)
@@ -165,7 +165,7 @@ and tp_action =
   | TP_At_Interactive_Now of string * bool
   | TP_Add_Kit of tp_add_kit
   | TP_CopyKit of string * string * (string* string) list
-      (* old kit, new kit, changes *)
+	(* old kit, new kit, changes *)
   | TP_Add_Music of tp_add_music
   | TP_Add_Projectile of tp_add_projectile
   | TP_Add_Spell of string * tp_patchexp * tp_patchexp * string * (tp_patch list) * (tp_constraint list)
@@ -183,49 +183,49 @@ and tp_action =
   | TP_Alter_TLK_List  of (tp_patchexp list) * (tp_patch list)
 
 (*
-and predicate =
+  and predicate =
   | Pred_And of predicate * predicate
   | Pred_Or of predicate * predicate
   | Pred_Not of predicate
   | Pred_True
   | Pred_Expr of tp_patchexp
-  *)
+ *)
 
 and tp_add_kit = {
-  kit_name : string ;
-  clasweap : string ;
-  weapprof : string ;
-  abclasrq : string ;
-  abclsmod : string ;
-  abdcdsrq : string ;
-  abdcscrq : string ;
-  dualclas : string ;
-  alignmnt : string ;
-  ability_file : string ; 
-  include_in : string ;
-  lower : Dlg.tlk_string ;
-  mixed : Dlg.tlk_string ;
-  help : Dlg.tlk_string ;
-  unused_class : string ;
-  tob_start : string list ;
-  tob_abbr : string ; 
-} 
+    kit_name : string ;
+    clasweap : string ;
+    weapprof : string ;
+    abclasrq : string ;
+    abclsmod : string ;
+    abdcdsrq : string ;
+    abdcscrq : string ;
+    dualclas : string ;
+    alignmnt : string ;
+    ability_file : string ; 
+    include_in : string ;
+    lower : Dlg.tlk_string ;
+    mixed : Dlg.tlk_string ;
+    help : Dlg.tlk_string ;
+    unused_class : string ;
+    tob_start : string list ;
+    tob_abbr : string ; 
+  } 
 
 and tp_add_map_note = {
-  xcoord : tp_patchexp ;
-  ycoord : tp_patchexp ;
-  mstring : Dlg.tlk_string ;
-  colour : string ;
-}
+    xcoord : tp_patchexp ;
+    ycoord : tp_patchexp ;
+    mstring : Dlg.tlk_string ;
+    colour : string ;
+  }
 
 and tp_add_cre_item = {
-  item_name : string ;
-  i_charge1 : tp_patchexp ;
-  i_charge2 : tp_patchexp ;
-  i_charge3 : tp_patchexp ;
-  i_flags : string ;
-  item_slot : string ;
-  equip : bool ; (* Normally FALSE *)
+    item_name : string ;
+    i_charge1 : tp_patchexp ;
+    i_charge2 : tp_patchexp ;
+    i_charge3 : tp_patchexp ;
+    i_flags : string ;
+    item_slot : string ;
+    equip : bool ; (* Normally FALSE *)
   twohanded_weapon : bool ; (* Normally TRUE *)
 }
 
@@ -273,12 +273,12 @@ and tp_patch =
   | TP_PatchReadSLong of tp_patchexp * tp_pe_string * (tp_patchexp option)
   | TP_PatchReadLN of tp_pe_string
   | TP_PatchGetOffsetArray of tp_pe_string * (tp_patchexp * tp_patchexp * tp_patchexp *
-                          tp_patchexp * tp_patchexp * tp_patchexp * tp_patchexp)
+						tp_patchexp * tp_patchexp * tp_patchexp * tp_patchexp)
   | TP_PatchGetOffsetArray2 of tp_pe_string * (tp_patchexp * tp_patchexp * tp_patchexp
-          * tp_patchexp * tp_patchexp * tp_patchexp * tp_patchexp * tp_patchexp)
+						 * tp_patchexp * tp_patchexp * tp_patchexp * tp_patchexp * tp_patchexp)
   | TP_Launch_Patch_Macro of string
   | TP_Launch_Patch_Function of string* (tp_pe_string * tp_patchexp) list *
-	   (tp_pe_string * tp_pe_string) list * (tp_pe_string * tp_pe_string) list
+	(tp_pe_string * tp_pe_string) list * (tp_pe_string * tp_pe_string) list
   | TP_Add_Known_Spell of string * tp_patchexp * string
   | TP_Add_Memorized_Spell of string * tp_patchexp * string * tp_patchexp
   | TP_Read2DA of tp_patchexp * tp_patchexp * tp_patchexp * tp_pe_string
@@ -299,19 +299,19 @@ and tp_patch =
   | TP_PatchSnprint of tp_patchexp * tp_pe_string * tp_pe_tlk_string
   | TP_PatchASCII of
       tp_patchexp (* where? *)
-    * tp_pe_string (* what? *)
-    * bool (* evaluate? *)
-    * (tp_patchexp option) (* minimum size? *)
+	* tp_pe_string (* what? *)
+	* bool (* evaluate? *)
+	* (tp_patchexp option) (* minimum size? *)
   | TP_PatchASCIITerminated of
       tp_patchexp (* where? *)
-    * string (* what? *)
+	* string (* what? *)
   | TP_PatchInsertBytes of tp_patchexp * tp_patchexp
   | TP_PatchDeleteBytes of tp_patchexp * tp_patchexp
   | TP_PatchSet of tp_pe_string * tp_patchexp
   | TP_PatchSetIdsSymOfInt of string * string * tp_patchexp
   | TP_PatchWhile of tp_patchexp * (tp_patch list)
   | TP_PatchFor of
-    (tp_patch list) * tp_patchexp * (tp_patch list) * (tp_patch list)
+      (tp_patch list) * tp_patchexp * (tp_patch list) * (tp_patch list)
   | TP_PatchIf of tp_patchexp * (tp_patch list) * (tp_patch list)
   | TP_PatchReinclude of string list
   | TP_PatchInclude of string list
@@ -355,21 +355,21 @@ and tp_patch =
   | TP_EvaluateBuffer
   | TP_EvaluateBufferSpecial of string
   | TP_Decompress of tp_patchexp * tp_patchexp * tp_patchexp * tp_decompress_where
-			(* start, clen, ulen, where to put the result *)
-	| TP_Compress of tp_patchexp * tp_patchexp * tp_patchexp * tp_decompress_where
-	| TP_RebuildCreFile
+	(* start, clen, ulen, where to put the result *)
+  | TP_Compress of tp_patchexp * tp_patchexp * tp_patchexp * tp_decompress_where
+  | TP_RebuildCreFile
 
 and tp_decompress_where =
-	| TP_DW_ReplaceFile
-	| TP_DW_Variable of tp_pe_string
-	| TP_DW_IntoFile of tp_patchexp * tp_patchexp
+  | TP_DW_ReplaceFile
+  | TP_DW_Variable of tp_pe_string
+  | TP_DW_IntoFile of tp_patchexp * tp_patchexp
 
 and tp_store_position =
-	| TP_Store_First
-	| TP_Store_Last
-	| TP_Store_At of tp_patchexp
-	| TP_Store_After of tp_pe_string
-	| TP_Store_Before of tp_pe_string
+  | TP_Store_First
+  | TP_Store_Last
+  | TP_Store_At of tp_patchexp
+  | TP_Store_After of tp_pe_string
+  | TP_Store_Before of tp_pe_string
 
 and tp_constraint =
   | TP_Contains of tp_pe_string
@@ -397,7 +397,7 @@ and tp_patchexp =
   | TP_PE_SShort_At of tp_patchexp
   | TP_PE_Long_At of tp_patchexp
   | TP_PE_SLong_At of tp_patchexp
-	| PE_String of tp_pe_string
+  | PE_String of tp_pe_string
   | PE_StringEqual of tp_pe_string * tp_pe_string * bool * bool (* ignore-case? * returns bool vs. 1,-1,0 *)
   | PE_StringRegexp of tp_pe_string * tp_pe_string * bool (* match exactly?  *)
   | PE_Not of tp_patchexp
@@ -421,7 +421,7 @@ and tp_patchexp =
   | PE_BLSL of tp_patchexp * tp_patchexp
   | PE_BLSR of tp_patchexp * tp_patchexp
   | PE_BASR of tp_patchexp * tp_patchexp
-  
+	
   | PE_ABS of tp_patchexp
 
   | PE_Random of tp_patchexp * tp_patchexp
@@ -449,7 +449,7 @@ and tp_patchexp =
  ************************************************************************)
 let make_lse_internal male_string male_sound female_string female_sound =
   Dlg.Local_String ({ lse_male = male_string ; lse_male_sound = male_sound ;
-                    lse_female = female_string ; lse_female_sound = female_sound; })
+                      lse_female = female_string ; lse_female_sound = female_sound; })
 
 let get_lse the_string =
   make_lse_internal the_string "" the_string ""
@@ -467,7 +467,7 @@ let get_pe_tlk_string a_string =
 type status = Installed | Temporarily_Uninstalled | Permanently_Uninstalled
 
 type installed_mods = (string * int * int * (string option) * status) list
-  (* module : language : component : status *)
+      (* module : language : component : status *)
 let log_name = "WeiDU.log"
 
 let the_log : installed_mods ref = ref []

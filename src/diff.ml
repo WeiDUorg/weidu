@@ -11,15 +11,15 @@ open Str
  *)
 
 let fixdouble s =
-	Str.global_replace (Str.regexp "\r") "" s
+  Str.global_replace (Str.regexp "\r") "" s
 
 let fixnl s =
-	let s = fixdouble s in
-	if s.[String.length s - 1] = '\n' then s else s ^ "\n"
+  let s = fixdouble s in
+  if s.[String.length s - 1] = '\n' then s else s ^ "\n"
 
 let do_patch orig_buff patch_buff vb = begin
-		let orig_buff = fixnl orig_buff in
-	  let patch_buff = fixnl patch_buff in
+  let orig_buff = fixnl orig_buff in
+  let patch_buff = fixnl patch_buff in
   let newf, rejf = Xdiff.patch orig_buff patch_buff in begin
     (* RE which deliminates rejected chunks from patch *)
     let delimre = Str.regexp "@@ -[0-9]+,[0-9]+ \\+[0-9]+,[0-9]+ @@" in
@@ -53,15 +53,15 @@ let do_patch orig_buff patch_buff vb = begin
     in
     check_chunk rej_chunks;
     if !bad_chunks > 0 then begin
-    	log_and_print "The following patch:\n\n%s\n\nfailed on the following text:\n\n%s\n\n" patch_buff orig_buff
+      log_and_print "The following patch:\n\n%s\n\nfailed on the following text:\n\n%s\n\n" patch_buff orig_buff
     end;
     (newf, !bad_chunks, !app_chunks) ;
   end
 end
 
 let get_patch orig_buff new_buff ncont =begin
-		let orig_buff = fixnl orig_buff in
-		let new_buff = fixnl new_buff in
+  let orig_buff = fixnl orig_buff in
+  let new_buff = fixnl new_buff in
   try
     fixdouble (Xdiff.diff orig_buff new_buff ncont)
   with e -> begin

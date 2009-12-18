@@ -1,6 +1,6 @@
 let backslash_to_slash s =
   let s = Str.global_replace (Str.regexp "\\\\") "/" s in
-  s
+				s
 
 (* Pervasives FS calls *)
 let perv_open_out s = open_out (backslash_to_slash s) ;;

@@ -4,34 +4,34 @@ exception Cre22
 ;;
 
 type cre = {
-  (* the buffer *)
-  main_body : string;
-  
-  (* name, level, type *)
-  known_spells : (string * int * int) list;
-  
-  (* level, count, count2, type, (name * in memory?) *)
-  memorized_info : (int * int * int * int * (string * bool) list) list;
+    (* the buffer *)
+    main_body : string;
+    
+    (* name, level, type *)
+    known_spells : (string * int * int) list;
+    
+    (* level, count, count2, type, (name * in memory?) *)
+    memorized_info : (int * int * int * int * (string * bool) list) list;
 
-  (* the buffers, effV1? *)
-  effects : (string list * bool);
-  
-  (* name, unknown, quantity1, quantity2, quantity3, flags, slots *)
-   items : (string * (int * int * int * int * int * int list)) list;
-   
-   equipped: int;
-   
-   ending_unknown: int;
-}
+    (* the buffers, effV1? *)
+    effects : (string list * bool);
+    
+    (* name, unknown, quantity1, quantity2, quantity3, flags, slots *)
+    items : (string * (int * int * int * int * int * int list)) list;
+    
+    equipped: int;
+    
+    ending_unknown: int;
+  }
 ;;
 
 let cre_of_string buff =
   let head_length = match String.sub buff 0 8 with
-    | "CRE V1.0" -> 0x2d4
-    | "CRE V1.2" -> 0x378
-    | "CRE V2.2" -> raise Cre22
-    | "CRE V9.0" -> 0x33c
-    | _ -> failwith "not a vaild CRE file"
+  | "CRE V1.0" -> 0x2d4
+  | "CRE V1.2" -> 0x378
+  | "CRE V2.2" -> raise Cre22
+  | "CRE V9.0" -> 0x33c
+  | _ -> failwith "not a vaild CRE file"
   in
 
   let main_body = String.sub buff 0 head_length in
@@ -72,9 +72,9 @@ let cre_of_string buff =
     let spell_type = short_of_str_off this_buff 0xa in
     known_spells := (name,level,spell_type) :: !known_spells;
   done;
-	if !debug_ocaml then log_and_print "Read Known Spells\n";
+  if !debug_ocaml then log_and_print "Read Known Spells\n";
 
-	let minfo = ref [] in
+  let minfo = ref [] in
   let mlist_i = ref 0 in
   for i = 0 to minfo_cnt - 1 do
     let this_buff = String.sub buff (minfo_off + i * 0x10) 0x10 in
@@ -102,7 +102,7 @@ let cre_of_string buff =
     let this_buff = String.sub buff (effec_off + i * eff_l) eff_l in
     effects := this_buff :: !effects
   done;
-	if !debug_ocaml then log_and_print "Read Effects\n";
+  if !debug_ocaml then log_and_print "Read Effects\n";
 
   let items = ref [] in
   for i = 0 to items_cnt - 1 do
@@ -120,20 +120,20 @@ let cre_of_string buff =
     done;
     items := (name,(unknown,q1,q2,q3,flags,!slots)) :: !items
   done;
-	if !debug_ocaml then log_and_print "Read items\n";
+  if !debug_ocaml then log_and_print "Read items\n";
 
   let equiped = short_of_str_off buff (islot_off + 76) in
   let ending_unknown = short_of_str_off buff (islot_off + 78) in
   if !debug_ocaml then log_and_print "Read last stuff\n";
-{
-    main_body = main_body;
-    known_spells = List.rev !known_spells;
-    memorized_info = List.rev !minfo;
-    effects = (List.rev !effects, is_eff_v1);
-    items = List.rev !items;
-    equipped = equiped;
-    ending_unknown = ending_unknown;
-  }
+  {
+   main_body = main_body;
+   known_spells = List.rev !known_spells;
+   memorized_info = List.rev !minfo;
+   effects = (List.rev !effects, is_eff_v1);
+   items = List.rev !items;
+   equipped = equiped;
+   ending_unknown = ending_unknown;
+ }
 ;;
 
 let string_of_cre cre =
@@ -148,11 +148,11 @@ let string_of_cre cre =
   let ending_unknown = cre.ending_unknown in
   
   let head_length = match String.sub main_body 0 8 with
-    | "CRE V1.0" -> 0x2d4
-    | "CRE V1.2" -> 0x378
-    | "CRE V2.2" -> raise Cre22
-    | "CRE V9.0" -> 0x33c
-    | _ -> failwith "not a vaild CRE file"
+  | "CRE V1.0" -> 0x2d4
+  | "CRE V1.2" -> 0x378
+  | "CRE V2.2" -> raise Cre22
+  | "CRE V9.0" -> 0x33c
+  | _ -> failwith "not a vaild CRE file"
   in
   let known_off_off = head_length - 0x34 in
   let known_cnt_off = head_length - 0x30 in
@@ -175,7 +175,7 @@ let string_of_cre cre =
     write_short buff 0x8 level;
     write_short buff 0xa spell_type;
     Buffer.add_string known_buff buff
-  ) known_spells;
+	    ) known_spells;
   let known_buff = Buffer.contents known_buff in
   
   let minfo_off = known_off + String.length known_buff in
@@ -197,10 +197,10 @@ let string_of_cre cre =
       write_int buff 8 (if memor then 1 else 0);
       incr mlist_i;
       Buffer.add_string mlist_buff buff
-    ) mlist;
+	      ) mlist;
     Buffer.add_string minfo_buff buff;
     ()
-  ) memorized_info;
+	    ) memorized_info;
   let minfo_buff = Buffer.contents minfo_buff in
   let mlist_buff = Buffer.contents mlist_buff in
   let mlist_off = minfo_off + String.length minfo_buff in
@@ -231,10 +231,10 @@ let string_of_cre cre =
     write_int    buff 0x10 flags;
     List.iter (fun slot ->
       write_short  islot_buff (slot * 2) !items_i;
-    ) slots;
+	      ) slots;
     Buffer.add_string items_buff buff;
     incr items_i
-  ) items;
+	    ) items;
   let items_buff = Buffer.contents items_buff in
   write_short islot_buff 76 equipped;
   write_short islot_buff 78 ending_unknown;
