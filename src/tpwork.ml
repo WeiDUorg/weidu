@@ -50,11 +50,10 @@ let rec handle_tp
 	| _ ->
 	    let arr = Array.of_list tp.languages in
 	    let answer, answer_index =
-              match !always_uninstall || !always_yes || !sometimes_reinstall || (!force_uninstall_these <> [] && !force_install_these = [])
-                , (installed_lang_index this_tp2_filename) with
-              | true, Some(i) when i >= 0 && (i < Array.length arr) ->
+              match installed_lang_index this_tp2_filename with
+              | Some(i) when i >= 0 && (i < Array.length arr) ->
 		  Some(arr.(i)), i
-              | _, _ -> None, 0
+              | _ -> None, 0
 	    in
 	    let answer, answer_index = ref answer, ref answer_index in
 	    if !forced_language >= 0 && (!forced_language < Array.length arr) then begin
@@ -97,7 +96,7 @@ let rec handle_tp
 
       List.iter (fun flag ->
 	match flag with
-	| Readme(str_l) -> begin
+	| Readme(str_l) -> if any_installed this_tp2_filename then begin
 	    let rec walk str_l =
 	      match str_l with
 	      | str::tail ->

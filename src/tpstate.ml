@@ -79,6 +79,14 @@ let log_match a b =
   Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase a)) =
   Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase b))
 
+let any_installed tp2 =
+  let rec is_installed lst = match lst with
+  | [] -> false
+  | (a,b,c,sopt,d) :: tl when log_match a tp2
+        && d <> Permanently_Uninstalled -> true
+  | hd :: tl -> is_installed tl
+  in is_installed !the_log
+  
 let already_installed tp2 i =
   let rec is_installed lst = match lst with
   | [] -> false

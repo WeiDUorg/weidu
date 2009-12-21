@@ -3,13 +3,14 @@ Version 213:
     the component names (useful if you're used to using --quick-log).
   * --safe-exit added, will save weidu.log after it begins the installation of
     every component. This means that quitting mid-installation will be
-	recoverable by the standard uninstall procedure, IF you don't use strange
-	stuff (assume that all mods that don't contain biffing and don't backup the
-	override will work correctly). Also, you can't uninstall (or reinstall)
-	anything while under --safe-exit.
+    recoverable by the standard uninstall procedure, IF you don't use strange
+    stuff (assume that all mods that don't contain biffing and don't backup the
+    override will work correctly). Also, you can't uninstall (or reinstall)
+    anything while under --safe-exit.
   * MOVE tp2 action added. Don't use.
   * Fixed an embarassing bug detecting BG1 (&TotSC) via GAME_IS.
   * ADD_CRE_ITEM works with IWD2 (again). I hate whoever coded that game.
+  * Skip README and LANGUAGE queries if any component is already installed.
 
 Version 212:
   * Various fixes to ADD_AREA_REGION_TRIGGER.
