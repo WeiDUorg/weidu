@@ -887,6 +887,13 @@ skips the others (cumulative). \\
 skips the others (cumulative). \\
 \DEFINE{--skip-at-view} & AT!* ~VIEW this~ actions (and the extra chromosome versions like
 ~NOTEPAD this~) aren't processed, while still processing batch files and similia. \\
+\DEFINE{--safe-exit} & Save weidu.log every time a component installation is begun.
+This makes it impossible to uninstall components (don't ask), but allows the user to kill
+the weidu process (E.G. closing the DOS console via the X button) without leaving the game in an
+unrecoverably inconsistent state (you can [R]e or [U]ninstall the component and the game will be
+consistent again). This might break with mods using overly complicated AT!* actions (basically
+don't use this with Big Mods). \\
+\DEFINE{--save-components-name} & Reprints weidu.log. Useful if you install with --quick-log. \\
 \DEFINE{--ask-every}    & Behave as if \ttref{ASK!EVERY!COMPONENT} were
 present for all \ttref{TP2} components. \\
 \DEFINE{--continue}     & Continue \ttref{TP2} processing despite
@@ -2952,7 +2959,18 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
        to files in the save/ and mpsave/ directories. The savegame from the biffs is
        backuped as usual.}  \\
 
-
+  or & \DEFINE{MOVE} fromFile toFile ... &
+       You may specify as many fromFile-toFile pairs as you like. Each
+       fromFile is moved to its associated toFile. Wildcard support will
+       be added on request.
+       
+       Safety notes: when uninstalling, MOVE is restored first,
+       then all generic actions are restored, then AT!*!UNINSTALL is handled.
+       As such, do your AT_NOW, then do your COPY, then do your MOVEs
+       (exception: if you MOVE for biffing purposes, it is save to call
+       MAKE!BIFF after MOVE. Do not use the --make-biff command-line argument).
+       \\
+       
   or & \DEFINE{COMPILE} \Ob EVALUATE!BUFFER \Oe sourceFile \Slist
        \Ob \ttref{patch} \Slist \Oe \Ob \DEFINE{USING} traFile \Slist \Oe &
       This command compiles \ttref{D} and \ttref{BAF} source files. If
@@ -4358,7 +4376,7 @@ contains the second \ttref{regexp}. Thus \t{"AR1005" STRING!CONTAINS!REGEXP
 or & \DEFINE{GAME!IS} \ttref{String} & Returns true if the IE game variant
 is one of the entries in String, otherwise it returns false. String is a list of
 whitespace-separated entries, chosen from (case doesn't matter)
-\verb+bg2=soa, tob, iwd2, pst, bg1, totsc, iwd=iwd1, how, tolm=totlm, tutu, tutu_totsc, bgt+.
+\verb+bg2=soa, tob, iwd2, pst, bg1, totsc, iwd=iwd1, how, tolm=totlm, tutu, tutu_totsc, bgt, ca+.
 In the list, \verb+bg2=soa+ means that \verb+bg2+ and \verb+soa+ are synonyms,
 and you can use whichever one you like. Please note that the items in the list are
 defined to be mutually exclusive (except \verb+tob+ will detect both plain ToB
@@ -5901,10 +5919,10 @@ Finally, it is worth noting that any WeiDU variables inside \t{\%}s in the
 
 Phew, that's it.
 
-Note: starting from v189, you can use INV, QITEM, QUIVER and RING as shortcuts
-respectively
+Note: starting from v189, you can use INV, QITEM, QUIVER, WEAPON and RING as
+shortcuts respectively
 to INV1 INV2 ... INV15 INV16, QITEM1 QITEM2 QITEM3, QUIVER1 QUIVER2 QUIVER3,
-RRING LRING
+WEAPON1...WEAPON4, RRING LRING
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\DEFINE{Prompt Customization}}
@@ -7196,6 +7214,185 @@ Example: For the X values: ab_RT_Vx_X_0, ab_RT_Vx_X_1, ab_RT_Vx_X_2
 
 \\
 NOTE: The original code released in WeiDU v211 has been overhauled and re-released in v212. Therefore, the user defined variable names have been changed. If you used the 211 version you will need to update your mod to use the variables in this version. Sorry for the inconvenience...
+
+\\
+ADD_AREA_FLOOR_TRIGGER, ADD_AREA_INFO_TRIGGER, ADD_AREA_TRANSITION_TRIGGER and ADD_AREA_CONTAINER
+are defined by example.
+
+\begin{verbatim}
+COPY_EXISTING ~ar0500.are~ ~override~
+
+LAUNCH_PATCH_FUNCTION  add_area_transition_trigger
+INT_VAR
+wapt_flags_0 = 512+4
+wapt_exit_x_0 = 2500
+wapt_exit_y_0 = 1000
+wapt_cursor_0 = 42
+//wapt_orient_0 = 8
+wapt_vertices_0 = 5
+wapt_vx_0 = 400
+wapt_vy_0 = 2600
+wapt_vx_1 = 415
+wapt_vy_1 = 2670
+wapt_vx_2 = 420
+wapt_vy_2 = 2715
+wapt_vx_3 = 405
+wapt_vy_3 = 2690
+wapt_vx_4 = 390
+wapt_vy_4 = 2650
+
+STR_VAR
+wapt_object_name_0 = ~wapt_0_transition~
+wapt_exit_name_0 = ~wapt_0_exit~
+wapt_exit_are_0 = ~ar0400~
+END
+
+LAUNCH_PATCH_FUNCTION add_area_floor_trigger
+INT_VAR
+wapt_flags_0 = 4+512
+wapt_detected_0 = 0
+wapt_trapped_0 = 1
+wapt_detect_diff_0 = 65
+wapt_disarm_diff_0 = 75
+wapt_launch_x_0 = 543
+wapt_launch_y_0 = 234
+wapt_vertices_0 = 5
+wapt_vx_0 = 300
+wapt_vy_0 = 2600
+wapt_vx_1 = 315
+wapt_vy_1 = 2650
+wapt_vx_2 = 320
+wapt_vy_2 = 2675
+wapt_vx_3 = 305
+wapt_vy_3 = 2700
+wapt_vx_4 = 290
+wapt_vy_4 = 2650
+
+wapt_vertices_1 = 4
+wapt_vx_5 = 265
+wapt_vy_5 = 2550
+wapt_vx_6 = 270
+wapt_vy_6 = 2575
+wapt_vx_7 = 255
+wapt_vy_7 = 2600
+wapt_vx_8 = 240
+wapt_vy_8 = 2550
+
+STR_VAR
+wapt_object_name_0 = ~wapt_0_floor_trap~
+wapt_script_0 = ~ag#test~
+
+wapt_object_name_1 = ~wapt_1_floor_trap~
+wapt_script_1 = ~ag#test1~
+END
+
+
+
+
+LAUNCH_PATCH_FUNCTION add_area_container
+INT_VAR
+wapt_use_point_x_0 = 250
+wapt_use_point_y_0 = 2600
+wapt_vertices_0 = 5
+wapt_string_0 = 55345
+wapt_vx_0 = 300
+wapt_vy_0 = 2600
+wapt_vx_1 = 315
+wapt_vy_1 = 2650
+wapt_vx_2 = 320
+wapt_vy_2 = 2675
+wapt_vx_3 = 305
+wapt_vy_3 = 2700
+wapt_vx_4 = 290
+wapt_vy_4 = 2650
+
+wapt_use_point_x_1 = 350
+wapt_use_point_y_1 = 2500
+wapt_detect_diff_1 = 50
+wapt_disarm_diff_1 = 60
+wapt_launch_x_1 = 400
+wapt_launch_y_1 = 2800
+wapt_vertices_1 = 4
+wapt_vx_5 = 265
+wapt_vy_5 = 2550
+wapt_vx_6 = 270
+wapt_vy_6 = 2575
+wapt_vx_7 = 255
+wapt_vy_7 = 2600
+wapt_vx_8 = 240
+wapt_vy_8 = 2550
+
+wapt_use_point_x_2 = 350
+wapt_use_point_y_2 = 2700
+wapt_vertices_2 = 4
+wapt_vx_9 = 350
+wapt_vy_9 = 2700
+wapt_vx_10 = 400
+wapt_vy_10 = 2750
+wapt_vx_11 = 350
+wapt_vy_11 = 2650
+wapt_vx_12 = 300
+wapt_vy_12 = 2700
+
+
+STR_VAR
+wapt_object_name_0 = ~wapt_0_container~
+wapt_script_0 = ~ag#test0~
+wapt_key_item_0 = ~ag#key0~
+
+wapt_object_name_1 = ~wapt_1_container~
+wapt_script_1 = ~ag#test1~
+
+wapt_object_name_2 = ~wapt_2_container~
+wapt_script_2 = ~ag#test2~
+END
+
+
+
+LAUNCH_PATCH_FUNCTION add_area_info_trigger
+INT_VAR
+wapt_vertices_0 = 5
+wapt_string_0 = 55345
+wapt_vx_0 = 300
+wapt_vy_0 = 2600
+wapt_vx_1 = 315
+wapt_vy_1 = 2650
+wapt_vx_2 = 320
+wapt_vy_2 = 2675
+wapt_vx_3 = 305
+wapt_vy_3 = 2700
+wapt_vx_4 = 290
+wapt_vy_4 = 2650
+
+wapt_vertices_1 = 4
+wapt_vx_5 = 265
+wapt_vy_5 = 2550
+wapt_vx_6 = 270
+wapt_vy_6 = 2575
+wapt_vx_7 = 255
+wapt_vy_7 = 2600
+wapt_vx_8 = 240
+wapt_vy_8 = 2550
+
+STR_VAR
+wapt_object_name_0 = ~wapt_0_infrotrigger~
+wapt_script_0 = ~ag#test~
+
+wapt_object_name_1 = ~wapt_1_infrotrigger~
+wapt_script_1 = ~ag#test1~
+
+RET
+text_0 = wapt_string_0
+
+END
+
+
+
+SAY text_0 ~This is a sample code.~
+
+
+BUT_ONLY
+\end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\DEFINE{Module Distribution}: \t{Setup-MyMod.exe}}
