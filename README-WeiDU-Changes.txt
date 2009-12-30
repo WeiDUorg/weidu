@@ -11,6 +11,8 @@ Version 213:
   * Fixed an embarassing bug detecting BG1 (&TotSC) via GAME_IS.
   * ADD_CRE_ITEM works with IWD2 (again). I hate whoever coded that game.
   * Skip README and LANGUAGE queries if any component is already installed.
+  * Added ADD_AREA_FLOOR_TRIGGER, ADD_AREA_INFO_TRIGGER,
+    ADD_AREA_TRANSITION_TRIGGER and ADD_AREA_CONTAINER functions.
 
 Version 212:
   * Various fixes to ADD_AREA_REGION_TRIGGER.
