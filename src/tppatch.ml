@@ -434,12 +434,12 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	  Var.var_push();
 	  List.iter (fun (a,b) ->
 	    let a = eval_pe_str a in
-	    try ignore (Var.get_int32 ("%" ^ a ^ "%")) with _ -> Var.set_int32 a (eval_pe buff game b)
-		    ) f_int_args;
+	    Var.set_int32 a (eval_pe buff game b)
+	  ) f_int_args;
 	  List.iter (fun (a,b) ->
 	    let a = eval_pe_str a in
-	    try ignore (Var.get_string_exact ("%" ^ a ^ "%")) with _ -> Var.set_string a (eval_pe_str b)
-		    ) f_str_args;
+	    Var.set_string a (eval_pe_str b)
+	  ) f_str_args;
 	  List.iter (fun (a,b) ->
 	    let a = eval_pe_str a in
 	    Var.set_int32 a (eval_pe buff game b)

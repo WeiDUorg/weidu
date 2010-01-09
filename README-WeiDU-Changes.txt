@@ -1,3 +1,8 @@
+Version 214:
+  * Default values in FUNCTIONs override the current value in the caller
+    environment (unless they're explicitly set via INT_VAR).
+  * var++ and var-- added.
+
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting
     the component names (useful if you're used to using --quick-log).
