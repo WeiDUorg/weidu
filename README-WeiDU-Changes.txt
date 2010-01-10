@@ -2,6 +2,7 @@ Version 214:
   * Default values in FUNCTIONs override the current value in the caller
     environment (unless they're explicitly set via INT_VAR).
   * var++ and var-- added.
+  * The TOC was absent from the readme because of a stupid error.
 
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting
