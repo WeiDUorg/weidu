@@ -121,7 +121,7 @@ DEFINE_PATCH_FUNCTION ~ADD_CRE_EFFECT~
   STR_VAR resource = ~~
           resource2 = ~~
           vvcresource = ~~
-          effresource = ~~
+          effsource = ~~
           effvar = ~~
 BEGIN
   LAUNCH_PATCH_MACRO ~ADD_CRE_EFFECT~
