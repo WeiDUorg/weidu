@@ -4,6 +4,8 @@ Version 214:
   * var++ and var-- added.
   * The TOC was absent from the readme because of a stupid error.
   * Removed the macros added in the last version (apparently they were broken).
+  * SET_2DA_ENTRY didn't properly fail if the 'row' parameter is == the number
+    of long-enough rows. No, I don't care if this breaks your mod - fix it.
   * TBD:
     * UNINSTALL_MOVE_AFTER_COPY.
     * WRITE_FIELD offset blah blah will implicitly READ_FIELD offset THIS and STHIS.

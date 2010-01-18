@@ -869,7 +869,6 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	let newlines_sofar = ref 0 in
 	let rec process line_list lines_left = 
           match line_list, lines_left with
-            [], 0 -> ()
           | [], _ -> 
               begin
 		log_and_print "ERROR: Cannot find %d rows with at least %d columns." row req_col ;
