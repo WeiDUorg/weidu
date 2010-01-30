@@ -252,7 +252,7 @@ let rec single_string_of_tlk_string game ts =
         raise Not_found
   end
   | Dlg.TLK_Index(idx) ->
-      Tlk.pretty_print game.Load.dialog idx
+      game.Load.dialog.(idx).Tlk.text
 
 let rec single_string_of_tlk_string_safe game ts =
   match ts with

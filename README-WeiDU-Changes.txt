@@ -6,11 +6,12 @@ Version 214:
   * Removed the macros added in the last version (apparently they were broken).
   * SET_2DA_ENTRY didn't properly fail if the 'row' parameter is == the number
     of long-enough rows. No, I don't care if this breaks your mod - fix it.
+  * SPRINT foo #123 will not put the ~~s in the string.
   * TBD:
     * UNINSTALL_MOVE_AFTER_COPY.
     * WRITE_FIELD offset blah blah will implicitly READ_FIELD offset THIS and STHIS.
     * WRITE_ASCII_LIST.
-    * BEGIN/END -> {}
+    * BEGIN/END -> {}, shortcuts (http://forums.pocketplane.net/index.php/topic,27036.msg323299.html#msg323299).
     * README glitchy (http://forums.pocketplane.net/index.php/topic,26980.new.html#new).
     * BAM bad (http://forums.pocketplane.net/index.php/topic,27049.new.html#new).
 
