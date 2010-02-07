@@ -19,18 +19,21 @@ let main () =
     with _ -> Printf.sprintf "setup-%s.debug" Sys.argv.(1);
     in
     let we = Case_ins.weidu_executable in
-    let weidu_executable = try
+    let weidu_executable, fast = try
       let s = Sys.argv.(0) in
+      let fast = String.uppercase (Str.string_before (Filename.basename s) 4) = "FAST" in
       let s = Str.string_after s (String.index s '-') in
       let s = Str.string_before s (String.rindex s '.') in
       let we = Str.string_before we (String.rindex we '.') in
-      we ^ s ^ ".exe"
-    with _ -> we in
+      we ^ s ^ ".exe", fast
+    with _ -> we, false in
     Buffer.add_string buff (Printf.sprintf "%s --tlkout dialog.tlk --ftlkout dialogf.tlk --log %s "
                               weidu_executable debug_where);
     let x = Sys.argv.(1) in
     Buffer.add_string buff (Printf.sprintf " %s.tp2 setup-%s.tp2 %s/%s.tp2 %s/setup-%s.tp2 "
                               x            x      x  x      x        x);
+    if (fast) then
+      Buffer.add_string buff " --quick-log --skip-at-view --safe-exit ";
     for i = 2 to Array.length Sys.argv - 1 do
       Buffer.add_string buff (
       match Sys.argv.(i) with

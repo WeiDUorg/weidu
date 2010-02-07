@@ -7,6 +7,8 @@ Version 214:
   * SET_2DA_ENTRY didn't properly fail if the 'row' parameter is == the number
     of long-enough rows. No, I don't care if this breaks your mod - fix it.
   * SPRINT foo #123 will not put the ~~s in the string.
+  * Renaming WeInstall to  FastInstall adds automatically --safe-exit
+    --quick-log --no-at-view to the options.
   * TBD:
     * UNINSTALL_MOVE_AFTER_COPY.
     * WRITE_FIELD offset blah blah will implicitly READ_FIELD offset THIS and STHIS.
