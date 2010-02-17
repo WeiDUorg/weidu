@@ -1065,11 +1065,11 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
     | TP_PatchLong(where',what) -> 
 	let where = Int32.to_int (eval_pe buff game where') in
 	let what = try
-	    Int32.to_int (eval_pe buff game what)
+	    eval_pe buff game what
 	  with _ ->
 		process_patch1 patch_filename game buff (TP_PatchReadLong(where', PE_LiteralString "THIS", None));
 		process_patch1 patch_filename game buff (TP_PatchReadSLong(where', PE_LiteralString "STHIS", None));
-		Int32.to_int (eval_pe buff game what)
+		eval_pe buff game what
 	in 
 	let str = str_of_int32 what in
 	bounds_check_write where 4 str ;

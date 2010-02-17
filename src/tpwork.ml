@@ -96,7 +96,7 @@ let rec handle_tp
 
       List.iter (fun flag ->
 	match flag with
-	| Readme(str_l) -> if any_installed this_tp2_filename then begin
+	| Readme(str_l) -> if not (any_installed this_tp2_filename) then begin
 	    let rec walk str_l =
 	      match str_l with
 	      | str::tail ->
@@ -107,7 +107,7 @@ let rec handle_tp
 		    let answer = ref "" in
 		    if !always_uninstall || !always_yes || !sometimes_reinstall ||
 		    !force_uninstall_these <> [] || !force_install_these <> [] then
-		      answer := "Y";
+		      answer := "N";
 		    if !skip_at_view || not !interactive then answer := "N";
 		    while !answer <> "Y" && !answer <> "N" do
 		      log_and_print "\nWould you like to display the readme? [Y]es [N]o\n";

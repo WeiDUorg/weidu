@@ -12,11 +12,12 @@ Version 214:
   *  Empty MOVE.* files.
   * WRITE_FIELD offset blah blah will implicitly READ_FIELD offset THIS and
     STHIS.
+  * README now only works if no component is installed. It used to be the
+    reverse  :(
   * TBD:
     * UNINSTALL_MOVE_AFTER_COPY.
     * WRITE_ASCII_LIST.
     * BEGIN/END -> {}, shortcuts (http://forums.pocketplane.net/index.php/topic,27036.msg323299.html#msg323299).
-    * README glitchy (http://forums.pocketplane.net/index.php/topic,26980.new.html#new).
     * BAM bad (http://forums.pocketplane.net/index.php/topic,27049.new.html#new).
     * Close MAPPING.* files.
     * --process-script implies --quick-log --skip-at-view.
