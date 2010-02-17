@@ -3660,13 +3660,17 @@ or & \DEFINE{APPLY!BCS!PATCH!OR!COPY} patchFile copyFile &
   instead. \\
 or & \DEFINE{WRITE!BYTE} \ttref{offset} \ttref{value} &
   The first argument is the offset at which the second argument (an 8-bit
-  byte value) is written. \\
+  byte value) is written. Performs \verb+READ!BYTE offset THIS+ and
+  \verb+READ!SBYTE offset STHIS+ automatically (you can now write
+  \verb+WRITE!BYTE 100 THIS + 2).  \\
 or & \DEFINE{WRITE!SHORT} \ttref{offset} \ttref{value} &
   The first argument is the offset at which the second argument (a 16-bit
-  short value) is written. \\
+  short value) is written. Performs \verb+READ!SHORT offset THIS+ and
+  \verb+READ!SSHORT offset STHIS+ automatically. \\
 or & \DEFINE{WRITE!LONG} \ttref{offset} \ttref{value} &
   The first argument is the offset at which the second argument (a 32-bit
-  long word value) is written. \\
+  long word value) is written. Performs \verb+READ!LONG offset THIS+ and
+  \verb+READ!SLONG offset STHIS+ automatically. \\
 or & \DEFINE{WRITE!ASCII} \ttref{offset} ascString
     \Ob \t{\#requiredSize} \Oe &
   The ASCII ascString is written to the file starting at offset. 

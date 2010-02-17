@@ -10,9 +10,10 @@ Version 214:
   * Renaming WeInstall to  FastInstall adds automatically --safe-exit
     --quick-log --no-at-view to the options.
   *  Empty MOVE.* files.
+  * WRITE_FIELD offset blah blah will implicitly READ_FIELD offset THIS and
+    STHIS.
   * TBD:
     * UNINSTALL_MOVE_AFTER_COPY.
-    * WRITE_FIELD offset blah blah will implicitly READ_FIELD offset THIS and STHIS.
     * WRITE_ASCII_LIST.
     * BEGIN/END -> {}, shortcuts (http://forums.pocketplane.net/index.php/topic,27036.msg323299.html#msg323299).
     * README glitchy (http://forums.pocketplane.net/index.php/topic,26980.new.html#new).

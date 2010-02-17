@@ -1035,24 +1035,42 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	let new_string = Printf.sprintf "%d" new_index in
 	Str.global_replace my_regexp new_string buff 
 
-    | TP_PatchByte(where,what) -> 
-	let where = Int32.to_int (eval_pe buff game where) in
-	let what = Int32.to_int (eval_pe buff game what) in 
+    | TP_PatchByte(where',what) -> 
+	let where = Int32.to_int (eval_pe buff game where') in
+	let what = try
+	    Int32.to_int (eval_pe buff game what)
+	  with _ ->
+		process_patch1 patch_filename game buff (TP_PatchReadByte(where', PE_LiteralString "THIS", None));
+		process_patch1 patch_filename game buff (TP_PatchReadSByte(where', PE_LiteralString "STHIS", None));
+		Int32.to_int (eval_pe buff game what)
+	in 
 	let what = if what < 0 then what + 256 else what in
 	let str = String.make 1 (Char.chr what) in
 	bounds_check_write where 1 str ; 
 	String.blit str 0 buff where 1 ;
 	buff
-    | TP_PatchShort(where,what) -> 
-	let where = Int32.to_int (eval_pe buff game where) in 
-	let what = Int32.to_int (eval_pe buff game what) in 
+    | TP_PatchShort(where',what) -> 
+	let where = Int32.to_int (eval_pe buff game where') in
+	let what = try
+	    Int32.to_int (eval_pe buff game what)
+	  with _ ->
+		process_patch1 patch_filename game buff (TP_PatchReadShort(where', PE_LiteralString "THIS", None));
+		process_patch1 patch_filename game buff (TP_PatchReadSShort(where', PE_LiteralString "STHIS", None));
+		Int32.to_int (eval_pe buff game what)
+	in 
 	let str = str_of_short what in
 	bounds_check_write where 2 str ; 
 	String.blit str 0 buff where 2 ;
 	buff
-    | TP_PatchLong(where,what) -> 
-	let where = Int32.to_int (eval_pe buff game where) in
-	let what = eval_pe buff game what in
+    | TP_PatchLong(where',what) -> 
+	let where = Int32.to_int (eval_pe buff game where') in
+	let what = try
+	    Int32.to_int (eval_pe buff game what)
+	  with _ ->
+		process_patch1 patch_filename game buff (TP_PatchReadLong(where', PE_LiteralString "THIS", None));
+		process_patch1 patch_filename game buff (TP_PatchReadSLong(where', PE_LiteralString "STHIS", None));
+		Int32.to_int (eval_pe buff game what)
+	in 
 	let str = str_of_int32 what in
 	bounds_check_write where 4 str ;
 	String.blit str 0 buff where 4 ;
