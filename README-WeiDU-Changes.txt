@@ -9,6 +9,7 @@ Version 214:
   * SPRINT foo #123 will not put the ~~s in the string.
   * Renaming WeInstall to  FastInstall adds automatically --safe-exit
     --quick-log --no-at-view to the options.
+  *  Empty MOVE.* files.
   * TBD:
     * UNINSTALL_MOVE_AFTER_COPY.
     * WRITE_FIELD offset blah blah will implicitly READ_FIELD offset THIS and STHIS.
@@ -16,6 +17,9 @@ Version 214:
     * BEGIN/END -> {}, shortcuts (http://forums.pocketplane.net/index.php/topic,27036.msg323299.html#msg323299).
     * README glitchy (http://forums.pocketplane.net/index.php/topic,26980.new.html#new).
     * BAM bad (http://forums.pocketplane.net/index.php/topic,27049.new.html#new).
+    * Close MAPPING.* files.
+    * --process-script implies --quick-log --skip-at-view.
+	* SUBCOMPONENT group requisites are now enforced even when using --yes (http://forums.pocketplane.net/index.php/topic,27110.0.html).
 
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting

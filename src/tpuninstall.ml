@@ -167,6 +167,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive =
 	 | _ -> ()
        end with _ -> ()
       );
+	  my_unlink move_filename;
       uninstall_strset game u_strset_filename ;
       let file_list = ref [] in
       let mappings_list = Hashtbl.create 300 in
@@ -202,6 +203,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive =
 	 with End_of_file -> (close_in inchan)
 	 | Sys_error _ -> has_mappings := false;
 	);
+	my_unlink m_filename;
 	file_list := List.rev (!file_list);
 	log_and_print "Will uninstall %3d files for [%s] component %d.\n"
 	  (List.length !file_list) tp_file i;
