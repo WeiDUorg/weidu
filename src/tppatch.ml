@@ -1037,13 +1037,24 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 
     | TP_PatchByte(where',what) -> 
 	let where = Int32.to_int (eval_pe buff game where') in
+	let old_eval_pe_warn = !eval_pe_warn in
 	let what = try
+		eval_pe_warn := false;
 	    Int32.to_int (eval_pe buff game what)
 	  with _ ->
-		process_patch1 patch_filename game buff (TP_PatchReadByte(where', PE_LiteralString "THIS", None));
-		process_patch1 patch_filename game buff (TP_PatchReadSByte(where', PE_LiteralString "STHIS", None));
-		Int32.to_int (eval_pe buff game what)
+	    try
+			eval_pe_warn := old_eval_pe_warn;
+			Var.var_push();
+			process_patch1 patch_filename game buff (TP_PatchReadByte(where', PE_LiteralString "THIS", None));
+			process_patch1 patch_filename game buff (TP_PatchReadSByte(where', PE_LiteralString "STHIS", None));
+			let res = Int32.to_int (eval_pe buff game what) in
+			Var.var_pop();
+			res
+		with e ->
+		  Var.var_pop();
+		  raise e
 	in 
+	eval_pe_warn := old_eval_pe_warn;
 	let what = if what < 0 then what + 256 else what in
 	let str = String.make 1 (Char.chr what) in
 	bounds_check_write where 1 str ; 
@@ -1051,26 +1062,48 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	buff
     | TP_PatchShort(where',what) -> 
 	let where = Int32.to_int (eval_pe buff game where') in
+	let old_eval_pe_warn = !eval_pe_warn in
 	let what = try
+		eval_pe_warn := false;
 	    Int32.to_int (eval_pe buff game what)
 	  with _ ->
-		process_patch1 patch_filename game buff (TP_PatchReadShort(where', PE_LiteralString "THIS", None));
-		process_patch1 patch_filename game buff (TP_PatchReadSShort(where', PE_LiteralString "STHIS", None));
-		Int32.to_int (eval_pe buff game what)
+	    try
+			eval_pe_warn := old_eval_pe_warn;
+			Var.var_push();
+			process_patch1 patch_filename game buff (TP_PatchReadShort(where', PE_LiteralString "THIS", None));
+			process_patch1 patch_filename game buff (TP_PatchReadSShort(where', PE_LiteralString "STHIS", None));
+			let res = Int32.to_int (eval_pe buff game what) in
+			Var.var_pop();
+			res
+		with e ->
+		  Var.var_pop();
+		  raise e
 	in 
+	eval_pe_warn := old_eval_pe_warn;
 	let str = str_of_short what in
 	bounds_check_write where 2 str ; 
 	String.blit str 0 buff where 2 ;
 	buff
     | TP_PatchLong(where',what) -> 
 	let where = Int32.to_int (eval_pe buff game where') in
+	let old_eval_pe_warn = !eval_pe_warn in
 	let what = try
+		eval_pe_warn := false;
 	    eval_pe buff game what
 	  with _ ->
-		process_patch1 patch_filename game buff (TP_PatchReadLong(where', PE_LiteralString "THIS", None));
-		process_patch1 patch_filename game buff (TP_PatchReadSLong(where', PE_LiteralString "STHIS", None));
-		eval_pe buff game what
+	    try
+			eval_pe_warn := old_eval_pe_warn;
+			Var.var_push();
+			process_patch1 patch_filename game buff (TP_PatchReadLong(where', PE_LiteralString "THIS", None));
+			process_patch1 patch_filename game buff (TP_PatchReadSLong(where', PE_LiteralString "STHIS", None));
+			let res = eval_pe buff game what in
+			Var.var_pop();
+			res
+		with e ->
+		  Var.var_pop();
+		  raise e
 	in 
+	eval_pe_warn := old_eval_pe_warn;
 	let str = str_of_int32 what in
 	bounds_check_write where 4 str ;
 	String.blit str 0 buff where 4 ;
