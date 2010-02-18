@@ -21,7 +21,6 @@ let rec handle_tp
     this_tp2_filename
     tp
     = begin
-
       let old_allow_missing = !Load.allow_missing in
       Load.allow_missing :=
 	List.fold_left (fun acc elt -> match elt with
@@ -38,6 +37,7 @@ let rec handle_tp
       | _ -> ()
 		) tp.flags ;
 
+	  ignore (validate_uninstall_order tp);
 (*************************************************************************
 									  pick your language
  *************************************************************************)

@@ -20,9 +20,8 @@ Version 214:
     interactive uninstall. Remove the component-specific backup directory if it
 	is empty. Remove the mod-wide backup directory if it is empty.
   * --process-script implies --quick-log --skip-at-view.
-  
-  * TBD:
-    * UNINSTALL_MOVE_AFTER_COPY.
+  * UNINSTALL_ORDER to customize the order of uninstallation. Miloch should
+    provide documentation.
 
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting

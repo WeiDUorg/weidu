@@ -142,8 +142,41 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
   handle_flag tp2.flags ;
   handle_al m.mod_parts
 
+let validate_uninstall_order tp2 =
+	  let order = Queue.create() in
+	  let actions = Hashtbl.create 5 in
+	  Hashtbl.add actions "COPY" true;
+	  Hashtbl.add actions "MOVE" true;
+	  Hashtbl.add actions "AT" true;
+	  Hashtbl.add actions "STRSET" true;
+	  let action_number = 4 in
+	  let to_specify_cnt = ref action_number in
+	  List.iter (fun flag ->
+		match flag with
+		| Uninstall_Order str_l ->
+			List.iter (fun action ->
+				if not (Hashtbl.mem actions (String.uppercase action)) then
+					failwith (action ^ " not allowed in UNINSTALL_ORDER");
+				if not (Hashtbl.find actions (String.uppercase action)) then
+					failwith (action ^ " already had an UNINSTALL_ORDER");
+				Queue.add action order;
+				Hashtbl.add actions action false;
+				decr to_specify_cnt
+			) str_l;
+		| _ -> ()
+	  ) tp2.flags;
+	  if Hashtbl.find actions "MOVE" then Queue.add "MOVE" order;
+	  if Hashtbl.find actions "STRSET" then Queue.add "STRSET" order;
+	  if Hashtbl.find actions "COPY" then Queue.add "COPY" order;
+	  if Hashtbl.find actions "AT" then Queue.add "AT" order;
+	  if (!to_specify_cnt <> 0 && !to_specify_cnt <> action_number) then
+		log_and_print "\nWARNING: some UNINSTALL_ORDER commands are not specified\n\n";
+	  order
+;;
+  
 let uninstall_tp2_component game tp2 tp_file i interactive =
   if !safe_exit then failwith "Can't uninstall components with --safe-exit.";
+  let order = validate_uninstall_order tp2 in
   Stats.time "tp2 uninstall" (fun () ->
     try
       let result = tp2 in
@@ -152,84 +185,102 @@ let uninstall_tp2_component game tp2 tp_file i interactive =
       let m_filename = (Printf.sprintf "%s/MAPPINGS.%d" d i) in
       let u_strset_filename = (Printf.sprintf "%s/UNSETSTR.%d" d i) in
       let move_filename = (Printf.sprintf "%s/MOVE.%d" d i) in
-      (
-       try begin
-	 let inchan = Case_ins.perv_open_in_bin move_filename in
-	 try
-	   while true do
-	     let line = input_line inchan in
-	     let pieces = Str.split (Str.regexp " ") line in
-	     match pieces with
-	       a :: b :: [] -> Case_ins.unix_rename b a
-	     | _ -> ()
-	   done
-	 with End_of_file -> (close_in inchan)
-	 | _ -> ()
-       end with _ -> ()
-      );
-	  my_unlink move_filename;
-      uninstall_strset game u_strset_filename ;
-      let file_list = ref [] in
-      let mappings_list = Hashtbl.create 300 in
-      let restore backup_filename override_filename =
-	log_or_print "  Restoring backed-up [%s]\n" backup_filename ;
-	copy_large_file backup_filename override_filename "restoring a backup" ;
-	if String.uppercase override_filename = "CHITIN.KEY" then begin
-          let keyname = Load.find_file_in_path "." "^chitin.key$" in
-          let keybuff = load_file keyname in
-          game.Load.key <- Key.load_key keyname keybuff ;
-          game.Load.loaded_biffs <- Hashtbl.create 5 ;
-	end;
-	my_unlink backup_filename
-      in
-      let inchan = Case_ins.perv_open_in_bin u_filename in
-      try
-	while true do
-	  file_list := (input_line inchan) :: !file_list ;
-	done
-      with End_of_file -> () ;
-	close_in inchan;
-	let has_mappings = ref true in
-	(
-	 try
-	   let inchan = Case_ins.perv_open_in_bin m_filename in
-	   begin try
-	   while true do
-	     let line = input_line inchan in
-	     let pieces = Str.split (Str.regexp " ") line in
-	     match pieces with
-	       a :: b :: [] -> Hashtbl.add mappings_list a b
-	     | _ -> ()
-	   done
-	   with End_of_file -> (close_in inchan)
-	 end with | Sys_error _ -> has_mappings := false;
-	);
-	my_unlink m_filename;
-	file_list := List.rev (!file_list);
-	log_and_print "Will uninstall %3d files for [%s] component %d.\n"
-	  (List.length !file_list) tp_file i;
-	List.iter (fun override_filename ->
-	  my_unlink override_filename;
-	  try
-	    if !has_mappings then
-	      restore (Hashtbl.find mappings_list override_filename) override_filename
-	    else begin
-	      let base = Case_ins.filename_basename override_filename in
-	      let backup_filename = d ^ "/" ^ base in
-	      let backup_filename1 = d ^ "/" ^ (Str.global_replace (Str.regexp "[\\/]") "." override_filename) in
-	      if file_exists backup_filename then
-		restore backup_filename override_filename
-	      else if file_exists backup_filename1 then
-		restore backup_filename1 override_filename
-	    end
-	  with _ -> ()
-	      ;
-		  ) (!file_list)  ;
-	(try
-	  my_unlink u_filename;
-	  Case_ins.unix_unlink m_filename with _ -> ());
-	let m = get_nth_module result i true in
-	handle_at_uninstall tp2 m true interactive game ;
+	  let uninstall_move () = 
+		  (
+		   try begin
+		 let inchan = Case_ins.perv_open_in_bin move_filename in
+		 try
+		   while true do
+			 let line = input_line inchan in
+			 let pieces = Str.split (Str.regexp " ") line in
+			 match pieces with
+			   a :: b :: [] -> Case_ins.unix_rename b a
+			 | _ -> ()
+		   done
+		 with End_of_file -> (close_in inchan)
+		 | _ -> ()
+		   end with _ -> ()
+		  );
+		  my_unlink move_filename;
+	  in
+	  let uninstall_strset () =
+		uninstall_strset game u_strset_filename ;
+	  in
+	  let uninstall_copy () =
+			  let file_list = ref [] in
+			  let mappings_list = Hashtbl.create 300 in
+			  let restore backup_filename override_filename =
+			log_or_print "  Restoring backed-up [%s]\n" backup_filename ;
+			copy_large_file backup_filename override_filename "restoring a backup" ;
+			if String.uppercase override_filename = "CHITIN.KEY" then begin
+				  let keyname = Load.find_file_in_path "." "^chitin.key$" in
+				  let keybuff = load_file keyname in
+				  game.Load.key <- Key.load_key keyname keybuff ;
+				  game.Load.loaded_biffs <- Hashtbl.create 5 ;
+			end;
+			my_unlink backup_filename
+			  in
+			  let inchan = Case_ins.perv_open_in_bin u_filename in
+			  try
+			while true do
+			  file_list := (input_line inchan) :: !file_list ;
+			done
+			  with End_of_file -> () ;
+			close_in inchan;
+			let has_mappings = ref true in
+			(
+			 try
+			   let inchan = Case_ins.perv_open_in_bin m_filename in
+			   begin try
+			   while true do
+				 let line = input_line inchan in
+				 let pieces = Str.split (Str.regexp " ") line in
+				 match pieces with
+				   a :: b :: [] -> Hashtbl.add mappings_list a b
+				 | _ -> ()
+			   done
+			   with End_of_file -> (close_in inchan)
+			 end with | Sys_error _ -> has_mappings := false;
+			);
+			my_unlink m_filename;
+			file_list := List.rev (!file_list);
+			log_and_print "Will uninstall %3d files for [%s] component %d.\n"
+			  (List.length !file_list) tp_file i;
+			List.iter (fun override_filename ->
+			  my_unlink override_filename;
+			  try
+				if !has_mappings then
+				  restore (Hashtbl.find mappings_list override_filename) override_filename
+				else begin
+				  let base = Case_ins.filename_basename override_filename in
+				  let backup_filename = d ^ "/" ^ base in
+				  let backup_filename1 = d ^ "/" ^ (Str.global_replace (Str.regexp "[\\/]") "." override_filename) in
+				  if file_exists backup_filename then
+				restore backup_filename override_filename
+				  else if file_exists backup_filename1 then
+				restore backup_filename1 override_filename
+				end
+			  with _ -> ()
+				  ;
+				  ) (!file_list)  ;
+			(try
+			  my_unlink u_filename;
+			  Case_ins.unix_unlink m_filename with _ -> ());
+			log_and_print "Uninstalled    %3d files for [%s] component %d.\n"
+			  (List.length !file_list) tp_file i; 
+	in
+	let uninstall_at () =
+		let m = get_nth_module result i true in
+		handle_at_uninstall tp2 m true interactive game ;
+	in
+	Queue.iter (fun action ->
+		match action with
+		| "COPY" -> uninstall_copy();
+		| "MOVE" -> uninstall_move();
+		| "AT"   -> uninstall_at();
+		| "STRSET" -> uninstall_strset();
+		| _ -> failwith ("Unknown action during uninstall: " ^ action);
+	) order;
 	if (interactive) then begin
 		my_unlink (Printf.sprintf "%s/READLN.%d" d i);
 		my_unlink (Printf.sprintf "%s/ARGS.%d" d i);
@@ -238,8 +289,6 @@ let uninstall_tp2_component game tp2 tp_file i interactive =
 		if (Array.length (Case_ins.sys_readdir tp2.backup) = 0) then
 		  Case_ins.unix_rmdir tp2.backup
 	end;
-	log_and_print "Uninstalled    %3d files for [%s] component %d.\n"
-	  (List.length !file_list) tp_file i; 
     with e ->
       log_and_print "Error Uninstalling [%s] component %d:\n%s\n"
 	tp_file i (Printexc.to_string e);

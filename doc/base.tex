@@ -2741,6 +2741,21 @@ global option to your \ttref{TP2} file. \\
        one will be opened. If you wish to open multiple readme files, use multiple README
        statements.
   \\
+  or & \DEFSYN{UNINSTALL!ORDER} String \Slist &
+		Don't use without a real reason.
+		
+		Specifies the order in which uninstallation operations are handled.
+		The operations are STRSET (uninstall STRSET and ALTER_TLK), MOVE
+		(uninstall MOVE), AT (perform AT!UNINSTALL and AT!INTERACTIVE!UNINSTALL) and
+		COPY (uninstall all various file operations).
+		
+		If not specified, the order is MOVE - STRSET - COPY - AT.
+		
+		If this is specified, then ALL operations must be specified
+		(if any isn't, a warning is printed). Please note that this means that
+		your mod might start printing warnings three years down the line if
+		a new uninstall action is coded.
+  \\
   or & \DEFSYN{MODDER} String \Slist &
        Enable additional debug info. By default, these messages are verbose but do
        not halt the installation. Some options are configurable, see the \ttref{MODDER}

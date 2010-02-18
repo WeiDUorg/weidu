@@ -155,6 +155,13 @@ nonterm (Tp.tp_flag) Tp_Flag {
       Tp.Script_Style(n)
 		]
 	-> README e1:String_List [ Tp.Readme e1 ]
+	-> UNINSTALL_ORDER e1:String_List [
+		List.iter 
+			(fun x -> match String.uppercase x with 
+				| "MOVE" | "COPY" | "STRSET" | "AT" -> ()
+				| _ -> failwith (Printf.sprintf "%s not allowed in UNINSTALL_ORDER" x);
+			) e1;
+		Tp.Uninstall_Order (List.map String.uppercase e1) ]
 }
 
 nonterm(string list) Upper_String_List_Rev {

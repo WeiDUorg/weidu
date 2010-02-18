@@ -42,6 +42,7 @@ type tp_flag =
   | Script_Style of Load.script_style
   | Load_Macro of string list
   | Readme of string list
+  | Uninstall_Order of string list
 
 and wrapper =
   | Start_From_Tp  of tp_file
