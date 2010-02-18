@@ -272,7 +272,7 @@ let main () =
       Tp.specified_specific_components := true), "\tX Y... uninstalls component number X, Y... (cumulative)" ;
     "--force-uninstall-list", Myarg.List (fun d -> force_uninstall_these_main := (int_of_string d) :: !force_uninstall_these_main;
       Tp.specified_specific_components := true), "\tX Y... uninstalls component number X, Y... (cumulative)" ;
-    "--process-script", Myarg.String (fun s -> process_script := s), "\tX process installation script X";
+    "--process-script", Myarg.String (fun s -> process_script := s; Tp.skip_at_view := true; Tp.quick_log := true), "\tX process installation script X";
     "--skip-at-view", Myarg.Set Tp.skip_at_view, "\tkills AT_* ~VIEW this~";
     "--quick-log", Myarg.Set Tp.quick_log, "\tDoesn't print the name of components in weidu.log (much faster)";
     "--safe-exit", Myarg.Set Tpuninstall.safe_exit, "\tPrints weidu.log after starting the installation of every component";

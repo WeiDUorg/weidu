@@ -19,11 +19,10 @@ Version 214:
   * Remove MOVE.* and MAPPINGS.* on uninstall. Remove ARGS.* and READLN.* on
     interactive uninstall. Remove the component-specific backup directory if it
 	is empty. Remove the mod-wide backup directory if it is empty.
+  * --process-script implies --quick-log --skip-at-view.
   
   * TBD:
     * UNINSTALL_MOVE_AFTER_COPY.
-    * Close MAPPING.* files.
-    * --process-script implies --quick-log --skip-at-view.
 
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting
