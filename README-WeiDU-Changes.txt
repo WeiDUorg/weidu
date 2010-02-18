@@ -15,10 +15,10 @@ Version 214:
   * README now only works if no component is installed. It used to be the
     reverse  :(
   * SUBCOMPONENT group requisites are now enforced even when using --yes.
+  * WRITE_ASCII_LIST added.
   
   * TBD:
     * UNINSTALL_MOVE_AFTER_COPY.
-    * WRITE_ASCII_LIST.
     * BEGIN/END -> {}, shortcuts (http://forums.pocketplane.net/index.php/topic,27036.msg323299.html#msg323299).
     * BAM bad (http://forums.pocketplane.net/index.php/topic,27049.new.html#new).
     * Close MAPPING.* files.
