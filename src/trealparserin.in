@@ -759,6 +759,11 @@ nonterm (Tp.tp_store_position) Optional_Store_Position {
 nonterm(Tp.tp_patch list) Tp_Patch_List_Rev {
 	-> { [] }
 	-> e2:Tp_Patch_List_Rev e1:Tp_Patch [ e1 :: e2 ]
+	-> e3:Tp_Patch_List_Rev WRITE_ASCII_LIST e1:Patch_Exp e2:Patch_String_Right_List
+			[ Array.to_list (Array.mapi (fun i x ->
+				Tp.TP_PatchASCII(Tp.PE_Add(Tp.PE_Mul(Tp.get_pe_int (string_of_int i), Tp.get_pe_int "8"), e1), x, true, Some (Tp.get_pe_int "8"))
+			  ) (Array.of_list e2))
+			  @ e3 ]
 }
 
 nonterm(Tp.tp_patch list) Tp_Patch_List {

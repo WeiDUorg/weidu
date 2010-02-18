@@ -3678,6 +3678,9 @@ or & \DEFINE{WRITE!ASCII} \ttref{offset} ascString
   written (if ascString is smaller, it is padded with \t{NUL}s; if
   ascString is larger, it is truncated). If you do not specify a requiredSize,
   the terminating \t{NUL} is not written. \\
+or & \DEFINE{WRITE!ASCII!LIST} \ttref{offset} ascString \Slist &
+  The given ASCII strings are written at offset, offset + 8, offset + 16...
+  Automatically evaluates variables. \\
 or & \DEFINE{WRITE!ASCII!TERMINATE} \ttref{offset} ascString &
   The ASCII ascString is written to the file starting at offset.
   The terminating \t{NUL} \emph{is} written. You may use 
