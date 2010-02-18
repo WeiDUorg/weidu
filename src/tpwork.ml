@@ -471,6 +471,12 @@ let rec handle_tp
 	        (match !backup_list_chn with
 	          Some(chn) -> close_out chn ; backup_list_chn := None
 	        | None -> ()) ;
+	        (match !move_list_chn with
+	          Some(chn) -> close_out chn ; move_list_chn := None
+	        | None -> ()) ;
+	        (match !mappings_list_chn with
+	          Some(chn) -> close_out chn ; mappings_list_chn := None
+	        | None -> ()) ;
 	        uninstall_tp2_component game tp this_tp2_filename i false ;
 	        print_log () ;
 		if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] && !safe_exit then begin

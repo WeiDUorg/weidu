@@ -193,6 +193,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive =
 	(
 	 try
 	   let inchan = Case_ins.perv_open_in_bin m_filename in
+	   begin try
 	   while true do
 	     let line = input_line inchan in
 	     let pieces = Str.split (Str.regexp " ") line in
@@ -200,8 +201,8 @@ let uninstall_tp2_component game tp2 tp_file i interactive =
 	       a :: b :: [] -> Hashtbl.add mappings_list a b
 	     | _ -> ()
 	   done
-	 with End_of_file -> (close_in inchan)
-	 | Sys_error _ -> has_mappings := false;
+	   with End_of_file -> (close_in inchan)
+	 end with | Sys_error _ -> has_mappings := false;
 	);
 	my_unlink m_filename;
 	file_list := List.rev (!file_list);
@@ -229,6 +230,14 @@ let uninstall_tp2_component game tp2 tp_file i interactive =
 	  Case_ins.unix_unlink m_filename with _ -> ());
 	let m = get_nth_module result i true in
 	handle_at_uninstall tp2 m true interactive game ;
+	if (interactive) then begin
+		my_unlink (Printf.sprintf "%s/READLN.%d" d i);
+		my_unlink (Printf.sprintf "%s/ARGS.%d" d i);
+		if (Array.length (Case_ins.sys_readdir d) = 0) then
+		  Case_ins.unix_rmdir d;
+		if (Array.length (Case_ins.sys_readdir tp2.backup) = 0) then
+		  Case_ins.unix_rmdir tp2.backup
+	end;
 	log_and_print "Uninstalled    %3d files for [%s] component %d.\n"
 	  (List.length !file_list) tp_file i; 
     with e ->
@@ -261,7 +270,15 @@ let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
           handle_at_uninstall tp2 m
             false (* "AT_UNINSTALL" was already done! *)
             true (* but the user just asked for this to be explicit *) game ;
-          (* Var.remove_var "LANGUAGE" ; *) 
+          begin
+			let d = tp2.backup ^ "/" ^ (string_of_int i) in
+			my_unlink (Printf.sprintf "%s/READLN.%d" d i);
+			my_unlink (Printf.sprintf "%s/ARGS.%d" d i);
+			if (Array.length (Case_ins.sys_readdir d) = 0) then
+			  Case_ins.unix_rmdir d;
+			if (Array.length (Case_ins.sys_readdir tp2.backup) = 0) then
+			  Case_ins.unix_rmdir tp2.backup
+		  end;
           (a,b,c,sopt,Permanently_Uninstalled) :: tl
   | hd :: tl -> hd :: (is_installed tl)
   in the_log := is_installed !the_log 

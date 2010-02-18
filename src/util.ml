@@ -138,6 +138,9 @@ let set_backup_dir str i =
   (match !backup_list_chn with
     Some(c) -> close_out c
   | None -> ()) ; 
+  (match !mappings_list_chn with
+    Some(c) -> close_out c
+  | None -> ()) ; 
   (match !move_list_chn with
     Some(c) -> close_out c
   | None -> ()) ; 

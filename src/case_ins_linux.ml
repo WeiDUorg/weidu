@@ -17,6 +17,9 @@ let unix_unlink s = Unix.unlink (String.lowercase (backslash_to_slash s)) ;;
 let unix_mkdir s p = Unix.mkdir (String.lowercase (backslash_to_slash s)) p ;;
 let unix_opendir s = Unix.opendir (String.lowercase (backslash_to_slash s)) ;;
 let unix_rename s d = Unix.rename (String.lowercase (backslash_to_slash s)) (String.lowercase (backslash_to_slash d));;
+let unix_rmdir s = Unix.rmdir (String.lowercase (backslash_to_slash s));;
+
+let sys_readdir s = Sys.readdir (String.lowercase (backslash_to_slash s));;
 
 let weidu_executable = "WeiDU" ;;
 

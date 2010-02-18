@@ -9,18 +9,19 @@ Version 214:
   * SPRINT foo #123 will not put the ~~s in the string.
   * Renaming WeInstall to  FastInstall adds automatically --safe-exit
     --quick-log --no-at-view to the options.
-  *  Empty MOVE.* files.
   * WRITE_FIELD offset blah blah will implicitly READ_FIELD offset THIS and
     STHIS.
   * README now only works if no component is installed. It used to be the
     reverse  :(
   * SUBCOMPONENT group requisites are now enforced even when using --yes.
   * WRITE_ASCII_LIST added.
+  * Fix a couple of backup-related files not being closed.
+  * Remove MOVE.* and MAPPINGS.* on uninstall. Remove ARGS.* and READLN.* on
+    interactive uninstall. Remove the component-specific backup directory if it
+	is empty. Remove the mod-wide backup directory if it is empty.
   
   * TBD:
     * UNINSTALL_MOVE_AFTER_COPY.
-    * BEGIN/END -> {}, shortcuts (http://forums.pocketplane.net/index.php/topic,27036.msg323299.html#msg323299).
-    * BAM bad (http://forums.pocketplane.net/index.php/topic,27049.new.html#new).
     * Close MAPPING.* files.
     * --process-script implies --quick-log --skip-at-view.
 
