@@ -8,8 +8,6 @@ open Tppe
  * Uninstall STRSET 
  ************************************************************************)
 
-let safe_exit = ref false
-;; 
  
  let uninstall_strset game filename = 
    if (file_exists filename) then begin
@@ -175,7 +173,6 @@ let validate_uninstall_order tp2 =
 ;;
   
 let uninstall_tp2_component game tp2 tp_file i interactive =
-  if !safe_exit then failwith "Can't uninstall components with --safe-exit.";
   let order = validate_uninstall_order tp2 in
   Stats.time "tp2 uninstall" (fun () ->
     try
@@ -386,10 +383,12 @@ let uninstall game handle_tp2_filename tp2 i interactive =
 	| Temporarily_Uninstalled -> (* keep going *)
             (a,b,c,sopt,d) :: (prepare tl)
 	| Installed ->
-            log_or_print "We must temporarily uninstall [%s] component %d\n"
-              a c ; 
-            begin
-              try
+		if (!safe_exit) then
+			failwith "Cannot perform stack uninstalls in --safe-exit mode";
+		log_or_print "We must temporarily uninstall [%s] component %d\n"
+		  a c ; 
+		begin
+		  try
 		let best = find_best_file [ a] in
 		uninstall_tp2_component game (handle_tp2_filename best) a c false ;
 		(* take away for now *)

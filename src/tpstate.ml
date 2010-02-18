@@ -5,6 +5,8 @@
 open Util
 open Tp
 
+let safe_exit = ref false
+;;
 
 let clear_memory = ref false
 
@@ -224,3 +226,25 @@ type default_action = TP_Install | TP_Uninstall | TP_Skip | TP_Ask
 
 
 let interactive = ref true
+
+
+let safe_to_handle tp2 i =
+	if not !safe_exit then true else
+	if not (already_installed tp2 i) then true else
+	begin
+		let rec check lst = match lst with
+		| [] -> true (* end of the line *)
+
+		  (* this is the entry in the list *)
+		| (a,b,c,sopt,d) :: tl when log_match a tp2 && c = i -> true
+		| (a,b,c,sopt,d) :: tl -> 
+		begin match d with
+		| Permanently_Uninstalled    
+		| Temporarily_Uninstalled -> (* keep going *)
+				check tl
+		| Installed ->
+			false
+		end
+		in
+		check (List.rev !the_log)
+	end

@@ -289,6 +289,14 @@ let rec handle_tp
 		finished := true
             done
         end
+	| "N" ->
+            log_and_print "\n%s [%s]\n"
+              (* "\nSkipping [%s]\n" *)
+              ((get_trans (-1020)))
+              package_name ;
+            finished := true
+	
+	| _ when not (safe_to_handle tp.tp_filename i) -> ()
 
 	| "I" | "Y" when subgroup_already && not (already_installed tp.tp_filename i) ->
             log_or_print "Skipping [%s] because another subcomponent of [%s] is already installed.\n" package_name
@@ -299,21 +307,13 @@ let rec handle_tp
 
 	| "I" | "Y" | "R" -> begin
             if can_uninstall then begin
-              try
-		(* log_and_print
-		   "\nRemoving old installation of [%s] first ...\n" *)
 		log_and_print "\n%s%s%s\n"
 		  ((get_trans (-1013))) package_name
 		  ((get_trans (-1014))) ;
 		(if not (uninstall game handle_tp2_filename this_tp2_filename i !interactive) then failwith "uninstallation error");
 		log_and_print
-		  (* "\nSUCCESSFULLY REMOVED OLD [%s]\n\n"  *)
 		  "\n%s [%s]\n\n"
 		  ((get_trans (-1015))) package_name ;
-              with e ->
-		(try assert false with Assert_failure(file,line,col) -> set_errors file line);
-		log_and_print "WARNING: unable to uninstall: %s\n"
-		  (Printexc.to_string e)
             end ;
 			let subcomp_fails = ref false in
 			let found = ref false in
@@ -507,12 +507,6 @@ let rec handle_tp
 	      finished := true
 	    end
 	end
-	| "N" ->
-            log_and_print "\n%s [%s]\n"
-              (* "\nSkipping [%s]\n" *)
-              ((get_trans (-1020)))
-              package_name ;
-            finished := true
 	| "U" when not can_uninstall ->
 	    log_and_print "\nYou can't uninstall the non-installed component [%s] (component #%d)\n"
               package_name i ;
@@ -765,10 +759,12 @@ let rec handle_tp
 		    log_and_print "\n%s%s%s\n" (get_trans (-1006)) subcomp_group_str
                       (get_trans (-1026)) )
 		end ) ;
+		let any_unsafe = ref false in
 		for i = 0 to last_module_index do
 		  try let m = get_nth_module tp i false in
 		  match subcomp_group m with
 		  | Some(ts) when ts = subcomp && (subcomp_predicate m) && not (fails_requirements m) ->
+			  if not (safe_to_handle tp.tp_filename i) then any_unsafe := true;
 		      let this_subcomp_name = Dc.single_string_of_tlk_string_safe
 			  game m.mod_name in
 		      log_and_print "%2d] %s" !choice_num this_subcomp_name ;
@@ -785,6 +781,8 @@ let rec handle_tp
 		  | _ -> ()
 		  with Not_found -> ()
 		done ;
+		if !any_unsafe then
+			log_and_print "Because of --safe-exit, only [N] and [Q] are acceptable.\n";
 		let answer = String.uppercase (read_line ()) in
 		let answer = if Hashtbl.mem already_ht () then begin
 		  let (m,i) = Hashtbl.find already_ht () in
@@ -793,17 +791,6 @@ let rec handle_tp
 		end else answer in
 		(match answer with
 		| "U" when !is_forced -> finished := false ;
-		| "U" | "R" ->
-		    if Hashtbl.mem already_ht () then begin
-                      let (m,i) = Hashtbl.find already_ht () in
-                      let can_uninstall = already_installed this_tp2_filename i in
-                      let temp_uninst = temporarily_uninstalled this_tp2_filename i in
-                      let package_name =
-			Dc.single_string_of_tlk_string_safe game m.mod_name in
-                      handle_letter tp answer can_uninstall temp_uninst
-			package_name m finished i ;
-                      finished := true
-		    end
 		| "N" when any_already || not !is_forced ->
 		    finished := true;
 		| "Q" ->
@@ -815,6 +802,18 @@ let rec handle_tp
 		      with Not_found -> ();
 			finished := true
 		    done
+		| _ when !any_unsafe -> finished := false ;
+		| "U" | "R" ->
+		    if Hashtbl.mem already_ht () then begin
+                      let (m,i) = Hashtbl.find already_ht () in
+                      let can_uninstall = already_installed this_tp2_filename i in
+                      let temp_uninst = temporarily_uninstalled this_tp2_filename i in
+                      let package_name =
+			Dc.single_string_of_tlk_string_safe game m.mod_name in
+                      handle_letter tp answer can_uninstall temp_uninst
+			package_name m finished i ;
+                      finished := true
+		    end
 		| _ ->
 		    begin
 		      let choice, ok = try (int_of_string answer,true)
@@ -876,6 +875,8 @@ let rec handle_tp
           else
             (* log_and_print "\nInstall Component [%s]\n[Y]es or [N]o or [Q]uit? "  package_name ; *)
             log_and_print "\n%s%s%s" (get_trans (-1006)) package_name (get_trans (-1008)) ;
+		  if not (safe_to_handle tp.tp_filename !current) then
+			log_and_print "\nBecause of --safe-exit, only [N] and [Q] are acceptable. ";
           begin
             let answer = String.uppercase(read_line ()) in
             handle_letter tp answer can_uninstall temp_uninst package_name m

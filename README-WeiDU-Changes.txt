@@ -22,6 +22,8 @@ Version 214:
   * --process-script implies --quick-log --skip-at-view.
   * UNINSTALL_ORDER to customize the order of uninstallation. Miloch should
     provide documentation.
+  * Can now Uninstall/Reinstall a component in --safe-exit mode, provided it's
+    the last component in the current WeiDU.log.
 
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting

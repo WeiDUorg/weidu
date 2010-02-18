@@ -431,6 +431,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  let comp = Int32.to_int (eval_pe "" game comp) in
 	  let name = Var.get_string name in
 	  if already_installed name comp then begin
+	    if (!safe_exit) then failwith "cannot UNINSTALL when in --safe-exit mode.";
 	    if uninstall game handle_tp2_filename name comp false then
 	      ()
 	    else
