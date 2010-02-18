@@ -315,7 +315,22 @@ let rec handle_tp
 		log_and_print "WARNING: unable to uninstall: %s\n"
 		  (Printexc.to_string e)
             end ;
-            if fails_requirements m then begin
+			let subcomp_fails = ref false in
+			let found = ref false in
+			begin match subcomp_group m with
+			| None -> ()
+			| Some(x) ->
+				for i = 0 to last_module_index do if not !found then
+					try
+						let m' = get_nth_module tp i false in
+						if (subcomp_group m' = Some(x)) then begin
+							found := true;
+							subcomp_fails := fails_requirements m'
+						end
+					with _ -> ()
+				done;
+			end;
+            if fails_requirements m || !subcomp_fails then begin
               finished := true;
               log_and_print "Skipping [%s] because another its requirements aren't met.\n" package_name;
             end else begin
@@ -713,7 +728,7 @@ let rec handle_tp
               for i = 0 to last_module_index do
 		try let m = get_nth_module tp i false in
 		match subcomp_group m with
-		| Some(ts) when ts = subcomp && not(subcomp_predicate m) && already_installed this_tp2_filename i ->
+		| Some(ts) when ts = subcomp && fails_requirements m && not(subcomp_predicate m) && already_installed this_tp2_filename i ->
 		    let can_uninstall = already_installed this_tp2_filename i in
 		    let temp_uninst   = temporarily_uninstalled this_tp2_filename i in
 		    uninstalled_because_preditate := true ;
@@ -724,7 +739,7 @@ let rec handle_tp
 		    handle_letter tp "U" can_uninstall temp_uninst package_name m finished i ;
 		| Some(ts) when ts = subcomp ->
 		    is_forced := !is_forced || (subcomp_forced m);
-		      at_least_one_OK := !at_least_one_OK || (subcomp_predicate m)
+		      at_least_one_OK := !at_least_one_OK || (subcomp_predicate m) || not (fails_requirements m)
 		    | _ -> ()
 		with Not_found -> ()
               done ;
@@ -747,7 +762,7 @@ let rec handle_tp
 		for i = 0 to last_module_index do
 		  try let m = get_nth_module tp i false in
 		  match subcomp_group m with
-		  | Some(ts) when ts = subcomp && (subcomp_predicate m) ->
+		  | Some(ts) when ts = subcomp && (subcomp_predicate m) && not (fails_requirements m) ->
 		      let this_subcomp_name = Dc.single_string_of_tlk_string_safe
 			  game m.mod_name in
 		      log_and_print "%2d] %s" !choice_num this_subcomp_name ;

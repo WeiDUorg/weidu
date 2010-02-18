@@ -14,6 +14,8 @@ Version 214:
     STHIS.
   * README now only works if no component is installed. It used to be the
     reverse  :(
+  * SUBCOMPONENT group requisites are now enforced even when using --yes.
+  
   * TBD:
     * UNINSTALL_MOVE_AFTER_COPY.
     * WRITE_ASCII_LIST.
@@ -21,7 +23,6 @@ Version 214:
     * BAM bad (http://forums.pocketplane.net/index.php/topic,27049.new.html#new).
     * Close MAPPING.* files.
     * --process-script implies --quick-log --skip-at-view.
-	* SUBCOMPONENT group requisites are now enforced even when using --yes (http://forums.pocketplane.net/index.php/topic,27110.0.html).
 
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting
