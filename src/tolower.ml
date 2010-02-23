@@ -27,7 +27,6 @@ let askfor func mess =
   with Good_exit -> ()
 ;;
 
-
 (*
  * Turn all files to lowercase, recursively.
  *)
@@ -42,15 +41,26 @@ let rec find_and_lower cur_dir () =
       let stats = Unix.lstat element in
       let is_a_symlink = stats.Unix.st_kind = Unix.S_LNK in
       if not implicit && not is_a_symlink then begin
-        Unix.rename element "TMP_THIS_IS_A_VERY_TMP_NAME";
-        Unix.rename "TMP_THIS_IS_A_VERY_TMP_NAME" (String.lowercase element);
-        if stats.Unix.st_kind = Unix.S_DIR then begin
-          dirlist := (String.lowercase element) :: !dirlist;
-        end
+		let exists = try
+			Unix.access (String.lowercase element) [ Unix.F_OK ];
+			element <> String.lowercase element
+		with _ -> false in
+		if exists then begin
+			dirlist := (element, true) :: !dirlist;
+		end else begin
+			Unix.rename element "TMP_THIS_IS_A_VERY_TMP_NAME";
+			Unix.rename "TMP_THIS_IS_A_VERY_TMP_NAME" (String.lowercase element);
+			if stats.Unix.st_kind = Unix.S_DIR then begin
+			  dirlist := (String.lowercase element, false) :: !dirlist;
+			end
+		end
       end
     done
   with _ -> Unix.closedir dh;
-    List.iter (fun x -> find_and_lower x ()) !dirlist;
+    List.iter (fun (x, do_del) ->
+	    find_and_lower x ();
+		if do_del then Unix.rmdir x
+	  ) !dirlist;
 ;;
 
 (*

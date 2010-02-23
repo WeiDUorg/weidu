@@ -1,7 +1,7 @@
 Version 214:
   * Default values in FUNCTIONs override the current value in the caller
     environment (unless they're explicitly set via INT_VAR).
-  * var++ and var-- added.
+  * ++var and --var added.
   * The TOC was absent from the readme because of a stupid error.
   * Removed the macros added in the last version (apparently they were broken).
   * SET_2DA_ENTRY didn't properly fail if the 'row' parameter is == the number
@@ -24,6 +24,8 @@ Version 214:
     provide documentation.
   * Can now Uninstall/Reinstall a component in --safe-exit mode, provided it's
     the last component in the current WeiDU.log.
+  * tolower can now merge FoLdEr/SUBFolder and FOLder/subFOLDer. Shoot your
+    modder if you need this.
 
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting
