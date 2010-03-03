@@ -12,6 +12,7 @@ open Version
 open Parsewrappers
 
 let pause_at_end = ref false
+let no_exit_pause = ref false
 
 type output_info = {
     mutable dir : string ;
@@ -356,6 +357,7 @@ let main () =
     "--strfind", Myarg.String (fun s -> strfind_list := s :: !strfind_list), "X\tdisplay strings that contain X (cumulative, regexp allowed)" ;
     "--strapp", Myarg.String (fun s -> strapp_list := s :: !strapp_list), "X\tappend string X to DIALOG.TLK (cumulative)\n\nBIFF Options:\n" ;
     "--exit", Myarg.Set exit_now, "\tprint version number and exit";
+	"--no-exit-pause", Myarg.Set no_exit_pause, "\tDon't ask to press enter to exit";
     "--list-biffs", Myarg.Set list_biff, "\tenumerate all BIFF files in CHITIN.KEY" ;
     "--list-files", Myarg.Set list_files, "\tenumerate all resource files in CHITIN.KEY"; 
     "--biff", Myarg.String (fun s -> bc_list := (String.uppercase s) :: !bc_list), "X\tenumerate contents of BIFF file X (cumulative)" ;
@@ -1804,8 +1806,8 @@ let main () =
    Util.log_channel := None
    ;;
 
-   if !pause_at_end || (!return_value <> return_value_success && Var.get_string "%WEIDU_OS%" =
-   "x86_WIN32") then begin
+   if not !no_exit_pause && (!pause_at_end || (!return_value <> return_value_success && Var.get_string "%WEIDU_OS%" =
+   "x86_WIN32")) then begin
    Printf.printf "\nPress ENTER to exit.\n" ;
    try ignore (read_line () ) with _ -> ()
    end

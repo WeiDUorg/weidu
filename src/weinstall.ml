@@ -36,7 +36,7 @@ let main () =
     Buffer.add_string buff (Printf.sprintf " %s.tp2 setup-%s.tp2 %s/%s.tp2 %s/setup-%s.tp2 "
                               x            x      x  x      x        x);
     if (fast) then
-      Buffer.add_string buff " --quick-log --skip-at-view --safe-exit ";
+      Buffer.add_string buff " --quick-log --skip-at-view --safe-exit --no-exit-pause ";
     for i = 2 to Array.length Sys.argv - 1 do
       Buffer.add_string buff (
       match Sys.argv.(i) with

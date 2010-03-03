@@ -27,6 +27,7 @@ Version 214:
   * tolower can now merge FoLdEr/SUBFolder and FOLder/subFOLDer. Shoot your
     modder if you need this.
   * Better ADD/REPLACE_CRE_ITEM for IWD2 and PST.
+  * --no-exit-pause doesn't give you "Press ENTER to exit.".
 
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting
