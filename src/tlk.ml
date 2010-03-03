@@ -300,7 +300,5 @@ let lse_to_tlk_string lse =
     | "", "", _ -> 0
     | _, "", _ -> 2
     | _, _, false -> 3
-    | _, _, true -> (try ignore (String.index x.text '<'); 7 with _ -> 3)
+    | _, _, true -> 7
    }  in
-  let apply_flags x = {x with flags = 7 } in
-  apply_flags male, apply_flags female

@@ -27,6 +27,8 @@ Version 214:
   * tolower can now merge FoLdEr/SUBFolder and FOLder/subFOLDer. Shoot your
     modder if you need this.
 
+  TODO: CREV1.2 has 24 inventory items, not 16.
+
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting
     the component names (useful if you're used to using --quick-log).
