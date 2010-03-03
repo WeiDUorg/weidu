@@ -1710,61 +1710,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	let i_charge3 = (Int32.to_int (eval_pe buff game i.i_charge3)) in
 
 	(* Make the item type into something usable *)
-	let i = { i with item_slot = List.fold_left (
-		  fun acc (from, into) ->
-		    Str.global_replace (Str.regexp_case_fold from) into acc
-		 ) (" " ^ i.item_slot ^ " ")
-		    [("[ \t]QITEM[ \t]"," QITEM1 QITEM2 QITEM3 ");
-		     ("[ \t]QUIVER[ \t]"," QUIVER1 QUIVER2 QUIVER3 ");
-		     ("[ \t]RING[ \t]"," LRING RRING ");
-		     ("[ \t]WEAPON[ \t]"," WEAPON1 WEAPON2 WEAPON3 WEAPON4 ");
-		     ("[ \t]INV[ \t]", " INV1 INV2 INV3 INV4 INV5 INV6 INV7 INV8 INV9 INV10 INV11 INV12 INV13 INV14 INV15 INV16 ")]
-		    
-		} in
-	let possible_slots = List.map (fun str -> match String.uppercase str with
-        | "HELMET"    -> 0
-        | "ARMOR"     -> 1
-        | "SHIELD"    -> 2
-        | "GLOVES"    -> 3
-        | "LRING"     -> 4
-        | "RRING"     -> 5
-        | "AMULET"    -> 6
-        | "BELT"      -> 7
-        | "BOOTS"     -> 8
-        | "WEAPON1"   -> 9
-        | "WEAPON2"   -> 10
-        | "WEAPON3"   -> 11
-        | "WEAPON4"   -> 12
-        | "QUIVER1"   -> 13
-        | "QUIVER2"   -> 14
-        | "QUIVER3"   -> 15
-        | "QUIVER4"   -> 16
-        | "CLOAK"     -> 17
-        | "QITEM1"    -> 18
-        | "QITEM2"    -> 19
-        | "QITEM3"    -> 20
-        | "INV1"      -> 21
-        | "INV2"      -> 22
-        | "INV3"      -> 23
-        | "INV4"      -> 24
-        | "INV5"      -> 25
-        | "INV6"      -> 26
-        | "INV7"      -> 27
-        | "INV8"      -> 28
-        | "INV9"      -> 29
-        | "INV10"     -> 30
-        | "INV11"     -> 31
-        | "INV12"     -> 32
-        | "INV13"     -> 33
-        | "INV14"     -> 34
-        | "INV15"     -> 35
-        | "INV16"     -> 36
-        | _ ->
-      	    (try assert false with Assert_failure(file,line,col) -> set_errors file line) ;
-            log_and_print "WARNING: ADD_CRE_ITEM: Unknown slot %s.  Default to INV15 for placement.\n" (String.uppercase str) ;
-            35
-				      ) (Str.split many_whitespace_regexp i.item_slot)
-	in
+	let possible_slots = Cre.string_to_slots i.item_slot in
 
 	(* Make the flags into something useable *)
 	let new_flags = match (String.uppercase i.i_flags) with
@@ -1797,7 +1743,13 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 		not (List.exists (fun (name, (unknown, q1, q2, q3, flags, slots)) ->
 		  List.mem inv_slot slots
 				 ) !items)
-			) [21; 22; 23; 24; 25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36]
+			) (match (Load.the_game()).Load.script_style with
+			 | Load.BG1
+			 | Load.BG2
+			 | Load.IWD1
+			 | Load.NONE -> [21; 22; 23; 24; 25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36]
+			 | Load.IWD2 -> [25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36; 37; 38; 39; 40; 41; 42; 43; 44; 45; 46; 47; 48]
+			 | Load.PST  -> [25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36; 37; 38; 39; 40; 41; 42; 43; 44] )
 	    with Not_found ->
 	      (try assert false with Assert_failure(file,line,col) -> set_errors file line) ;
 	      log_and_print "WARNING: ADD_CRE_ITEM: Could not find empty inventory slot. Defaulting to INV16.\n" ;
@@ -1834,7 +1786,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	  let equipped = ref cre.Cre.equipped in
 	  let is_twohanded = not i.twohanded_weapon in
 
-	  if i.equip && target_slot >= 9 && target_slot <= 12 then begin
+	  if i.equip && target_slot >= 9 && target_slot <= 12 && (Load.the_game()).Load.script_style <> Load.IWD2 && (Load.the_game()).Load.script_style <> Load.PST then begin
 	    (* move potential shield to inv if two-handed *)
 	    if is_twohanded then move_to_inv 2 ;
 	    equipped := target_slot - 9
@@ -1951,59 +1903,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	let i_charge3 = (Int32.to_int (eval_pe buff game i.i_charge3)) in
 
 	(* Make the item type into something usable *)
-	let i = { i with item_slot = List.fold_left (
-		  fun acc (from, into) ->
-		    Str.global_replace (Str.regexp_case_fold from) into acc
-		 ) (" " ^ i.item_slot ^ " ")
-		    [("[ \t]QITEM[ \t]"," QITEM1 QITEM2 QITEM3 ");
-		     ("[ \t]QUIVER[ \t]"," QUIVER1 QUIVER2 QUIVER3 ");
-		     ("[ \t]RING[ \t]"," LRING RRING ");
-		     ("[ \t]INV[ \t]", " INV1 INV2 INV3 INV4 INV5 INV6 INV7 INV8 INV9 INV10 INV11 INV12 INV13 INV14 INV15 INV16 ")]
-		} in
-	let possible_slots = List.map (fun str -> match String.uppercase str with
-        | "HELMET"    -> 0
-        | "ARMOR"     -> 1
-        | "SHIELD"    -> 2
-        | "GLOVES"    -> 3
-        | "LRING"     -> 4
-        | "RRING"     -> 5
-        | "AMULET"    -> 6
-        | "BELT"      -> 7
-        | "BOOTS"     -> 8
-        | "WEAPON1"   -> 9
-        | "WEAPON2"   -> 10
-        | "WEAPON3"   -> 11
-        | "WEAPON4"   -> 12
-        | "QUIVER1"   -> 13
-        | "QUIVER2"   -> 14
-        | "QUIVER3"   -> 15
-        | "QUIVER4"   -> 16
-        | "CLOAK"     -> 17
-        | "QITEM1"    -> 18
-        | "QITEM2"    -> 19
-        | "QITEM3"    -> 20
-        | "INV1"      -> 21
-        | "INV2"      -> 22
-        | "INV3"      -> 23
-        | "INV4"      -> 24
-        | "INV5"      -> 25
-        | "INV6"      -> 26
-        | "INV7"      -> 27
-        | "INV8"      -> 28
-        | "INV9"      -> 29
-        | "INV10"     -> 30
-        | "INV11"     -> 31
-        | "INV12"     -> 32
-        | "INV13"     -> 33
-        | "INV14"     -> 34
-        | "INV15"     -> 35
-        | "INV16"     -> 36
-        | _ ->
-      	    (try assert false with Assert_failure(file,line,col) -> set_errors file line) ;
-            log_and_print "WARNING: REPLACE_CRE_ITEM: Unknown slot %s.  Default to INV15 for placement.\n" (String.uppercase str) ;
-            35
-				      ) (Str.split many_whitespace_regexp i.item_slot)
-	in
+	let possible_slots = Cre.string_to_slots i.item_slot in
 
 	(* Make the flags into something useable *)
 	let new_flags = match (String.uppercase i.i_flags) with
@@ -2035,7 +1935,13 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
               not (List.exists (fun (name, (unknown, q1, q2, q3, flags, slots)) ->
 		List.mem inv_slot slots
 			       ) !items)
-		      ) [21; 22; 23; 24; 25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36]
+		      ) (match (Load.the_game()).Load.script_style with
+			 | Load.BG1
+			 | Load.BG2
+			 | Load.IWD1
+			 | Load.NONE -> [21; 22; 23; 24; 25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36]
+			 | Load.IWD2 -> [25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36; 37; 38; 39; 40; 41; 42; 43; 44; 45; 46; 47; 48]
+			 | Load.PST  -> [25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36; 37; 38; 39; 40; 41; 42; 43; 44] )
           with Not_found ->
             (try assert false with Assert_failure(file,line,col) -> set_errors file line) ;
             log_and_print "WARNING: REPLACE_CRE_ITEM: Could not find empty inventory slot. Defaulting to INV16\n." ;

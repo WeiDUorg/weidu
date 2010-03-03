@@ -26,8 +26,7 @@ Version 214:
     the last component in the current WeiDU.log.
   * tolower can now merge FoLdEr/SUBFolder and FOLder/subFOLDer. Shoot your
     modder if you need this.
-
-  TODO: CREV1.2 has 24 inventory items, not 16.
+  * Better ADD/REPLACE_CRE_ITEM for IWD2 and PST.
 
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting

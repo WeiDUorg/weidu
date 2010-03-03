@@ -261,3 +261,199 @@ let string_of_cre cre =
   
   Buffer.contents buff
 ;;
+
+let string_to_slots str =
+	let item_slot = List.fold_left (
+	  fun acc (from, into) ->
+		Str.global_replace (Str.regexp_case_fold from) into acc
+	  ) (" " ^ str ^ " ")
+		(match (Load.the_game()).Load.script_style with
+		  | Load.BG1
+		  | Load.BG2
+		  | Load.IWD1
+		  | Load.NONE ->
+			[("[ \t]QITEM[ \t]"," QITEM1 QITEM2 QITEM3 ");
+			 ("[ \t]QUIVER[ \t]"," QUIVER1 QUIVER2 QUIVER3 ");
+			 ("[ \t]RING[ \t]"," LRING RRING ");
+			 ("[ \t]WEAPON[ \t]"," WEAPON1 WEAPON2 WEAPON3 WEAPON4 ");
+			 ("[ \t]INV[ \t]", " INV1 INV2 INV3 INV4 INV5 INV6 INV7 INV8 INV9 INV10 INV11 INV12 INV13 INV14 INV15 INV16 ")]
+		  | Load.IWD2 ->
+			[("[ \t]QITEM[ \t]"," QITEM1 QITEM2 QITEM3 ");
+			 ("[ \t]QUIVER[ \t]"," QUIVER1 QUIVER2 QUIVER3 ");
+			 ("[ \t]RING[ \t]"," LRING RRING ");
+			 ("[ \t]WEAPON[ \t]"," WEAPON1 WEAPON2 WEAPON3 WEAPON4 ");
+			 ("[ \t]SHIELD[ \t]"," SHIELD1 SHIELD2 SHIELD3 SHIELD4 ");
+			 ("[ \t]INV[ \t]", " INV1 INV2 INV3 INV4 INV5 INV6 INV7 INV8 INV9 INV10 INV11 INV12 " ^ 
+			          " INV13 INV14 INV15 INV16 INV17 INV18 INV19 INV20 INV21 INV22 INV23 INV24 ")]
+		  | Load.PST ->
+			[("[ \t]QITEM[ \t]"," QITEM1 QITEM2 QITEM3 QITEM4 QITEM5 ");
+			 ("[ \t]QUIVER[ \t]"," QUIVER1 QUIVER2 QUIVER3 QUIVER4 QUIVER5 ");
+			 ("[ \t]RING[ \t]"," LRING RRING ");
+			 ("[ \t]WEAPON[ \t]"," WEAPON1 WEAPON2 WEAPON3 WEAPON4 ");
+			 ("[ \t]TATTOO[ \t]"," TATTOO1 TATTOO2 TATTOO3 ");
+			 ("[ \t]EARRING[ \t]"," EARRING1 EARRING2 ");
+			 ("[ \t]INV[ \t]", " INV1 INV2 INV3 INV4 INV5 INV6 INV7 INV8 INV9 INV10 INV11 INV12 " ^ 
+			          " INV13 INV14 INV15 INV16 INV17 INV18 INV19 INV20 ")]
+		)
+	in
+	let possible_slots =
+	match (Load.the_game()).Load.script_style with
+	  | Load.BG1
+	  | Load.BG2
+	  | Load.IWD1
+	  | Load.NONE ->
+		  List.map (fun str -> match String.uppercase str with
+			| "HELMET"    -> 0
+			| "ARMOR"     -> 1
+			| "SHIELD"    -> 2
+			| "GLOVES"    -> 3
+			| "LRING"     -> 4
+			| "RRING"     -> 5
+			| "AMULET"    -> 6
+			| "BELT"      -> 7
+			| "BOOTS"     -> 8
+			| "WEAPON1"   -> 9
+			| "WEAPON2"   -> 10
+			| "WEAPON3"   -> 11
+			| "WEAPON4"   -> 12
+			| "QUIVER1"   -> 13
+			| "QUIVER2"   -> 14
+			| "QUIVER3"   -> 15
+			| "QUIVER4"   -> 16
+			| "CLOAK"     -> 17
+			| "QITEM1"    -> 18
+			| "QITEM2"    -> 19
+			| "QITEM3"    -> 20
+			| "INV1"      -> 21
+			| "INV2"      -> 22
+			| "INV3"      -> 23
+			| "INV4"      -> 24
+			| "INV5"      -> 25
+			| "INV6"      -> 26
+			| "INV7"      -> 27
+			| "INV8"      -> 28
+			| "INV9"      -> 29
+			| "INV10"     -> 30
+			| "INV11"     -> 31
+			| "INV12"     -> 32
+			| "INV13"     -> 33
+			| "INV14"     -> 34
+			| "INV15"     -> 35
+			| "INV16"     -> 36
+			| _ ->
+				(try assert false with Assert_failure(file,line,col) -> set_errors file line) ;
+				log_and_print "WARNING: ADD_CRE_ITEM: Unknown slot %s.  Default to INV15 for placement.\n" (String.uppercase str) ;
+				35
+				) (Str.split many_whitespace_regexp item_slot)
+	  | Load.IWD2 ->
+		  List.map (fun str -> match String.uppercase str with
+			| "HELMET"    -> 0
+			| "ARMOR"     -> 1
+			(* | "SHIELD"    -> 2 *)
+			| "GLOVES"    -> 3
+			| "LRING"     -> 4
+			| "RRING"     -> 5
+			| "AMULET"    -> 6
+			| "BELT"      -> 7
+			| "BOOTS"     -> 8
+			| "WEAPON1"   -> 9
+			| "SHIELD1"   -> 10
+			| "WEAPON2"   -> 11
+			| "SHIELD2"   -> 12
+			| "WEAPON3"   -> 13
+			| "SHIELD3"   -> 14
+			| "WEAPON4"   -> 15
+			| "SHIELD4"   -> 16
+			| "CLOAK"     -> 17
+			| "QUIVER1"   -> 18
+			| "QUIVER2"   -> 19
+			| "QUIVER3"   -> 20
+			(* | "QUIVER4"   -> 21 *)
+			| "QITEM1"    -> 22
+			| "QITEM2"    -> 23
+			| "QITEM3"    -> 24
+			| "INV1"      -> 25
+			| "INV2"      -> 26
+			| "INV3"      -> 27
+			| "INV4"      -> 28
+			| "INV5"      -> 29
+			| "INV6"      -> 30
+			| "INV7"      -> 31
+			| "INV8"      -> 32
+			| "INV9"      -> 33
+			| "INV10"     -> 34
+			| "INV11"     -> 35
+			| "INV12"     -> 36
+			| "INV13"     -> 37
+			| "INV14"     -> 38
+			| "INV15"     -> 39
+			| "INV16"     -> 40
+			| "INV17"     -> 41
+			| "INV18"     -> 42
+			| "INV19"     -> 43
+			| "INV20"     -> 44
+			| "INV21"     -> 45
+			| "INV22"     -> 46
+			| "INV23"     -> 47
+			| "INV24"     -> 48
+
+			| _ ->
+				(try assert false with Assert_failure(file,line,col) -> set_errors file line) ;
+				log_and_print "WARNING: ADD_CRE_ITEM: Unknown slot %s.  Default to INV23 for placement.\n" (String.uppercase str) ;
+				47
+				) (Str.split many_whitespace_regexp item_slot)
+	  | Load.PST ->
+		  List.map (fun str -> match String.uppercase str with
+		  | "EARRING1"   -> 0
+		  | "ARMOR"      -> 1
+		  | "TATTOO1"    -> 2
+		  | "HAND"       -> 3
+		  | "LRING"      -> 4
+		  | "RRING"      -> 5
+		  | "EARRING2"   -> 6
+		  | "TATTOO2"    -> 7
+		  | "BOOTS"      -> 8
+		  | "WEAPON1"    -> 9
+		  | "WEAPON2"    -> 10
+		  | "WEAPON3"    -> 11
+		  | "WEAPON4"    -> 12
+		  | "QUIVER1"    -> 13
+		  | "QUIVER2"    -> 14
+		  | "QUIVER3"    -> 15
+		  | "QUIVER4"    -> 16
+		  | "QUIVER5"    -> 17
+		  (* | "QUIVER6"    -> 18 *)
+		  | "TATTOO3"    -> 19
+		  | "QITEM1"     -> 20
+		  | "QITEM2"     -> 21
+		  | "QITEM3"     -> 22
+		  | "QITEM4"     -> 23
+		  | "QITEM5"     -> 24
+		  | "INV1"       -> 25
+		  | "INV2"       -> 26
+		  | "INV3"       -> 27
+		  | "INV4"       -> 28
+		  | "INV5"       -> 29
+		  | "INV6"       -> 30
+		  | "INV7"       -> 31
+		  | "INV8"       -> 32
+		  | "INV9"       -> 33
+		  | "INV10"      -> 34
+		  | "INV11"      -> 35
+		  | "INV12"      -> 36
+		  | "INV13"      -> 37
+		  | "INV14"      -> 38
+		  | "INV15"      -> 39
+		  | "INV16"      -> 40
+		  | "INV17"      -> 41
+		  | "INV18"      -> 42
+		  | "INV19"      -> 43
+		  | "INV20"      -> 44
+		  | _ ->
+				(try assert false with Assert_failure(file,line,col) -> set_errors file line) ;
+				log_and_print "WARNING: ADD_CRE_ITEM: Unknown slot %s.  Default to INV15 for placement.\n" (String.uppercase str) ;
+				35
+				) (Str.split many_whitespace_regexp item_slot)
+	in
+	possible_slots
+;;
