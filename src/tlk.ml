@@ -302,3 +302,4 @@ let lse_to_tlk_string lse =
     | _, _, false -> 3
     | _, _, true -> 7
    }  in
+   apply_flags male, apply_flags female
