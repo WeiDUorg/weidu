@@ -25,6 +25,19 @@ type cre = {
   }
 ;;
 
+let get_item_number () =
+(match (Load.the_game()).Load.script_style with
+  | Load.BG1
+  | Load.BG2
+  | Load.IWD1
+  | Load.NONE ->
+	37
+  | Load.IWD2	
+  | Load.PST ->
+	44
+)
+;;
+
 let cre_of_string buff =
   let head_length = match String.sub buff 0 8 with
   | "CRE V1.0" -> 0x2d4
@@ -114,7 +127,7 @@ let cre_of_string buff =
     let q2 = short_of_str_off this_buff 0xc in
     let q3 = short_of_str_off this_buff 0xe in
     let flags = int_of_str_off this_buff 0x10 in
-    for j = 0 to 37 do
+    for j = 0 to get_item_number () do
       let which_one = short_of_str_off buff (islot_off + j * 2) in
       if which_one = i then slots := j :: !slots
     done;
@@ -122,8 +135,8 @@ let cre_of_string buff =
   done;
   if !debug_ocaml then log_and_print "Read items\n";
 
-  let equiped = short_of_str_off buff (islot_off + 76) in
-  let ending_unknown = short_of_str_off buff (islot_off + 78) in
+  let equiped = short_of_str_off buff (islot_off + (get_item_number ()) * 2 + 2) in
+  let ending_unknown = short_of_str_off buff (islot_off + (get_item_number ()) * 2 + 4) in
   if !debug_ocaml then log_and_print "Read last stuff\n";
   {
    main_body = main_body;
@@ -218,7 +231,7 @@ let string_of_cre cre =
   let items_buff = Buffer.create 100 in
   let islot_buff = String.make 0x50 '\000' in
   let items_i = ref 0 in
-  for i = 0 to 0x26 do
+  for i = 0 to (get_item_number ()) + 1 do
     write_short islot_buff (i * 2) (-1);
   done;
   List.iter (fun (name, (unknown, q1, q2, q3, flags, slots)) ->
@@ -236,8 +249,8 @@ let string_of_cre cre =
     incr items_i
 	    ) items;
   let items_buff = Buffer.contents items_buff in
-  write_short islot_buff 76 equipped;
-  write_short islot_buff 78 ending_unknown;
+  write_short islot_buff ((get_item_number ()) * 2 + 2) equipped;
+  write_short islot_buff ((get_item_number ()) * 2 + 4) ending_unknown;
   
   write_int main_body known_off_off known_off;
   write_int main_body known_cnt_off known_cnt;
