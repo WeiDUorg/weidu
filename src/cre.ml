@@ -32,7 +32,8 @@ let get_item_number () =
   | Load.IWD1
   | Load.NONE ->
 	37
-  | Load.IWD2	
+  | Load.IWD2 ->
+    48
   | Load.PST ->
 	44
 )
