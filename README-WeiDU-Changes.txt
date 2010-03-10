@@ -28,6 +28,8 @@ Version 214:
     modder if you need this.
   * Better ADD/REPLACE_CRE_ITEM for IWD2 and PST.
   * --no-exit-pause doesn't give you "Press ENTER to exit.".
+  * CBif support under Linux.
+  * Tolower under non-BGII.
 
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting

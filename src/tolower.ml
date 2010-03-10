@@ -81,27 +81,31 @@ let get_wine_cfg () =
     Hashtbl.add allpaths (String.uppercase this) thisdest;
 	     ) winelst ;
   (* Read all directory list in baldur.ini and create linux.ini from it *)
-  let baldurini = open_in "baldur.ini" in
   let linuxini = open_out "linux.ini" in
-  let cdregex = Str.regexp "[ \t]*[HC]D.:=" in
-  try
-    while true do
-      let line = input_line baldurini in
-      if Str.string_match cdregex line 0 then begin
-	let split = Str.split (Str.regexp "[=;]") line in
-	List.iter (fun this ->
-	  let path = Str.string_before this 2 in
-	  let path = Hashtbl.find allpaths (String.uppercase path) in
-	  let otherpart = Str.string_after this 2 in
-	  let newpath = path ^ otherpart in
-	  let newpath = Str.global_replace (Str.regexp "\\\\") "/" newpath in
-					      Printf.fprintf linuxini "CD1:=%s\n%!" newpath;
-					   ) (List.tl split)
-      end;
-    done
-		  with End_of_file -> ();
-		    close_out linuxini;
-		    close_in baldurini;
+  Array.iter (fun file ->
+	if (Filename.check_suffix file ".ini") then (
+	  let baldurini = open_in file in
+	  let cdregex = Str.regexp "[ \t]*[HC]D.:=" in
+	  try
+		while true do
+		  let line = input_line baldurini in
+		  if Str.string_match cdregex line 0 then begin
+		let split = Str.split (Str.regexp "[=;]") line in
+		List.iter (fun this ->
+		  let path = Str.string_before this 2 in
+		  let path = Hashtbl.find allpaths (String.uppercase path) in
+		  let otherpart = Str.string_after this 2 in
+		  let newpath = path ^ otherpart in
+		  let newpath = Str.global_replace (Str.regexp "\\\\") "/" newpath in
+							  Printf.fprintf linuxini "CD1:=%s\n%!" newpath;
+						   ) (List.tl split)
+		  end;
+		done
+			  with End_of_file -> ();
+				close_in baldurini;
+	)
+  ) (Sys.readdir ".");
+  close_out linuxini;
 ;;
 
 (*

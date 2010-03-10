@@ -25,3 +25,5 @@ let filename_chop_extension = Filename.chop_extension;;
 let filename_chop_suffix = Filename.chop_suffix;;
 let filename_dirname = Filename.dirname;;
 let filename_is_implicit = Filename.is_implicit;;
+
+let fix_name s = s;;

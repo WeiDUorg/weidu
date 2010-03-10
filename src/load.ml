@@ -337,10 +337,11 @@ let load_bif_in_game game bif_file =
       else begin
         let cbf = Case_ins.filename_chop_extension bif_file ^ ".cbf" in
         let cbf_file = trial cbf (game.cd_path_list) in
+		let cbf_file = cbf_file in
         if file_exists cbf_file then
           let cache_file = game.game_path ^ "/cache/" ^ bif_file in
           if not (file_exists cache_file) then Queue.add cache_file cbifs_to_rem;
-          let sz = Cbif.cbf2bif cbf_file cache_file in
+          let sz = Cbif.cbf2bif (Case_ins.fix_name  cbf_file) (Case_ins.fix_name cache_file) in
           let _ = log_and_print "[%s] decompressed bif file %d bytes\n" cbf_file sz in
           cache_file
         else
