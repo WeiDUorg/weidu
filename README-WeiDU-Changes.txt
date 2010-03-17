@@ -30,6 +30,8 @@ Version 214:
   * --no-exit-pause doesn't give you "Press ENTER to exit.".
   * CBif support under Linux.
   * Tolower under non-BGII.
+  * MOVE somefile somedir now works (previously you needed to specify the full
+    filename).
 
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting

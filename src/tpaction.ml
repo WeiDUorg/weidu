@@ -60,6 +60,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	     try ignore (String.index src ' '); ok := false with _ -> ();
 	       try ignore (String.index dst ' '); ok := false with _ -> ();
 		 if not !ok then failwith "MOVE and the file name contains a space";
+		 let dst = if (Case_ins.unix_stat dst).Unix.st_kind = Unix.S_DIR then
+		     dst ^ "/" ^ (Case_ins.filename_basename src) else dst in
 		 match !move_list_chn with
 		 | Some(chn) -> output_string chn (src ^ " " ^ dst ^ "\n") ; flush chn
 		 | None -> ()
