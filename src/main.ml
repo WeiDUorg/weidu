@@ -1649,8 +1649,25 @@ let main () =
    with _ -> ()
    ) ;
    let comp_str = Dc.single_string_of_tlk_string_safe game m.Tp.mod_name in
+	let subcomp_group the_comp =
+	  let rec walk lst = match lst with
+	  | Tp.TPM_SubComponents(ts,a,b) :: tl -> Some(ts)
+	  | hd :: tl -> walk tl
+	  | [] -> None
+	  in walk the_comp.Tp.mod_flags
+	in
+	let subcomp_str = (
+	  match subcomp_group m with
+	  | None    -> ""
+	  | Some(x) -> "" ^ (Dc.single_string_of_tlk_string_safe game x) ^ " -> ") in
+	let rec get_version lst = match lst with
+	| Tp.Version(lse) :: _ -> ": " ^ Dc.single_string_of_tlk_string_safe game lse
+	|	_ :: tl -> get_version tl
+	| [] -> ""
+	in
+	let version = get_version tp2.Tp.flags in
    Dc.pop_trans();
-   Hashtbl.replace backup_lists a ((tpfile, lang, comp, comp_str, b) :: get_file a);
+   Hashtbl.replace backup_lists a ((tpfile, lang, comp, comp_str, subcomp_str, version, b) :: get_file a);
    end
    done
    with End_of_file -> close_in infile
@@ -1663,11 +1680,11 @@ let main () =
    let (base,ext) = split file1 in
    let i = ref 0 in
    print_theout "\n\n\nMods affecting %s:\n" file1;
-   List.iter (fun (tpfile,lang,comp,comp_str,backup) ->
+   List.iter (fun (tpfile,lang,comp,comp_str,subcomp_str,version,backup) ->
    let out = Printf.sprintf "%s/%s.%05d.%s" theout.dir base !i ext in
    if file_exists backup then copy_large_file backup out "--change-log";
-   print_theout "%05d: %s~%s~ %d %d // %s\n" !i
-   (if backup = "" then "/* from game biffs */ "  else "") tpfile lang comp comp_str;
+   print_theout "%05d: %s~%s~ %d %d // %s%s%s\n" !i
+   (if backup = "" then "/* from game biffs */ "  else "") tpfile lang comp subcomp_str comp_str version;
    incr i;
    ) file_log
    ) change_log;

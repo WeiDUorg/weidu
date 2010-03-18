@@ -32,6 +32,7 @@ Version 214:
   * Tolower under non-BGII.
   * MOVE somefile somedir now works (previously you needed to specify the full
     filename).
+  * Print VERSION info during --change-log.
 
 Version 213:
   * --save-components-name added. It will reprint WeiDU.log, while outputting
