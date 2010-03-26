@@ -6,7 +6,7 @@
 
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
-let version = "21307"
+let version = "21400"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
@@ -215,4 +215,5 @@ let version = "21307"
 (* 210 let comment = "RERO" *)
 (* 211 let comment = "Pornography starring your mother" *)
 (* 212 let comment = "I'm an idiot for gaming on a laptop" *)
-let comment = "MOVE"
+(* 213 let comment = "MOVE" *)
+let comment = "Will always remain free beer *and* free speach"
