@@ -252,7 +252,11 @@ let rec single_string_of_tlk_string game ts =
         raise Not_found
   end
   | Dlg.TLK_Index(idx) ->
-      game.Load.dialog.(idx).Tlk.text
+	  begin
+		  try
+			game.Load.dialog.(idx).Tlk.text
+		  with _ -> Printf.sprintf "<Invalid Strref %d>" idx
+	  end
 
 let rec single_string_of_tlk_string_safe game ts =
   match ts with
