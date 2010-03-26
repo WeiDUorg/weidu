@@ -216,4 +216,4 @@ let version = "21400"
 (* 211 let comment = "Pornography starring your mother" *)
 (* 212 let comment = "I'm an idiot for gaming on a laptop" *)
 (* 213 let comment = "MOVE" *)
-let comment = "Will always remain free beer *and* free speach"
+let comment = "Will always remain free beer *and* free speech"
