@@ -1,3 +1,6 @@
+Version 215:
+   * Fix embarassing MOVE regression.
+
 Version 214:
   * Default values in FUNCTIONs override the current value in the caller
     environment (unless they're explicitly set via INT_VAR).
