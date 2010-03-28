@@ -60,15 +60,17 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	     try ignore (String.index src ' '); ok := false with _ -> ();
 	       try ignore (String.index dst ' '); ok := false with _ -> ();
 		 if not !ok then failwith "MOVE and the file name contains a space";
-		 let dst = if (Case_ins.unix_stat dst).Unix.st_kind = Unix.S_DIR then
-		     dst ^ "/" ^ (Case_ins.filename_basename src) else dst in
+		 let dst = try if (Case_ins.unix_stat dst).Unix.st_kind = Unix.S_DIR then
+		     dst ^ "/" ^ (Case_ins.filename_basename src) else dst
+			 with _ -> dst
+		 in
+		log_or_print "Moving %s to %s\n" src dst;
+	    Case_ins.unix_rename src dst;
 		 match !move_list_chn with
 		 | Some(chn) -> output_string chn (src ^ " " ^ dst ^ "\n") ; flush chn
 		 | None -> ()
 	    );
-	    Case_ins.unix_rename src dst;
-	    
-		    ) filelist
+	    ) filelist
       | TP_Require_File(file,error_msg) ->
 	  log_and_print "Checking for required files ...\n" ;
 	  let file = Arch.backslash_to_slash file in
