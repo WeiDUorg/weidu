@@ -1,3 +1,6 @@
+Version 216:
+  * Trim the useless null termination in EDIT_SAV_FILE.
+
 Version 215:
    * Fix embarassing MOVE regression.
 

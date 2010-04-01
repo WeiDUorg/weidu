@@ -20,7 +20,7 @@ let sav_of_str str =
 	while true do
 	  let name_l = i (int32_of_str_off str !pos) in
 	  pos := !pos + 4;
-	  let name = String.sub str !pos name_l in
+	  let name = get_string_of_size str !pos name_l in
 	  pos := !pos + name_l;
 	  let u_l = i (int32_of_str_off str !pos) in
 	  pos := !pos + 4;
