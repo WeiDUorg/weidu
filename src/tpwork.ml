@@ -588,7 +588,7 @@ let rec handle_tp
 		  try
 		    let the_comp = get_nth_module tp i false in
 		    let c = get_nth_module tp i false in
-		    if subcomp_forced c && not (fails_requirements c) then module_defaults.(i) <- TP_Install
+		    if subcomp_forced c && not (fails_requirements c) && not (already_installed this_tp2_filename i) then module_defaults.(i) <- TP_Install
 		    else begin
 		      match subcomp_group the_comp with
 		      | Some(x) ->
@@ -631,7 +631,7 @@ let rec handle_tp
 		for i = 0 to last_module_index do
 		  try let the_comp = get_nth_module tp i false in
 		  let c = get_nth_module tp i false in
-		  if subcomp_forced c && not (fails_requirements c) then module_defaults.(i) <- TP_Install
+		  if subcomp_forced c && not (fails_requirements c) && not (already_installed this_tp2_filename i) then module_defaults.(i) <- TP_Install
 		  else begin
 		    match subcomp_group the_comp with
 		    | Some(x) ->

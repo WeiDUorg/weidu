@@ -1,5 +1,7 @@
 Version 216:
   * Trim the useless null termination in EDIT_SAV_FILE.
+  * Do not reinstall FORCED_SUBCOMPONENTs if they're already installed and
+    the user is using [S]kip all.
 
 Version 215:
    * Fix embarassing MOVE regression.
