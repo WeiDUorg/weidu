@@ -2,6 +2,12 @@ Version 216:
   * Trim the useless null termination in EDIT_SAV_FILE.
   * Do not reinstall FORCED_SUBCOMPONENTs if they're already installed and
     the user is using [S]kip all.
+  * MOVE changes:
+	* If the destination file exists, MOVE reverts to COPY behavior to ensure
+	  proper uninstallation. Either way, do not touch the same file with MOVE
+	  and other commands in the same component if you can help it.
+    * can MOVE someDir someOtherDir (if someDir contains a subdirectory, a
+	  warning is printed and the subdirectory is skipped).
 
 Version 215:
    * Fix embarassing MOVE regression.

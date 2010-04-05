@@ -52,24 +52,52 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
     try
       (match a with
       | TP_Move(filelist) ->
-	  List.iter (fun (src,dst) ->
-	    let src = Var.get_string src in
-	    let dst = Var.get_string dst in
-	    (
-	     let ok = ref true in
-	     try ignore (String.index src ' '); ok := false with _ -> ();
-	       try ignore (String.index dst ' '); ok := false with _ -> ();
-		 if not !ok then failwith "MOVE and the file name contains a space";
-		 let dst = try if (Case_ins.unix_stat dst).Unix.st_kind = Unix.S_DIR then
-		     dst ^ "/" ^ (Case_ins.filename_basename src) else dst
-			 with _ -> dst
-		 in
-		log_or_print "Moving %s to %s\n" src dst;
-	    Case_ins.unix_rename src dst;
-		 match !move_list_chn with
-		 | Some(chn) -> output_string chn (src ^ " " ^ dst ^ "\n") ; flush chn
-		 | None -> ()
-	    );
+	    let move src dst =
+			let ok = ref true in
+			try ignore (String.index src ' '); ok := false with _ -> ();
+			try ignore (String.index dst ' '); ok := false with _ -> ();
+			if not !ok then failwith 
+				(Printf.sprintf "MOVE [%s] [%s]: source and destination can't contain spaces"
+					src dst
+				);
+			let dst = if is_directory dst then dst ^ "/" ^ (Case_ins.filename_basename src) else dst in
+			if not (is_directory src) then begin
+				if (file_exists dst) then begin
+					log_or_print "MOVE %s %s: destination exists, falling back to COPY\n" src dst;
+					process_action tp (TP_Copy{
+						copy_get_existing = false;
+						copy_use_regexp = false;
+						copy_use_glob = false;
+						copy_file_list = [ (src,dst) ];
+						copy_patch_list = [];
+						copy_constraint_list = [];
+						copy_backup = true;
+						copy_at_end = false;
+						copy_save_inlined = false;
+					});
+				end else begin
+					log_or_print "Moving %s to %s\n" src dst;
+					Case_ins.unix_rename src dst;
+					match !move_list_chn with
+					| Some(chn) -> output_string chn (src ^ " " ^ dst ^ "\n") ; flush chn
+					| None -> ()
+				end
+			end else
+				log_and_print "MOVE %s %s: source is a directory\n" src dst;
+	    in
+		List.iter (fun (src,dst) ->
+			let src = Var.get_string src in
+			let dst = Var.get_string dst in
+			if is_directory src then begin
+				if not (is_directory dst) then failwith 
+					(Printf.sprintf "MOVE [%s] [%s]: can't move a directory into a file, or destination directory not existing"
+						src dst
+					);
+				Array.iter (fun file ->
+					move (src ^ "/" ^ file) dst
+				)  (Sys.readdir src)
+			end else
+				move src dst
 	    ) filelist
       | TP_Require_File(file,error_msg) ->
 	  log_and_print "Checking for required files ...\n" ;
