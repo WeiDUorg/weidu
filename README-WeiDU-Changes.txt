@@ -8,6 +8,7 @@ Version 216:
 	  and other commands in the same component if you can help it.
     * can MOVE someDir someOtherDir (if someDir contains a subdirectory, a
 	  warning is printed and the subdirectory is skipped).
+  * INTERJECT* IF_FILE_EXISTS target blah blah blah is now possible.
 
 Version 215:
    * Fix embarassing MOVE regression.

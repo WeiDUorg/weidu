@@ -151,7 +151,7 @@ let verify_action_list s =
   %type <(string * bool)> append_prologue
   %type <(string)> replace_prologue
   %type <(bool * string * (string list) * int)> extend_prologue
-  %type <(string * string * string * bool * bool)> interject_prologue interject_copy_trans_prologue
+  %type <(string * bool * string * string * bool * bool)> interject_prologue interject_copy_trans_prologue
   %type <Dc.action list> d_file action_list
   %type <Dc.action> action
   %type <Dlg.state list> state_list state
@@ -312,19 +312,32 @@ chain3_prologue : CHAIN3 optional_weighted_condition STRING STRING
     ;
 
 interject_prologue : INTERJECT STRING STRING STRING
-  { current_unit := Some(String.uppercase $2); (String.uppercase $2,$3,$4,false,false) }
+  { current_unit := Some(String.uppercase $2); (String.uppercase $2,false,$3,$4,false,false) }
+  ;
+| INTERJECT IF_FILE_EXISTS STRING STRING STRING
+  { current_unit := Some(String.uppercase $3); (String.uppercase $3,true,$4,$5,false,false) }
   ;
 
-interject_copy_trans_prologue : INTERJECT_COPY_TRANS STRING STRING STRING
-  { current_unit := Some(String.uppercase $2); (String.uppercase $2,$3,$4,false,false) }
+interject_copy_trans_prologue :
   /* first boolean = enable don't copy actions a la ICT2; second boolean: add all transitions a la
   ICT3 */
+  INTERJECT_COPY_TRANS STRING STRING STRING
+  { current_unit := Some(String.uppercase $2); (String.uppercase $2,false,$3,$4,false,false) }
 | INTERJECT_COPY_TRANS2 STRING STRING STRING
-    { current_unit := Some(String.uppercase $2); (String.uppercase $2,$3,$4,true,false) }
+    { current_unit := Some(String.uppercase $2); (String.uppercase $2,false,$3,$4,true,false) }
 | INTERJECT_COPY_TRANS3 STRING STRING STRING
-    { current_unit := Some(String.uppercase $2); (String.uppercase $2,$3,$4,false,true) }
+    { current_unit := Some(String.uppercase $2); (String.uppercase $2,false,$3,$4,false,true) }
 | INTERJECT_COPY_TRANS4 STRING STRING STRING
-    { current_unit := Some(String.uppercase $2); (String.uppercase $2,$3,$4,true,true) }
+    { current_unit := Some(String.uppercase $2); (String.uppercase $2,false,$3,$4,true,true) }
+    ;
+| INTERJECT_COPY_TRANS IF_FILE_EXISTS STRING STRING STRING
+  { current_unit := Some(String.uppercase $3); (String.uppercase $3,true,$4,$5,false,false) }
+| INTERJECT_COPY_TRANS2 IF_FILE_EXISTS STRING STRING STRING
+    { current_unit := Some(String.uppercase $3); (String.uppercase $3,true,$4,$5,true,false) }
+| INTERJECT_COPY_TRANS3 IF_FILE_EXISTS STRING STRING STRING
+    { current_unit := Some(String.uppercase $3); (String.uppercase $3,true,$4,$5,false,true) }
+| INTERJECT_COPY_TRANS4 IF_FILE_EXISTS STRING STRING STRING
+    { current_unit := Some(String.uppercase $3); (String.uppercase $3,true,$4,$5,true,true) }
     ;
 
   action : 
@@ -407,13 +420,13 @@ interject_copy_trans_prologue : INTERJECT_COPY_TRANS STRING STRING STRING
      }
     }
 | interject_prologue compound_chain3_list chain3_epilogue
-    { let file,label,var,keep_do,append_all = $1 in
+    { let file,iffileexists,label,var,keep_do,append_all = $1 in
     Dc.Chain3
       {
        Dc.c3_entry_condition = None;
        Dc.c3_entry_weight = Dlg.Not_Specified;
        Dc.c3_entry_file = file ;
-       Dc.c3_iffileexists = false;
+       Dc.c3_iffileexists = iffileexists ;
        Dc.c3_entry_label = label ;
        Dc.c3_dialogue = $2 ;
        Dc.c3_variable = Some(var) ;
@@ -423,13 +436,13 @@ interject_copy_trans_prologue : INTERJECT_COPY_TRANS STRING STRING STRING
      }
     }
 | interject_copy_trans_prologue compound_chain3_list END
-    { let file,label,var,keep_do,append_all = $1 in
+    { let file,iffileexists,label,var,keep_do,append_all = $1 in
     Dc.Chain3
       {
        Dc.c3_entry_condition = None;
        Dc.c3_entry_weight = Dlg.Not_Specified;
        Dc.c3_entry_file = file ;
-       Dc.c3_iffileexists = false;
+       Dc.c3_iffileexists = iffileexists;
        Dc.c3_entry_label = label ;
        Dc.c3_dialogue = $2 ;
        Dc.c3_variable = Some(var) ;
