@@ -85,6 +85,7 @@ and pe_str_str s = match s with
 let action_to_str a = match a with
 | TP_Copy _ -> "COPY"
 | TP_Move _ -> "MOVE"
+| TP_DisableFromKey _ -> "DISABLE_FROM_KEY"
 | TP_ClearMemory -> "CLEAR_MEMORY"
 | TP_Clear_Ids_Map -> "CLEAR_IDS_MAP"
 | TP_ActionClearArray _ -> "ACTION_CLEAR_ARRAY"

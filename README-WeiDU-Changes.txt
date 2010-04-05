@@ -9,6 +9,8 @@ Version 216:
     * can MOVE someDir someOtherDir (if someDir contains a subdirectory, a
 	  warning is printed and the subdirectory is skipped).
   * INTERJECT* IF_FILE_EXISTS target blah blah blah is now possible.
+  * DISABLE_FROM_KEY file.ext... added to "remove" one or more files from the
+    chitin.key.
 
 Version 215:
    * Fix embarassing MOVE regression.

@@ -99,7 +99,18 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 			end else
 				move src dst
 	    ) filelist
-      | TP_Require_File(file,error_msg) ->
+      | TP_DisableFromKey(file_lst) ->
+		let file_lst = List.map Var.get_string (List.map eval_pe_str file_lst) in
+		let file_lst = List.map String.uppercase file_lst in
+		game.Load.key_mod <- true ;
+		let new_key = Key.remove_files game.Load.key file_lst in
+		let oc = open_for_writing "CHITIN.KEY" true in
+		Key.save_key new_key oc ;
+		close_out oc ;
+		let keybuff = load_file "chitin.key" in
+		game.Load.key <- Key.load_key "chitin.key" keybuff ;
+		game.Load.loaded_biffs <- Hashtbl.create 5 ;
+	  | TP_Require_File(file,error_msg) ->
 	  log_and_print "Checking for required files ...\n" ;
 	  let file = Arch.backslash_to_slash file in
 	  let size = file_size file in

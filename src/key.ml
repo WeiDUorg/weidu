@@ -311,4 +311,31 @@ let remove_biff key filename =
     resource = newres ; }
 
 
+let remove_files key file_lst =
+	let new_resfind = key.resfind in
+	let file_hsh = Hashtbl.create 5 in
+	List.iter (fun file ->
+		let (name,ext) = split file in
+		Hashtbl.remove new_resfind (name,ext);
+		Hashtbl.add file_hsh (name,ext) true
+	) file_lst;
+	let new_file_count = ref (Array.length key.resource) in
+	Array.iter ( fun item ->
+		if Hashtbl.mem file_hsh (item.res_name, (ext_of_key item.res_type)) then
+			decr new_file_count
+	) key.resource;
+	let index = ref 0 in
+	let new_resource = Array.init !new_file_count (fun _ ->
+		let item = ref (key.resource.(!index)) in
+		while Hashtbl.mem file_hsh (!item.res_name, (ext_of_key !item.res_type)) do
+			incr index;
+			item := key.resource.(!index)
+		done;
+		incr index;
+		!item
+	) in
+	{ key with
+		resfind = new_resfind;
+		resource = new_resource;
+	}
 

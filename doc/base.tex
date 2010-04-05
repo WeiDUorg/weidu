@@ -2985,6 +2985,13 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
        (exception: if you MOVE for biffing purposes, it is save to call
        MAKE!BIFF after MOVE. Do not use the --make-biff command-line argument).
        \\
+
+  or & \DEFINE{DISABLE!FROM!KEY} file ... &
+		Removes one or more files from the chitin.key, while leaving the
+		containing bif file itself untouched.
+		
+		Don't use without a real reason.
+       \\
        
   or & \DEFINE{COMPILE} \Ob EVALUATE!BUFFER \Oe sourceFile \Slist
        \Ob \ttref{patch} \Slist \Oe \Ob \DEFINE{USING} traFile \Slist \Oe &
