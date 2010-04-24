@@ -217,5 +217,5 @@ let version = "21600"
 (* 212 let comment = "I'm an idiot for gaming on a laptop" *)
 (* 213 let comment = "MOVE" *)
 (* 214 let comment = "Will always remain free beer *and* free speech" *)
-let comment = "Testing R Us. Also will always remain free beer *and* free speech"
+(* let comment = "Testing R Us. Also will always remain free beer *and* free speech" *)
 let comment = "RERO, take two"
