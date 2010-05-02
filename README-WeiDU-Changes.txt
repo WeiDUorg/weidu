@@ -1,3 +1,6 @@
+Version 217:
+  * Really fix EDIT_SAV_FILE now.
+
 Version 216:
   * Trim the useless null termination in EDIT_SAV_FILE.
   * Do not reinstall FORCED_SUBCOMPONENTs if they're already installed and

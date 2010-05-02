@@ -48,8 +48,9 @@ let str_of_sav lvl sav =
   Buffer.add_string b "SAV V1.0";
   while not (Queue.is_empty sav) do
     let file = Queue.pop sav in
-    Buffer.add_string b (str_of_int (String.length file.filename));
+    Buffer.add_string b (str_of_int (String.length file.filename + 1));
     Buffer.add_string b file.filename;
+	Buffer.add_char b '\000';
     Buffer.add_string b (str_of_int (String.length file.contents));
     let c = Cbif.compress (Int32.to_int lvl) file.contents 0 (String.length file.contents) in
     Buffer.add_string b (str_of_int (String.length c));
