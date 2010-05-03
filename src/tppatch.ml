@@ -1752,8 +1752,15 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 			 | Load.PST  -> [25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36; 37; 38; 39; 40; 41; 42; 43; 44] )
 	    with Not_found ->
 	      (try assert false with Assert_failure(file,line,col) -> set_errors file line) ;
-	      log_and_print "WARNING: ADD_CRE_ITEM: Could not find empty inventory slot. Defaulting to INV16.\n" ;
-	      36
+		  let slotname, slotidx = match (match (Load.the_game()).Load.script_style with
+			 | Load.BG1
+			 | Load.BG2
+			 | Load.IWD1
+			 | Load.NONE -> "INV16", 36
+			 | Load.IWD2 -> "INV24", 48
+			 | Load.PST  -> "INV20", 44 )
+	      log_and_print "WARNING: ADD_CRE_ITEM: Could not find empty inventory slot. Defaulting to %s.\n" slotname;
+	      slotidx
 	  in
 
 	  let move_to_inv slot =
