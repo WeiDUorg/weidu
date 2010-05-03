@@ -1,5 +1,6 @@
 Version 217:
   * Really fix EDIT_SAV_FILE now.
+  * ADD_CRE_ITEM works in PST and IWD2.
 
 Version 216:
   * Trim the useless null termination in EDIT_SAV_FILE.

@@ -35,7 +35,7 @@ let get_item_number () =
   | Load.IWD2 ->
     48
   | Load.PST ->
-	44
+	45
 )
 ;;
 
@@ -215,6 +215,7 @@ let string_of_cre cre =
     Buffer.add_string minfo_buff buff;
     ()
 	    ) memorized_info;
+		
   let minfo_buff = Buffer.contents minfo_buff in
   let mlist_buff = Buffer.contents mlist_buff in
   let mlist_off = minfo_off + String.length minfo_buff in
@@ -230,7 +231,7 @@ let string_of_cre cre =
   let items_cnt = List.length items in
   let islot_off = items_off + 0x14 * items_cnt in
   let items_buff = Buffer.create 100 in
-  let islot_buff = String.make 0x50 '\000' in
+  let islot_buff = String.make (6 + 2 * get_item_number()) '\000' in
   let items_i = ref 0 in
   for i = 0 to (get_item_number ()) + 1 do
     write_short islot_buff (i * 2) (-1);
