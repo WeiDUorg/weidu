@@ -1847,37 +1847,37 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 		  let shield_slot = short_of_str_off buff (islot_off + 4) in
 		  write_empty_inv_slot buff (islot_off + 42) shield_slot ;
 		  write_short buff (islot_off + 4) 65535 ;
-		  let slot = short_of_str_off buff (islot_off + itype) in
+		  let slot = short_of_str_off buff (islot_off + itype * 2) in
 		  if slot <> 65535 then begin
 		    write_empty_inv_slot buff (islot_off + 42) slot;
-		    write_short buff (islot_off + itype) num_items;
+		    write_short buff (islot_off + itype * 2) num_items;
 		  end else
-		    write_short buff (islot_off + itype) num_items;
+		    write_short buff (islot_off + itype * 2) num_items;
 		end else (* possible_plus *) begin
 		  (* Not a two-handed weapon, just empty the slot and move any item
 		     in the slot to the inventory *)
-		  let slot = short_of_str_off buff (islot_off + itype) in
+		  let slot = short_of_str_off buff (islot_off + itype * 2) in
 		  if slot = 65535 then
-		    write_short buff (islot_off + itype) num_items
+		    write_short buff (islot_off + itype * 2) num_items
 		  else begin
 		    write_empty_inv_slot buff (islot_off + 42) slot ;
-		    write_short buff (islot_off + itype) num_items;
+		    write_short buff (islot_off + itype * 2) num_items;
 		  end;
 		end;
 	      end (* end of: if equip *) else begin
 		(* We're not equipping anything here, so just move any
 		   item that may be in the slot to inventory *)
-		let slot = short_of_str_off buff (islot_off + itype) in
+		let slot = short_of_str_off buff (islot_off + itype * 2) in
 		if slot <> 65535 then begin
 		  write_empty_inv_slot buff (islot_off + 42) slot;
-		  write_short buff (islot_off + itype) num_items
+		  write_short buff (islot_off + itype * 2) num_items
 		end else
-		  write_short buff (islot_off + itype) num_items
+		  write_short buff (islot_off + itype * 2) num_items
 	      end;
 
 	      (* Check if it's a weapon and select the appropriate slot *)
 	      (* let real_slot = find_empty_slot islot_off possible_slots in *)
-	      let real_slot = itype in
+	      let real_slot = itype * 2 in
 	      if i.equip && real_slot >= 18 && real_slot <= 24 then begin
 		let i_num = (real_slot - 16) / 2 in
 		write_short buff (islot_off + 76) (i_num - 1)
