@@ -379,11 +379,11 @@ let string_to_slots str =
 			| "SHIELD3"   -> 14
 			| "WEAPON4"   -> 15
 			| "SHIELD4"   -> 16
-			| "CLOAK"     -> 17
-			| "QUIVER1"   -> 18
-			| "QUIVER2"   -> 19
-			| "QUIVER3"   -> 20
-			(* | "QUIVER4"   -> 21 *)
+			| "QUIVER1"   -> 17
+			| "QUIVER2"   -> 18
+			| "QUIVER3"   -> 19
+			| "QUIVER4"   -> 20
+			| "CLOAK"     -> 21
 			| "QITEM1"    -> 22
 			| "QITEM2"    -> 23
 			| "QITEM3"    -> 24
@@ -437,7 +437,7 @@ let string_to_slots str =
 		  | "QUIVER3"    -> 15
 		  | "QUIVER4"    -> 16
 		  | "QUIVER5"    -> 17
-		  (* | "QUIVER6"    -> 18 *)
+		  | "QUIVER6"    -> 18
 		  | "TATTOO3"    -> 19
 		  | "QITEM1"     -> 20
 		  | "QITEM2"     -> 21
