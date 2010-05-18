@@ -1,7 +1,10 @@
+Version 218:
+  * Even more fixed with ADD_CRE_ITEM and PST/IWD2.
+  * Area files are loaded only with MODDER when compiling a script.
+
 Version 217:
   * Really fix EDIT_SAV_FILE now.
   * ADD_CRE_ITEM works in PST and IWD2.
-  * Area files are loaded only with MODDER when compiling a script.
 
 Version 216:
   * Trim the useless null termination in EDIT_SAV_FILE.

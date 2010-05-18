@@ -3307,11 +3307,14 @@ or & \DEFINE{ALTER!TLK!LIST} \t{BEGIN} \ttref{value} \Slist \t{END} \t{BEGIN} \t
     The string DisplayString is echoed to the user. Useful for debugging or
     status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}
     references, their values will be displayed. \\
-or & \DEFINE{OUTER!SPRINT} \ttref{variable} stringWithVars &
+or & \DEFINE{OUTER!TEXT!SPRINT} \ttref{variable} stringWithVars &
   Any WeiDU variables (enclosed in \t{\%}s) inside stringWithVars are
   replaced by their values and the resulting string (constructed at
   mod-installation time!) is assigned to the variable \t{variable}. 
   This works somewhat like \t{sprintf()} but it not as cool. \\
+or & \DEFINE{OUTER!SPRINT} \ttref{variable} stringWithVars &
+  Like OUTER!TEXT!SPRINT, but stringWithVars can be an @reference, and will
+  break --traify. Use OUTER!TEXT!SPRINT instead. \\
 or & \DEFINE{OUTER!SET} \ttref{variable} \t{=} \ttref{value} &
   Update \ttref{variable} so that it is equal to \ttref{value}. \\
 or & \ttref{OUTER!SET} \ttref{variable} \t{+=} \ttref{value} &
@@ -3585,12 +3588,15 @@ or & \DEFINE{TO!UPPER} \ttref{variable} &
 or & \DEFINE{TO!LOWER} \ttref{variable} &
   Turns to lower-case the contents of \verb+%variable%+ and store the
   results in variable. \\
-or & \DEFINE{SPRINT} \ttref{variable} stringWithVars &
+or & \DEFINE{TEXT!SPRINT} \ttref{variable} stringWithVars &
   Any WeiDU variables (enclosed in \t{\%}s) inside stringWithVars are
   replaced by their values and the resulting string (constructed at
   mod-installation time!) is assigned to the variable \t{variable}.
   This works somewhat like \t{sprintf()} but it not as cool. Currently this
   is the only way to assign a string value to a variable. \\
+or & \DEFINE{SPRINT} \ttref{variable} stringWithVars &
+  Like TEXT!SPRINT, but stringWithVars can be an @reference, and will
+  break --traify. Use TEXT!SPRINT instead. \\
 
 or & \DEFINE{SNPRINT} \ttref{value} \ttref{variable} stringWithVars & 
   As \ttref{SPRINT}, but only the first \t{N} characters are stored in
