@@ -139,11 +139,19 @@ let get_string_exact str =
   | String(s) -> s
 
 
-let clear_var a =
+let clear_var () =
   let var_spec = Hashtbl.copy !variables in
   Hashtbl.iter ( fun a b -> Hashtbl.remove !variables a
 		) var_spec ;
-  Hashtbl.clear !variables
+  Hashtbl.clear !variables;
+;;
+
+let clear_arr () =
+  let arr_spec = Hashtbl.copy !arrays in
+  Hashtbl.iter ( fun a b -> Hashtbl.remove !arrays a
+		) arr_spec ;
+  Hashtbl.clear !arrays;
+;;
 
 let assoc name value =
   let value = Int32.of_int value in

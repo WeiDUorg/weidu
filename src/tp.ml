@@ -112,7 +112,11 @@ and tp_action =
   | TP_Action_For_Each of tp_pe_string * string list * tp_action list
   | TP_Action_ReadLN of tp_pe_string
   | TP_ClearMemory
+  | TP_ClearArrays
+  | TP_ClearCodes
+  | TP_ClearInlined
   | TP_Clear_Ids_Map
+  | TP_ClearEverything
   | TP_ActionClearArray of tp_pe_string
   | TP_CopyAllGamFiles of tp_patch list * tp_constraint list
   | TP_Copy   of tp_copy_args

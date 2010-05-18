@@ -3015,7 +3015,14 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
       reloads the automatic ones (TP2!AUTHOR, TP2!FILE!NAME, LANGUAGE, WEIDU!ARCH,
       WEIDU!OS, COMPONENT!NUMBER, all numeric constants such as NAME1, the soundsets, or
       SCRIPT!OVERRIDE). INTERACTIVE is automatically set when you call the
-      next component. Don't use this feature. \\
+      next component. Don't use this feature without a real reason. \\
+  or & \DEFINE{CLEAR!ARRAYS} & removes the names and contents of all arrays
+      from the memory (while still keeping their values). \\
+  or & \DEFINE{CLEAR!CODES} & Removes all loaded functions and macros from the
+      memory. \\
+  or & \DEFINE{CLEAR!INLINED} & Removes all inlined files from the memory. \\
+  or & \DEFINE{CLEAR!EVERYTHING} & Runs CLEAR!MEMORY, CLEAR!ARRAY, CLEAR!CODES and
+      CLEAR!INLINED. \\
   or & \DEFINE{CLEAR!IDS!MAP} & force WeiDU to remove all loaded IDSes in memory
       (otherwise, if you compile a script, append to an IDS and compile another script, WeiDU
       will not handle the new IDS entry). \\

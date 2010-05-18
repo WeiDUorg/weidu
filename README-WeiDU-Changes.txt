@@ -1,6 +1,9 @@
 Version 218:
   * Even more fixed with ADD_CRE_ITEM and PST/IWD2.
   * Area files are loaded only with MODDER when compiling a script.
+  * Add a bunch of documentation.
+  * Remove/reword/substantiate 'do not use this' in the documentation.
+  * CLEAR_ARRAYS/CODES/INLINED/EVERYTHING to supplement CLEAR_MEMORY.
 
 Version 217:
   * Really fix EDIT_SAV_FILE now.

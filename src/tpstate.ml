@@ -35,6 +35,25 @@ let patch_functions: (string,(tp_pe_string * tp_patchexp) list *
 			(tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_patch list) Hashtbl.t = Hashtbl.create 10
 let readln_strings: (tp_pe_string * string) list ref = ref []
 
+let clear_codes () =
+  let var_spec = Hashtbl.copy action_macros in
+  Hashtbl.iter ( fun a b -> Hashtbl.remove action_macros a
+		) var_spec ;
+  Hashtbl.clear action_macros;
+  let var_spec = Hashtbl.copy patch_macros in
+  Hashtbl.iter ( fun a b -> Hashtbl.remove patch_macros a
+		) var_spec ;
+  Hashtbl.clear patch_macros;
+  let var_spec = Hashtbl.copy action_functions in
+  Hashtbl.iter ( fun a b -> Hashtbl.remove action_functions a
+		) var_spec ;
+  Hashtbl.clear action_functions;
+  let var_spec = Hashtbl.copy patch_functions in
+  Hashtbl.iter ( fun a b -> Hashtbl.remove patch_functions a
+		) var_spec ;
+  Hashtbl.clear patch_functions;
+;;
+
 (************************************************************************
  * For handling lists of modules.
  ************************************************************************)

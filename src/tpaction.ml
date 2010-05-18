@@ -498,7 +498,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  eval_pe_warn := true ;
 	  
       | TP_ClearMemory ->
-	  log_and_print "Clearing the memory.\n" ;
+	  log_and_print "Clearing the variables.\n" ;
 	  let temp_author = Var.get_string "%TP2_AUTHOR%" in
 	  let temp_lang = Var.get_string "%LANGUAGE%" in
 	  let temp_name = Var.get_string "%TP2_FILE_NAME%" in
@@ -509,9 +509,29 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  Var.set_string "TP2_FILE_NAME" temp_name ;
 	  Arch2.associate_these () ;
 	  
+      | TP_ClearArrays ->
+	  log_and_print "Clearing the arrays.\n" ;
+	  Var.clear_arr () ;
+	  
+      | TP_ClearCodes ->
+	  log_and_print "Clearing the macros.\n" ;
+	  clear_codes () ;
+	  process_action_real our_lang game this_tp2_filename tp
+	    (TP_Include Tph.list_of_includes);
+
+	  
+      | TP_ClearInlined ->
+	  log_and_print "Clearing the inlined files.\n" ;
+	  Bcs.clear_ids_map game ;
+	  
       | TP_Clear_Ids_Map ->
 	  log_and_print "Clearing the IDS map.\n" ;
 	  Bcs.clear_ids_map game ;
+	  
+      | TP_ClearEverything ->
+	  List.iter (process_action_real our_lang game this_tp2_filename tp)
+	  [ TP_ClearArrays; TP_ClearMemory; TP_ClearInlined;
+		TP_ClearCodes; TP_Clear_Ids_Map ]
 	  
       | TP_ActionClearArray(arr) ->
 	  let arr = eval_pe_str arr in

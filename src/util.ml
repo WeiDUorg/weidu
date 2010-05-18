@@ -119,6 +119,16 @@ let recursive_mkdir directory mode =
 let inlined_files = Hashtbl.create 15
 ;;
 
+let clear_inlined () =
+  let arr_spec = Hashtbl.copy inlined_files in
+  Hashtbl.iter ( fun a b -> Hashtbl.remove inlined_files a
+		) arr_spec ;
+  Hashtbl.clear inlined_files;
+List.iter ( fun (name,contents) ->
+  Hashtbl.add inlined_files name contents
+	   ) Tph.list_of_stuff
+;;
+
 List.iter ( fun (name,contents) ->
   Hashtbl.add inlined_files name contents
 	   ) Tph.list_of_stuff
