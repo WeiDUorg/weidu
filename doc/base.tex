@@ -3375,7 +3375,19 @@ or & \DEFINE{ACTION!BASH!FOR} \ttref{directory-file-regexp} \t{BEGIN} \ttref{TP2
 or & \DEFINE{ACTION!DEFINE!ARRAY} \t{\ttref{String}1 BEGIN \ttref{String}2} \Slist \t{END} &
 	Sets the array \verb+$string1(0)+,\verb+$string1(1)+ etc. to the various elements in string2.
 \\
-
+or & \DEFINE{GET!FILE!ARRAY} \ttref{String} path \ttref{regexp} &
+  The array \verb+$string(0)+, \verb+$string{1}+ etc is set to the file names, including path, that match regexp in path. The path is relative to the installation directory (e.g. save/000000000-Auto-Save).\\
+or & \DEFINE{GET!DIRECTORY!ARRAY} \ttref{String} path \ttref{regexp} &
+  Like \ttref{GET!FILE!ARRAY} except regexp is matched against directories instead of files.\\
+or & \DEFINE{ACTION!DEFINE!ASSOCIATIVE!ARRAY} \t{\ttref{String} BEGIN key1 => result1} \Slist \t{END} &
+  Sets the array \verb+$string+, indexed by the keys, to the corresponding results. The results can either be \ttref{String}s or \ttref{value}s.
+  Example:
+  \begin{verbatim}
+ACTION_DEFINE_ASSOCIATIVE_ARRAY mix_with_blue BEGIN
+  red => purple
+  yellow => green
+END
+  \end{verbatim}\\
 or & \DEFINE{ACTION!FOR!EACH} \t{\ttref{String}1 IN \ttref{String}} \Slist
                               \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
     will set the string1 variable to each value in string list and process each action. \\
@@ -3796,12 +3808,57 @@ or & \DEFINE{READ!STRREF} \ttref{offset} \ttref{variable} \Ob \t{ELSE}
   \ttref{SAY!EVALUATED}.  \\
 
 or & \DEFINE{GET!OFFSET!ARRAY} \ttref{String} \t{seven \ttref{value}s} &
-		This is too complicated to explain with words. SConrad owes documentation.
-\\
+  The seven values are:
+\begin{verbatim}
+1. Offset
+2. Read length of "Offset"
+3. Iterations
+4. Read length of "Iterations"
+5. Index
+6. Read length of "Index"
+7. Length between iterations.
+\end{verbatim}
+
+WeiDU comes with a number of pre-defined sets of values for GET!OFFSET!ARRAY. These sets are:
+\begin{verbatim}
+ITM_V10_HEADERS (0x64 4 0x68 2 0 0 0x38)
+ITM_V10_GEN_EFFECTS (0x6a 4 0x70 2 0x6e 2 0x30)
+WMP_AREAS (0x34 4 0x30 4 0 0 0xf0)
+WMP_LINKS (0x38 4 0x3c 4 0 0 0xd8)
+\end{verbatim}
+
+GET!OFFSET!ARRAY performs "Iterations" number of reads and sets the array \verb+$string(0)+, \verb+$string(1)+ etc to the result of these reads. A more detailed explanation can be had in the \ttref{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} tutorial.\\
 
 or & \DEFINE{GET!OFFSET!ARRAY2} \ttref{String} \t{eight \ttref{value}s} &
-		This is too complicated to explain with words. SConrad owes documentation.
-\\
+  The eight values are:
+\begin{verbatim}
+1. Offset2
+2. Offset
+3. Read length of "Offset"
+4. Iterations
+5. Read length of "Iterations"
+6. Index
+7. Read length of "Index"
+8. Length between iterations
+\end{verbatim}
+
+WeiDU comes with a pre-defined set of values for GET!OFFSET!ARRAY2. This set is:
+\begin{verbatim}
+ITM_V10_HEAD_EFFECTS (0x6a 4 0x1e 2 0x20 2 0x30)
+\end{verbatim}
+As you can see, the value for Offset2 isn't included in the set, since it varies.
+
+"Offset2" corresponds to the result from \ttref{GET!OFFSET!ARRAY}. "Offset" is read from the start of the file. "Iterations" and "Index" are read from Offset2 + value. Apart from that GET!OFFSET!ARRAY2 functions like \ttref{GET!OFFSET!ARRAY}. A more detailed explanation can be had in the \ttref{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} tutorial.\\
+     
+or & \DEFINE{DEFINE!ASSOCIATIVE!ARRAY} \t{\ttref{String} BEGIN key1 => result1} \Slist \t{END} &
+  Sets the array \verb+$string+, indexed by the keys, to the corresponding results. The results can either be \ttref{String}s or \ttref{value}s.
+  Example:
+  \begin{verbatim}
+DEFINE_ASSOCIATIVE_ARRAY mix_with_blue BEGIN
+  red => purple
+  yellow => green
+END
+  \end{verbatim}\\
 
 or & \DEFINE{GET!STRREF} \ttref{value} \ttref{variable} &
   The string reference value is looked up in \t{DIALOG.TLK} and the (male) string
@@ -7003,6 +7060,101 @@ LAUNCH_ACTION_FUNCTION xyz INT_VAR x = 0 END
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{\DEFINE{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} (last edit: 218)}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Many thanks to Wisp for providing this tutorial.
+
+GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2 are means for obtaining information about certain types of file structures without using the usual READs, FORs etc. GET!OFFSET!ARRAY can, for example, be used to find the starting offsets for all the extended headers (abilities) in an item, while GET!OFFSET!ARRAY2 can be used to find the starting offsets for all extended effects in the item. Since the effect structure is organised by the ability structure, GET!OFFSET!ARRAY2 is conventionally used together with GET!OFFSET!ARRAY.
+
+The seven values required by GET!OFFSET!ARRAY are:
+\begin{verbatim}
+1. Offset
+2. Read length of "Offset"
+3. Iterations
+4. Read length of "Iterations"
+5. Index
+6. Read length of "Index"
+7. Length between iterations.
+\end{verbatim}
+
+Acceptable values for read length are 0 (don't read), 2 (SHORT) and 4 (LONG). Length between iterations depends on the file structure you are working with. In our item example, length between iterations is 0x38 while we are using GET!OFFSET!ARRAY. If we were working with a spell instead, it would be 0x28.
+
+In the item example, "Offset" is 0x64, which gives the ability offset when read.
+The value read from "Iterations" is the number reads that should be performed. "Iterations" is 0x68 in the item example, which gives the number of abilities when read.
+The value read from "Index" is the number of iterations into the file the current read should be made. This is not always relevant for GET!OFFSET!ARRAY, but for reading general effects (on-equip effects), this is 0x6e.
+
+GET!OFFSET!ARRAY2 requires an additional value. Let's call it Offset2. This value is normally obtained as the result from GET!OFFSET!ARRAY. In our item example this value is the starting offset for the current ability. The value of "Offset" is now 0x6a, which gives the effect offset. The value of "Iterations" is now 0x1e, which gives the number of effects, the value of "Index" is now 0x20 and both are read from Offset2 + value (unlike GET!OFFSET!ARRAY where they are read from the start of the file).
+
+For example, if we wanted to know how many levels Blackrazor can drain, we could use this code:
+\begin{verbatim}
+COPY_EXISTING miscbc.itm override
+  GET_OFFSET_ARRAY ab_array 0x64 4 0x68 2 0 0 0x38
+  PHP_EACH ab_array AS int => ab_off BEGIN
+    CLEAR_ARRAY fx_array
+    GET_OFFSET_ARRAY2 fx_array ab_off ITM_V10_HEAD_EFFECTS
+    PHP_EACH fx_array AS int => fx_off BEGIN
+      READ_SHORT fx_off fx_type
+      PATCH_IF fx_type = 216 BEGIN
+        READ_LONG fx_off + 0x4 amount
+        PATCH_PRINT "I drain %amount% level(s)"
+      END
+    END
+  END
+BUT_ONLY
+\end{verbatim}
+
+You need to use CLEAR!ARRAY before invoking GET!OFFSET!ARRAY2, or you can run into problems with PHP!EACH using old values. It may also be prudent to clear the array created by GET!OFFSET!ARRAY, in case you use GET!OFFSET!ARRAY more than once.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\DEFINE{Code dumps}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+This section contains code snippets that serve to document functionality
+not covered elsewhere.
+
+These snippets are provided by Miloch.
+\begin{verbatim}
+//For each dialogue, change GivePartyGold() to GiveGoldForce() actions
+ACTION_FOR_EACH dialog IN ~arkion~ ~ardrou~ ~berrun~ ~brevli~ ~brielb~ ~forthe~ ~gurke~ BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME ~%dialog%.dlg~ BEGIN
+    COPY_EXISTING ~%dialog%.dlg~ ~override~
+      PATCH_IF SOURCE_SIZE > 0x34 BEGIN
+        DECOMPILE_DLG_TO_D
+        REPLACE_TEXTUALLY CASE_INSENSITIVE EXACT_MATCH ~GivePartyGold~ ~GiveGoldForce~
+        COMPILE_D_TO_DLG
+      END
+    BUT_ONLY
+  END
+END
+
+//Compress a BAM
+COPY ~bambatch/bam~ ~bambatch/bam~
+  READ_ASCII 0x0 sg (4) //Signature
+  PATCH_IF (~%sg%~ STRING_EQUAL_CASE ~BAM ~ = 1) BEGIN
+    dl = SOURCE_SIZE //Data length
+    COMPRESS_REPLACE_FILE 0 dl 9
+    INSERT_BYTES 0x0 0xc
+    WRITE_ASCII 0x0 ~BAMCV1  ~
+    WRITE_LONG 0x8 dl
+  END ELSE BEGIN
+    PATCH_PRINT ~%SOURCE_FILE% is not an uncompressed BAM.~
+  END
+BUT_ONLY
+
+//Decompress a BAM
+COPY ~bambatch/bam~ ~bambatch/bam~
+  READ_ASCII 0x0 sg (4) //Signature
+  PATCH_IF (~%sg%~ STRING_EQUAL_CASE ~BAMC~ = 1) BEGIN
+    READ_LONG 0x8 dl //Uncompressed data length
+    DECOMPRESS_REPLACE_FILE 0xc (SOURCE_SIZE - 0xc) dl
+  END ELSE BEGIN
+    PATCH_PRINT ~%SOURCE_FILE% is not a compressed BAM.~
+  END
+BUT_ONLY
+\end{verbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\DEFINE{Macros Listing}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 These macros are automatically shipped with WeiDU.
@@ -7584,6 +7736,8 @@ The Bigg would additionally like to thank the following contributors:
 \item vit-mg (sends documentation!)
 \item Mike1072 (sends documentation!)
 \item plainab {sends tp2 macros!}
+\item wisp (sends documentation!)
+\item Miloch (sends documentation!)
 \end{itemize}
 and additionally
 \begin{itemize}
