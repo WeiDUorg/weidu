@@ -38,4 +38,8 @@ let handle_deb test str =
 
 let handle_msg test str =
   if get test <> None then log_and_print "%s" str;
+;;
 
+let enabled test =
+  get test <> None
+;;
