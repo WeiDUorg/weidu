@@ -532,7 +532,7 @@ All other keywords are symbolic. Notes:
 
   or & \DEFINE{REPLACE!TRIGGER!TEXT!REGEXP} filenameRegexp oldText newText &
   Just like \ttref{REPLACE!TRIGGER!TEXT} but the filename is a
-  \ttref{regexp}. The \ttref{.DLG} is implied. Do not use this. \\
+  \ttref{regexp}. The \ttref{.DLG} is implied. \\
 
   or & \DEFINE{REPLACE!ACTION!TEXT} filename oldText newText 
     \Ob moreFilenames \Oe &
@@ -546,7 +546,7 @@ All other keywords are symbolic. Notes:
     \Ob moreFilenameRegexps \Oe &
   Just like \ttref{REPLACE!ACTION!TEXT} but the filenames are
   \ttref{regexp}s. The \ttref{.DLG} is implied, do not include it in your
-  \ttref{regexp}s. Do not use this. \\
+  \ttref{regexp}s. \\
 
   or & \DEFINE{REPLACE!ACTION!TEXT!PROCESS} filename oldText newText
     \Ob moreFilenames \Oe &
@@ -565,7 +565,7 @@ All other keywords are symbolic. Notes:
     filenameRegexp oldText newText
     \Ob moreFilenameRegexps \Oe &
   Just like \ttref{REPLACE!ACTION!TEXT!PROCESS}, but the filenames are
-  \ttref{regexp}s. The \ttref{.DLG} is implied. Do not use this. R!A!T!P!R is
+  \ttref{regexp}s. The \ttref{.DLG} is implied. R!A!T!P!R is
   shortand for REPLACE!ACTION!TEXT!PROCESS!REGEXP (to avoid undue scrollbars
   in the readme on a 1024x768 monitor). \\
 
@@ -697,7 +697,7 @@ or & \DEFINE{UNSOLVED!JOURNAL} \ttref{text} &
   ``unsolved'' section of the PC's journal. \\
 or & \DEFINE{FLAGS} integer &
   This allows you to set the features associated with a transition directly
-  using the binary format of \ttref{DLG} files. \emph{Do not use this!} \\
+  using the binary format of \ttref{DLG} files. \\
 
 \\
 
@@ -763,7 +763,7 @@ or & \t{!integer} \ttref{text} & \DEFINE{Forced String Reference}. As with
 \ttref{text} in general, but rather than being assigned a new,
 previously-unused \t{DIALOG.TLK} string entry (or merging with an existing
 one that has the same \ttref{text}), this \ttref{text} is written over
-\t{DIALOG.TLK} string entry \#\t{integer}. \emph{Do not use this feature.}
+\t{DIALOG.TLK} string entry \#\t{integer}. Do not use this without a real reason.
 \\
 
 \\
@@ -1038,8 +1038,7 @@ matching file, assume it has a strref name at offset \t{X} and print that
 name out as well. \\
 \DEFINE{--make-biff} \t{X} & Create \t{data/X.bif} from all files in
 folder \t{X} and destructively update \t{CHITIN.KEY}. \emph{Do not use this
-feature.} \emph{Do not even think of using this feature without backing up
-\t{CHITIN.KEY}.} \\
+feature. Use MAKE!BIFF instead.} \\
 \DEFINE{--remove-biff} \t{X} & Remove references to \ttref{BIFF} \t{X} and
 all of its resources from \t{CHITIN.KEY}. \emph{Do not use this feature.} \\
 \\
@@ -1545,7 +1544,7 @@ You can use \DEFSYN{--remove-biff} to remove a \ttref{BIFF} file from
 \t{CHITIN.}\ttref{KEY}. 
 Before using this feature, make sure you backup your
 \t{CHITIN.}\ttref{KEY}.
-Do not use this feature. 
+Do not use this feature. Use MAKE!BIFF instead.
 
   \CMD{ weidu --make-biff mybiff data$\backslash$25ArMisc.bif } 
   \begin{verbatim}
@@ -2869,15 +2868,15 @@ global option to your \ttref{TP2} file. \\
       component number to forcedNumber. The next component (if it lacks a
       \ttref{DESIGNATED} flag) will be forcedNumber+1. You can easily shoot
       yourself in the foot by setting forcedNumber too low (e.g., so that
-      multiple components have the same number). \emph{Do not use this
-      flag.} \\
+      multiple components have the same number). \\
 
   or & \DEFINE{NO!LOG!RECORD} &
       Normally all module components are recorded in \t{WeiDU.log} and can
       be uninstalled later. This component flag prevents this component
       from writing a log record when it is successfully installed. As a
       result it is ``invisible'' to WeiDU, can be installed multiple times,
-      and cannot be uninstalled with WeiDU. \emph{Do not use this flag.} \\
+      and cannot be uninstalled with WeiDU. \emph{Do not use this flag without
+	  a real reason.} \\
 \\
 
 \DEFINE{TP2 Action} & & 
@@ -3183,7 +3182,8 @@ END
     to be used in the following tp2 actions, as if you had declared them in \ttref{LANGUAGE}. \\
   or & \DEFINE{UNINSTALL} modToUninstall modComponent &
     If the given component of the given mod is currently installed,
-    uninstall it before proceeding. \emph{Do not use this action.} This
+    uninstall it before proceeding. \emph{Do not use this action without
+	a real reason.} This
     should only be used if you release a new version of a component under a
     new name. For example, many Tactics Mod components replace old
     Solaufein mod components. In order to prevent such a component from
@@ -3250,7 +3250,7 @@ unusabilities
   or & \DEFINE{STRING!SET} indexOrString newValue \Slist
     \Ob \t{USING} traFile \Oe &
     This command replaces each given string in the user's \ttref{TLK} file
-    with the associated newValue. \emph{Do not use this command.} If a
+    with the associated newValue. If a
     traFile is given, that file is is read once before all of the
     replacements take place and its contents are forgotten after. \emph{Do
     not use this command.} \\
@@ -3258,7 +3258,7 @@ unusabilities
   or & \DEFINE{STRING!SET!EVALUATE} \ttref{value} newValue \Slist
     \Ob \t{USING} traFile \Oe &
     This command replaces the string at index value in the user's \ttref{TLK} file
-    with the associated newValue. \emph{Do not use this command.} If a
+    with the associated newValue. If a
     traFile is given, that file is is read once before all of the
     replacements take place and its contents are forgotten after. \emph{Do
     not use this command.} \\
@@ -3268,26 +3268,26 @@ unusabilities
     \t{STRING!SET i @i USING traFile} (except that this command should be
     executed more rapidly). The command will fail if @i is not defined
     (either by traFile or by some other tra file in scope) for some i
-    between min and max.  \emph{Do not use this command.} \\
+    between min and max.  \\
 
 	or & \DEFINE{ALTER!TLK!RANGE} \ttref{value} \ttref{value} \t{BEGIN} \ttref{patch} \Slist \t{END} &
 		Executes the given patch list on all the strings *currently* in dialog.tlk between the
 		two given values (both inclusive).
 		This means that strings added in the current mod installation will not
 		be patched, and strings already altered via \ttref{ALTER!TLK}* and/or \ttref{STRING!SET}*
-		will be patched from the pre-patch condition. DNUT. \\
+		will be patched from the pre-patch condition.\\
 
 or & \DEFINE{ALTER!TLK!LIST} \t{BEGIN} \ttref{value} \Slist \t{END} \t{BEGIN} \ttref{patch} \Slist \t{END} &
 		Executes the given patch list on all the strings *currently* in dialog.tlk from the given list.
 		This means that strings added in the current mod installation will not
 		be patched, and strings already altered via \ttref{ALTER!TLK}* and/or \ttref{STRING!SET}*
-		will be patched from the pre-patch condition. DNUT. \\
+		will be patched from the pre-patch condition. \\
 
 	or & \DEFINE{ALTER!TLK} \t{BEGIN} \ttref{patch} \Slist \t{END} &
 		Executes the given patch list on all the strings *currently* in dialog.tlk.
 		This means that strings added in the current mod installation will not
 		be patched, and strings already altered via \ttref{ALTER!TLK}* and/or \ttref{STRING!SET}*
-		will be patched from the pre-patch condition. DNUT. Consider using
+		will be patched from the pre-patch condition. Consider using
 		\ttref{ALTER!TLK!RANGE} with the base game's boundaries instead. \\
 
   or & \DEFINE{REQUIRE!FILE} filename warningString &
@@ -3473,7 +3473,8 @@ COMPILE ~.../mymod-inlined/myfile.baf~
            is uninstalled. \\
   or & \t{+} & If you put a \t{+} here, WeiDU will {\em not} make a backup
            copy of the file and the \ttref{COPY} will {\em not} be
-           undone if the mod is uninstalled. {\em Do not use this feature.  } \\
+           undone if the mod is uninstalled. {\em Do not use this feature without
+			a real reason.} \\
   or & \t{-} & If you put a \t{-} here, WeiDU will {\em not} copy the file,
            but only store it as an inlined file (so you can patch a file and
            then use it for \ttref{EXTEND!BOTTOM} or whatever.
@@ -3580,8 +3581,7 @@ or & \DEFINE{SAY!EVALUATED} \ttref{offset} stringWithVars &
       READ_LONG 0x38 cost 
       SAY_EVALUATED IDENTIFIED_DESC
         ~I Am %SOURCE_RES%, I Cost %cost%~
-  \end{verbatim}
-  \emph{Do not use this feature.} \\
+  \end{verbatim} \\
 or & \DEFINE{TO!UPPER} \ttref{variable} &
   Turns to upper-case the contents of \verb+%variable%+ and store the
   results in variable. \\
@@ -3654,7 +3654,7 @@ EXTEND_TOP ~sola.bcs~ ~.../script.baf~
 \end{verbatim}
 	\t{$myvar$} will be substituted with Anomen, but \t{\%myvar\%} will be not.
 	
-	DNUT.
+	Do not use this without a real reason.
 \\
 or & \DEFINE{EVALUATE!BUFFER} &
   Any WeiDU variables (like \t{\%myvar\%}) inside the current file (which
