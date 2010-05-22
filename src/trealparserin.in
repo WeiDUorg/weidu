@@ -332,7 +332,7 @@ nonterm(Tp.tp_action) Tp_Action {
 			[ Tp.TP_Copy {
 				Tp.copy_get_existing = true;
         Tp.copy_use_regexp = true;
-        Tp.copy_use_glob =  (match e2 with Some x -> x | None -> false) ;
+        Tp.copy_use_glob =  (match e2 with Some x -> x | None -> true) ;
         Tp.copy_file_list = e3 ;
         Tp.copy_patch_list = e4 ;
         Tp.copy_constraint_list = e5 ;

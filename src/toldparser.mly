@@ -503,7 +503,7 @@ optional_evaluate :
     { Tp.TP_Copy(
       { Tp.copy_get_existing = true;
         Tp.copy_use_regexp = true;
-        Tp.copy_use_glob = $3;
+        Tp.copy_use_glob = true;
         Tp.copy_file_list = $4 ;
         Tp.copy_patch_list = $5 ;
         Tp.copy_constraint_list = $6 ;
