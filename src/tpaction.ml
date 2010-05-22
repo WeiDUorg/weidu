@@ -522,7 +522,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  
       | TP_ClearInlined ->
 	  log_and_print "Clearing the inlined files.\n" ;
-	  Bcs.clear_ids_map game ;
+	  clear_inlined () ;
 	  
       | TP_Clear_Ids_Map ->
 	  log_and_print "Clearing the IDS map.\n" ;
