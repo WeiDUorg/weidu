@@ -2094,6 +2094,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	if !debug_ocaml then log_and_print "offset %d count %d index %d length %d\n"
 	    offset count index length;
 	let arrS = eval_pe_str arr in
+	process_action tp (TP_ActionClearArray arr);
 	if not (Hashtbl.mem !Var.arrays arrS) then Hashtbl.add !Var.arrays arrS [];
 	for i = index to index + count - 1 do
 	  Var.set_string
