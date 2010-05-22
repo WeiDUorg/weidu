@@ -3259,16 +3259,14 @@ unusabilities
     This command replaces each given string in the user's \ttref{TLK} file
     with the associated newValue. If a
     traFile is given, that file is is read once before all of the
-    replacements take place and its contents are forgotten after. \emph{Do
-    not use this command.} \\
+    replacements take place and its contents are forgotten after.  \\
 
   or & \DEFINE{STRING!SET!EVALUATE} \ttref{value} newValue \Slist
     \Ob \t{USING} traFile \Oe &
     This command replaces the string at index value in the user's \ttref{TLK} file
     with the associated newValue. If a
     traFile is given, that file is is read once before all of the
-    replacements take place and its contents are forgotten after. \emph{Do
-    not use this command.} \\
+    replacements take place and its contents are forgotten after. \\
 
   or & \DEFINE{STRING!SET!RANGE} \#min \#max \t{USING} traFile &
     For every integer i between min and max (inclusive) we do
@@ -3518,10 +3516,8 @@ the directory / filename distinction must be enforced. \\
   \ttref{COPY!EXISTING!REGEXP}, glob wildcards do not range over game
   resources. Instead, they range over physical files actually on the disk. 
   \\
-  is & & Do not use local filesystem globbing. This is the default. \\
-  or & \DEFINE{GLOB} & Use local filesystem globbing. Globbing is
-  generally architecture specific! \emph{Do not use globbing if you can
-  help it.} 
+  is & \DEFINE{GLOB} & Use local filesystem globbing. Globbing is
+  generally architecture specific!
 
   Here is a concrete example. Imagine that \t{CHITIN.KEY} contains 
   two files: C1.ITM and C2.ITM. The \t{override} contains C2.ITM and
@@ -3546,6 +3542,9 @@ the directory / filename distinction must be enforced. \\
   \end{verbatim}
   
   \\
+  or & \DEFINE{NOGLOB} & Never use local file system globbing. \\
+  or & & Use sane defaults: enable globbing with COPY!EXISTING!REGEXP, disable
+  it with COPY. \\
 
 \\
 
@@ -7788,10 +7787,6 @@ Currently undocumented:
 \item {\tt REPLACE!BCS!BLOCK!REGEXP}.
 \item Fred's BCS diff stuff.
 \item {\tt --trbify}, \t{TRB} files.
-\item Associative Arrays.
-\item {\tt REMOVE!2DA!ROW}.
-\item {\tt GET!FILE!ARRAY}.
-\item {\tt GET!DIRECTORY!ARRAY}.
 \item {\tt EDIT!SAV!FILE}.
 \item {\tt EXTEND!MOS}.
 \end{itemize}
