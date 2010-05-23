@@ -138,11 +138,11 @@ trig_opt_args :         { (0l,0l,0l,"","",(0l,0l)) }
 	o_team = 0l ; 
 	o_general = a.(1) ;
 	o_race = a.(2) ;
-	o_subrace = (a.(3));
+	o_class = a.(3) ;
 	o_specific = a.(4) ;
 	o_gender = a.(5) ;
 	o_alignment = a.(6) ;
-	o_class = a.(7) ;
+	o_subrace = (a.(7));
 	o_identifiers = a.(8);
 	o_unknown1 = a.(9) ;
 	o_unknown2 = a.(10) ;

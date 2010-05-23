@@ -112,11 +112,11 @@ let ids_file_of_object_position ss i =
   | Load.IWD2,0 -> "EA"
   | Load.IWD2,1 -> "GENERAL"
   | Load.IWD2,2 -> "RACE"
-  | Load.IWD2,3 -> "SUBRACE"
+  | Load.IWD2,3 -> "CLASS"
   | Load.IWD2,4 -> "SPECIFIC"
   | Load.IWD2,5 -> "GENDER"
   | Load.IWD2,6 -> "ALIGNMNT"
-  | Load.IWD2,7 -> "CLASS"
+  | Load.IWD2,7 -> "SUBRACE"
   | Load.IWD2,8 -> "AVCLASS"
   | Load.IWD2,9 -> "CLASSMSK"
 
@@ -433,11 +433,11 @@ let save_bcs game how bcs =
 	    obj.o_ea
 	    obj.o_general
 	    obj.o_race
-	    obj.o_subrace (* NO CLUE JONES! THIS DOES NOT WORK *) 
+	    obj.o_class (* NO CLUE JONES! THIS DOES NOT WORK *) 
 	    obj.o_specific
 	    obj.o_gender
 	    obj.o_alignment
-	    obj.o_class (* NO CLUE JONES! THIS DOES NOT WORK *) 
+	    obj.o_subrace (* NO CLUE JONES! THIS DOES NOT WORK *) 
 	    obj.o_identifiers obj.o_unknown1 obj.o_unknown2
 	    obj.o_unknown3 obj.o_unknown4 
 	    w x y z 
@@ -865,11 +865,11 @@ let print_script_text game how what comments strhandle =
              obj.o_ea , "EA" ;
              obj.o_general , "GENERAL" ;
              obj.o_race , "RACE" ;
-             obj.o_subrace , "SUBRACE" ;
+             obj.o_class , "CLASS" ;
              obj.o_specific , "SPECIFIC" ;
              obj.o_gender , "GENDER" ;
              obj.o_alignment , "ALIGNMNT" ;
-             obj.o_class , "CLASS" ;
+             obj.o_subrace , "SUBRACE" ;
              obj.o_iwd2_1 , "AVCLASS" ;
              obj.o_iwd2_2 , "CLASSMSK"
 	   ] 

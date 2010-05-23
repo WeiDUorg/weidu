@@ -7,6 +7,7 @@ Version 218:
   * Fixed a case with SUBCOMPONENT and DESIGNATED where [Q]uit did not work.
   * If MODDER AREA_VARIABLES is active, check that the main variable string is
     <= 32 characters.
+  * Swap CLASS and SUBRACE in IWD2 scripts.
 
 Version 217:
   * Really fix EDIT_SAV_FILE now.

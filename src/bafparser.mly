@@ -94,11 +94,11 @@ let assign_bracket x pos obj ss =
   | Load.IWD2,0 -> obj.o_ea <- x
   | Load.IWD2,1 -> obj.o_general <- x
   | Load.IWD2,2 -> obj.o_race <- x
-  | Load.IWD2,3 -> obj.o_subrace <- x
+  | Load.IWD2,3 -> obj.o_class <- x
   | Load.IWD2,4 -> obj.o_specific <- x
   | Load.IWD2,5 -> obj.o_gender <- x
   | Load.IWD2,6 -> obj.o_alignment <- x
-  | Load.IWD2,7 -> obj.o_class <- x
+  | Load.IWD2,7 -> obj.o_subrace <- x
   | Load.IWD2,8 -> obj.o_iwd2_1 <- x
   | Load.IWD2,9 -> obj.o_iwd2_2 <- x
 
