@@ -67,18 +67,24 @@ let valid_var_area s =
 	  ans
   else true
 
+let valid_main_string s =
+  String.length s <= 32
+  
 let fixup_concat argl =
   let s1 = get_next_string argl in
   let s2 = get_next_string argl in
+  if not (valid_main_string s1) then Modder.handle_deb "AREA_VARIABLES" (Printf.sprintf "This expression is too long in the first part: Global(\"%s\",\"%s\")\n" s1 s2);
   if not (valid_var_area s2) then Modder.handle_deb "AREA_VARIABLES" (Printf.sprintf "This expression has a typo in the second part: Global(\"%s\",\"%s\")\n" s1 s2);
   argl := (Arg_String,Act_String(s2^s1)) :: !argl
 
 let fixup_concat2 argl =
   let s1 = get_next_string argl in
   let s2 = get_next_string argl in
+  if not (valid_main_string s1) then Modder.handle_deb "AREA_VARIABLES" (Printf.sprintf "This expression is too long in the first part: Global(\"%s\",\"%s\")\n" s1 s2);
   if not (valid_var_area s2) then Modder.handle_deb "AREA_VARIABLES" (Printf.sprintf "This expression has a typo in the second part: *Global*(\"%s\",\"%s\")\n" s1 s2);
   let s3 = get_next_string argl in
   let s4 = get_next_string argl in
+  if not (valid_main_string s3) then Modder.handle_deb "AREA_VARIABLES" (Printf.sprintf "This expression is too long in the first part: Global(\"%s\",\"%s\")\n" s3 s4);
   if not (valid_var_area s4) then Modder.handle_deb "AREA_VARIABLES" (Printf.sprintf "This expression has a typo in the second part: *Global*(\"%s\",\"%s\")\n" s3 s4);
   argl := (Arg_String,Act_String(s2^s1)) ::
     (Arg_String,Act_String(s4^s3)) :: !argl

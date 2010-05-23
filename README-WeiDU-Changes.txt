@@ -5,6 +5,8 @@ Version 218:
   * Remove/reword/substantiate 'do not use this' in the documentation.
   * CLEAR_ARRAYS/CODES/INLINED/EVERYTHING to supplement CLEAR_MEMORY.
   * Fixed a case with SUBCOMPONENT and DESIGNATED where [Q]uit did not work.
+  * If MODDER AREA_VARIABLES is active, check that the main variable string is
+    <= 32 characters.
 
 Version 217:
   * Really fix EDIT_SAV_FILE now.
