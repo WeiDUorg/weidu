@@ -4,6 +4,7 @@ Version 218:
   * Add a bunch of documentation.
   * Remove/reword/substantiate 'do not use this' in the documentation.
   * CLEAR_ARRAYS/CODES/INLINED/EVERYTHING to supplement CLEAR_MEMORY.
+  * Fixed a case with SUBCOMPONENT and DESIGNATED where [Q]uit did not work.
 
 Version 217:
   * Really fix EDIT_SAV_FILE now.

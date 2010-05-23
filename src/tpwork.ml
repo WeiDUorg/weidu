@@ -800,8 +800,8 @@ let rec handle_tp
 			if subcomp_forced c && not (fails_requirements c) then module_defaults.(i) <- TP_Install
 			else module_defaults.(i) <- TP_Skip ;
 		      with Not_found -> ();
+		    done;
 			finished := true
-		    done
 		| _ when !any_unsafe -> finished := false ;
 		| "U" | "R" ->
 		    if Hashtbl.mem already_ht () then begin
