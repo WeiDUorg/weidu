@@ -618,6 +618,10 @@ let is_concat_string ss ids =
   | Load.IWD2, 306l    (* SetGlobalRandom(S:Name*,S:Area*,I:Min*,I:Max*)
   | Load.IWD2, 307l    (* SetGlobalTimerRandom(S:Name*,S:Area*,I:Min*,I:Max*)
   | Load.IWD2, 308l (*SetGlobalTimerOnce(S:Name*,S:Area*,I:Time*GTimes) *)
+  | Load.IWD1, 141l (* GivePartyGoldGlobal(S:Name*,S:Area) *)
+  | Load.IWD1, 165l (* AddexperiencePartyGlobal(S:Name*,S:Area) *)
+  | Load.IWD1, 247l   (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
+  | Load.IWD1, 0x40A5l (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
     -> 1
   | Load.PST, 233l (* GlobalSetGlobal(S:Name1*,S:Area1*,S:Name2*,S:Area2 *)
   | Load.PST, 234l (* GlobalAddGlobal(S:Name1*,S:Area1*,S:Name2*,S:Area2 *)
@@ -643,6 +647,8 @@ let is_concat_string ss ids =
   | Load.PST, 202l    (* IncrementGlobalOnce(S:Name1*,S:Area1*,S:Name2*,S:Area2*,I:Val*)
   | Load.IWD2, 248l   (* GlobalBitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
   | Load.IWD2, 0x40A6l (* GlobalBitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
+  | Load.IWD1, 248l   (* GlobalBitGlobal(S:String1*,S:String2*,S:String3*,S:String4*,I:Mode*BitMode) *)
+  | Load.IWD1, 0x40A6l (* GlobalBitGlobal(S:String1*,S:String2*,S:String3*,S:String4*,I:Mode*BitMode) *)
     -> 2
 
   | Load.IWD2, 289l   (* SpellCastEffect(O:Source*,S:Voice*,S:Sound1*,S:Sound2*,I:Animation*sceffect,I:Speed*,I:Sequence*Sequence) *)
