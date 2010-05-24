@@ -658,15 +658,18 @@ let split6 s =
     begin
       let (name,scope) = (String.sub s 6 ((String.length s) - 6) ,
 			  String.sub s 0 6 ) in
-      if name.[0] = ':' then (String.sub name 1 ((String.length name) -1),scope) else (name,scope)
+      (* if name.[0] = ':' then (String.sub name 1 ((String.length name) -1),scope) else (name,scope) *)
+	  (name,scope)
     end
   else
     "",s
 
 let splitc s =
+try
   let c = String.index s ':' in
-  ( String.sub s (c+1) ((String.length s) - c - 1) ,
+  ( String.sub s (c) ((String.length s) - c) ,
     String.sub s 0 c )
+with _ -> s,""
 
 
 let rec best_ids_of_trigger game c =

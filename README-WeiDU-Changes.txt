@@ -8,6 +8,7 @@ Version 218:
   * If MODDER AREA_VARIABLES is active, check that the main variable string is
     <= 32 characters.
   * Swap CLASS and SUBRACE in IWD2 scripts.
+  * Don't touch colons in IWD2 scripts.
 
 Version 217:
   * Really fix EDIT_SAV_FILE now.
