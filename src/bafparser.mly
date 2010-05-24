@@ -93,7 +93,7 @@ let fixup_concat3 argl =
   let s1 = get_next_string argl in
   let s2 = get_next_string argl in
   let s3 = get_next_string argl in
-  argl := (Arg_String,Act_String(s1)) :: (Arg_String,Act_String(s3^s2)) :: !argl
+  argl := (Arg_String,Act_String(s1)) :: (Arg_String,Act_String(s2^s3)) :: !argl
 
 let assign_bracket x pos obj ss =
   match ss, pos with

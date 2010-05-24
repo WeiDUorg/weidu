@@ -664,14 +664,6 @@ let split6 s =
   else
     "",s
 
-let splitc s =
-try
-  let c = String.index s ':' in
-  ( String.sub s (c) ((String.length s) - c) ,
-    String.sub s 0 c )
-with _ -> s,""
-
-
 let rec best_ids_of_trigger game c =
   let ids = every_ids_of_int game "TRIGGER" c.trigger_id in 
   if ids = [] then begin
@@ -795,7 +787,6 @@ let action_to_arg_list ss a ids =
 	(Arg_String,(Act_String aa')) ;
 	(Arg_String,(Act_String b')) ]
   | 3 ->
-      let aa,b = splitc a.a_9 in
       [ (Arg_Object,(Act_Object a.a_2)) ;
 	(Arg_Object,(Act_Object a.a_3)) ;
 	(* (Arg_Object,(Act_Object a.a_1)) ; *)
@@ -804,8 +795,8 @@ let action_to_arg_list ss a ids =
 	(Arg_Integer,(Act_Integer a.a_6)) ;
 	(Arg_Integer,(Act_Integer a.a_7)) ;
 	(Arg_String,(Act_String a.a_8)) ;
-	(Arg_String,(Act_String aa)) ;
-	(Arg_String,(Act_String b)) ; ]
+	(Arg_String,(Act_String a.a_9)) ;
+	(Arg_String,(Act_String "")) ; ]
   | _ ->
       [ (Arg_Object,(Act_Object a.a_2)) ;
 	(Arg_Object,(Act_Object a.a_3)) ;
