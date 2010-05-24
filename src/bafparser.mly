@@ -89,6 +89,12 @@ let fixup_concat2 argl =
   argl := (Arg_String,Act_String(s2^s1)) ::
     (Arg_String,Act_String(s4^s3)) :: !argl
 
+let fixup_concat3 argl =
+  let s1 = get_next_string argl in
+  let s2 = get_next_string argl in
+  let s3 = get_next_string argl in
+  argl := (Arg_String,Act_String(s1)) :: (Arg_String,Act_String(s3^s2)) :: !argl
+
 let assign_bracket x pos obj ss =
   match ss, pos with
   | Load.IWD2,0 -> obj.o_ea <- x
@@ -303,6 +309,7 @@ ifblock_list :                  { [] }
      (match is_concat_string ss ids with
      | 1 -> fixup_concat act_list 
      | 2 -> fixup_concat2 act_list
+     | 3 -> fixup_concat3 act_list
      | _ -> () ) ;
      let t1 = get_next_int act_list in
      let t2 = get_next_int act_list in 
@@ -434,6 +441,7 @@ ifblock_list :                  { [] }
      (match is_concat_string ss ids with
      | 1 -> fixup_concat act_list ; 
      | 2 -> fixup_concat2 act_list ; 
+     | 3 -> fixup_concat3 act_list
      | _ -> () ) ; 
      let a1 = empty_object_param() in 
      let a2 = get_next_object act_list in
