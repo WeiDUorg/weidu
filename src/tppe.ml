@@ -372,6 +372,7 @@ let rec eval_pe buff game p =
 		      with _ ->
 			0l
 		     )
+  | PE_IsSilent -> if (!be_silent) then 1l else 0l
   | PE_StateWhichSays(lse,traref,file) -> begin
       let rec lookforit game lse lst =
         if !debug_ocaml then log_and_print "in lookforit \n";

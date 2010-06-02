@@ -442,6 +442,7 @@ and tp_patchexp =
   | PE_IdsOfSymbol of string * string
   | PE_StateWhichSays of (Dlg.tlk_string option) * ((tp_patchexp * string) option) * string
   | PE_IsAnInt of tp_pe_string
+  | PE_IsSilent
 
   | Pred_File_MD5 of tp_pe_string * tp_pe_string
   | Pred_File_Exists of tp_pe_string

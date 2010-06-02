@@ -1,3 +1,6 @@
+Version 219:
+  * IS_SILENT patch expression added.
+
 Version 218:
   * Even more fixed with ADD_CRE_ITEM and PST/IWD2.
   * Area files are loaded only with MODDER when compiling a script.

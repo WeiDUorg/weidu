@@ -69,6 +69,7 @@ let rec pe_to_str pe = "(" ^ (match pe with
 | PE_StateWhichSays(None,Some(a,b),y) -> Printf.sprintf "STATE_WHICH_SAYS %s IN %s FROM %s" (pe_to_str a) b y
 | PE_StateWhichSays(None,None,_)
 | PE_StateWhichSays(Some(_),Some(_),_) -> Printf.sprintf "INTERNAL ERROR"
+| PE_IsSilent -> "IS_SILENT"
 | PE_IsAnInt(x) -> Printf.sprintf "IS_AN_INT %s" (pe_str_str x)    
 			     ) ^ ")"
 

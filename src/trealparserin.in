@@ -757,6 +757,7 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
 				Tp.PE_StateWhichSays(None,Some(e1,e2),file) ]
 	-> IS_AN_INT e1:Patch_String_Name [ Tp.PE_IsAnInt e1 ]
 	-> LPAREN e1:Patch_Exp RPAREN [ e1 ]
+	-> IS_SILENT [ Tp.PE_IsSilent ]
 }
 
 nonterm (Tp.tp_store_position) Optional_Store_Position {
