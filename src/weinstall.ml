@@ -12,6 +12,7 @@ let main () =
     let buff = Buffer.create 1000 in
     Sys.argv.(1) <- String.lowercase Sys.argv.(1);
     if Case_ins.filename_check_suffix Sys.argv.(1) ".tp2" then Sys.argv.(1) <- Case_ins.filename_chop_suffix Sys.argv.(1) ".tp2";
+    if Case_ins.filename_check_suffix Sys.argv.(1) "/" then Sys.argv.(1) <- Case_ins.filename_chop_suffix Sys.argv.(1) "/";
     let debug_where = try
       let h = Unix.stat "debugs" in
       if h.Unix.st_kind = Unix.S_DIR then Printf.sprintf "debugs/%s.debug" Sys.argv.(1)
