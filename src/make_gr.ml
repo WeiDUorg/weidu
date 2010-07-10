@@ -3,7 +3,7 @@ let is_valid x =
     && x.[0] <> '.' && (try string_of_int (int_of_string x) <> x with _ -> true) &&
   x <> "EOF" && x <> "_" && x <> "STRING" && x <> "SOUND" && x <> "INLINED_FILE" && x <> "TRANS_REF"
     && x <> "STRING_REF" && x <> "FORCED_STRING_REF" && x <> "START_FROM_TP" && x <> "START_FROM_TPP"
-    && x <> "START_FROM_TPA" && x <> "TOKEN" && x <> "LIST"
+    && x <> "START_FROM_TPA" && x <> "TOKEN" && x <> "LIST" && x <> "TRANS_REF_VAR"
 ;;
 
 let load_tparser tparser_in =
@@ -49,7 +49,7 @@ let load_aliases aliases_in tokens =
 ;;
 
 let output_tokens o aliases =
-  let i = ref 10 in
+  let i = ref 11 in
   Hashtbl.iter (fun tok al ->
     Printf.fprintf o "%-6d : %s;" !i tok;
     incr i;

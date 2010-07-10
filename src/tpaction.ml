@@ -1376,7 +1376,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	      let min = Int32.to_int (eval_pe "" game min) in
 	      let max = Int32.to_int (eval_pe "" game max) in
 	      for i = min to max do
-		Dc.set_string game i (Dlg.Trans_String(i)) false
+		Dc.set_string game i (Dlg.Trans_String(Dlg.Int i)) false
 	      done ;
 	      Dc.pop_trans ()
 	    with e -> 

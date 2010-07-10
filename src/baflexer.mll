@@ -64,6 +64,12 @@ let blank = [' ' '\012' '\r']
 		  let str = string_of lexbuf in
 		  let str = String.sub str 1 ((String.length str) - 1) in
 		  TRANS_REF((Int32.of_string str)) }
+| '@''~'[^'~']*'~'
+| '@''%'[^'%']*'%'
+| '@''"'[^'"']*'"'  { str_adj lexbuf ;
+		  let str = string_of lexbuf in
+		  let str = String.sub str 1 ((String.length str) - 1) in
+		  TRANS_REF_VAR(strip(str)) }
 | ['A'-'Z''a'-'z''_']['0'-'9''A'-'Z''a'-'z''#''_''-''!']*
 | ['#']['A'-'Z''a'-'z''_''!''-']['0'-'9''A'-'Z''a'-'z''#''_''-''!']* {
   adj lexbuf ;

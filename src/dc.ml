@@ -216,7 +216,7 @@ let rec resolve_tlk_string_internal can_create warn_mess game ts =
 		end ) ()
 				       ) () in
       Dlg.TLK_Index(index)
-  | Dlg.Trans_String(idx) -> begin
+  | Dlg.Trans_String(Dlg.Int(idx)) -> begin
       try
         let (new_ts,safe) = Hashtbl.find (List.hd !trans_strings) idx in
         if not safe && Modder.get "SETUP_TRA" = Modder.Warn then (
@@ -228,6 +228,8 @@ let rec resolve_tlk_string_internal can_create warn_mess game ts =
         if warn_mess then log_and_print "ERROR: No translation provided for @%d\n" idx ;
         raise Not_found
   end
+  | Dlg.Trans_String(Dlg.String(s)) ->
+		resolve_tlk_string_internal can_create warn_mess game (Dlg.Trans_String(Dlg.Int(Int32.to_int(Var.get_int32_extended s))))
   | _ -> ts
 	
 let resolve_tlk_string = resolve_tlk_string_internal true (* will add the new string if absent from the tlk *)
@@ -243,7 +245,7 @@ let resolve_string_while_loading ts =
 let rec single_string_of_tlk_string game ts =
   match ts with
     Dlg.Local_String(lse) -> lse.lse_male
-  | Dlg.Trans_String(idx) -> begin
+  | Dlg.Trans_String(Dlg.Int(idx)) -> begin
       try
         let (new_ts,safe) = Hashtbl.find (List.hd !trans_strings) idx in
         single_string_of_tlk_string game new_ts
@@ -251,6 +253,8 @@ let rec single_string_of_tlk_string game ts =
         log_and_print "ERROR: No translation provided for @%d\n" idx ;
         raise Not_found
   end
+  | Dlg.Trans_String(Dlg.String(s)) ->
+	single_string_of_tlk_string game (Dlg.Trans_String(Dlg.Int(Int32.to_int(Var.get_int32_extended s))))
   | Dlg.TLK_Index(idx) ->
 	  begin
 		  try
@@ -261,7 +265,7 @@ let rec single_string_of_tlk_string game ts =
 let rec single_string_of_tlk_string_safe game ts =
   match ts with
     Dlg.Local_String(lse) -> lse.lse_male
-  | Dlg.Trans_String(idx) -> begin
+  | Dlg.Trans_String(Dlg.Int(idx)) -> begin
       try
         let (new_ts,safe) = Hashtbl.find (List.hd !trans_strings) idx in
         single_string_of_tlk_string game new_ts
@@ -271,6 +275,8 @@ let rec single_string_of_tlk_string_safe game ts =
         (try assert false with Assert_failure(file,line,col) -> set_errors file line);
         "UNDEFINED STRING:   @" ^ string_of_int idx
   end
+  | Dlg.Trans_String(Dlg.String(s)) ->
+	single_string_of_tlk_string_safe game (Dlg.Trans_String(Dlg.Int(Int32.to_int(Var.get_int32_extended s))))
   | Dlg.TLK_Index(idx) -> 
       Tlk.pretty_print game.Load.dialog idx 
 
@@ -307,7 +313,9 @@ let set_string (g : Load.game) (i :int) (ts : Dlg.tlk_string)
 	else (Tlk.lse_to_tlk_string (Hashtbl.find strings_added_ht i))
       end else failwith "SET_STRING does not allow #strrefs"
   | Dlg.Local_String(lse) -> Tlk.lse_to_tlk_string lse
-  | Dlg.Trans_String(idx) ->
+  | Dlg.Trans_String(Dlg.String(s)) ->
+	process (Dlg.Trans_String(Dlg.Int(Int32.to_int(Var.get_int32_extended s))))
+	| Dlg.Trans_String(Dlg.Int idx) ->
       begin
 	try
           let (new_lse,_) = Hashtbl.find (List.hd !trans_strings) idx in

@@ -1,6 +1,7 @@
 Version 219:
   * IS_SILENT patch expression added.
   * WeInstall mymod/ will ignore the spurious slash.
+  *  @"var" is equivalent to @<value>.
 
 Version 218:
   * Even more fixed with ADD_CRE_ITEM and PST/IWD2.

@@ -137,7 +137,7 @@ let verify_action_list s =
 
   %token EOF
 
-  %token <string> SOUND STRING
+  %token <string> SOUND STRING TRANS_REF_VAR
   %token <string * string> INLINED_FILE
   %token <int> STRING_REF TRANS_REF FORCED_STRING_REF
 
@@ -242,7 +242,7 @@ alter_trans_list :            { [] }
       handle (fun s ->
 	if s = "" then Dc.Alter_Trans_String "" else
 	match s.[0] with
-	| '@' -> Dc.Alter_Trans_Lse (Dc.resolve_string_while_loading (Dlg.Trans_String (int_of_string(Str.string_after s 1))))
+	| '@' -> Dc.Alter_Trans_Lse (Dc.resolve_string_while_loading (Dlg.Trans_String (Dlg.String(Str.string_after s 1))))
 	| '#' -> Dc.Alter_Trans_String ("#" ^ string_of_int(int_of_string(Str.string_after s 1)))
 	| _ -> Dc.Alter_Trans_String s
 	     )
@@ -779,7 +779,8 @@ interject_copy_trans_prologue :
     result
     }
 | STRING_REF { Dlg.TLK_Index($1) }
-| TRANS_REF  { Dc.resolve_string_while_loading (Dlg.Trans_String($1)) }
+| TRANS_REF  { Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.Int $1)) }
+| TRANS_REF_VAR  { Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.String $1)) }
 | FORCED_STRING_REF lse
     { let _ = Dc.set_string_while_loading $1 $2 in Dlg.TLK_Index($1) }
     ;

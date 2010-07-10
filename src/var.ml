@@ -52,6 +52,24 @@ let get_int32 name =
   match Hashtbl.find !variables name with
   | Int32(v) -> v
   | String(s) -> Int32.of_string s
+  
+let get_int32_extended s =
+	try
+		Int32.of_string s
+	with e ->
+	  begin 
+	    try
+			get_int32 ("%" ^ s ^ "%")
+	    with e -> 
+            begin
+				try
+					get_int32 s
+				with e -> begin
+					log_and_print "ERROR: cannot convert %s or %%%s%% to an integer\n" s s ;
+					raise e
+				end
+			end
+	end 
 
 let set_string name value =
   let name = "%" ^ name ^ "%" in

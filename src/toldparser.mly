@@ -257,7 +257,7 @@ open Load
 
   %token EOF
 
-  %token <string> SOUND STRING
+  %token <string> SOUND STRING TRANS_REF_VAR
   %token <string * string> INLINED_FILE
   %token <int> STRING_REF TRANS_REF FORCED_STRING_REF
 
@@ -330,7 +330,8 @@ optional_evaluate :
     result
     }
 | STRING_REF { Dlg.TLK_Index($1) }
-| TRANS_REF  { Dc.resolve_string_while_loading (Dlg.Trans_String($1)) }
+| TRANS_REF  { Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.Int $1)) }
+| TRANS_REF_VAR  { Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.String $1)) }
 | FORCED_STRING_REF lse
     { let _ = Dc.set_string_while_loading $1 $2 in Dlg.TLK_Index($1) }
     ;

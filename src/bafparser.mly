@@ -275,6 +275,7 @@ let rec verify_arg_list name al fl = match (al,fl) with
   %nonassoc NOT 
   %token <string> STRING SYMBOL TILDE_STRING
   %token <Int32.t> INTEGER TRANS_REF
+  %token <string> TRANS_REF_VAR
 
   %type <Bcs.script> baf_file
   %type <Bcs.trigger list> trigger_list
@@ -373,9 +374,14 @@ ifblock_list :                  { [] }
 	parse_error (Printf.sprintf "unable to resolve TLK string ~%s~" $1)
     }
 | TRANS_REF 
-    { match Dc.resolve_string_while_loading  (Dlg.Trans_String(Int32.to_int $1))
+    { match Dc.resolve_string_while_loading  (Dlg.Trans_String(Dlg.Int(Int32.to_int $1)))
     with Dlg.TLK_Index(i) -> BA_Integer(Int32.of_int i)
     | _ -> if not !Dc.doing_traify then parse_error (Printf.sprintf "unable to resolve translation string @%ld" $1) else BA_Integer(Int32.of_int 1)
+    }
+| TRANS_REF_VAR
+    { match Dc.resolve_string_while_loading  (Dlg.Trans_String(Dlg.String($1)))
+    with Dlg.TLK_Index(i) -> BA_Integer(Int32.of_int i)
+    | _ -> if not !Dc.doing_traify then parse_error (Printf.sprintf "unable to resolve translation string @%s" $1) else BA_Integer(Int32.of_int 1)
     }
 | LBRACKET ba_arg_list RBRACKET rect_opt { BA_Rect(BA_Bracket($2),$4) }
     ;

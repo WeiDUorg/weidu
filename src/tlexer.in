@@ -18,6 +18,7 @@ It was originally taken from Westley Weimer's WeiDU 185. *)
     | INLINED_FILE of (string * string)
     | STRING_REF of int
     | TRANS_REF of int
+	| TRANS_REF_VAR of string
     | FORCED_STRING_REF of int
     | START_FROM_TP
     | START_FROM_TPA
@@ -41,10 +42,11 @@ PUT TYPE LIST *)
     | INLINED_FILE(_)      -> 3
     | STRING_REF(_)        -> 4
     | TRANS_REF(_)         -> 5
-    | FORCED_STRING_REF(_) -> 6
-    | START_FROM_TP        -> 7
-    | START_FROM_TPA       -> 8
-    | START_FROM_TPP       -> 9
+    | TRANS_REF_VAR(_)     -> 6
+    | FORCED_STRING_REF(_) -> 7
+    | START_FROM_TP        -> 8
+    | START_FROM_TPA       -> 9
+    | START_FROM_TPP       -> 10
 (* do not edit or remove the following line.
 PUT TOKEN TO INT *)
   end
@@ -53,16 +55,17 @@ PUT TOKEN TO INT *)
   let tokenKindDesc (t:int) : string =
   begin
     match t with
-    | 0 ->       "EOF"
-    | 1 ->       "[]"
-    | 2 ->       "~~"
-    | 3 ->       "<<<<<<<<"
-    | 4 ->       "@"
-    | 5 ->       "#"
-    | 6 ->       "!"
-    | 7 ->       "START_FROM_TP"
-    | 8 ->       "START_FROM_TPA"
-    | 9 ->       "START_FROM_TPP"
+    | 0  ->       "EOF"
+    | 1  ->       "[]"
+    | 2  ->       "~~"
+    | 3  ->       "<<<<<<<<"
+    | 4  ->       "@"
+	| 5  ->       "@\""
+    | 6  ->       "#"
+    | 7  ->       "!"
+    | 8  ->       "START_FROM_TP"
+    | 9  ->       "START_FROM_TPA"
+    | 10 ->       "START_FROM_TPP"
 (* do not edit or remove the following line.
 PUT INT TO STRING *)
     | _ ->       (failwith "bad token kind")
@@ -127,6 +130,12 @@ PUT SYMBOLS *)
       let str = string_of lexbuf in
       let str = String.sub str 1 ((String.length str) - 1) in
       TRANS_REF((int_of_string str)) }
+| '@''~'[^'~']*'~'
+| '@''%'[^'%']*'%'
+| '@''"'[^'"']*'"'  { str_adj lexbuf ;
+		  let str = string_of lexbuf in
+		  let str = String.sub str 1 ((String.length str) - 1) in
+		  TRANS_REF_VAR(strip(str)) }
 | "~~~~~" { adj lexbuf ; let buf = Buffer.create 255 in widestring buf lexbuf }
 | "<<<<<<<<" [' ']* ([^'\n''\r']* as name) ('\r'?)'\n' {
   adj lexbuf ;

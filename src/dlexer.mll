@@ -128,6 +128,12 @@ let blank = [' ' '\012' '\r']
 			let str = string_of lexbuf in
 			let str = String.sub str 1 ((String.length str) - 1) in
 			TRANS_REF((int_of_string str)) }
+| '@''~'[^'~']*'~'
+| '@''%'[^'%']*'%'
+| '@''"'[^'"']*'"'  { str_adj lexbuf ;
+		  let str = string_of lexbuf in
+		  let str = String.sub str 1 ((String.length str) - 1) in
+		  TRANS_REF_VAR(strip(str)) }
 | "~~~~~" { adj lexbuf ; let buf = Buffer.create 255 in widestring buf lexbuf }
 | eof   { EOF }
 | _	{ lex_error (Printf.sprintf "invalid character [%s]" (string_of

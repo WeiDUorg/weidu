@@ -262,7 +262,7 @@ let rec handle_tp
 	with Not_found -> TP_Ask)
       in
 
-      let get_trans i = Dc.single_string_of_tlk_string game (Dlg.Trans_String(i)) in
+      let get_trans i = Dc.single_string_of_tlk_string game (Dlg.Trans_String(Dlg.Int i)) in
 
       let handle_letter tp answer can_uninstall temp_uninst package_name m finished i =
 	let subgroup_already =

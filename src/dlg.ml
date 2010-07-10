@@ -8,10 +8,14 @@ let emit_text = ref false
 let emit_some_states_only = ref false
 let emit_these_states = (Hashtbl.create 1 : (int, unit) Hashtbl.t)
 
+type string_or_int =
+	Int of int
+  | String of string
+
 type tlk_string =
     TLK_Index of int
   | Local_String of local_string_entry
-  | Trans_String of int
+  | Trans_String of string_or_int
 
 (*** Store Local Strings ***)
 let local_string_ht = ref (None : tlk_string list option)

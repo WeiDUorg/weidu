@@ -439,7 +439,7 @@ let rec eval_pe buff game p =
             in
             if !debug_ocaml then List.iter (fun x -> log_and_print "%s\n" x) lst;
             let x = begin try
-              lookforit game (Dlg.Trans_String(Int32.to_int(eval_pe buff game num))) lst
+              lookforit game (Dlg.Trans_String(Dlg.Int(Int32.to_int(eval_pe buff game num)))) lst
             with
             | Not_found -> [0 - 3]
             | e -> Dc.pop_trans ();  raise e
