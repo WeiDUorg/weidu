@@ -28,6 +28,7 @@ let _ = List.iter
      ("APPEND", APPEND);
      ("APPENDI", APPENDI);
      ("APPEND_EARLY", APPEND_EARLY);
+	 ("AT", AT);
      ("A_S_T", ADD_STATE_TRIGGER) ;
      ("A_T_T", ADD_TRANS_TRIGGER) ;
      ("BEGIN", BEGIN) ;
@@ -113,6 +114,8 @@ let blank = [' ' '\012' '\r']
 | "~"[^'~']*"~"
 | '"'[^'"']*'"'
 | '%'[^'%']*'%'  { str_adj lexbuf ; STRING(strip (string_of lexbuf)) }
+| "(" { str_adj lexbuf; LPAREN }
+| ")" { str_adj lexbuf; RPAREN }
 | ['0'-'9''A'-'Z''a'-'z''_']['0'-'9''A'-'Z''a'-'z''#''_''-''.']* {
   adj lexbuf ; try Hashtbl.find lexicon (string_of lexbuf)
   with _ -> STRING(string_of lexbuf) }
@@ -128,12 +131,6 @@ let blank = [' ' '\012' '\r']
 			let str = string_of lexbuf in
 			let str = String.sub str 1 ((String.length str) - 1) in
 			TRANS_REF((int_of_string str)) }
-| '@''~'[^'~']*'~'
-| '@''%'[^'%']*'%'
-| '@''"'[^'"']*'"'  { str_adj lexbuf ;
-		  let str = string_of lexbuf in
-		  let str = String.sub str 1 ((String.length str) - 1) in
-		  TRANS_REF_VAR(strip(str)) }
 | "~~~~~" { adj lexbuf ; let buf = Buffer.create 255 in widestring buf lexbuf }
 | eof   { EOF }
 | _	{ lex_error (Printf.sprintf "invalid character [%s]" (string_of

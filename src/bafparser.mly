@@ -269,13 +269,12 @@ let rec verify_arg_list name al fl = match (al,fl) with
       %}
 
   %token LPAREN RPAREN LBRACKET RBRACKET PERIOD COMMA
-  %token ACTIONOVERRIDE
+  %token ACTIONOVERRIDE AT
   %token NOT EOF
   %token IF THEN END RESPONSE EOF ANYONE
   %nonassoc NOT 
   %token <string> STRING SYMBOL TILDE_STRING
   %token <Int32.t> INTEGER TRANS_REF
-  %token <string> TRANS_REF_VAR
 
   %type <Bcs.script> baf_file
   %type <Bcs.trigger list> trigger_list
@@ -378,10 +377,10 @@ ifblock_list :                  { [] }
     with Dlg.TLK_Index(i) -> BA_Integer(Int32.of_int i)
     | _ -> if not !Dc.doing_traify then parse_error (Printf.sprintf "unable to resolve translation string @%ld" $1) else BA_Integer(Int32.of_int 1)
     }
-| TRANS_REF_VAR
-    { match Dc.resolve_string_while_loading  (Dlg.Trans_String(Dlg.String($1)))
+| LPAREN AT STRING RPAREN
+    { match Dc.resolve_string_while_loading  (Dlg.Trans_String(Dlg.String($3)))
     with Dlg.TLK_Index(i) -> BA_Integer(Int32.of_int i)
-    | _ -> if not !Dc.doing_traify then parse_error (Printf.sprintf "unable to resolve translation string @%s" $1) else BA_Integer(Int32.of_int 1)
+    | _ -> if not !Dc.doing_traify then parse_error (Printf.sprintf "unable to resolve translation string @%s" $3) else BA_Integer(Int32.of_int 1)
     }
 | LBRACKET ba_arg_list RBRACKET rect_opt { BA_Rect(BA_Bracket($2),$4) }
     ;

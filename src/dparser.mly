@@ -90,6 +90,7 @@ let verify_action_list s =
   %token APPEND
   %token APPEND_EARLY
   %token APPENDI
+  %token AT
   %token BEGIN
   %token BRANCH
   %token CHAIN2
@@ -116,6 +117,7 @@ let verify_action_list s =
   %token INTERJECT_COPY_TRANS3
   %token INTERJECT_COPY_TRANS4
   %token JOURNAL SOLVED_JOURNAL UNSOLVED_JOURNAL
+  %token LPAREN
   %token PLUS
   %token REPLACE
   %token REPLACE_ACTION_TEXT
@@ -129,6 +131,7 @@ let verify_action_list s =
   %token REPLACE_TRIGGER_TEXT
   %token REPLACE_TRIGGER_TEXT_REGEXP
   %token REPLY
+  %token RPAREN
   %token SAY
   %token SET_WEIGHT
   %token STRING_CONCAT
@@ -137,7 +140,7 @@ let verify_action_list s =
 
   %token EOF
 
-  %token <string> SOUND STRING TRANS_REF_VAR
+  %token <string> SOUND STRING
   %token <string * string> INLINED_FILE
   %token <int> STRING_REF TRANS_REF FORCED_STRING_REF
 
@@ -780,7 +783,7 @@ interject_copy_trans_prologue :
     }
 | STRING_REF { Dlg.TLK_Index($1) }
 | TRANS_REF  { Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.Int $1)) }
-| TRANS_REF_VAR  { Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.String $1)) }
+| LPAREN AT STRING RPAREN  { Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.String $3)) }
 | FORCED_STRING_REF lse
     { let _ = Dc.set_string_while_loading $1 $2 in Dlg.TLK_Index($1) }
     ;

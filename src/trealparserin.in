@@ -19,11 +19,10 @@ terminals {
      3  : INLINED_FILE;
      4  : STRING_REF;
      5  : TRANS_REF;
-     6  : TRANS_REF_VAR;
-     7  : FORCED_STRING_REF;
-     8  : START_FROM_TP;
-     9  : START_FROM_TPA;
-     10 : START_FROM_TPP;
+     6  : FORCED_STRING_REF;
+     7  : START_FROM_TP;
+     8  : START_FROM_TPA;
+     9  : START_FROM_TPP;
 
 // do not remove or edit the following line.
 // BEGIN TOKEN LIST
@@ -35,7 +34,6 @@ terminals {
 	token (string * string) INLINED_FILE;
 	token (int) STRING_REF;
 	token (int) TRANS_REF;
-	token (string) TRANS_REF_VAR;
 	token (int) FORCED_STRING_REF;
 
 	precedence {
@@ -109,7 +107,7 @@ nonterm (Dlg.tlk_string) Lse {
     result ] 
   -> e1:STRING_REF [ Dlg.TLK_Index(e1) ]
   -> e1:TRANS_REF  [ Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.Int e1)) ]
-  -> e1:TRANS_REF_VAR  [ Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.String e1)) ]
+  -> LPAREN AT e1:STRING RPAREN [Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.String e1))]
   -> e1:FORCED_STRING_REF e2:Lse
 		[ let _ = Dc.set_string_while_loading e1 e2 in Dlg.TLK_Index(e1) ]
 }

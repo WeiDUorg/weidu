@@ -1,7 +1,7 @@
 Version 219:
   * IS_SILENT patch expression added.
   * WeInstall mymod/ will ignore the spurious slash.
-  *  @"var" is equivalent to @<value>.
+  *  (AT var) is equivalent to @<value of var>.
   * TRA_ENTRY_EXISTS added.
 
 Version 218:
