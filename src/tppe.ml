@@ -30,8 +30,6 @@ let is_true i = i <> 0l
 (* (Int32.compare i 0l) <> 0 *)
 let if_true p = if p then 1l else 0l
 
-let eval_pe_warn = ref true
-
 let rec eval_pe_str s = match s with
 | PE_LiteralString(s) -> s
 | PE_Evaluate(p) -> Var.get_string (eval_pe_str p)
@@ -138,7 +136,22 @@ let rec eval_pe buff game p =
       if Hashtbl.mem !Var.variables s then 1l
       else if Hashtbl.mem !Var.variables ("%" ^ s ^ "%") then 1l
       else 0l
-	  
+
+  | PE_TraEntryExists(s,tra_l) ->
+    let s = Var.get_string (eval_pe_str s) in
+	let tra_l = List.map Var.get_string (List.map eval_pe_str tra_l) in
+	if tra_l <> [] then Dc.push_trans();
+	List.iter handle_tra_filename tra_l;
+    let old_eval_pe_warn = !eval_pe_warn in
+	eval_pe_warn := false;
+	let ans = begin try
+	  ignore (Dc.single_string_of_tlk_string game (Dlg.Trans_String(Dlg.String s)));
+	  1l
+	with _ -> 0l end in
+	eval_pe_warn := old_eval_pe_warn;
+	if tra_l <> [] then Dc.pop_trans();
+	ans
+  
   | PE_IdsOfSymbol(file,entry) ->
       begin try
         let file = Var.get_string file in

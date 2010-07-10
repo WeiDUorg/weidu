@@ -64,6 +64,8 @@ let rec pe_to_str pe = "(" ^ (match pe with
       (pe_to_str e1) (pe_to_str e2) (pe_to_str e3)
       
 | PE_VariableIsSet(s) -> Printf.sprintf "VARIABLE_IS_SET %s" (pe_str_str s)
+| PE_TraEntryExists(a,b) -> Printf.sprintf "TRA_ENTRY_EXISTS (%s %s)" (pe_str_str a)
+	(if b <> [] then (List.fold_left (fun acc elt -> acc ^ " " ^ pe_str_str elt) (pe_str_str (List.hd b)) (List.tl b)) else "")
 | PE_IdsOfSymbol(a,b) -> Printf.sprintf "IDS_OF_SYMBOL (%s %s)" a b
 | PE_StateWhichSays(Some(x),None,y) -> Printf.sprintf "STATE_WHICH_SAYS __ FROM %s"  y
 | PE_StateWhichSays(None,Some(a,b),y) -> Printf.sprintf "STATE_WHICH_SAYS %s IN %s FROM %s" (pe_to_str a) b y

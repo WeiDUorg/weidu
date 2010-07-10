@@ -4504,6 +4504,11 @@ integer).  \\
 or & \DEFSYN{IS!AN!INT} \ttref{String} &
 Returns true if the variable String is set to an integer (there's a variable called either
 \verb+String+ or \verb+%String%+ with integer value).  \\
+or & \DEFIN{TRA!ENTRY!EXISTS} ( \ttref{String} \ttref{String} \Slist ) &
+	returns true if the variable String maps to a valid TRA entry.
+	If the \ttref{String} list is empty the tra entry is looked for into the loaded TRAs,
+	otherwie it's looked for into the listed TRA files.
+\\
 or & \DEFSYN{IS!SILENT} &
 Returns true if the output is currently silenced, false otherwise.  \\
 

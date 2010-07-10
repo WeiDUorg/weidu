@@ -65,6 +65,7 @@ let get_int32_extended s =
 				try
 					get_int32 s
 				with e -> begin
+					if !eval_pe_warn then
 					log_and_print "ERROR: cannot convert %s or %%%s%% to an integer\n" s s ;
 					raise e
 				end

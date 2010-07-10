@@ -733,3 +733,5 @@ let return_value = ref return_value_success
 
 let bool_xor a b =
   ((a && not b) || (not a && b))
+
+let eval_pe_warn = ref true

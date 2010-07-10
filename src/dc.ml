@@ -250,7 +250,7 @@ let rec single_string_of_tlk_string game ts =
         let (new_ts,safe) = Hashtbl.find (List.hd !trans_strings) idx in
         single_string_of_tlk_string game new_ts
       with Not_found ->
-        log_and_print "ERROR: No translation provided for @%d\n" idx ;
+        if !eval_pe_warn then log_and_print "ERROR: No translation provided for @%d\n" idx ;
         raise Not_found
   end
   | Dlg.Trans_String(Dlg.String(s)) ->

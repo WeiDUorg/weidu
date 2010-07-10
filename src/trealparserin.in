@@ -759,6 +759,7 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
 			[ let file = fst (split e3) ^ ".dlg" in
 				Tp.PE_StateWhichSays(None,Some(e1,e2),file) ]
 	-> IS_AN_INT e1:Patch_String_Name [ Tp.PE_IsAnInt e1 ]
+	-> TRA_ENTRY_EXISTS LPAREN e1:Patch_String_Name  e2:Patch_String_Right_List RPAREN [ Tp.PE_TraEntryExists(e1,e2) ]
 	-> LPAREN e1:Patch_Exp RPAREN [ e1 ]
 	-> IS_SILENT [ Tp.PE_IsSilent ]
 }
