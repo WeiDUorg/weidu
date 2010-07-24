@@ -46,7 +46,7 @@ WEIDU_BASE_MODULES  := case_ins stats arch version parsing tph util modder var a
         ids idslexer idslexer2 idsparser \
         bcs bcslexer bcsparser \
         dlg dc \
-		refactorbaf refactorbaflexer refactorbafparser \
+		refactorbaf refactorbaflexer refactorbafparser refactordlexer refactordparser \
         baflexer bafparser \
         diff sav mos tp dlexer dparser \
         smutil useract lexerint parsetables arraystack objpool glr lrparse \
@@ -58,8 +58,8 @@ WEIDU_MODULES  =  myarg $(WEIDU_BASE_MODULES) autoupdate main
 
 MODULES        = $(WEIDU_MODULES) iwgconf iwgrule iwglexer iwgparser iwg2 myarg weinstall tolower
 SOURCEDIRS     := src zlib glob xdiff elkhound
-MLLS           := dlexer.mll idslexer.mll idslexer2.mll bcslexer.mll baflexer.mll iwglexer.mll tlexer.mll toldlexer.mll refactorbaflexer.mll
-MLYS           := dparser.mly idsparser.mly bcsparser.mly bafparser.mly iwgparser.mly toldparser.mly refactorbafparser.mly
+MLLS           := dlexer.mll idslexer.mll idslexer2.mll bcslexer.mll baflexer.mll iwglexer.mll tlexer.mll toldlexer.mll refactorbaflexer.mll refactordlexer.mll
+MLYS           := dparser.mly idsparser.mly bcsparser.mly bafparser.mly iwgparser.mly toldparser.mly refactorbafparser.mly refactordparser.mly
 GRS            := trealparserin.gr
 
 $(OBJDIR)/mytop :
