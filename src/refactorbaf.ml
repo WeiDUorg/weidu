@@ -5,12 +5,37 @@ type trigger =
 	| Trigger of string
 	| NotTrigger of string
 
-let do_refactor : (Str.regexp * string) option ref = ref None
+let do_refactor : (Str.regexp * string * bool) option ref = ref None
 
 let parse_triggers : (string -> trigger list) ref = ref (fun s -> failwith "parse_triggers not loaded")
 
+let spacer = "tb#refactor_baf_must_certainly_not_match_against_me"
+let spacer_r = Str.regexp spacer
+
+let refactor_ht = Hashtbl.create 5
+
 let set_refactor x = do_refactor := match x with
-	Some(a,b) -> Some(Str.regexp_case_fold a, b)
+	Some(a,b, case_sens, exact_m) -> begin
+		if Hashtbl.mem refactor_ht (a,b, case_sens, exact_m) then Hashtbl.find refactor_ht (a,b, case_sens, exact_m) else begin
+			let a_reg = match case_sens, exact_m with
+				| true , true  -> Str.regexp_string a
+				| true , false -> Str.regexp a
+				| false, true  -> Str.regexp_string_case_fold a
+				| false, false -> Str.regexp_case_fold a
+			in
+			let parts = Str.split many_whitespace_or_nl_regexp b in
+			let any = ref false in
+			let parts = List.map (fun s ->
+				if Str.string_match a_reg s 0 && Str.matched_string s = s then begin
+					any := true;
+					spacer ^ s
+				end else s
+			) parts in
+			let ans = Some(a_reg, String.concat " " parts, !any) in
+			Hashtbl.add refactor_ht (a,b, case_sens, exact_m) ans;
+			ans
+		end
+	end
 |	None -> None
 
 let rec print_t t =
@@ -54,26 +79,21 @@ let rec fix_nottrigger acc tl =
 let sub pre post s =
 	!parse_triggers (Str.global_replace pre post s)
 
-let rec subst pre post tl =
-	let acc = ref [] in
-	List.iter (fun t -> if find pre [t] then match t with
-	|	Trigger s -> fix_trigger acc (sub pre post s)
-	|	NotTrigger s -> fix_nottrigger acc (sub pre post s)
-	|	Or tl -> fix_or pre post acc tl
-	else acc := t :: !acc
-	) tl;
-	!acc
-
-and fix_or pre post acc tl =
+let fix_or_internal pre post acc tl =
 	let old_tl = ref [] in
 	let new_tl = ref [] in
+	let found = ref false in
 	List.iter (fun t -> match t with
 	|	Or _ -> failwith "Nested OR()"
-	|	Trigger s -> if find pre [t] then
-		new_tl := List.append (sub pre post s) !new_tl
+	|	Trigger s -> if find pre [t] && not !found then begin
+			found := true;
+			new_tl := List.append (sub pre post s) !new_tl
+		end
 		else old_tl := t :: !old_tl
-	|	NotTrigger s -> if find pre [t] then
-		List.iter (invert new_tl old_tl) (sub pre post s)
+	|	NotTrigger s -> if find pre [t] && not !found then begin
+			found := true;
+			List.iter (invert new_tl old_tl) (sub pre post s)
+		end
 		else old_tl := t :: !old_tl
 	) tl;
 	let flatten_or tl =
@@ -91,10 +111,32 @@ and fix_or pre post acc tl =
 		) !new_tl
 	end
 
-	
+
+let rec subst pre post acc tl =
+	List.iter (fun t -> if find pre [t] then match t with
+	|	Trigger s -> fix_trigger acc (sub pre post s)
+	|	NotTrigger s -> fix_nottrigger acc (sub pre post s)
+	|	Or tl -> fix_or pre post acc tl
+	else acc := t :: !acc
+	) tl;
+
+and fix_or pre post acc tl =
+	let acc' = ref [] in
+	fix_or_internal pre post acc' tl;
+	if find pre !acc' then begin
+		subst pre post acc !acc';
+	end else acc := !acc' @ !acc
+
+let rec remove_spacer tl = List.map (fun t -> match t with
+|	Trigger s -> Trigger (Str.global_replace spacer_r "" s)
+|	NotTrigger s -> NotTrigger (Str.global_replace spacer_r "" s)
+|	Or tl' -> Or (remove_spacer tl')
+) tl
+
 let refactor tl = match !do_refactor with
 | None -> tl
-| Some(pre, post) -> begin
-		let tl = subst pre post (List.rev tl) in
-		tl
+| Some(pre, post, any) -> begin
+		let acc = ref [] in
+		let tl = subst pre post acc (List.rev tl) in
+		if any then remove_spacer !acc else !acc
 	end

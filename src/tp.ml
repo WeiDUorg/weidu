@@ -358,8 +358,8 @@ and tp_patch =
   | TP_CompileBCStoBAF
   | TP_CompileDtoDLG
   | TP_CompileDLGtoD
-  | TP_RefactorDTrigger of tp_pe_string * tp_pe_string
-  | TP_RefactorBafTrigger of tp_pe_string * tp_pe_string
+  | TP_RefactorDTrigger of tp_pe_string * tp_pe_string * bool * bool
+  | TP_RefactorBafTrigger of tp_pe_string * tp_pe_string * bool * bool
   | TP_EvaluateBuffer
   | TP_EvaluateBufferSpecial of string
   | TP_Decompress of tp_patchexp * tp_patchexp * tp_patchexp * tp_decompress_where

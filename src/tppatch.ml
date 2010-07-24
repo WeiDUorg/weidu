@@ -2014,13 +2014,13 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
     | TP_CompileDtoDLG ->
         handle_d_buffer game patch_filename buff
 
-	| TP_RefactorDTrigger(pre,post) ->
+	| TP_RefactorDTrigger(pre,post,case_ins, exact_m) ->
 		failwith "REFACTOR_D_TRIGGER is TBD";
 		
-    | TP_RefactorBafTrigger(pre,post) ->
+    | TP_RefactorBafTrigger(pre,post,case_sens, exact_m) ->
 		let pre = Var.get_string (eval_pe_str pre) in
 		let post = Var.get_string (eval_pe_str post) in
-		Refactorbaf.set_refactor (Some(pre, post));
+		Refactorbaf.set_refactor (Some(pre, post, case_sens, exact_m));
 		let load_triggers s = parse_buffer "" s "parsing .baf files"
         (Refactorbafparser.trigger_list Refactorbaflexer.initial) in
 		Refactorbaf.parse_triggers := load_triggers;

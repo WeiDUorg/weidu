@@ -20,7 +20,8 @@ type local_string_entry = {
 let one_newline_regexp = Str.regexp "[\n]"
 let one_newline_or_cr_regexp = Str.regexp "[\r\n]"
 let many_newline_or_cr_regexp = Str.regexp "[\r\n]+"
-let many_whitespace_regexp = Str.regexp "[ \t]+"
+let many_whitespace_regexp = Str.regexp "[ \t[\r\n]+"
+let many_whitespace_or_nl_regexp = Str.regexp "[ \t]+"
 let many_not_whitespace_regexp = Str.regexp "[^ \t\n\r]+"
 let many_cr_regexp = Str.regexp "\r\r*"
 
