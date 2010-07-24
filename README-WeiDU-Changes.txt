@@ -3,6 +3,7 @@ Version 219:
   * WeInstall mymod/ will ignore the spurious slash.
   *  (AT var) is equivalent to @<value of var>.
   * TRA_ENTRY_EXISTS added.
+  * REFACTOR_D_TRIGGER, REFACTOR_BAF_TRIGGER added.
 
 Version 218:
   * Even more fixed with ADD_CRE_ITEM and PST/IWD2.

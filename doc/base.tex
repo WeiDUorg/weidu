@@ -4110,6 +4110,31 @@ or & \DEFINE{COMPILE!D!TO!DLG} &
   a single \ttref{DLG} file (via an obvious \ttref{BEGIN} action) is
   compiled to a \ttref{DLG}. Typically this is only used after a
   \ttref{DECOMPILE!DLG!TO!D}.  \\
+or & \DEFINE{REFACTOR!BAF!TRIGGER} \ttref{optcase} \ttref{optexact} String String &
+  Works like \ttref{REPLACE!TEXTUALLY}, except that it only works on triggers
+  and applies Boolean Algebra to ensure that the structure of the trigger is not
+  broken (like REPLACE!TEXTUALLY would do if you are substituting one trigger with
+  several and the matching trigger is inside an OR() block and/or negated).
+  
+  Caveats:
+  \begin{itemize}
+  \item this command is very slow, so you should use \ttref{REPLACE!TEXTUALLY} if
+    you are substituting a trigger with another, as well as using \ttref{IF} to
+	avoid calling this patch on script files that do not contain the trigger
+	you are looking for.
+  \item the resulting file will have messed up whitespace, so remember that if
+    you plan on using REPLACE!TEXTUALLY later (the file will work correctly
+	in-game). Applying \ttref{COMPILE!BAF!TO!BCS}
+	and \ttref{DECOMPILE!BCS!TO!BAF} in tandem will fix this issue.
+  \item the searching regexp must match exactly against a single trigger
+    (so \verb+REFACTOR!BAF!TRIGGER ~A() B()~ ~C()~+ or
+	\verb+REFACTOR!BAF!TRIGGER ~A(~ ~C() A(~+ will not work). The substituting
+	string can contain multiple triggers.
+  \end{itemize}
+\\
+or & \DEFINE{REFACTOR!D!TRIGGER} \ttref{optcase} \ttref{optexact} String String &
+  Like \ttref{REFACTOR!BAF!TRIGGER}, but for .D files. The same caveats apply.
+\\
 or & \DEFINE{REPLACE!EVALUATE} \ttref{optcase} findRegexp \t{BEGIN}
   \ttref{patch} \Slist \t{END} replaceRegexp & 
   For every instance of the \ttref{regexp} findRegexp found, the
