@@ -1043,6 +1043,8 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> DECOMPILE_BCS_TO_BAF { Tp.TP_CompileBCStoBAF }
 	-> COMPILE_D_TO_DLG { Tp.TP_CompileDtoDLG }
 	-> DECOMPILE_DLG_TO_D { Tp.TP_CompileDLGtoD }
+	-> REFACTOR_D_TRIGGER e1:Patch_String_Right e2:Patch_String_Right { Tp.TP_RefactorDTrigger(e1,e2) }
+	-> REFACTOR_BAF_TRIGGER e1:Patch_String_Right e2:Patch_String_Right { Tp.TP_RefactorBafTrigger(e1,e2) }
 	-> EVALUATE_BUFFER { Tp.TP_EvaluateBuffer }
 	-> EVALUATE_BUFFER_SPECIAL e1:STRING { Tp.TP_EvaluateBufferSpecial e1 }
 	-> DECOMPRESS_REPLACE_FILE e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp { Tp.TP_Decompress(e1,e2,e3,Tp.TP_DW_ReplaceFile) }

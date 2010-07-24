@@ -2014,7 +2014,22 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
     | TP_CompileDtoDLG ->
         handle_d_buffer game patch_filename buff
 
-    | TP_CompileBCStoBAF ->
+	| TP_RefactorDTrigger(pre,post) ->
+		failwith "REFACTOR_D_TRIGGER is TBD";
+		
+    | TP_RefactorBafTrigger(pre,post) ->
+		let pre = Var.get_string (eval_pe_str pre) in
+		let post = Var.get_string (eval_pe_str post) in
+		Refactorbaf.set_refactor (Some(pre, post));
+		let load_triggers s = parse_buffer "" s "parsing .baf files"
+        (Refactorbafparser.trigger_list Refactorbaflexer.initial) in
+		Refactorbaf.parse_triggers := load_triggers;
+		let res = parse_buffer patch_filename buff "parsing .baf files"
+        (Refactorbafparser.baf_file Refactorbaflexer.initial) in
+		Refactorbaf.set_refactor None;
+		res
+	
+	| TP_CompileBCStoBAF ->
         (try
           let bcs = handle_script_buffer (patch_filename ^ ".BCS") buff in
           let out_buff = Buffer.create 40960 in

@@ -160,8 +160,6 @@ let action_to_str a = match a with
 | TP_GetFileArray(_,_,_,true) -> "GET_DIRECTORY_ARRAY"
 
 
-
-
 (************************************************************************
  * Set some default strings that can be overwritten.
  ************************************************************************)
