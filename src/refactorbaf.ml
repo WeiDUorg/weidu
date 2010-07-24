@@ -26,10 +26,12 @@ let set_refactor x = do_refactor := match x with
 			let parts = Str.split many_whitespace_or_nl_regexp b in
 			let any = ref false in
 			let parts = List.map (fun s ->
+				let is_neg = s.[0] = '!' in
+				let s = if is_neg then Str.string_after s 1 else s in
 				if Str.string_match a_reg s 0 && Str.matched_string s = s then begin
 					any := true;
-					spacer ^ s
-				end else s
+					(if is_neg then "!" else "") ^ spacer ^ s
+				end else (if is_neg then "!" else "") ^ s
 			) parts in
 			let ans = Some(a_reg, String.concat " " parts, !any) in
 			Hashtbl.add refactor_ht (a,b, case_sens, exact_m) ans;
