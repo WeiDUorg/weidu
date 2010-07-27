@@ -2258,24 +2258,28 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	      let item_string = Str.string_after (Str.string_before buff (isaleoffset + 28 * numisale)) isaleoffset in
 	      let length = (String.length item_string) / 28 in
 	      List.iter (fun this_test ->
-	        if not !added then
+	        if not !added then begin
+			  let out_buff = ref "" in
 	          for i = 0 to length - 1 do
 	            let this_one_long = Str.string_before (Str.string_after item_string (i * 28)) 28 in
 	            if not !added then begin
 	              let this_one = Str.string_before (this_one_long) 8 in
 	              if !debug_ocaml then log_and_print "Item %d is \"%s\"\n" i this_one ;
 	              if Str.string_match this_test this_one 0 then begin
-	                buff_ref := Printf.sprintf "%s%s%s" !buff_ref
+					if !debug_ocaml then log_and_print"\tMatch\n";
+	                out_buff := Printf.sprintf "%s%s%s" !out_buff
 	                    (* t_i_l i_b
 	                       i_b t_i_l *)
 	                    (if where = TP_Store_After store_pos_arg then this_one_long else item_buff)
 	                    (if where = TP_Store_After store_pos_arg then item_buff else this_one_long) ;
 	                added := true
 	              end
-	              else buff_ref := !buff_ref ^ this_one_long
-	            end else buff_ref := !buff_ref ^ this_one_long ;
+	              else out_buff := !out_buff ^ this_one_long
+	            end else out_buff := !out_buff ^ this_one_long ;
 	          done ;
-			) item_reg ;
+			  if !added then
+				buff_ref := !buff_ref ^ !out_buff
+			end ) item_reg ;
 	      if not !added then log_and_print "Not found space for %s %s %s.\n" item (if where = TP_Store_After store_pos_arg
 	      then "after" else "before") before_what ;
 	  | _ -> ()

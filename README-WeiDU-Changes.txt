@@ -4,6 +4,8 @@ Version 219:
   *  (AT var) is equivalent to @<value of var>.
   * TRA_ENTRY_EXISTS added.
   * REFACTOR_D_TRIGGER, REFACTOR_BAF_TRIGGER added.
+  * ADD_STORE_ITEM BEFORE ~itm1 itm2~ doesn't break the file if the store does
+    not contain itm1.
 
 Version 218:
   * Even more fixed with ADD_CRE_ITEM and PST/IWD2.
