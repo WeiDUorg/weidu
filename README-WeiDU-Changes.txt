@@ -1,3 +1,7 @@
+Version 220:
+  * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'
+    string contains newlines.
+
 Version 219:
   * IS_SILENT patch expression added.
   * WeInstall mymod/ will ignore the spurious slash.
