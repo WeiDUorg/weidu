@@ -1,6 +1,8 @@
 Version 221:
   * The Readme explains how to achieve a given ordering on GROUPs.
   * REFACTOR_D_TRIGGER doesn't fail on a malformed input file.
+  * Changed the compile environment to use OVerbld. Let me know if WeiDU
+    suddenly doesn't work on a standard Win32 machine.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'
