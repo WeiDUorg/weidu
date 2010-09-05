@@ -440,6 +440,101 @@
 		
 		DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT~ BEGIN
 		  PATCH_IF (SOURCE_SIZE > 0x2c8) BEGIN
+			READ_ASCII 0 __#signature
+			READ_BYTE 0x33 __#effVersion
+			PATCH_IF ~%__#signature%~ STRING_COMPARE_CASE ~CRE V1.0~ THEN BEGIN
+				INNER_ACTION BEGIN
+					FAIL ~%__#signature% not supported in ADD_CRE_EFFECT~
+				END
+			END
+			PATCH_IF __#effVersion = 1 BEGIN
+				LAUNCH_PATCH_MACRO ~ADD_CRE_EFFECT_BG2~
+			END ELSE PATCH_IF __#effVersion = 0 BEGIN
+				LAUNCH_PATCH_MACRO ~ADD_CRE_EFFECT_BG1~
+			END
+		  END
+		END
+		
+		DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT_BG1~ BEGIN
+		  PATCH_IF (SOURCE_SIZE > 0x2c8) BEGIN
+			READ_ASCII 0 __#signature
+			READ_BYTE 0x33 __#effVersion
+			PATCH_IF ~%__#signature%~ STRING_COMPARE_CASE ~CRE V1.0~ THEN BEGIN
+				INNER_ACTION BEGIN
+					FAIL ~%__#signature% not supported in ADD_CRE_EFFECT_BG1~
+				END
+			END
+			PATCH_IF __#effVersion != 0 BEGIN
+				INNER_ACTION BEGIN
+					FAIL ~ADD_CRE_EFFECT_BG1 and EFF version is %__#effVersion%~
+				END
+			END
+			
+			
+			READ_LONG 0x2c4 ___#fx_off
+			READ_LONG 0x2c8 ___#fx_num
+			
+			INSERT_BYTES ___#fx_off 0x30
+			
+			WRITE_SHORT (___#fx_off) opcode
+			WRITE_BYTE (___#fx_off + 0x2) target
+			WRITE_BYTE (___#fx_off + 0x3) power
+			WRITE_LONG (___#fx_off + 0x4) parameter1
+			WRITE_LONG (___#fx_off + 0x8) parameter2
+			WRITE_BYTE (___#fx_off + 0xc) timing
+			WRITE_BYTE (___#fx_off + 0xd) resist_dispel
+			WRITE_LONG (___#fx_off + 0xe) duration
+			WRITE_BYTE (___#fx_off + 0x12) probability1
+			WRITE_BYTE (___#fx_off + 0x13) probability2
+			WRITE_EVALUATED_ASCII (___#fx_off + 0x14) ~%resource%~ #8
+			WRITE_LONG (___#fx_off + 0x1c) dicenumber
+			WRITE_LONG (___#fx_off + 0x20) dicesize
+			WRITE_LONG (___#fx_off + 0x24) savingthrow
+			WRITE_LONG (___#fx_off + 0x28) savebonus
+			
+			//correcting effects number
+			WRITE_LONG 0x2c8 (___#fx_num + 1)
+			
+			//correcting offsets
+			PATCH_FOR_EACH ___#offset IN 0x2b8 0x2bc BEGIN //item slots offset and items offset
+			READ_LONG ___#offset ___#current_off
+			WRITE_LONG ___#offset (___#current_off + 0x30)
+			END
+			
+			//reset vars
+			SET opcode = 0
+			SET target = 0
+			SET power = 0
+			SET parameter1 = 0
+			SET parameter2 = 0
+			SET timing = 0
+			SET resist_dispel = 0
+			SET duration = 0
+			SET probability1 = 100
+			SET probability2 = 0
+			SPRINT resource ~%___#nil%~
+			SET dicenumber = 0
+			SET dicesize = 0
+			SET savingthrow = 0
+			SET savebonus = 0
+		  END
+		END
+		
+		DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT_BG2~ BEGIN
+		  PATCH_IF (SOURCE_SIZE > 0x2c8) BEGIN
+			READ_ASCII 0 __#signature
+			READ_BYTE 0x33 __#effVersion
+			PATCH_IF ~%__#signature%~ STRING_COMPARE_CASE ~CRE V1.0~ THEN BEGIN
+				INNER_ACTION BEGIN
+					FAIL ~%__#signature% not supported in ADD_CRE_EFFECT_BG2~
+				END
+			END
+			PATCH_IF __#effVersion != 1 BEGIN
+				INNER_ACTION BEGIN
+					FAIL ~ADD_CRE_EFFECT_BG2 and EFF version is %__#effVersion%~
+				END
+			END
+
 		    READ_LONG 0x2c4 ___#fx_off
 		    READ_LONG 0x2c8 ___#fx_num
 		
@@ -523,7 +618,6 @@
 		  SET sectype = 0
 		  END
 		END
-		
 		
 		//deletes all effects with spec. opcode from a creature.
 		//essential parameters:
