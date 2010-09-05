@@ -561,7 +561,8 @@ optional_evaluate :
 | ADD_MUSIC STRING STRING { Tp.TP_Add_Music(
 			    { Tp.music_name = $2;
 			      Tp.music_file = $3; } ) }
-| ADD_SPELL STRING patch_exp patch_exp STRING tp_patch_list tp_when_list { Tp.TP_Add_Spell($2,$3,$4,$5,$6,$7) }
+| ADD_SPELL STRING patch_exp patch_exp STRING tp_patch_list tp_when_list
+{ if $7 <> [] then log_and_print_modder "\n\nWARNING: ignoring non-empty constraint list on ADD_SPELL\n\n";  Tp.TP_Add_Spell($2,$3,$4,$5,$6,None) }
 | ADD_PROJECTILE STRING {
   Tp.TP_Add_Projectile( { Tp.pro_file = $2;  Tp.missile_ids_name = Case_ins.filename_chop_extension (Case_ins.filename_basename $2)} ) }
 | SILENT { Tp.TP_Silent }
