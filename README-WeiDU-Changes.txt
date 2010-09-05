@@ -5,6 +5,7 @@ Version 221:
     suddenly doesn't work on a standard Win32 machine.
   * ADD_CRE_EFFECT doesn't break files using EFFv1.
   * IS_INSTALLED_AFTER added.
+  * ADD_KIT fails if it's installing more than the supported 255 kits.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

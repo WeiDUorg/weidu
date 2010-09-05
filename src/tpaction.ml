@@ -1224,7 +1224,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 			(PE_FileContainsEvaluated(PE_LiteralString "kitlist.2da",
 						  PE_LiteralString ("^" ^ k.kit_name ^ "\\b")))) then begin
 						    Var.set_int32 (k.kit_name) (Bcs.int_of_sym game "KITLIST.2DA" k.kit_name) ;
-						    log_and_print "\n\nERROR: Kit [%s] already present! Skipping!\n\n"
+						    log_and_print "\n\nKit [%s] already present! Skipping!\n\n"
 						      k.kit_name
 						  end else begin
 						    let a1 = TP_Append("CLASWEAP.2DA",k.clasweap,[],true,false) in
@@ -1267,6 +1267,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 							failwith "resolve"
 						    in
 						    let this_kit_number = get_next_line_number "KITLIST.2DA" in
+							if this_kit_number >= 0x4100 then begin
+								log_and_print "The game cannot support more than 255 character kits."
+							end;
 						    let this_kit_prof_number = get_next_col_number "WEAPPROF.2DA" in
 						    let append_to_kitlist = Printf.sprintf
 							"%d  %s %d %d %d %s %d %s"
