@@ -1,5 +1,6 @@
 Version 221:
   * The Readme explains how to achieve a given ordering on GROUPs.
+  * REFACTOR_D_TRIGGER doesn't fail on a malformed input file.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'
