@@ -340,6 +340,13 @@ let rec eval_pe buff game p =
     let number = Int32.to_int (eval_pe buff game number) in
     if_true (already_installed filename number &&
              not (temporarily_uninstalled filename number))
+  | PE_IsInstalledAfter(filename1,number1,filename2,number2) ->
+	let filename1 = Var.get_string (eval_pe_str filename1) in
+	let filename2 = Var.get_string (eval_pe_str filename2) in
+	let number1 = Int32.to_int (eval_pe buff game number1) in
+	let number2 = Int32.to_int (eval_pe buff game number2) in
+	if_true (installed_after filename1 number1 filename2 number2)
+
   | PE_GameIs(game_list,game_or_engine) -> begin
       let game_list = Str.split many_whitespace_regexp (Var.get_string game_list) in
       let f x = (eval_pe buff game (Pred_File_Exists_In_Game (PE_LiteralString x))) = 1l in

@@ -746,6 +746,7 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
 	-> e1:Patch_Exp QUESTION e2:Patch_Exp COLON e3:Patch_Exp [ Tp.PE_If(e1,e2,e3) ]
  	-> MOD_IS_INSTALLED e1:STRING e2:Patch_String_Right [ Tp.PE_ModIsInstalled(e1,Tp.PE_String e2) ]
 	-> MOD_IS_INSTALLED e1:STRING LPAREN e2:Patch_Exp RPAREN [ Tp.PE_ModIsInstalled(e1,e2) ]
+	-> e1:Patch_String_Right e2:Patch_Exp IS_INSTALLED_AFTER e3:Patch_String_Right e4:Patch_Exp [ Tp.PE_IsInstalledAfter(e1,e2,e3,e4) ]
 	-> GAME_IS e1:STRING [ Tp.PE_GameIs(e1,true) ]
 	-> ENGINE_IS e1:STRING [ Tp.PE_GameIs(e1,false) ]
 	-> VARIABLE_IS_SET e1:Patch_String_Name [ Tp.PE_VariableIsSet e1 ]

@@ -439,6 +439,7 @@ and tp_patchexp =
 
   | PE_If of tp_patchexp * tp_patchexp * tp_patchexp
   | PE_ModIsInstalled of string * tp_patchexp
+  | PE_IsInstalledAfter of tp_pe_string * tp_patchexp * tp_pe_string * tp_patchexp
   | PE_GameIs of string * bool
   | PE_VariableIsSet of tp_pe_string
   | PE_IdsOfSymbol of string * string

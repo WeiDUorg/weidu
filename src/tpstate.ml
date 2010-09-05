@@ -132,6 +132,17 @@ let temporarily_uninstalled tp2 i =
   | hd :: tl -> is_installed tl
   in is_installed !the_log
 
+let installed_after tp21 i1 tp22 i2 =
+	let rec walk lst tp2 i = match lst with
+	| [] -> None
+	| (a,b,c,sopt,d) :: tl when log_match a tp2 
+		&& c = i && d = Installed -> Some tl
+	| hd :: tl -> walk tl tp2 i
+	in
+	match walk !the_log tp22 i2 with
+	| None -> false
+	| Some tl -> None <> walk tl tp21 i1
+;;
 
 (************************************************************************
  * Determine what has been installed. 

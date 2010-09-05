@@ -4,6 +4,7 @@ Version 221:
   * Changed the compile environment to use OVerbld. Let me know if WeiDU
     suddenly doesn't work on a standard Win32 machine.
   * ADD_CRE_EFFECT doesn't break files using EFFv1.
+  * IS_INSTALLED_AFTER added.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

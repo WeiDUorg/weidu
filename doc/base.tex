@@ -4541,6 +4541,11 @@ or & \DEFINE{MOD!IS!INSTALLED} modTp2Name modComponent &
 Returns true if the modComponent of modTp2Name is installed. The syntax
 is the same as with \ttref {REQUIRE!COMPONENT}.  \\
 
+or & modTp2Name1 modComponent1 \DEFINE{IS!INSTALLED!AFTER} modTp2Name2 modComponent2 &
+Returns true if the modComponent1 of modTp2Name1 is installed after the modComponent2
+of modTp2Name2 (and both components are installed). The syntax
+is the same as with \ttref {REQUIRE!COMPONENT}.  \\
+
 or & \DEFINE{STATE!WHICH!SAYS} \ttref{text} \t{FROM} \ttref{String} &
   String must be an in-game or in-override .dlg file. Returns:
   \begin{enumerate}
@@ -7286,7 +7291,7 @@ This is a PATCH macro and function.
 \item Syntax is the same as of ADD_SPELL_EFFECT
 \end{list}
 
-\verb+ADD_CRE_EFFECT+: adds an effect to a creature. All variables except probability1 are 0 by default. (Warning: doesn't check EFF version)
+\verb+ADD_CRE_EFFECT+: adds an effect to a creature. All variables except probability1 are 0 by default.
 This is a PATCH macro and function.
 \begin{itemize}
 \item SET opcode to opcode
