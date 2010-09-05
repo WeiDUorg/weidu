@@ -6,6 +6,7 @@ Version 221:
   * ADD_CRE_EFFECT doesn't break files using EFFv1.
   * IS_INSTALLED_AFTER added.
   * ADD_KIT fails if it's installing more than the supported 255 kits.
+  * ADD_SPELL warns if it's ignoring the constraint list.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

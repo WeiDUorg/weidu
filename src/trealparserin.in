@@ -420,7 +420,7 @@ nonterm(Tp.tp_action) Tp_Action {
 	-> AT_INTERACTIVE_UNINSTALL e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Uninstall(e1,e2) ]
 	-> ADD_MUSIC e1:STRING e2:STRING [ Tp.TP_Add_Music {Tp.music_name=e1;Tp.music_file=e2} ]
 	-> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List e6:Tp_When_List
-		[ Tp.TP_Add_Spell(e1,e2,e3,e4,e5,e6) ]
+		[ if e6 <> [] then log_and_print_modder "ignoring non-empty constraint list on ADD_SPELL"; Tp.TP_Add_Spell(e1,e2,e3,e4,e5,[]) ]
 	-> ADD_PROJECTILE e1:STRING [ Tp.TP_Add_Projectile { Tp.pro_file = e1; Tp.missile_ids_name = Case_ins.filename_chop_extension (Case_ins.filename_basename e1) } ]
 	-> ADD_PROJECTILE e1:STRING e2:STRING [ Tp.TP_Add_Projectile { Tp.pro_file = e1; Tp.missile_ids_name = e2 } ]
 	-> SILENT [ Tp.TP_Silent ]
@@ -746,7 +746,7 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
 	-> e1:Patch_Exp QUESTION e2:Patch_Exp COLON e3:Patch_Exp [ Tp.PE_If(e1,e2,e3) ]
  	-> MOD_IS_INSTALLED e1:STRING e2:Patch_String_Right [ Tp.PE_ModIsInstalled(e1,Tp.PE_String e2) ]
 	-> MOD_IS_INSTALLED e1:STRING LPAREN e2:Patch_Exp RPAREN [ Tp.PE_ModIsInstalled(e1,e2) ]
-	-> e1:Patch_String_Right e2:Patch_Exp IS_INSTALLED_AFTER e3:Patch_String_Right e4:Patch_Exp [ Tp.PE_IsInstalledAfter(e1,e2,e3,e4) ]
+	-> LPAREN e1:Patch_String_Right e2:Patch_Exp RPAREN IS_INSTALLED_AFTER LPAREN e3:Patch_String_Right e4:Patch_Exp RPAREN [ Tp.PE_IsInstalledAfter(e1,e2,e3,e4) ]
 	-> GAME_IS e1:STRING [ Tp.PE_GameIs(e1,true) ]
 	-> ENGINE_IS e1:STRING [ Tp.PE_GameIs(e1,false) ]
 	-> VARIABLE_IS_SET e1:Patch_String_Name [ Tp.PE_VariableIsSet e1 ]
