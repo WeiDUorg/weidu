@@ -6,7 +6,7 @@
 
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
-let version = "22000"
+let version = "22003"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
@@ -217,7 +217,7 @@ let version = "22000"
 (* 212 let comment = "I'm an idiot for gaming on a laptop" *)
 (* 213 let comment = "MOVE" *)
 (* 214 let comment = "Will always remain free beer *and* free speech" *)
-(* let comment = "Testing R Us. Also will always remain free beer *and* free speech" *)
+(* 215 let comment = "Testing R Us. Also will always remain free beer *and* free speech" *)
 (* 216 let comment = "RERO, take two" *)
 (* 217 let comment = "Just because Miloch asked nicely" *)
 (* 218 let comment = "People love monthly releases" *)
