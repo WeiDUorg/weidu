@@ -3231,6 +3231,12 @@ unusabilities
     See the example file \t{mymod.tp2} or the tutorial at
     \ahrefurl{\url{http://forums.gibberlings3.net/index.php?showtopic=584}}
     for information on how to do this.
+	
+	The game cannot handle more than 255 kits installed (if you try to
+	check \verb+Kit(Somebody,kit256)+ or \verb+AddKit(kit256)+, the game
+	crashes to desktop). As such, WeiDU will currently refuse to install a
+	256th kit. This limitation will be removed if/when EXE patches will be made
+	to remove this engine limitation.
     \\
   or & \DEFINE{ADD!MUSIC} internalMusicName newMUSFile & 
     No documentation yet!
@@ -3251,12 +3257,23 @@ unusabilities
     \end{verbatim}
     \\
   or & \DEFINE{ADD!SPELL} newSPLfile type level idsName \ttref{patch} \Slist
-       \ttref{when} \Slist &
+       \Ob IF!EXISTING \ttref{patch} \Slist END \Oe &
     adds newSPLfile as a spell of type and level into the game (IE, SPPR102 or
     whatnot), in the first empty slot possible, appends the idsName to
     spell.ids, and sets \verb+%idsName%+
     to the 4-digit code associated with idsName in Spell.ids. While you copy
-    newSPLfile to the override, you also apply the patches listed. \\
+    newSPLfile to the override, you also apply the patches listed.
+
+	If Spell.ids already contains a spell named idsName, of the same type and
+	level than the one you're adding, then that spell is overwritten (rather
+	than adding a duplicate version). If you have the \verb+IF!EXISTING+
+	section, its patches are applied to the current version instead.
+	
+	If Spell.ids already contains a spell named idsName, but of of different
+	type and/or level than the one you're adding, then the current reference
+	is removed from spell.ids, and then the action proceeds as usual. You still
+	need to make sure that the old version is unavailable to players.
+	\\
   or & \DEFINE{STRING!SET} indexOrString newValue \Slist
     \Ob \t{USING} traFile \Oe &
     This command replaces each given string in the user's \ttref{TLK} file
@@ -4541,8 +4558,13 @@ or & \DEFINE{MOD!IS!INSTALLED} modTp2Name modComponent &
 Returns true if the modComponent of modTp2Name is installed. The syntax
 is the same as with \ttref {REQUIRE!COMPONENT}.  \\
 
-or & modTp2Name1 modComponent1 \DEFINE{IS!INSTALLED!AFTER} modTp2Name2 modComponent2 &
+or & \DEFINE{INSTALL!ORDER} modTp2Name1 modComponent1 AFTER modTp2Name2 modComponent2 &
 Returns true if the modComponent1 of modTp2Name1 is installed after the modComponent2
+of modTp2Name2 (and both components are installed). The syntax
+is the same as with \ttref {REQUIRE!COMPONENT}.  \\
+
+or & \DEFINE{INSTALL!ORDER} modTp2Name1 modComponent1 BEFORE modTp2Name2 modComponent2 &
+Returns true if the modComponent1 of modTp2Name1 is installed before the modComponent2
 of modTp2Name2 (and both components are installed). The syntax
 is the same as with \ttref {REQUIRE!COMPONENT}.  \\
 

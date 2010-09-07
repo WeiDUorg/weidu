@@ -989,7 +989,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 			(PE_FileContainsEvaluated(PE_LiteralString "SONGLIST.2DA",
 						  PE_LiteralString ("^" ^ m.music_name ^ "\\b")))) then begin
 						    Var.set_int32 (music_base_name) (Bcs.int_of_sym game "SONGLIST.2DA" music_base_name) ;
-						    log_and_print "\n\nERROR: MUS [%s] already present! Skipping!\n\n"
+						    log_and_print "\n\nMUS [%s] already present! Skipping!\n\n"
 						      music_base_name
 						  end else begin
 						    log_and_print "Adding %s Music ...\n" m.music_name;
@@ -1026,7 +1026,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						  PE_LiteralString ("^" ^ p.pro_file ^ "\\b")))) then begin
 						    let this_pro_name = Case_ins.filename_chop_extension (Case_ins.filename_basename p.pro_file) in
 						    Var.set_int32 (this_pro_name) (Bcs.int_of_sym game "PROJECTL.IDS" this_pro_name) ;
-						    log_and_print "\n\nERROR: PRO [%s] already present! Skipping!\n\n"
+						    log_and_print "\n\nPRO [%s] already present! Skipping!\n\n"
 						      this_pro_name
 						  end else begin
 						    log_and_print "Adding projectile file %s ...\n" p.pro_file;
@@ -1062,7 +1062,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						  end
       end
 	    
-      | TP_Add_Spell(file,kind,level,ids_name,pl,cl) ->
+      | TP_Add_Spell(file,kind,level,ids_name,pl,ple) ->
 	  log_and_print "Adding spell %s\n" ids_name;
 	  let file = Var.get_string file in
 	  let ids_name = Var.get_string ids_name in
@@ -1078,35 +1078,96 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  | _ -> failwith "ADD_SPELL with spell type not in 1-4 range."
 	  in
 	  if level < 0 || level > 9 then failwith "ADD_SPELL with level outside the 0-9 range.";
-	  let rec try_it n =
-	    if n = 100 then failwith "Couldn't find space for the spell."
-	    else if not (Load.file_exists_in_game game (Printf.sprintf "SP%s%d%s%d.SPL" memo level (if n < 10 then "0" else "") n)) then
-	      n
-	    else try_it (n + 1)
-	  in
-	  let n = try_it 1 in
+	  
+	  let did, n  =
+		  let rec try_it n =
+			if n = 100 then failwith "Couldn't find space for the spell."
+			else if not (Load.file_exists_in_game game (Printf.sprintf "SP%s%d%s%d.SPL" memo level (if n < 10 then "0" else "") n)) then
+			  n
+			else try_it (n + 1)
+		  in
+		  if is_true (eval_pe "" game (PE_FileContainsEvaluated(PE_LiteralString "SPELL.IDS",
+			 PE_LiteralString ("[ \t]" ^ ids_name ^ "\\b")))) then begin
+				let oldValue = Int32.to_int (Bcs.int_of_sym game "SPELL" ids_name) in
+				let oldKind = oldValue / 1000 in
+				let oldLevel = oldValue / 100 - 10 * oldKind in
+				if (oldLevel = level && oldKind = kind) then begin
+					Var.set_int ids_name oldValue;
+					log_and_print "\n\nSpell [%s] already present (and of the right level), overriding!\n\n" ids_name;
+					true, oldValue - 100 * oldLevel - 1000 * oldKind
+				end else begin
+					let remove = TP_Copy(
+					{ copy_get_existing = true;
+					  copy_use_regexp = false;
+					  copy_use_glob = false;
+					  copy_file_list = [("spell.ids", "override/spell.ids")] ;
+					  copy_patch_list = [ TP_PatchStringTextually(Some false,Some false,Printf.sprintf "%d[ \t]*%s" oldValue ids_name,"",None) ] ;
+					  copy_constraint_list = [] ;
+					  copy_backup = true;
+					  copy_at_end = false;
+					  copy_save_inlined = false;
+					} ) in
+					log_and_print "\n\nSpell [%s] already present (but the wrong level), overriding!\n\n" ids_name;
+					process_action tp remove;
+					false, try_it 1
+				end
+			end else begin
+			  false, try_it 1
+			end
+		in
 	  if !debug_ocaml then log_and_print "installed as SP%s%d%s%d.SPL\n" memo level 
 	      (if n < 10 then "0" else "") n;
-	  let number = kind * 1000 + level * 100 + n in
-	  let a1 = TP_Append("SPELL.IDS",
-			     (Printf.sprintf "%d %s" number ids_name),[],true,false) in
-	  let dest_file = "override/" ^ (Printf.sprintf "SP%s%d%s%d.SPL" memo level
-					   (if n < 10 then "0" else "") n) in
-	  let a2 = TP_Copy(
-	    { copy_get_existing = false;
-	      copy_use_regexp = false;
-	      copy_use_glob = false;
-	      copy_file_list = [(file, dest_file)] ;
-	      copy_patch_list = pl ;
-	      copy_constraint_list = cl ;
-	      copy_backup = true;
-	      copy_at_end = false;
-	      copy_save_inlined = false;
-	    } ) in
-	  let action_list = [ a1 ; a2 ] in
-	  List.iter (process_action tp) action_list ;
-	  Var.set_int32 (ids_name) (Int32.of_int (number)) ;
-	  Bcs.clear_ids_map game ;
+	  let src_file = (Printf.sprintf "SP%s%d%s%d.SPL" memo level
+		(if n < 10 then "0" else "") n) in
+	  let dest_file = "override/" ^ src_file in
+	  if not did then begin
+		  let number = kind * 1000 + level * 100 + n in
+		  let a1 = TP_Append("SPELL.IDS",
+					 (Printf.sprintf "%d %s" number ids_name),[],true,false) in
+		  process_action tp a1;
+		  let a2 = TP_Copy(
+			{ copy_get_existing = false;
+			  copy_use_regexp = false;
+			  copy_use_glob = false;
+			  copy_file_list = [(file, dest_file)] ;
+			  copy_patch_list = pl ;
+			  copy_constraint_list = [] ;
+			  copy_backup = true;
+			  copy_at_end = false;
+			  copy_save_inlined = false;
+			} ) in
+			process_action tp a2;
+		  Var.set_int32 (ids_name) (Int32.of_int (number)) ;
+		  Bcs.clear_ids_map game ;
+	  end else begin
+		match ple with
+		| None ->
+		  let a2 = TP_Copy(
+			{ copy_get_existing = false;
+			  copy_use_regexp = false;
+			  copy_use_glob = false;
+			  copy_file_list = [(file, dest_file)] ;
+			  copy_patch_list = pl ;
+			  copy_constraint_list = [] ;
+			  copy_backup = true;
+			  copy_at_end = false;
+			  copy_save_inlined = false;
+			} ) in
+			process_action tp a2
+		| Some pl ->
+		  let a2 = TP_Copy(
+			{ copy_get_existing = true;
+			  copy_use_regexp = false;
+			  copy_use_glob = false;
+			  copy_file_list = [(src_file, dest_file)] ;
+			  copy_patch_list = pl ;
+			  copy_constraint_list = [] ;
+			  copy_backup = true;
+			  copy_at_end = false;
+			  copy_save_inlined = false;
+			} ) in
+			process_action tp a2
+	  end;
 	  log_and_print "Added spell %s\n" ids_name;
 	  
 	  
