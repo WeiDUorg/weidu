@@ -3241,6 +3241,27 @@ unusabilities
   or & \DEFINE{ADD!MUSIC} internalMusicName newMUSFile & 
     No documentation yet!
     \\
+  or & \DEFINE{ADD!SCHOOL} schoolName removalString &
+	Creates a new (guaranteed-unique) spell school (as per mschool.2da),
+	associate removalString (can be a tra reference) to its removal,
+	and sets the schoolName variable to the school identifier.
+	
+	
+	
+	If  mschool.2da already contains schoolName, the variable is set to
+	the school's current identifier and no other operation is performed.
+	\\
+  or & \DEFINE{ADD!SECTYPE} sectypeName removalString &
+	Creates a new (guaranteed-unique) spell secondary type
+	(as per msectype.2da), associate removalString (can be a tra reference)
+	to its removal, and sets the sectypeName variable to the sectype
+	identifier.
+	
+	
+	
+	If  msectype.2da already contains sectypeName, the variable is set to
+	the sectype's current identifier and no other operation is performed.
+	\\
   or & \DEFINE{ADD!PROJECTILE} modpath/PROName.PRO &
     Appends an entry for PROName to \t{PROJECTL.IDS} and assigns it the next
     available ProRef number.  Then copies the file \t{modpath/PROName.PRO}

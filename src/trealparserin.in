@@ -429,6 +429,8 @@ nonterm(Tp.tp_action) Tp_Action {
 		[ Tp.TP_Add_Spell(e1,e2,e3,e4,e5,Some e6,Some e7) ]
 	-> ADD_PROJECTILE e1:STRING [ Tp.TP_Add_Projectile { Tp.pro_file = e1; Tp.missile_ids_name = Case_ins.filename_chop_extension (Case_ins.filename_basename e1) } ]
 	-> ADD_PROJECTILE e1:STRING e2:STRING [ Tp.TP_Add_Projectile { Tp.pro_file = e1; Tp.missile_ids_name = e2 } ]
+	-> ADD_SCHOOL e1:Patch_String_Right e2:Lse [ Tp.TP_Add_2DA("MSCHOOL.2DA",e1,e2) ]
+	-> ADD_SECTYPE e1:Patch_String_Right e2:Lse [ Tp.TP_Add_2DA("MSECTYPE.2DA",e1,e2) ]
 	-> SILENT [ Tp.TP_Silent ]
 	-> STRING_SET e1:String_Lse_List [ Tp.TP_String_Set(e1,None) ]
 	-> STRING_SET e1:String_Lse_List USING e2:STRING [ Tp.TP_String_Set(e1,Some e2) ]

@@ -122,6 +122,9 @@ let action_to_str a = match a with
 | TP_CopyKit _ -> "COPY_KIT"
 | TP_Add_Music _ -> "ADD_MUSIC"
 | TP_Add_Projectile _ -> "ADD_PROJECTILE"
+| TP_Add_2DA ("MSCHOOL.2DA",_,_) -> "ADD_SCHOOL"
+| TP_Add_2DA ("MSECTYPE.2DA",_,_) -> "ADD_SECTYPE"
+| TP_Add_2DA (_,_,_) -> "ADD_2DA"
 | TP_Add_Spell _ -> "ADD_SPELL"
 | TP_String_Set _ -> "STRING_SET"
 | TP_String_Set_Evaluate _ -> "STRING_SET_EVALUATE"
@@ -232,3 +235,40 @@ let body_of_script buff =
     log_and_print "ERROR: not a BCS script\n" ;
     failwith "not a BCS script"
 
+
+let find_table_row buff colId reg = 
+	let lines = Str.split many_newline_or_cr_regexp buff in
+	let rec walk lines i = match lines with
+	| line :: tl ->
+		let parts = Str.split many_whitespace_regexp line in
+		if List.length parts > colId then begin
+			if Str.string_match reg (List.nth parts colId) 0 then
+				Int32.of_int i
+			else walk tl (i+1)
+		end else walk tl (i+1)
+	| [] -> failwith ("find_table_row: couldn't find a match")
+	in walk lines 0
+
+let get_line_count file game =
+	let buff = if file_exists file then
+		load_file file 
+	else 
+		let a,b = split file in 
+		let buff,path = 
+			Load.load_resource "FILE_CONTAINS_EVALUATED" game true a b
+		in
+		buff
+	in
+	let lines = List.tl (Str.split many_newline_or_cr_regexp buff) in
+	let rec walk lines max' = match lines with
+	| hd :: tl -> let cur = List.length (Str.split many_whitespace_regexp hd) in
+		walk tl (max cur max')
+	| [] -> max'
+	in
+	let max' = walk lines 0 in
+	let rec count lines acc = match lines with
+	| hd :: tl -> count tl (acc + if List.length (Str.split many_whitespace_regexp hd) = max' then 1 else 0)
+	| [] -> acc
+	in
+	count lines 0
+	

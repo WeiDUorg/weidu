@@ -10,6 +10,8 @@ Version 221:
   * ADD_SPELL checks spell.ids to avoid duplicating spells (see readme), and
     provides a way to disable the older spell (if it's of different level) or
 	patch (rather than overwrite) the older spell (if it's of the same level).
+  * Added ADD_SCHOOL and ADD_SECTYPE to create a guaranteed-unique school /
+    secondary type.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

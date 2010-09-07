@@ -987,8 +987,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  let music_base_name = Case_ins.filename_basename m.music_file in
 	  if is_true (eval_pe "" game
 			(PE_FileContainsEvaluated(PE_LiteralString "SONGLIST.2DA",
-						  PE_LiteralString ("^" ^ m.music_name ^ "\\b")))) then begin
-						    Var.set_int32 (music_base_name) (Bcs.int_of_sym game "SONGLIST.2DA" music_base_name) ;
+						  PE_LiteralString ("\\b" ^ music_base_name ^ "\\b")))) then begin
+							let buff,path = 
+								Load.load_resource "ADD_MUSIC" game true "SONGLIST" "2DA"
+							in
+							let number = find_table_row buff 2 (Str.regexp_case_fold ("\\b" ^ music_base_name ^ "\\b")) in
+							let number = Int32.sub number 3l in
+						    Var.set_int32 (music_base_name) number ;
 						    log_and_print "\n\nMUS [%s] already present! Skipping!\n\n"
 						      music_base_name
 						  end else begin
@@ -1018,19 +1023,44 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						    log_and_print "Added %s Music\n" m.music_name;
 						  end
       end
+	  
+	  | TP_Add_2DA(f,s,r) -> begin
+		let s = Var.get_string (eval_pe_str s) in
+		if is_true (eval_pe "" game (PE_FileContainsEvaluated(PE_LiteralString f,
+			PE_LiteralString("[ \t\n\r]" ^ s ^ "[ \t\n\r]")))) then begin
+				let a,b = split f in
+				let buff,path = 
+					Load.load_resource "ADD_2DA" game true a b
+				in
+				let number = find_table_row buff 0 (Str.regexp_case_fold ("\\b" ^ s ^ "\\b")) in
+				let number = Int32.sub number 3l in
+				Var.set_int32 s number ;
+				log_and_print "\n\n%s [%s] already present! Skipping!\n\n" f s
+			end else begin
+				let number = (get_line_count f game) in
+				let t = match Dc.resolve_tlk_string game r with
+				Dlg.TLK_Index(i) -> i
+				| _ -> log_and_print "ERROR: cannot resolve SAY patch\n" ; failwith "resolve"
+				in
+				let a1 = TP_Append(f,
+					(Printf.sprintf "%s %d" s t),[],true,false) in
+				process_action tp a1;
+				Var.set_int32 s (Int32.of_int number) ;
+				log_and_print "Added %s %s\n" f s;
+			end
+	  end
 
       | TP_Add_Projectile(p) -> begin
 	  let p = {p with pro_file = Var.get_string p.pro_file;} in
+      let this_pro_name = Case_ins.filename_chop_extension (Case_ins.filename_basename p.pro_file) in
 	  if is_true (eval_pe "" game
 			(PE_FileContainsEvaluated(PE_LiteralString "PROJECTL.IDS",
-						  PE_LiteralString ("^" ^ p.pro_file ^ "\\b")))) then begin
-						    let this_pro_name = Case_ins.filename_chop_extension (Case_ins.filename_basename p.pro_file) in
-						    Var.set_int32 (this_pro_name) (Bcs.int_of_sym game "PROJECTL.IDS" this_pro_name) ;
+						  PE_LiteralString ("\\b" ^ this_pro_name ^ "\\b")))) then begin
+						    Var.set_int32 (this_pro_name) (Bcs.int_of_sym game "PROJECTL" this_pro_name) ;
 						    log_and_print "\n\nPRO [%s] already present! Skipping!\n\n"
 						      this_pro_name
 						  end else begin
 						    log_and_print "Adding projectile file %s ...\n" p.pro_file;
-						    let this_pro_name = Case_ins.filename_chop_extension (Case_ins.filename_basename p.pro_file) in
 						    let this_missile_name = Var.get_string p.missile_ids_name in
 						    let a1 = TP_Include ["lc_fix_missile_ids.tpa"] in
 						    List.iter (process_action tp) [a1];
