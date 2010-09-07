@@ -420,9 +420,13 @@ nonterm(Tp.tp_action) Tp_Action {
 	-> AT_INTERACTIVE_UNINSTALL e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Uninstall(e1,e2) ]
 	-> ADD_MUSIC e1:STRING e2:STRING [ Tp.TP_Add_Music {Tp.music_name=e1;Tp.music_file=e2} ]
 	-> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List e6:Tp_When_List
-		[ if e6 <> [] then log_and_print_modder "\n\nWARNING: ignoring non-empty constraint list on ADD_SPELL\n\n"; Tp.TP_Add_Spell(e1,e2,e3,e4,e5,None) ]
+		[ if e6 <> [] then log_and_print_modder "\n\nWARNING: ignoring non-empty constraint list on ADD_SPELL\n\n"; Tp.TP_Add_Spell(e1,e2,e3,e4,e5,None,None) ]
 	-> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List IF_EXISTING e6:Tp_Patch_List END
-		[ Tp.TP_Add_Spell(e1,e2,e3,e4,e5,Some e6) ]
+		[ Tp.TP_Add_Spell(e1,e2,e3,e4,e5,Some e6,None) ]
+	-> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List ON_DISABLE e6:Tp_Patch_List END
+		[ Tp.TP_Add_Spell(e1,e2,e3,e4,e5,None,Some e6) ]
+	-> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List IF_EXISTING e6:Tp_Patch_List END  ON_DISABLE e7:Tp_Patch_List END
+		[ Tp.TP_Add_Spell(e1,e2,e3,e4,e5,Some e6,Some e7) ]
 	-> ADD_PROJECTILE e1:STRING [ Tp.TP_Add_Projectile { Tp.pro_file = e1; Tp.missile_ids_name = Case_ins.filename_chop_extension (Case_ins.filename_basename e1) } ]
 	-> ADD_PROJECTILE e1:STRING e2:STRING [ Tp.TP_Add_Projectile { Tp.pro_file = e1; Tp.missile_ids_name = e2 } ]
 	-> SILENT [ Tp.TP_Silent ]

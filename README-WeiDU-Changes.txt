@@ -7,7 +7,9 @@ Version 221:
   * IS_INSTALLED_AFTER added.
   * ADD_KIT fails if it's installing more than the supported 255 kits.
   * ADD_SPELL warns if it's ignoring the constraint list (only in MODDER mode).
-  * ADD_SPELL checks spell.ids to avoid duplicating spells (see readme).
+  * ADD_SPELL checks spell.ids to avoid duplicating spells (see readme), and
+    provides a way to disable the older spell (if it's of different level) or
+	patch (rather than overwrite) the older spell (if it's of the same level).
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

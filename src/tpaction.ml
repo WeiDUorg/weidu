@@ -1062,7 +1062,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						  end
       end
 	    
-      | TP_Add_Spell(file,kind,level,ids_name,pl,ple) ->
+      | TP_Add_Spell(file,kind,level,ids_name,pl,ple,pld) ->
 	  log_and_print "Adding spell %s\n" ids_name;
 	  let file = Var.get_string file in
 	  let ids_name = Var.get_string ids_name in
@@ -1107,6 +1107,29 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 					  copy_at_end = false;
 					  copy_save_inlined = false;
 					} ) in
+					begin match pld with
+					| None -> ()
+					| Some pld -> 
+						  let oldMemo = match oldKind with
+						  | 1 -> "PR"
+						  | 2 -> "WI"
+						  | 3 -> "IN"
+						  | 4 -> "CL"
+						  | _ -> failwith "ADD_SPELL with spell type not in 1-4 range."
+						  in
+						let disable = TP_Copy(
+						{ copy_get_existing = true;
+						  copy_use_regexp = false;
+						  copy_use_glob = false;
+						  copy_file_list = [(Printf.sprintf "SP%s%d%02d.spl" oldMemo oldLevel (oldValue - 100 * oldLevel - 1000 * oldKind), "override")] ;
+						  copy_patch_list = pld ;
+						  copy_constraint_list = [] ;
+						  copy_backup = true;
+						  copy_at_end = false;
+						  copy_save_inlined = false;
+						} ) in
+						process_action tp disable 
+					end;
 					log_and_print "\n\nSpell [%s] already present (but the wrong level), overriding!\n\n" ids_name;
 					process_action tp remove;
 					false, try_it 1

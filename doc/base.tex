@@ -3257,22 +3257,28 @@ unusabilities
     \end{verbatim}
     \\
   or & \DEFINE{ADD!SPELL} newSPLfile type level idsName \ttref{patch} \Slist
-       \Ob IF!EXISTING \ttref{patch} \Slist END \Oe &
+       \Ob IF!EXISTING \ttref{patch} \Slist END \Oe
+		\Ob ON!DISABLE \ttref{patch} \Slist END \Oe	   &
     adds newSPLfile as a spell of type and level into the game (IE, SPPR102 or
     whatnot), in the first empty slot possible, appends the idsName to
     spell.ids, and sets \verb+%idsName%+
     to the 4-digit code associated with idsName in Spell.ids. While you copy
     newSPLfile to the override, you also apply the patches listed.
 
+	
+	
 	If Spell.ids already contains a spell named idsName, of the same type and
 	level than the one you're adding, then that spell is overwritten (rather
 	than adding a duplicate version). If you have the \verb+IF!EXISTING+
 	section, its patches are applied to the current version instead.
+
+
 	
 	If Spell.ids already contains a spell named idsName, but of of different
 	type and/or level than the one you're adding, then the current reference
-	is removed from spell.ids, and then the action proceeds as usual. You still
-	need to make sure that the old version is unavailable to players.
+	is removed from spell.ids, and then the action proceeds as usual. In this
+	case, if there is the \verb+ON!DISABLE+ section, the patches declared
+	there will be applied to the older spell.
 	\\
   or & \DEFINE{STRING!SET} indexOrString newValue \Slist
     \Ob \t{USING} traFile \Oe &
@@ -4546,7 +4552,7 @@ integer).  \\
 or & \DEFSYN{IS!AN!INT} \ttref{String} &
 Returns true if the variable String is set to an integer (there's a variable called either
 \verb+String+ or \verb+%String%+ with integer value).  \\
-or & \DEFIN{TRA!ENTRY!EXISTS} ( \ttref{String} \ttref{String} \Slist ) &
+or & \DEFINE{TRA!ENTRY!EXISTS} ( \ttref{String} \ttref{String} \Slist ) &
 	returns true if the variable String maps to a valid TRA entry.
 	If the \ttref{String} list is empty the tra entry is looked for into the loaded TRAs,
 	otherwie it's looked for into the listed TRA files.
@@ -4563,7 +4569,7 @@ Returns true if the modComponent1 of modTp2Name1 is installed after the modCompo
 of modTp2Name2 (and both components are installed). The syntax
 is the same as with \ttref {REQUIRE!COMPONENT}.  \\
 
-or & \DEFINE{INSTALL!ORDER} modTp2Name1 modComponent1 BEFORE modTp2Name2 modComponent2 &
+or & \DEFSYN{INSTALL!ORDER} modTp2Name1 modComponent1 BEFORE modTp2Name2 modComponent2 &
 Returns true if the modComponent1 of modTp2Name1 is installed before the modComponent2
 of modTp2Name2 (and both components are installed). The syntax
 is the same as with \ttref {REQUIRE!COMPONENT}.  \\
