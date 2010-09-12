@@ -14,6 +14,8 @@ Version 221:
     secondary type.
   * COPY_EXISTING_REGEXP GLOB should be faster at getting the list of files to
     copy (I.E. before printing 'Copying and Patching XYZ files').
+  * COPY_EXISTING_REGEXP won't copy and patch the same file twice if it matches
+    against two given searchg regexps.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'
