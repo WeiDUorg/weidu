@@ -15,29 +15,7 @@
 
 #include <windows.h>
 #include <caml/mlvalues.h>
-#define WIN32_LEAN_AND_MEAN
-#include <wtypes.h>
-#include <winbase.h>
-#include <stdlib.h>
-/* Include io.h in current dir, which is a copy of the system's io.h,
-   not io.h from ../../byterun */
-/*#include "io.h"*/
-#include <direct.h>
-#include <process.h>
-#include <sys/types.h>
-#include <winsock.h>
-
-struct filedescr {
-  union {
-    HANDLE handle;
-    SOCKET socket;
-  } fd;
-  enum { KIND_HANDLE, KIND_SOCKET } kind;
-};
-
-
-#define Handle_val(v) (((struct filedescr *) Data_custom_val(v))->fd.handle)
-
+#include <caml/unixsupport.h>
 
 value weidu_win_create_process_native(value cmd, value cmdline, value env,
                                 value fd1, value fd2, value fd3)
