@@ -617,19 +617,16 @@ let rec process_action game a = match a with
 		 ) dlg.Dlg.state
     in
     if use_regexp then begin
-      let files_in_chitin = Key.list_of_key_resources game.Load.key true in
       let regexp_list = List.map (fun n -> Str.regexp_case_fold n) nl in
-      let matches = ref [] in
-      List.iter (fun poss ->
+      let matches = Key.search_key_resources game.Load.key true 
+	  (fun poss ->
         let b,e = split (String.uppercase poss) in
-        if e = "DLG" &&
+        e = "DLG" &&
           (List.exists (fun regexp -> Str.string_match regexp b 0)
-             regexp_list) then begin
-               make_available (action_to_str a) game b false ;
-               matches := b :: !matches
-             end
-		) files_in_chitin ;
-      List.iter (fun n -> process (Hashtbl.find available_dlgs n)) !matches
+             regexp_list)
+		)
+	  in
+      List.iter (fun n -> process (Hashtbl.find available_dlgs n)) matches
     end else
       List.iter (fun n ->
         let dlg = Hashtbl.find available_dlgs n in
@@ -654,17 +651,15 @@ let rec process_action game a = match a with
 		 ) dlg.Dlg.state
     in 
     if (use_regexp) then begin
-      let files_in_chitin = Key.list_of_key_resources game.Load.key true in
       let regexp = Str.regexp_case_fold n in
-      let matches = ref [] in
-      List.iter (fun poss ->
+      let matches = Key.search_key_resources game.Load.key true 
+	  (fun poss ->
         let b,e = split (String.uppercase poss) in
-        if e = "DLG" && Str.string_match regexp b 0 then begin 
-          make_available (action_to_str a) game b false ;
-          matches := b :: !matches
-        end 
-		) files_in_chitin ;
-      List.iter (fun n -> process (Hashtbl.find available_dlgs n)) !matches 
+        e = "DLG" &&
+          Str.string_match regexp b 0
+		)
+	  in
+      List.iter (fun n -> process (Hashtbl.find available_dlgs n)) matches 
     end else process (Hashtbl.find available_dlgs n)
 
 

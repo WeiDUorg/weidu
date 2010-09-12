@@ -260,26 +260,12 @@ let list_of_key_resources key use_override =
   let from_key = Array.to_list (Array.map (fun r ->
     Printf.sprintf "%s.%s" r.res_name (ext_of_key r.res_type)) key.resource) in
   if use_override then begin
-    let found = Hashtbl.create 3000 in
-    List.iter (fun x -> Hashtbl.add found x true) from_key;
-    let from_override = try
-      let dh = Case_ins.unix_opendir "override" in
-      let lst = ref [] in
-      (try
-	while true do
-	  let next = Unix.readdir dh in
-	  if ((Case_ins.unix_stat ("override/" ^ next)).Unix.st_kind =
-	      Unix.S_REG) && not (Hashtbl.mem found (String.uppercase next)) then
-	    lst := (String.uppercase next) :: !lst
-	done
-      with End_of_file -> () );
-      Unix.closedir dh ;
-      !lst
-    with _ -> [] in
+    let from_override = Array.to_list (Sys.readdir "override") in
     from_key @ from_override
   end else from_key
 
-
+let search_key_resources key use_override search_func =
+	List.filter search_func (list_of_key_resources key use_override)
 
 let remove_biff key filename =
   let idx = ref None in
@@ -309,7 +295,6 @@ let remove_biff key filename =
     filename ; 
   { key with biff = newbiff ;
     resource = newres ; }
-
 
 let remove_files key file_lst =
 	let new_resfind = key.resfind in

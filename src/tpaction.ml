@@ -653,20 +653,19 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 		    end
 			    ) files_in_chitin;
 		  let matches = List.sort compare !matches in
-		  let matches =
-		    let rec nodup lst = match lst with
-		    | [] -> []
-		    | [hd] -> lst
-		    | a :: b :: tl -> if (a = b) then nodup (b :: tl)
-		    else a :: (nodup (b :: tl))
-		    in nodup matches
-		  in
 		  if (matches = []) then
 		    [(s,p)]
 		  else
 		    matches
 					) slist in
-		List.flatten new_list
+		let new_list = List.flatten new_list in
+		let rec nodup lst = match lst with
+		    | [] -> []
+		    | [hd] -> lst
+		    | a :: b :: tl -> if (a = b) then nodup (b :: tl)
+		    else a :: (nodup (b :: tl))
+		in
+		nodup (List.sort compare new_list)
 	      end else if use_glob then begin
 		let res = ref [] in
 		List.iter (fun (s,p) ->

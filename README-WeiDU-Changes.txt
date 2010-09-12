@@ -12,6 +12,8 @@ Version 221:
 	patch (rather than overwrite) the older spell (if it's of the same level).
   * Added ADD_SCHOOL and ADD_SECTYPE to create a guaranteed-unique school /
     secondary type.
+  * COPY_EXISTING_REGEXP GLOB should be faster at getting the list of files to
+    copy (I.E. before printing 'Copying and Patching XYZ files').
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'
