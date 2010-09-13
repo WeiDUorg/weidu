@@ -621,12 +621,14 @@ let rec process_action game a = match a with
       let matches = Key.search_key_resources game.Load.key true 
 	  (fun poss ->
         let b,e = split (String.uppercase poss) in
-        e = "DLG" &&
+        let ans = e = "DLG" &&
           (List.exists (fun regexp -> Str.string_match regexp b 0)
-             regexp_list)
+             regexp_list) in
+		if ans then make_available (action_to_str a) game b false;
+		ans
 		)
 	  in
-      List.iter (fun n -> process (Hashtbl.find available_dlgs n)) matches
+      List.iter (fun n -> process (Hashtbl.find available_dlgs (fst (split n)))) matches
     end else
       List.iter (fun n ->
         let dlg = Hashtbl.find available_dlgs n in
@@ -655,11 +657,13 @@ let rec process_action game a = match a with
       let matches = Key.search_key_resources game.Load.key true 
 	  (fun poss ->
         let b,e = split (String.uppercase poss) in
-        e = "DLG" &&
-          Str.string_match regexp b 0
+        let ans = e = "DLG" &&
+          Str.string_match regexp b 0 in
+		if ans then make_available (action_to_str a) game b false;
+		ans
 		)
 	  in
-      List.iter (fun n -> process (Hashtbl.find available_dlgs n)) matches 
+      List.iter (fun n -> process (Hashtbl.find available_dlgs (fst (split n)))) matches 
     end else process (Hashtbl.find available_dlgs n)
 
 
