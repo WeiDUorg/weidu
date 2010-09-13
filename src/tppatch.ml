@@ -2255,7 +2255,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	  | TP_Store_Before store_pos_arg
 	  | TP_Store_After store_pos_arg ->
 	      let before_what = Var.get_string (eval_pe_str store_pos_arg) in
-	      let before_what_list = Str.split (Str.regexp "[\t ]") before_what in
+	      let before_what_list = Str.split many_whitespace_or_nl_regexp before_what in
 	      let item_reg = List.map (fun x ->
 	        let y = if String.length x > 8 then Str.string_before x 8 else x in
 	        (y ^ String.make (8 - (String.length y)) '.')

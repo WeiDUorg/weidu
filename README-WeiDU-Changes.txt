@@ -16,6 +16,7 @@ Version 221:
     copy (I.E. before printing 'Copying and Patching XYZ files').
   * COPY_EXISTING_REGEXP won't copy and patch the same file twice if it matches
     against two given searchg regexps.
+  * ADD_STORE_ITEM accepts multiple lines in the BEFORE/AFTER clause.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'
