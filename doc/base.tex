@@ -2984,7 +2984,7 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
        Safety notes: when uninstalling, MOVE is restored first,
        then all generic actions are restored, then AT!*!UNINSTALL is handled.
        As such, do your AT_NOW, then do your COPY, then do your MOVEs
-       (exception: if you MOVE for biffing purposes, it is save to call
+       (exception: if you MOVE for biffing purposes, it is safe to call
        MAKE!BIFF after MOVE. Do not use the --make-biff command-line argument).
        \\
 
@@ -3186,7 +3186,7 @@ END
     directory-file-regexp. The chitin.key file is restored as a normal file, and 
     reloaded whenever the component is installed or uninstalled (which means that its 
     contents will be available exactly when the biff exists), while the .bif file
-    itself is NOT deleted on uninstall.  \\
+    itself is deleted or on uninstall as usual.  \\
   or & \DEFINE{LOAD!TRA} traName \Slist &
     Loads all traName files (variable substitution is done, the file cannot be inlined)
     to be used in the following tp2 actions, as if you had declared them in \ttref{LANGUAGE}. \\
