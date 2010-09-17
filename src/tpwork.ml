@@ -83,7 +83,6 @@ let rec handle_tp
 	  | Some(l) ->
               Var.set_string "LANGUAGE" l.lang_dir_name ;
               log_and_print "Using Language [%s]\n" l.lang_name ;
-	      Var.set_string "TP2_FILE_NAME" tp.tp_filename;
               log_or_print "[%s] has %d top-level TRA files\n"
 		l.lang_name (List.length l.lang_tra_files) ;
               List.iter handle_tra_filename (List.map Arch.backslash_to_slash l.lang_tra_files)
@@ -91,6 +90,7 @@ let rec handle_tp
       in
       Var.set_string "TP2_AUTHOR" tp.author ;
       Var.set_string "TP2_FILE_NAME" tp.tp_filename;
+      Var.set_string "TP2_BASE_NAME" (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp.tp_filename) ;
 
       lang_init () ;
 
@@ -1068,6 +1068,7 @@ let rec handle_tp
 		init_default_strings () ; 
 		Var.set_string "TP2_AUTHOR" tp2.author ;
 		Var.set_string "TP2_FILE_NAME" tp2.tp_filename;
+        Var.set_string "TP2_BASE_NAME" (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp2.tp_filename) ;
 		(try
 		  let l = List.nth tp2.languages b in
 		  our_lang := Some(l) ;
@@ -1077,6 +1078,7 @@ let rec handle_tp
 		  log_and_print "%s [%s]\n" ((get_trans (-1012))) l.lang_name ;
 		  Var.set_string "LANGUAGE" l.lang_dir_name ;
 		  Var.set_string "TP2_FILE_NAME" tp2.tp_filename ;
+          Var.set_string "TP2_BASE_NAME" (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp2.tp_filename) ;
 		with _ ->
 		  our_lang := None ; 
 		  our_lang_index := 0 ;
@@ -1142,7 +1144,7 @@ let rec handle_tp
 		in
 		begin
 		  if fails_requirements then begin
-		    handle_letter tp2 "U" false false package_name m (ref false) c ;
+		    temp_to_perm_uninstalled tp2.tp_filename c handle_tp2_filename game ;
 		    re_installed := !re_installed @ [(a,b,c,sopt,Permanently_Uninstalled)] ;
 		  end else begin
 		    handle_letter tp2 "R" false false package_name m (ref false) c ;

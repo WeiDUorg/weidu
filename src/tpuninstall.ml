@@ -309,6 +309,8 @@ let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
           Var.set_string "TP2_AUTHOR" tp2.author ;
           Var.set_string "LANGUAGE" lang_name ;
           Var.set_string "TP2_FILE_NAME" tp2.tp_filename ;
+          Var.set_string "TP2_BASE_NAME" (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp2.tp_filename) ;
+		  Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
           let m = get_nth_module tp2 c true in
           log_only "Running AT_INTERACTIVE_EXITs in ~%s~ %d %d %s\n"
             (String.uppercase a) b c

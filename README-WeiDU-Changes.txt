@@ -17,6 +17,12 @@ Version 221:
   * COPY_EXISTING_REGEXP won't copy and patch the same file twice if it matches
     against two given searchg regexps.
   * ADD_STORE_ITEM accepts multiple lines in the BEFORE/AFTER clause.
+  * TP2_BASE_NAME variable added. If your tp2 file is mymod/setup-mymod.tp2,
+    TP2_BASE_NAME is set to mymod.
+  * Make TP2_FILE_NAME, TP2_BASE_NAME and COMPONENT_NUMBER available during
+    uninstall.
+  * If a mod being reinstalled fails its requirements, it will run its
+    AT_INTERACTIVE_UNINSTALL commands.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'
