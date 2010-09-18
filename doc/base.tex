@@ -4678,6 +4678,9 @@ and has the given MD5 checksum. Evaluates to 0 otherwise. Two different
 files are exceptionally unlikely to have the same MD5 checksum. In any
 event, the discovered checksum is printed to the log. If the file does not
 exist, it evaluates to 0. \\
+or & \DEFINE{FILE!IS!IN!COMPRESSED!BIFF} fileName & Evaluates to 1 if the file
+is stored in a compressed biff (ignoring copies in the override). Evaluates to
+0 otherwise (the file is not in a biff, or it is in an uncompressed biff).
 or & \DEFINE{FILE!SIZE} fileName fileSize & Evaluates to 1 if the
 size of the file \t{fileName} is exactly \t{fileSize}. Evaluates to 0
 otherwise. \\

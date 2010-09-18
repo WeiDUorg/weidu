@@ -229,7 +229,7 @@ let rec eval_pe buff game p =
       try
         let (a,b,c,this_biff) = Load.find_in_key game a b in
         this_biff.Biff.compressed
-      with _ -> failwith (Printf.sprintf "couldn't find file %s in a biff" f) )
+      with _ -> false )
 
   | Pred_File_Exists_In_Game(f) -> if_true  (
       let f = eval_pe_str f in

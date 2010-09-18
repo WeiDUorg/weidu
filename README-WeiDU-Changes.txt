@@ -5,7 +5,6 @@ Version 221:
     suddenly doesn't work on a standard Win32 machine.
   * ADD_CRE_EFFECT doesn't break files using EFFv1.
   * IS_INSTALLED_AFTER added.
-  * ADD_KIT fails if it's installing more than the supported 255 kits.
   * ADD_SPELL warns if it's ignoring the constraint list (only in MODDER mode).
   * ADD_SPELL checks spell.ids to avoid duplicating spells (see readme), and
     provides a way to disable the older spell (if it's of different level) or
@@ -23,6 +22,9 @@ Version 221:
     uninstall.
   * If a mod being reinstalled fails its requirements, it will run its
     AT_INTERACTIVE_UNINSTALL commands.
+  * Document FILE_IS_IN_COMPRESSED_BIFF.
+  * FILE_IS_IN_COMPRESSED_BIFF returns 0 (rather than failing) if the file is
+    not in any biff.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'
