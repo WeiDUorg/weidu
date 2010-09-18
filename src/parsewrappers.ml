@@ -54,6 +54,14 @@ let handle_script_buffer filename buffer =
   | _,_ 		-> parse_buffer filename buffer "parsing .bcs files"
 	(Bcsparser.bcs_file Bcslexer.initial)
 
+let handle_script_al buffer =
+	let result = parse_buffer "" buffer "parsing .baf files"
+	(Bafparser.action_list Baflexer.initial) in
+	result
+;;
+
+Bcs.parse_al := handle_script_al
+	
 let handle_dlg_buffer game filename buffer =
   let emit_from = !Dlg.emit_from in
   let comments = !Dlg.comments in

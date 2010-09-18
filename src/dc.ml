@@ -1063,6 +1063,12 @@ end
       | x,false -> None, x
       | _,true -> failwith "ERROR: CHAIN3: 'keep first do with first speaker' requires that you have at least one exit transition"
       in
+	  
+	  if Modder.enabled "ICT2_ACTIONS" then begin
+	    let first_actions = match first_actions with None -> "" | Some x -> x in
+		if keep && Bcs.invalid_for_ict2 first_actions then
+			Modder.handle_deb "ICT2_ACTIONS" (Printf.sprintf "WARNING: ICT2/ICT4: The interjection point (%s %s) has actions that must be the last in the dialogue (use ICT1/3 and throwback instead).\n" ci.c3_entry_file ci.c3_entry_label);
+	  end;
 
       let combine_some s1 s2 = match s1, s2 with
       | Some(s1), Some(s2) -> Some(s1 ^ "\n" ^ s2)

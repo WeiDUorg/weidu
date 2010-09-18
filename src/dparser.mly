@@ -440,6 +440,18 @@ interject_copy_trans_prologue :
     }
 | interject_copy_trans_prologue compound_chain3_list END
     { let file,iffileexists,label,var,keep_do,append_all = $1 in
+	let trans = [| Dlg.make_trans_of_next (Dlg.Copy(file,label)) |] in
+	if not keep_do && Modder.enabled "ICT2_ACTIONS" then begin
+	  let al = Array.to_list (Array.map (fun tr -> match tr.Dlg.action with None -> "" | Some x -> x) trans) in
+	  if Bcs.invalid_for_ict1 al then begin
+		let last_speaker =
+		  (List.nth $2 (List.length $2 - 1)).Dc.c3du_speaker
+		in
+		if String.uppercase last_speaker != String.uppercase file then begin
+			Modder.handle_deb "ICT2_ACTIONS" (Printf.sprintf "WARNING: ICT/ICT3: The interjection point (%s %s) has actions that must be left with the original speaker. Use ICT2/4 (or a throwback) instead.\n" file label);
+		end
+	  end;
+	end;
     Dc.Chain3
       {
        Dc.c3_entry_condition = None;
@@ -449,7 +461,7 @@ interject_copy_trans_prologue :
        Dc.c3_entry_label = label ;
        Dc.c3_dialogue = $2 ;
        Dc.c3_variable = Some(var) ;
-       Dc.c3_exit_trans = [| Dlg.make_trans_of_next (Dlg.Copy(file,label)) |] ;
+       Dc.c3_exit_trans = trans ;
        Dc.c3_keep_first_do_with_first_speaker = keep_do;
        Dc.c3_append_all = append_all ;
      }
