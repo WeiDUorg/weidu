@@ -172,7 +172,7 @@ let validate_uninstall_order tp2 =
 	  order
 ;;
   
-let uninstall_tp2_component game tp2 tp_file i interactive =
+let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
   let order = validate_uninstall_order tp2 in
   Stats.time "tp2 uninstall" (fun () ->
     try
@@ -268,6 +268,11 @@ let uninstall_tp2_component game tp2 tp_file i interactive =
 	in
 	let uninstall_at () =
 		let m = get_nth_module result i true in
+          Var.set_string "TP2_AUTHOR" tp2.author ;
+          Var.set_string "LANGUAGE" lang_name ;
+          Var.set_string "TP2_FILE_NAME" tp2.tp_filename ;
+          Var.set_string "TP2_BASE_NAME" (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp2.tp_filename) ;
+		  Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
 		handle_at_uninstall tp2 m true interactive game ;
 	in
 	Queue.iter (fun action ->
@@ -370,7 +375,12 @@ let uninstall game handle_tp2_filename tp2 i interactive =
             begin 
               try
 		let best = find_best_file [a ; tp2] in
-		uninstall_tp2_component game (handle_tp2_filename best) a c interactive ;
+          let lang_name = 
+            (try
+              let l = List.nth (handle_tp2_filename best).languages b in
+              l.lang_dir_name ;
+            with _ -> "" ) in 
+		uninstall_tp2_component game (handle_tp2_filename best) a c interactive lang_name;
 		(a,b,c,sopt,Permanently_Uninstalled) :: tl
               with _ ->
 		log_and_print "ERROR: This Mod is too old (or too new) to uninstall that component for you.\nUpgrade to the newest versions of this mod and that one and try again.\n" ;(try assert false with Assert_failure(file,line,col) -> set_errors file line);
@@ -392,7 +402,12 @@ let uninstall game handle_tp2_filename tp2 i interactive =
 		begin
 		  try
 		let best = find_best_file [ a] in
-		uninstall_tp2_component game (handle_tp2_filename best) a c false ;
+          let lang_name = 
+            (try
+              let l = List.nth (handle_tp2_filename best).languages b in
+              l.lang_dir_name ;
+            with _ -> "" ) in 
+		uninstall_tp2_component game (handle_tp2_filename best) a c false  lang_name;
 		(* take away for now *)
 		(a,b,c,sopt,Temporarily_Uninstalled) :: (prepare tl)
               with e ->

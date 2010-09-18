@@ -477,7 +477,12 @@ let rec handle_tp
 	        (match !mappings_list_chn with
 	          Some(chn) -> close_out chn ; mappings_list_chn := None
 	        | None -> ()) ;
-	        uninstall_tp2_component game tp this_tp2_filename i false ;
+          let lang_name = 
+            (try
+              let l = List.nth tp.languages !our_lang_index in
+              l.lang_dir_name ;
+            with _ -> "" ) in 
+	        uninstall_tp2_component game tp this_tp2_filename i false lang_name;
 	        print_log () ;
 		if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] && !safe_exit then begin
 		  let old_tp_quick_log = !Tp.quick_log in
