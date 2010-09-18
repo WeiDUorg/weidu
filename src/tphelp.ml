@@ -13,6 +13,7 @@ let rec pe_to_str pe = "(" ^ (match pe with
 | Pred_File_Contains(s,i) -> Printf.sprintf "FILE_CONTAINS %s %s"
       (pe_str_str s) (pe_str_str i)
 | Pred_File_Is_In_Compressed_Bif(a) -> Printf.sprintf "FILE_IS_IN_COMPRESSED_BIF %s" (pe_str_str a)
+| Pred_Biff_Is_Compressed(a) -> Printf.sprintf "BIFF_IS_COMPRESSED %s" (pe_str_str a)
 | PE_String(s) -> (pe_str_str s)
 | PE_StringEqual(s1,s2,b,c) -> Printf.sprintf "%s %s%s %s"
       (pe_str_str s1) (if c then "STRING_EQUAL" else "STRING_COMPARE") (if b then "_CASE" else "")
@@ -72,6 +73,7 @@ let rec pe_to_str pe = "(" ^ (match pe with
 | PE_StateWhichSays(None,Some(a,b),y) -> Printf.sprintf "STATE_WHICH_SAYS %s IN %s FROM %s" (pe_to_str a) b y
 | PE_StateWhichSays(None,None,_)
 | PE_StateWhichSays(Some(_),Some(_),_) -> Printf.sprintf "INTERNAL ERROR"
+| PE_Resolve_Str_Ref(a) -> Printf.sprintf "RESOLVE_STR_REF (__)"
 | PE_IsSilent -> "IS_SILENT"
 | PE_IsAnInt(x) -> Printf.sprintf "IS_AN_INT %s" (pe_str_str x)    
 			     ) ^ ")"

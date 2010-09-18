@@ -3672,7 +3672,11 @@ or & \DEFINE{SNPRINT} \ttref{value} \ttref{variable} stringWithVars &
   SNPRINT 3 "myvar" "1:%author%"
   \end{verbatim}
   ... assigns \t{1:J} to \t{myvar}.  \\
-
+or & \DEFINE{SOURCE!BIFF} \ttref{variable} filename &
+  If filename is in a biff (whether it is also in the override or not), sets
+  variable to the name of the containing biff (the name is printed as E.G.
+  \verb+data/items.bif+).
+\\  
 or & \DEFINE{SPACES} \ttref{variable} stringWithVars &
   \verb+%variable%+ will be inited to a string the same length as stringWithVars,
   but made entirely of spaces. \verb+SPACES var ~123~+ will create \verb+%var% = "   "+.
@@ -4622,7 +4626,11 @@ or & \DEFSYN{STATE!WHICH!SAYS} \t{\ttref{value} IN \ttref{String}1 FROM \ttref{S
     solarom/russian/epilogue.tra
 \end{verbatim}
 \\
-
+or & \DEFINE{RESOLVE!STR!REF} ( \ttref{text} ) &
+Resolves the given text (adding it to the the tlk), and returns its TLK index
+(so you can pass the result of this command to a function which then uses
+\ttref{WRITE!LONG} rather than \ttref{SAY}).
+\\
 or & \DEFINE{RANDOM} ( \ttref{value} \ttref{value} ) &
 A random-number generator. The first \ttref{value} is the lower bound, the
 second value is the upper bound. A random integer between the lower bound
@@ -4681,6 +4689,14 @@ exist, it evaluates to 0. \\
 or & \DEFINE{FILE!IS!IN!COMPRESSED!BIFF} fileName & Evaluates to 1 if the file
 is stored in a compressed biff (ignoring copies in the override). Evaluates to
 0 otherwise (the file is not in a biff, or it is in an uncompressed biff).
+\\
+or & \DEFINE{BIFF!IS!COMPRESSED} fileName & Evaluates to 1 if the file
+is a compressed biff. Evaluates to 0 otherwise.
+
+FileName must match against the contents of what is stored in chitin.key
+(similar to how command-line arguments that touch bif files work). For
+example, \verb+data/AREA000A.bif+. Notably, \ttref{SOURCE!BIFF} outputs
+file names compatible with this command.
 \\
 or & \DEFINE{FILE!SIZE} fileName fileSize & Evaluates to 1 if the
 size of the file \t{fileName} is exactly \t{fileSize}. Evaluates to 0

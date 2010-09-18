@@ -26,6 +26,9 @@ Version 221:
   * FILE_IS_IN_COMPRESSED_BIFF returns 0 (rather than failing) if the file is
     not in any biff.
   * Added Miloch's fj_add_are_structure PATCH FUNCTION.
+  * RESOLVE_STR_REF patch expression added.
+  * BIFF_IS_COMPRESSED patch expression added.
+  * SOURCE_BIFF patch added.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

@@ -1658,6 +1658,16 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	let str = Var.get_string (eval_pe_str str) in
 	Var.add_local_string var str ;
 	buff
+	
+	| TP_SourceBiff (var, res) ->
+	let var = eval_pe_str var in
+	let res = Var.get_string (eval_pe_str res) in
+	let name,ext = split res in
+	(try
+      let bif_file,bif_index,tis_index = Key.bif_of_resource game.Load.key name ext in
+	  Var.set_string var bif_file;
+	with _ -> Var.set_string var "" );
+	buff
 
     | TP_PatchSpaces (var,str) ->
 	let var = eval_pe_str var in

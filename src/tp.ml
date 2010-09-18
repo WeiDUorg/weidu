@@ -299,6 +299,7 @@ and tp_patch =
   | TP_PatchSprint of tp_pe_string * tp_pe_tlk_string
   | TP_PatchSprintf of tp_pe_string * tp_pe_tlk_string * tp_patchexp list
   | TP_PatchTextSprint of tp_pe_string * tp_pe_string
+  | TP_SourceBiff of tp_pe_string * tp_pe_string
   | TP_PatchSpaces of tp_pe_string * tp_pe_string
   | TP_PatchQuote of tp_pe_string * tp_pe_string
   | TP_PatchToLower of tp_pe_string
@@ -448,10 +449,12 @@ and tp_patchexp =
   | PE_IsAnInt of tp_pe_string
   | PE_IsSilent
   | PE_TraEntryExists of tp_pe_string * (tp_pe_string list)
+  | PE_Resolve_Str_Ref of Dlg.tlk_string
 
   | Pred_File_MD5 of tp_pe_string * tp_pe_string
   | Pred_File_Exists of tp_pe_string
   | Pred_File_Is_In_Compressed_Bif of tp_pe_string
+  | Pred_Biff_Is_Compressed of tp_pe_string
   | Pred_File_Exists_In_Game of tp_pe_string
   | Pred_File_Size of tp_pe_string * int
   | Pred_File_Contains of tp_pe_string * tp_pe_string

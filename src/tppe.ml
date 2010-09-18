@@ -230,6 +230,13 @@ let rec eval_pe buff game p =
         let (a,b,c,this_biff) = Load.find_in_key game a b in
         this_biff.Biff.compressed
       with _ -> false )
+	  
+  | Pred_Biff_Is_Compressed(f) -> if_true (
+      let f = Var.get_string (eval_pe_str f) in
+	  try
+		(Load.load_bif_in_game game f).Biff.compressed
+	  with _ -> false
+    )
 
   | Pred_File_Exists_In_Game(f) -> if_true  (
       let f = eval_pe_str f in
@@ -393,6 +400,14 @@ let rec eval_pe buff game p =
 			0l
 		     )
   | PE_IsSilent -> if (!be_silent) then 1l else 0l
+  
+  | PE_Resolve_Str_Ref(lse) ->
+	let new_index = match Dc.resolve_tlk_string game lse with
+          Dlg.TLK_Index(i) -> i
+	  | _ -> log_and_print "ERROR: cannot RESOLVE_STR_REF\n" ; failwith "resolve"
+	in
+    Int32.of_int new_index	
+  
   | PE_StateWhichSays(lse,traref,file) -> begin
       let rec lookforit game lse lst =
         if !debug_ocaml then log_and_print "in lookforit \n";
