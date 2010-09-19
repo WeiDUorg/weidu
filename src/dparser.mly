@@ -443,15 +443,15 @@ interject_copy_trans_prologue :
 	let trans = [| Dlg.make_trans_of_next (Dlg.Copy(file,label)) |] in
 	if not keep_do && Modder.enabled "ICT2_ACTIONS" then begin
 	  let al = Array.to_list (Array.map (fun tr -> match tr.Dlg.action with None -> "" | Some x -> x) trans) in
-	  if Bcs.invalid_for_ict1 al then begin
 		let last_speaker =
 		  (List.nth $2 (List.length $2 - 1)).Dc.c3du_speaker
 		in
-		if String.uppercase last_speaker != String.uppercase file then begin
-			Modder.handle_deb "ICT2_ACTIONS" (Printf.sprintf "WARNING: ICT/ICT3: The interjection point (%s %s) has actions that must be left with the original speaker. Use ICT2/4 (or a throwback) instead.\n" file label);
+		let mismatch = Bcs.invalid_for_ict (String.concat " " al) "ICT1" in
+		if String.uppercase last_speaker <> String.uppercase file && mismatch <> "" then begin
+			Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: ICT/ICT3: the chosen point (%s %s) has actions that must be left with the original speaker: \"%s\"\n" file label mismatch) ;
+			Modder.handle_deb "ICT2_ACTIONS" (if Bcs.invalid_for_ict (String.concat " " al) "ICT1" <> "" then "Add a throwback line.\n" else "Use ICT2/ICT4 instead.\n");
 		end
 	  end;
-	end;
     Dc.Chain3
       {
        Dc.c3_entry_condition = None;
@@ -507,10 +507,11 @@ interject_copy_trans_prologue :
 	let trans = [| Dlg.make_trans_of_next next |] in
 	if Modder.enabled "ICT2_ACTIONS" then begin
 	  let al = Array.to_list (Array.map (fun tr -> match tr.Dlg.action with None -> "" | Some x -> x) trans) in
-	  if Bcs.invalid_for_ict1 al then begin
-		Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: COPY_TRANS: The chosen point (%s %s) has actions that must be left with the original speaker.\n" $2 $3);
-		Modder.handle_deb "ICT2_ACTIONS" "(This is not a problem if the last speaker in your dialogue is the same as the one you're COPY_TRANSing to).\n";
-	  end;
+		let mismatch = Bcs.invalid_for_ict (String.concat " " al) "ICT1" in
+		if mismatch <> "" then begin
+			Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: COPY_TRANS: the chosen point (%s %s) has actions that must be left with the original speaker: \"%s\"\n" $2 $3 mismatch) ;
+			Modder.handle_msg "ICT2_ACTIONS" "This is not a problem if the last speaker in your dialogue is the same as the one you're COPY_TRANSing to (I can't check this for you, sorry).\n";
+		end
 	end;
 	trans }
 | COPY_TRANS_LATE STRING STRING
@@ -518,10 +519,11 @@ interject_copy_trans_prologue :
 	let trans = [| Dlg.make_trans_of_next next |] in
 	if Modder.enabled "ICT2_ACTIONS" then begin
 	  let al = Array.to_list (Array.map (fun tr -> match tr.Dlg.action with None -> "" | Some x -> x) trans) in
-	  if Bcs.invalid_for_ict1 al then begin
-		Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: COPY_TRANS_LATE: The chosen point (%s %s) has actions that must be left with the original speaker.\n" $2 $3);
-		Modder.handle_deb "ICT2_ACTIONS" "(This is not a problem if the last speaker in your dialogue is the same as the one you're COPY_TRANSing to).\n";
-	  end;
+		let mismatch = Bcs.invalid_for_ict (String.concat " " al) "ICT1" in
+		if mismatch <> "" then begin
+			Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: COPY_TRANS_LATE: the chosen point (%s %s) has actions that must be left with the original speaker: \"%s\"\n" $2 $3 mismatch) ;
+			Modder.handle_msg "ICT2_ACTIONS" "This is not a problem if the last speaker in your dialogue is the same as the one you're COPY_TRANSing to (I can't check this for you, sorry).\n";
+		end
 	end;
 	trans }
 | EXIT

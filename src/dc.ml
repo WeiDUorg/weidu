@@ -1064,10 +1064,11 @@ end
       | _,true -> failwith "ERROR: CHAIN3: 'keep first do with first speaker' requires that you have at least one exit transition"
       in
 	  
-	  if Modder.enabled "ICT2_ACTIONS" then begin
+	  if keep && Modder.enabled "ICT2_ACTIONS" then begin
 	    let first_actions = match first_actions with None -> "" | Some x -> x in
-		if keep && Bcs.invalid_for_ict2 first_actions then
-			Modder.handle_deb "ICT2_ACTIONS" (Printf.sprintf "WARNING: ICT2/ICT4: The interjection point (%s %s) has actions that must be the last in the dialogue (use ICT1/3 and throwback instead).\n" ci.c3_entry_file ci.c3_entry_label);
+		let mismatch = Bcs.invalid_for_ict first_actions "ICT2" in
+		if mismatch <> "" then
+			Modder.handle_deb "ICT2_ACTIONS" (Printf.sprintf "WARNING: ICT2/ICT4: The interjection point (%s %s) has actions that must be the last in the dialogue: \"%s\".\nUse ICT1/3%s.\n" ci.c3_entry_file ci.c3_entry_label mismatch (if Bcs.invalid_for_ict first_actions "ICT1" <> "" then " and a throwback" else ""));
 	  end;
 
       let combine_some s1 s2 = match s1, s2 with
@@ -1172,9 +1173,10 @@ let pctta late game tl = (* process_copy_trans__trans_array *)
 	let ans = List.map Dlg.duplicate_trans lst in
 	if Modder.enabled "ICT2_ACTIONS" then begin
 	  let al = List.map (fun tr -> match tr.Dlg.action with None -> "" | Some x -> x) ans in
-	  if Bcs.invalid_for_ict1 al then begin
-		Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: COPY_TRANS: The chosen point (%s %s) has actions that must be left with the original speaker.\n" f s);
-		Modder.handle_deb "ICT2_ACTIONS" "(This is not a problem if the last speaker in your dialogue is the same as the one you're COPY_TRANSing to).\n";
+		let mismatch = Bcs.invalid_for_ict (String.concat " " al) "ICT1" in
+		if mismatch <> "" then begin
+			Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: COPY_TRANS: the chosen point (%s %s) has actions that must be left with the original speaker: \"%s\"\n" f s mismatch) ;
+			Modder.handle_msg "ICT2_ACTIONS" "This is not a problem if the last speaker in your dialogue is the same as the one you're COPY_TRANSing to (I can't check this for you, sorry).\n";
 	  end;
 	end;
 	ans
