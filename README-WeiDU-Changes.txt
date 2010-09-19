@@ -29,6 +29,10 @@ Version 221:
   * RESOLVE_STR_REF patch expression added.
   * BIFF_IS_COMPRESSED patch expression added.
   * SOURCE_BIFF patch added.
+  * COPY_TRANS (and the variants of ICT) will print a warning message if the
+    state you're *CT-ing into has unsafe actions for that variant of ICT
+	(for example, StartCutScene() in ICT2 or DestroySelf() with CT/ICT1 and no
+	throwback).
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

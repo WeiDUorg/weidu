@@ -504,10 +504,26 @@ interject_copy_trans_prologue :
     [| Dlg.make_trans_of_next next |] }
 | COPY_TRANS STRING STRING
     { let next = Dlg.Copy(String.uppercase $2,$3) in
-    [| Dlg.make_trans_of_next next |] }
+	let trans = [| Dlg.make_trans_of_next next |] in
+	if Modder.enabled "ICT2_ACTIONS" then begin
+	  let al = Array.to_list (Array.map (fun tr -> match tr.Dlg.action with None -> "" | Some x -> x) trans) in
+	  if Bcs.invalid_for_ict1 al then begin
+		Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: COPY_TRANS: The chosen point (%s %s) has actions that must be left with the original speaker.\n" $2 $3);
+		Modder.handle_deb "ICT2_ACTIONS" "(This is not a problem if the last speaker in your dialogue is the same as the one you're COPY_TRANSing to).\n";
+	  end;
+	end;
+	trans }
 | COPY_TRANS_LATE STRING STRING
     { let next = Dlg.Copy_Late(String.uppercase $2,$3) in
-    [| Dlg.make_trans_of_next next |] }
+	let trans = [| Dlg.make_trans_of_next next |] in
+	if Modder.enabled "ICT2_ACTIONS" then begin
+	  let al = Array.to_list (Array.map (fun tr -> match tr.Dlg.action with None -> "" | Some x -> x) trans) in
+	  if Bcs.invalid_for_ict1 al then begin
+		Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: COPY_TRANS_LATE: The chosen point (%s %s) has actions that must be left with the original speaker.\n" $2 $3);
+		Modder.handle_deb "ICT2_ACTIONS" "(This is not a problem if the last speaker in your dialogue is the same as the one you're COPY_TRANSing to).\n";
+	  end;
+	end;
+	trans }
 | EXIT
     { let next = Dlg.Exit in
     [| Dlg.make_trans_of_next next |] }
@@ -742,7 +758,8 @@ interject_copy_trans_prologue :
     result
     }
 | COPY_TRANS STRING STRING
-    { {
+    { 
+	{
       Dlg.trans_trigger = None ;
       Dlg.trans_str = None ;
       Dlg.action = None ;
@@ -752,7 +769,8 @@ interject_copy_trans_prologue :
     }
     }
 | COPY_TRANS_LATE STRING STRING
-    { {
+    {
+	{
       Dlg.trans_trigger = None ;
       Dlg.trans_str = None ;
       Dlg.action = None ;

@@ -1169,7 +1169,15 @@ let pctta late game tl = (* process_copy_trans__trans_array *)
 	  failwith "COPY_TRANS out of range"
 	end ;
 	let lst = Array.to_list (d.Dlg.state.(i).Dlg.trans) in
-	List.map Dlg.duplicate_trans lst
+	let ans = List.map Dlg.duplicate_trans lst in
+	if Modder.enabled "ICT2_ACTIONS" then begin
+	  let al = List.map (fun tr -> match tr.Dlg.action with None -> "" | Some x -> x) ans in
+	  if Bcs.invalid_for_ict1 al then begin
+		Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: COPY_TRANS: The chosen point (%s %s) has actions that must be left with the original speaker.\n" f s);
+		Modder.handle_deb "ICT2_ACTIONS" "(This is not a problem if the last speaker in your dialogue is the same as the one you're COPY_TRANSing to).\n";
+	  end;
+	end;
+	ans
       in
       if not late then
 	match t.Dlg.next with
