@@ -1156,11 +1156,11 @@ end
     end
 end
 
-let pctta late game tl = (* process_copy_trans__trans_array *)
+let pctta late game tl keep = (* process_copy_trans__trans_array *)
   (* given a transition, return the list of transition it expands to *)
   try
     let process t =
-      let doit f s =
+      let doit f s safe =
 	let d = locate_dlg game f in
 	let i = resolve_label (f,s) game in
 	if i < 0 || i >= Array.length d.Dlg.state then begin
@@ -1171,23 +1171,24 @@ let pctta late game tl = (* process_copy_trans__trans_array *)
 	end ;
 	let lst = Array.to_list (d.Dlg.state.(i).Dlg.trans) in
 	let ans = List.map Dlg.duplicate_trans lst in
-	if Modder.enabled "ICT2_ACTIONS" then begin
+	if not safe && not keep && Modder.enabled "ICT2_ACTIONS" then begin
 	  let al = List.map (fun tr -> match tr.Dlg.action with None -> "" | Some x -> x) ans in
 		let mismatch = Bcs.invalid_for_ict (String.concat " " al) "ICT1" in
 		if mismatch <> "" then begin
 			Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: COPY_TRANS: the chosen point (%s %s) has actions that must be left with the original speaker: \"%s\"\n" f s mismatch) ;
-			Modder.handle_msg "ICT2_ACTIONS" "This is not a problem if the last speaker in your dialogue is the same as the one you're COPY_TRANSing to (I can't check this for you, sorry).\n";
+			Modder.handle_msg "ICT2_ACTIONS" "If this is plain COPY_TRANS(_LATE), make sure that the last speaker is the same dialogue file as the one you're COPY_TRANSing from, then add SAFE after COPY_TRANS.\n";
+			Modder.handle_deb "ICT2_ACTIONS" (Printf.sprintf "If this is INTERJECT_COPY_TRANS: %s.\n" (if Bcs.invalid_for_ict (String.concat " " al) "ICT2" <> "" then " add a throwback line and add SAFE after the ICT" else "use ICT2/4 instead"));
 	  end;
 	end;
 	ans
       in
       if not late then
 	match t.Dlg.next with
-	  Dlg.Copy(f,s) -> doit f s
+	  Dlg.Copy(f,s,safe) -> doit f s safe
 	| _ -> [t]
       else
 	match t.Dlg.next with
-	  Dlg.Copy_Late(f,s) -> doit f s
+	  Dlg.Copy_Late(f,s,safe) -> doit f s safe
 	| _ -> [t]
 	      ;
     in
@@ -1203,18 +1204,18 @@ let pctta late game tl = (* process_copy_trans__trans_array *)
 let process_copy_trans late game a = match a with
 | Create(d) ->
     Array.iter (fun s ->
-      s.Dlg.trans <- pctta late game s.Dlg.trans
+      s.Dlg.trans <- pctta late game s.Dlg.trans false
 	       ) d.Dlg.state ;
     Create(d)
 | Append(s,unsafe,sl) ->
-    List.iter (fun s -> s.Dlg.trans <- pctta late game s.Dlg.trans) sl ;
+    List.iter (fun s -> s.Dlg.trans <- pctta late game s.Dlg.trans false) sl;
     Append(s,unsafe,sl)
 | Extend_Top(a,b,pos,tl) ->    Extend_Top(a,b,pos,
-					  Array.to_list (pctta late game (Array.of_list tl)))
+					  Array.to_list (pctta late game (Array.of_list tl) false))
 | Extend_Bottom(a,b,pos,tl) -> Extend_Bottom(a,b,pos,
-					     Array.to_list (pctta late game (Array.of_list tl)))
+					     Array.to_list (pctta late game (Array.of_list tl) false))
 | Replace(n,sl) ->
-    List.iter (fun s -> s.Dlg.trans <- pctta late game s.Dlg.trans) sl ;
+    List.iter (fun s -> s.Dlg.trans <- pctta late game s.Dlg.trans false) sl ;
     Replace(n,sl)
 | Append_Early(_,_,_)
 | Replace_Say(_,_,_)
@@ -1229,7 +1230,7 @@ let process_copy_trans late game a = match a with
 | Replace_Action_Text(_,_,_,_)
 | Replace_Trigger_Text(_,_,_,_)
 | Chain(_) -> a
-| Chain3(c) -> c.c3_exit_trans <- pctta late game c.c3_exit_trans ; a
+| Chain3(c) -> c.c3_exit_trans <- pctta late game c.c3_exit_trans c.c3_keep_first_do_with_first_speaker; a
 
 
 let postprocess_dlg game name d =

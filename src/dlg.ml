@@ -56,8 +56,8 @@ and trans_next =
     Exit
   | Absolute of string * int
   | Symbolic of string * string * bool (* file * label * if_exists *)
-  | Copy of string * string  (* copy all transitions from here *)
-  | Copy_Late of string * string
+  | Copy of string * string * bool  (* copy all transitions from here; is the copy safe? *)
+  | Copy_Late of string * string * bool
 
 
 and dlg = {

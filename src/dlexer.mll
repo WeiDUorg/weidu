@@ -77,6 +77,7 @@ let _ = List.iter
      ("R_A_T_P_R", REPLACE_ACTION_TEXT_PROCESS_REGEXP) ;
      ("R_S_T", REPLACE_STATE_TRIGGER) ;
      ("R_T_T", REPLACE_TRIGGER_TEXT) ;
+	 ("SAFE", SAFE) ;
      ("SAY", SAY) ;
      ("SET_WEIGHT", SET_WEIGHT) ;
      ("SOLVED_JOURNAL", SOLVED_JOURNAL) ;

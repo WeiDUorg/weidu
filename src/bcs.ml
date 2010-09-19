@@ -1238,7 +1238,6 @@ let is_invalid_for_ict1 action =
 	| _, 350 (* LeaveAreaLUAEntry(S:Area,S:Entry,P:Point,I:Face) *)
 	| _, 351 (* LeaveAreaLUAPanicEntry(S:Area,S:Entry,P:Point,I:Face) *)
 		-> true
-	| _, 1   (* ActionOverride(O:Actor,A:Action) *)
 	| _, 50  (* MoveViewObject(O:Target,I:ScrollSpeedScroll) *)
 	| _, 68  (* CallLightning(O:Target) *)
 	| _, 125 (* Deactivate(O:Object) *)
@@ -1289,7 +1288,8 @@ let is_invalid_for_ict1 action =
 	| _, 335 (* SetTokenGlobal(S:GLOBAL,S:Area,S:Token) *)
 		-> let check s = String.uppercase (snd (split6 s)) = "LOCALS" in
 			List.exists check [action.a_8; action.a_9]
-	| _ -> false in ans
+	| _ -> false in
+	ans && action.a_1.o_name = ""
 	
 let is_invalid_for_ict2 action =
   match (Load.the_game()).Load.script_style, Int32.to_int action.action_id with

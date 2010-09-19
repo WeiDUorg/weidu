@@ -132,6 +132,7 @@ let verify_action_list s =
   %token REPLACE_TRIGGER_TEXT_REGEXP
   %token REPLY
   %token RPAREN
+  %token SAFE
   %token SAY
   %token SET_WEIGHT
   %token STRING_CONCAT
@@ -154,7 +155,8 @@ let verify_action_list s =
   %type <(string * bool)> append_prologue
   %type <(string)> replace_prologue
   %type <(bool * string * (string list) * int)> extend_prologue
-  %type <(string * bool * string * string * bool * bool)> interject_prologue interject_copy_trans_prologue
+  %type <(string * bool * string * string * bool * bool)> interject_prologue
+  %type <(string * bool * string * string * bool * bool * bool)>interject_copy_trans_prologue
   %type <Dc.action list> d_file action_list
   %type <Dc.action> action
   %type <Dlg.state list> state_list state
@@ -324,23 +326,23 @@ interject_prologue : INTERJECT STRING STRING STRING
 interject_copy_trans_prologue :
   /* first boolean = enable don't copy actions a la ICT2; second boolean: add all transitions a la
   ICT3 */
-  INTERJECT_COPY_TRANS STRING STRING STRING
-  { current_unit := Some(String.uppercase $2); (String.uppercase $2,false,$3,$4,false,false) }
-| INTERJECT_COPY_TRANS2 STRING STRING STRING
-    { current_unit := Some(String.uppercase $2); (String.uppercase $2,false,$3,$4,true,false) }
-| INTERJECT_COPY_TRANS3 STRING STRING STRING
-    { current_unit := Some(String.uppercase $2); (String.uppercase $2,false,$3,$4,false,true) }
-| INTERJECT_COPY_TRANS4 STRING STRING STRING
-    { current_unit := Some(String.uppercase $2); (String.uppercase $2,false,$3,$4,true,true) }
+  INTERJECT_COPY_TRANS optional_safe STRING STRING STRING
+  { current_unit := Some(String.uppercase $3); (String.uppercase $3,false,$4,$5,false,false,$2) }
+| INTERJECT_COPY_TRANS2 optional_safe STRING STRING STRING
+    { current_unit := Some(String.uppercase $3); (String.uppercase $3,false,$4,$5,true,false,$2) }
+| INTERJECT_COPY_TRANS3 optional_safe STRING STRING STRING
+    { current_unit := Some(String.uppercase $3); (String.uppercase $3,false,$4,$5,false,true,$2) }
+| INTERJECT_COPY_TRANS4 optional_safe STRING STRING STRING
+    { current_unit := Some(String.uppercase $3); (String.uppercase $3,false,$4,$5,true,true,$2) }
     ;
-| INTERJECT_COPY_TRANS IF_FILE_EXISTS STRING STRING STRING
-  { current_unit := Some(String.uppercase $3); (String.uppercase $3,true,$4,$5,false,false) }
-| INTERJECT_COPY_TRANS2 IF_FILE_EXISTS STRING STRING STRING
-    { current_unit := Some(String.uppercase $3); (String.uppercase $3,true,$4,$5,true,false) }
-| INTERJECT_COPY_TRANS3 IF_FILE_EXISTS STRING STRING STRING
-    { current_unit := Some(String.uppercase $3); (String.uppercase $3,true,$4,$5,false,true) }
-| INTERJECT_COPY_TRANS4 IF_FILE_EXISTS STRING STRING STRING
-    { current_unit := Some(String.uppercase $3); (String.uppercase $3,true,$4,$5,true,true) }
+| INTERJECT_COPY_TRANS optional_safe IF_FILE_EXISTS STRING STRING STRING
+  { current_unit := Some(String.uppercase $4); (String.uppercase $4,true,$5,$6,false,false,$2) }
+| INTERJECT_COPY_TRANS2 optional_safe IF_FILE_EXISTS STRING STRING STRING
+    { current_unit := Some(String.uppercase $4); (String.uppercase $4,true,$5,$6,true,false,$2) }
+| INTERJECT_COPY_TRANS3 optional_safe IF_FILE_EXISTS STRING STRING STRING
+    { current_unit := Some(String.uppercase $4); (String.uppercase $4,true,$5,$6,false,true,$2) }
+| INTERJECT_COPY_TRANS4 optional_safe IF_FILE_EXISTS STRING STRING STRING
+    { current_unit := Some(String.uppercase $4); (String.uppercase $4,true,$5,$6,true,true,$2) }
     ;
 
   action : 
@@ -439,19 +441,8 @@ interject_copy_trans_prologue :
      }
     }
 | interject_copy_trans_prologue compound_chain3_list END
-    { let file,iffileexists,label,var,keep_do,append_all = $1 in
-	let trans = [| Dlg.make_trans_of_next (Dlg.Copy(file,label)) |] in
-	if not keep_do && Modder.enabled "ICT2_ACTIONS" then begin
-	  let al = Array.to_list (Array.map (fun tr -> match tr.Dlg.action with None -> "" | Some x -> x) trans) in
-		let last_speaker =
-		  (List.nth $2 (List.length $2 - 1)).Dc.c3du_speaker
-		in
-		let mismatch = Bcs.invalid_for_ict (String.concat " " al) "ICT1" in
-		if String.uppercase last_speaker <> String.uppercase file && mismatch <> "" then begin
-			Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: ICT/ICT3: the chosen point (%s %s) has actions that must be left with the original speaker: \"%s\"\n" file label mismatch) ;
-			Modder.handle_deb "ICT2_ACTIONS" (if Bcs.invalid_for_ict (String.concat " " al) "ICT1" <> "" then "Add a throwback line.\n" else "Use ICT2/ICT4 instead.\n");
-		end
-	  end;
+    { let file,iffileexists,label,var,keep_do,append_all,safe = $1 in
+	let trans = [| Dlg.make_trans_of_next (Dlg.Copy(file,label,safe)) |] in
     Dc.Chain3
       {
        Dc.c3_entry_condition = None;
@@ -495,6 +486,11 @@ interject_copy_trans_prologue :
   Some(verified_action) } 
     ; 
 
+  optional_safe:
+   { false }
+| SAFE { true }
+;
+	
   chain3_epilogue: 
 | END STRING STRING
     { let next = Dlg.Symbolic(String.uppercase $2,$3,false) in
@@ -502,29 +498,13 @@ interject_copy_trans_prologue :
 | EXTERN STRING STRING
     { let next = Dlg.Symbolic(String.uppercase $2,$3,false) in
     [| Dlg.make_trans_of_next next |] }
-| COPY_TRANS STRING STRING
-    { let next = Dlg.Copy(String.uppercase $2,$3) in
+| COPY_TRANS optional_safe STRING STRING
+    { let next = Dlg.Copy(String.uppercase $3,$4,$2) in
 	let trans = [| Dlg.make_trans_of_next next |] in
-	if Modder.enabled "ICT2_ACTIONS" then begin
-	  let al = Array.to_list (Array.map (fun tr -> match tr.Dlg.action with None -> "" | Some x -> x) trans) in
-		let mismatch = Bcs.invalid_for_ict (String.concat " " al) "ICT1" in
-		if mismatch <> "" then begin
-			Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: COPY_TRANS: the chosen point (%s %s) has actions that must be left with the original speaker: \"%s\"\n" $2 $3 mismatch) ;
-			Modder.handle_msg "ICT2_ACTIONS" "This is not a problem if the last speaker in your dialogue is the same as the one you're COPY_TRANSing to (I can't check this for you, sorry).\n";
-		end
-	end;
 	trans }
-| COPY_TRANS_LATE STRING STRING
-    { let next = Dlg.Copy_Late(String.uppercase $2,$3) in
+| COPY_TRANS_LATE optional_safe STRING STRING
+    { let next = Dlg.Copy_Late(String.uppercase $3,$4,$2) in
 	let trans = [| Dlg.make_trans_of_next next |] in
-	if Modder.enabled "ICT2_ACTIONS" then begin
-	  let al = Array.to_list (Array.map (fun tr -> match tr.Dlg.action with None -> "" | Some x -> x) trans) in
-		let mismatch = Bcs.invalid_for_ict (String.concat " " al) "ICT1" in
-		if mismatch <> "" then begin
-			Modder.handle_msg "ICT2_ACTIONS" (Printf.sprintf "WARNING: COPY_TRANS_LATE: the chosen point (%s %s) has actions that must be left with the original speaker: \"%s\"\n" $2 $3 mismatch) ;
-			Modder.handle_msg "ICT2_ACTIONS" "This is not a problem if the last speaker in your dialogue is the same as the one you're COPY_TRANSing to (I can't check this for you, sorry).\n";
-		end
-	end;
 	trans }
 | EXIT
     { let next = Dlg.Exit in
@@ -759,7 +739,7 @@ interject_copy_trans_prologue :
 	      ) $5 ;
     result
     }
-| COPY_TRANS STRING STRING
+| COPY_TRANS optional_safe STRING STRING
     { 
 	{
       Dlg.trans_trigger = None ;
@@ -767,10 +747,10 @@ interject_copy_trans_prologue :
       Dlg.action = None ;
       Dlg.journal_str = None;
       Dlg.unknown_flags = 0 ;
-      Dlg.next = Dlg.Copy(String.uppercase $2,$3) ;
+      Dlg.next = Dlg.Copy(String.uppercase $3,$4,$2) ;
     }
     }
-| COPY_TRANS_LATE STRING STRING
+| COPY_TRANS_LATE optional_safe STRING STRING
     {
 	{
       Dlg.trans_trigger = None ;
@@ -778,7 +758,7 @@ interject_copy_trans_prologue :
       Dlg.action = None ;
       Dlg.journal_str = None;
       Dlg.unknown_flags = 0 ;
-      Dlg.next = Dlg.Copy_Late(String.uppercase $2,$3) ;
+      Dlg.next = Dlg.Copy_Late(String.uppercase $3,$4,$2) ;
     }
     }
     ;
