@@ -1025,7 +1025,7 @@ end
           	| Some(a1),Some(a2) ->
           	    let aa1 = Str.global_replace (Str.regexp "[ \t\n\r]+") "" a1 in
           	    let aa2 = Str.global_replace (Str.regexp "[ \t\n\r]+") "" a2 in
-          	    if aa1 = aa2 then None else begin try
+          	    if String.uppercase aa1 = String.uppercase aa2 then None else begin try
           	      let a2_init = Str.string_before a2 (Str.search_forward one_newline_or_cr_regexp a2 0) in
           	      let a2_after = Str.global_replace (Str.regexp "[ \t\n\r]+") "" (Str.string_after a2 (Str.search_forward one_newline_or_cr_regexp a2 0)) in
           	      if Str.string_match (Str.regexp "SetGlobal(\"[^\"]*\",\"GLOBAL\",1)") a2_init 0 then begin
