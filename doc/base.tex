@@ -3472,10 +3472,6 @@ or & \DEFINE{REINCLUDE} \t{\ttref{String}} \Slist &
 or & \DEFINE{ACTION!REINCLUDE} \t{\ttref{String}} \Slist &
     A synonym of \ttref{INCLUDE}.
     \\
-  or & \DEFSYN{ADD!GAM!NPC} npcCRE npcARE xCoord yCoord &
-    See the \ttref{ADD!GAM!NPC} tutorial for more information about this
-    action, which is used when adding NPCs to Baldur's Gate 1. BG2 mods
-    should not use this command.  \\
   or & \t{<<<<<<<<} fileName fileBody \t{>>>>>>>>} &
     (That's eight (8) angle brackets on each side.)
     For the purposes of copying and compiling files, WeiDU will pretend
@@ -4205,6 +4201,10 @@ or & \DEFINE{REPLACE!EVALUATE} \ttref{optcase} findRegexp \t{BEGIN}
   \t{Take(15)}.
    optcase allows you to decide if the matching is case-sensitive or not.  \\
 
+  or & \DEFSYN{ADD!GAM!NPC} npcCRE npcARE xCoord yCoord &
+    See the \ttref{ADD!GAM!NPC} tutorial for more information about this
+    action, which is used when adding NPCs to Baldur's Gate 1. BG2 mods
+    should not use this command.  \\
 
   or & \DEFINE{ADD!MAP!NOTE} xCoord yCoord color \ttref{String} &
     If the file currently being patched is an \ttref{ARE} area file, this
