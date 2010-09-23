@@ -33,6 +33,8 @@ Version 221:
     state you're *CT-ing into has unsafe actions for that variant of ICT
 	(for example, StartCutScene() in ICT2 or DestroySelf() with CT/ICT1 and no
 	throwback).
+  * ADD_ITEM_EFFECT can accept the type of header to which the effect should be
+    added to.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

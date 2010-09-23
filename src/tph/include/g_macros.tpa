@@ -340,7 +340,7 @@
 		    READ_LONG   0x6a ___#fx_off //effects offset
 		    FOR (___#index1 = 0 ; ___#index1 < ___#abil_num ; ___#index1 = ___#index1 + 1) BEGIN // looks for magical ability header
 		      READ_BYTE  (___#abil_off +        (___#index1 * 0x38)) ___#type //ability type
-		      PATCH_IF ((___#type = 3) AND ((___#index1 = (header - 1)) OR (header = 0))) BEGIN //ability is magical and header matches
+		      PATCH_IF (___#type = 3 OR (VARIABLE_IS_SET ~%type%~ AND IS_AN_INT ~%type%~ AND ((___#type = type) OR type = 99))) AND ((___#index1 = (header - 1)) OR (header = 0)) BEGIN //ability is correct or unspecified and header matches
 		        READ_SHORT  (___#abil_off + 0x1e + (0x38 * ___#index1)) ___#abil_fx_num
 		        READ_SHORT  (___#abil_off + 0x20 + (0x38 * ___#index1)) ___#abil_fx_idx
 		
