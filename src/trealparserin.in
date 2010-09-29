@@ -221,6 +221,7 @@ nonterm(Tp.tp_mod_flag) Tp_Mod_Flag {
 	-> FORBID_COMPONENT e1:STRING e2:STRING e3:Lse [ Tp.TPM_ForbidComponent(e1,my_int_of_string e2,e3) ]
 	-> REQUIRE_PREDICATE e1:Patch_Exp e2:Lse [ Tp.TPM_RequirePredicate(e1,e2) ]
 	-> GROUP e1:Lse [ Tp.TPM_Group e1 ]
+	-> LABEL e1:STRING [ Tp.TPM_Label e1 ]
 }
 
 nonterm(Tp.tp_action list) Tp_Action_List_Rev {
@@ -761,6 +762,7 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
 	-> MOD_IS_INSTALLED e1:STRING e2:Patch_Exp_Safe [ Tp.PE_ModIsInstalled(e1,e2) ]
 	-> INSTALL_ORDER e1:Patch_String_Right e2:Patch_Exp_Safe AFTER e3:Patch_String_Right e4:Patch_Exp_Safe [ Tp.PE_IsInstalledAfter(e1,e2,e3,e4) ]
 	-> INSTALL_ORDER e1:Patch_String_Right e2:Patch_Exp_Safe BEFORE e3:Patch_String_Right e4:Patch_Exp_Safe [ Tp.PE_IsInstalledAfter(e3,e4,e1,e2) ]
+	-> ID_OF_LABEL e1:Patch_String_Right e2:Patch_String_Right [ Tp.PE_IdOfLabel(e1,e2) ]
 	-> GAME_IS e1:STRING [ Tp.PE_GameIs(e1,true) ]
 	-> ENGINE_IS e1:STRING [ Tp.PE_GameIs(e1,false) ]
 	-> VARIABLE_IS_SET e1:Patch_String_Name [ Tp.PE_VariableIsSet e1 ]

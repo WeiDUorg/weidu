@@ -958,11 +958,12 @@ let rec handle_tp
 		  ()
 		else preproc_fail "SKIPPING" warn can_uninstall true
               end
-	  | TPM_SubComponents(ts,_,_) -> ()
-	  | TPM_Designated(i) -> () (* handled above *)
+	  | TPM_SubComponents(_,_,_) (* handled above *)
+	  | TPM_Designated(_)
 	  | TPM_InstallByDefault
 	  | TPM_NotInLog
-	  | TPM_Group (_)  -> ()
+	  | TPM_Group (_)
+	  | TPM_Label (_) -> ()
 		    ) m.mod_flags ;
 	  List.iter (fun a -> match a with
           | TP_Require_File(file,warn) ->

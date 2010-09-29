@@ -35,6 +35,7 @@ Version 221:
 	throwback).
   * ADD_ITEM_EFFECT can accept the type of header to which the effect should be
     added to.
+  * LABEL/ID_OF_LABEL added.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

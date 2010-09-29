@@ -54,6 +54,7 @@ let rec pe_to_str pe = "(" ^ (match pe with
 | PE_GameIs(e1,b1) -> if b1 then Printf.sprintf "GAME_IS ~%s~" e1 else Printf.sprintf "ENGINE_IS ~%s~" e1
 | PE_ModIsInstalled(e1,e2) -> Printf.sprintf "MOD_IS_INSTALLED ~%s~ %s" e1 (pe_to_str e2)
 | PE_IsInstalledAfter(e1,e2,e3,e4) -> Printf.sprintf "%s %s IS_INSTALLED_AFTER %s %s" (pe_str_str e1) (pe_to_str e2) (pe_str_str e3) (pe_to_str e4)
+| PE_IdOfLabel(e1,e2) -> Printf.sprintf "ID_OF_LABEL %s %s" (pe_str_str e1) (pe_str_str e2)
 | Pred_True -> Printf.sprintf "1"
 
 | PE_Random(e1,e2) -> Printf.sprintf "RANDOM(%s %s)" (pe_to_str e1) (pe_to_str e2)

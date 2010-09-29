@@ -80,6 +80,7 @@ and tp_mod_flag =
   | TPM_NotInLog
   | TPM_InstallByDefault
   | TPM_Group of Dlg.tlk_string
+  | TPM_Label of string
 
 and tp_copy_args = {
     copy_get_existing    : bool ;  (* get from biffs? *)
@@ -442,6 +443,7 @@ and tp_patchexp =
   | PE_If of tp_patchexp * tp_patchexp * tp_patchexp
   | PE_ModIsInstalled of string * tp_patchexp
   | PE_IsInstalledAfter of tp_pe_string * tp_patchexp * tp_pe_string * tp_patchexp
+  | PE_IdOfLabel of tp_pe_string * tp_pe_string
   | PE_GameIs of string * bool
   | PE_VariableIsSet of tp_pe_string
   | PE_IdsOfSymbol of string * string

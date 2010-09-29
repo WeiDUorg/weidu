@@ -90,6 +90,32 @@ let get_last_module_index tp_file =
     max !last acc
 		 ) 0 tp_file.module_list
 
+let get_id_of_label tp_file label =
+	let ans = ref None in
+	let get_label i c =
+		let ans = ref "" in
+		List.iter (fun m ->
+			match m with
+			| TPM_Label s -> (match !ans with
+				| "" -> ans := s
+				| x -> failwith (Printf.sprintf "Component %d of [%s] has two labels" i tp_file.tp_filename)
+				)
+			| _ -> ()
+		) c.mod_flags;
+		!ans
+	in
+	for i = 0 to get_last_module_index tp_file do
+		try
+			let c = get_nth_module tp_file i false in
+			if get_label i c = label then begin match !ans with
+				| None -> ans := Some i
+				| Some j -> 
+					failwith (Printf.sprintf "Duplicate LABEL [%s] in tp2 file [%s] (components %d and %d)" label tp_file.tp_filename i j)
+			end;
+		with Not_found -> ()
+	done;
+	!ans
+		 
 
 (************************************************************************
  * Evaluate a TP2 Patch Expression
