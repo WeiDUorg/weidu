@@ -37,6 +37,7 @@ Version 221:
     added to.
   * LABEL/ID_OF_LABEL added.
   * Create the cache directory if needed while decompiling .cbf files.
+  * --biff-get whatever.tis correctly creates the header.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

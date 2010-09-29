@@ -457,6 +457,17 @@ let copy_file biff i oc is_tis =
   let size,offset = if is_tis then begin
     check_tile biff i false;
     let this = biff.tilesets.(i) in
+    let header = String.create 0x18 in
+    String.blit "TIS V1  " 0 header 0 8;
+    let str = str_of_int this.tis_number_of_tiles in
+    String.blit str 0 header 0x08 4 ;
+    let str = str_of_int this.tis_size_of_one_tile in
+    String.blit str 0 header 0x0c 4 ;
+    let str = str_of_int 0x18 in
+    String.blit str 0 header 0x10 4 ;
+    let str = str_of_int 64 in
+    String.blit str 0 header 0x14 4 ;
+	output_string oc header;
     (this.tis_number_of_tiles * this.tis_size_of_one_tile) ,
     this.tis_offset
   end else begin
