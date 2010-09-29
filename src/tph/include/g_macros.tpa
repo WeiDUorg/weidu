@@ -578,8 +578,7 @@
 		    WRITE_LONG 0x2c8 (___#fx_num + 1)   
 		
 		    //correcting offsets
-		//    PATCH_FOR_EACH ___#offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
-		    PATCH_FOR_EACH ___#offset IN 0x2b8 0x2bc BEGIN //item num and islot
+		    PATCH_FOR_EACH ___#offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
 		      READ_LONG ___#offset ___#current_off
 		      WRITE_LONG ___#offset (___#current_off + 0x108)
 		    END
@@ -640,8 +639,7 @@
 		    //correcting offsets and number
 		    PATCH_IF (___#delta > 0) BEGIN
 		      WRITE_LONG 0x2c8 ___#fx_num //corrected earlier
-		//      PATCH_FOR_EACH ___#offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
-		      PATCH_FOR_EACH ___#offset IN 0x2b8 0x2bc BEGIN
+		      PATCH_FOR_EACH ___#offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
 		        READ_LONG ___#offset ___#current_off
 		        WRITE_LONG ___#offset (___#current_off - ___#delta * 0x108)
 		      END
