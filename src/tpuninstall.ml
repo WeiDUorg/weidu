@@ -76,6 +76,28 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
             | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
               ignore (exec_command str exact)
           end
+      | TP_At_Interactive_Uninstall_Exit(str,exact) ->
+          if do_interactive_uninstall then begin
+            let str = Var.get_string str in
+            match (split (String.uppercase str)) with
+            | _,"TP2" -> (enqueue_tp2_filename) str
+            | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
+				if List.mem (str,exact) !execute_at_exit then
+				  ()
+				else
+				  execute_at_exit := (str,exact) :: !execute_at_exit
+          end
+      | TP_At_Uninstall_Exit(str,exact) ->
+          if do_uninstall then begin
+            let str = Var.get_string str in
+            match (split (String.uppercase str)) with
+            | _,"TP2" -> (enqueue_tp2_filename) str
+            | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
+				if List.mem (str,exact) !execute_at_exit then
+				  ()
+				else
+				  execute_at_exit := (str,exact) :: !execute_at_exit
+          end
       | TP_If(p,al1,al2) ->
           begin try
             eval_pe_warn := false ;

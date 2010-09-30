@@ -119,6 +119,8 @@ let action_to_str a = match a with
 | TP_At_Interactive_Exit _ -> "AT_INTERACTIVE_EXIT"
 | TP_At_Uninstall _ -> "AT_UNINSTALL"
 | TP_At_Interactive_Uninstall _ -> "AT_INTERACTIVE_UNINSTALL"
+| TP_At_Uninstall_Exit _ -> "AT_UNINSTALL_EXIT"
+| TP_At_Interactive_Uninstall_Exit _ -> "AT_INTERACTIVE_UNINSTALL_EXIT"
 | TP_At_Now _ -> "AT_NOW"
 | TP_At_Interactive_Now _ -> "AT_INTERACTIVE_NOW"
 | TP_Add_Kit _ -> "ADD_KIT"

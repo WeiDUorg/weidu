@@ -168,6 +168,8 @@ and tp_action =
   | TP_At_Interactive_Exit of string * bool
   | TP_At_Uninstall of string * bool
   | TP_At_Interactive_Uninstall of string * bool
+  | TP_At_Uninstall_Exit of string * bool
+  | TP_At_Interactive_Uninstall_Exit of string * bool
   | TP_At_Now of string * bool
   | TP_At_Interactive_Now of string * bool
   | TP_Add_Kit of tp_add_kit

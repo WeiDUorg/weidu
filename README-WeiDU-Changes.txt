@@ -38,6 +38,9 @@ Version 221:
   * LABEL/ID_OF_LABEL added.
   * Create the cache directory if needed while decompiling .cbf files.
   * --biff-get whatever.tis correctly creates the header.
+  * AT_(INTERACTIVE_)UNINSTALL_EXIT added. The actions are queued until the end
+    of the WeiDU run (similarly to how AT_EXIT works). Don't use without a real
+	reason.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

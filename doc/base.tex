@@ -3173,6 +3173,12 @@ END
     \ttref{component} to be removed, commandToRun is executed.
     Only the \t{\%LANGUAGE\%} variable is guaranteed to be
     replaced, so do not count on any others. \\
+  or & \DEFINE{AT!UNINSTALL!EXIT} commandToRun \Ob \t{EXACT} \Oe &
+    As \ttref{AT!UNINSTALL}, but executed at the end of the WeiDU run (after
+	printing 'SUCCESFULLY INSTALLED xyz').\\
+  or & \DEFINE{AT!INTERACTIVE!UNINSTALL!EXIT} commandToRun \Ob \t{EXACT} \Oe &
+    As \ttref{AT!UNINSTALL!EXIT}, but only whenever the user specifically asks for this
+    \ttref{component} to be removed. \\
   or & \DEFINE{AT!NOW} commandToRun \Ob \t{EXACT} \Oe &
     As \ttref{AT!EXIT}, but commandToRun is executed when found, rather than
     at the end of the installation. Use with oggdec, tisunpack, wav2acm...

@@ -2109,8 +2109,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    
       | TP_At_Interactive_Exit(str,exact) ->
 	  if !interactive then process_action tp (TP_At_Exit(str,exact))
-      | TP_At_Interactive_Uninstall(str,exact) ->
-	  if !interactive then process_action tp (TP_At_Uninstall(str,exact))
       | TP_At_Interactive_Now(str,exact) ->
 	  if !interactive then process_action tp (TP_At_Now(str,exact))
 	      
@@ -2139,7 +2137,10 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 		ignore (exec_command str exact)
 	  end
 	    
-      | TP_At_Uninstall(str,exact) -> ()
+      | TP_At_Interactive_Uninstall(_)
+      | TP_At_Uninstall(_)
+      | TP_At_Interactive_Uninstall_Exit(_)
+      | TP_At_Uninstall_Exit(_) -> ()
       );
       if !clear_memory then begin
 	clear_memory := false;
