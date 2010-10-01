@@ -85,7 +85,7 @@ let rec handle_tp
             None -> ()
 	  | Some(l) ->
               Var.set_string "LANGUAGE" l.lang_dir_name ;
-              log_and_print "Using Language [%s]\n" l.lang_name ;
+              log_and_print "%s [%s]\n" (get_trans (-1035)) l.lang_name ;
               log_or_print "[%s] has %d top-level TRA files\n"
 		l.lang_name (List.length l.lang_tra_files) ;
               List.iter handle_tra_filename (List.map Arch.backslash_to_slash l.lang_tra_files)
@@ -113,7 +113,7 @@ let rec handle_tp
 		      answer := "N";
 		    if !skip_at_view || not !interactive then answer := "N";
 		    while !answer <> "Y" && !answer <> "N" do
-		      log_and_print "%s" (get_trans (-1034));
+		      log_and_print "\n%s\n" (get_trans (-1034));
 		      answer := String.uppercase (read_line())
 		    done;
 		    if !answer = "Y" then

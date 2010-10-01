@@ -41,7 +41,8 @@ Version 221:
   * AT_(INTERACTIVE_)UNINSTALL_EXIT added. The actions are queued until the end
     of the WeiDU run (similarly to how AT_EXIT works). Don't use without a real
 	reason.
-  * "\nWould you like to display the readme? [Y]es [N]o\n" is now translatable (@-1034).
+  * New translatable strings: "Would you like to display the readme? [Y]es [N]o"
+    @-1034, "Using Language" @-1035.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

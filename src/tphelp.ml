@@ -224,7 +224,8 @@ let init_default_strings () =
   add (-1031) "]?\n[R]e-install, [N]o Change, [Q]uit or choose one:" ;
   add (-1032) "NOT INSTALLED DUE TO ERRORS";
   add (-1033) "INSTALLED WITH WARNINGS    ";
-  add (-1034) "\nWould you like to display the readme? [Y]es [N]o\n";
+  add (-1034) "Would you like to display the readme? [Y]es [N]o";
+  add (-1035) "Using Language";
   ()
 
 let body_of_script buff =
