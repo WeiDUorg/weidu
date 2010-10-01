@@ -154,7 +154,8 @@ let rec handle_tp
           true
       | TPM_RequirePredicate(p,warn) ->
           not (is_true (eval_pe "" game p))
-      | _ ->
+      | TPM_Label(s) -> ignore(get_id_of_label tp s); false
+	  | _ ->
           false
 					     ) m.mod_flags
       ||
@@ -958,12 +959,15 @@ let rec handle_tp
 		  ()
 		else preproc_fail "SKIPPING" warn can_uninstall true
               end
+	  | TPM_Label(s) ->
+		let old_errors_this_component = !errors_this_component in
+		ignore(get_id_of_label tp s);
+		errors_this_component := old_errors_this_component;
 	  | TPM_SubComponents(_,_,_) (* handled above *)
 	  | TPM_Designated(_)
 	  | TPM_InstallByDefault
 	  | TPM_NotInLog
-	  | TPM_Group (_)
-	  | TPM_Label (_) -> ()
+	  | TPM_Group (_) -> ()
 		    ) m.mod_flags ;
 	  List.iter (fun a -> match a with
           | TP_Require_File(file,warn) ->
@@ -1123,6 +1127,7 @@ let rec handle_tp
 			true
 		      end
 		    end
+		| TPM_Label(s) -> ignore(get_id_of_label tp2 s); false
 		| _ -> false) m.mod_flags
 		||
 		  List.exists (fun f -> match f with

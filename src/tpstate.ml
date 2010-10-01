@@ -99,10 +99,15 @@ let get_id_of_label tp_file label =
 			if has_label c then begin match !ans with
 				| None -> ans := Some i
 				| Some j -> 
-					failwith (Printf.sprintf "Duplicate LABEL [%s] in tp2 file [%s] (components %d and %d)" label tp_file.tp_filename i j)
+					ans := Some min_int;
+					errors_this_component := true;
+					log_and_print "WARNING: Duplicate LABEL [%s] in tp2 file [%s] (components %d and %d)\n" label tp_file.tp_filename i j
 			end;
 		with Not_found -> ()
 	done;
+	if !ans = None then begin
+		errors_this_component := true;
+		log_and_print "WARNING: LABEL [%s] not found in tp2 file [%s]\n" label tp_file.tp_filename end;
 	!ans
 		 
 

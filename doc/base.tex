@@ -2880,6 +2880,11 @@ global option to your \ttref{TP2} file. \\
       result it is ``invisible'' to WeiDU, can be installed multiple times,
       and cannot be uninstalled with WeiDU. \emph{Do not use this flag without
 	  a real reason.} \\
+  or & \DEFINE{LABEL} \ttref{String} &
+      Defines this's module LABEL, or unique textual identifier. Any component
+	  can have zero or more LABEL. Will print a warning if two components in
+      the same tp2 share a LABEL. \emph{Do not alter a component's LABEL once
+	  you publish that mod}. \\
 \\
 
 \DEFINE{TP2 Action} & & 
@@ -4604,6 +4609,13 @@ or & \DEFSYN{INSTALL!ORDER} modTp2Name1 modComponent1 BEFORE modTp2Name2 modComp
 Returns true if the modComponent1 of modTp2Name1 is installed before the modComponent2
 of modTp2Name2 (and both components are installed). The syntax
 is the same as with \ttref {REQUIRE!COMPONENT}.  \\
+
+or & \DEFINE{ID!OF!LABEL} modTp2Name String &
+  Returns the numerical identifier of the component in modTp2Name which has
+  the given \ttref{LABEL}. Returns min_int (usually -2^30) if no such tp2
+  exists, said tp2 has no component with that \ttref{LABEL}, or two or more
+  components have that \ttref{LABEL}. In the last two cases will print a
+  WARNING. \\
 
 or & \DEFINE{STATE!WHICH!SAYS} \ttref{text} \t{FROM} \ttref{String} &
   String must be an in-game or in-override .dlg file. Returns:
