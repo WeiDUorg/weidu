@@ -10,6 +10,7 @@ open Tppatch
 open Tpaction
 
 
+
 (*************************************************************************
  *************************************************************************
 									  handle_tp
@@ -20,7 +21,9 @@ let rec handle_tp
     game
     this_tp2_filename
     tp
-    = begin
+    = 
+	let get_trans i = Dc.single_string_of_tlk_string game (Dlg.Trans_String(Dlg.Int i)) in
+	begin
       let old_allow_missing = !Load.allow_missing in
       Load.allow_missing :=
 	List.fold_left (fun acc elt -> match elt with
@@ -110,7 +113,7 @@ let rec handle_tp
 		      answer := "N";
 		    if !skip_at_view || not !interactive then answer := "N";
 		    while !answer <> "Y" && !answer <> "N" do
-		      log_and_print "\nWould you like to display the readme? [Y]es [N]o\n";
+		      log_and_print "%s" (get_trans (-1034));
 		      answer := String.uppercase (read_line())
 		    done;
 		    if !answer = "Y" then
@@ -262,8 +265,6 @@ let rec handle_tp
             TP_Ask
 	with Not_found -> TP_Ask)
       in
-
-      let get_trans i = Dc.single_string_of_tlk_string game (Dlg.Trans_String(Dlg.Int i)) in
 
       let handle_letter tp answer can_uninstall temp_uninst package_name m finished i =
 	let subgroup_already =
