@@ -417,7 +417,7 @@ optional_evaluate :
 | FORBID_COMPONENT STRING STRING lse tp_mod_flag_list
     { Tp.TPM_ForbidComponent($2,(my_int_of_string $3),$4) :: $5 }
 | REQUIRE_PREDICATE patch_exp lse tp_mod_flag_list { Tp.TPM_RequirePredicate($2,$3) :: $4 }
-| GROUP lse tp_mod_flag_list { Tp.TPM_Group($2) :: $3 }
+| GROUP lse tp_mod_flag_list { Tp.TPM_Group($2,Tp.Pred_True) :: $3 }
     ;
 
   tp_action_list :            { [] }

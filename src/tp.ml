@@ -79,7 +79,7 @@ and tp_mod_flag =
   | TPM_Designated of int
   | TPM_NotInLog
   | TPM_InstallByDefault
-  | TPM_Group of Dlg.tlk_string
+  | TPM_Group of Dlg.tlk_string * tp_patchexp
   | TPM_Label of string
 
 and tp_copy_args = {

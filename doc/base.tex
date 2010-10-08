@@ -2854,7 +2854,7 @@ global option to your \ttref{TP2} file. \\
   or & \DEFINE{FORCED!SUBCOMPONENT} \ttref{String} \Ob \ttref{value} \Oe &
       See the \ttref{SUBCOMPONENT} tutorial. \\
   
-  or & \DEFSYN{GROUP} \ttref{String} & Used for grouping components; the user
+  or & \DEFSYN{GROUP} \ttref{String}\Ob \ttref{value} \Oe & Used for grouping components; the user
       will be asked to display these or not. See the \ttref{GROUP} tutorial. \\
 
   or & \DEFINE{INSTALL!BY!DEFAULT} &
@@ -6799,6 +6799,9 @@ organize the mod as needed. A few other items of note:
 for install if and only if none of its member groups are selected
 \item You could, in theory, have two components in the same SUBCOMPONENT
 grouping but different GROUPs. Dont do this.
+\item You can give a GROUP a condition, by adding a patch_expression after the
+\emph{last} time the GROUP is defined. This way, the user will not be asked
+about that GROUP (and its components will be automatically skipped).
 \item Because of a couple of issues with ordering and/or GROUPs not appearing,
 you are encouraged to put, at the end of your tp2, a dummy component for each
 GROUP, in the order you'd like to show them to the user. For the above example,
@@ -6827,7 +6830,7 @@ GROUP ~Convenience Tweaks~
 
 BEGIN ~Dummy component because it's too hard to fix this in WeiDU~
 DEPRECATED ~Dummy component~
-GROUP ~NPC Tweaks~
+GROUP ~NPC Tweaks~ GAME_IS ~bg2 tob~ // will not be asked for in Tutu
 \end{verbatim}
 This isn't needed for the above example, but it might be needed in more complex
 scenarios.

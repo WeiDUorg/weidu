@@ -45,6 +45,7 @@ Version 221:
     @-1034, "Using Language" @-1035.
   * Always reset eval_pe_warn to true (and thus not forgetting to print the
     variable name if it is not found).
+  * GROUP accepts a constraint.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

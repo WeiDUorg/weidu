@@ -238,7 +238,7 @@ let rec handle_tp
 
       let rec hasgroup x =
 	match x with
-	| TPM_Group(c)::b -> true
+	| TPM_Group(c,_)::b -> true
 	| a::b -> hasgroup b
 	| [] -> false
       in
@@ -542,16 +542,21 @@ let rec handle_tp
 
       let rec findgroup flags =
 	match flags with
-	| TPM_Group(x)::b -> Some(x)
+	| TPM_Group(x,co)::b -> Some(x,co)
 	| a::b -> findgroup b
 	| [] -> None
       in
 
       let groups = ref [] in
+	  let rec found a lst = match lst with
+	    | (b,_) :: tl when b = a -> true
+		| b :: tl -> found a tl
+		| [] -> false
+	  in
       List.iter (fun x ->
 	match findgroup x.mod_flags with
-	| Some(a) -> if not (List.mem a !groups) then begin
-	    groups := a :: !groups;
+	| Some(a,co) -> if not (found a !groups) then begin
+	    groups := (a,co) :: !groups;
 	end ;
 	| None -> ()) (List.rev tp.module_list) ;
       let hasgroups = !groups <> [] in
@@ -670,7 +675,7 @@ let rec handle_tp
 
       let is_my_group the_comp group =
 	let rec walk lst = match lst with
-	| TPM_Group(ts) :: tl when ts = group -> true
+	| TPM_Group(ts,co) :: tl when ts = group -> true
 	| hd :: tl -> walk tl
 	| [] -> false
 	in walk the_comp.mod_flags
@@ -679,7 +684,10 @@ let rec handle_tp
       (* now ask about groups *)
       if hasgroups  && not !always_yes && not !always_uninstall &&
 	not !sometimes_reinstall && not (!specified_specific_components)
-      then List.iter (fun this_grp ->
+      then List.iter (fun (this_grp,co) ->
+	  let pass = eval_pe_warn := false; try is_true (eval_pe "" game co) with _ -> true in
+	  eval_pe_warn := true;
+	  if pass then begin
 	let finished = ref false in
 	while not !finished do
           finished := true ;
@@ -695,7 +703,7 @@ let rec handle_tp
               done
           | "N" -> ()
           | _ -> finished := false
-	done ;
+	done ; end else log_and_print "\nSkipping GROUP [%s] because it fails its requirements.\n" (Dc.single_string_of_tlk_string_safe game this_grp)
 		     ) !groups ;
 
       let handle_error_generic always_yes specified_specific_components finished package_name = (fun e ->
