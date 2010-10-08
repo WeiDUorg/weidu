@@ -401,11 +401,13 @@ let rec eval_pe buff game p =
 			    ) game_list in
       if res then 1l else 0l;
   end
-  | PE_IsAnInt(x) -> (eval_pe_warn := false ;
+  | PE_IsAnInt(x) -> let old_eval_pe_warn = !eval_pe_warn in (eval_pe_warn := false ;
 		      try
 			let _ = (eval_pe buff game (PE_String(x))) in
+			eval_pe_warn := old_eval_pe_warn;
 			1l
 		      with _ ->
+			eval_pe_warn := old_eval_pe_warn;
 			0l
 		     )
   | PE_IsSilent -> if (!be_silent) then 1l else 0l

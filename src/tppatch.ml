@@ -672,7 +672,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
               | PE_String(x) -> Var.get_string (eval_pe_str x)
               | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game value) ; "")
             end
-	in
+	in eval_pe_warn := true ; 
 	let iidx = try Var.get_int32 ("%" ^ str ^ "%") with _ -> 0l in
 	let idx = Int32.to_string iidx in
 	let sidx = str ^ idx in
@@ -781,7 +781,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
               | PE_String(x) -> Var.get_string (eval_pe_str x)
               | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game value) ; "")
             end
-	in
+	in eval_pe_warn := true ; 
 	let before = ref "" in
 	let num_rows = ref 0 in
 	let found = ref false in
@@ -855,7 +855,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
               | PE_String(x) -> Var.get_string (eval_pe_str x)
               | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game value) ; "")
             end
-	in 
+	in eval_pe_warn := true ; 
 	let slv = String.length value in
 	let max = ref slv in 
 	let entries = List.map (fun line -> 
@@ -1623,7 +1623,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	      end)
 		    ) vars;
 	  log_and_print "\n"
-	end;
+	end; eval_pe_warn := true ; 
 	let vars = ref vars in
 	List.iter (fun x ->
 	  Buffer.add_string buff' (match x with
@@ -1648,7 +1648,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	      | "%x" -> Printf.sprintf "0x%lx" (eval_pe buff game cur)
 	      | _ -> failwith (Printf.sprintf "Unknown SPRINTF mode: %s" y)
 	     )
-				  )) parts;
+				  )) parts; eval_pe_warn := true ; 
         Var.set_string name (Buffer.contents buff') ;
         if !vars <> [] then failwith "SPRINTF: too many arguments";
         buff
