@@ -19,24 +19,29 @@ type action =
   | Extend_Top of string * (string list) * int * (Dlg.transition list)
   | Replace of string * (Dlg.state list)
   | Replace_Say of string * string * (Dlg.tlk_string)
-  | Add_Trans_Trigger of string * (string list)* string * (string list)
+  | Add_Trans_Trigger of string * (string list)* string * (string list) * d_when list
   | Add_Trans_Action
     of string       (* filename *)
 	* (string list) (* state labels *)
 	* (int list)    (* transition #s, empty = all *)
 	* string        (* new action text *)
+	* d_when list
   | Alter_Trans of string * string list * int list * (string * alter_trans_feature) list
-  | Replace_Trans_Action of string * string list * int list * string * string
-  | Replace_Trans_Trigger of string * string list * int list * string * string
-  | Replace_State_Trigger of string * (string list)* string
-  | Add_State_Trigger of string * (string list)* string
+  | Replace_Trans_Action of string * string list * int list * string * string * d_when list
+  | Replace_Trans_Trigger of string * string list * int list * string * string * d_when list
+  | Replace_State_Trigger of string * (string list)* string * d_when list
+  | Add_State_Trigger of string * (string list)* string * d_when list
   | Set_Weight of string * string * int
   | Chain of chain_info
 (* bool = "use regexp for filenames" *)
-  | Replace_Action_Text of (string list) * string * string * bool
-  | Replace_Trigger_Text of string * string * string * bool
+  | Replace_Action_Text of (string list) * string * string * bool * d_when list
+  | Replace_Trigger_Text of string * string * string * bool * d_when list
   | Chain3 of chain3_info
 
+and d_when =
+  | W_If of string
+  | W_Unless of string  
+  
 and alter_trans_feature =
   | Alter_Trans_String of string
   | Alter_Trans_Lse of Dlg.tlk_string
@@ -555,16 +560,16 @@ let preprocess_action2 game a = match a with
 | Extend_Bottom(n,_,_,_)
 | Replace(n,_)
 | Replace_Say(n,_,_)
-| Add_State_Trigger(n,_,_)
-| Replace_State_Trigger(n,_,_)
-| Add_Trans_Trigger(n,_,_,_)
-| Add_Trans_Action(n,_,_,_)
-| Replace_Trans_Action(n,_,_,_,_)
-| Replace_Trans_Trigger(n,_,_,_,_)
+| Add_State_Trigger(n,_,_,_)
+| Replace_State_Trigger(n,_,_,_)
+| Add_Trans_Trigger(n,_,_,_,_)
+| Add_Trans_Action(n,_,_,_,_)
+| Replace_Trans_Action(n,_,_,_,_,_)
+| Replace_Trans_Trigger(n,_,_,_,_,_)
 | Set_Weight(n,_,_)
-| Replace_Trigger_Text(n,_,_,false)
+| Replace_Trigger_Text(n,_,_,false,_)
   -> make_available (action_to_str a) game n false
-| Replace_Action_Text(nl,_,_,false)
+| Replace_Action_Text(nl,_,_,false,_)
   -> List.iter (fun n -> make_available (action_to_str a) game n false) nl
 | Alter_Trans (n,_,_,l) ->
     make_available (action_to_str a) game n false;
@@ -578,8 +583,8 @@ let preprocess_action2 game a = match a with
       | Alter_Trans_Lse c -> failwith "LSE on EPILOGUE in ALTER_TRANS"
     end
 	      ) l
-| Replace_Action_Text(_,_,_,true)
-| Replace_Trigger_Text(_,_,_,true) -> () 
+| Replace_Action_Text(_,_,_,true,_)
+| Replace_Trigger_Text(_,_,_,true,_) -> () 
 | Chain(ci) ->
     let s = action_to_str a in 
     make_available s game ci.entry_file false ;
@@ -595,6 +600,25 @@ let append_state n state =
   let dlg = Hashtbl.find available_dlgs n in
   dlg.Dlg.state <- Array.append dlg.Dlg.state [| state |]
 
+let passes d_when str =
+  List.fold_left (fun acc elt -> match elt with
+    | W_If s -> begin
+	  let my_regexp = Str.regexp_case_fold (Var.get_string s) in
+	  try let _ = Str.search_forward my_regexp str 0 in
+		true
+	  with _ ->
+		false
+	  end
+	| W_Unless s -> begin
+	  let my_regexp = Str.regexp_case_fold (s) in
+	  try let _ = Str.search_forward my_regexp str 0 in
+		false
+	  with _ ->
+		true
+	  end
+  )  true d_when
+;;
+  
 let rec process_action game a = match a with
 | Create(d) -> ()
 
@@ -603,15 +627,17 @@ let rec process_action game a = match a with
     let num = resolve_label (n,s) game in
     dlg.Dlg.state.(num).Dlg.state_trigger_weight <- Dlg.Offset(w)
 
-| Replace_Action_Text(nl,s_from,s_to,use_regexp) ->
+| Replace_Action_Text(nl,s_from,s_to,use_regexp,d_when) ->
     let r = Str.regexp_case_fold s_from in
     let process dlg =
       Array.iter (fun state ->
         Array.iter (fun trans ->
           (match trans.Dlg.action with
             Some(trans_str) ->
-              if !debug_ocaml then log_and_print "~%s~\n" trans_str;
-              trans.Dlg.action <- Some(Str.global_replace r s_to trans_str);
+			  if passes d_when trans_str then begin
+				if !debug_ocaml then log_and_print "~%s~\n" trans_str;
+				trans.Dlg.action <- Some(Str.global_replace r s_to trans_str);
+			  end
           | None -> ());
 		   ) state.Dlg.trans
 		 ) dlg.Dlg.state
@@ -635,7 +661,7 @@ let rec process_action game a = match a with
         process dlg;
 		) nl
 
-| Replace_Trigger_Text(n,s_from,s_to,use_regexp) ->
+| Replace_Trigger_Text(n,s_from,s_to,use_regexp,d_when) ->
     let process dlg =
       let r = Str.regexp_case_fold s_from in
       Array.iter (fun state ->
@@ -645,9 +671,10 @@ let rec process_action game a = match a with
         Array.iter (fun trans ->
           match trans.Dlg.trans_trigger with
             Some(trans_str) ->
-              if !debug_ocaml then log_and_print "~%s~\n" trans_str;
-	      trans.Dlg.trans_trigger <-
-		Some(Str.global_replace r s_to trans_str)
+			  if passes d_when trans_str then begin
+				if !debug_ocaml then log_and_print "~%s~\n" trans_str;
+				trans.Dlg.trans_trigger <- Some(Str.global_replace r s_to trans_str);
+			  end
           | None -> () 
 		   ) state.Dlg.trans
 		 ) dlg.Dlg.state
@@ -793,28 +820,29 @@ let rec process_action game a = match a with
         log_or_print "WARNING: REPLACE %d out of range 0-%d\n"
           num (Array.length dlg.Dlg.state)
               ) new_s_list 
-| Replace_State_Trigger(n,sl,new_t) ->
+| Replace_State_Trigger(n,sl,new_t,d_when) ->
     let dlg = Hashtbl.find available_dlgs n in
     List.iter (fun s -> 
       let num = resolve_label (n,s) game in
-      dlg.Dlg.state.(num).Dlg.state_trigger <- new_t 
+      if passes d_when dlg.Dlg.state.(num).Dlg.state_trigger then dlg.Dlg.state.(num).Dlg.state_trigger <- new_t 
               ) sl
-| Add_State_Trigger(n,sl,new_t) -> 
+| Add_State_Trigger(n,sl,new_t,d_when) -> 
     let dlg = Hashtbl.find available_dlgs n in
     List.iter (fun s -> 
       let num = resolve_label (n,s) game in
+      if passes d_when dlg.Dlg.state.(num).Dlg.state_trigger then
       dlg.Dlg.state.(num).Dlg.state_trigger <- new_t ^ "\r\n" ^
         dlg.Dlg.state.(num).Dlg.state_trigger
               ) sl 
 
-| Add_Trans_Action(n,state_labels,transition_indices,action_text) ->
+| Add_Trans_Action(n,state_labels,transition_indices,action_text,d_when) ->
     let dlg = Hashtbl.find available_dlgs n in
     List.iter (fun state_label ->
       let num = resolve_label (n,state_label) game in
       let do_it trans =
         match trans.Dlg.action with
-          None -> trans.Dlg.action <- Some(action_text)
-        | Some(str) -> trans.Dlg.action <- Some(action_text ^ "\r\n" ^ str);
+          None -> if passes d_when "" then trans.Dlg.action <- Some(action_text)
+        | Some(str) -> if passes d_when str then trans.Dlg.action <- Some(action_text ^ "\r\n" ^ str);
       in
       match transition_indices with
       | [] -> (* do them all *)
@@ -889,14 +917,14 @@ let rec process_action game a = match a with
 		    ) lst
 	      ) state_labels;
 
-| Replace_Trans_Action(n,state_labels,transition_indices,oldt,newt) ->
+| Replace_Trans_Action(n,state_labels,transition_indices,oldt,newt,d_when) ->
     let dlg = Hashtbl.find available_dlgs n in
     List.iter (fun state_label ->
       let num = resolve_label (n,state_label) game in
       let do_it trans =
         match trans.Dlg.action with
           None -> ()
-        | Some(str) -> trans.Dlg.action <- Some(Str.global_replace
+        | Some(str) -> if passes d_when str then trans.Dlg.action <- Some(Str.global_replace
 						  (Str.regexp_case_fold oldt) newt str);
       in
       match transition_indices with
@@ -912,14 +940,14 @@ let rec process_action game a = match a with
 		    ) lst
               ) state_labels;
 
-| Replace_Trans_Trigger(n,state_labels,transition_indices,oldt,newt) ->
+| Replace_Trans_Trigger(n,state_labels,transition_indices,oldt,newt,d_when) ->
     let dlg = Hashtbl.find available_dlgs n in
     List.iter (fun state_label ->
       let num = resolve_label (n,state_label) game in
       let do_it trans =
         match trans.Dlg.trans_trigger with
           None -> ()
-        | Some(str) -> trans.Dlg.trans_trigger <- Some(Str.global_replace
+        | Some(str) -> if passes d_when str then trans.Dlg.trans_trigger <- Some(Str.global_replace
 							 (Str.regexp_case_fold oldt) newt str);
       in
       match transition_indices with
@@ -935,14 +963,14 @@ let rec process_action game a = match a with
 		    ) lst
               ) state_labels;
 
-| Add_Trans_Trigger(n,sl,new_t,t_list) ->
+| Add_Trans_Trigger(n,sl,new_t,t_list,d_when) ->
     let dlg = Hashtbl.find available_dlgs n in
     List.iter (fun s ->
       let num = resolve_label (n,s) game in
       let do_it trans =
         match trans.Dlg.trans_trigger with
-          None -> trans.Dlg.trans_trigger <- Some(new_t )
-        | Some(str) -> trans.Dlg.trans_trigger <- Some(new_t ^ "\r\n" ^ str)
+          None -> if passes d_when "" then trans.Dlg.trans_trigger <- Some(new_t )
+        | Some(str) -> if passes d_when str then trans.Dlg.trans_trigger <- Some(new_t ^ "\r\n" ^ str)
       in
       match t_list with
       | [] ->
@@ -1219,16 +1247,16 @@ let process_copy_trans late game a = match a with
     Replace(n,sl)
 | Append_Early(_,_,_)
 | Replace_Say(_,_,_)
-| Add_State_Trigger(_,_,_)
-| Replace_State_Trigger(_,_,_)
-| Add_Trans_Trigger(_,_,_,_)
-| Add_Trans_Action(_,_,_,_)
+| Add_State_Trigger(_,_,_,_)
+| Replace_State_Trigger(_,_,_,_)
+| Add_Trans_Trigger(_,_,_,_,_)
+| Add_Trans_Action(_,_,_,_,_)
 | Alter_Trans(_,_,_,_)
-| Replace_Trans_Action(_,_,_,_,_)
-| Replace_Trans_Trigger(_,_,_,_,_)
+| Replace_Trans_Action(_,_,_,_,_,_)
+| Replace_Trans_Trigger(_,_,_,_,_,_)
 | Set_Weight(_,_,_)
-| Replace_Action_Text(_,_,_,_)
-| Replace_Trigger_Text(_,_,_,_)
+| Replace_Action_Text(_,_,_,_,_)
+| Replace_Trigger_Text(_,_,_,_,_)
 | Chain(_) -> a
 | Chain3(c) -> c.c3_exit_trans <- pctta late game c.c3_exit_trans c.c3_keep_first_do_with_first_speaker; a
 
@@ -1291,16 +1319,16 @@ let preprocess_ife game a =
       List.iter (fun s -> s.Dlg.trans <- prife game s.Dlg.trans) sl ;
       Replace(n,sl)
   | Replace_Say(_,_,_)
-  | Add_State_Trigger(_,_,_)
-  | Replace_State_Trigger(_,_,_)
-  | Add_Trans_Trigger(_,_,_,_)
-  | Add_Trans_Action(_,_,_,_)
+  | Add_State_Trigger(_,_,_,_)
+  | Replace_State_Trigger(_,_,_,_)
+  | Add_Trans_Trigger(_,_,_,_,_)
+  | Add_Trans_Action(_,_,_,_,_)
   | Alter_Trans(_,_,_,_)
-  | Replace_Trans_Action(_,_,_,_,_)
-  | Replace_Trans_Trigger(_,_,_,_,_)
+  | Replace_Trans_Action(_,_,_,_,_,_)
+  | Replace_Trans_Trigger(_,_,_,_,_,_)
   | Set_Weight(_,_,_)
-  | Replace_Action_Text(_,_,_,_)
-  | Replace_Trigger_Text(_,_,_,_)
+  | Replace_Action_Text(_,_,_,_,_)
+  | Replace_Trigger_Text(_,_,_,_,_)
   | Chain(_) -> a
   | Chain3(c) -> c.c3_exit_trans <- prife game c.c3_exit_trans ; a
 ;;
@@ -1316,16 +1344,16 @@ let preprocess_ife_state game a =
   | Replace(_,_)
   | Create(_)
   | Replace_Say(_,_,_)
-  | Add_State_Trigger(_,_,_)
-  | Replace_State_Trigger(_,_,_)
-  | Add_Trans_Trigger(_,_,_,_)
-  | Add_Trans_Action(_,_,_,_)
+  | Add_State_Trigger(_,_,_,_)
+  | Replace_State_Trigger(_,_,_,_)
+  | Add_Trans_Trigger(_,_,_,_,_)
+  | Add_Trans_Action(_,_,_,_,_)
   | Alter_Trans(_,_,_,_)
-  | Replace_Trans_Action(_,_,_,_,_)
-  | Replace_Trans_Trigger(_,_,_,_,_)
+  | Replace_Trans_Action(_,_,_,_,_,_)
+  | Replace_Trans_Trigger(_,_,_,_,_,_)
   | Set_Weight(_,_,_)
-  | Replace_Action_Text(_,_,_,_)
-  | Replace_Trigger_Text(_,_,_,_)
+  | Replace_Action_Text(_,_,_,_,_)
+  | Replace_Trigger_Text(_,_,_,_,_)
   | Chain(_) -> Some(a)
 ;;
 

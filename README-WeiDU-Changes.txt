@@ -46,6 +46,7 @@ Version 221:
   * Always reset eval_pe_warn to true (and thus not forgetting to print the
     variable name if it is not found).
   * GROUP accepts a constraint.
+  * IF/UNLESS added to various D actions.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'

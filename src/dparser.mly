@@ -137,6 +137,7 @@ let verify_action_list s =
   %token SET_WEIGHT
   %token STRING_CONCAT
   %token THEN
+  %token UNLESS
   %token WEIGHT
 
   %token EOF
@@ -273,6 +274,10 @@ upper_string_list :            { [] }
 | STRING upper_string_list  { (String.uppercase $1) :: $2 }
     ;
 
+when_list : { [] }
+| IF STRING when_list { Dc.W_If $2 :: $3 }	
+| UNLESS STRING when_list { Dc.W_Unless $2 :: $3 }	
+	
 extend_prologue :
   EXTEND_TOP STRING string_list hash_int_option 
   { current_unit := Some(String.uppercase $2) ;
@@ -367,36 +372,36 @@ interject_copy_trans_prologue :
       Dc.Replace($1, $2) }
 | REPLACE_SAY STRING STRING lse
     { Dc.Replace_Say(String.uppercase $2,$3,$4) } 
-| replace_state_trigger_prologue
+| replace_state_trigger_prologue when_list
     { let f,s,t = $1 in 
     let verified_t = verify_trigger_list t in 
     current_unit := None ; 
-    Dc.Replace_State_Trigger(f,s,verified_t) } 
-| add_state_trigger_prologue
+    Dc.Replace_State_Trigger(f,s,verified_t,$2) } 
+| add_state_trigger_prologue when_list
     { let f,s,t = $1 in 
     let verified_t = verify_trigger_list t in 
     current_unit := None ; 
-    Dc.Add_State_Trigger(f,s,verified_t) } 
-| add_trans_trigger_prologue 
+    Dc.Add_State_Trigger(f,s,verified_t,$2) } 
+| add_trans_trigger_prologue  when_list
     { let f,s,t,tl = $1 in 
     let verified_t = verify_trigger_list t in
     current_unit := None ; 
-    Dc.Add_Trans_Trigger(f,s,verified_t,tl) } 
-| ADD_TRANS_ACTION STRING BEGIN string_list END BEGIN int_list END STRING
+    Dc.Add_Trans_Trigger(f,s,verified_t,tl,$2) } 
+| ADD_TRANS_ACTION STRING BEGIN string_list END BEGIN int_list END STRING when_list
     { current_unit := Some(String.uppercase $2);
       let verified_a = verify_action_list $9 in
       current_unit := None ; 
-      Dc.Add_Trans_Action(String.uppercase $2,$4,$7,verified_a) }
-| ALTER_TRANS STRING BEGIN string_list END BEGIN int_list END BEGIN alter_trans_list END
+      Dc.Add_Trans_Action(String.uppercase $2,$4,$7,verified_a,$10) }
+| ALTER_TRANS STRING BEGIN string_list END BEGIN int_list END BEGIN alter_trans_list END when_list
     { Dc.Alter_Trans(String.uppercase $2,$4,$7,$10) }
-| REPLACE_TRANS_ACTION STRING BEGIN string_list END BEGIN int_list END STRING STRING
+| REPLACE_TRANS_ACTION STRING BEGIN string_list END BEGIN int_list END STRING STRING when_list
     { current_unit := Some(String.uppercase $2);
       current_unit := None ; 
-      Dc.Replace_Trans_Action(String.uppercase $2,$4,$7,$9,$10) }
-| REPLACE_TRANS_TRIGGER STRING BEGIN string_list END BEGIN int_list END STRING STRING
+      Dc.Replace_Trans_Action(String.uppercase $2,$4,$7,$9,$10,$11) }
+| REPLACE_TRANS_TRIGGER STRING BEGIN string_list END BEGIN int_list END STRING STRING when_list
     { current_unit := Some(String.uppercase $2);
       current_unit := None ;
-      Dc.Replace_Trans_Trigger(String.uppercase $2,$4,$7,$9,$10) }
+      Dc.Replace_Trans_Trigger(String.uppercase $2,$4,$7,$9,$10,$11) }
 | SET_WEIGHT STRING STRING STRING_REF
     { Dc.Set_Weight($2,$3,$4) }
 | chain3_prologue chain3_list compound_chain3_list chain3_epilogue
@@ -457,18 +462,18 @@ interject_copy_trans_prologue :
        Dc.c3_append_all = append_all ;
      }
     }
-| REPLACE_TRIGGER_TEXT STRING STRING STRING
-    { Dc.Replace_Trigger_Text(String.uppercase $2,$3,$4,false) }
-| REPLACE_TRIGGER_TEXT_REGEXP STRING STRING STRING
-    { Dc.Replace_Trigger_Text(String.uppercase $2,$3,$4,true) }
-| REPLACE_ACTION_TEXT STRING STRING STRING upper_string_list
-    { Dc.Replace_Action_Text(String.uppercase $2 :: $5,$3,$4,false) }
-| REPLACE_ACTION_TEXT_PROCESS STRING STRING STRING upper_string_list
-    { Dc.Replace_Action_Text(String.uppercase $2 :: $5,$3,verify_action_list $4,false) }
-| REPLACE_ACTION_TEXT_REGEXP STRING STRING STRING upper_string_list
-    { Dc.Replace_Action_Text(String.uppercase $2 :: $5,$3,$4,true) }
-| REPLACE_ACTION_TEXT_PROCESS_REGEXP STRING STRING STRING upper_string_list
-    { Dc.Replace_Action_Text(String.uppercase $2 :: $5,$3,verify_action_list $4,true) }
+| REPLACE_TRIGGER_TEXT STRING STRING STRING when_list
+    { Dc.Replace_Trigger_Text(String.uppercase $2,$3,$4,false,$5) }
+| REPLACE_TRIGGER_TEXT_REGEXP STRING STRING STRING when_list
+    { Dc.Replace_Trigger_Text(String.uppercase $2,$3,$4,true,$5) }
+| REPLACE_ACTION_TEXT STRING STRING STRING upper_string_list when_list
+    { Dc.Replace_Action_Text(String.uppercase $2 :: $5,$3,$4,false,$6) }
+| REPLACE_ACTION_TEXT_PROCESS STRING STRING STRING upper_string_list when_list
+    { Dc.Replace_Action_Text(String.uppercase $2 :: $5,$3,verify_action_list $4,false,$6) }
+| REPLACE_ACTION_TEXT_REGEXP STRING STRING STRING upper_string_list when_list
+    { Dc.Replace_Action_Text(String.uppercase $2 :: $5,$3,$4,true,$6) }
+| REPLACE_ACTION_TEXT_PROCESS_REGEXP STRING STRING STRING upper_string_list when_list
+    { Dc.Replace_Action_Text(String.uppercase $2 :: $5,$3,verify_action_list $4,true,$6) }
     ;
 
   chain3_list : optional_condition lse optional_action     { [($1,$2,$3)] }

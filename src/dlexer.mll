@@ -82,6 +82,7 @@ let _ = List.iter
      ("SET_WEIGHT", SET_WEIGHT) ;
      ("SOLVED_JOURNAL", SOLVED_JOURNAL) ;
      ("THEN", THEN) ;
+	 ("UNLESS", UNLESS) ;
      ("UNSOLVED_JOURNAL", UNSOLVED_JOURNAL) ;
      ("WEIGHT", WEIGHT) ;
    ]

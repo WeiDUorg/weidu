@@ -416,7 +416,8 @@ All other keywords are symbolic. Notes:
   bottom of the list instead.  \\
 
   or & \DEFINE{ADD!STATE!TRIGGER} filename \ttref{stateNumber} 
-    \ttref{stateTriggerString} \Ob \ttref{stateNumber} \Slist \Oe &
+    \ttref{stateTriggerString} \Ob \ttref{stateNumber} \Slist \Oe
+	\ttref{dActionWhen} \Slist &
   This instructs WeiDU to add the \ttref{stateTriggerString} to all
   of the \ttref{state}s with the given \ttref{stateNumber}s in 
   the file \t{filename.}\ttref{DLG} (which must already exist). This is handy for
@@ -424,7 +425,7 @@ All other keywords are symbolic. Notes:
 
   or & \DEFINE{ADD!TRANS!TRIGGER} filename \ttref{stateNumber} 
     \ttref{transTriggerString} \Ob \ttref{moreStateNumbers} \Slist \Oe 
-    \Ob \t{DO} \ttref{transNumber} \Slist \Oe
+    \Ob \t{DO} \ttref{transNumber} \Slist \Oe \ttref{dActionWhen} Slist
     &
   This instructs WeiDU to add the \ttref{transTriggerString} to all
   of the \ttref{transition}s in all of the \ttref{state}s with the given
@@ -443,7 +444,7 @@ All other keywords are symbolic. Notes:
   or & \DEFINE{ADD!TRANS!ACTION} filename 
     \t{BEGIN} \ttref{stateNumber} \Slist \t{END} 
     \t{BEGIN} \ttref{transNumber} \Slist \t{END}
-    \ttref{transActionString} &
+    \ttref{transActionString} \ttref{dActionWhen} Slist &
   This instructs WeiDU to add the \ttref{transActionString} to all
   of the actions in all the \ttref{transition}s in all of the \ttref{state}s specified by the
   \t{stateNumber} list and the \t{transNumber} list. You may use
@@ -461,7 +462,7 @@ All other keywords are symbolic. Notes:
   or & \DEFINE{REPLACE!TRANS!ACTION} filename
     \t{BEGIN} \ttref{stateNumber} \Slist \t{END}
     \t{BEGIN} \ttref{transNumber} \Slist \t{END}
-    oldText newText &
+    oldText newText \ttref{dActionWhen} Slist &
   This instructs WeiDU to replace all instances of oldText in newText to all
   of the actions in all the \ttref{transition}s in all of the \ttref{state}s specified by the
   \t{stateNumber} list and the \t{transNumber} list. You may use
@@ -476,7 +477,7 @@ All other keywords are symbolic. Notes:
   or & \DEFINE{REPLACE!TRANS!TRIGGER} filename
     \t{BEGIN} \ttref{stateNumber} \Slist \t{END}
     \t{BEGIN} \ttref{transNumber} \Slist \t{END}
-    oldText newText &
+    oldText newText \ttref{dActionWhen} Slist &
   This instructs WeiDU to replace all instances of oldText in newText to all
   of the triggers in all of the \ttref{transition}s in all of the \ttref{state}s specified by the
   \t{stateNumber} list and the \t{transNumber} list. You may use
@@ -517,25 +518,28 @@ All other keywords are symbolic. Notes:
   \ttref{REPLACE!SAY} if you can help it. \\
 
   or & \DEFINE{REPLACE!STATE!TRIGGER} filename \ttref{stateNumber} 
-    \ttref{stateTriggerString} \Ob \ttref{stateNumber} \Slist \Oe &
+    \ttref{stateTriggerString} \Ob \ttref{stateNumber} \Slist \Oe
+	\ttref{dActionWhen} Slist &
   This instructs WeiDU to destructively set the
   \ttref{stateTriggerString} of all of the \ttref{state}s with the given
   \ttref{stateNumber}s in the file \t{filename.}\ttref{DLG} (which must already
   exist). It should be used with caution. \\
 
-  or & \DEFINE{REPLACE!TRIGGER!TEXT} filename oldText newText &
+  or & \DEFINE{REPLACE!TRIGGER!TEXT} filename oldText newText
+ \ttref{dActionWhen} Slist  &
   This instructs WeiDU to destructively replace every occurrence of oldText
   (which may be a \ttref{regexp}) in the \ttref{stateTriggerString}s and
   \ttref{transTriggerString}s of \t{filename.}\ttref{DLG} (which must exist). 
   This should only be used to patch or workaround existing dialogues. Never
   use this if you can help it. \\
 
-  or & \DEFINE{REPLACE!TRIGGER!TEXT!REGEXP} filenameRegexp oldText newText &
+  or & \DEFINE{REPLACE!TRIGGER!TEXT!REGEXP} filenameRegexp oldText newText
+ \ttref{dActionWhen} Slist  &
   Just like \ttref{REPLACE!TRIGGER!TEXT} but the filename is a
   \ttref{regexp}. The \ttref{.DLG} is implied. \\
 
   or & \DEFINE{REPLACE!ACTION!TEXT} filename oldText newText 
-    \Ob moreFilenames \Oe &
+    \Ob moreFilenames \Oe  \ttref{dActionWhen} Slist &
   This instructs WeiDU to destructively replace every occurrence of oldText
   (which may be a \ttref{regexp}) in the \ttref{stateActionString}s 
   of \t{filename.}\ttref{DLG} (which must exist). This should only be used
@@ -543,13 +547,13 @@ All other keywords are symbolic. Notes:
   it. \\
 
   or & \DEFINE{REPLACE!ACTION!TEXT!REGEXP} filenameRegexp oldText newText 
-    \Ob moreFilenameRegexps \Oe &
+    \Ob moreFilenameRegexps \Oe  \ttref{dActionWhen} Slist &
   Just like \ttref{REPLACE!ACTION!TEXT} but the filenames are
   \ttref{regexp}s. The \ttref{.DLG} is implied, do not include it in your
   \ttref{regexp}s. \\
 
   or & \DEFINE{REPLACE!ACTION!TEXT!PROCESS} filename oldText newText
-    \Ob moreFilenames \Oe &
+    \Ob moreFilenames \Oe \ttref{dActionWhen} Slist &
   This instructs WeiDU to destruveily replace every occurrence of oldText
   (which may be a \ttref{regexp}) in the \ttref{stateActionString}s 
   of \t{filename.}\ttref{DLG} (which must exist) with newText. However,
@@ -563,12 +567,23 @@ All other keywords are symbolic. Notes:
 
   or & \DEFINE{R!A!T!P!R}
     filenameRegexp oldText newText
-    \Ob moreFilenameRegexps \Oe &
+    \Ob moreFilenameRegexps \Oe \ttref{dActionWhen} Slist &
   Just like \ttref{REPLACE!ACTION!TEXT!PROCESS}, but the filenames are
   \ttref{regexp}s. The \ttref{.DLG} is implied. R!A!T!P!R is
   shortand for REPLACE!ACTION!TEXT!PROCESS!REGEXP (to avoid undue scrollbars
   in the readme on a 1024x768 monitor). \\
 
+
+\\
+
+\DEFINE{dActionWhen} & defines when a D action (E.G. ADD!TRANS!ACTION) will
+be processed or not. \\
+is & \DEFSYN{IF} String & The action is processed if the element being
+altered/replaced/added to contains a substring matching against the String
+regexp. \\
+or & \DEFSYN{UNLESS} String & The action is not processed if the element being
+altered/replaced/added to contains a substring matching against the String
+regexp. \\
 
 \\
 
