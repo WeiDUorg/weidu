@@ -157,7 +157,9 @@ let rec handle_tp
           true
       | TPM_RequirePredicate(p,warn) ->
           not (is_true (eval_pe "" game p))
-      | TPM_Label(s) -> ignore(get_id_of_label tp s); false
+      | TPM_Group(n,p) ->
+          not (is_true (eval_pe "" game p))
+	  | TPM_Label(s) -> ignore(get_id_of_label tp s); false
 	  | _ ->
           false
 					     ) m.mod_flags
@@ -547,7 +549,19 @@ let rec handle_tp
 	| [] -> None
       in
 
-      let groups = ref [] in
+      let groups_ht = Hashtbl.create 5 in
+	  List.iter (fun m ->
+	    List.iter (fun f ->
+		  match f with
+		  | TPM_Group(x,c) ->
+		    if Hashtbl.mem groups_ht x then 
+			  Hashtbl.replace groups_ht x (Tp.PE_Or(c, Hashtbl.find groups_ht x))
+			else
+			  Hashtbl.add groups_ht x c
+		  | _ -> ()
+		) m.mod_flags
+	  )(List.rev tp.module_list);
+	  let groups = ref [] in
 	  let rec found a lst = match lst with
 	    | (b,_) :: tl when b = a -> true
 		| b :: tl -> found a tl
@@ -555,8 +569,8 @@ let rec handle_tp
 	  in
       List.iter (fun x ->
 	match findgroup x.mod_flags with
-	| Some(a,co) -> if not (found a !groups) then begin
-	    groups := (a,co) :: !groups;
+	| Some(a,_) -> if not (found a !groups) then begin
+	    groups := (a,Hashtbl.find groups_ht a) :: !groups;
 	end ;
 	| None -> ()) (List.rev tp.module_list) ;
       let hasgroups = !groups <> [] in
@@ -968,6 +982,10 @@ let rec handle_tp
 		  ()
 		else preproc_fail "SKIPPING" warn can_uninstall true
               end
+	  | TPM_Group(n,p) ->
+	    if is_true (eval_pe "" game p) then () else
+		  preproc_fail "SKIPPING" (Dlg.Local_String{lse_male = ""; lse_male_sound = ""; 
+		    lse_female = ""; lse_female_sound = ""; }) can_uninstall true
 	  | TPM_Label(s) ->
 		let old_errors_this_component = !errors_this_component in
 		ignore(get_id_of_label tp s);
@@ -975,8 +993,7 @@ let rec handle_tp
 	  | TPM_SubComponents(_,_,_) (* handled above *)
 	  | TPM_Designated(_)
 	  | TPM_InstallByDefault
-	  | TPM_NotInLog
-	  | TPM_Group (_) -> ()
+	  | TPM_NotInLog -> ()
 		    ) m.mod_flags ;
 	  List.iter (fun a -> match a with
           | TP_Require_File(file,warn) ->
@@ -1136,6 +1153,11 @@ let rec handle_tp
 			true
 		      end
 		    end
+		| TPM_Group(n,p) ->
+		  if is_true (eval_pe "" game p) then false else begin
+		    log_and_print "\n[%s] component %d %s fails component requirements, *not* Re-Installing.\n" a c (str_of_str_opt sopt);
+			false
+		  end
 		| TPM_Label(s) -> ignore(get_id_of_label tp2 s); false
 		| _ -> false) m.mod_flags
 		||

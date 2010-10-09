@@ -6815,8 +6815,9 @@ for install if and only if none of its member groups are selected
 \item You could, in theory, have two components in the same SUBCOMPONENT
 grouping but different GROUPs. Dont do this.
 \item You can give a GROUP a condition, by adding a patch_expression after the
-\emph{last} time the GROUP is defined. This way, the user will not be asked
-about that GROUP (and its components will be automatically skipped).
+GROUP definition. This way, the user will not be asked about that GROUP (and
+its components will be automatically skipped). If you give different conditions
+to the components in a GROUP, these conditions are OR()red.
 \item Because of a couple of issues with ordering and/or GROUPs not appearing,
 you are encouraged to put, at the end of your tp2, a dummy component for each
 GROUP, in the order you'd like to show them to the user. For the above example,
