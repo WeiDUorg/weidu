@@ -336,7 +336,7 @@ let rec handle_tp
 			end;
             if fails_requirements m || !subcomp_fails then begin
               finished := true;
-              log_and_print "Skipping [%s] because another its requirements aren't met.\n" package_name;
+              log_and_print "Skipping [%s] because its requirements aren't met.\n" package_name;
             end else begin
 	      set_backup_dir tp.backup i ;
 	      
@@ -717,7 +717,7 @@ let rec handle_tp
               done
           | "N" -> ()
           | _ -> finished := false
-	done ; end else log_and_print "\nSkipping GROUP [%s] because it fails its requirements.\n" (Dc.single_string_of_tlk_string_safe game this_grp)
+	done ; end else log_and_print "\n%s%s%s\n" (get_trans (-1036)) (Dc.single_string_of_tlk_string_safe game this_grp) (get_trans (-1037))
 		     ) !groups ;
 
       let handle_error_generic always_yes specified_specific_components finished package_name = (fun e ->

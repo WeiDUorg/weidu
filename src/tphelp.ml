@@ -226,6 +226,9 @@ let init_default_strings () =
   add (-1033) "INSTALLED WITH WARNINGS    ";
   add (-1034) "Would you like to display the readme? [Y]es [N]o";
   add (-1035) "Using Language";
+  
+  add (-1036) "Skipping GROUP [";
+  add (-1037) "] because it fails its requirements.";
   ()
 
 let body_of_script buff =
