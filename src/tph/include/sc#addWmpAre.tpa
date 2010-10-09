@@ -1,0 +1,342 @@
+// adding new areas to the worldmap
+DEFINE_ACTION_FUNCTION sc#addWmpAre //STR_VAR areName = "sc#ar00"   // default area reference
+                                    //        strName = "Stockholm" // default area name
+                                    //        strDesc = "#-1"       // default area description
+
+                                    //INT_VAR mapIcon = 26          // default map icon is 26, City Gates
+                                    //        xCoord  = 500         // default x coordinate
+                                    //        yCoord  = 500         // default y coordinate
+                                    //        inclSv  = 1           // include save games bool; default yes
+
+                                    RET     areNum
+
+                                    BEGIN
+  OUTER_SET areNum = 0
+
+  COPY_EXISTING ~worldmap.wmp~ ~override~
+
+    // read offsets
+    READ_LONG 0x30 "area_num"
+    READ_LONG 0x34 "area_off"
+    READ_LONG 0x38 "link_off"
+    READ_LONG 0x3c "link_num"
+
+    t-found = 0 //Look for areas already added (Miloch)
+    FOR (t-area = 0; t-area < area_num; t-area += 1) BEGIN //Area loop
+      READ_ASCII (t-area * 0xf0 + area_off) t-areref //Area reference
+      PATCH_IF (~%t-areref%~ STRING_EQUAL_CASE ~%areName%~ = 1) BEGIN
+        t-found = 1
+      END
+    END
+
+    PATCH_IF t-found = 0 BEGIN //If the area doesn't exist in the worldmap
+
+      // add the new area; first we update # of areas, and the following link offset
+      WRITE_LONG 0x30 ( "%area_num%" + 1 )
+      WRITE_LONG 0x38 ( "%link_off%" + 0xf0 )
+      // add area to worldmap
+      INSERT_BYTES          ( "%area_off%" +        ( 0xf0 * "%area_num%" ) ) 0xf0
+      WRITE_EVALUATED_ASCII ( "%area_off%" +        ( 0xf0 * "%area_num%" ) ) "%areName%"    // area reference
+      WRITE_EVALUATED_ASCII ( "%area_off%" + 0x08 + ( 0xf0 * "%area_num%" ) ) "%areName%"    // area reference
+      WRITE_EVALUATED_ASCII ( "%area_off%" + 0x10 + ( 0xf0 * "%area_num%" ) ) "%areName%"    // area reference
+      WRITE_LONG            ( "%area_off%" + 0x34 + ( 0xf0 * "%area_num%" ) ) "%mapIcon%"    // map icon
+      WRITE_LONG            ( "%area_off%" + 0x38 + ( 0xf0 * "%area_num%" ) ) "%xCoord%"     // x coordinate
+      WRITE_LONG            ( "%area_off%" + 0x3C + ( 0xf0 * "%area_num%" ) ) "%yCoord%"     // y coordinate
+      SAY                   ( "%area_off%" + 0x40 + ( 0xf0 * "%area_num%" ) ) "%strName%"    // area name
+      SAY                   ( "%area_off%" + 0x44 + ( 0xf0 * "%area_num%" ) ) "%strDesc%"    // area description
+      // feel free to set flags and such here
+
+      // re-read link offset, as we just changed it
+      READ_LONG 0x38 "link_off"
+
+      // set up some shorthand
+      SET nlink_l = 0x00
+      SET wlink_l = 0x08
+      SET slink_l = 0x10
+      SET elink_l = 0x18
+
+      // set entry variable to 0, so that we know what the number of the current area entry in the worldmap is
+      SET entry = 0
+
+      // prove to bigg that this is useful, and hopefully he'll think I'm a little less PITA for requesting it
+      GET_OFFSET_ARRAY areas WMP_AREAS
+      PHP_EACH areas AS an => loc BEGIN
+
+        // run functions
+        LAUNCH_PATCH_FUNCTION ~sc#toNewAre~ END
+        LAUNCH_PATCH_FUNCTION ~sc#fromNewAre~ END
+
+        // update entry variable
+        SET entry = ( "%entry%" + 1 )
+      END
+
+      CLEAR_ARRAY areas
+      SET areNum = "%area_num%"
+
+    END
+  BUT_ONLY
+
+  // save games
+  ACTION_IF ( "%inclSv%" ) BEGIN
+    PRINT ~Adding wmp area "%strName%"~
+    GET_DIRECTORY_ARRAY save save ~~
+
+    ACTION_PHP_EACH save AS from => to BEGIN
+      ACTION_IF ( FILE_EXISTS ~%to%/worldmap.wmp~ == 1 ) BEGIN
+
+        COPY ~%to%/worldmap.wmp~ ~%to%/worldmap.wmp~
+          // read offsets
+          READ_LONG 0x30 "area_num"
+          READ_LONG 0x34 "area_off"
+          READ_LONG 0x38 "link_off"
+          READ_LONG 0x3c "link_num"
+
+          t-found = 0 //Look for areas already added (Miloch)
+          FOR (t-area = 0; t-area < area_num; t-area += 1) BEGIN //Area loop
+            READ_ASCII (t-area * 0xf0 + area_off) t-areref //Area reference
+            PATCH_IF (~%t-areref%~ STRING_EQUAL_CASE ~%areName%~ = 1) BEGIN
+              t-found = 1
+            END
+          END
+
+          PATCH_IF t-found = 0 BEGIN //If the area doesn't exist in the worldmap
+
+            // add the new area; first we update # of areas, and the following link offset
+            WRITE_LONG 0x30 ( "%area_num%" + 1 )
+            WRITE_LONG 0x38 ( "%link_off%" + 0xf0 )
+
+            // add area to worldmap
+            INSERT_BYTES          ( "%area_off%" +        ( 0xf0 * "%area_num%" ) ) 0xf0
+            WRITE_EVALUATED_ASCII ( "%area_off%" +        ( 0xf0 * "%area_num%" ) ) "%areName%"  // area reference
+            WRITE_EVALUATED_ASCII ( "%area_off%" + 0x08 + ( 0xf0 * "%area_num%" ) ) "%areName%"  // area reference
+            WRITE_EVALUATED_ASCII ( "%area_off%" + 0x10 + ( 0xf0 * "%area_num%" ) ) "%areName%"  // area reference
+            WRITE_LONG            ( "%area_off%" + 0x34 + ( 0xf0 * "%area_num%" ) ) "%mapIcon%"  // map icon
+            WRITE_LONG            ( "%area_off%" + 0x38 + ( 0xf0 * "%area_num%" ) ) "%xCoord%"   // x coordinate
+            WRITE_LONG            ( "%area_off%" + 0x3C + ( 0xf0 * "%area_num%" ) ) "%yCoord%"   // y coordinate
+            SAY                   ( "%area_off%" + 0x40 + ( 0xf0 * "%area_num%" ) ) "%strName%"  // area name
+            SAY                   ( "%area_off%" + 0x44 + ( 0xf0 * "%area_num%" ) ) "%strDesc%"  // area description
+            // feel free to set flags and such here
+
+            // re-read link offset, as we just changed it
+            READ_LONG 0x38 "link_off"
+
+            // set up some shorthand
+            SET nlink_l = 0x00
+            SET wlink_l = 0x08
+            SET slink_l = 0x10
+            SET elink_l = 0x18
+
+            // set entry variable to 0, so that we know what the number of the current area entry in the worldmap is
+            SET entry = 0
+
+            // Prove to bigg that this is useful, and hopefully he'll think I'm a little less PITA for requesting it
+            GET_OFFSET_ARRAY areas WMP_AREAS
+            PHP_EACH areas AS an => loc BEGIN
+
+              // run functions
+              LAUNCH_PATCH_FUNCTION ~sc#toNewAre~ END
+              LAUNCH_PATCH_FUNCTION ~sc#fromNewAre~ END
+
+              // update entry variable
+              SET entry = ( "%entry%" + 1 )
+            END
+
+            CLEAR_ARRAY areas
+          END
+        BUT_ONLY
+      END
+    END
+  END
+END
+
+
+DEFINE_PATCH_FUNCTION sc#toNewAre BEGIN
+  // read area name
+  READ_ASCII ( "%loc%" ) "area"
+
+  PHP_EACH toNewArea AS are => ent BEGIN
+    PATCH_IF ( ( "%are_0%" STRING_EQUAL_CASE "%area%" = 1 ) ) BEGIN
+      // read link directions
+      READ_SHORT ( "%loc%" + 0x50 )              "nlink"
+      READ_SHORT ( "%loc%" + 0x50 + 0x4 )        "#nlink"
+      READ_SHORT ( "%loc%" + 0x50 + 0x08 )       "wlink"
+      READ_SHORT ( "%loc%" + 0x50 + 0x08 + 0x4 ) "#wlink"
+      READ_SHORT ( "%loc%" + 0x50 + 0x10 )       "slink"
+      READ_SHORT ( "%loc%" + 0x50 + 0x10 + 0x4 ) "#slink"
+      READ_SHORT ( "%loc%" + 0x50 + 0x18 )       "elink"
+      READ_SHORT ( "%loc%" + 0x50 + 0x18 + 0x4 ) "#elink"
+
+      DEFINE_ARRAY links BEGIN nlink elink slink wlink END
+
+      // tb# count the number of elements in the array, populate helper arrays
+      SET tb#sort_cnt = 0
+      PHP_EACH links AS tb#sort_from => tb#sort_to BEGIN
+        SPRINT $tb#sort_index(~%tb#sort_cnt%~) ~%tb#sort_from_0%~
+        SPRINT $tb#sort_value(~%tb#sort_cnt%~) ~%tb#sort_to%~
+        SET tb#sort_cnt += 1
+      END
+      CLEAR_ARRAY links
+      
+      // tb# define the swapping condition & what to swap
+      INNER_ACTION BEGIN
+        DEFINE_PATCH_MACRO ~tb#sort_swap~ BEGIN
+          SET tb#sort_val_i = EVALUATE_BUFFER $tb#sort_value(~%tb#sort_i%~)
+          SET tb#sort_val_j = EVALUATE_BUFFER $tb#sort_value(~%tb#sort_j%~)
+          PATCH_IF (tb#sort_val_i < tb#sort_val_j) BEGIN
+            SPRINT tb#sort_tmp $tb#sort_value(~%tb#sort_i%~)
+            SPRINT $tb#sort_value(~%tb#sort_i%~) $tb#sort_value(~%tb#sort_j%~)
+            SPRINT $tb#sort_value(~%tb#sort_j%~) ~%tb#sort_tmp%~
+          END
+        END
+      END
+      
+      // tb# sort the array. Move from Bubble sort to Quick Sort if you want
+      FOR (tb#sort_i = 0; tb#sort_i < tb#sort_cnt; tb#sort_i+=1) BEGIN
+        FOR (tb#sort_j = 0; tb#sort_j < tb#sort_cnt; tb#sort_j +=1) BEGIN
+          LAUNCH_PATCH_MACRO ~tb#sort_swap~
+        END
+      END
+      
+      // tb# merge the helping arrays into the main one
+      FOR (tb#sort_i = 0; tb#sort_i < tb#sort_cnt; tb#sort_i +=1) BEGIN
+        SPRINT $links($tb#sort_index(~%tb#sort_i%~)) $tb#sort_value(~%tb#sort_i%~)
+      END
+
+      // tb# clean up
+      CLEAR_ARRAY tb#sort_index
+      CLEAR_ARRAY tb#sort_value
+      
+      // write new # of links
+      WRITE_SHORT ( "%loc%" + 0x50 + 0x4 ) ( "%#nlink%" + 1 )
+      WRITE_SHORT ( "%loc%" + 0x50 + 0x08 + 0x4 ) ( "%#wlink%" + 1 )
+      WRITE_SHORT ( "%loc%" + 0x50 + 0x10 + 0x4 ) ( "%#slink%" + 1 )
+      WRITE_SHORT ( "%loc%" + 0x50 + 0x18 + 0x4 ) ( "%#elink%" + 1 )
+      
+      // and also the total number to the worldmap
+      READ_LONG  0x3c "link_num"
+      WRITE_LONG 0x3c ( "%link_num%" + 4 )
+      
+      // go through each link direction, update index and insert new
+      PHP_EACH links AS n => link BEGIN
+        
+        // update link index
+        SPRINT off ~%link%_l~
+        SPRINT off EVALUATE_BUFFER ~%%off%%~
+        SPRINT plink EVALUATE_BUFFER ~%%link%%~
+        WRITE_SHORT ( "%loc%" + 0x50 + "%off%" ) ( "%plink%" + "%n_0%" )
+
+        // insert new link
+        INSERT_BYTES          ( "%link_off%" + ( 0xd8 * ( "%plink%" + "%n_0%" ) ) ) 0xd8
+        WRITE_LONG            ( "%link_off%" + ( 0xd8 * ( "%plink%" + "%n_0%" ) ) ) "%area_num%" // add the last entry
+        WRITE_EVALUATED_ASCII ( "%link_off%" + ( 0xd8 * ( "%plink%" + "%n_0%" ) ) + 0x04 ) ~%ent%~    // entrance
+        WRITE_LONG            ( "%link_off%" + ( 0xd8 * ( "%plink%" + "%n_0%" ) ) + 0x24 ) ~%tTime%~  // travel time
+        WRITE_LONG            ( "%link_off%" + ( 0xd8 * ( "%plink%" + "%n_0%" ) ) + 0x28 ) 0x01       // unknown
+      END
+      
+      // re-read to check the new offsets
+      READ_SHORT ( "%loc%" + 0x50 )        "nlink"
+      READ_SHORT ( "%loc%" + 0x50 + 0x08 ) "wlink"
+      READ_SHORT ( "%loc%" + 0x50 + 0x10 ) "slink"
+      READ_SHORT ( "%loc%" + 0x50 + 0x18 ) "elink"
+      
+      // check which one of them is the largest
+      PATCH_IF ( ( "%nlink%" > "%wlink%" ) AND ( "%nlink%" > "%slink%" ) AND ( "%nlink%" > "%elink%" ) ) BEGIN
+        SET "llink" = "%nlink%"
+      END
+      
+      PATCH_IF ( ( "%wlink%" > "%nlink%" ) AND ( "%wlink%" > "%slink%" ) AND ( "%wlink%" > "%elink%" ) ) BEGIN
+        SET "llink" = "%wlink%"
+      END
+      
+      PATCH_IF ( ( "%slink%" > "%wlink%" ) AND ( "%slink%" > "%nlink%" ) AND ( "%slink%" > "%elink%" ) ) BEGIN
+        SET "llink" = "%slink%"
+      END
+      
+      PATCH_IF ( ( "%elink%" > "%wlink%" ) AND ( "%elink%" > "%slink%" ) AND ( "%elink%" > "%nlink%" ) ) BEGIN
+        SET "llink" = "%elink%"
+      END
+
+      // correct all following links
+      PHP_EACH areas AS n2 => loc2 BEGIN
+        READ_ASCII ("%loc2%") "area2"
+        // ...as long as it isn't the one we're adding links to
+        PATCH_IF NOT ( "%area2%" STRING_EQUAL_CASE "%are_0%" = 1 ) BEGIN
+          READ_SHORT ( "%loc2%" + 0x50 )        "nlink2"
+          READ_SHORT ( "%loc2%" + 0x50 + 0x08 ) "wlink2"
+          READ_SHORT ( "%loc2%" + 0x50 + 0x10 ) "slink2"
+          READ_SHORT ( "%loc2%" + 0x50 + 0x18 ) "elink2"
+
+          PATCH_IF ( ( "%nlink2%" + 0x04 ) >= "%llink%" ) BEGIN
+            WRITE_SHORT ( "%loc2%" + 0x50 ) ( "%nlink2%" + 0x04 )
+          END
+          
+          PATCH_IF ( ( "%wlink2%" + 0x04 ) >= "%llink%" ) BEGIN
+            WRITE_SHORT ( "%loc2%" + 0x50 + 0x08 ) ( "%wlink2%" + 0x04 )
+          END
+
+          PATCH_IF ( ( "%slink2%" + 0x04 ) >= "%llink%" ) BEGIN
+            WRITE_SHORT ( "%loc2%" + 0x50 + 0x10 ) ( "%slink2%" + 0x04 )
+          END
+
+          PATCH_IF (("%elink2%" + 0x04) >= "%llink%") BEGIN
+            WRITE_SHORT ( "%loc2%" + 0x50 + 0x18 ) ( "%elink2%" + 0x04 )
+          END
+        END
+      END
+    END
+  END
+END
+
+
+DEFINE_PATCH_FUNCTION sc#fromNewAre BEGIN
+  // read area name
+  READ_ASCII ("%loc%") "area"
+
+  PHP_EACH fromNewArea AS are => ent BEGIN
+    PATCH_IF (("%are_0%" STRING_EQUAL_CASE "%area%" = 1)) BEGIN
+      // read links in new area
+      READ_SHORT ( ( "%area_off%" + ( 0xf0 * "%area_num%" ) ) + 0x50 )              "nlink"
+      READ_SHORT ( ( "%area_off%" + ( 0xf0 * "%area_num%" ) ) + 0x50 + 0x4 )        "#nlink"
+      READ_SHORT ( ( "%area_off%" + ( 0xf0 * "%area_num%" ) ) + 0x50 + 0x08 )       "wlink"
+      READ_SHORT ( ( "%area_off%" + ( 0xf0 * "%area_num%" ) ) + 0x50 + 0x08 + 0x4 ) "#wlink"
+      READ_SHORT ( ( "%area_off%" + ( 0xf0 * "%area_num%" ) ) + 0x50 + 0x10 )       "slink"
+      READ_SHORT ( ( "%area_off%" + ( 0xf0 * "%area_num%" ) ) + 0x50 + 0x10 + 0x4 ) "#slink"
+      READ_SHORT ( ( "%area_off%" + ( 0xf0 * "%area_num%" ) ) + 0x50 + 0x18 )       "elink"
+      READ_SHORT ( ( "%area_off%" + ( 0xf0 * "%area_num%" ) ) + 0x50 + 0x18 + 0x4 ) "#elink"
+
+      // write new # of links
+      WRITE_SHORT ( ( "%area_off%" + ( 0xf0 * "%area_num%" ) ) + 0x50 + 0x4 )        ( "%#nlink%" + 1 )
+      WRITE_SHORT ( ( "%area_off%" + ( 0xf0 * "%area_num%" ) ) + 0x50 + 0x08 + 0x4 ) ( "%#wlink%" + 1 )
+      WRITE_SHORT ( ( "%area_off%" + ( 0xf0 * "%area_num%" ) ) + 0x50 + 0x10 + 0x4 ) ( "%#slink%" + 1 )
+      WRITE_SHORT ( ( "%area_off%" + ( 0xf0 * "%area_num%" ) ) + 0x50 + 0x18 + 0x4 ) ( "%#elink%" + 1 )
+
+      // write new # to wmp
+      READ_LONG  0x3c "link_num"
+      WRITE_LONG 0x3c ( "%link_num%" + 4 )
+
+      // decide order of links
+      DEFINE_ARRAY links BEGIN nlink elink slink wlink END
+
+      // go through and add
+      PHP_EACH links AS n => link BEGIN
+        SPRINT off ~%link%_l~
+        SPRINT off EVALUATE_BUFFER ~%%off%%~
+        SPRINT plink EVALUATE_BUFFER ~%%link%%~
+
+        // checking whether link is set; if not, put it at the end of file
+        SET "res" = "%plink%" == 0 ? ( "%link_off%" + ( 0xd8 * ( "%link_num%" + "%n_0%" ) ) ) : ( "%link_off%" + ( 0xd8 * ( "%plink%" + "%n_0%" ) ) )
+        SET "lin" = "%plink%" == 0 ? ( "%link_num%" + "%n_0%" ) : ( "%plink%" + "%n_0%" )
+
+        // update link index
+        WRITE_SHORT ( ( "%area_off%" + ( 0xf0 * "%area_num%" ) ) + 0x50 + off ) "%lin%"
+
+        // insert new link
+        INSERT_BYTES ( "%res%" ) 0xd8
+        WRITE_LONG ( "%res%" ) "%entry%"                 // area reference
+        WRITE_EVALUATED_ASCII ( "%res%" + 0x04 ) ~%ent%~ // entrance
+        WRITE_LONG ( "%res%" + 0x24 ) ~%tTime%~          // travel time
+        WRITE_LONG ( "%res%" + 0x28 ) 0x01               // unknown
+      END
+    END
+  END
+END
