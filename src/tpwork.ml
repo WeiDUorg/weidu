@@ -336,7 +336,7 @@ let rec handle_tp
 			end;
             if fails_requirements m || !subcomp_fails then begin
               finished := true;
-              log_and_print "Skipping [%s] because its requirements aren't met.\n" package_name;
+              log_and_print "%s [%s%s\n" (get_trans (-1020)) package_name (get_trans (-1037));
             end else begin
 	      set_backup_dir tp.backup i ;
 	      
