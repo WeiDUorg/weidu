@@ -25,7 +25,7 @@ Version 221:
   * Document FILE_IS_IN_COMPRESSED_BIFF.
   * FILE_IS_IN_COMPRESSED_BIFF returns 0 (rather than failing) if the file is
     not in any biff.
-  * Added Miloch's fj_add_are_structure PATCH FUNCTION.
+  * Added Miloch's fj_are_structure PATCH FUNCTION.
   * RESOLVE_STR_REF patch expression added.
   * BIFF_IS_COMPRESSED patch expression added.
   * SOURCE_BIFF patch added.
