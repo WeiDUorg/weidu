@@ -31,6 +31,19 @@ BEGIN
   END
 END
 
+DEFINE_ACTION_FUNCTION ~TB#ADD_SPELL_CHECK_MATCH~
+  INT_VAR scode = 0
+  RET doesmatch
+BEGIN
+  ACTION_IF scode < 1000 || scode >= 5000 THEN BEGIN
+    OUTER_SET doesmatch = 0
+  END ELSE BEGIN
+	OUTER_SET newtype  = scode / 1000
+	OUTER_SET newlevel = scode / 100 - newtype * 10
+	OUTER_SET doesmatch = newtype = type && newlevel = level
+  END
+END
+
 DEFINE_ACTION_FUNCTION ~TB#ADD_SPELL~ 
   INT_VAR type = 1
           level = 1
@@ -45,7 +58,21 @@ BEGIN
     OUTER_SET code2 = IDS_OF_SYMBOL (~add_spell~ ~%identifier%~)
   END
   
-  ACTION_IF (code2 >= 0) BEGIN // listed in add_spell.ids
+  LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_CHECK_MATCH~ INT_VAR scode = code2 RET doesmatch = doesmatch END
+  ACTION_IF (code2 >= 0 && !doesmatch) BEGIN
+    COPY_EXISTING + ~add_spell.ids~ ~override~
+      REPLACE_TEXTUALLY ~%WNL%~ ~%LNL%~
+      REPLACE_TEXTUALLY ~%MNL%~ ~%LNL%~
+      REPLACE_TEXTUALLY ~%LNL%[ %TAB%]*[^ %TAB%]+[ %TAB%]+%identifier%[ %TAB%]*$~ ~~
+      REPLACE_TEXTUALLY ~%LNL%~ ~%WNL%~
+	ACTION_IF use_pld THEN BEGIN
+	  LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR scode = code2 RET filecode = filecode END
+	  COPY_EXISTING ~sp%filecode%.spl~ ~override/sp%filecode%.spl~
+		LAUNCH_PATCH_MACRO TB#ADD_SPELL_PLD
+	END
+  END
+  
+  ACTION_IF (code2 >= 0 && doesmatch) BEGIN // listed in add_spell.ids
     OUTER_SET code = IDS_OF_SYMBOL (~spell~ ~%identifier%~)
     ACTION_IF (code == code2) BEGIN // listing in spell.ids matches listing in add_spell.ids
       PRINT ~%identifier% already contained in spell.ids as %code%~
@@ -85,7 +112,20 @@ BEGIN
   END
   ELSE BEGIN // not listed in add_spell.ids
     OUTER_SET code = IDS_OF_SYMBOL (~spell~ ~%identifier%~)
-    ACTION_IF (code >= 0) BEGIN // listed in spell.ids
+	LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_CHECK_MATCH~ INT_VAR scode = code2 RET doesmatch = doesmatch END
+	ACTION_IF (code >= 0 && !doesmatch) BEGIN
+      COPY_EXISTING ~spell.ids~ ~override~
+		REPLACE_TEXTUALLY ~%WNL%~ ~%LNL%~
+		REPLACE_TEXTUALLY ~%MNL%~ ~%LNL%~
+		REPLACE_TEXTUALLY ~%LNL%[ %TAB%]*[^ %TAB%]+[ %TAB%]+%identifier%[ %TAB%]*$~ ~~
+		REPLACE_TEXTUALLY ~%LNL%~ ~%WNL%~
+	  ACTION_IF use_pld THEN BEGIN
+		LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR scode = code RET filecode = filecode END
+		COPY_EXISTING ~sp%filecode%.spl~ ~override/sp%filecode%.spl~
+		  LAUNCH_PATCH_MACRO TB#ADD_SPELL_PLD
+	  END
+    END
+    ACTION_IF (code >= 0 && doesmatch) BEGIN // listed in spell.ids
       PRINT ~%identifier% already contained in spell.ids as %code%; updating add_spell.ids...~
       
       // update add_spell.ids
