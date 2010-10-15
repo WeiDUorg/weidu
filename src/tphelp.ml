@@ -14,6 +14,8 @@ let rec pe_to_str pe = "(" ^ (match pe with
       (pe_str_str s) (pe_str_str i)
 | Pred_File_Is_In_Compressed_Bif(a) -> Printf.sprintf "FILE_IS_IN_COMPRESSED_BIF %s" (pe_str_str a)
 | Pred_Biff_Is_Compressed(a) -> Printf.sprintf "BIFF_IS_COMPRESSED %s" (pe_str_str a)
+| PE_Int32(i) -> Int32.to_string i
+| PE_Int(i) -> string_of_int i
 | PE_String(s) -> (pe_str_str s)
 | PE_StringEqual(s1,s2,b,c) -> Printf.sprintf "%s %s%s %s"
       (pe_str_str s1) (if c then "STRING_EQUAL" else "STRING_COMPARE") (if b then "_CASE" else "")

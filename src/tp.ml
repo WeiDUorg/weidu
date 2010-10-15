@@ -410,6 +410,8 @@ and tp_patchexp =
   | TP_PE_SShort_At of tp_patchexp
   | TP_PE_Long_At of tp_patchexp
   | TP_PE_SLong_At of tp_patchexp
+  | PE_Int32 of Int32.t
+  | PE_Int of int
   | PE_String of tp_pe_string
   | PE_StringEqual of tp_pe_string * tp_pe_string * bool * bool (* ignore-case? * returns bool vs. 1,-1,0 *)
   | PE_StringRegexp of tp_pe_string * tp_pe_string * bool (* match exactly?  *)

@@ -73,6 +73,8 @@ let rec eval_pe buff game p =
   in
   match p with
   | Pred_True -> 1l
+  | PE_Int32 i -> i
+  | PE_Int i -> Int32.of_int i
   | TP_PE_Byte_At(where) ->
       let where = Int32.to_int (eval_pe buff game where) in
       let value = bounds_check where 1
