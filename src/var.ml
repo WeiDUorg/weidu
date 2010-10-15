@@ -277,7 +277,15 @@ let all_the_assoc a =
   assoc "DIALOG_DEFAULT" 0412 ;
   assoc "DIALOG_HOSTILE" 0408 ;
   assoc "UNHAPPY_BREAKING_POINT" 0184 ;
+  
+  for i = 0 to 31 do
+	set_int32 (Printf.sprintf "BIT%d" i) (Int32.shift_left 1l i);
+  done;
 
+  set_string "WNL" "\n\r";
+  set_string "MNL" "\r";
+  set_string "LNL" "\n";
+  
   ()
 
 let _ =

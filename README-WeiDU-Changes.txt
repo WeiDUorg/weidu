@@ -47,6 +47,7 @@ Version 221:
     variable name if it is not found).
   * GROUP accepts a constraint.
   * IF/UNLESS added to various D actions.
+  * BIT0..31, wnl/mnl/lnl variables added.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'
