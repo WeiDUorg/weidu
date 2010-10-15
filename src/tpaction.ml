@@ -1097,6 +1097,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    
       | TP_Add_Spell(file,kind,level,ids_name,pl,ple,pld) ->
 	  log_and_print "Adding spell %s\n" ids_name;
+	  let file = Var.get_string file in
+	  let ids_name = Var.get_string ids_name in
 	  process_action tp (TP_Include ["add_spell.tpa"]);
 	  let use_ple = if_true (match ple with
 	    | None -> false
