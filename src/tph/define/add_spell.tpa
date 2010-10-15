@@ -98,15 +98,25 @@ BEGIN
         REPLACE_TEXTUALLY ~%LNL%~ ~%WNL%~
       APPEND ~spell.ids~ ~%code2% %identifier%~
 	  LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR scode = code2 RET filecode = filecode END
-	  COPY ~%source_file%~ ~override/sp%filecode%.spl~
-		LAUNCH_PATCH_MACRO TB#ADD_SPELL_PL
+	  ACTION_IF use_ple THEN BEGIN
+		COPY_EXISTING ~sp%filecode%.spl~ ~override/sp%filecode%.spl~
+		  LAUNCH_PATCH_MACRO TB#ADD_SPELL_PLE
+	  END ELSE BEGIN
+		COPY ~%source_file%~ ~override/sp%filecode%.spl~
+		  LAUNCH_PATCH_MACRO TB#ADD_SPELL_PL
+	  END
       PRINT ~Added %identifier% to spell.ids as %code2%, replacing one or more existing entries~
     END
     ELSE BEGIN // not listed in spell.ids
       APPEND ~spell.ids~ ~%code2% %identifier%~
 	  LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR scode = code2 RET filecode = filecode END
-	  COPY ~%source_file%~ ~override/sp%filecode%.spl~
-		LAUNCH_PATCH_MACRO TB#ADD_SPELL_PL
+	  ACTION_IF use_ple THEN BEGIN
+		COPY_EXISTING ~sp%filecode%.spl~ ~override/sp%filecode%.spl~
+		  LAUNCH_PATCH_MACRO TB#ADD_SPELL_PLE
+	  END ELSE BEGIN
+		COPY ~%source_file%~ ~override/sp%filecode%.spl~
+		  LAUNCH_PATCH_MACRO TB#ADD_SPELL_PL
+	  END
       PRINT ~Added %identifier% to spell.ids as %code2%~
     END
   END
