@@ -362,6 +362,15 @@ let rec backup_if_extant filename =
       (String.uppercase (slash_to_backslash filename)) then
     ()
   else begin
+    if (String.uppercase filename) = "OVERRIDE/SPELL.IDS" ||
+	   (String.uppercase filename) = "OVERRIDE\\SPELL.IDS" then begin
+	  if not (file_exists "override/spell.ids.installed") then begin
+	    backup_if_extant "override/spell.ids.installed";
+		let out_chn = Case_ins.perv_open_out_bin "override/spell.ids.installed" in
+		output_string out_chn "spell.ids edits installed\n";
+		close_out out_chn;
+	  end
+	end;
     Hashtbl.add backup_ht
       (String.uppercase (slash_to_backslash filename)) true ;
     (
@@ -544,7 +553,11 @@ let exec_command cmd exact =
     end else Unix.system cmd
   in ret
 
-let execute_at_exit = ref ([] : (string*bool) list)
+type execute_at_exit_type =
+| Command of string * bool
+| Fn of (unit) Lazy.t
+  
+let execute_at_exit = ref ([] : (execute_at_exit_type) list)
 
 let weidu_version = ref ""
 

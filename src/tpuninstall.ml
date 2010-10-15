@@ -8,6 +8,7 @@ open Tppe
  * Uninstall STRSET 
  ************************************************************************)
 
+let used_spell_ids = Hashtbl.create 5
  
  let uninstall_strset game filename = 
    if (file_exists filename) then begin
@@ -82,10 +83,10 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
             match (split (String.uppercase str)) with
             | _,"TP2" -> (enqueue_tp2_filename) str
             | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
-				if List.mem (str,exact) !execute_at_exit then
+				if List.mem (Command(str,exact)) !execute_at_exit then
 				  ()
 				else
-				  execute_at_exit := (str,exact) :: !execute_at_exit
+				  execute_at_exit := (Command(str,exact)) :: !execute_at_exit
           end
       | TP_At_Uninstall_Exit(str,exact) ->
           if do_uninstall then begin
@@ -93,10 +94,10 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
             match (split (String.uppercase str)) with
             | _,"TP2" -> (enqueue_tp2_filename) str
             | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
-				if List.mem (str,exact) !execute_at_exit then
+				if List.mem (Command(str,exact)) !execute_at_exit then
 				  ()
 				else
-				  execute_at_exit := (str,exact) :: !execute_at_exit
+				  execute_at_exit := (Command(str,exact)) :: !execute_at_exit
           end
       | TP_If(p,al1,al2) ->
           begin try
@@ -236,6 +237,21 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 				  let keybuff = load_file keyname in
 				  game.Load.key <- Key.load_key keyname keybuff ;
 				  game.Load.loaded_biffs <- Hashtbl.create 5 ;
+			end else if (String.uppercase override_filename) = "OVERRIDE/SPELL.IDS" ||
+			  (String.uppercase override_filename) = "OVERRIDE\\SPELL.IDS" then begin
+				Hashtbl.add used_spell_ids (tp_file,i) true;
+			    if not interactive then begin
+					let out_chn = Case_ins.perv_open_out_bin (Printf.sprintf "override/spell.ids.%s.%d.marker" (Case_ins.filename_basename tp_file) i) in
+					output_string out_chn "spell.ids edits installed\n";
+					close_out out_chn;
+				end else if file_exists (Printf.sprintf "override/spell.ids.%s.%d.marker" (Case_ins.filename_basename tp_file) i) then 
+					my_unlink (Printf.sprintf "override/spell.ids.%s.%d.marker" (Case_ins.filename_basename tp_file) i);
+				if not (file_exists "override/spell.ids.installed") && not (
+					let files = Sys.readdir "override" in
+					let r = Str.regexp_case_fold "spell\\.ids\\..*\\.marker" in
+					List.exists (fun f -> Str.string_match r f 0) (Array.to_list files)
+				)then
+					my_unlink "override/add_spell.ids"
 			end;
 			my_unlink backup_filename
 			  in
@@ -321,6 +337,16 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 
 
 let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
+  if Hashtbl.mem used_spell_ids (tp2,i) then begin
+	if file_exists (Printf.sprintf "override/spell.ids.%s.%d.marker" (Case_ins.filename_basename tp2) i) then 
+		my_unlink (Printf.sprintf "override/spell.ids.%s.%d.marker" (Case_ins.filename_basename tp2) i);
+	if not (file_exists "override/spell.ids.installed") && (
+		let files = Sys.readdir "override" in
+		let r = Str.regexp_case_fold "spell\\.ids\\..*\\.marker" in
+		List.exists (fun f -> Str.string_match r f 0) (Array.to_list files)
+	)then
+		execute_at_exit := Fn(lazy(my_unlink "override/add_spell.ids")) :: !execute_at_exit
+  end;
   let rec is_installed lst = match lst with
   | [] -> []
   | (a,b,c,sopt,d) :: tl when log_match a tp2

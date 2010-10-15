@@ -700,8 +700,8 @@ let main () =
    let b1,s = match !cmp_src with
    | Some (x) -> (load_file x,x)
    | None ->
-   let (base,ext) = split (Filename.basename d) in
-   (fst (Load.load_resource "cmp-from" game true base ext),Filename.basename d)
+   let (base,ext) = split (Case_ins.filename_basename d) in
+   (fst (Load.load_resource "cmp-from" game true base ext),Case_ins.filename_basename d)
    in
    let b2 = load_file d in
    let l1 = String.length b1 in
@@ -743,8 +743,8 @@ let main () =
    let buff,s = match !dcmp_src with
    | Some (x) -> (load_file x,x)
    | None ->
-   let (base,ext) = split (Filename.basename d) in
-   (fst (Load.load_resource "cmp-from" game true base ext),Filename.basename d)
+   let (base,ext) = split (Case_ins.filename_basename d) in
+   (fst (Load.load_resource "cmp-from" game true base ext),Case_ins.filename_basename d)
    in
    let b,e = split s in
    let imp_base = Case_ins.filename_basename b in
@@ -768,8 +768,8 @@ let main () =
    let src_buff,s = match !textcmp_src with
    | Some (x) -> (load_file x,x)
    | None ->
-   let (base,ext) = split (Filename.basename d) in
-   (fst (Load.load_resource "cmp-from" game true base ext),Filename.basename d)
+   let (base,ext) = split (Case_ins.filename_basename d) in
+   (fst (Load.load_resource "cmp-from" game true base ext),Case_ins.filename_basename d)
    in
    let out_name = ".../" ^ d ^ ".patch" in
    let b,e = split d in
@@ -802,8 +802,8 @@ let main () =
    let src_buff,s = match !bcmp_src with
    | Some (x) -> (decompile (load_file x,x),x)
    | None ->
-   let (base,ext) = split (Filename.basename d) in
-   (decompile(Load.load_resource "cmp-from" game true base ext),Filename.basename d)
+   let (base,ext) = split (Case_ins.filename_basename d) in
+   (decompile(Load.load_resource "cmp-from" game true base ext),Case_ins.filename_basename d)
    in
    let out_name = ".../" ^ d ^ ".patch" in
    let b,e = split d in
@@ -1579,9 +1579,13 @@ let main () =
    end ;
    Tpwork.handle_tp game tp_file result
    ) (List.rev !toproc);
-   List.iter (fun (s,e) ->
-   log_or_print "Executing: [%s]\n" s ;
-   ignore (exec_command s e))
+   List.iter (fun c -> match c with
+	| Command (s,e) ->
+	   log_or_print "Executing: [%s]\n" s ;
+	   ignore (exec_command s e)
+	| Fn f ->
+    Lazy.force f
+   )
    !execute_at_exit;
    execute_at_exit := [];
    end
@@ -1675,7 +1679,7 @@ let main () =
    ) !Tp.the_log;
    List.iter (fun file1 ->
    let file1 = String.uppercase file1 in
-   let file = if Filename.check_suffix file1 ".EXE" || Filename.check_suffix file1 ".KEY" then file1 else "OVERRIDE/" ^ file1 in
+   let file = if Case_ins.filename_check_suffix file1 ".EXE" || Case_ins.filename_check_suffix file1 ".KEY" then file1 else "OVERRIDE/" ^ file1 in
    let file_log = List.rev (get_file file) in
    let (base,ext) = split file1 in
    let i = ref 0 in
@@ -1807,9 +1811,13 @@ let main () =
 
    ;;
 
-   List.iter (fun (s,e) ->
-   log_or_print "Executing: [%s]\n" s ;
-   ignore (exec_command s e))
+   List.iter (fun c -> match c with
+   | Command (s,e) ->
+	   log_or_print "Executing: [%s]\n" s ;
+	   ignore (exec_command s e)
+  | Fn f ->
+    Lazy.force f
+   )
    !execute_at_exit
 
    ;;

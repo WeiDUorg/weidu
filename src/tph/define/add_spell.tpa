@@ -1,0 +1,172 @@
+<<<<<<<< .../inlined/null.file
+>>>>>>>>
+
+DEFINE_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~
+  INT_VAR scode = 0
+  RET filecode
+BEGIN
+  OUTER_SET type = scode / 1000
+  OUTER_SET rest = scode - type * 1000
+  ACTION_IF (type == 1) BEGIN
+	OUTER_TEXT_SPRINT memo ~PR~
+  END
+  ELSE ACTION_IF (type == 2) BEGIN
+	OUTER_TEXT_SPRINT memo ~WI~
+  END
+  ELSE ACTION_IF (type == 3) BEGIN
+	OUTER_TEXT_SPRINT memo ~IN~
+  END
+  ELSE ACTION_IF (type == 4) BEGIN
+	OUTER_TEXT_SPRINT memo ~CL~
+  END ELSE BEGIN
+    FAIL ~TB#ADD_SPELL_GET_CODE internal failure: invalid code (%scode%)~
+  END
+  
+  ACTION_IF rest < 10 THEN BEGIN
+	OUTER_SPRINT filecode ~%memo%00%rest%~
+  END ELSE ACTION_IF rest < 100 THEN BEGIN
+	OUTER_SPRINT filecode ~%memo%0%rest%~
+  END ELSE BEGIN
+	OUTER_SPRINT filecode ~%memo%%rest%~
+  END
+END
+
+DEFINE_ACTION_FUNCTION ~TB#ADD_SPELL~ 
+  INT_VAR type = 1
+          level = 1
+		  use_ple = 0
+		  use_pld = 0
+  STR_VAR identifier = ~~
+    source_file = ~~
+BEGIN
+  // check if spell has entry in add_spell.ids
+  OUTER_SET code2 = (0 - 1)
+  ACTION_IF (FILE_EXISTS_IN_GAME ~add_spell.ids~) BEGIN
+    OUTER_SET code2 = IDS_OF_SYMBOL (~add_spell~ ~%identifier%~)
+  END
+  
+  ACTION_IF (code2 >= 0) BEGIN // listed in add_spell.ids
+    OUTER_SET code = IDS_OF_SYMBOL (~spell~ ~%identifier%~)
+    ACTION_IF (code == code2) BEGIN // listing in spell.ids matches listing in add_spell.ids
+      PRINT ~%identifier% already contained in spell.ids as %code%~
+	  LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR scode = code2 RET filecode = filecode END
+	  ACTION_IF use_ple THEN BEGIN
+		COPY_EXISTING ~sp%filecode%.spl~ ~override/sp%filecode%.spl~
+		  LAUNCH_PATCH_MACRO TB#ADD_SPELL_PLE
+	  END ELSE BEGIN
+		COPY ~%source_file%~ ~override/sp%filecode%.spl~
+		  LAUNCH_PATCH_MACRO TB#ADD_SPELL_PL
+	  END
+    END
+    ELSE ACTION_IF (code >= 0) BEGIN // listing in spell.ids doesn't match listing in add_spell.ids
+	  ACTION_IF use_pld THEN BEGIN
+		LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR scode = code RET filecode = filecode END
+		COPY_EXISTING ~sp%filecode%.spl~ ~override/sp%filecode%.spl~
+		  LAUNCH_PATCH_MACRO TB#ADD_SPELL_PLD
+	  END
+      COPY_EXISTING ~spell.ids~ ~override~
+        REPLACE_TEXTUALLY ~%WNL%~ ~%LNL%~
+        REPLACE_TEXTUALLY ~%MNL%~ ~%LNL%~
+        REPLACE_TEXTUALLY ~%LNL%[ %TAB%]*[^ %TAB%]+[ %TAB%]+%identifier%[ %TAB%]*$~ ~~
+        REPLACE_TEXTUALLY ~%LNL%~ ~%WNL%~
+      APPEND ~spell.ids~ ~%code2% %identifier%~
+	  LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR scode = code2 RET filecode = filecode END
+	  COPY ~%source_file%~ ~override/sp%filecode%.spl~
+		LAUNCH_PATCH_MACRO TB#ADD_SPELL_PL
+      PRINT ~Added %identifier% to spell.ids as %code2%, replacing one or more existing entries~
+    END
+    ELSE BEGIN // not listed in spell.ids
+      APPEND ~spell.ids~ ~%code2% %identifier%~
+	  LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR scode = code2 RET filecode = filecode END
+	  COPY ~%source_file%~ ~override/sp%filecode%.spl~
+		LAUNCH_PATCH_MACRO TB#ADD_SPELL_PL
+      PRINT ~Added %identifier% to spell.ids as %code2%~
+    END
+  END
+  ELSE BEGIN // not listed in add_spell.ids
+    OUTER_SET code = IDS_OF_SYMBOL (~spell~ ~%identifier%~)
+    ACTION_IF (code >= 0) BEGIN // listed in spell.ids
+      PRINT ~%identifier% already contained in spell.ids as %code%; updating add_spell.ids...~
+      
+      // update add_spell.ids
+	  LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR scode = code RET filecode = filecode END
+	  ACTION_IF use_ple THEN BEGIN
+		COPY_EXISTING ~sp%filecode%.spl~ ~override/sp%filecode%.spl~
+		  LAUNCH_PATCH_MACRO TB#ADD_SPELL_PLE
+	  END ELSE BEGIN
+		COPY ~%source_file%~ ~override/sp%filecode%.spl~
+		  LAUNCH_PATCH_MACRO TB#ADD_SPELL_PL
+	  END
+      ACTION_IF (NOT FILE_EXISTS_IN_GAME ~add_spell.ids~) BEGIN
+        COPY + ~.../inlined/null.file~ ~override/add_spell.ids~
+      END
+      COPY_EXISTING + ~add_spell.ids~ ~override~ // APPEND + ~add_spell.ids~ ~%code% %identifier%~
+        TEXT_SPRINT append ~%code% %identifier%%WNL%~
+        INSERT_BYTES SOURCE_SIZE (STRING_LENGTH ~%append%~)
+        WRITE_ASCIIE SOURCE_SIZE ~%append%~
+      CLEAR_IDS_MAP
+    END
+    ELSE BEGIN // not listed in spell.ids
+      OUTER_SET max_spell = 0
+      ACTION_IF (type == 1) BEGIN
+        OUTER_TEXT_SPRINT memo ~PR~
+        OUTER_SET max_spell = 50
+      END
+      ELSE ACTION_IF (type == 2) BEGIN
+        OUTER_TEXT_SPRINT memo ~WI~
+        OUTER_SET max_spell = 50
+      END
+      ELSE ACTION_IF (type == 3) BEGIN
+        OUTER_TEXT_SPRINT memo ~IN~
+        OUTER_SET max_spell = 99
+      END
+      ELSE ACTION_IF (type == 4) BEGIN
+        OUTER_TEXT_SPRINT memo ~CL~
+        OUTER_SET max_spell = 99
+      END
+      OUTER_SET found_slot = 0
+      OUTER_FOR (num = 1; num <= max_spell && !found_slot; num += 1) BEGIN
+        ACTION_IF (num < 10) BEGIN
+          OUTER_TEXT_SPRINT num ~0%num%~
+        END
+        OUTER_TEXT_SPRINT code ~%type%%level%%num%~
+        OUTER_PATCH ~1234~ BEGIN
+          LOOKUP_IDS_SYMBOL_OF_INT cur_id ~spell~ code
+          PATCH_IF (~%cur_id%~ STRING_EQUAL ~%code%~) BEGIN // slot free in spell.ids
+            TEXT_SPRINT cur_id ~%code%~
+            PATCH_IF (FILE_EXISTS_IN_GAME ~add_spell.ids~) BEGIN
+              LOOKUP_IDS_SYMBOL_OF_INT cur_id ~add_spell~ code
+            END
+            PATCH_IF (~%cur_id%~ STRING_EQUAL ~%code%~) BEGIN // slot free in add_spell.ids
+              PATCH_IF (NOT FILE_EXISTS_IN_GAME ~SP%memo%%level%%num%.spl~) BEGIN // no .spl exists with this designation
+                SET found_slot = 1
+              END
+            END
+          END
+        END
+      END
+      ACTION_IF (found_slot) BEGIN
+		LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR scode = code RET filecode = filecode END
+	    COPY ~%source_file%~ ~override/sp%filecode%.spl~
+		  LAUNCH_PATCH_MACRO TB#ADD_SPELL_PL
+        
+        APPEND ~spell.ids~ ~%code% %identifier%~
+		
+        // update add_spell.ids
+        ACTION_IF (NOT FILE_EXISTS_IN_GAME ~add_spell.ids~) BEGIN
+          COPY + ~.../inlined/null.file~ ~override/add_spell.ids~
+        END
+        COPY_EXISTING + ~add_spell.ids~ ~override~ // APPEND + ~add_spell.ids~ ~%code% %identifier%~
+          TEXT_SPRINT append ~%code% %identifier%%WNL%~
+          INSERT_BYTES SOURCE_SIZE (STRING_LENGTH ~%append%~)
+          WRITE_ASCIIE SOURCE_SIZE ~%append%~
+        CLEAR_IDS_MAP
+        
+        PRINT ~Added %identifier% to spell.ids as %code%; updated add_spell.ids~
+      END
+      ELSE BEGIN
+        PRINT ~Couldn't add %identifier% to spell.ids as no slots remain~
+      END
+    END
+  END
+END

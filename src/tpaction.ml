@@ -1097,12 +1097,26 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    
       | TP_Add_Spell(file,kind,level,ids_name,pl,ple,pld) ->
 	  log_and_print "Adding spell %s\n" ids_name;
-	  let file = Var.get_string file in
-	  let ids_name = Var.get_string ids_name in
-	  let kind = eval_pe "" game kind in
-	  let level = eval_pe "" game level in
-	  let kind = Int32.to_int kind in
-	  let level = Int32.to_int level in
+	  process_action tp (TP_Include ["add_spell.tpa"]);
+	  let use_ple = if_true (match ple with
+	    | None -> false
+		| Some x ->
+		  process_action tp (TP_Define_Patch_Macro ("TB#ADD_SPELL_PLE", [], x));
+		  true)
+	  in
+	  let use_pld = if_true (match pld with
+	    | None -> false
+		| Some x ->
+		  process_action tp (TP_Define_Patch_Macro ("TB#ADD_SPELL_PLD", [], x));
+		  true)
+	  in
+	  process_action tp (TP_Define_Patch_Macro ("TB#ADD_SPELL_PL", [], pl));
+	  process_action tp (TP_Launch_Action_Function("TB#ADD_SPELL",
+	    [PE_LiteralString "type", kind; PE_LiteralString "level", level;
+		  PE_LiteralString "use_pld", PE_Int32 use_pld; PE_LiteralString "use_ple", PE_Int32 use_ple],
+	    [PE_LiteralString "identifier", PE_LiteralString ids_name;
+		  PE_LiteralString "source_file", PE_LiteralString file],[]));
+	  (*
 	  let memo = match kind with
 	  | 1 -> "PR"
 	  | 2 -> "WI"
@@ -1224,6 +1238,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 			} ) in
 			process_action tp a2
 	  end;
+	  *)
 	  log_and_print "Added spell %s\n" ids_name;
 	  
 	  
@@ -2120,10 +2135,10 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    | "TP2" -> (enqueue_tp2_filename) str
 	    | _ ->
 		let str = if exact then str else Arch.handle_view_command str !skip_at_view in
-		if List.mem (str,exact) !execute_at_exit then
+		if List.mem (Command (str,exact)) !execute_at_exit then
 		  ()
 		else
-		  execute_at_exit := (str,exact) :: !execute_at_exit
+		  execute_at_exit := (Command (str,exact)) :: !execute_at_exit
 	  end
 	    
       | TP_At_Now(str,exact) ->
