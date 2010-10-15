@@ -285,6 +285,7 @@ let all_the_assoc a =
   set_string "WNL" "\n\r";
   set_string "MNL" "\r";
   set_string "LNL" "\n";
+  set_string "TAB" "\t";
   
   ()
 
