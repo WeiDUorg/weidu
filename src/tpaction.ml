@@ -362,22 +362,25 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  let i_did_pop = ref false in
 	  begin try
 	    Var.var_push();
+		let done_var_ht = Hashtbl.create 5 in
 	    List.iter (fun (a,b) ->
 	      let a = eval_pe_str a in
-	      Var.set_int32 a (eval_pe "" game b)
-	    ) f_int_args;
-	    List.iter (fun (a,b) ->
-	      let a = eval_pe_str a in
-	      Var.set_string a (eval_pe_str b)
-	    ) f_str_args;
-	    List.iter (fun (a,b) ->
-	      let a = eval_pe_str a in
+		  Hashtbl.add done_var_ht a true;
 	      Var.set_int32 a (eval_pe "" game b)
 		      ) int_var;
 	    List.iter (fun (a,b) ->
 	      let a = eval_pe_str a in
+		  Hashtbl.add done_var_ht a true;
 	      Var.set_string a (eval_pe_str b)
 		      ) str_var;
+	    List.iter (fun (a,b) ->
+	      let a = eval_pe_str a in
+	      if not (Hashtbl.mem done_var_ht a) then Var.set_int32 a (eval_pe "" game b)
+	    ) f_int_args;
+	    List.iter (fun (a,b) ->
+	      let a = eval_pe_str a in
+	      if not (Hashtbl.mem done_var_ht a) then Var.set_string a (eval_pe_str b)
+	    ) f_str_args;
 	    List.iter (process_action tp) f_code;
 	    let final_returns = Hashtbl.create 5 in
 	    List.iter (fun a ->

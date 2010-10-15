@@ -48,6 +48,7 @@ Version 221:
   * GROUP accepts a constraint.
   * IF/UNLESS added to various D actions.
   * BIT0..31, WML/LNL/MNL/TAB variables added.
+  * LAUNCH_*_FUNCTION INT_VAR a = a now works.
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'
