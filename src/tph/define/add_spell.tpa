@@ -10,7 +10,7 @@ BEGIN
   ACTION_IF (tb#type == 1) BEGIN
     OUTER_TEXT_SPRINT tb#memo ~pr~
   END
-  ELSE ACTION_IF (type == 2) BEGIN
+  ELSE ACTION_IF (tb#type == 2) BEGIN
     OUTER_TEXT_SPRINT memo ~wi~
   END
   ELSE ACTION_IF (tb#type == 3) BEGIN
@@ -78,7 +78,7 @@ BEGIN
           LOOKUP_IDS_SYMBOL_OF_INT tb#cur_id ~add_spell~ tb#code
         END
         PATCH_IF (~%tb#cur_id%~ STRING_EQUAL ~%tb#code%~) BEGIN // slot free in add_spell.ids
-          PATCH_IF (NOT FILE_EXISTS_IN_GAME ~tb#sp%tb#memo%%tb#level%%tb#num%.spl~) BEGIN // no .spl exists with this designation
+          PATCH_IF (NOT FILE_EXISTS_IN_GAME ~sp%tb#memo%%tb#level%%tb#num%.spl~) BEGIN // no .spl exists with this designation
             SET tb#found_slot = 1
           END
         END
