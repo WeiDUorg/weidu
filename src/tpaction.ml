@@ -1117,10 +1117,10 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  in
 	  process_action tp (TP_Define_Patch_Macro ("TB#ADD_SPELL_PL", [], pl));
 	  process_action tp (TP_Launch_Action_Function("TB#ADD_SPELL",
-	    [PE_LiteralString "type", kind; PE_LiteralString "level", level;
-		  PE_LiteralString "use_pld", PE_Int32 use_pld; PE_LiteralString "use_ple", PE_Int32 use_ple],
-	    [PE_LiteralString "identifier", PE_LiteralString ids_name;
-		  PE_LiteralString "source_file", PE_LiteralString file],[PE_LiteralString "idsName", PE_LiteralString "newcode"]));
+	    [PE_LiteralString "tb#type", kind; PE_LiteralString "tb#level", level;
+		  PE_LiteralString "tb#use_pld", PE_Int32 use_pld; PE_LiteralString "tb#use_ple", PE_Int32 use_ple],
+	    [PE_LiteralString "tb#identifier", PE_LiteralString ids_name;
+		  PE_LiteralString "tb#source_file", PE_LiteralString file],[PE_LiteralString "idsName", PE_LiteralString "tb#newcode"]));
 	  (*
 	  let memo = match kind with
 	  | 1 -> "PR"

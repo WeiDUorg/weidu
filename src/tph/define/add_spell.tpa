@@ -2,189 +2,189 @@
 >>>>>>>>
 
 DEFINE_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~
-  INT_VAR scode = 0
-  RET filecode
+  INT_VAR tb#scode = 0
+  RET tb#filecode
 BEGIN
-  OUTER_SET type = scode / 1000
-  OUTER_SET rest = scode - type * 1000
-  ACTION_IF (type == 1) BEGIN
-    OUTER_TEXT_SPRINT memo ~pr~
+  OUTER_SET tb#type = tb#scode / 1000
+  OUTER_SET tb#rest = tb#scode - tb#type * 1000
+  ACTION_IF (tb#type == 1) BEGIN
+    OUTER_TEXT_SPRINT tb#memo ~pr~
   END
   ELSE ACTION_IF (type == 2) BEGIN
     OUTER_TEXT_SPRINT memo ~wi~
   END
-  ELSE ACTION_IF (type == 3) BEGIN
-    OUTER_TEXT_SPRINT memo ~in~
+  ELSE ACTION_IF (tb#type == 3) BEGIN
+    OUTER_TEXT_SPRINT tb#memo ~in~
   END
-  ELSE ACTION_IF (type == 4) BEGIN
-    OUTER_TEXT_SPRINT memo ~cl~
+  ELSE ACTION_IF (tb#type == 4) BEGIN
+    OUTER_TEXT_SPRINT tb#memo ~cl~
   END ELSE BEGIN
-    FAIL ~TB#ADD_SPELL_GET_CODE internal failure: invalid code (%scode%)~
+    FAIL ~TB#ADD_SPELL_GET_CODE internal failure: invalid code (%tb#scode%)~
   END
   
-  ACTION_IF rest < 10 BEGIN
-    OUTER_SPRINT filecode ~%memo%00%rest%~
-  END ELSE ACTION_IF rest < 100 BEGIN
-    OUTER_SPRINT filecode ~%memo%0%rest%~
+  ACTION_IF tb#rest < 10 BEGIN
+    OUTER_SPRINT tb#filecode ~%tb#memo%00%tb#rest%~
+  END ELSE ACTION_IF tb#rest < 100 BEGIN
+    OUTER_SPRINT tb#filecode ~%tb#memo%0%tb#rest%~
   END ELSE BEGIN
-    OUTER_SPRINT filecode ~%memo%%rest%~
+    OUTER_SPRINT tb#filecode ~%tb#memo%%tb#rest%~
   END
 END
 
 DEFINE_ACTION_FUNCTION ~TB#ADD_SPELL_CHECK_MATCH~
-  INT_VAR scode = 0
-  RET doesmatch
+  INT_VAR tb#scode = 0
+  RET tb#doesmatch
 BEGIN
-  ACTION_IF scode < 1000 || scode >= 5000 BEGIN
-    OUTER_SET doesmatch = 0
+  ACTION_IF tb#scode < 1000 || tb#scode >= 5000 BEGIN
+    OUTER_SET tb#doesmatch = 0
   END ELSE BEGIN
-    OUTER_SET newtype  = scode / 1000
-    OUTER_SET newlevel = scode / 100 - newtype * 10
-    OUTER_SET doesmatch = newtype = type && newlevel = level
+    OUTER_SET tb#newtype  = tb#scode / 1000
+    OUTER_SET tb#newlevel = tb#scode / 100 - tb#newtype * 10
+    OUTER_SET tb#doesmatch = tb#newtype = tb#type && tb#newlevel = tb#level
   END
 END
 
 DEFINE_ACTION_FUNCTION ~TB#ADD_SPELL_FIND_SLOT~
-  RET code
+  RET tb#code
 BEGIN
   OUTER_PATCH ~~ BEGIN
-    SET max_spell = 0
-    PATCH_IF (type == 1) BEGIN
-      TEXT_SPRINT memo ~pr~
-      SET max_spell = 50
+    SET tb#max_spell = 0
+    PATCH_IF (tb#type == 1) BEGIN
+      TEXT_SPRINT tb#memo ~pr~
+      SET tb#max_spell = 50
     END
-    ELSE PATCH_IF (type == 2) BEGIN
-      TEXT_SPRINT memo ~wi~
-      SET max_spell = 50
+    ELSE PATCH_IF (tb#type == 2) BEGIN
+      TEXT_SPRINT tb#memo ~wi~
+      SET tb#max_spell = 50
     END
-    ELSE PATCH_IF (type == 3) BEGIN
-      TEXT_SPRINT memo ~in~
-      SET max_spell = 99
+    ELSE PATCH_IF (tb#type == 3) BEGIN
+      TEXT_SPRINT tb#memo ~in~
+      SET tb#max_spell = 99
     END
-    ELSE PATCH_IF (type == 4) BEGIN
-      TEXT_SPRINT memo ~cl~
-      SET max_spell = 99
+    ELSE PATCH_IF (tb#type == 4) BEGIN
+      TEXT_SPRINT tb#memo ~cl~
+      SET tb#max_spell = 99
     END
-    SET found_slot = 0
-    FOR (num = 1; num <= max_spell && !found_slot; num += 1) BEGIN
-      PATCH_IF (num < 10) BEGIN
-        TEXT_SPRINT num ~0%num%~
+    SET tb#found_slot = 0
+    FOR (tb#num = 1; tb#num <= tb#max_spell && !tb#found_slot; tb#num += 1) BEGIN
+      PATCH_IF (tb#num < 10) BEGIN
+        TEXT_SPRINT tb#num ~0%tb#num%~
       END
-      TEXT_SPRINT code ~%type%%level%%num%~
-      LOOKUP_IDS_SYMBOL_OF_INT cur_id ~spell~ code
-      PATCH_IF (~%cur_id%~ STRING_EQUAL ~%code%~) BEGIN // slot free in spell.ids
-        TEXT_SPRINT cur_id ~%code%~
+      TEXT_SPRINT tb#code ~%tb#type%%tb#level%%tb#num%~
+      LOOKUP_IDS_SYMBOL_OF_INT tb#cur_id ~spell~ tb#code
+      PATCH_IF (~%tb#cur_id%~ STRING_EQUAL ~%tb#code%~) BEGIN // slot free in spell.ids
+        TEXT_SPRINT tb#cur_id ~%tb#code%~
         PATCH_IF (FILE_EXISTS_IN_GAME ~add_spell.ids~) BEGIN
-          LOOKUP_IDS_SYMBOL_OF_INT cur_id ~add_spell~ code
+          LOOKUP_IDS_SYMBOL_OF_INT tb#cur_id ~add_spell~ tb#code
         END
-        PATCH_IF (~%cur_id%~ STRING_EQUAL ~%code%~) BEGIN // slot free in add_spell.ids
-          PATCH_IF (NOT FILE_EXISTS_IN_GAME ~sp%memo%%level%%num%.spl~) BEGIN // no .spl exists with this designation
-            SET found_slot = 1
+        PATCH_IF (~%tb#cur_id%~ STRING_EQUAL ~%tb#code%~) BEGIN // slot free in add_spell.ids
+          PATCH_IF (NOT FILE_EXISTS_IN_GAME ~tb#sp%tb#memo%%tb#level%%tb#num%.spl~) BEGIN // no .spl exists with this designation
+            SET tb#found_slot = 1
           END
         END
       END
     END
-    PATCH_IF (!found_slot) BEGIN
-      SET code = (0 - 1)
+    PATCH_IF (!tb#found_slot) BEGIN
+      SET tb#code = (0 - 1)
     END
   END
 END
 
 DEFINE_ACTION_FUNCTION ~TB#ADD_SPELL~ 
-  INT_VAR type = 1
-          level = 1
-          use_ple = 0
-          use_pld = 0
-  STR_VAR identifier = ~~
-    source_file = ~~
-  RET newcode
+  INT_VAR tb#type = 1
+          tb#level = 1
+          tb#use_ple = 0
+          tb#use_pld = 0
+  STR_VAR tb#identifier = ~~
+    tb#source_file = ~~
+  RET tb#newcode
 BEGIN
   // check if spell has entry in spell.ids
-  OUTER_SET code = IDS_OF_SYMBOL (~spell~ ~%identifier%~)
+  OUTER_SET tb#code = IDS_OF_SYMBOL (~spell~ ~%tb#identifier%~)
   
   // check if spell has entry in add_spell.ids
-  OUTER_SET code2 = (0 - 1)
+  OUTER_SET tb#code2 = (0 - 1)
   ACTION_IF (FILE_EXISTS_IN_GAME ~add_spell.ids~) BEGIN
-    OUTER_SET code2 = IDS_OF_SYMBOL (~add_spell~ ~%identifier%~)
+    OUTER_SET tb#code2 = IDS_OF_SYMBOL (~add_spell~ ~%tb#identifier%~)
   END
   
-  LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_CHECK_MATCH~ INT_VAR scode = code RET doesmatch = doesmatch END
-  ACTION_IF (doesmatch) BEGIN // entry in spell.ids matches level and type
-    OUTER_SET newcode = code
-    LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_CHECK_MATCH~ INT_VAR scode = code2 RET doesmatch2 = doesmatch END
-    ACTION_IF (doesmatch2) BEGIN
+  LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_CHECK_MATCH~ INT_VAR tb#scode = tb#code RET tb#doesmatch = tb#doesmatch END
+  ACTION_IF (tb#doesmatch) BEGIN // entry in spell.ids matches level and type
+    OUTER_SET tb#newcode = tb#code
+    LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_CHECK_MATCH~ INT_VAR tb#scode = tb#code2 RET tb#doesmatch2 = tb#doesmatch END
+    ACTION_IF (tb#doesmatch2) BEGIN
       // use entry from add_spell.ids
-      OUTER_SET newcode = code2
-      ACTION_IF (code != code2) BEGIN
+      OUTER_SET tb#newcode = tb#code2
+      ACTION_IF (tb#code != tb#code2) BEGIN
         // remove old entry
         COPY_EXISTING ~spell.ids~ ~override~
           REPLACE_TEXTUALLY ~%WNL%~ ~%LNL%~
           REPLACE_TEXTUALLY ~%MNL%~ ~%LNL%~
-          REPLACE_TEXTUALLY ~%LNL%[ %TAB%]*[^ %TAB%]+[ %TAB%]+%identifier%[ %TAB%]*$~ ~~
+          REPLACE_TEXTUALLY ~%LNL%[ %TAB%]*[^ %TAB%]+[ %TAB%]+%tb#identifier%[ %TAB%]*$~ ~~
           REPLACE_TEXTUALLY ~%LNL%~ ~%WNL%~
-        LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR scode = code RET filecode = filecode END
-        ACTION_IF (use_pld && FILE_EXISTS_IN_GAME ~sp%filecode%.spl~) BEGIN
-          COPY_EXISTING ~sp%filecode%.spl~ ~override~
+        LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR tb#scode = tb#code RET tb#filecode = tb#filecode END
+        ACTION_IF (tb#use_pld && FILE_EXISTS_IN_GAME ~sp%tb#filecode%.spl~) BEGIN
+          COPY_EXISTING ~sp%tb#filecode%.spl~ ~override~
             LAUNCH_PATCH_MACRO TB#ADD_SPELL_PLD
         END
       END
     END
   END
   ELSE BEGIN // no matching entry in spell.ids
-    ACTION_IF (code >= 0) BEGIN // existing entry in spell.ids has wrong level/type
+    ACTION_IF (tb#code >= 0) BEGIN // existing entry in spell.ids has wrong level/type
       // remove old entry
       COPY_EXISTING ~spell.ids~ ~override~
         REPLACE_TEXTUALLY ~%WNL%~ ~%LNL%~
         REPLACE_TEXTUALLY ~%MNL%~ ~%LNL%~
-        REPLACE_TEXTUALLY ~%LNL%[ %TAB%]*[^ %TAB%]+[ %TAB%]+%identifier%[ %TAB%]*$~ ~~
+        REPLACE_TEXTUALLY ~%LNL%[ %TAB%]*[^ %TAB%]+[ %TAB%]+%tb#identifier%[ %TAB%]*$~ ~~
         REPLACE_TEXTUALLY ~%LNL%~ ~%WNL%~
-      LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR scode = code RET filecode = filecode END
-      ACTION_IF (use_pld && FILE_EXISTS_IN_GAME ~sp%filecode%.spl~) BEGIN
-        COPY_EXISTING ~sp%filecode%.spl~ ~override~
+      LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR tb#scode = tb#code RET tb#filecode = tb#filecode END
+      ACTION_IF (tb#use_pld && FILE_EXISTS_IN_GAME ~sp%tb#filecode%.spl~) BEGIN
+        COPY_EXISTING ~sp%tb#filecode%.spl~ ~override~
           LAUNCH_PATCH_MACRO TB#ADD_SPELL_PLD
       END
     END
     // determine what slot the new entry will use
-    LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_CHECK_MATCH~ INT_VAR scode = code2 RET doesmatch2 = doesmatch END
-    ACTION_IF (doesmatch2) BEGIN
+    LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_CHECK_MATCH~ INT_VAR tb#scode = tb#code2 RET tb#doesmatch2 = tb#doesmatch END
+    ACTION_IF (tb#doesmatch2) BEGIN
       // use entry from add_spell.ids
-      OUTER_SET newcode = code2
+      OUTER_SET tb#newcode = tb#code2
     END
     ELSE BEGIN
       // find a free slot for the spell
-      LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_FIND_SLOT~ RET newcode = code END
+      LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_FIND_SLOT~ RET tb#newcode = tb#code END
     END
   END
   
-  ACTION_IF (newcode < 0) BEGIN
-    PRINT ~Couldn't add %identifier% to spell.ids as no slots remain~
+  ACTION_IF (tb#newcode < 0) BEGIN
+    PRINT ~Couldn't add %tb#identifier% to spell.ids as no slots remain~
   END
   ELSE BEGIN
     // copy .spl
-    LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR scode = newcode RET filecode = filecode END
-    ACTION_IF (use_ple && FILE_EXISTS_IN_GAME ~sp%filecode%.spl~) BEGIN
-      COPY_EXISTING ~sp%filecode%.spl~ ~override~
+    LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_GET_CODE~ INT_VAR tb#scode = tb#newcode RET tb#filecode = tb#filecode END
+    ACTION_IF (tb#use_ple && FILE_EXISTS_IN_GAME ~sp%tb#filecode%.spl~) BEGIN
+      COPY_EXISTING ~sp%tb#filecode%.spl~ ~override~
         LAUNCH_PATCH_MACRO TB#ADD_SPELL_PLE
     END
     ELSE BEGIN
-      COPY ~%source_file%~ ~override/sp%filecode%.spl~
+      COPY ~%tb#source_file%~ ~override/sp%tb#filecode%.spl~
         LAUNCH_PATCH_MACRO TB#ADD_SPELL_PL
     END
     
     // update spell.ids
-    ACTION_IF (code != newcode) BEGIN
-      APPEND ~spell.ids~ ~%newcode% %identifier%~
+    ACTION_IF (tb#code != tb#newcode) BEGIN
+      APPEND ~spell.ids~ ~%tb#newcode% %tb#identifier%~
     END
     
     // update add_spell.ids
-    ACTION_IF (code2 != newcode) BEGIN
+    ACTION_IF (tb#code2 != tb#newcode) BEGIN
       ACTION_IF (NOT FILE_EXISTS_IN_GAME ~add_spell.ids~) BEGIN
         COPY + ~.../inlined/null.file~ ~override/add_spell.ids~
       END
-      COPY_EXISTING + ~add_spell.ids~ ~override~ // APPEND + ~add_spell.ids~ ~%newcode% %identifier%~
-        TEXT_SPRINT append ~%newcode% %identifier%%WNL%~
-        INSERT_BYTES SOURCE_SIZE (STRING_LENGTH ~%append%~)
-        WRITE_ASCIIE SOURCE_SIZE ~%append%~
+      COPY_EXISTING + ~add_spell.ids~ ~override~ // APPEND + ~add_spell.ids~ ~%tb#newcode% %tb#identifier%~
+        TEXT_SPRINT tb#append ~%tb#newcode% %tb#identifier%%WNL%~
+        INSERT_BYTES SOURCE_SIZE (STRING_LENGTH ~%tb#append%~)
+        WRITE_ASCIIE SOURCE_SIZE ~%tb#append%~
       CLEAR_IDS_MAP
     END
   END
