@@ -8,8 +8,7 @@ open Tppe
  * Uninstall STRSET 
  ************************************************************************)
 
-let used_spell_ids = Hashtbl.create 5
- 
+
  let uninstall_strset game filename = 
    if (file_exists filename) then begin
      (try
@@ -194,6 +193,25 @@ let validate_uninstall_order tp2 =
 		log_and_print "\nWARNING: some UNINSTALL_ORDER commands are not specified\n\n";
 	  order
 ;;
+
+let check_hooks game tp2 i interactive override_filename =
+  if String.uppercase override_filename = "CHITIN.KEY" then begin
+      let keyname = Load.find_file_in_path "." "^chitin.key$" in
+      let keybuff = load_file keyname in
+      game.Load.key <- Key.load_key keyname keybuff ;
+      game.Load.loaded_biffs <- Hashtbl.create 5 ;
+  end else if (String.uppercase override_filename) = "OVERRIDE/SPELL.IDS" ||
+    (String.uppercase override_filename) = "OVERRIDE\\SPELL.IDS" then begin try
+      let tp2_basename = String.lowercase (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp2.tp_filename) in
+      let marker = Printf.sprintf "override/spell.ids.%s.%d.marker" tp2_basename i in
+      let out_chn = Case_ins.perv_open_out_bin marker in
+      output_string out_chn "spell.ids edits installed\n";
+      close_out out_chn;
+      if interactive then begin
+        my_unlink marker;
+      end
+    with e -> () end;
+;;
   
 let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
   let order = validate_uninstall_order tp2 in
@@ -227,40 +245,19 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 		uninstall_strset game u_strset_filename ;
 	  in
 	  let uninstall_copy () =
-			  let file_list = ref [] in
-			  let mappings_list = Hashtbl.create 300 in
-			  let restore backup_filename override_filename =
-			log_or_print "  Restoring backed-up [%s]\n" backup_filename ;
-			copy_large_file backup_filename override_filename "restoring a backup" ;
-			if String.uppercase override_filename = "CHITIN.KEY" then begin
-				  let keyname = Load.find_file_in_path "." "^chitin.key$" in
-				  let keybuff = load_file keyname in
-				  game.Load.key <- Key.load_key keyname keybuff ;
-				  game.Load.loaded_biffs <- Hashtbl.create 5 ;
-			end else if (String.uppercase override_filename) = "OVERRIDE/SPELL.IDS" ||
-			  (String.uppercase override_filename) = "OVERRIDE\\SPELL.IDS" then begin
-				Hashtbl.add used_spell_ids (tp_file,i) true;
-			    if not interactive then begin
-					let out_chn = Case_ins.perv_open_out_bin (Printf.sprintf "override/spell.ids.%s.%d.marker" (Case_ins.filename_basename tp_file) i) in
-					output_string out_chn "spell.ids edits installed\n";
-					close_out out_chn;
-				end else if file_exists (Printf.sprintf "override/spell.ids.%s.%d.marker" (Case_ins.filename_basename tp_file) i) then 
-					my_unlink (Printf.sprintf "override/spell.ids.%s.%d.marker" (Case_ins.filename_basename tp_file) i);
-				if not (file_exists "override/spell.ids.installed") && not (
-					let files = Sys.readdir "override" in
-					let r = Str.regexp_case_fold "spell\\.ids\\..*\\.marker" in
-					List.exists (fun f -> Str.string_match r f 0) (Array.to_list files)
-				)then
-					my_unlink "override/add_spell.ids"
-			end;
-			my_unlink backup_filename
-			  in
-			  let inchan = Case_ins.perv_open_in_bin u_filename in
-			  try
-			while true do
-			  file_list := (input_line inchan) :: !file_list ;
-			done
-			  with End_of_file -> () ;
+      let file_list = ref [] in
+      let mappings_list = Hashtbl.create 300 in
+      let restore backup_filename override_filename =
+        log_or_print "  Restoring backed-up [%s]\n" backup_filename ;
+        copy_large_file backup_filename override_filename "restoring a backup" ;
+        my_unlink backup_filename
+      in
+      let inchan = Case_ins.perv_open_in_bin u_filename in
+      try
+        while true do
+          file_list := (input_line inchan) :: !file_list ;
+        done
+      with End_of_file -> () ;
 			close_in inchan;
 			let has_mappings = ref true in
 			(
@@ -282,6 +279,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 			log_and_print "Will uninstall %3d files for [%s] component %d.\n"
 			  (List.length !file_list) tp_file i;
 			List.iter (fun override_filename ->
+        check_hooks game tp2 i interactive override_filename;
 			  my_unlink override_filename;
 			  try
 				if !has_mappings then
@@ -337,16 +335,9 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 
 
 let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
-  if Hashtbl.mem used_spell_ids (tp2,i) then begin
-	if file_exists (Printf.sprintf "override/spell.ids.%s.%d.marker" (Case_ins.filename_basename tp2) i) then 
-		my_unlink (Printf.sprintf "override/spell.ids.%s.%d.marker" (Case_ins.filename_basename tp2) i);
-	if not (file_exists "override/spell.ids.installed") && (
-		let files = Sys.readdir "override" in
-		let r = Str.regexp_case_fold "spell\\.ids\\..*\\.marker" in
-		List.exists (fun f -> Str.string_match r f 0) (Array.to_list files)
-	)then
-		execute_at_exit := Fn(lazy(my_unlink "override/add_spell.ids")) :: !execute_at_exit
-  end;
+  let tp2_basename = String.lowercase (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp2) in
+  let marker = Printf.sprintf "override/spell.ids.%s.%d.marker" tp2_basename i in
+  my_unlink marker;
   let rec is_installed lst = match lst with
   | [] -> []
   | (a,b,c,sopt,d) :: tl when log_match a tp2
@@ -411,60 +402,57 @@ let uninstall game handle_tp2_filename tp2 i interactive =
   end else begin
     let rec prepare lst = match lst with
     | [] -> [] (* end of the line *)
-
-	  (* this is the entry in the list *)
-    | (a,b,c,sopt,d) :: tl when log_match a tp2 && c = i ->
-	begin match d with
-	| Permanently_Uninstalled -> (* some sort of error *) 
-            log_and_print "Internal Error: mod component [%s] %d already uninstalled\n" tp2 i;(try assert false with Assert_failure(file,line,col) -> set_errors file line) ; (a,b,c,sopt,Permanently_Uninstalled) :: tl
-	| Temporarily_Uninstalled -> (* we just won't restore it! *)
+	  | (a,b,c,sopt,d) :: tl when log_match a tp2 && c = i ->
+      begin match d with
+      | Permanently_Uninstalled -> (* some sort of error *) 
+                log_and_print "Internal Error: mod component [%s] %d already uninstalled\n" tp2 i;(try assert false with Assert_failure(file,line,col) -> set_errors file line) ; (a,b,c,sopt,Permanently_Uninstalled) :: tl
+      | Temporarily_Uninstalled -> (* we just won't restore it! *)
+                (a,b,c,sopt,Permanently_Uninstalled) :: tl
+      | Installed -> 
+        begin 
+          try
+            let best = find_best_file [a ; tp2] in
+            let lang_name = 
+              (try
+                let l = List.nth (handle_tp2_filename best).languages b in
+                l.lang_dir_name ;
+              with _ -> "" ) in 
+            uninstall_tp2_component game (handle_tp2_filename best) a c interactive lang_name;
             (a,b,c,sopt,Permanently_Uninstalled) :: tl
-	| Installed -> 
-            begin 
-              try
-		let best = find_best_file [a ; tp2] in
-          let lang_name = 
-            (try
-              let l = List.nth (handle_tp2_filename best).languages b in
-              l.lang_dir_name ;
-            with _ -> "" ) in 
-		uninstall_tp2_component game (handle_tp2_filename best) a c interactive lang_name;
-		(a,b,c,sopt,Permanently_Uninstalled) :: tl
-              with _ ->
-		log_and_print "ERROR: This Mod is too old (or too new) to uninstall that component for you.\nUpgrade to the newest versions of this mod and that one and try again.\n" ;(try assert false with Assert_failure(file,line,col) -> set_errors file line);
-		worked := false ;
-		lst
-            end 
-	end
+          with _ ->
+            log_and_print "ERROR: This Mod is too old (or too new) to uninstall that component for you.\nUpgrade to the newest versions of this mod and that one and try again.\n" ;(try assert false with Assert_failure(file,line,col) -> set_errors file line);
+            worked := false ;
+            lst
+        end 
+      end
 
     | (a,b,c,sopt,d) :: tl -> 
-	begin match d with
-	| Permanently_Uninstalled    
-	| Temporarily_Uninstalled -> (* keep going *)
-            (a,b,c,sopt,d) :: (prepare tl)
-	| Installed ->
-		if (!safe_exit) then
-			failwith "Cannot perform stack uninstalls in --safe-exit mode";
-		log_or_print "We must temporarily uninstall [%s] component %d\n"
-		  a c ; 
-		begin
-		  try
-		let best = find_best_file [ a] in
-          let lang_name = 
-            (try
-              let l = List.nth (handle_tp2_filename best).languages b in
-              l.lang_dir_name ;
-            with _ -> "" ) in 
-		uninstall_tp2_component game (handle_tp2_filename best) a c false  lang_name;
-		(* take away for now *)
-		(a,b,c,sopt,Temporarily_Uninstalled) :: (prepare tl)
-              with e ->
-		log_and_print "ERROR: This Mod is too old (or too new) to uninstall that component for you.\nUpgrade to the newest versions of this mod and that one and try again.\n[%s]\n"
-		  (Printexc.to_string e);(try assert false with Assert_failure(file,line,col) -> set_errors file line);
-		worked := false ; 
-		lst 
-            end
-	end
+      begin match d with
+      | Permanently_Uninstalled    
+      | Temporarily_Uninstalled -> (* keep going *)
+                (a,b,c,sopt,d) :: (prepare tl)
+      | Installed ->
+        if (!safe_exit) then
+          failwith "Cannot perform stack uninstalls in --safe-exit mode";
+        log_or_print "We must temporarily uninstall [%s] component %d\n"
+          a c ; 
+        begin
+          try
+            let best = find_best_file [ a] in
+            let lang_name = 
+              (try
+                let l = List.nth (handle_tp2_filename best).languages b in
+                l.lang_dir_name ;
+              with _ -> "" ) in 
+            uninstall_tp2_component game (handle_tp2_filename best) a c false  lang_name;
+            (a,b,c,sopt,Temporarily_Uninstalled) :: (prepare tl)
+          with e ->
+            log_and_print "ERROR: This Mod is too old (or too new) to uninstall that component for you.\nUpgrade to the newest versions of this mod and that one and try again.\n[%s]\n"
+              (Printexc.to_string e);(try assert false with Assert_failure(file,line,col) -> set_errors file line);
+            worked := false ; 
+            lst 
+        end
+      end
     in
     let new_log = List.rev (prepare (List.rev !the_log)) in
     the_log := new_log ;
