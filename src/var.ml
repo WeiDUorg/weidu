@@ -282,7 +282,7 @@ let all_the_assoc a =
 	set_int32 (Printf.sprintf "BIT%d" i) (Int32.shift_left 1l i);
   done;
 
-  set_string "WNL" "\n\r";
+  set_string "WNL" "\r\n";
   set_string "MNL" "\r";
   set_string "LNL" "\n";
   set_string "TAB" "\t";

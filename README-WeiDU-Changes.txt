@@ -47,7 +47,7 @@ Version 221:
     variable name if it is not found).
   * GROUP accepts a constraint.
   * IF/UNLESS added to various D actions.
-  * BIT0..31, WML/LNL/MNL/TAB variables added.
+  * BIT0..31, WNL/LNL/MNL/TAB variables added.
   * LAUNCH_*_FUNCTION INT_VAR a = a now works.
 
 Version 220:
