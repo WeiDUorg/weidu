@@ -1120,7 +1120,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    [PE_LiteralString "type", kind; PE_LiteralString "level", level;
 		  PE_LiteralString "use_pld", PE_Int32 use_pld; PE_LiteralString "use_ple", PE_Int32 use_ple],
 	    [PE_LiteralString "identifier", PE_LiteralString ids_name;
-		  PE_LiteralString "source_file", PE_LiteralString file],[]));
+		  PE_LiteralString "source_file", PE_LiteralString file],[PE_LiteralString "idsName", PE_LiteralString "newcode"]));
 	  (*
 	  let memo = match kind with
 	  | 1 -> "PR"
