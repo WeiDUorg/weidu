@@ -6,7 +6,7 @@
 
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
-let version = "22011"
+let version = "22100"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
@@ -222,4 +222,5 @@ let version = "22011"
 (* 217 let comment = "Just because Miloch asked nicely" *)
 (* 218 let comment = "People love monthly releases" *)
 (* 219 let comment = "Anomaly detection (or something like that)" *)
-let comment = "I'll think of something witty later"
+(* 220 let comment = "I'll think of something witty later" *)
+let comment = "Duhhhh..."
