@@ -4,6 +4,15 @@ open Util
 open Load
 open Tphelp
 
+let rec left_to_right p = match p with
+  | Tp.PE_LiteralString s -> Tp.PE_LiteralString s
+  | Tp.PE_GetVar s -> Tp.PE_GetVar (left_to_right s)
+  | Tp.PE_Evaluate s -> Tp.PE_Evaluate(left_to_right p)
+  | Tp.PE_Lowercase s -> Tp.PE_Lowercase(left_to_right s)
+  | Tp.PE_Uppercase s -> Tp.PE_Uppercase(left_to_right s)
+  | Tp.PE_Dollars (s,sl,true,false) -> Tp.PE_Dollars(left_to_right s, List.map left_to_right sl, false, true)
+  | Tp.PE_Dollars (s,sl,a,b) -> Tp.PE_Dollars(left_to_right s, List.map left_to_right sl, a, b)
+
 }
 
 
@@ -367,7 +376,7 @@ nonterm(Tp.tp_action) Tp_Action {
 	-> DEFINE_ACTION_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:DefineFunctionRet
 		BEGIN e5:Tp_Action_List END [ Tp.TP_Define_Action_Function(e1,e2,e3,e4,e5) ]
 	-> LAUNCH_ACTION_MACRO e1:STRING [ Tp.TP_Launch_Action_Macro e1 ]
-	-> LAUNCH_ACTION_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:LaunchFunctionRet END
+	-> LAUNCH_ACTION_FUNCTION e1:STRING e2:LaunchFunctionIntVar e3:LaunchFunctionStrVar e4:LaunchFunctionRet END
 		[ Tp.TP_Launch_Action_Function(e1,e2,e3,e4) ]
 	-> INCLUDE e1:String_List [ Tp.TP_Include e1 ]
 	-> REINCLUDE e1:String_List [ Tp.TP_Reinclude e1 ]
@@ -516,9 +525,29 @@ nonterm((Tp.tp_pe_string * Tp.tp_patchexp) list) PeStr_Pe_List_Rev {
 	-> e1:PeStr_Pe_List_Rev e2:Patch_String_Left EQUALS e3:Patch_Exp [ (e2,e3) :: e1 ]
 }
 
+nonterm((Tp.tp_pe_string * Tp.tp_patchexp) list) LaunchFunctionIntVar {
+	-> { [] }
+	-> INT_VAR e1:PeStr_PeMaybe_List { e1 }
+}
+
+nonterm((Tp.tp_pe_string * Tp.tp_patchexp) list) PeStr_PeMaybe_List {
+	-> e1:PeStr_PeMaybe_List_Rev [ List.rev e1 ]
+}
+
+nonterm((Tp.tp_pe_string * Tp.tp_patchexp) list) PeStr_PeMaybe_List_Rev {
+	-> { [] }
+	-> e1:PeStr_PeMaybe_List_Rev e2:Patch_String_Left EQUALS e3:Patch_Exp [ (e2,e3) :: e1 ]
+  -> e1:PeStr_PeMaybe_List_Rev e2:Patch_String_Left [ (e2, Tp.PE_String(left_to_right e2))::e1 ]
+}
+
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) DefineFunctionStrVar {
 	-> { [] }
 	-> STR_VAR e1:PeStr_PeStr_List { e1 }
+}
+
+nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) LaunchFunctionStrVar {
+	-> { [] }
+	-> STR_VAR e1:PeStr_PeStrMaybe_List { e1 }
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) LaunchFunctionRet {
@@ -533,6 +562,16 @@ nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStr_List {
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStr_List_Rev {
 	-> { [] }
 	-> e1:PeStr_PeStr_List_Rev e2:Patch_String_Left EQUALS e3:Patch_String_Right [ (e2,e3) :: e1 ]
+}
+
+nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStrMaybe_List {
+	-> e1:PeStr_PeStrMaybe_List_Rev [ List.rev e1 ]
+}
+
+nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStrMaybe_List_Rev {
+	-> { [] }
+	-> e1:PeStr_PeStrMaybe_List_Rev e2:Patch_String_Left EQUALS e3:Patch_String_Right [ (e2,e3) :: e1 ]
+  -> e1:PeStr_PeStrMaybe_List_Rev e2:Patch_String_Left [ (e2, Tp.PE_GetVar(left_to_right e2))::e1 ]
 }
 
 nonterm(string list) String_List_Rev {
@@ -833,7 +872,7 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> SAY_EVALUATED e1:Patch_Exp e2:STRING [ Tp.TP_PatchStrRefEvaluated(e1,e2) ]
 	-> DESCRIBE_ITEM e1:STRING [ Tp.TP_DescribeItem e1 ]
 	-> LAUNCH_PATCH_MACRO e1:STRING [ Tp.TP_Launch_Patch_Macro e1 ]
--> LAUNCH_PATCH_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:LaunchFunctionRet END
+  -> LAUNCH_PATCH_FUNCTION e1:STRING e2:LaunchFunctionIntVar e3:LaunchFunctionStrVar e4:LaunchFunctionRet END
 		[ Tp.TP_Launch_Patch_Function(e1,e2,e3,e4) ]
 		-> REPLACE e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:Lse
 			[ Tp.TP_PatchString(e1,e2,e3,e4) ]

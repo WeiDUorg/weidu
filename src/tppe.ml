@@ -32,6 +32,7 @@ let if_true p = if p then 1l else 0l
 
 let rec eval_pe_str s = match s with
 | PE_LiteralString(s) -> s
+| PE_GetVar(p) -> (try Var.get_string_exact ("%" ^ eval_pe_str p ^ "%") with _ -> eval_pe_str p)
 | PE_Evaluate(p) -> Var.get_string (eval_pe_str p)
 | PE_Uppercase(s) -> String.uppercase (eval_pe_str s)
 | PE_Lowercase(s) -> String.lowercase (eval_pe_str s)

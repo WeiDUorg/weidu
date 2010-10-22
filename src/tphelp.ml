@@ -83,6 +83,7 @@ let rec pe_to_str pe = "(" ^ (match pe with
 
 and pe_str_str s = match s with
 | PE_LiteralString(s) -> s
+| PE_GetVar(s) -> Printf.sprintf "GET_VAR %s" (pe_str_str s)
 | PE_Evaluate(s) -> Printf.sprintf "EVALUATE_BUFFER %s" (pe_str_str s)
 | PE_Lowercase(s) -> Printf.sprintf "LOWERCASE %s" (pe_str_str s)
 | PE_Uppercase(s) -> Printf.sprintf "UPPERCASE %s" (pe_str_str s)

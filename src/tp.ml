@@ -393,6 +393,7 @@ and tp_constraint =
 
 and tp_pe_string =
   | PE_LiteralString of string
+  | PE_GetVar of tp_pe_string
   | PE_Evaluate of tp_pe_string
   | PE_Lowercase of tp_pe_string
   | PE_Uppercase of tp_pe_string

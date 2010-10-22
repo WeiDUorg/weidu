@@ -7209,6 +7209,9 @@ DEFINE_ACTION_FUNCTION xyz INT_VAR x = 1 y = 2 z = 3 BEGIN
 END
 
 LAUNCH_ACTION_FUNCTION xyz INT_VAR x = 0 END
+
+OUTER_SET y = 5
+LAUNCH_ACTION_FUNCTION xyz INT_VAR y END // synonim for INT_VAR y = y
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

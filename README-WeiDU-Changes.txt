@@ -49,6 +49,8 @@ Version 221:
   * IF/UNLESS added to various D actions.
   * BIT0..31, WNL/LNL/MNL/TAB variables added.
   * LAUNCH_*_FUNCTION INT_VAR a = a now works.
+  * LAUNCH_*_FUNCTION INT_VAR a STR_VAR b is a synonim for INT_VAR a = a
+    STR_VAR b = "%b%".
 
 Version 220:
   * Fix REFACTOR_*_TRIGGER so that it doesn't loop infinitely if the 'template'
