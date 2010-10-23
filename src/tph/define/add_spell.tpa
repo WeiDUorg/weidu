@@ -11,7 +11,7 @@ BEGIN
     OUTER_TEXT_SPRINT tb#memo ~pr~
   END
   ELSE ACTION_IF (tb#type == 2) BEGIN
-    OUTER_TEXT_SPRINT memo ~wi~
+    OUTER_TEXT_SPRINT tb#memo ~wi~
   END
   ELSE ACTION_IF (tb#type == 3) BEGIN
     OUTER_TEXT_SPRINT tb#memo ~in~
