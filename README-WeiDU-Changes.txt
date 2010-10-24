@@ -1,3 +1,6 @@
+Version 222:
+  * Silence the irrelevant 'unable to unlink override/add_spell.ids' message.
+  
 Version 221:
   * The Readme explains how to achieve a given ordering on GROUPs.
   * REFACTOR_D_TRIGGER doesn't fail on a malformed input file.
