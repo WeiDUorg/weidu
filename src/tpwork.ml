@@ -22,7 +22,30 @@ let rec handle_tp
     this_tp2_filename
     tp
     = 
-	let get_trans i = Dc.single_string_of_tlk_string game (Dlg.Trans_String(Dlg.Int i)) in
+  let asked_about_group = Hashtbl.create 5 in
+
+  let group_enabled g =
+    if Hashtbl.mem asked_about_group g then
+      Hashtbl.find asked_about_group g
+    else true
+  in
+
+  let rec hasgroup x =
+    match x with
+    | TPM_Group(c,_)::b -> true
+    | a::b -> hasgroup b
+    | [] -> false
+  in
+    
+  let module_groups_ok m =
+    if hasgroup m.mod_flags then List.exists (fun f ->
+      match f with
+      | TPM_Group (n,c) -> not (group_enabled n) || is_true (eval_pe "" game c)
+      | _ -> false
+    ) m.mod_flags else true
+  in
+
+  let get_trans i = Dc.single_string_of_tlk_string game (Dlg.Trans_String(Dlg.Int i)) in
 	begin
       let old_allow_missing = !Load.allow_missing in
       Load.allow_missing :=
@@ -157,13 +180,11 @@ let rec handle_tp
           true
       | TPM_RequirePredicate(p,warn) ->
           not (is_true (eval_pe "" game p))
-      | TPM_Group(n,p) ->
-          not (is_true (eval_pe "" game p))
 	  | TPM_Label(s) -> ignore(get_id_of_label tp s); false
 	  | _ ->
           false
 					     ) m.mod_flags
-      ||
+      || not (module_groups_ok m) ||
 	List.exists (fun f -> match f with
 	| TP_Require_File(file,warn) ->
             not (bigg_file_exists file game.Load.key)
@@ -237,13 +258,6 @@ let rec handle_tp
 	end
 	with Not_found -> ()
       done ;
-
-      let rec hasgroup x =
-	match x with
-	| TPM_Group(c,_)::b -> true
-	| a::b -> hasgroup b
-	| [] -> false
-      in
 
       let module_defaults = Array.init (last_module_index+1) (fun i ->
 	try
@@ -699,26 +713,28 @@ let rec handle_tp
       if hasgroups  && not !always_yes && not !always_uninstall &&
 	not !sometimes_reinstall && not (!specified_specific_components)
       then List.iter (fun (this_grp,co) ->
-	  let pass = eval_pe_warn := false; try is_true (eval_pe "" game co) with _ -> true in
-	  eval_pe_warn := true;
-	  if pass then begin
-	let finished = ref false in
-	while not !finished do
-          finished := true ;
-          log_and_print "\n%s%s%s" (Var.get_string(get_trans (-1028)))
+        let pass = eval_pe_warn := false; try is_true (eval_pe "" game co) with _ -> true in
+        eval_pe_warn := true;
+        if pass then begin
+          let finished = ref false in
+          while not !finished do
+            finished := true ;
+            log_and_print "\n%s%s%s" (Var.get_string(get_trans (-1028)))
             (Dc.single_string_of_tlk_string_safe game this_grp) (get_trans (-1029)) ;
-          match String.uppercase(read_line ()) with
-          | "Y" ->
+            match String.uppercase(read_line ()) with
+            | "Y" ->
               for i = 0 to last_module_index do
-		try
-		  let the_comp = get_nth_module tp i false in
-		  if is_my_group the_comp this_grp then module_defaults.(i) <- TP_Ask ;
-		with Not_found -> ()
-              done
-          | "N" -> ()
-          | _ -> finished := false
-	done ; end else log_and_print "\n%s%s%s\n" (get_trans (-1036)) (Dc.single_string_of_tlk_string_safe game this_grp) (get_trans (-1037))
-		     ) !groups ;
+                try
+                  let the_comp = get_nth_module tp i false in
+                  if is_my_group the_comp this_grp then module_defaults.(i) <- TP_Ask ;
+                with Not_found -> ()
+              done;
+              Hashtbl.add asked_about_group this_grp true
+            | "N" -> Hashtbl.add asked_about_group this_grp false
+            | _ -> finished := false
+          done;
+        end else log_and_print "\n%s%s%s\n" (get_trans (-1036)) (Dc.single_string_of_tlk_string_safe game this_grp) (get_trans (-1037))
+		  ) !groups ;
 
       let handle_error_generic always_yes specified_specific_components finished package_name = (fun e ->
 	return_value := return_value_error_tp2_component_install ;
@@ -982,10 +998,6 @@ let rec handle_tp
 		  ()
 		else preproc_fail "SKIPPING" warn can_uninstall true
               end
-	  | TPM_Group(n,p) ->
-	    if is_true (eval_pe "" game p) then () else
-		  preproc_fail "SKIPPING" (Dlg.Local_String{lse_male = ""; lse_male_sound = ""; 
-		    lse_female = ""; lse_female_sound = ""; }) can_uninstall true
 	  | TPM_Label(s) ->
 		let old_errors_this_component = !errors_this_component in
 		ignore(get_id_of_label tp s);
@@ -993,8 +1005,12 @@ let rec handle_tp
 	  | TPM_SubComponents(_,_,_) (* handled above *)
 	  | TPM_Designated(_)
 	  | TPM_InstallByDefault
+    | TPM_Group _
 	  | TPM_NotInLog -> ()
 		    ) m.mod_flags ;
+    if not (module_groups_ok m) then
+ 	    preproc_fail "SKIPPING" (Dlg.Local_String{lse_male = ""; lse_male_sound = ""; 
+      lse_female = ""; lse_female_sound = ""; }) can_uninstall true;
 	  List.iter (fun a -> match a with
           | TP_Require_File(file,warn) ->
               begin
@@ -1153,14 +1169,11 @@ let rec handle_tp
 			true
 		      end
 		    end
-		| TPM_Group(n,p) ->
-		  if is_true (eval_pe "" game p) then false else begin
-		    log_and_print "\n[%s] component %d %s fails component requirements, *not* Re-Installing.\n" a c (str_of_str_opt sopt);
-			false
-		  end
 		| TPM_Label(s) -> ignore(get_id_of_label tp2 s); false
-		| _ -> false) m.mod_flags
-		||
+		| _ -> false) m.mod_flags || (if module_groups_ok m then false else begin
+		    log_and_print "\n[%s] component %d %s fails component requirements, *not* Re-Installing.\n" a c (str_of_str_opt sopt);
+			true end
+		) ||
 		  List.exists (fun f -> match f with
 		  | TP_Require_File(file,warn) ->
 		      begin
