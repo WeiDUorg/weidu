@@ -7524,6 +7524,13 @@ This is an ACTION macro.
 \item SET overwrite to 2 if you want new soundset to overwrite the old one completely. Set it to 1 if you want to overwrite old string references only with non-empty new references (may keep some old). Set it to 0 it you want to overwrite only empty old references with new ones.
 \end{itemize}
 
+\verb+FJ_CRE_VALIDITY+: Checks whether a CRE file is well-formed or not, fixes some common bugs, and reports whether the CRE file is still broken or not.
+This is a PATCH function.
+\begin{itemize}
+\item INT_VAR do_message to 1 if you want explicit an explicit message regarding the cre invalidity. Defaults to 0.
+\item RET valid returns 1 if the CRE is well-formed, 0 otherwise.
+\end{itemize}
+
 \verb+ADD_AREA_REGION_TRIGGER+: adds an area region to the current are file.
 This is a PATCH macro and function. Unlike other macros you do not need to set every variable. You are only required to set those values that you need to write. 
 \begin{itemize}
@@ -8377,10 +8384,12 @@ The Bigg would additionally like to thank the following contributors:
 \item Taimon (also sends diffs and tests!)
 \item Gort (sends tp2 macros!)
 \item vit-mg (sends documentation!)
-\item Mike1072 (sends documentation!)
+\item Mike1072 (sends documentation and tp2 macros/functions!)
 \item plainab {sends tp2 macros!}
-\item wisp (sends documentation!)
-\item Miloch (sends documentation!)
+\item wisp (sends documentation and tp2 macros/functions!)
+\item Miloch (sends documentation and tp2 macros/functions!)
+\item SConrad {sends tp2 functions!}
+\item Nythrun {sends tp2 functions!}
 \end{itemize}
 and additionally
 \begin{itemize}

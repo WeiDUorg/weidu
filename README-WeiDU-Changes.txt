@@ -1,6 +1,7 @@
 Version 222:
   * Silence the irrelevant 'unable to unlink override/add_spell.ids' message.
   * Fixed something or something else with multiple combinations of GROUPS.
+  * Fixed a regression that was corrupting CRE files.
   
 Version 221:
   * The Readme explains how to achieve a given ordering on GROUPs.
