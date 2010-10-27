@@ -2,6 +2,8 @@ Version 222:
   * Silence the irrelevant 'unable to unlink override/add_spell.ids' message.
   * Fixed something or something else with multiple combinations of GROUPS.
   * Fixed a regression that was corrupting CRE files.
+  * Patch expressions in INT_VAR are evaluated on the current buffer, not the
+    empty one.
   
 Version 221:
   * The Readme explains how to achieve a given ordering on GROUPs.

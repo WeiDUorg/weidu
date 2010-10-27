@@ -436,7 +436,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	    List.iter (fun (a,b) ->
 	      let a = eval_pe_str a in
 		  Hashtbl.add done_var_ht a true;
-	      Var.set_int32 a (eval_pe "" game b)
+	      Var.set_int32 a (eval_pe buff game b)
 		      ) int_var;
 	    List.iter (fun (a,b) ->
 	      let a = eval_pe_str a in
@@ -445,7 +445,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 		      ) str_var;
 	    List.iter (fun (a,b) ->
 	      let a = eval_pe_str a in
-	      if not (Hashtbl.mem done_var_ht a) then Var.set_int32 a (eval_pe "" game b)
+	      if not (Hashtbl.mem done_var_ht a) then Var.set_int32 a (eval_pe buff game b)
 	    ) f_int_args;
 	    List.iter (fun (a,b) ->
 	      let a = eval_pe_str a in
