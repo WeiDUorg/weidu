@@ -1136,7 +1136,7 @@
 		LAUNCH_PATCH_MACRO ~ADD_AREA_REGION~
 	END
     
-    DEFINE_PATCH_MACRO ~ADD_AREA_REGION_TRIGGER~ BEGIN
+    DEFINE_PATCH_MACRO ~ADD_AREA_REGION~ BEGIN
        PATCH_IF (%SOURCE_SIZE% > 0xd4) BEGIN
       //read values for existing regions
         READ_LONG 0x5c info_off
@@ -1244,7 +1244,7 @@
             SET ab_Loc_of_field = $ab_LoF("%s1%")
             WRITE_EVALUATED_ASCII (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%") #8
            END
-          END
+          
          END
         END
       //check other offsets and update as needed
