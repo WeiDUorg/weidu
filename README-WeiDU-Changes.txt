@@ -1,3 +1,6 @@
+Version 224:
+  * Fixed a regression in ADD_PROJECTILE and friends.
+
 Version 223:
   * Fixed a bug that was breaking REPLACE_TRIGGER_TEXT_REGEXP in some
     circumstances.

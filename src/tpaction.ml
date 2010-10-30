@@ -987,11 +987,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  let music_base_name = Case_ins.filename_basename m.music_file in
 	  if is_true (eval_pe "" game
 			(PE_FileContainsEvaluated(PE_LiteralString "SONGLIST.2DA",
-						  PE_LiteralString ("\\b" ^ music_base_name ^ "\\b")))) then begin
+						  PE_LiteralString ("[ %tab%%wnl%]" ^ music_base_name ^ "[ %tab%%wnl%]")))) then begin
 							let buff,path = 
 								Load.load_resource "ADD_MUSIC" game true "SONGLIST" "2DA"
 							in
-							let number = find_table_row buff 2 (Str.regexp_case_fold ("\\b" ^ music_base_name ^ "\\b")) in
+							let number = find_table_row buff 2 (Str.regexp_case_fold ("[ %tab%%wnl%]" ^ music_base_name ^ "[ %tab%%wnl%]")) in
 							let number = Int32.sub number 3l in
 						    Var.set_int32 (music_base_name) number ;
 						    log_and_print "\n\nMUS [%s] already present! Skipping!\n\n"
@@ -1032,7 +1032,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 				let buff,path = 
 					Load.load_resource "ADD_2DA" game true a b
 				in
-				let number = find_table_row buff 0 (Str.regexp_case_fold ("\\b" ^ s ^ "\\b")) in
+				let number = find_table_row buff 0 (Str.regexp_case_fold ("[ %tab%%wnl%]" ^ s ^ "[ %tab%%wnl%]")) in
 				let number = Int32.sub number 3l in
 				Var.set_int32 s number ;
 				log_and_print "\n\n%s [%s] already present! Skipping!\n\n" f s
@@ -1055,7 +1055,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       let this_pro_name = Case_ins.filename_chop_extension (Case_ins.filename_basename p.pro_file) in
 	  if is_true (eval_pe "" game
 			(PE_FileContainsEvaluated(PE_LiteralString "PROJECTL.IDS",
-						  PE_LiteralString ("\\b" ^ this_pro_name ^ "\\b")))) then begin
+						  PE_LiteralString ("[ %tab%%wnl%]" ^ this_pro_name ^ "[ %tab%%wnl%]")))) then begin
 						    Var.set_int32 (this_pro_name) (Bcs.int_of_sym game "PROJECTL" this_pro_name) ;
 						    log_and_print "\n\nPRO [%s] already present! Skipping!\n\n"
 						      this_pro_name
@@ -1232,7 +1232,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  
 	  if is_true (eval_pe "" game
 			(PE_FileContainsEvaluated(PE_LiteralString "kitlist.2da",
-						  PE_LiteralString ("^" ^ k.kit_name ^ "\\b")))) then begin
+						  PE_LiteralString ("[ %tab%%wnl%]" ^ k.kit_name ^ "[ %tab%%wnl%]")))) then begin
 						    Var.set_int32 (k.kit_name) (Bcs.int_of_sym game "KITLIST.2DA" k.kit_name) ;
 						    log_and_print "\n\nKit [%s] already present! Skipping!\n\n"
 						      k.kit_name
