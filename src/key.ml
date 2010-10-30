@@ -256,12 +256,22 @@ let list_key key o = begin
 	     ) key.resource
 end
 
-let list_of_key_resources key use_override =
-  let from_key = Array.to_list (Array.map (fun r ->
-    Printf.sprintf "%s.%s" r.res_name (ext_of_key r.res_type)) key.resource) in
+let nodup : ('a list -> 'a list) = function thelist ->
+  let rec doit : ('a list -> 'a list) = function lst -> match lst with
+    | [] -> []
+    | [hd] -> lst
+    | a :: b :: tl -> if (a = b) then doit (b :: tl)
+        else a :: (doit (b :: tl))
+  in
+  doit (List.sort compare thelist)
+;;
+
+let list_of_key_resources : key -> bool -> string list = fun key use_override ->
+  let from_key = List.map String.uppercase (Array.to_list (Array.map (fun r ->
+    Printf.sprintf "%s.%s" r.res_name (ext_of_key r.res_type)) key.resource)) in
   if use_override then begin
-    let from_override = Array.to_list (Sys.readdir "override") in
-    from_key @ from_override
+    let from_override = List.map String.uppercase (Array.to_list (Sys.readdir "override")) in
+    nodup (from_key @ from_override)
   end else from_key
 
 let search_key_resources key use_override search_func =

@@ -666,13 +666,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 		    matches
 					) slist in
 		let new_list = List.flatten new_list in
-		let rec nodup lst = match lst with
-		    | [] -> []
-		    | [hd] -> lst
-		    | a :: b :: tl -> if (a = b) then nodup (b :: tl)
-		    else a :: (nodup (b :: tl))
-		in
-		nodup (List.sort compare new_list)
+		Key.nodup new_list
 	      end else if use_glob then begin
 		let res = ref [] in
 		List.iter (fun (s,p) ->

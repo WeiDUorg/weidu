@@ -1,3 +1,7 @@
+Version 223:
+  * Fixed a bug that was breaking REPLACE_TRIGGER_TEXT_REGEXP in some
+    circumstances.
+
 Version 222:
   * Silence the irrelevant 'unable to unlink override/add_spell.ids' message.
   * Fixed something or something else with multiple combinations of GROUPS.
