@@ -3,17 +3,23 @@ DEFINE_ACTION_FUNCTION sc#addWmpAre //STR_VAR areName = "sc#ar00"   // default a
                                     //        strName = "Stockholm" // default area name
                                     //        strDesc = "#-1"       // default area description
 
-                                    //INT_VAR mapIcon = 26          // default map icon is 26, City Gates
+                                    INT_VAR //mapIcon = 26          // default map icon is 26, City Gates
                                     //        xCoord  = 500         // default x coordinate
                                     //        yCoord  = 500         // default y coordinate
                                     //        inclSv  = 1           // include save games bool; default yes
-
+                                             worldmap = 1
                                     RET     areNum
 
                                     BEGIN
   OUTER_SET areNum = 0
 
-  COPY_EXISTING ~worldmap.wmp~ ~override~
+  ACTION_IF worldmap = 2 BEGIN
+    OUTER_SPRINT wmp worldm25.wmp
+  END ELSE
+    OUTER_SPRINT wmp worldmap.wmp
+  END
+
+  COPY_EXISTING ~%wmp%~ ~override~
 
     // read offsets
     READ_LONG 0x30 "area_num"
