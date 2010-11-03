@@ -170,6 +170,7 @@ let action_to_str a = match a with
 | TP_Action_ReadLN _ -> "ACTION_READLN"
 | TP_GetFileArray(_,_,_,false) -> "GET_FILE_ARRAY"
 | TP_GetFileArray(_,_,_,true) -> "GET_DIRECTORY_ARRAY"
+| TP_DecompressBiff _ -> "DECOMPRESS_BIFF"
 
 
 (************************************************************************

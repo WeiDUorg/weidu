@@ -2034,6 +2034,38 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_At_Uninstall(_)
       | TP_At_Interactive_Uninstall_Exit(_)
       | TP_At_Uninstall_Exit(_) -> ()
+      
+      | TP_DecompressBiff(sl) ->
+        let sl = List.map Var.get_string (List.map eval_pe_str sl) in
+        game.Load.loaded_biffs <- Hashtbl.create 5 ;
+        List.iter (fun s ->
+          let s = String.lowercase s in
+          if not (file_exists s) then failwith (Printf.sprintf "DECOMPRESS_BIFF: file not found %s" s);
+          if Filename.check_suffix s "cbf" then (
+            let bif = Case_ins.filename_chop_extension s ^ ".bif" in
+            close_out (open_for_writing bif true);
+            let sz = Cbif.cbf2bif (Case_ins.fix_name s) (Case_ins.fix_name bif) in
+            process_action tp (TP_Move [s, (match !backup_dir with | None -> "" | Some(x) -> x) ^ "/" ^ Filename.basename s]);
+            log_and_print "[%s] decompressed bif file %d bytes\n" s sz
+          ) else if Filename.check_suffix s "bif" then (
+            let tmp = "tb#decompress_biff_temp_file.bif" in
+            copy_large_file s tmp "DECOMPRESS BIFF";
+            let out = open_for_writing s true in
+            let fd = Case_ins.unix_openfile tmp [Unix.O_RDONLY] 0 in
+            let buff = String.create 12 in
+            my_read 12 fd buff s;
+            let unc_len = int_of_str_off buff 8 in
+            let sofar = ref 0 in
+            while !sofar < unc_len do
+              let chunk = Biff.read_compressed_biff fd s !sofar (if unc_len - !sofar < 8192 then unc_len - !sofar else 8192) in
+              output_string out chunk;
+              sofar := !sofar + String.length chunk
+            done;
+            close_out out;
+            Unix.close fd;
+            my_unlink tmp;
+          ) else failwith (Printf.sprintf "DECOMPRESS_BIFF: %s invalid file" s);
+        ) sl;
       );
       if !clear_memory then begin
 	clear_memory := false;

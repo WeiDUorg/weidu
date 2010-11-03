@@ -485,6 +485,7 @@ nonterm(Tp.tp_action) Tp_Action {
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END [ Tp.TP_If(e1,e2,[]) ]
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END ELSE BEGIN e3:Tp_Action_List END [ Tp.TP_If(e1,e2,e3) ]
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END ELSE e3:Tp_Action [ Tp.TP_If(e1,e2,[e3]) ]
+  -> DECOMPRESS_BIFF e1:Patch_String_Right_List [ Tp.TP_DecompressBiff(e1) ]
 }
 
 nonterm((string * Dlg.tlk_string) list) String_Lse_List_Rev {

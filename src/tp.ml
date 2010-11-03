@@ -191,6 +191,7 @@ and tp_action =
   | TP_Alter_TLK of (tp_patch list)
   | TP_Alter_TLK_Range of tp_patchexp * tp_patchexp * (tp_patch list)
   | TP_Alter_TLK_List  of (tp_patchexp list) * (tp_patch list)
+  | TP_DecompressBiff of tp_pe_string list
 
 (*
   and predicate =
