@@ -1,25 +1,21 @@
 // adding new areas to the worldmap
-DEFINE_ACTION_FUNCTION sc#addWmpAre //STR_VAR areName = "sc#ar00"   // default area reference
-                                    //        strName = "Stockholm" // default area name
-                                    //        strDesc = "#-1"       // default area description
+DEFINE_ACTION_FUNCTION sc#addWmpAre //STR_VAR areName  = "sc#ar00"   // default area reference
+                                    //        strName  = "Stockholm" // default area name
+                                    //        strDesc  = "#-1"       // default area description
 
-                                    INT_VAR //mapIcon = 26          // default map icon is 26, City Gates
-                                    //        xCoord  = 500         // default x coordinate
-                                    //        yCoord  = 500         // default y coordinate
-                                    //        inclSv  = 1           // include save games bool; default yes
-                                             worldmap = 1
+                                    INT_VAR //mapIcon  = 26          // default map icon is 26, City Gates
+                                    //        xCoord   = 500         // default x coordinate
+                                    //        yCoord   = 500         // default y coordinate
+                                    //        inclSv   = 1           // include save games bool; default yes
+
+                                    STR_VAR   worldmap = "worldmap"
+
                                     RET     areNum
 
                                     BEGIN
   OUTER_SET areNum = 0
 
-  ACTION_IF worldmap = 2 BEGIN
-    OUTER_SPRINT wmp worldm25.wmp
-  END ELSE
-    OUTER_SPRINT wmp worldmap.wmp
-  END
-
-  COPY_EXISTING ~%wmp%~ ~override~
+  COPY_EXISTING ~%worldmap%~ ~override~
 
     // read offsets
     READ_LONG 0x30 "area_num"
@@ -88,9 +84,9 @@ DEFINE_ACTION_FUNCTION sc#addWmpAre //STR_VAR areName = "sc#ar00"   // default a
     GET_DIRECTORY_ARRAY save save ~~
 
     ACTION_PHP_EACH save AS from => to BEGIN
-      ACTION_IF ( FILE_EXISTS ~%to%/worldmap.wmp~ == 1 ) BEGIN
+      ACTION_IF ( FILE_EXISTS ~%to%/%worldmap%.wmp~ == 1 ) BEGIN
 
-        COPY ~%to%/worldmap.wmp~ ~%to%/worldmap.wmp~
+        COPY ~%to%/%worldmap%.wmp~ ~%to%/%worldmap%.wmp~
           // read offsets
           READ_LONG 0x30 "area_num"
           READ_LONG 0x34 "area_off"

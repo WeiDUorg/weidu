@@ -7991,6 +7991,7 @@ This is an ACTION function.
 \item OUTER_SPRINT \verb+areName+ to the resource reference of the area to add (like "ar0700");
 \item OUTER_SPRINT \verb+strName+ to the descriptive name of the area (like "Waukeen's Promenade");
 \item OUTER_SPRINT \verb+strDesc+ to the area description that will show up when hovering the cursor over the area on the worldmap;
+\item OUTER_SPRINT \verb+worlmap+ to the name of the .wmp file you want patched (default is "worldmap");
 \item OUTER_SET \verb+mapIcon+ to the area's map icon index (from mapicons.bam);
 \item OUTER_SET \verb+xCoord+ to the area's X (east-west) coordinate;
 \item OUTER_SET \verb+yCoord+ to the area's Y (north-south) coordinate;
@@ -7999,7 +8000,6 @@ This is an ACTION function.
 \item ACTION_DEFINE_ASSOCIATIVE_ARRAY \verb+toNewArea+ to the area references that lead to the new area;
 \item ACTION_DEFINE_ASSOCIATIVE_ARRAY \verb+fromNewArea+ to the area references that lead away from the new area;
 \item RET \verb+areNum+ returns the worldmap entry number for the new area;
-\item INT_VAR \verb+worlmap+ to 2 if you want to add the area to worldm25.wmp instead of the default worldmap.wmp;
 \end{itemize}
 An example best illustrates the use of this function.
 
