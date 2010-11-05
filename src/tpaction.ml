@@ -1110,12 +1110,14 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 		  true)
 	  in
 	  process_action tp (TP_Define_Patch_Macro ("TB#ADD_SPELL_PL", [], pl));
-	  process_action tp (TP_Launch_Action_Function("TB#ADD_SPELL",
-	    [PE_LiteralString "tb#type", kind; PE_LiteralString "tb#level", level;
-		  PE_LiteralString "tb#use_pld", PE_Int32 use_pld; PE_LiteralString "tb#use_ple", PE_Int32 use_ple],
-	    [PE_LiteralString "tb#identifier", PE_LiteralString ids_name;
-		  PE_LiteralString "tb#source_file", PE_LiteralString file],
-      [PE_LiteralString ids_name, PE_LiteralString "tb#newcode"]));
+    Var.set_int32 "tb#type" (eval_pe "" game kind);
+    Var.set_int32 "tb#level" (eval_pe "" game level);
+    Var.set_int32 "tb#use_pld" (eval_pe "" game (PE_Int32 use_pld));
+    Var.set_int32 "tb#use_ple" (eval_pe "" game (PE_Int32 use_ple));
+    Var.set_string "tb#identifier" (eval_pe_str (PE_LiteralString ids_name));
+    Var.set_string "tb#source_file" (eval_pe_str (PE_LiteralString file));
+	  process_action tp (TP_Launch_Action_Macro("TB#ADD_SPELL"));
+    Var.set_string ids_name (Var.get_string_exact "%tb#newcode%");
 
 	  log_and_print "Added spell %s\n" ids_name;
 	  

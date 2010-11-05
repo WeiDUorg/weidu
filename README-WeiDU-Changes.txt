@@ -2,6 +2,8 @@ Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.
   * DECOMPRESS_BIFF added.
   * sc#addWmpAre can patch worldm25.wmp or other worldmap areas.
+  * Variables set in the patching code in ADD_SPELL are now visible outside the
+    ADD_SPELL itself.
 
 Version 223:
   * Fixed a bug that was breaking REPLACE_TRIGGER_TEXT_REGEXP in some

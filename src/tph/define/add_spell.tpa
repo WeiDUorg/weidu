@@ -90,15 +90,7 @@ BEGIN
   END
 END
 
-DEFINE_ACTION_FUNCTION ~TB#ADD_SPELL~ 
-  INT_VAR tb#type = 1
-          tb#level = 1
-          tb#use_ple = 0
-          tb#use_pld = 0
-  STR_VAR tb#identifier = ~~
-    tb#source_file = ~~
-  RET tb#newcode
-BEGIN
+DEFINE_ACTION_MACRO ~TB#ADD_SPELL~ BEGIN
   // check if spell has entry in spell.ids
   OUTER_SET tb#code = IDS_OF_SYMBOL (~spell~ ~%tb#identifier%~)
   
