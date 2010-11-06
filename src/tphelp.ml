@@ -141,8 +141,9 @@ let action_to_str a = match a with
 | TP_Alter_TLK_Range _
 | TP_Alter_TLK_List _ -> "TP_ALTER_TLK_*"
 | TP_Fail _ -> "FAIL"
-| TP_Print _ -> "PATCH_PRINT"
-| TP_If _ -> "PATCH_IF"
+| TP_Print _ -> "PRINT"
+| TP_Log _ -> "LOG"
+| TP_If _ -> "ACTION_IF"
 | TP_Uninstall_Now _ -> "UNINSTALL"
 | TP_ActionBashFor _ -> "ACTION_BASH_FOR"
 | TP_ActionDefineArray _ -> "ACTION_DEFINE_ARRAY"

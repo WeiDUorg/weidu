@@ -186,6 +186,7 @@ and tp_action =
   | TP_String_Set_Range of tp_patchexp * tp_patchexp * string
   | TP_Fail of Dlg.tlk_string
   | TP_Print of Dlg.tlk_string
+  | TP_Log of Dlg.tlk_string
   | TP_If of tp_patchexp * (tp_action list) * (tp_action list)
   | TP_Uninstall_Now of string * tp_patchexp
   | TP_Alter_TLK of (tp_patch list)
@@ -300,6 +301,7 @@ and tp_patch =
   | TP_CountRegexpInstances of (bool option) * (bool option) * string * tp_pe_string
   | TP_DescribeItem of string
   | TP_PatchPrint of Dlg.tlk_string
+  | TP_PatchLog of Dlg.tlk_string
   | TP_PatchSprint of tp_pe_string * tp_pe_tlk_string
   | TP_PatchSprintf of tp_pe_string * tp_pe_tlk_string * tp_patchexp list
   | TP_PatchTextSprint of tp_pe_string * tp_pe_string

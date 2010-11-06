@@ -3385,6 +3385,10 @@ or & \DEFINE{ALTER!TLK!LIST} \t{BEGIN} \ttref{value} \Slist \t{END} \t{BEGIN} \t
     The string DisplayString is echoed to the user. Useful for debugging or
     status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}
     references, their values will be displayed. \\
+  or & \DEFINE{LOG} displayString &
+    The string DisplayString is echoed to setup-mymod.debug.
+    If displayString contains \t{\%}\ttref{variable}\t{\%}
+    references, their values will be displayed. \\
 or & \DEFINE{OUTER!TEXT!SPRINT} \ttref{variable} stringWithVars &
   Any WeiDU variables (enclosed in \t{\%}s) inside stringWithVars are
   replaced by their values and the resulting string (constructed at
@@ -3658,6 +3662,10 @@ or & \DEFINE{PATCH!PRINT} displayString &
           ~%SOURCE_FILE% is a cleric with race = %race%.~
       END 
   \end{verbatim} \\
+  or & \DEFINE{PATCH!LOG} displayString &
+    The string DisplayString is echoed to setup-mymod.debug.
+    If displayString contains \t{\%}\ttref{variable}\t{\%}
+    references, their values will be displayed. \\
 or & \DEFINE{SAY!EVALUATED} \ttref{offset} stringWithVars & 
   Any WeiDU variables (enclosed in \t{\%}s) inside stringWithVars are
   replaced by their values and the resulting string (constructed at

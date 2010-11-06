@@ -328,6 +328,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  let str = Var.get_string str in
 	  log_and_print "\n%s\n" str
 	    
+      | TP_Log(msg) ->
+        let str = Dc.single_string_of_tlk_string game msg in
+        let str = Var.get_string str in
+        log_only "\n%s\n" str
+      
       | TP_Fail(msg) ->
 	  let str = Var.get_string (Dc.single_string_of_tlk_string game msg) in
 	  log_and_print "FAILURE:\n%s\n" str ;

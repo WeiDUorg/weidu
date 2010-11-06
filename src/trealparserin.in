@@ -482,6 +482,7 @@ nonterm(Tp.tp_action) Tp_Action {
 	  })]
   -> FAIL e1:Lse [ Tp.TP_Fail e1 ]
   -> PRINT e1:Lse [ Tp.TP_Print e1 ]
+  -> LOG e1:Lse [ Tp.TP_Log e1 ]
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END [ Tp.TP_If(e1,e2,[]) ]
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END ELSE BEGIN e3:Tp_Action_List END [ Tp.TP_If(e1,e2,e3) ]
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END ELSE e3:Tp_Action [ Tp.TP_If(e1,e2,[e3]) ]
@@ -1035,6 +1036,7 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> INNER_PATCH_SAVE e1:Patch_String_Left e2:STRING BEGIN e3:Tp_Patch_List END
 			[ Tp.TP_PatchInnerBuffSave(e1,e2,e3) ]
 	-> PATCH_PRINT e1:Lse [ Tp.TP_PatchPrint(e1) ]
+  -> PATCH_LOG e1:Lse [ Tp.TP_PatchLog(e1) ]
 	-> TO_LOWER e1:Patch_String_Right [ Tp.TP_PatchToLower e1 ]
 	-> TO_UPPER e1:Patch_String_Right [ Tp.TP_PatchToUpper e1 ]
 	-> SPRINT e1:Patch_String_Left e2:Dlg_Or_Patch_String_Right [ Tp.TP_PatchSprint(e1,e2) ]
