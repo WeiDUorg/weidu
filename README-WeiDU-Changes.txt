@@ -7,6 +7,7 @@ Version 224:
   * LOG, PATCH_LOG added.
   * When creating mymod/backup/*/{UNSETSTR,ARGS,READLN}.*, a textual
     representation of the same file is created in <old file>.TEXT.
+  * Answers to *_READLN are logged to setup-mymod.debug.
 
 Version 223:
   * Fixed a bug that was breaking REPLACE_TRIGGER_TEXT_REGEXP in some

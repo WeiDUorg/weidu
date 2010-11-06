@@ -467,13 +467,15 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Action_ReadLN(x) ->
 	  if !interactive then begin
 	    let y = read_line ()in
+      log_only "User answer: \"%s\"\n" y;
 	    Var.set_string (eval_pe_str x) y;
 	    readln_strings:= y :: !readln_strings;
 	  end else begin
 	    match !readln_strings with
 	    | b :: tl ->
-		Var.set_string (eval_pe_str x) b;
-		readln_strings := tl
+        log_only "Stored answer: \"%s\"\n" b;
+        Var.set_string (eval_pe_str x) b;
+        readln_strings := tl
 	    | [] ->
 		log_and_print "Not enough backed up entries in your replies"; failwith "Missing READLN strings"
 	  end;
