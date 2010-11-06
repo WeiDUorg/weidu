@@ -15,7 +15,7 @@ DEFINE_ACTION_FUNCTION sc#addWmpAre //STR_VAR areName  = "sc#ar00"   // default 
                                     BEGIN
   OUTER_SET areNum = 0
 
-  COPY_EXISTING ~%worldmap%~ ~override~
+  COPY_EXISTING ~%worldmap%.wmp~ ~override~
 
     // read offsets
     READ_LONG 0x30 "area_num"
