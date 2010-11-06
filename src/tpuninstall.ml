@@ -12,11 +12,7 @@ open Tppe
  let uninstall_strset game filename = 
    if (file_exists filename) then begin
      (try
-       let infile = Case_ins.perv_open_in_bin filename in
-       let record : Load.str_set_record list =
-         Marshal.from_channel infile
-       in
-       close_in infile ;
+       let record = Mymarshal.read_unsetstr filename in
        List.iter (fun (i,m,f) ->
          if (i < 0 || i > Array.length game.Load.dialog) then begin
            log_only "WARNING: Cannot uninstall STRING_SET #%d, out of range 0 -- %d\n" i (Array.length game.Load.dialog) 
@@ -38,6 +34,7 @@ open Tppe
        log_and_print "WARNING: Unable to uninstall STRING_SET references from [%s]: %s\n" filename (Printexc.to_string e);
        (try assert false with Assert_failure(file,line,col) -> set_errors file line));
      my_unlink filename;
+     my_unlink (filename ^ ".TEXT");
    end else log_only "[%s] SET_STRING uninstall info not found\n" filename
 
 let record_strset_uninstall_info game filename =
@@ -45,9 +42,7 @@ let record_strset_uninstall_info game filename =
     ()
   else begin
     try 
-      let outchan = Case_ins.perv_open_out_bin filename in
-      Marshal.to_channel outchan game.Load.str_sets [];
-      close_out outchan ;
+      Mymarshal.write_unsetstr filename game.Load.str_sets;
       game.Load.str_sets <- []
     with e ->
       log_and_print "WARNING: Unable to write STRING_SET uninstall info to [%s]: %s\n" filename (Printexc.to_string e);(try assert false with Assert_failure(file,line,col) -> set_errors file line)
@@ -321,7 +316,9 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 	) order;
 	if (interactive) then begin
 		my_unlink (Printf.sprintf "%s/READLN.%d" d i);
+		my_unlink (Printf.sprintf "%s/READLN.%d.TEXT" d i);
 		my_unlink (Printf.sprintf "%s/ARGS.%d" d i);
+		my_unlink (Printf.sprintf "%s/ARGS.%d.TEXT" d i);
 		if (Array.length (Case_ins.sys_readdir d) = 0) then
 		  Case_ins.unix_rmdir d;
 		if (Array.length (Case_ins.sys_readdir tp2.backup) = 0) then

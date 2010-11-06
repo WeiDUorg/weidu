@@ -5,6 +5,8 @@ Version 224:
   * Variables set in the patching code in ADD_SPELL are now visible outside the
     ADD_SPELL itself.
   * LOG, PATCH_LOG added.
+  * When creating mymod/backup/*/{UNSETSTR,ARGS,READLN}.*, a textual
+    representation of the same file is created in <old file>.TEXT.
 
 Version 223:
   * Fixed a bug that was breaking REPLACE_TRIGGER_TEXT_REGEXP in some

@@ -468,10 +468,10 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  if !interactive then begin
 	    let y = read_line ()in
 	    Var.set_string (eval_pe_str x) y;
-	    readln_strings:= (x,y) :: !readln_strings;
+	    readln_strings:= y :: !readln_strings;
 	  end else begin
 	    match !readln_strings with
-	    | (a,b) :: tl ->
+	    | b :: tl ->
 		Var.set_string (eval_pe_str x) b;
 		readln_strings := tl
 	    | [] ->

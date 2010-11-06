@@ -33,7 +33,7 @@ let action_functions: (string,(tp_pe_string * tp_patchexp) list *
 			 (tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_action list) Hashtbl.t = Hashtbl.create 10
 let patch_functions: (string,(tp_pe_string * tp_patchexp) list *
 			(tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_patch list) Hashtbl.t = Hashtbl.create 10
-let readln_strings: (tp_pe_string * string) list ref = ref []
+let readln_strings: string list ref = ref []
 
 let clear_codes () =
   let var_spec = Hashtbl.copy action_macros in

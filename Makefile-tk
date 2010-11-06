@@ -42,7 +42,7 @@ WEIDU_BASE_MODULES  := case_ins stats arch version parsing tph util modder var a
         baflexer bafparser \
         diff sav mos tp dlexer dparser \
         smutil useract lexerint parsetables arraystack objpool glr lrparse \
-        automate kit tpstate tphelp trealparser tlexer toldparser toldlexer tparser parsewrappers  tppe tpuninstall tppatch tpaction tpwork
+        automate kit tpstate tphelp trealparser tlexer toldparser toldlexer tparser parsewrappers mymarshal tppe tpuninstall tppatch tpaction tpwork
 ifdef ITEMLIST
 WEIDU_BASE_MODULES  += pretty itemlist
 endif

@@ -1360,7 +1360,6 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
     | TP_Add_Known_Spell(spell,level,sp_type) ->
 	if !debug_ocaml then log_and_print "Attempting to ADD_KNOWN_CRE\n";
 	let cre = Cre.cre_of_string buff in
-	if !debug_ocaml then log_and_print "Unmarshaled the cre\n";
 	let level = (Int32.to_int (eval_pe buff game level)) in
 	let known_spells = cre.Cre.known_spells in
 	let new_type =
@@ -1383,13 +1382,11 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	in
 	if !debug_ocaml then log_and_print "Added the spell.\n";
 	let out = Cre.string_of_cre { cre with Cre.known_spells = known_spells } in
-	if !debug_ocaml then log_and_print "Marshaled the cre\n";
 	out
 
     | TP_Remove_Cre_Item(items) ->
 	if !debug_ocaml then log_and_print "Attempting to REMOVE_CRE_ITEM\n";
 	let cre = Cre.cre_of_string buff in
-	if !debug_ocaml then log_and_print "Unmarshaled the cre\n";
 	let items = List.map String.uppercase (List.map Var.get_string items) in
 	let new_cre_items = ref [] in
 	List.iter (fun item ->
@@ -1399,7 +1396,6 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 		  ) cre.Cre.items;
 	if !debug_ocaml then log_and_print "Added the spell.\n";
 	let out = Cre.string_of_cre { cre with Cre.items = !new_cre_items } in
-	if !debug_ocaml then log_and_print "Marshaled the cre\n";
 	out
 
     | TP_Remove_Cre_Items ->
@@ -2085,10 +2081,10 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	if !interactive then begin
           let y = read_line ()in
           Var.set_string (eval_pe_str x) y;
-          readln_strings:= (x,y) :: !readln_strings;
+          readln_strings:= y :: !readln_strings;
 	end else begin
           match !readln_strings with
-          | (a,b) :: tl ->
+          | b :: tl ->
               Var.set_string (eval_pe_str x) b;
               readln_strings := tl
           | [] ->

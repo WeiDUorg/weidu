@@ -384,9 +384,7 @@ let rec handle_tp
 	        Var.cli_variables := Some(value_of_option !Var.cli_variables)
 	      end ;
 	      if !interactive then begin
-	        let outchan = Case_ins.perv_open_out_bin args_backup_filename in
-	        Marshal.to_channel outchan (List.rev (value_of_option !Var.cli_variables)) [] ;
-	        close_out outchan ;
+          Mymarshal.write_cli_vars args_backup_filename (List.rev (value_of_option !Var.cli_variables));
 	      end ;
 	      if (* not !interactive && *) file_exists args_backup_filename then begin
 	        (* re-loading when interactive and clearing of old argv[] variables is intended. *)
@@ -404,11 +402,7 @@ let rec handle_tp
 	          end ;
 	        done ;
 	        try
-	          let infile = Case_ins.perv_open_in_bin args_backup_filename in
-	          let record : string list =
-	            Marshal.from_channel infile
-	          in
-	          close_in infile ;
+            let record = Mymarshal.read_cli_vars args_backup_filename in
 	          let counter = ref 0 in
 	          List.iter (fun s ->
 	            Var.set_string ("argv[" ^ (string_of_int !counter) ^ "]") s;
@@ -454,11 +448,7 @@ let rec handle_tp
 			  ) tp.flags ;
 	        if file_exists readln_backup_filename && not !interactive then begin
 	          try
-	            let infile = Case_ins.perv_open_in_bin readln_backup_filename in
-	            let record : (tp_pe_string * string) list =
-	              Marshal.from_channel infile
-	            in
-	            close_in infile ;
+              let record = Mymarshal.read_readln readln_backup_filename in
 	            readln_strings := record
 	          with e ->
 		    (try assert false with Assert_failure(file,line,col) -> set_errors file line);
@@ -467,9 +457,7 @@ let rec handle_tp
 	        end ;
 	        List.iter (process_action_real our_lang game this_tp2_filename tp) m.mod_parts ;
 	        if !interactive then begin
-	          let outchan = Case_ins.perv_open_out_bin readln_backup_filename in
-	          Marshal.to_channel outchan (List.rev !readln_strings) [] ;
-	          close_out outchan ;
+            Mymarshal.write_readln readln_backup_filename (List.rev !readln_strings);
 	        end ;
 	        readln_strings := [] ;
 	        be_silent := false ;
