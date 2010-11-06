@@ -7988,32 +7988,22 @@ Adds an area to the worldmap. All variables are zero or blank by default unless 
 This is an ACTION function.
 
 \begin{itemize}
-\item OUTER_SPRINT \verb+areName+ to the resource reference of the area to add (like "ar0700");
-\item OUTER_SPRINT \verb+strName+ to the descriptive name of the area (like "Waukeen's Promenade");
-\item OUTER_SPRINT \verb+strDesc+ to the area description that will show up when hovering the cursor over the area on the worldmap;
-\item OUTER_SPRINT \verb+worlmap+ to the name of the .wmp file you want patched (default is "worldmap");
-\item OUTER_SET \verb+mapIcon+ to the area's map icon index (from mapicons.bam);
-\item OUTER_SET \verb+xCoord+ to the area's X (east-west) coordinate;
-\item OUTER_SET \verb+yCoord+ to the area's Y (north-south) coordinate;
-\item OUTER_SET \verb+tTime+ to the area's travel time in hours * 4 (so 2 = 8 hours);
-\item OUTER_SET \verb+inclSv+ to 1 to patch saved game worldmaps as well as the master worldmap;
 \item ACTION_DEFINE_ASSOCIATIVE_ARRAY \verb+toNewArea+ to the area references that lead to the new area;
 \item ACTION_DEFINE_ASSOCIATIVE_ARRAY \verb+fromNewArea+ to the area references that lead away from the new area;
+\item STR_VAR \verb+areName+ to the resource reference of the area to add (like "ar0700");
+\item STR_VAR \verb+strName+ to the descriptive name of the area (like "Waukeen's Promenade");
+\item STR_VAR \verb+strDesc+ to the area description that will show up when hovering the cursor over the area on the worldmap;
+\item STR_VAR \verb+worlmap+ to the name of the .wmp file you want patched (default is "worldmap");
+\item INT_VAR \verb+mapIcon+ to the area's map icon index (from mapicons.bam);
+\item INT_VAR \verb+xCoord+ to the area's X (east-west) coordinate;
+\item INT_VAR \verb+yCoord+ to the area's Y (north-south) coordinate;
+\item INT_VAR \verb+tTime+ to the area's travel time in hours * 4 (so 2 = 8 hours);
+\item INT_VAR \verb+inclSv+ to 1 to patch saved game worldmaps as well as the master worldmap;
 \item RET \verb+areNum+ returns the worldmap entry number for the new area;
 \end{itemize}
 An example best illustrates the use of this function.
 
 \begin{verbatim}
-OUTER_SPRINT areName "YS0390"     // area reference, like "AR0700"
-OUTER_SPRINT strName "Govt. West" // area name, like "Waukeen's Promenade"
-OUTER_SPRINT strDesc "Govt. West" // area description which will show up when hovering the area on the worldmap
-
-OUTER_SET mapIcon = 21             // map icon
-OUTER_SET xCoord  = 240            // x coordinate
-OUTER_SET yCoord  = 130            // y coordinate
-OUTER_SET tTime   = 0              // travel time *4, so two means eight hours
-OUTER_SET inclSv  = 1              // include saved games bool: 1 means yes and 0 means no
-
 // add links from these area(s) to the new area
 ACTION_DEFINE_ASSOCIATIVE_ARRAY toNewArea BEGIN
   "AR0020" => "Exitwmp"       // City Gates
@@ -8049,7 +8039,18 @@ ACTION_DEFINE_ASSOCIATIVE_ARRAY fromNewArea BEGIN
 END
 
 // calls the function and returns the worldmap entry number for the new area
-LAUNCH_ACTION_FUNCTION sc#addWmpAre RET areNum = areNum END
+LAUNCH_ACTION_FUNCTION sc#addWmpAre
+    STR_VAR areName = "YS0390"     // area reference, like "AR0700"
+    STR_VAR strName = "Govt. West" // area name, like "Waukeen's Promenade"
+    STR_VAR strDesc = "Govt. West" // area description which will show up when hovering the area on the worldmap
+
+    INT_VAR mapIcon = 21           // map icon
+    INT_VAR xCoord  = 240          // x coordinate
+    INT_VAR yCoord  = 130          // y coordinate
+    INT_VAR tTime   = 0            // travel time *4, so two means eight hours
+    INT_VAR inclSv  = 1            // include saved games bool: 1 means yes and 0 means no
+    RET areNum = areNum
+END
 PRINT "Government District Westside patched. New area number is: %areNum%"
 \end{verbatim}
 
