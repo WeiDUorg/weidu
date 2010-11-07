@@ -998,7 +998,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 							let buff,path = 
 								Load.load_resource "ADD_MUSIC" game true "SONGLIST" "2DA"
 							in
-							let number = find_table_row buff 2 (Str.regexp_case_fold ("[ %tab%%wnl%]" ^ music_base_name ^ "[ %tab%%wnl%]")) in
+							let number = find_table_row buff 2 (Str.regexp_case_fold ("^" ^ music_base_name ^ "$")) in
 							let number = Int32.sub number 3l in
 						    Var.set_int32 (music_base_name) number ;
 						    log_and_print "\n\nMUS [%s] already present! Skipping!\n\n"
@@ -1039,7 +1039,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 				let buff,path = 
 					Load.load_resource "ADD_2DA" game true a b
 				in
-				let number = find_table_row buff 0 (Str.regexp_case_fold ("[ %tab%%wnl%]" ^ s ^ "[ %tab%%wnl%]")) in
+				let number = find_table_row buff 0 (Str.regexp_case_fold ("^" ^ s ^ "$")) in
 				let number = Int32.sub number 3l in
 				Var.set_int32 s number ;
 				log_and_print "\n\n%s [%s] already present! Skipping!\n\n" f s
