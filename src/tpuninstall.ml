@@ -320,9 +320,9 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 		my_unlink (Printf.sprintf "%s/ARGS.%d" d i);
 		my_unlink (Printf.sprintf "%s/ARGS.%d.TEXT" d i);
 		if (Array.length (Case_ins.sys_readdir d) = 0) then
-		  Case_ins.unix_rmdir d;
+		  my_rmdir d;
 		if (Array.length (Case_ins.sys_readdir tp2.backup) = 0) then
-		  Case_ins.unix_rmdir tp2.backup
+		  my_rmdir tp2.backup
 	end;
     with e ->
       log_and_print "Error Uninstalling [%s] component %d:\n%s\n"
@@ -364,9 +364,9 @@ let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
 			my_unlink (Printf.sprintf "%s/READLN.%d" d i);
 			my_unlink (Printf.sprintf "%s/ARGS.%d" d i);
 			if (Array.length (Case_ins.sys_readdir d) = 0) then
-			  Case_ins.unix_rmdir d;
+			  my_rmdir d;
 			if (Array.length (Case_ins.sys_readdir tp2.backup) = 0) then
-			  Case_ins.unix_rmdir tp2.backup
+			  my_rmdir tp2.backup
 		  end;
           (a,b,c,sopt,Permanently_Uninstalled) :: tl
   | hd :: tl -> hd :: (is_installed tl)

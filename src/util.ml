@@ -356,6 +356,15 @@ let my_unlink file =
       log_only "Unable to Unlink [%s]: %s\n"
 	file (Printexc.to_string e)
   end
+  
+let my_rmdir dir = 
+  begin
+    try
+      Case_ins.unix_rmdir dir
+    with e ->
+      log_only "Unable to Rmdir [%s]: %s\n"
+	dir (Printexc.to_string e)
+  end
 
 let rec backup_if_extant filename =
   if Hashtbl.mem backup_ht

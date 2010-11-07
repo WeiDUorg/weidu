@@ -8,6 +8,7 @@ Version 224:
   * When creating mymod/backup/*/{UNSETSTR,ARGS,READLN}.*, a textual
     representation of the same file is created in <old file>.TEXT.
   * Answers to *_READLN are logged to setup-mymod.debug.
+  * Failing to remove mymod/backup/0 isn't cause to stop installation.
 
 Version 223:
   * Fixed a bug that was breaking REPLACE_TRIGGER_TEXT_REGEXP in some
