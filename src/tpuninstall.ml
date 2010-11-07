@@ -363,6 +363,8 @@ let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
 			let d = tp2.backup ^ "/" ^ (string_of_int i) in
 			my_unlink (Printf.sprintf "%s/READLN.%d" d i);
 			my_unlink (Printf.sprintf "%s/ARGS.%d" d i);
+			my_unlink (Printf.sprintf "%s/READLN.%d.TEXT" d i);
+			my_unlink (Printf.sprintf "%s/ARGS.%d.TEXT" d i);
 			if (Array.length (Case_ins.sys_readdir d) = 0) then
 			  my_rmdir d;
 			if (Array.length (Case_ins.sys_readdir tp2.backup) = 0) then

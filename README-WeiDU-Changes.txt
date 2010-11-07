@@ -1,3 +1,6 @@
+Version 225:
+  * Remove ARGS.*.TEXT and READLN.*.TEXT when doing temp_to_perm_uninstall.
+
 Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.
   * DECOMPRESS_BIFF added.
