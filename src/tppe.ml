@@ -348,8 +348,7 @@ let rec eval_pe buff game p =
   | PE_If(p,t,e) -> if is_true (eval_pe buff game p) then eval_pe buff game t else eval_pe buff game e
   | PE_ModIsInstalled(filename,number) -> let filename = Var.get_string filename in
     let number = Int32.to_int (eval_pe buff game number) in
-    if_true (already_installed filename number &&
-             not (temporarily_uninstalled filename number))
+    if_true (already_installed filename number)
   | PE_IsInstalledAfter(filename1,number1,filename2,number2) ->
 	let filename1 = Var.get_string (eval_pe_str filename1) in
 	let filename2 = Var.get_string (eval_pe_str filename2) in
