@@ -1189,9 +1189,11 @@ let rec handle_tp
 		  if fails_requirements then begin
 		    temp_to_perm_uninstalled tp2.tp_filename c handle_tp2_filename game ;
 		    re_installed := !re_installed @ [(a,b,c,sopt,Permanently_Uninstalled)] ;
+        the_log := (a,b,c,sopt,Permanently_Uninstalled) :: !the_log;
 		  end else begin
 		    handle_letter tp2 "R" false false package_name m (ref false) c ;
 		    re_installed := !re_installed @ [(a,b,c,sopt,Installed)] ;
+        the_log := (a,b,c,sopt,Installed) :: !the_log;
 		  end
 		end ; 
 		Dc.clear_state () ; 

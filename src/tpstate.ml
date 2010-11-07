@@ -149,6 +149,8 @@ let temporarily_uninstalled tp2 i =
   | [] -> false
   | (a,b,c,sopt,d) :: tl when log_match a tp2
         && c = i && d = Temporarily_Uninstalled -> true
+  | (a,b,c,sopt,d) :: tl when log_match a tp2
+        && c = i && d = Installed -> false
   | hd :: tl -> is_installed tl
   in is_installed !the_log
 
