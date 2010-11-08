@@ -1,5 +1,7 @@
 Version 225:
   * Remove ARGS.*.TEXT and READLN.*.TEXT when doing temp_to_perm_uninstall.
+  * Fixed ADD_STORE_ITEM and REMOVE_STORE_ITEM invalidating STO files under
+    BG1.
 
 Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.
