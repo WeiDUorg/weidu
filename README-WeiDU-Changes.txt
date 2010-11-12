@@ -3,6 +3,7 @@ Version 225:
   * Fixed ADD_STORE_ITEM and REMOVE_STORE_ITEM invalidating STO files under
     BG1.
   * Can now specify header ID and header type when using ITEM_EFFECT_TO_SPELL.
+  * FJ_CRE_VALIDITY also enforces proper CRE order and EFFV2 effects.
 
 Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.

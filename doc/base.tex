@@ -7534,7 +7534,13 @@ This is an ACTION macro.
 \item SET overwrite to 2 if you want new soundset to overwrite the old one completely. Set it to 1 if you want to overwrite old string references only with non-empty new references (may keep some old). Set it to 0 it you want to overwrite only empty old references with new ones.
 \end{itemize}
 
-\verb+FJ_CRE_VALIDITY+: Checks whether a CRE file is well-formed or not, fixes some common bugs, and reports whether the CRE file is still broken or not.
+\verb+FJ_CRE_VALIDITY+: Checks whether a CRE file is well-formed or not, fixes some common bugs, and reports whether the CRE file is still broken or not. In particular:
+\begin{itemize}
+\item reports invalidity if it is charbase.cre, shorter than the minimum size, the signature mismatches, or a sub-structure has members and its offset is in the header.
+\item if a empty sub-structure's offset is in the header, point them to the end of the header.
+\item if the cre is valid, force it to use proper order (known spells, spell memorization info, memorized spells, effects, items, item slot).
+\item forces the CRE file to use EFF V2 effects internally.
+\end{itemize}
 This is a PATCH function.
 \begin{itemize}
 \item INT_VAR do_message to 1 if you want explicit an explicit message regarding the cre invalidity. Defaults to 0.
