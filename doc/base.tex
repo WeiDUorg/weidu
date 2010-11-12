@@ -7372,6 +7372,8 @@ This is a PATCH macro and function.
 \verb+ITEM_EFFECT_TO_SPELL+: copies all extended effects from the current item to the first extended header of a spell.
 This is a PATCH macro and function.
 \begin{itemize}
+\item SET type to the header type to copy the effect from (use 99 to speficy 'all types').
+\item SET header to number of extended header the effect should be copied from (use 99 to specify 'every header').
 \item SPRINT ~new_itm_spl~ to a spell you want to copy effects to.
 \end{itemize}
 
