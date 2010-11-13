@@ -16,12 +16,12 @@
 		      READ_BYTE   (___#abil_off +        (___#index1 * 0x38)) ___#type
 		      READ_SHORT  (___#abil_off + 0x1e + (___#index1 * 0x38)) ___#abil_fx_num
 		      READ_SHORT  (___#abil_off + 0x20 + (___#index1 * 0x38)) ___#abil_1fx_index
-		
-		      PATCH_IF (___#type = 3 OR (VARIABLE_IS_SET ~%type%~ AND IS_AN_INT ~%type%~ AND ((___#type = type) OR type = 99))) AND (!(VARIABLE_IS_SET ~%header%~) OR !(IS_AN_INT ~%header%~) OR ((___#index1 = header) OR header = 99)) BEGIN //ability is correct or unspecified and header matches
-		
+
+		      PATCH_IF ((___#type = 3 AND ((!VARIABLE_IS_SET type OR !IS_AN_INT type) OR type = 3)) OR (VARIABLE_IS_SET ~%type%~ AND IS_AN_INT ~%type%~ AND ((___#type = type) OR type = 99))) AND (!(VARIABLE_IS_SET ~%header%~) OR !(IS_AN_INT ~%header%~) OR ((___#index1 = header) OR header = 99)) BEGIN //ability is correct or unspecified and header matches
+
 		        FOR (___#index2 = 0 ; ___#index2 < ___#abil_fx_num ; ___#index2 = ___#index2 + 1) BEGIN
 		          READ_ASCII (___#fx_off + (___#abil_1fx_index + ___#index2) * 0x30) ___#effect (0x30)
-		
+
 		          INNER_ACTION BEGIN
 		            COPY_EXISTING ~%new_itm_spl%~ ~override/%new_itm_spl%~
 		                READ_LONG   0x64 ___#abil_off2
