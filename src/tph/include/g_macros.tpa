@@ -540,6 +540,13 @@
 				END
 			END
 
+                        PATCH_IF !VARIABLE_IS_SET restype BEGIN
+                          SET restype = 0
+                        END
+                        PATCH_IF !VARIABLE_IS_SET sourceslot BEGIN
+                          SET sourceslot = "-1"
+                        END
+
 		    READ_LONG 0x2c4 ___#fx_off
 		    READ_LONG 0x2c8 ___#fx_num
 		
@@ -574,8 +581,10 @@
 		    WRITE_LONG (___#fx_off + 0x7c) castery
 		    WRITE_LONG (___#fx_off + 0x80) targetx
 		    WRITE_LONG (___#fx_off + 0x84) targety
-		    WRITE_EVALUATED_ASCII (___#fx_off + 0x8c) ~%effsource%~ #8
-		    WRITE_EVALUATED_ASCII (___#fx_off + 0xa0) ~%effvar%~ #32
+                    WRITE_LONG  ___#fx_off + 0x88  restype
+                    WRITE_EVALUATED_ASCII (___#fx_off + 0x8c) ~%effsource%~ #8
+                    WRITE_LONG  ___#fx_off + 0x9c  sourceslot
+                    WRITE_EVALUATED_ASCII (___#fx_off + 0xa0) ~%effvar%~ #32
 		    WRITE_LONG (___#fx_off + 0xc0) casterlvl
 		    WRITE_LONG (___#fx_off + 0xc8) sectype
 		
@@ -618,8 +627,10 @@
 		  SET castery = 0
 		  SET targetx = 0
 		  SET targety = 0
-		  SPRINT effsource ~%___#nil%~
-		  SPRINT effvar ~%___#nil%~
+                  SET restype = 0
+                  SPRINT effsource ~%___#nil%~
+                  SET sourceslot = "-1"
+                  SPRINT effvar ~%___#nil%~
 		  SET casterlvl = 0
 		  SET sectype = 0
 		  END

@@ -425,7 +425,7 @@ All other keywords are symbolic. Notes:
 
   or & \DEFINE{ADD!TRANS!TRIGGER} filename \ttref{stateNumber} 
     \ttref{transTriggerString} \Ob \ttref{moreStateNumbers} \Slist \Oe 
-    \Ob \t{DO} \ttref{transNumber} \Slist \Oe \ttref{dActionWhen} Slist
+    \Ob \t{DO} \ttref{transNumber} \Slist \Oe \ttref{dActionWhen} \Slist
     &
   This instructs WeiDU to add the \ttref{transTriggerString} to all
   of the \ttref{transition}s in all of the \ttref{state}s with the given
@@ -444,7 +444,7 @@ All other keywords are symbolic. Notes:
   or & \DEFINE{ADD!TRANS!ACTION} filename 
     \t{BEGIN} \ttref{stateNumber} \Slist \t{END} 
     \t{BEGIN} \ttref{transNumber} \Slist \t{END}
-    \ttref{transActionString} \ttref{dActionWhen} Slist &
+    \ttref{transActionString} \ttref{dActionWhen} \Slist &
   This instructs WeiDU to add the \ttref{transActionString} to all
   of the actions in all the \ttref{transition}s in all of the \ttref{state}s specified by the
   \t{stateNumber} list and the \t{transNumber} list. You may use
@@ -462,7 +462,7 @@ All other keywords are symbolic. Notes:
   or & \DEFINE{REPLACE!TRANS!ACTION} filename
     \t{BEGIN} \ttref{stateNumber} \Slist \t{END}
     \t{BEGIN} \ttref{transNumber} \Slist \t{END}
-    oldText newText \ttref{dActionWhen} Slist &
+    oldText newText \ttref{dActionWhen} \Slist &
   This instructs WeiDU to replace all instances of oldText in newText to all
   of the actions in all the \ttref{transition}s in all of the \ttref{state}s specified by the
   \t{stateNumber} list and the \t{transNumber} list. You may use
@@ -477,7 +477,7 @@ All other keywords are symbolic. Notes:
   or & \DEFINE{REPLACE!TRANS!TRIGGER} filename
     \t{BEGIN} \ttref{stateNumber} \Slist \t{END}
     \t{BEGIN} \ttref{transNumber} \Slist \t{END}
-    oldText newText \ttref{dActionWhen} Slist &
+    oldText newText \ttref{dActionWhen} \Slist &
   This instructs WeiDU to replace all instances of oldText in newText to all
   of the triggers in all of the \ttref{transition}s in all of the \ttref{state}s specified by the
   \t{stateNumber} list and the \t{transNumber} list. You may use
@@ -519,14 +519,14 @@ All other keywords are symbolic. Notes:
 
   or & \DEFINE{REPLACE!STATE!TRIGGER} filename \ttref{stateNumber} 
     \ttref{stateTriggerString} \Ob \ttref{stateNumber} \Slist \Oe
-	\ttref{dActionWhen} Slist &
+	\ttref{dActionWhen} \Slist &
   This instructs WeiDU to destructively set the
   \ttref{stateTriggerString} of all of the \ttref{state}s with the given
   \ttref{stateNumber}s in the file \t{filename.}\ttref{DLG} (which must already
   exist). It should be used with caution. \\
 
   or & \DEFINE{REPLACE!TRIGGER!TEXT} filename oldText newText
- \ttref{dActionWhen} Slist  &
+ \ttref{dActionWhen} \Slist  &
   This instructs WeiDU to destructively replace every occurrence of oldText
   (which may be a \ttref{regexp}) in the \ttref{stateTriggerString}s and
   \ttref{transTriggerString}s of \t{filename.}\ttref{DLG} (which must exist). 
@@ -534,12 +534,12 @@ All other keywords are symbolic. Notes:
   use this if you can help it. \\
 
   or & \DEFINE{REPLACE!TRIGGER!TEXT!REGEXP} filenameRegexp oldText newText
- \ttref{dActionWhen} Slist  &
+ \ttref{dActionWhen} \Slist  &
   Just like \ttref{REPLACE!TRIGGER!TEXT} but the filename is a
   \ttref{regexp}. The \ttref{.DLG} is implied. \\
 
   or & \DEFINE{REPLACE!ACTION!TEXT} filename oldText newText 
-    \Ob moreFilenames \Oe  \ttref{dActionWhen} Slist &
+    \Ob moreFilenames \Oe  \ttref{dActionWhen} \Slist &
   This instructs WeiDU to destructively replace every occurrence of oldText
   (which may be a \ttref{regexp}) in the \ttref{stateActionString}s 
   of \t{filename.}\ttref{DLG} (which must exist). This should only be used
@@ -547,13 +547,13 @@ All other keywords are symbolic. Notes:
   it. \\
 
   or & \DEFINE{REPLACE!ACTION!TEXT!REGEXP} filenameRegexp oldText newText 
-    \Ob moreFilenameRegexps \Oe  \ttref{dActionWhen} Slist &
+    \Ob moreFilenameRegexps \Oe  \ttref{dActionWhen} \Slist &
   Just like \ttref{REPLACE!ACTION!TEXT} but the filenames are
   \ttref{regexp}s. The \ttref{.DLG} is implied, do not include it in your
   \ttref{regexp}s. \\
 
   or & \DEFINE{REPLACE!ACTION!TEXT!PROCESS} filename oldText newText
-    \Ob moreFilenames \Oe \ttref{dActionWhen} Slist &
+    \Ob moreFilenames \Oe \ttref{dActionWhen} \Slist &
   This instructs WeiDU to destruveily replace every occurrence of oldText
   (which may be a \ttref{regexp}) in the \ttref{stateActionString}s 
   of \t{filename.}\ttref{DLG} (which must exist) with newText. However,
@@ -567,7 +567,7 @@ All other keywords are symbolic. Notes:
 
   or & \DEFINE{R!A!T!P!R}
     filenameRegexp oldText newText
-    \Ob moreFilenameRegexps \Oe \ttref{dActionWhen} Slist &
+    \Ob moreFilenameRegexps \Oe \ttref{dActionWhen} \Slist &
   Just like \ttref{REPLACE!ACTION!TEXT!PROCESS}, but the filenames are
   \ttref{regexp}s. The \ttref{.DLG} is implied. R!A!T!P!R is
   shortand for REPLACE!ACTION!TEXT!PROCESS!REGEXP (to avoid undue scrollbars
@@ -7254,7 +7254,6 @@ For example, if we wanted to know how many levels Blackrazor can drain, we could
 COPY_EXISTING miscbc.itm override
   GET_OFFSET_ARRAY ab_array 0x64 4 0x68 2 0 0 0x38
   PHP_EACH ab_array AS int => ab_off BEGIN
-    CLEAR_ARRAY fx_array
     GET_OFFSET_ARRAY2 fx_array ab_off ITM_V10_HEAD_EFFECTS
     PHP_EACH fx_array AS int => fx_off BEGIN
       READ_SHORT fx_off fx_type
@@ -7442,6 +7441,8 @@ This is a PATCH macro and function.
 \item SET castery to caster Y position
 \item SET targetx to target X position
 \item SET targety to target Y position
+\item SET restype to source resource type
+\item SET sourceslot to source resource slot
 \item SET casterlvl to caster level
 \item SET sectype to secondary type
 \end{itemize}
@@ -8009,7 +8010,7 @@ This is an ACTION function.
 \item STR_VAR \verb+areName+ to the resource reference of the area to add (like "ar0700");
 \item STR_VAR \verb+strName+ to the descriptive name of the area (like "Waukeen's Promenade");
 \item STR_VAR \verb+strDesc+ to the area description that will show up when hovering the cursor over the area on the worldmap;
-\item STR_VAR \verb+worlmap+ to the name of the .wmp file you want patched (default is "worldmap");
+\item STR_VAR \verb+worldmap+ to the name of the .wmp file you want patched (default is "worldmap");
 \item INT_VAR \verb+mapIcon+ to the area's map icon index (from mapicons.bam);
 \item INT_VAR \verb+xCoord+ to the area's X (east-west) coordinate;
 \item INT_VAR \verb+yCoord+ to the area's Y (north-south) coordinate;

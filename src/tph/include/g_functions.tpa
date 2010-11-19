@@ -119,6 +119,8 @@ DEFINE_PATCH_FUNCTION ~ADD_CRE_EFFECT~
           castery = 0
           targetx = 0
           targety = 0
+          restype = 0
+          sourceslot = "-1"
           casterlvl = 0
           sectype = 0
   STR_VAR resource = ~~
