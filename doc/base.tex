@@ -324,7 +324,7 @@ All other keywords are symbolic. Notes:
 
   is & \DEFINE{BEGIN} filename \Ob \DEFINE{nonPausing} \Oe \ttref{state} \Slist & 
     \ttref{BEGIN} tells WeiDU that you are creating a new DLG file from
-    scratch. Any existing DLG file with the same name will be overwriten. 
+    scratch. Any existing DLG file with the same name will be overwritten. 
     The new DLG file contains exactly the \ttref{state}s in the list. 
     If you set \ttref{nonPausing} to a non-zero integer, the game will not
     ``stop time'' while the conversation takes place. By default time stops
@@ -506,7 +506,7 @@ All other keywords are symbolic. Notes:
   \ttref{state} number \t{X}.  \\
 
   or & \DEFINE{SET!WEIGHT} filename \ttref{stateLabel} \tt{\#stateWeight} &
-  This instructcs WeiDU to destructively change the \ttref{WEIGHT} of the
+  This instructs WeiDU to destructively change the \ttref{WEIGHT} of the
   given \ttref{state} in \t{filename.}\ttref{DLG} (which must exist). This should only
   be used to patch or workaround existing dialogues. Never use
   \ttref{SET!WEIGHT} if you can help it.  \\
@@ -554,7 +554,7 @@ All other keywords are symbolic. Notes:
 
   or & \DEFINE{REPLACE!ACTION!TEXT!PROCESS} filename oldText newText
     \Ob moreFilenames \Oe \ttref{dActionWhen} \Slist &
-  This instructs WeiDU to destruveily replace every occurrence of oldText
+  This instructs WeiDU to destructively replace every occurrence of oldText
   (which may be a \ttref{regexp}) in the \ttref{stateActionString}s 
   of \t{filename.}\ttref{DLG} (which must exist) with newText. However,
   newText is first compiled as a \ttref{BAF} action list. In particular,
@@ -570,7 +570,7 @@ All other keywords are symbolic. Notes:
     \Ob moreFilenameRegexps \Oe \ttref{dActionWhen} \Slist &
   Just like \ttref{REPLACE!ACTION!TEXT!PROCESS}, but the filenames are
   \ttref{regexp}s. The \ttref{.DLG} is implied. R!A!T!P!R is
-  shortand for REPLACE!ACTION!TEXT!PROCESS!REGEXP (to avoid undue scrollbars
+  shorthand for REPLACE!ACTION!TEXT!PROCESS!REGEXP (to avoid undue scrollbars
   in the readme on a 1024x768 monitor). \\
 
 
@@ -611,7 +611,7 @@ is & {\tt IF} \Ob \DEFINE{WEIGHT} \t{\#weightNumber} \Oe \DEFINE{stateTriggerStr
   in order of increasing \ttref{WEIGHT} and selects the first one it finds
   for which the \ttref{stateTriggerString} is both true and not empty. 
   The creature then says all of the associated \ttref{sayText}. Finally,
-  the \ttref{transitions} are evaluted in bottom-up (i.e., reverse) order.
+  the \ttref{transitions} are evaluated in bottom-up (i.e., reverse) order.
   If a \ttref{transition} is found with a \ttref{transTriggerString} that
   evaluates to True and no \ttref{replyText}, that \ttref{transition} is
   immediately executed. Otherwise, all of the \ttref{transition}s are
@@ -799,7 +799,7 @@ or & {\bf{\%}}abcdef{\bf{\%}} & A string can be any sequence of characters not
 including a \% that is enclosed in \%\%s. This is handy for Big5
 translations, since " and \verb+~+ can be part of Big5-encoded characters.
 \\
-or & {\bf{\verb+~~~~~+}}abcdef{\bf\verb+~~~~~+} & That's five consequtive
+or & {\bf{\verb+~~~~~+}}abcdef{\bf\verb+~~~~~+} & That's five consecutive
 tildes on each side. A string can be any
 sequence of characters not including \verb+~~~~~+ that is enclosed in 
 {\verb+~~~~~+}s. For example, 
@@ -886,7 +886,7 @@ prompt for a key to be pressed at the end of \ttref{TP2} processing. \\
 and do not prompt for a key to be pressed at the end of \ttref{TP2}
 processing. \\
 \DEFINE{--reinstall}  	& Re-install all \ttref{TP2} components that are
-already installed and do not promtp for a key to be pressed at the end of
+already installed and do not prompt for a key to be pressed at the end of
 \ttref{TP2} processing. \\
 \DEFINE{--language}m  \t{X}   & Sets the \ttref{TP2} \ttref{Language} to the one
 passed here. Has no effect if the value is bigger than the language count
@@ -1034,11 +1034,11 @@ strrefs (see \ttref{--out}, \ttref{SAY}, \ttref{Forced String Reference}). \\
 \DEFINE{--biff-get} \t{X}&	Extract resource \t{X} from game \ttref{BIFF}s (cumulative, \ttref{regexp} allowed). \\
 \DEFINE{--biff-get-rest} \t{X} \t{Y} ... & Every argument given on the
 command line after \ttref{--biff-get-rest} is treated as if it were
-preceeded by \ttref{--biff-get}. Use this command to extract multiple
+preceded by \ttref{--biff-get}. Use this command to extract multiple
 different files (or \ttref{regexp}s) at once. \\
 \DEFINE{--biff-get-list} \t{X} \t{Y} ... & Every argument given on the
 command line after \ttref{--biff-get-rest} is treated as if it were
-preceeded by \ttref{--biff-get}, with the -list exception. Use this command to extract multiple
+preceded by \ttref{--biff-get}, with the -list exception. Use this command to extract multiple
 different files (or \ttref{regexp}s) at once. \\
 \DEFINE{--biff-str} \t{X}&	Search all game \ttref{BIFF}s for files
 containing \t{X} (\ttref{regexp} allowed). \\
@@ -1089,7 +1089,7 @@ commands of the form \t{STRING!SET "Hello" @1} instead of \t{STRING!SET \#1
 \DEFINE{--extract-kits} \t{X} & Extract all kits starting with kit \#\t{X}
 and create \ttref{TP2} actions to install those kits as part of a module.  \\
 \\
-\multicolumn{2}{c}{ \color{red} Resouce Exploration Options } \\
+\multicolumn{2}{c}{ \color{red} Resource Exploration Options } \\
 \DEFINE{--list-eff} \t{X}&	List effects in resource \t{X}. See
 \ttref{--out}. \\
 {\tt F.}\ttref{ITM} or 
@@ -1142,7 +1142,7 @@ this sense only if they have the same text and the same associated sounds
 
   This creates \t{BODHI.}\ttref{D} as above and also the translation file
   \t{BODHI.}\ttref{TRA} (listing all of the strings in \t{BODHI.}\ttref{D}
-  in an easy-to-traslate or spell-check format). \t{BODHI.}\ttref{D} will
+  in an easy-to-translate or spell-check format). \t{BODHI.}\ttref{D} will
   be created with special references to those strings. 
 
   This is particularly useful if you are converting existing modifications
@@ -1698,7 +1698,7 @@ and used here only for illustration.
 \end{rawhtml}
 is perfectly valid as well.
 
-You may \ttref{Multisay} inside almsot any \ttref{state}, so you may use it
+You may \ttref{Multisay} inside almost any \ttref{state}, so you may use it
 within an \ttref{APPEND} \ttref{D Action}. This is valid:
 \begin{rawhtml}
 <pre><font color="#3159D1">APPEND</font> J#KLSYJ
@@ -2664,7 +2664,7 @@ END
 \end{verbatim}
 
 
-With ALTER_TRANS, it beomes much easier:
+With ALTER_TRANS, it becomes much easier:
 
 \begin{verbatim}
 ALTER_TRANS BVICONI BEGIN 103 END BEGIN 1 END BEGIN "EPILOGUE" ~GOTO 368~ END
@@ -2754,7 +2754,7 @@ global option to your \ttref{TP2} file. \\
   or & \DEFINE{README} file \Slist &
        The given file is displayed to the user after choosing the language, but
        before installing any component. If more than one file name is provided,
-       they are checked for existance in the order they're provided, and the first available
+       they are checked for existence in the order they're provided, and the first available
        one will be opened. If you wish to open multiple readme files, use multiple README
        statements.
   \\
@@ -2983,7 +2983,7 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
        \ttref{patch} \Slist
        \ttref{when} \Slist &
       This command works like \ttref{COPY!EXISTING} but the destination
-      for any given souce file in the file1-list is some other different
+      for any given source file in the file1-list is some other different
       file in the file1-list. Similarly, the destination for any file in
       the fileN-list is some other file in the fileN-list. This allows you
       to randomly shuffle categories of game resources. \\
@@ -3112,7 +3112,7 @@ X Y Z 2 <br>
 P Q R 3 <br>
       \end{rawhtml}
       You must have the same number of whitespace-separated words in
-      newText as there are columns in filename. prepend empty cells are 
+      newText as there are columns in filename. Prepend empty cells are 
 	  assumed to be at the beginning of newText. A cell containing exactly
 	  {\verb`$`} is printed as empty. \\
 
@@ -3140,7 +3140,7 @@ P Q R 3 <br>
     in the \t{THEN}-branch are executed. Otherwise, if an \t{ELSE}-branch
     is present, its commands are executed. Otherwise nothing happens. \\
   or & \DEFINE{AT!EXIT} commandToRun \Ob \t{EXACT} \Oe &
-    Whenever this \ttref{component} attemps to be installed, commandToRun
+    Whenever this \ttref{component} attempts to be installed, commandToRun
     is executed.  Variables (e.g., \t{\%LANGUAGE\%}) in the string
     commandToRun are replaced by their values. Note that the command is
     executed even if the component does not install correctly, so
@@ -3480,7 +3480,7 @@ or & \DEFINE{ACTION!PHP!EACH} \t{\ttref{String}1 AS \ttref{String}2 => \ttref{St
     \verb+string2!0+ to the first array parameter, \verb+string2!1+ to the second array
     parameter, etc. and string3 to the result of the array. \verb+string2+ will also contain
 		the first array parameter (as a synonym of \verb+string2!0+). then executes the
-    actions listed. More exaustive documentation will be provided by SConrad.
+    actions listed. More exhaustive documentation will be provided by SConrad.
 \\
 
 or & \DEFINE{INCLUDE} \t{\ttref{String}} \Slist & 
@@ -3717,7 +3717,7 @@ or & \DEFINE{QUOTE} \ttref{variable} stringWithVars &
 \\
 or & \DEFSYN{REPLACE} \ttref{optcase} \ttref{optexact} \ttref{regexp} \ttref{text}
    &
-  All occurences of \ttref{regexp} in the file are replaced with the ASCII
+  All occurrences of \ttref{regexp} in the file are replaced with the ASCII
   printing of the string reference for \ttref{text}. So if \ttref{regexp}
   is "FRED" and the \ttref{text} ends up being strref \#1234, "FRED" will
   be replaced with "1234". This is usually used to replace string
@@ -3726,7 +3726,7 @@ or & \DEFSYN{REPLACE} \ttref{optcase} \ttref{optexact} \ttref{regexp} \ttref{tex
   and use something like \t{REPLACE 99999 "Hello, World"}. \\
 or & \DEFINE{REPLACE!TEXTUALLY} \ttref{optcase}  \ttref{optexact}
     \ttref{regexp} string \Ob \t{(} \t{sizeValue} \t{)} \Oe & 
-  All occurences of the given \ttref{regexp} in the file are replaced with
+  All occurrences of the given \ttref{regexp} in the file are replaced with
   the given string.
   \ttref{variable} 
   substitution (e.g., kit and music names) is performed on both the 
@@ -4017,7 +4017,7 @@ or & \DEFINE{PHP!EACH} \t{\ttref{String}1 AS \ttref{String}2 => \ttref{String}3}
     string2!0 to the first array parameter, string2!1 to the second array
     parameter, etc. and string3 to the result of the array. \verb+string2+ will also contain
 		the first array parameter (as a synonym of \verb+string2!0+). then executes the
-    patches listed. More exaustive documentation will be provided by SConrad.
+    patches listed. More exhaustive documentation will be provided by SConrad.
 \\
 
 or & \DEFINE{PATCH!PHP!EACH} \t{\ttref{String}1 AS \ttref{String}2 => \ttref{String}3} \Slist
@@ -4219,7 +4219,7 @@ or & \DEFINE{REPLACE!EVALUATE} \ttref{optcase} findRegexp \t{BEGIN}
   \ttref{patch} list is evaluated (with the variable \t{MATCH}$i$ set to
   the $i$th matched group in findRegexp), variable substitute is performed
   on replaceRegexp, and then findRegexp is replaced by replaceRegexp. Any
-  writes dones by the \ttref{patch} list (e.g., \ttref{SAY} or
+  writes done by the \ttref{patch} list (e.g., \ttref{SAY} or
   \ttref{WRITE!ASCII}) are ignored: \ttref{SET} should be the main
   component of the \ttref{patch} list. For example:
   \begin{verbatim}
@@ -4476,7 +4476,7 @@ to floating point numbers, calculating the exponent, and converting the
 answer back to a 32-bit integer. If anything goes wrong the value zero is
 returned or the result is undefined. \\
 or & \ttref{value} \DEFSYN{**} \t{(} \ttref{value} \ttref{value} \t{)} &
-  Fractional exponentation. \t{a ** (b c)} yields \t{a} raised to the 
+  Fractional exponentiation. \t{a ** (b c)} yields \t{a} raised to the 
   power of \t{(b/c)}. All of the internal operations are done in floating
   point. If anything goes wrong, zero is returned or the result is
   undefined. Example: 
@@ -4497,7 +4497,7 @@ or & \DEFINE{NOT} \ttref{value} & Negation. If the value is 0, the result is 1.
 Otherwise the result is 0. \\
 or & \DEFINE{ABS} \ttref{Value} & Absolute value. If the value is >= 0, the result
 is x. Otherwise the result is -x. \\
-or & \ttref{value} \DEFINE{\textexcl=} \ttref{value} & \emph{Integer} Disequality. If
+or & \ttref{value} \DEFINE{\textexcl=} \ttref{value} & \emph{Integer} Inequality. If
 the two values evaluate to equal integers, the result is 0. Otherwise the
 result is 1. See \ttref{STRING!COMPARE} for comparing \ttref{String}s. \\
 or & \ttref{value} \DEFINE{OR} \ttref{value} & Disjunction. If either value is
@@ -4539,7 +4539,7 @@ evaluated and returned.  \\
 
 or & \ttref{String} \DEFINE{STRING!COMPARE} \ttref{String} &
 This is legacy syntax for \ttref{STRING!EQUAL}:
-This expressione valuates to 0 if and only if its two string arguments are
+This expression evaluates to 0 if and only if its two string arguments are
 equal (have the same length and the same contents). Otherwise it will evaluate
 to a negative or positive integer, depending on whether the first string argument
 would sort lexicographically before or after the second string argument.
@@ -4557,7 +4557,7 @@ As \ttref{STRING!COMPARE}, but the comparison ignores case. That is,
 \t{"ANOMEN"} and \t{"aNoMeN"} are considered equal.\\
 
 or & \ttref{String} \DEFINE{STRING!EQUAL} \ttref{String} &
-This expressione valuates to 1 if and only if its two string arguments are
+This expression evaluates to 1 if and only if its two string arguments are
 equal (have the same length and the same contents), otherwise it values to 0.
 \ttref{variable}s within the strings (e.g., ``\t{\%mykit\%}'') are replaced
 by their values.
@@ -4590,7 +4590,7 @@ and you can use whichever one you like. Please note that the items in the list a
 defined to be mutually exclusive (except \verb+tob+ will detect both plain ToB
 and ToB with BGT installed, for legacy purposes), so \verb+bg2+ will detect a
 SoA-only game, without either ToB or Tutu installed. As such, a mod which is
-useable with any flavor of BG2 and any flavor of Tutu would contain
+usable with any flavor of BG2 and any flavor of Tutu would contain
 \verb+REQUIRE_PREDICATE GAME_IS ~bg2 tob tutu tutu_totsc~+ . \\
 
 or & \DEFINE{ENGINE!IS} \ttref{String} & Functions like \ttref{GAME!IS} 
@@ -4614,7 +4614,7 @@ Returns true if the variable String is set to an integer (there's a variable cal
 or & \DEFINE{TRA!ENTRY!EXISTS} ( \ttref{String} \ttref{String} \Slist ) &
 	returns true if the variable String maps to a valid TRA entry.
 	If the \ttref{String} list is empty the tra entry is looked for into the loaded TRAs,
-	otherwie it's looked for into the listed TRA files.
+	otherwise it's looked for into the listed TRA files.
 \\
 or & \DEFSYN{IS!SILENT} &
 Returns true if the output is currently silenced, false otherwise.  \\
@@ -4833,7 +4833,7 @@ The file will contain the two binary integers 33 and 44. \\
 
 Note: it's advised to read these tutorials in the order they were written,
 as often a tutorial depends on contents explained in the tutorials before
-it. If the tutorial-writer is kind enough, they'll state dependancies while
+it. If the tutorial-writer is kind enough, they'll state dependencies while
 introducing the subject.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -5503,7 +5503,7 @@ of a way) so I'd just warn them.
 
 This tutorial was thoughtfully provided by Idobek.
 
-There have been some queiries about \ttref{SET!2DA!ENTRY} in the WeiDU
+There have been some queries about \ttref{SET!2DA!ENTRY} in the WeiDU
 forum recently. This is a consolidation of my posts on the subject.
 The command takes this form:
 
@@ -5892,7 +5892,7 @@ BUT_ONLY_IF_IT_CHANGES
 
 In this case, rather than reading the 'type' byte of the item, I've opted
 for the 'proficiency' byte. Many two-handed swords in BG2 are classed as
-long swords for some reason so in this case proficeiency is a better
+long swords for some reason so in this case proficiency is a better
 indicator if it is a two-handed sword IMHO.
 
 The unusability flags for dwarves, halflings and gnomes are all in byte
@@ -6279,7 +6279,7 @@ PCs, granting the PCs all of the ``natural talents'' (e.g., fire
 resistance, seeing through invisibility, animation avatar) of that monster.
 
 First, we will specially prepare a ``template'' object -- a special blank
-``skin'' item that has slots equipped effects like ``fire resistance bouns
+``skin'' item that has slots equipped effects like ``fire resistance bonus
 +0'' and ``natural armor class 10'' and ``change creature animation''. Each
 creature ``skin'' will be a specialized copy of this template.
 
@@ -6463,13 +6463,13 @@ COPY_EXISTING ~weapprof.2da~ ~override~
 The things to change are the following:
 \begin{itemize}
 \item you have to replace SET!2DA!ENTRY with SET!2DA!ENTRY!LATER
-\item in S!2!E!L you don't have to specify the required coloumn count parameter
+\item in S!2!E!L you don't have to specify the required column count parameter
 (in the example, the '1')
 \item in S!2!E!L you have to specify a string (in the example,
 \verb+~_#_#_#weapprof~+) before other parameters.
 \item finally, after all your SET!2DA!ENTRY!LATER commands, you have to put
 SET!2DA!ENTRIES!NOW, the string you put after each S!2!E!L, and the required
-coloumn count.
+column count.
 \end{itemize}
 
 You can also split S!2!E!L sessions across multiple parts - but it is easy to shoot
@@ -6666,7 +6666,7 @@ OUTER_SET ~factorial_result~ = 1
 LAUNCH_ACTION_MACRO ~factorial~
 PRINT ~%factorial_index_old%! = %factorial_result%~
 \end{verbatim}
-TThe fact that variables are kept through the entire tp2 execution (formally,
+The fact that variables are kept through the entire tp2 execution (formally,
 that they are global) is good, since you have a way of 'remembering' the result;
 however, the bad part is that it may happen that variables are changed even if you
 didn't want them to.\\
@@ -6723,7 +6723,7 @@ See \ttref{Macros Listing} for a listing of all macros and how to invoke
 them in detail. Here I'll describe the standard syntax.
 
 In our example, we'll use the tb\#factorial macro (which is the same as the
-last example in the preceeding tutorial).
+last example in the preceding tutorial).
 
 Description (from \ttref{Macros Listing}):
 \verb+tb#factorial+: computes the factorial of a number. \\
@@ -6773,7 +6773,7 @@ LAUNCH_ACTION_MACRO ~tb#fix_file_size~
 
 The GROUP flag came about in discussing component management with an
 abnormally large number of independent components, e.g. BG2 Tweaks. Previously
-WeiDU lacked a satisfactory way to organize such a modthe closest feature
+WeiDU lacked a satisfactory way to organize such a mod. The closest feature
 would be the top level ASK!EVERY!COMPONENT, which only allows for a single
 all-or-none approach.
 
@@ -6821,7 +6821,7 @@ organize the mod as needed. A few other items of note:
 \item A component can belong to multiple GROUPs; a component is not offered
 for install if and only if none of its member groups are selected
 \item You could, in theory, have two components in the same SUBCOMPONENT
-grouping but different GROUPs. Dont do this.
+grouping but different GROUPs. Don't do this.
 \item You can give a GROUP a condition, by adding a patch_expression after the
 GROUP definition. This way, the user will not be asked about that GROUP (and
 its components will be automatically skipped). If you give different conditions
@@ -7054,7 +7054,7 @@ BUT_ONLY_IF_IT_CHANGES
 
 The loop we added looks to see if the entered value is an integer and if the
 entered value is not an integer then it will re-ask the question.  This loop
-will go indefinitly until the user inputs the correct type of information.
+will go indefinitely until the user inputs the correct type of information.
 Should your user not understand why they keep getting asked the question you may
 wish to add new text to your questions to help them to understand what it is
 you are looking for.  As in this example:
@@ -7371,7 +7371,7 @@ This is a PATCH macro and function.
 \verb+ITEM_EFFECT_TO_SPELL+: copies all extended effects from the current item to the first extended header of a spell.
 This is a PATCH macro and function.
 \begin{itemize}
-\item SET type to the header type to copy the effect from (use 99 to speficy 'all types').
+\item SET type to the header type to copy the effect from (use 99 to specify 'all types').
 \item SET header to number of extended header the effect should be copied from (use 99 to specify 'every header').
 \item SPRINT ~new_itm_spl~ to a spell you want to copy effects to.
 \end{itemize}
@@ -7447,25 +7447,25 @@ This is a PATCH macro and function.
 \item SET sectype to secondary type
 \end{itemize}
 
-\verb+DELETE_CRE_ITEM+: deletes all matching items from a creature. Regexp alowed.
+\verb+DELETE_CRE_ITEM+: deletes all matching items from a creature. Regexp allowed.
 This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT item_to_delete to the item you want to delete.
 \end{itemize}
 
-\verb+DELETE_STORE_ITEM+: deletes all matching items from a store. Regexp alowed.
+\verb+DELETE_STORE_ITEM+: deletes all matching items from a store. Regexp allowed.
 This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT item_to_delete to the item you want to delete.
 \end{itemize}
 
-\verb+DELETE_AREA_ITEM+: deletes all matching items from an area. Regexp alowed.
+\verb+DELETE_AREA_ITEM+: deletes all matching items from an area. Regexp allowed.
 This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT item_to_delete to the item you want to delete.
 \end{itemize}
 
-\verb+REPLACE_STORE_ITEM+: replaces all matching items in a store with another item. Regexp alowed.
+\verb+REPLACE_STORE_ITEM+: replaces all matching items in a store with another item. Regexp allowed.
 This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT old_item to the item you want to be replaced
@@ -7477,7 +7477,7 @@ This is a PATCH macro and function.
 \item SET charges3 to number of charges of third magical ability (default 0)
 \end{itemize}
 
-\verb+REPLACE_AREA_ITEM+: replaces all matching items in an area with another item. Regexp alowed.
+\verb+REPLACE_AREA_ITEM+: replaces all matching items in an area with another item. Regexp allowed.
 This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT old_item to the item you want to be replaced
@@ -7499,21 +7499,21 @@ This is a PATCH macro and function.
 \item SET charges3 to number of charges of third magical ability (default 0)
 \end{itemize}
 
-\verb+ADD_CRE_ITEM_FLAGS+: adds flags to all matching items posessed by a creature. Regexp allowed.
+\verb+ADD_CRE_ITEM_FLAGS+: adds flags to all matching items possessed by a creature. Regexp allowed.
 This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT item_to_change to the item the flags should be added to
 \item SPRINT flags to flags you need to add (usual weidu syntax: STOLEN, IDENTIFIED&STOLEN, etc).
 \end{itemize}
 
-\verb+REMOVE_CRE_ITEM_FLAGS+: removes flags from all matching items posessed by a creature. Regexp allowed.
+\verb+REMOVE_CRE_ITEM_FLAGS+: removes flags from all matching items possessed by a creature. Regexp allowed.
 This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT item_to_change to the item the flags should be removed from
 \item SPRINT flags to flags you need to remove (usual weidu syntax: STOLEN, IDENTIFIED&STOLEN, etc).
 \end{itemize}
 
-\verb+SET_CRE_ITEM_FLAGS+: set flags to all matching items posessed by a creature. Regexp allowed.
+\verb+SET_CRE_ITEM_FLAGS+: set flags to all matching items possessed by a creature. Regexp allowed.
 This is a PATCH macro and function.
 \begin{itemize}
 \item SPRINT item_to_change to the item which flags should be set
@@ -7577,7 +7577,7 @@ This is a PATCH macro and function. Unlike other macros you do not need to set e
 \end{itemize}
 
 \\
-The vertex points are seperated by their X & Y values
+The vertex points are separated by their X & Y values
 You may have as many pairs as you need. Just copy this set and increment the #.
 Example: For the X values: ab_RT_Vx_X_0, ab_RT_Vx_X_1, ab_RT_Vx_X_2
          For the Y values: ab_RT_Vx_Y_0, ab_RT_Vx_Y_1, ab_RT_Vx_Y_2
@@ -8298,12 +8298,12 @@ caps are all controlled by 2DA files.
 files. Basically every file used by an Infinity Engine game is either in a
 BIFF somewhere or in the \t{override} folder.
 
-\item \DEFINE{BCS}. An Infinity Engine script. These are used to controll
+\item \DEFINE{BCS}. An Infinity Engine script. These are used to control
 the actions of creatures and areas. They are basically big lists of
 \t{IF}s. \ttref{D} files (and also \ttref{DLG} files) use the same
 predicate and action syntax as BCS files.
 
-\item \DEFINE{EFF}. An Infinity Engine effect file. These are somtimes used
+\item \DEFINE{EFF}. An Infinity Engine effect file. These are sometimes used
 by \ttref{ITM}s or \ttref{SPL}s to do one specific thing. You probably
 won't use them.
 
@@ -8399,7 +8399,7 @@ face-to-face conversation (and he was quite well-informed).
 The Bigg would additionally like to thank the following contributors:
 \begin{itemize}
 \item DevSin (also sends diffs and tests and compiles!)
-\item cmorgan for his excellent throughtput while testing.
+\item cmorgan for his excellent throughput while testing.
 \item Taimon (also sends diffs and tests!)
 \item Gort (sends tp2 macros!)
 \item vit-mg (sends documentation!)
@@ -8412,7 +8412,7 @@ The Bigg would additionally like to thank the following contributors:
 \end{itemize}
 and additionally
 \begin{itemize}
-\item {\em Weimer} for having written (and mantained) the excellent WeiDU,
+\item {\em Weimer} for having written (and maintained) the excellent WeiDU,
 and having offered it freely (both as free beer and freedom) to the gaming
 community.
 \item All the people I've been modding with, all the people who played my mods,
@@ -8426,7 +8426,7 @@ started editing WeiDU.
 \section{Informal Copyright Notice}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 WeiDU was originally made by Westley Weimer.
-I (Valerio Bigiani, AKA The Bigg) decided to mantain the 'WeiDU' software
+I (Valerio Bigiani, AKA The Bigg) decided to maintain the 'WeiDU' software
 according to the GPL terms, under which WeiDU is distributed, starting from
 version 186 (which was a closed beta, while the first public release was the
 187 one).
