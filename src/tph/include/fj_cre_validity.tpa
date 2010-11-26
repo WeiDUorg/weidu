@@ -75,7 +75,7 @@ DEFINE_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ INT_VAR do_message = 0 RET valid BEGIN
     SPRINT il fail
     SPRINT el fail
     READ_BYTE 0x33 fv //EFF version
-    PATCH_IF fv = 0 BEGIN
+    PATCH_IF fv = 0 AND NOT (FILE_EXISTS_IN_GAME ~ar0125.are~) BEGIN
       WRITE_BYTE 0x33 1
       fv = 1
       READ_LONG 0x2c8 fc //Effects count
@@ -137,6 +137,70 @@ DEFINE_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ INT_VAR do_message = 0 RET valid BEGIN
         b1 = 100 //Probability 1
         b2 = 0 //Probability 2
         SPRINT ~rf~ ~~ //ResRef
+      END
+    END
+    PATCH_IF (fv != 0) AND (FILE_EXISTS_IN_GAME ~ar0125.are~) BEGIN
+      PATCH_IF BYTE_AT 0x33 != 0 BEGIN
+        WRITE_BYTE 0x33 0
+        READ_LONG 0x2c8 fc //Effects count
+        PATCH_IF fc > 0 BEGIN
+          READ_LONG 0x2c4 fs //Effects offset
+          READ_ASCII fs fx (0x108 * fc)
+          DELETE_BYTES fs (0x108 * fc)
+          sz = 0 //Size to reduce
+          SPRINT rfx ~~
+          INNER_PATCH ~%fx%~ BEGIN
+            FOR (i1 = 0; i1 < fc; i1 += 1) BEGIN
+              READ_SHORT ((i1 * 0x108) + 0x08) pc //Opcode
+              READ_BYTE  ((i1 * 0x108) + 0x0c) tg //Target
+              READ_BYTE  ((i1 * 0x108) + 0x10) pw //Power
+              READ_LONG  ((i1 * 0x108) + 0x14) p1 //Parameter 1
+              READ_LONG  ((i1 * 0x108) + 0x18) p2 //Parameter 2
+              READ_BYTE  ((i1 * 0x108) + 0x1c) tm //Timing mode
+              READ_LONG  ((i1 * 0x108) + 0x20) dr //Duration
+              READ_BYTE  ((i1 * 0x108) + 0x24) b1 //Probability 1
+              READ_BYTE  ((i1 * 0x108) + 0x26) b2 //Probability 2
+              READ_ASCII ((i1 * 0x108) + 0x28) rf //ResRef
+              READ_LONG  ((i1 * 0x108) + 0x30) dt //Dice thrown
+              READ_LONG  ((i1 * 0x108) + 0x34) dz //Die size
+              READ_LONG  ((i1 * 0x108) + 0x38) st //Save type
+              READ_LONG  ((i1 * 0x108) + 0x3c) sb //Save bonus
+              READ_BYTE  ((i1 * 0x108) + 0x54) dp //Dispellability
+              INNER_PATCH_SAVE rfx ~%rfx%~ BEGIN
+                PATCH_IF pc < 191 BEGIN //If a valid BG1 opcode
+                  sz += 0xd8
+                  INSERT_BYTES ((i1 * 0x30) + 0x00) 0x30
+                  WRITE_SHORT  ((i1 * 0x30) + 0x00) pc
+                  WRITE_BYTE   ((i1 * 0x30) + 0x02) tg
+                  WRITE_BYTE   ((i1 * 0x30) + 0x03) pw
+                  WRITE_LONG   ((i1 * 0x30) + 0x04) p1
+                  WRITE_LONG   ((i1 * 0x30) + 0x08) p2
+                  WRITE_BYTE   ((i1 * 0x30) + 0x0c) tm
+                  WRITE_BYTE   ((i1 * 0x30) + 0x0d) dp
+                  WRITE_LONG   ((i1 * 0x30) + 0x0e) dr
+                  WRITE_BYTE   ((i1 * 0x30) + 0x12) b1
+                  WRITE_BYTE   ((i1 * 0x30) + 0x13) b2
+                  WRITE_ASCIIE ((i1 * 0x30) + 0x14) ~%rf%~
+                  WRITE_LONG   ((i1 * 0x30) + 0x1c) dt
+                  WRITE_LONG   ((i1 * 0x30) + 0x20) dz
+                  WRITE_LONG   ((i1 * 0x30) + 0x24) st
+                  WRITE_LONG   ((i1 * 0x30) + 0x28) sb
+                END ELSE BEGIN
+                  sz += 0x108
+                  fc -= 1
+                END
+              END
+            END
+          END
+          PATCH_FOR_EACH f1 IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
+            READ_LONG f1 f2
+            WRITE_LONG f1 ((f2 > fs) ? (f2 - sz) : (f2 < 0x2d4 ? 0x2d4 : f2))
+          END
+          INSERT_BYTES fs (0x30 * fc)
+          WRITE_ASCIIE fs ~%rfx%~
+          WRITE_LONG 0x2c8 fc //Update effects count
+          SOURCE_SIZE -= sz
+        END
       END
     END
     PATCH_IF FILE_EXISTS_IN_GAME ~fw0125.are~ BEGIN //Tutu
