@@ -422,31 +422,41 @@ let rec eval_pe buff game p =
     Int32.of_int new_index	
   
   | PE_StateWhichSays(lse,traref,file) -> begin
-      let rec lookforit game lse lst =
-        if !debug_ocaml then log_and_print "in lookforit \n";
-        try (match lst with
-        | [] -> []
-        | hd :: tl -> looksingle game lse hd; lookforit game lse tl
-            ) with
-        | FoundInt(i) -> i :: lookforit game lse (List.tl lst)
-        | e -> raise e
-      and looksingle game lse this =
-        if !debug_ocaml then log_and_print "looking in %s\n" this;
-        Dc.push_copy_trans_modder () ;
-        handle_tra_filename this ;
-        try
-          ( match Dc.resolve_tlk_string_internal false false game lse
+      let lookforit game lse lst =
+        let rec lookforit game lse lst =
+          if !debug_ocaml then log_and_print "in lookforit \n";
+          try (match lst with
+          | [] -> []
+          | hd :: tl -> looksingle game lse hd; lookforit game lse tl
+              ) with
+          | FoundInt(i) -> i :: lookforit game lse (List.tl lst)
+          | e -> raise e
+        and looksingle game lse this =
+          if !debug_ocaml then log_and_print "looking in %s\n" this;
+          handle_tra_filename this ;
+          try
+            ( match Dc.resolve_tlk_string_internal false false game lse
+            with
+            | Dlg.TLK_Index(i) -> if !debug_ocaml then begin
+                let str = Dc.single_string_of_tlk_string game (Dlg.TLK_Index(i)) in
+                let str = Var.get_string str in
+                log_and_print "\n%d - %s\n" i str
+            end ; raise(FoundInt i)
+            | _ -> ();
+             )
           with
-          | Dlg.TLK_Index(i) -> Dc.pop_trans (); if !debug_ocaml then begin
-              let str = Dc.single_string_of_tlk_string game (Dlg.TLK_Index(i)) in
-              let str = Var.get_string str in
-              log_and_print "\n%d - %s\n" i str
-          end ; raise(FoundInt i)
-          | _ -> Dc.pop_trans ();
-           )
-        with
-          FoundInt(i) -> raise (FoundInt i)
-        | a -> if !debug_ocaml then log_and_print "%s\n" (Printexc.to_string a)
+            FoundInt(i) -> raise (FoundInt i)
+          | a -> if !debug_ocaml then log_and_print "%s\n" (Printexc.to_string a)
+        in
+        
+        Dc.push_copy_trans_modder ();
+        try
+          let ans = lookforit game lse lst in
+          Dc.pop_trans ();
+          ans
+        with e ->
+          Dc.pop_trans ();
+          raise e
       in
       let theref = match traref with
       | None (*going by tra + @ref*) ->
