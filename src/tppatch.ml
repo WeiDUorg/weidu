@@ -247,56 +247,66 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	String.blit new_string 0 buff where 4 ;
 	buff
 
-    | TP_PatchReplaceBCSBlock(old_file, new_file) -> begin
-	let old_file = Arch.backslash_to_slash old_file in
-	let new_file = Arch.backslash_to_slash new_file in
-	let bcs_buff_of_baf_or_bcs file =
+    | TP_PatchReplaceBCSBlock(old_file, new_file, on_mismatch) -> begin
+        let old_file = Arch.backslash_to_slash old_file in
+        let new_file = Arch.backslash_to_slash new_file in
+        let bcs_buff_of_baf_or_bcs file =
           let a,b = split (String.uppercase file) in
           if b = "BAF" then begin
             try
               let script = parse_file true (File file) "parsing .baf files"
-		  (Bafparser.baf_file Baflexer.initial) in
+                (Bafparser.baf_file Baflexer.initial) in
               let buff = Buffer.create 1024 in
               Bcs.save_bcs game (Bcs.Save_BCS_Buffer(buff)) script ;
               Buffer.contents buff
             with e ->
               log_and_print "ERROR: error compiling [%s]: %s\n"
-		file (Printexc.to_string e) ;
+                file (Printexc.to_string e) ;
               raise e
           end else begin
             load_file file
           end
-	in
-	let old_file_buff = bcs_buff_of_baf_or_bcs old_file in
-	let string_to_find = body_of_script old_file_buff in
-	let new_file_buff = bcs_buff_of_baf_or_bcs new_file in
-	let string_to_sub_in = body_of_script new_file_buff in
-	let my_regexp = Str.regexp_string string_to_find in
-	try
+        in
+        let old_file_buff = bcs_buff_of_baf_or_bcs old_file in
+        let string_to_find = body_of_script old_file_buff in
+        let new_file_buff = bcs_buff_of_baf_or_bcs new_file in
+        let string_to_sub_in = body_of_script new_file_buff in
+        let my_regexp = Str.regexp_string string_to_find in
+        try
           let _ = Str.search_forward my_regexp buff 0 in
           Str.global_replace my_regexp string_to_sub_in buff
-	with Not_found ->
-      	  (try assert false with Assert_failure(file,line,col) -> set_errors file line);
-          log_and_print "WARNING: cannot find block matching [%s]\n"
-            old_file ;
-          buff
-    end 
+        with Not_found -> begin
+          match on_mismatch with
+          | None ->
+            (try assert false with Assert_failure(file,line,col) -> set_errors file line);
+            log_and_print "WARNING: cannot find block matching [%s]\n"
+              old_file ;
+            errors_this_component := true;
+            buff
+          | Some x -> List.fold_left (fun acc elt -> process_patch2 patch_filename game acc elt) buff x
+        end
+      end 
 
-    | TP_PatchReplaceBCSBlockRE(old_file, new_file) -> begin
-	let old_file = Arch.backslash_to_slash old_file in
-	let new_file = Arch.backslash_to_slash new_file in
-	let string_to_find = load_file old_file in
-	let string_to_sub_in = load_file new_file in
-	let my_regexp = Str.regexp string_to_find in
-	try 
+    | TP_PatchReplaceBCSBlockRE(old_file, new_file, on_mismatch) -> begin
+        let old_file = Arch.backslash_to_slash old_file in
+        let new_file = Arch.backslash_to_slash new_file in
+        let string_to_find = load_file old_file in
+        let string_to_sub_in = load_file new_file in
+        let my_regexp = Str.regexp string_to_find in
+        try 
           let _ = Str.search_forward my_regexp buff 0 in
           Str.global_replace my_regexp string_to_sub_in buff 
-	with Not_found ->
-      	  (try assert false with Assert_failure(file,line,col) -> set_errors file line);
-          log_and_print "WARNING: cannot find block matching [%s]\n"
-            old_file ;
-          buff
-    end 
+        with Not_found -> begin
+          match on_mismatch with
+          | None ->
+            (try assert false with Assert_failure(file,line,col) -> set_errors file line);
+            log_and_print "WARNING: cannot find block matching [%s]\n"
+              old_file ;
+            errors_this_component := true;
+            buff
+          | Some x -> List.fold_left (fun acc elt -> process_patch2 patch_filename game acc elt) buff x
+        end
+      end 
 
     | TP_PatchApplyBCSPatch(patch_file,opt_overwrite) -> begin
 	let patch_file = Arch.backslash_to_slash patch_file in

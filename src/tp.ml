@@ -269,8 +269,8 @@ and tp_patch =
   | TP_PatchString of (bool option) * (bool option) * string * Dlg.tlk_string (* regexp + text *)
   | TP_PatchStringTextually of (bool option) * (bool option) * string * string * (tp_patchexp option) (* regexp + text *)
   | TP_PatchStringEvaluate of (bool option) * string * (tp_patch list) * string (* see below *)
-  | TP_PatchReplaceBCSBlock of string * string (* old + new *)
-  | TP_PatchReplaceBCSBlockRE of string * string (* old + new *)
+  | TP_PatchReplaceBCSBlock of string * string * tp_patch list option (* old + new *)
+  | TP_PatchReplaceBCSBlockRE of string * string * tp_patch list option (* old + new *)
   | TP_PatchApplyBCSPatch of string (* patch *) * (string option) (* copyover *)
   | TP_PatchByte of tp_patchexp * tp_patchexp
   | TP_PatchShort of tp_patchexp * tp_patchexp
