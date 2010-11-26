@@ -141,6 +141,7 @@ let action_to_str a = match a with
 | TP_Alter_TLK_Range _
 | TP_Alter_TLK_List _ -> "TP_ALTER_TLK_*"
 | TP_Fail _ -> "FAIL"
+| TP_Warn _ -> "WARN"
 | TP_Print _ -> "PRINT"
 | TP_Log _ -> "LOG"
 | TP_If _ -> "ACTION_IF"

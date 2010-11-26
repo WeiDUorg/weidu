@@ -185,6 +185,7 @@ and tp_action =
   | TP_String_Set_Evaluate of ((tp_patchexp * Dlg.tlk_string) list) * (string option)
   | TP_String_Set_Range of tp_patchexp * tp_patchexp * string
   | TP_Fail of Dlg.tlk_string
+  | TP_Warn of Dlg.tlk_string
   | TP_Print of Dlg.tlk_string
   | TP_Log of Dlg.tlk_string
   | TP_If of tp_patchexp * (tp_action list) * (tp_action list)
@@ -302,6 +303,8 @@ and tp_patch =
   | TP_DescribeItem of string
   | TP_PatchPrint of Dlg.tlk_string
   | TP_PatchLog of Dlg.tlk_string
+  | TP_PatchFail of Dlg.tlk_string
+  | TP_PatchWarn of Dlg.tlk_string
   | TP_PatchSprint of tp_pe_string * tp_pe_tlk_string
   | TP_PatchSprintf of tp_pe_string * tp_pe_tlk_string * tp_patchexp list
   | TP_PatchTextSprint of tp_pe_string * tp_pe_string

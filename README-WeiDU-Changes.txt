@@ -6,6 +6,9 @@ Version 225:
   * FJ_CRE_VALIDITY also enforces proper CRE order and EFFV2 effects.
   * Can ADD_KIT if the kit is already present.
   * STATE_WHICH_SAYS doesn't unload the mod's TRA.
+  * WARN tp2 action prints a message and sets the status to 'INSTALLED WITH
+    WARNINGS'.
+  * PATCH_FAIL, PATCH_WARN do the obvious thing.
 
 Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.

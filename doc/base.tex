@@ -3381,6 +3381,12 @@ or & \DEFINE{ALTER!TLK!LIST} \t{BEGIN} \ttref{value} \Slist \t{END} \t{BEGIN} \t
   or & \DEFINE{FAIL} warningString &
     If this \ttref{TP2 Action} is execution, warningString is displayed and
     the \ttref{component} fails to install. \\
+  or & \DEFINE{WARN} displayString &
+    The string DisplayString is echoed to the user. Useful for debugging or
+    status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}
+    references, their values will be displayed. Additionally, INSTALLED WITH
+    WARNINGS is printed at the end of the install.
+    \\
   or & \DEFINE{PRINT} displayString &
     The string DisplayString is echoed to the user. Useful for debugging or
     status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}
@@ -3648,7 +3654,16 @@ is & \DEFSYN{SAY} \ttref{offset} \ttref{String} &
   The string-ref associated with \ttref{String} is written at
   \ttref{offset}. This is commonly used to change the name or
   description of a spell or item. \\
-or & \DEFINE{PATCH!PRINT} displayString & 
+  or & \DEFINE{PATCH!FAIL} warningString &
+    If this \ttref{TP2 Action} is execution, warningString is displayed and
+    the \ttref{component} fails to install. \\
+  or & \DEFINE{PATCH!WARN} displayString &
+    The string DisplayString is echoed to the user. Useful for debugging or
+    status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}
+    references, their values will be displayed. Additionally, INSTALLED WITH
+    WARNINGS is printed at the end of the install.
+    \\
+  or & \DEFINE{PATCH!PRINT} displayString & 
   The string DisplayString is echoed to the user. Useful for debugging or
   status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}
   references, their values will be displayed. See also \ttref{PRINT}.

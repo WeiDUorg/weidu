@@ -327,6 +327,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  be_silent := false ;
 	  let str = Var.get_string str in
 	  log_and_print "\n%s\n" str
+
+      | TP_Warn(msg) ->
+	  let str = Dc.single_string_of_tlk_string game msg in
+	  be_silent := false ;
+	  let str = Var.get_string str in
+    errors_this_component := true;
+	  log_and_print "\n%s\n" str
 	    
       | TP_Log(msg) ->
         let str = Dc.single_string_of_tlk_string game msg in

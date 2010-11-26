@@ -1600,6 +1600,19 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
         log_only "\n%s\n" str;
         buff
 
+    | TP_PatchWarn(msg) ->
+        let str = Dc.single_string_of_tlk_string game msg in
+        be_silent := false ;
+        let str = Var.get_string str in
+        errors_this_component := true;
+        log_and_print "\n%s\n" str;
+        buff
+      
+    | TP_PatchFail(msg) ->
+        let str = Var.get_string (Dc.single_string_of_tlk_string game msg) in
+        log_and_print "FAILURE:\n%s\n" str ;
+        failwith str
+
     | TP_PatchSprint(name,msg) ->
         let name = eval_pe_str name in
         let (str : string) = eval_pe_tlk_str game msg in
