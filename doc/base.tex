@@ -4175,7 +4175,7 @@ or & \DEFINE{READ!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
 \ttref{variable} &
   The first \ttref{value} is the row, the second is the column and the
   third is the \emph{required column count}. The variable specified is set
-  to the the entry on the given column of the given row, but only column
+  to the entry on the given column of the given row, but only column
   with at least as many columns as the required column count are
   considered. This is the reverse of \ttref{SET!2DA!ENTRY}. \\
 or & \DEFSYN{READ!2DA!ENTRIES!NOW} string \ttref{value} &
@@ -4713,7 +4713,7 @@ or & \DEFSYN{STATE!WHICH!SAYS} \t{\ttref{value} IN \ttref{String}1 FROM \ttref{S
 \end{verbatim}
 \\
 or & \DEFINE{RESOLVE!STR!REF} ( \ttref{text} ) &
-Resolves the given text (adding it to the the tlk), and returns its TLK index
+Resolves the given text (adding it to the tlk), and returns its TLK index
 (so you can pass the result of this command to a function which then uses
 \ttref{WRITE!LONG} rather than \ttref{SAY}).
 \\
@@ -4974,7 +4974,7 @@ EXTEND_TOP_REGEXP ~ar[0-6].*bcs~ ~pathtoscript/patch.bcs~
 So there we are, instead of 100+ lines of code, I minimized it to 1 lines.
 Now, if you are understanding regexp at all, you probably are going ``Hey
 wait, why didn't you just go {\tt \ttref{EXTEND!TOP!REGEXP} "ar.*bcs"
-"pathtoscript/patch.bcs"} ?''  Well, infact, I did do that at first, but I
+"pathtoscript/patch.bcs"} ?''  Well, in fact, I did do that at first, but I
 forgot to account that there are other ``normal'' scripts that begin with AR.
 So, I had to write it so that the \ttref{regexp} had the number after the
 initial AR so that WeiDU would know only to patch the script to area files.
@@ -6604,7 +6604,7 @@ translate this, so I'll only explain the technicalities.
 
 \verb+READ_2DA_ENTRIES_NOW string col_count+
 will store inside the variable \verb+%string_row_col%+ the contents of the
-cell at row \t{\%row\%} and coloumn \t{\%col\%}, for all rows
+cell at row \t{\%row\%} and column \t{\%col\%}, for all rows
 with at least \verb+col_count+ items.
 The variable \verb+%string%+ will be set to the number of large enough
 rows (so, in effect, you also have processed \ttref{COUNT!2DA!ROWS} freely).
@@ -6628,7 +6628,7 @@ problems to not occur accidentally).
 \subsection{DEFINE,LAUNCH,LOCAL and everything else about personal macros (Last Update: v188)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Macros were originally intended as a way to repeat a certain tp2 truncon
+Macros were originally intended as a way to repeat a certain tp2 block
 with small or no changes without resorting to copy-and-paste.
 
 First, disclaimers: it's very easy to shoot yourself in the foot, since
@@ -7264,7 +7264,7 @@ END
 LAUNCH_ACTION_FUNCTION xyz INT_VAR x = 0 END
 
 OUTER_SET y = 5
-LAUNCH_ACTION_FUNCTION xyz INT_VAR y END // synonim for INT_VAR y = y
+LAUNCH_ACTION_FUNCTION xyz INT_VAR y END // synonym for INT_VAR y = y
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -7323,14 +7323,14 @@ against.
 
 \verb+TRY+ is used to detect TP2 failures (= anything that blocks the installation
 and prints "NOT INSTALLED DUE TO ERRORS") and allows the modder to run custom
-code (without forcibly failing the installation). The synthax is very similar
+code (without forcibly failing the installation). The syntax is very similar
 to \verb+MATCH+, which is why these two commands are presented together.
 
 This tutorial documents \verb+ACTION!MATCH+ and \verb+ACTION!TRY+, but the
 patch equivalents (\verb+PATCH!MATCH+ and \verb+PATCH!TRY+) are also
-avaiable.
+available.
 
-This is an example code for \verb+MATCH+:
+This is a sample code for \verb+MATCH+:
 \begin{verbatim}
 ACTION_MATCH 12 + 14 // value
 WITH
@@ -7350,7 +7350,7 @@ END
 
 To begin with, the value (12 + 14) is evaluated (can be any integer or a string).
 After that, it is compared against each guard: it is neither 15 nor 16, so its
-guarded action not executed. Similarly, it is neither 15 + 5 (= 20)
+guarded action is not executed. Similarly, it is neither 15 + 5 (= 20)
 nor does it match the regexp \verb+~str.*with%vars% and regexp~+ after evaluating
 variables and case-insensitive regexp, so
 its guarded actions aren't executed either.
@@ -7476,7 +7476,7 @@ saved to the \verb+%ERROR_MESSAGE%+ variable, and a \verb+MATCH+ is executed
 on that.
 
 After running the correct error handling code, execution continues after the
-end of the \verb+ACTION_TRY+ block - if you still want to block the
+end of the \verb+ACTION_TRY+ block. If you still want to block the
 installation, use \verb+ACTION_RERAISE+ (in theory, you could use
 \verb+FAIL ~%ERROR_MESSAGE%~+, but this changes the exception and its text,
 which would cause you headaches when nesting multiple \verb+TRY+s).
