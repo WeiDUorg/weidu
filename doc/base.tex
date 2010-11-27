@@ -7316,10 +7316,12 @@ BUT_ONLY
 \subsection{\DEFINE{MATCH and TRY} (last edit: 225)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\verb+MATCH+ is the equivalent of switch..case in mainstream languages (except it
-also works on strings, similar to OCaml's match..with). It can be used to
-run one or another section of code depending on the value being checked
-against.
+\verb+MATCH+ is the equivalent of switch..case in mainstream languages (except
+it also works on strings, similar to OCaml's match..with). This is a type of
+selection control statement whose purpose is to allow the value of a variable
+or expression to control the flow of program execution via a multiway branch. 
+The main reasons for using this type of statement include improving clarity
+and reducing otherwise repetitive coding.
 
 \verb+TRY+ is used to detect TP2 failures (= anything that blocks the installation
 and prints "NOT INSTALLED DUE TO ERRORS") and allows the modder to run custom
