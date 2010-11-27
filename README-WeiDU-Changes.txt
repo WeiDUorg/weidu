@@ -10,6 +10,8 @@ Version 225:
     WARNINGS'.
   * PATCH_FAIL, PATCH_WARN do the obvious thing.
   * {PATCH,ACTION}_{MATCH,TRY,RERAISE} added.
+  * ADD_MEMORIZED_SPELL (and other CRE-altering commands) dones't break files
+    that were broken by DLTCEP.
 
 Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.
