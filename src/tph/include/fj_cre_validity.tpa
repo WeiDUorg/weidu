@@ -1,8 +1,4 @@
 DEFINE_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ INT_VAR do_message = 0 RET valid BEGIN
-  tmp_0 = 0x2d4
-  tmp_1 = 0x2d4
-  tmp_2 = 0x2d4
-  tmp_3 = 0
   SPRINT m1 ~is corrupt~
   SPRINT m2 ~below minimum length~
   SPRINT m3 ~header misplaced~
@@ -51,7 +47,7 @@ DEFINE_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ INT_VAR do_message = 0 RET valid BEGIN
   END
   
   PATCH_IF valid THEN BEGIN 
-    LAUNCH_PATCH_FUNCTION ~FJ_CRE_REINDEX~
+    LAUNCH_PATCH_FUNCTION ~FJ_CRE_REINDEX~ END
   END
 END
 
