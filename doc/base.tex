@@ -7764,6 +7764,15 @@ This is a PATCH function.
 \item RET valid returns 1 if the CRE is well-formed, 0 otherwise.
 \end{itemize}
 
+\verb+FJ_CRE_REINDEX+: reorders creatures with nonstandard offset orders. Called by FJ_CRE_VALIDITY automatically if relevant.\\\\
+This is a PATCH function.
+
+\verb+FJ_CRE_EFF_V2+: Converts creatures using version 1 effects to version 2. Called by FJ_CRE_VALIDITY or FJ_CRE_REINDEX automatically if relevant.\\
+This is a PATCH function.
+
+\verb+T-CRE_EFF_V1+: Converts creatures using version 2 effects to version 1. Called by FJ_CRE_VALIDITY or FJ_CRE_REINDEX automatically if relevant.\\
+This is a PATCH function.
+
 \verb+ADD_AREA_REGION_TRIGGER+: adds an area region to the current are file.
 This is a PATCH macro and function. Unlike other macros you do not need to set every variable. You are only required to set those values that you need to write. 
 \begin{itemize}
