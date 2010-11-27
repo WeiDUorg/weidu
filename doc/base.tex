@@ -3140,11 +3140,13 @@ P Q R 3 <br>
     in the \t{THEN}-branch are executed. Otherwise, if an \t{ELSE}-branch
     is present, its commands are executed. Otherwise nothing happens. \\
   or & \DEFINE{ACTION!MATCH} \ttref{value} WITH \Ob \ttref{value} ...
+    \Ob WHEN \ttref{value} \Oe
     BEGIN \ttref{TP2 Action} \Slist END \Oe ...
     DEFAULT \ttref{TP2 Action} \Slist END &
     See the \ttref{MATCH and TRY} tutorial.
   \\
   or & \DEFINE{ACTION!TRY} \ttref{TP2 Action} \Slist WITH \Ob \ttref{value} ...
+    \Ob WHEN \ttref{value} \Oe
     BEGIN \ttref{TP2 Action} \Slist END \Oe ...
     DEFAULT \ttref{TP2 Action} \Slist END &
     See the \ttref{MATCH and TRY} tutorial.
@@ -4078,12 +4080,14 @@ or & \DEFINE{PATCH!IF} \ttref{value} \Ob \t{THEN} \Oe \t{BEGIN}
   convenient shorthand, you may omit the \t{BEGIN}-\t{END} in the \t{ELSE}
   branch if the \t{ELSE} branch contains exactly one \t{patch}.  
   \\
-  or & \DEFINE{PATCH!MATCH} \ttref{value} WITH \Ob \ttref{value} ...
+  or & \DEFINE{PATCH!MATCH}\Slist WITH \Ob \ttref{value} ...
+    \Ob WHEN \ttref{value} \Oe
     BEGIN \ttref{patch} \Slist END \Oe 
     ... DEFAULT \ttref{patch} \Slist END &
     See the \ttref{MATCH and TRY} tutorial.
   \\
-  or & \DEFINE{PATCH!TRY} \ttref{patch} \Slist WITH \Ob \ttref{value} ...
+  or & \DEFINE{PATCH!TRY} \ttref{patch}\Slist WITH \Ob \ttref{value} ...
+    \Ob WHEN \ttref{value} \Oe
     BEGIN \ttref{patch} \Slist END \Oe 
     ... DEFAULT \ttref{patch} \Slist END &
     See the \ttref{MATCH and TRY} tutorial.

@@ -488,18 +488,19 @@ nonterm(Tp.tp_action) Tp_Action {
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END [ Tp.TP_If(e1,e2,[]) ]
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END ELSE BEGIN e3:Tp_Action_List END [ Tp.TP_If(e1,e2,e3) ]
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END ELSE e3:Tp_Action [ Tp.TP_If(e1,e2,[e3]) ]
-  -> ACTION_TRY e1:Tp_Action_List e2:Action_With_List DEFAULT e3:Tp_Action_List END [ Tp.TP_ActionTry(e1,e2,e3) ]
-  -> ACTION_MATCH e1:Patch_Exp e2:Action_With_List DEFAULT e3:Tp_Action_List END [ Tp.TP_ActionMatch(e1,e2,e3) ]
+  -> ACTION_TRY e1:Tp_Action_List e2:Action_With_List END [ Tp.TP_ActionTry(e1,e2) ]
+  -> ACTION_MATCH e1:Patch_Exp e2:Action_With_List END [ Tp.TP_ActionMatch(e1,e2) ]
   -> DECOMPRESS_BIFF e1:Patch_String_Right_List [ Tp.TP_DecompressBiff(e1) ]
 }
 
-nonterm((Tp.tp_patchexp list * Tp.tp_action list) list) Action_With_List_Rev {
+nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List_Rev {
 	-> { [] }
-	-> e3:Action_With_List_Rev e1:Patch_Exp_List BEGIN e2:Tp_Action_List END [ (e1,e2) :: e3 ]
+	-> e4:Action_With_List_Rev e0:Patch_Exp e1:Patch_Exp_List e2:Optional_When BEGIN e3:Tp_Action_List END [ (e0::e1,e2,e3) :: e4 ]
+	-> e4:Action_With_List_Rev ANY e2:Optional_When BEGIN e3:Tp_Action_List END [ ([],e2,e3) :: e4 ]
 }
 
-nonterm((Tp.tp_patchexp list * Tp.tp_action list) list) Action_With_List  {
-	-> WITH e3:Action_With_List_Rev [ List.rev e3 ]
+nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List  {
+	-> WITH e3:Action_With_List_Rev DEFAULT e2:Tp_Action_List [ List.rev (([],Tp.Pred_True,e2) :: e3) ]
 }
 
 nonterm((string * Dlg.tlk_string) list) String_Lse_List_Rev {
@@ -1042,8 +1043,8 @@ nonterm (Tp.tp_patch) Tp_Patch {
 			[ Tp.TP_PatchIf(e1,e2,e3) ]
 	-> PATCH_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Patch_List END ELSE e3:Tp_Patch
 			[ Tp.TP_PatchIf(e1,e2,[e3]) ]
-  -> PATCH_TRY e1:Tp_Patch_List e2:Patch_With_List DEFAULT e3:Tp_Patch_List END [ Tp.TP_PatchTry(e1,e2,e3) ]
-  -> PATCH_MATCH e1:Patch_Exp e2:Patch_With_List DEFAULT e3:Tp_Patch_List END [ Tp.TP_PatchMatch(e1,e2,e3) ]
+  -> PATCH_TRY e1:Tp_Patch_List e2:Patch_With_List END [ Tp.TP_PatchTry(e1,e2) ]
+  -> PATCH_MATCH e1:Patch_Exp e2:Patch_With_List END [ Tp.TP_PatchMatch(e1,e2) ]
 	-> PATCH_READLN e1:Patch_String_Left [ Tp.TP_PatchReadLN(e1) ]
 	-> PATCH_SILENT [ Tp.TP_PatchSilent ]
 	-> PATCH_VERBOSE [ Tp.TP_PatchVerbose ]
@@ -1144,13 +1145,19 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> REBUILD_CRE_FILE { Tp.TP_RebuildCreFile }
 }
 
-nonterm((Tp.tp_patchexp list * Tp.tp_patch list) list) Patch_With_List_Rev {
-	-> { [] }
-	-> e3:Patch_With_List_Rev e1:Patch_Exp_List BEGIN e2:Tp_Patch_List END [ (e1,e2) :: e3 ]
+nonterm(Tp.tp_patchexp) Optional_When {
+  -> { Tp.Pred_True }
+  -> WHEN e1:Patch_Exp {e1}
 }
 
-nonterm((Tp.tp_patchexp list * Tp.tp_patch list) list) Patch_With_List  {
-	-> WITH e3:Patch_With_List_Rev [ List.rev e3 ]
+nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_patch list) list) Patch_With_List_Rev {
+	-> { [] }
+	-> e4:Patch_With_List_Rev e0:Patch_Exp e1:Patch_Exp_List e2:Optional_When BEGIN e3:Tp_Patch_List END [ (e0::e1,e2,e3) :: e4 ]
+	-> e4:Patch_With_List_Rev ANY e2:Optional_When BEGIN e3:Tp_Patch_List END [ ([],e2,e3) :: e4 ]
+}
+
+nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_patch list) list) Patch_With_List  {
+	-> WITH e3:Patch_With_List_Rev DEFAULT e2:Tp_Patch_List [ List.rev (([],Tp.Pred_True,e2) :: e3) ]
 }
 
 nonterm (Tp.tp_local_declaration list) Tp_Local_Declaration_List_Rev {

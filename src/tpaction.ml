@@ -355,20 +355,21 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    List.iter (process_action tp) al2
 	  end
 	      
-      | TP_ActionMatch(str,opts,def) ->
+      | TP_ActionMatch(str,opts) ->
         let str = string_of_pe "" game str in
         let rec walk al = match al with
-          | (pe_l,al) :: tl -> if List.exists (fun elt ->
+          | (pe_l,pe,al) :: tl -> if is_true (eval_pe "" game pe) && pe_l = [] || 
+            (List.exists (fun elt ->
               let elt = string_of_pe "" game elt in
               let elt = Str.regexp_case_fold elt in
-              Str.string_match elt str 0
-            ) pe_l then
+              Str.string_match elt str 0 && Str.match_end () = String.length str
+            ) pe_l) then
               List.iter (process_action tp) al
             else walk tl
-          | [] -> List.iter (process_action tp) def
+          | [] -> failwith "ACTION_MATCH internal failure: didn't find the default state"
         in walk opts
        
-      | TP_ActionTry(al,opts,def) ->
+      | TP_ActionTry(al,opts) ->
         begin
           try
             List.iter (process_action tp) al
@@ -376,7 +377,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             current_exception := e;
             let e = Printexc.to_string e in
             Var.set_string "ERROR_MESSAGE" e;
-            process_action tp (TP_ActionMatch ((PE_String (PE_LiteralString e)),opts,def))
+            process_action tp (TP_ActionMatch ((PE_String (PE_LiteralString e)),opts))
         end
         
       | TP_Define_Action_Macro(str,decl,al) ->
