@@ -496,7 +496,7 @@ nonterm(Tp.tp_action) Tp_Action {
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List_Rev {
 	-> { [] }
 	-> e4:Action_With_List_Rev e0:Patch_Exp e1:Patch_Exp_List e2:Optional_When BEGIN e3:Tp_Action_List END [ (e0::e1,e2,e3) :: e4 ]
-	-> e4:Action_With_List_Rev ANY e2:Optional_When BEGIN e3:Tp_Action_List END [ ([],e2,e3) :: e4 ]
+	-> e4:Action_With_List_Rev ANY e2:Patch_Exp BEGIN e3:Tp_Action_List END [ ([],e2,e3) :: e4 ]
 }
 
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List  {
@@ -1153,7 +1153,7 @@ nonterm(Tp.tp_patchexp) Optional_When {
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_patch list) list) Patch_With_List_Rev {
 	-> { [] }
 	-> e4:Patch_With_List_Rev e0:Patch_Exp e1:Patch_Exp_List e2:Optional_When BEGIN e3:Tp_Patch_List END [ (e0::e1,e2,e3) :: e4 ]
-	-> e4:Patch_With_List_Rev ANY e2:Optional_When BEGIN e3:Tp_Patch_List END [ ([],e2,e3) :: e4 ]
+	-> e4:Patch_With_List_Rev ANY e2:Patch_Exp BEGIN e3:Tp_Patch_List END [ ([],e2,e3) :: e4 ]
 }
 
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_patch list) list) Patch_With_List  {

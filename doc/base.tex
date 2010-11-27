@@ -7343,7 +7343,6 @@ WITH
   15 16 // guards
   BEGIN
     PRINT ~15 or 16~ // guarded actions
-    PRINT ~~
   END
   15 + 5 ~str.*with%vars% and regexp~
   BEGIN
@@ -7356,10 +7355,9 @@ END
 
 To begin with, the value (12 + 14) is evaluated (can be any integer or a string).
 After that, it is compared against each guard: it is neither 15 nor 16, so its
-guarded action is not executed. Similarly, it is neither 15 + 5 (= 20)
+guarded action is not executed.  Similarly, it is neither 15 + 5 (= 20)
 nor does it match the regexp \verb+~str.*with%vars% and regexp~+ after evaluating
-variables and case-insensitive regexp, so
-its guarded actions aren't executed either.
+variables and case-insensitive regexp, so its guarded actions aren't executed either.
 Since no listed value is printed, the default action(s) are executed (in this case,
 \verb+PRINT ~default~+).
 
@@ -7382,10 +7380,45 @@ END
 \end{verbatim}
 In this case, \verb+PRINT ~string1[12345]~+ is executed.
 
+Guards can also have a condition associated; in that case, the value must match
+against one of the guards and the condition must be true:
+\begin{verbatim}
+ACTION_MATCH ~%something%~
+WITH
+  ~none~ WHEN GAME_IS ~BG1 TotSC~
+  BEGIN
+    // ~none~ and the game is BG1
+  END
+  ~none~
+  BEGIN
+    // ~none~ and the game is not BG1
+  END
+  DEFAULT
+    // not ~none~
+END
+\end{verbatim}
+
+It is also possible to have a condition without a guard, in which case the
+syntax is:
+\begin{verbatim}
+ACTION_MATCH ~%something%~
+WITH
+  ANY GAME_IS ~BG1 TotSC~
+  BEGIN
+    // the game is BG1
+  END
+  ANY GAME_IS ~SoA ToB~
+  BEGIN
+    // the game is BG2
+  END
+  DEFAULT
+    // not BG1 or BG2
+END
+\end{verbatim}
+
 Specific cases that might be worth mentioning:
 it is possible for a guarded action to be empty, to have no default actions,
-to only have default actions, or to have a group of guarded actions without a
-guard, as per the following examples:
+or to only have default actions, as per the following examples:
 \begin{verbatim}
 ACTION_MATCH ~%something%~
 WITH
@@ -7420,19 +7453,6 @@ WITH
   DEFAULT
     // no guarded actions, only default actions: always executed
     DO_THIS_AND_THAT
-END
-
-ACTION_MATCH ~%something%~
-WITH
-  BEGIN
-    DO_SOMETHING // unguarded guarded action: never executed
-  END
-  ~error~
-  BEGIN
-    FAIL ~error~
-  END
-  DEFAULT
-    DO_SOMETHING
 END
 \end{verbatim}
 
