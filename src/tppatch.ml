@@ -2007,16 +2007,23 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	end else process_patch2 patch_filename game buff (TP_Add_Cre_Item(i))
 
     | TP_CompileBAFtoBCS ->
-        (try
-          let old_ok = !Dc.ok_to_resolve_strings_while_loading in
-       	  Dc.ok_to_resolve_strings_while_loading := Some(game);
-          let bcs = handle_script_buffer (patch_filename ^ ".BAF") buff in
-          let out_buff = Buffer.create 40960 in
-          Bcs.save_bcs game (Bcs.Save_BCS_Buffer(out_buff)) bcs ;
-       	  Dc.ok_to_resolve_strings_while_loading := old_ok;
-          Buffer.contents out_buff
-        with Modder.Modder_error e -> failwith e
-	| _ -> buff)
+    begin try
+      let old_ok = !Dc.ok_to_resolve_strings_while_loading in
+      Dc.ok_to_resolve_strings_while_loading := Some(game);
+      let bcs = handle_script_buffer (patch_filename ^ ".BAF") buff in
+      let out_buff = Buffer.create 40960 in
+      Bcs.save_bcs game (Bcs.Save_BCS_Buffer(out_buff)) bcs ;
+      Dc.ok_to_resolve_strings_while_loading := old_ok;
+      Buffer.contents out_buff
+    with e ->
+      if List.mem (String.uppercase patch_filename) ["RDOG.BCS"; "RDWARF.BCS";
+        "RETTER.BCS"; "RGIBBLER.BCS"; "RHALFLIN.BCS"; "RHOBGOBA.BCS";
+        "RHOBGOBF.BCS"; "RKOBOLD.BCS"; "ROGRE.BCS"; "RSIREN.BCS";
+        "RSIRINE.BCS"] then begin
+          log_only "WARNING: ignoring known-malformed %s\n" patch_filename;
+          buff
+      end else raise e
+    end
 
     | TP_CompileDLGtoD ->
         handle_dlg_buffer game patch_filename buff
@@ -2055,14 +2062,21 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 			patch_filename (Printexc.to_string e); buff end
 	
 	| TP_CompileBCStoBAF ->
-        (try
-          let bcs = handle_script_buffer (patch_filename ^ ".BCS") buff in
-          let out_buff = Buffer.create 40960 in
-          Bcs.print_script_text game (Bcs.Save_BCS_Buffer(out_buff))
-            (Bcs.BCS_Print_Script(bcs)) false None ;
-          Buffer.contents out_buff
-        with Modder.Modder_error e -> failwith e
-	| _ -> buff)
+    begin try
+      let bcs = handle_script_buffer (patch_filename ^ ".BCS") buff in
+      let out_buff = Buffer.create 40960 in
+      Bcs.print_script_text game (Bcs.Save_BCS_Buffer(out_buff))
+        (Bcs.BCS_Print_Script(bcs)) false None ;
+      Buffer.contents out_buff
+    with e ->
+      if List.mem (String.uppercase patch_filename) ["RDOG.BCS"; "RDWARF.BCS";
+        "RETTER.BCS"; "RGIBBLER.BCS"; "RHALFLIN.BCS"; "RHOBGOBA.BCS";
+        "RHOBGOBF.BCS"; "RKOBOLD.BCS"; "ROGRE.BCS"; "RSIREN.BCS";
+        "RSIRINE.BCS"] then begin
+          log_only "WARNING: ignoring known-malformed %s\n" patch_filename;
+          buff
+      end else raise e
+    end
 
     | TP_EvaluateBuffer -> Var.get_string buff
 
