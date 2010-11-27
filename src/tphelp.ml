@@ -140,11 +140,14 @@ let action_to_str a = match a with
 | TP_Alter_TLK _
 | TP_Alter_TLK_Range _
 | TP_Alter_TLK_List _ -> "TP_ALTER_TLK_*"
+| TP_Reraise -> "ACTION_RERAISE"
 | TP_Fail _ -> "FAIL"
 | TP_Warn _ -> "WARN"
 | TP_Print _ -> "PRINT"
 | TP_Log _ -> "LOG"
 | TP_If _ -> "ACTION_IF"
+| TP_ActionTry _ -> "ACTION_TRY"
+| TP_ActionMatch _ -> "ACTION_MATCH"
 | TP_Uninstall_Now _ -> "UNINSTALL"
 | TP_ActionBashFor _ -> "ACTION_BASH_FOR"
 | TP_ActionDefineArray _ -> "ACTION_DEFINE_ARRAY"

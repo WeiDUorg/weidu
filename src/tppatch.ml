@@ -434,6 +434,30 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
             (if is_true (eval_pe buff game pred) then tb else eb) ;
 	!b
 
+    | TP_PatchMatch(str,opts,def) ->
+      let str = string_of_pe buff game str in
+      let rec walk al = match al with
+        | (pe_l,pl) :: tl -> if List.exists (fun elt ->
+            let elt = string_of_pe buff game elt in
+            let elt = Str.regexp_case_fold elt in
+            Str.string_match elt str 0
+          ) pe_l then
+            List.fold_left (fun acc elt -> process_patch2 patch_filename game acc elt) buff pl
+          else walk tl
+        | [] -> List.fold_left (fun acc elt -> process_patch2 patch_filename game acc elt) buff def
+      in walk opts
+     
+    | TP_PatchTry(pl,opts,def) ->
+      begin
+        try
+          List.fold_left (fun acc elt -> process_patch2 patch_filename game acc elt) buff pl
+        with e ->
+          current_exception := e;
+          let e = Printexc.to_string e in
+          Var.set_string "ERROR_MESSAGE" e;
+          process_patch2 patch_filename game buff (TP_PatchMatch ((PE_String (PE_LiteralString e)),opts,def))
+      end
+  
     | TP_Launch_Patch_Function (str,int_var,str_var,rets) ->
 	let (f_int_args,f_str_args,f_rets,f_code) = try
 	  Hashtbl.find patch_functions str
@@ -674,18 +698,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	let row = (eval_pe buff game r) in
 	let col = (eval_pe buff game c) in
 	let str = Var.get_string str in
-	eval_pe_warn := false ;
-	let value =
-          try
-            let x = (eval_pe buff game value) in
-            Int32.to_string x
-          with _ ->
-            begin
-              match value with
-              | PE_String(x) -> Var.get_string (eval_pe_str x)
-              | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game value) ; "")
-            end
-	in eval_pe_warn := true ; 
+	let value = string_of_pe buff game value in
 	let iidx = try Var.get_int32 ("%" ^ str ^ "%") with _ -> 0l in
 	let idx = Int32.to_string iidx in
 	let sidx = str ^ idx in
@@ -783,18 +796,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	let row = Int32.to_int (eval_pe buff game row) in
 	let req_col = Int32.to_int (eval_pe buff game req_col) in
 	let lines = Str.split many_newline_or_cr_regexp buff in
-	eval_pe_warn := false ;
-	let value =
-          try
-            let x = (eval_pe buff game value) in
-            Int32.to_string x
-          with _ ->
-            begin
-              match value with
-              | PE_String(x) -> Var.get_string (eval_pe_str x)
-              | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game value) ; "")
-            end
-	in eval_pe_warn := true ; 
+	let value = string_of_pe buff game value in
 	let before = ref "" in
 	let num_rows = ref 0 in
 	let found = ref false in
@@ -857,18 +859,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	let req_col = Int32.to_int (eval_pe buff game req_col) in
 	let lines = Str.split many_newline_or_cr_regexp buff in
 
-	eval_pe_warn := false ;
-	let value =
-          try
-            let x = (eval_pe buff game value) in
-            Int32.to_string x
-          with _ ->
-            begin
-              match value with
-              | PE_String(x) -> Var.get_string (eval_pe_str x)
-              | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game value) ; "")
-            end
-	in eval_pe_warn := true ; 
+	let value = string_of_pe buff game value in
 	let slv = String.length value in
 	let max = ref slv in 
 	let entries = List.map (fun line -> 
@@ -1445,7 +1436,6 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	  with _ ->
 	    eval_pe buff game name
 	in
-	eval_pe_warn := true;
 	if !debug_ocaml then log_and_print "SET_BG2_PROFICIENCY %ld points in %ld\n" prof value;
 	let (len,  write_opc,  read_opc,        opc,pa1, pa2, tim, prb, write_prob) = if not v1 then
 	  0x108,write_int,  int_of_str_off,  8,  0x14,0x18,0x1c,0x24,write_short else
@@ -1623,6 +1613,8 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
         log_and_print "FAILURE:\n%s\n" str ;
         failwith str
 
+    | TP_PatchReraise -> raise !current_exception
+        
     | TP_PatchSprint(name,msg) ->
         let name = eval_pe_str name in
         let (str : string) = eval_pe_tlk_str game msg in
@@ -1639,19 +1631,10 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	if !debug_ocaml then begin
 	  log_and_print "SPRINTF %s ~%s~ " name str;
 	  List.iter (fun cur ->
-	    eval_pe_warn := false ;
-	    log_and_print "%s " (try
-	      let x = (eval_pe buff game cur) in
-	      Int32.to_string x
-	    with _ ->
-	      begin
-		match cur with
-		| PE_String(x) -> Var.get_string (eval_pe_str x)
-		| _ -> (eval_pe_warn := true ; ignore (eval_pe buff game cur) ; "")
-	      end)
-		    ) vars;
+	    log_and_print "%s " (string_of_pe buff game cur)
+		) vars;
 	  log_and_print "\n"
-	end; eval_pe_warn := true ; 
+	end;
 	let vars = ref vars in
 	List.iter (fun x ->
 	  Buffer.add_string buff' (match x with
@@ -1660,23 +1643,12 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	      let cur = List.hd !vars in
 	      vars := List.tl !vars;
 	      match y with
-	      | "%s" -> (
-		  eval_pe_warn := false ;
-		  try
-		    let x = (eval_pe buff game cur) in
-		    Int32.to_string x
-		  with _ ->
-		    begin
-		      match cur with
-		      | PE_String(x) -> Var.get_string (eval_pe_str x)
-		      | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game cur) ; "")
-		    end
-		 )
+	      | "%s" -> (string_of_pe buff game cur)
 	      | "%d" -> Int32.to_string (eval_pe buff game cur)
 	      | "%x" -> Printf.sprintf "0x%lx" (eval_pe buff game cur)
 	      | _ -> failwith (Printf.sprintf "Unknown SPRINTF mode: %s" y)
 	     )
-				  )) parts; eval_pe_warn := true ; 
+				  )) parts;
         Var.set_string name (Buffer.contents buff') ;
         if !vars <> [] then failwith "SPRINTF: too many arguments";
         buff

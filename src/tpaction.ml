@@ -344,7 +344,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  let str = Var.get_string (Dc.single_string_of_tlk_string game msg) in
 	  log_and_print "FAILURE:\n%s\n" str ;
 	  failwith str
-	    
+
+    | TP_Reraise -> raise !current_exception
       | TP_If(p,al1,al2) ->
 	  let res = is_true (eval_pe "" game p) in
 	  (* log_or_print "IF evaluates to %b\n" res ; *)
@@ -354,6 +355,30 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    List.iter (process_action tp) al2
 	  end
 	      
+      | TP_ActionMatch(str,opts,def) ->
+        let str = string_of_pe "" game str in
+        let rec walk al = match al with
+          | (pe_l,al) :: tl -> if List.exists (fun elt ->
+              let elt = string_of_pe "" game elt in
+              let elt = Str.regexp_case_fold elt in
+              Str.string_match elt str 0
+            ) pe_l then
+              List.iter (process_action tp) al
+            else walk tl
+          | [] -> List.iter (process_action tp) def
+        in walk opts
+       
+      | TP_ActionTry(al,opts,def) ->
+        begin
+          try
+            List.iter (process_action tp) al
+          with e ->
+            current_exception := e;
+            let e = Printexc.to_string e in
+            Var.set_string "ERROR_MESSAGE" e;
+            process_action tp (TP_ActionMatch ((PE_String (PE_LiteralString e)),opts,def))
+        end
+        
       | TP_Define_Action_Macro(str,decl,al) ->
 	  Hashtbl.replace action_macros str (decl, al)
 

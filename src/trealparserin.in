@@ -480,6 +480,7 @@ nonterm(Tp.tp_action) Tp_Action {
 	    Tp.mixed = e16 ;
 	    Tp.help = e17 ;
 	  })]
+	-> ACTION_RERAISE [ Tp.TP_Reraise ]
   -> FAIL e1:Lse [ Tp.TP_Fail e1 ]
   -> WARN e1:Lse [ Tp.TP_Warn e1 ]
   -> PRINT e1:Lse [ Tp.TP_Print e1 ]
@@ -487,7 +488,18 @@ nonterm(Tp.tp_action) Tp_Action {
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END [ Tp.TP_If(e1,e2,[]) ]
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END ELSE BEGIN e3:Tp_Action_List END [ Tp.TP_If(e1,e2,e3) ]
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END ELSE e3:Tp_Action [ Tp.TP_If(e1,e2,[e3]) ]
+  -> ACTION_TRY e1:Tp_Action_List e2:Action_With_List DEFAULT e3:Tp_Action_List END [ Tp.TP_ActionTry(e1,e2,e3) ]
+  -> ACTION_MATCH e1:Patch_Exp e2:Action_With_List DEFAULT e3:Tp_Action_List END [ Tp.TP_ActionMatch(e1,e2,e3) ]
   -> DECOMPRESS_BIFF e1:Patch_String_Right_List [ Tp.TP_DecompressBiff(e1) ]
+}
+
+nonterm((Tp.tp_patchexp list * Tp.tp_action list) list) Action_With_List_Rev {
+	-> { [] }
+	-> e3:Action_With_List_Rev e1:Patch_Exp_List BEGIN e2:Tp_Action_List END [ (e1,e2) :: e3 ]
+}
+
+nonterm((Tp.tp_patchexp list * Tp.tp_action list) list) Action_With_List  {
+	-> WITH e3:Action_With_List_Rev [ List.rev e3 ]
 }
 
 nonterm((string * Dlg.tlk_string) list) String_Lse_List_Rev {
@@ -503,6 +515,15 @@ nonterm((string * Dlg.tlk_string) list) String_Lse_List_Rev {
 
 nonterm((string * Dlg.tlk_string) list) String_Lse_List {
 	-> e3:String_Lse_List_Rev [ List.rev e3 ]
+}
+
+nonterm(Tp.tp_patchexp list) Patch_Exp_List_Rev {
+	-> { [] }
+	-> e3:Patch_Exp_List_Rev e1:Patch_Exp [ e1 :: e3 ]
+}
+
+nonterm(Tp.tp_patchexp list) Patch_Exp_List {
+	-> e3:Patch_Exp_List_Rev [ List.rev e3 ]
 }
 
 nonterm((Tp.tp_patchexp * Dlg.tlk_string) list) Pe_Lse_List_Rev {
@@ -718,15 +739,6 @@ nonterm(Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp *
 	-> e1:Patch_Exp ITM_V10_HEAD_EFFECTS
 		[ let g x = Tp.get_pe_int (string_of_int x) in
 	e1, g 0x6a, g 4, g 0x1e, g 2, g 0x20, g 2, g 0x30 ]
-}
-
-nonterm (Tp.tp_patchexp list) Patch_Exp_List_Rev {
-	-> [ [] ]
-	-> e2:Patch_Exp_List_Rev e1:Patch_Exp [ e1 :: e2 ]
-}
-
-nonterm (Tp.tp_patchexp list) Patch_Exp_List {
-	-> e2:Patch_Exp_List_Rev [ List.rev e2 ]
 }
 
 nonterm (Tp.tp_patchexp) Patch_Exp_Safe {
@@ -1030,6 +1042,8 @@ nonterm (Tp.tp_patch) Tp_Patch {
 			[ Tp.TP_PatchIf(e1,e2,e3) ]
 	-> PATCH_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Patch_List END ELSE e3:Tp_Patch
 			[ Tp.TP_PatchIf(e1,e2,[e3]) ]
+  -> PATCH_TRY e1:Tp_Patch_List e2:Patch_With_List DEFAULT e3:Tp_Patch_List END [ Tp.TP_PatchTry(e1,e2,e3) ]
+  -> PATCH_MATCH e1:Patch_Exp e2:Patch_With_List DEFAULT e3:Tp_Patch_List END [ Tp.TP_PatchMatch(e1,e2,e3) ]
 	-> PATCH_READLN e1:Patch_String_Left [ Tp.TP_PatchReadLN(e1) ]
 	-> PATCH_SILENT [ Tp.TP_PatchSilent ]
 	-> PATCH_VERBOSE [ Tp.TP_PatchVerbose ]
@@ -1039,7 +1053,8 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> INNER_PATCH_SAVE e1:Patch_String_Left e2:STRING BEGIN e3:Tp_Patch_List END
 			[ Tp.TP_PatchInnerBuffSave(e1,e2,e3) ]
 	-> PATCH_PRINT e1:Lse [ Tp.TP_PatchPrint(e1) ]
-	-> PATCH_FAIL e1:Lse [ Tp.TP_PatchFail(e1) ]
+	-> PATCH_RERAISE [ Tp.TP_PatchReraise ]
+  -> PATCH_FAIL e1:Lse [ Tp.TP_PatchFail(e1) ]
 	-> PATCH_WARN e1:Lse [ Tp.TP_PatchWarn(e1) ]
   -> PATCH_LOG e1:Lse [ Tp.TP_PatchLog(e1) ]
 	-> TO_LOWER e1:Patch_String_Right [ Tp.TP_PatchToLower e1 ]
@@ -1129,6 +1144,14 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> REBUILD_CRE_FILE { Tp.TP_RebuildCreFile }
 }
 
+nonterm((Tp.tp_patchexp list * Tp.tp_patch list) list) Patch_With_List_Rev {
+	-> { [] }
+	-> e3:Patch_With_List_Rev e1:Patch_Exp_List BEGIN e2:Tp_Patch_List END [ (e1,e2) :: e3 ]
+}
+
+nonterm((Tp.tp_patchexp list * Tp.tp_patch list) list) Patch_With_List  {
+	-> WITH e3:Patch_With_List_Rev [ List.rev e3 ]
+}
 
 nonterm (Tp.tp_local_declaration list) Tp_Local_Declaration_List_Rev {
 	-> { [] }

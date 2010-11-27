@@ -3139,6 +3139,18 @@ P Q R 3 <br>
     If \ttref{value} evaluates to true (non-zero), the \ttref{TP2 Action}s
     in the \t{THEN}-branch are executed. Otherwise, if an \t{ELSE}-branch
     is present, its commands are executed. Otherwise nothing happens. \\
+  or & \DEFINE{ACTION!MATCH} \ttref{value} WITH \Ob \ttref{value} ...
+    BEGIN \ttref{TP2 Action} \Slist END \Oe ...
+    DEFAULT \ttref{TP2 Action} \Slist END &
+    See the \ttref{MATCH and TRY} tutorial.
+  \\
+  or & \DEFINE{ACTION!TRY} \ttref{TP2 Action} \Slist WITH \Ob \ttref{value} ...
+    BEGIN \ttref{TP2 Action} \Slist END \Oe ...
+    DEFAULT \ttref{TP2 Action} \Slist END &
+    See the \ttref{MATCH and TRY} tutorial.
+  \\
+  or & \DEFINE{ACTION!RERAISE} & See the \ttref{MATCH and TRY} tutorial.
+  \\
   or & \DEFINE{AT!EXIT} commandToRun \Ob \t{EXACT} \Oe &
     Whenever this \ttref{component} attempts to be installed, commandToRun
     is executed.  Variables (e.g., \t{\%LANGUAGE\%}) in the string
@@ -3379,7 +3391,7 @@ or & \DEFINE{ALTER!TLK!LIST} \t{BEGIN} \ttref{value} \Slist \t{END} \t{BEGIN} \t
     \ttref{component} cannot be installed. This is checked before any
     actions are executed. \\
   or & \DEFINE{FAIL} warningString &
-    If this \ttref{TP2 Action} is execution, warningString is displayed and
+    If this \ttref{TP2 Action} is executed, warningString is displayed and
     the \ttref{component} fails to install. \\
   or & \DEFINE{WARN} displayString &
     The string DisplayString is echoed to the user. Useful for debugging or
@@ -4065,6 +4077,18 @@ or & \DEFINE{PATCH!IF} \ttref{value} \Ob \t{THEN} \Oe \t{BEGIN}
   once. Otherwise, execute the second \ttref{patch} \Slist (if any). As a
   convenient shorthand, you may omit the \t{BEGIN}-\t{END} in the \t{ELSE}
   branch if the \t{ELSE} branch contains exactly one \t{patch}.  
+  \\
+  or & \DEFINE{PATCH!MATCH} \ttref{value} WITH \Ob \ttref{value} ...
+    BEGIN \ttref{patch} \Slist END \Oe 
+    ... DEFAULT \ttref{patch} \Slist END &
+    See the \ttref{MATCH and TRY} tutorial.
+  \\
+  or & \DEFINE{PATCH!TRY} \ttref{patch} \Slist WITH \Ob \ttref{value} ...
+    BEGIN \ttref{patch} \Slist END \Oe 
+    ... DEFAULT \ttref{patch} \Slist END &
+    See the \ttref{MATCH and TRY} tutorial.
+  \\
+  or & \DEFINE{PATCH!RERAISE} & See the \ttref{MATCH and TRY} tutorial.
   \\
 or & \DEFINE{PATCH!INCLUDE} \t{\ttref{String}} \Slist &
     loads the file string as if it were a list of tp2 patches and executes it (as if
@@ -7287,6 +7311,175 @@ COPY_EXISTING miscbc.itm override
 BUT_ONLY
 \end{verbatim}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{\DEFINE{MATCH and TRY} (last edit: 225)}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\verb+MATCH+ is the equivalent of switch..case in mainstream languages (except it
+also works on strings, similar to OCaml's match..with). It can be used to
+run one or another section of code depending on the value being checked
+against.
+
+\verb+TRY+ is used to detect TP2 failures (= anything that blocks the installation
+and prints "NOT INSTALLED DUE TO ERRORS") and allows the modder to run custom
+code (without forcibly failing the installation). The synthax is very similar
+to \verb+MATCH+, which is why these two commands are presented together.
+
+This tutorial documents \verb+ACTION!MATCH+ and \verb+ACTION!TRY+, but the
+patch equivalents (\verb+PATCH!MATCH+ and \verb+PATCH!TRY+) are also
+avaiable.
+
+This is an example code for \verb+MATCH+:
+\begin{verbatim}
+ACTION_MATCH 12 + 14 // value
+WITH
+  15 16 // guards
+  BEGIN
+    PRINT ~15 or 16~ // guarded actions
+    PRINT ~~
+  END
+  15 + 5 ~str.*with%vars% and regexp~
+  BEGIN
+    PRINT ~15 + 5 or matches "str.*with%vars% and regexp"~
+  END
+  DEFAULT
+    PRINT ~default~ // default actions
+END
+\end{verbatim}
+
+To begin with, the value (12 + 14) is evaluated (can be any integer or a string).
+After that, it is compared against each guard: it is neither 15 nor 16, so its
+guarded action not executed. Similarly, it is neither 15 + 5 (= 20)
+nor does it match the regexp \verb+~str.*with%vars% and regexp~+ after evaluating
+variables and case-insensitive regexp, so
+its guarded actions aren't executed either.
+Since no listed value is printed, the default action(s) are executed (in this case,
+\verb+PRINT ~default~+).
+
+\verb+MATCH+ can also compare against strings:
+\begin{verbatim}
+OUTER_SET var = 15
+ACTION_MATCH ~string%var%~
+WITH
+  ~string12~ ~string2.*~
+  BEGIN
+    PRINT ~string12 or string2.*~
+  END
+  ~string1[12345]~
+  BEGIN
+    PRINT ~string1[12345]~
+  END
+  DEFAULT
+    PRINT ~default~
+END
+\end{verbatim}
+In this case, \verb+PRINT ~string1[12345]~+ is executed.
+
+Specific cases that might be worth mentioning:
+it is possible for a guarded action to be empty, to have no default actions,
+to only have default actions, or to have a group of guarded actions without a
+guard, as per the following examples:
+\begin{verbatim}
+ACTION_MATCH ~%something%~
+WITH
+  ~no action~ ~none~ ~empty~ ~~
+  BEGIN
+    // empty guarded action: default action never executed
+  END
+  ~error~
+  BEGIN
+    FAIL ~error~
+  END
+  DEFAULT
+    DO_THIS_AND_THAT
+END
+
+ACTION_MATCH ~%something%~
+WITH
+  ~value1~ ~value2~ ~value3~
+  BEGIN
+    DO_SOMETHING
+  END
+  ~error~
+  BEGIN
+    FAIL ~error~
+  END
+  DEFAULT
+    // no default action: nothing is done for unmatched values
+END
+
+ACTION_MATCH ~%something%~
+WITH
+  DEFAULT
+    // no guarded actions, only default actions: always executed
+    DO_THIS_AND_THAT
+END
+
+ACTION_MATCH ~%something%~
+WITH
+  BEGIN
+    DO_SOMETHING // unguarded guarded action: never executed
+  END
+  ~error~
+  BEGIN
+    FAIL ~error~
+  END
+  DEFAULT
+    DO_SOMETHING
+END
+\end{verbatim}
+
+Also, no more than one group of actions is executed:
+\begin{verbatim}
+ACTION_MATCH ~string123~
+WITH
+  ~string123~
+  BEGIN
+    DO_THIS // executed
+  END
+  ~string123~
+  BEGIN
+    DO_THAT // not executed
+  END
+  DEFAULT
+    DO_BOTH // also not executed
+END
+\end{verbatim}
+\\
+\\
+\\
+\\
+\verb+TRY+ is similar to \verb+MATCH+:
+\begin{verbatim}
+ACTION_TRY
+  COPY ~override/sw1h01.itm~ ~override~
+  DO_SOMETHING_ELSE
+WITH
+  ~Unix.Unix_error(20, "stat", "override/sw1h01.itm")~
+  BEGIN
+    PRINT ~I caught sw1h01.itm not found!~
+  END
+  ~Unix.Unix_error(20, "stat", "override/.*.itm")~
+  BEGIN
+    PRINT ~I caught another missing item!~
+  END
+  DEFAULT
+    PRINT ~I caught another error!~
+END
+\end{verbatim}
+
+The actions in \verb+ACTION_TRY+ are executed. If none of those fails, the
+\verb+WITH+ part is skipped; otherwise, the error message is printed as usual
+(use \ttref{SILENT}), the exception text (from the ERROR: blah blah line) is
+saved to the \verb+%ERROR_MESSAGE%+ variable, and a \verb+MATCH+ is executed
+on that.
+
+After running the correct error handling code, execution continues after the
+end of the \verb+ACTION_TRY+ block - if you still want to block the
+installation, use \verb+ACTION_RERAISE+ (in theory, you could use
+\verb+FAIL ~%ERROR_MESSAGE%~+, but this changes the exception and its text,
+which would cause you headaches when nesting multiple \verb+TRY+s).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\DEFINE{Code dumps}}

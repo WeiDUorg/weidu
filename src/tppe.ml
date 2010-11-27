@@ -535,3 +535,19 @@ let eval_pe buff game pe =
       (pe_to_str pe) res ) ;
   res
 
+
+let string_of_pe buff game pe =
+  eval_pe_warn := false ;
+  let value = try
+      let x = (eval_pe buff game pe) in
+      Int32.to_string x
+    with _ ->
+    begin
+      match pe with
+        | PE_String(x) -> Var.get_string (eval_pe_str x)
+        | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game pe) ; "")
+    end
+  in
+  eval_pe_warn := true ; 
+  value
+  

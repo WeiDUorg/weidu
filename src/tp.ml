@@ -184,11 +184,14 @@ and tp_action =
   | TP_String_Set of ((string * Dlg.tlk_string) list) * (string option)
   | TP_String_Set_Evaluate of ((tp_patchexp * Dlg.tlk_string) list) * (string option)
   | TP_String_Set_Range of tp_patchexp * tp_patchexp * string
+  | TP_Reraise
   | TP_Fail of Dlg.tlk_string
   | TP_Warn of Dlg.tlk_string
   | TP_Print of Dlg.tlk_string
   | TP_Log of Dlg.tlk_string
   | TP_If of tp_patchexp * (tp_action list) * (tp_action list)
+  | TP_ActionTry of tp_action list * (tp_patchexp list * tp_action list) list * tp_action list
+  | TP_ActionMatch of tp_patchexp * (tp_patchexp list * tp_action list) list * tp_action list
   | TP_Uninstall_Now of string * tp_patchexp
   | TP_Alter_TLK of (tp_patch list)
   | TP_Alter_TLK_Range of tp_patchexp * tp_patchexp * (tp_patch list)
@@ -303,6 +306,7 @@ and tp_patch =
   | TP_DescribeItem of string
   | TP_PatchPrint of Dlg.tlk_string
   | TP_PatchLog of Dlg.tlk_string
+  | TP_PatchReraise
   | TP_PatchFail of Dlg.tlk_string
   | TP_PatchWarn of Dlg.tlk_string
   | TP_PatchSprint of tp_pe_string * tp_pe_tlk_string
@@ -330,6 +334,8 @@ and tp_patch =
   | TP_PatchFor of
       (tp_patch list) * tp_patchexp * (tp_patch list) * (tp_patch list)
   | TP_PatchIf of tp_patchexp * (tp_patch list) * (tp_patch list)
+  | TP_PatchTry of tp_patch list * (tp_patchexp list * tp_patch list) list * tp_patch list
+  | TP_PatchMatch of tp_patchexp * (tp_patchexp list * tp_patch list) list * tp_patch list
   | TP_PatchReinclude of string list
   | TP_PatchInclude of string list
   | TP_PatchRandomSeed of tp_patchexp
@@ -499,3 +505,5 @@ type installed_mods = (string * int * int * (string option) * status) list
 let log_name = "WeiDU.log"
 
 let the_log : installed_mods ref = ref []
+
+let current_exception = ref Not_found

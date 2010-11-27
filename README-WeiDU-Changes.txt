@@ -9,6 +9,7 @@ Version 225:
   * WARN tp2 action prints a message and sets the status to 'INSTALLED WITH
     WARNINGS'.
   * PATCH_FAIL, PATCH_WARN do the obvious thing.
+  * {PATCH,ACTION}_{MATCH,TRY,RERAISE} added.
 
 Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.
