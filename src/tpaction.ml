@@ -1918,127 +1918,129 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	      
       | TP_Extend_Top(use_reg,dest,src,pl,tra_l)
       | TP_Extend_Bottom(use_reg,dest,src,pl,tra_l) -> begin
-	  let dest = if not use_reg then Arch.backslash_to_slash dest else dest in
-	  let tra_l = List.map (fun x -> Arch.backslash_to_slash x) tra_l in
-	  log_and_print "Extending game scripts ...\n" ;
-	  let dest = (Var.get_string dest) in
-	  let src = (Var.get_string src) in
-	  let src = Arch.backslash_to_slash src in
-	  let dlist =
-	    if use_reg = false then
-	      [dest]
-	    else begin
-	      let files_in_chitin = Key.list_of_key_resources game.Load.key true in
-	      let regexp = Str.regexp_case_fold dest in
-	      let matches = ref [] in
-	      List.iter (fun possible ->
-		if Str.string_match regexp possible 0 then begin
-		  matches := (possible) :: !matches
-		end
-			) files_in_chitin ;
-	      if (!matches = []) then
-		[dest]
-	      else
-		!matches
-	    end
-	  in
-	  Dc.push_copy_trans_modder () ;
-	  Dc.notChanged := true ;
-	  (* handle AUTO_TRA "solarom/%s" *)
-	  List.iter (fun f ->
-	    match f,!our_lang with
-	      Auto_Tra(path),Some(l) ->
-		let my_regexp = Str.regexp_string "%s" in
-		let tra_file_dir = Str.global_replace
-		    my_regexp l.lang_dir_name path in
-		let d_base,_ = split (Case_ins.filename_basename src) in
-		let tra_file = tra_file_dir ^ "/" ^ d_base ^ ".TRA" in
-		handle_tra_filename tra_file ;
-	    | Auto_Tra(path),None ->
-		let d_base,_ = split (Case_ins.filename_basename src) in
-		let tra_file = path ^ "/" ^ d_base ^ ".TRA" in
-		handle_tra_filename tra_file
-	    | _ -> ()
-		    ) tp.flags ;
-	  begin
-	    match !our_lang with
-	      Some(l) -> List.iter (fun path ->
-		let my_regexp = Str.regexp_string "%s" in
-		let tra_file = Str.global_replace
-		    my_regexp l.lang_dir_name  (Var.get_string path) in
-		handle_tra_filename tra_file ;
-				   ) tra_l 
-	    | _ -> List.iter (fun tra_file -> 
-		handle_tra_filename tra_file ; 
-			     ) tra_l 
-	  end ;
-	  if !Dc.notChanged then Modder.handle_msg "SETUP_TRA" (Printf.sprintf "WARNING: EXTEND* %s with strings from setup.tra\n" src);
-	  let src_script =
-	    try
-	      let src_buff = load_file src in
-	      if (!has_if_eval_bug) then begin try
-		List.iter (fun p -> process_patch1 src game src_buff p) pl ;
-	      with _ -> () end;
-	      let src_buff = List.fold_left (fun acc elt ->
-		try process_patch2 src game acc elt
-		with e ->
-		  log_and_print "ERROR: [%s] -> [%s] Patching Failed (EXTEND_TOP/BOTTOM)\n"
-		    src dest ; raise e) 
-		  src_buff pl 
-	      in 
-	      Dc.ok_to_resolve_strings_while_loading := Some(game) ; 
-	      (try 
-		let res = handle_script_buffer src src_buff in
-		Dc.ok_to_resolve_strings_while_loading := None ; 
-		res
-	      with e -> 
-		begin 
-		  Dc.ok_to_resolve_strings_while_loading := None ; 
-		  raise e
-		end
-	      ) ;
-	    with e ->
-	      if !debug_modder then raise e else []
-	  in
-	  List.iter (fun dest -> 
-	    let eight,three = split (String.uppercase dest) in 
-	    let dest_script = 
-	      let old_a_m = !Load.allow_missing in 
-	      Load.allow_missing := dest :: old_a_m ;
-	      let dest_buff, dest_path = 
-		try 
-		  Load.load_resource "EXTEND_TOP/EXTEND_BOTTOM" game true eight three
-		with _ -> 
-		  begin 
-		    log_only "[%s] not found, treating as empty.\n" dest ;
-		    "",""
-		  end 
-	      in
-	      Load.allow_missing := old_a_m ; 
-	      handle_script_buffer dest dest_buff
-	    in 
-	    
-	    let destpath =
-              try
-		ignore(String.index dest '/'); dest
-              with _ -> "override/" ^ dest
+        let dest = if not use_reg then Arch.backslash_to_slash dest else dest in
+        let tra_l = List.map (fun x -> Arch.backslash_to_slash x) tra_l in
+        log_and_print "Extending game scripts ...\n" ;
+        let dest = (Var.get_string dest) in
+        let src = (Var.get_string src) in
+        let src = Arch.backslash_to_slash src in
+        let dlist =
+          if use_reg = false then
+            [dest]
+          else begin
+            let files_in_chitin = Key.list_of_key_resources game.Load.key true in
+            let regexp = Str.regexp_case_fold dest in
+            let matches = ref [] in
+            List.iter (fun possible ->
+              if Str.string_match regexp possible 0 then begin
+                matches := (possible) :: !matches
+              end
+            ) files_in_chitin ;
+            if (!matches = []) then
+              [dest]
+            else
+              !matches
+          end
+        in
+        Dc.push_copy_trans_modder () ;
+        Dc.notChanged := true ;
+        (* handle AUTO_TRA "solarom/%s" *)
+        List.iter (fun f ->
+          match f,!our_lang with
+            Auto_Tra(path),Some(l) ->
+            let my_regexp = Str.regexp_string "%s" in
+            let tra_file_dir = Str.global_replace
+                my_regexp l.lang_dir_name path in
+            let d_base,_ = split (Case_ins.filename_basename src) in
+            let tra_file = tra_file_dir ^ "/" ^ d_base ^ ".TRA" in
+            handle_tra_filename tra_file ;
+              | Auto_Tra(path),None ->
+            let d_base,_ = split (Case_ins.filename_basename src) in
+            let tra_file = path ^ "/" ^ d_base ^ ".TRA" in
+            handle_tra_filename tra_file
+          | _ -> ()
+        ) tp.flags ;
+        begin
+          match !our_lang with
+            Some(l) -> List.iter (fun path ->
+              let my_regexp = Str.regexp_string "%s" in
+              let tra_file = Str.global_replace
+                  my_regexp l.lang_dir_name  (Var.get_string path) in
+              handle_tra_filename tra_file ;
+            ) tra_l 
+          | _ -> List.iter (fun tra_file -> 
+            handle_tra_filename tra_file ; 
+          ) tra_l 
+        end ;
+        if !Dc.notChanged then Modder.handle_msg "SETUP_TRA" (Printf.sprintf "WARNING: EXTEND* %s with strings from setup.tra\n" src);
+        let src_script =
+          let src_buff = load_file src in
+          if (!has_if_eval_bug) then begin
+            try
+              List.iter (fun p -> process_patch1 src game src_buff p) pl ;
+            with _ -> ()
+          end;
+          let src_buff = List.fold_left (fun acc elt ->
+            try
+              process_patch2 src game acc elt
+            with e ->
+              log_and_print "ERROR: [%s] -> [%s] Patching Failed (EXTEND_TOP/BOTTOM)\n"
+                src dest ; raise e) 
+            src_buff pl 
+          in 
+          Dc.ok_to_resolve_strings_while_loading := Some(game) ; 
+          (
+            try 
+              let res = handle_script_buffer src src_buff in
+              Dc.ok_to_resolve_strings_while_loading := None ; 
+              res
+            with e -> 
+              begin 
+                Dc.ok_to_resolve_strings_while_loading := None ; 
+                raise e
+              end
+          ) ;
+        in
+        List.iter (fun dest -> 
+          let eight,three = split (String.uppercase dest) in 
+          let dest_script = 
+            let old_a_m = !Load.allow_missing in 
+            Load.allow_missing := dest :: old_a_m ;
+            let dest_buff, dest_path = 
+              try 
+                Load.load_resource "EXTEND_TOP/EXTEND_BOTTOM" game true eight three
+              with _ -> 
+              begin 
+                log_only "[%s] not found, treating as empty.\n" dest ;
+                "",""
+              end 
             in
-	    Stats.time "saving files" (fun () ->
-	      let out = open_for_writing destpath true in
-	      Bcs.save_bcs game (Bcs.Save_BCS_OC(out)) (match a with
-		TP_Extend_Top(_,_,_,_,_) -> src_script @ dest_script
-	      | _ -> dest_script @ src_script) ;
-	      close_out out ;
-	      begin (* handle read-only files! *)
-		try
-		  Case_ins.unix_chmod destpath 511 ; (* 511 = octal 0777 = a+rwx *)
-		with e -> ()
-		    (* log_or_print "WARNING: chmod %s : %s\n" filename
-		       (Printexc.to_string e) *)
-	      end ;) () ;
-	    log_or_print "Extended script [%s] with [%s]\n" dest src
-		    ) dlist ;
-	  Dc.pop_trans () ; 
+            Load.allow_missing := old_a_m ; 
+            handle_script_buffer dest dest_buff
+          in 
+          
+          let destpath =
+            try
+              ignore(String.index dest '/'); dest
+            with _ -> "override/" ^ dest
+          in
+          Stats.time "saving files" (fun () ->
+            let out = open_for_writing destpath true in
+            Bcs.save_bcs game (Bcs.Save_BCS_OC(out)) (match a with
+              TP_Extend_Top(_,_,_,_,_) -> src_script @ dest_script
+              | _ -> dest_script @ src_script) ;
+            close_out out ;
+            begin (* handle read-only files! *)
+              try
+                Case_ins.unix_chmod destpath 511 ; (* 511 = octal 0777 = a+rwx *)
+              with e -> ()
+              (* log_or_print "WARNING: chmod %s : %s\n" filename
+                 (Printexc.to_string e) *)
+            end ;
+          ) () ;
+          log_or_print "Extended script [%s] with [%s]\n" dest src
+            ) dlist ;
+          Dc.pop_trans () ; 
       end
 	    
       | TP_At_Interactive_Exit(str,exact) ->

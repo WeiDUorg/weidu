@@ -12,6 +12,7 @@ Version 225:
   * {PATCH,ACTION}_{MATCH,TRY,RERAISE} added.
   * ADD_MEMORIZED_SPELL (and other CRE-altering commands) dones't break files
     that were broken by DLTCEP.
+  * EXTEND_{TOP,BOTTOM} fails if the .baf file is invalid.
 
 Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.
