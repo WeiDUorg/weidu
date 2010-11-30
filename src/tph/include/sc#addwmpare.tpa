@@ -184,7 +184,11 @@ DEFINE_PATCH_FUNCTION sc#toNewAre BEGIN
         DEFINE_PATCH_MACRO ~tb#sort_swap~ BEGIN
           SET tb#sort_val_i = EVALUATE_BUFFER $tb#sort_value(~%tb#sort_i%~)
           SET tb#sort_val_j = EVALUATE_BUFFER $tb#sort_value(~%tb#sort_j%~)
-          PATCH_IF (tb#sort_val_i < tb#sort_val_j) BEGIN
+          SPRINT tb#sort2_val_i $tb#sort_value(~%tb#sort_i%~)
+          SPRINT tb#sort2_val_j $tb#sort_value(~%tb#sort_j%~)
+          SET tb#sort2_val_i = EVALUATE_BUFFER ~#%tb#sort2_val_i%~
+          SET tb#sort2_val_j = EVALUATE_BUFFER ~#%tb#sort2_val_j%~
+          PATCH_IF (tb#sort_val_i < tb#sort_val_j || (tb#sort_val_i = tb#sort_val_j && tb#sort2_val_j > tb#sort2_val_i)) BEGIN
             SPRINT tb#sort_tmp $tb#sort_value(~%tb#sort_i%~)
             SPRINT $tb#sort_value(~%tb#sort_i%~) $tb#sort_value(~%tb#sort_j%~)
             SPRINT $tb#sort_value(~%tb#sort_j%~) ~%tb#sort_tmp%~

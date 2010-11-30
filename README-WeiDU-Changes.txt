@@ -15,6 +15,7 @@ Version 225:
   * EXTEND_{TOP,BOTTOM} fails if the .baf file is invalid.
   * COMPILE_BAF_TO_BCS and DECOMPILE_BCS_TO_BAF fails on invalid files (except
     on known-invalid files).
+  * Fixed sc#AddWmpAre corrupting links on AR3000 on worldm25.wmp.
 
 Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.
