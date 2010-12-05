@@ -16,6 +16,7 @@ Version 225:
   * COMPILE_BAF_TO_BCS and DECOMPILE_BCS_TO_BAF fails on invalid files (except
     on known-invalid files).
   * Fixed sc#AddWmpAre corrupting links on AR3000 on worldm25.wmp.
+  * A failure in COMPILE_BAF_TO_BCS doesn't break the parser.
 
 Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.
