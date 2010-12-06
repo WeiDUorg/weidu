@@ -6,7 +6,7 @@
 
 		//copies all effects from an item and store them in spell. new_itm_spl required (which should already lie in override folder. .spl is NOT implied)
 		DEFINE_PATCH_MACRO ~ITEM_EFFECT_TO_SPELL~ BEGIN
-		  PATCH_IF (SOURCE_SIZE > 0x71) BEGIN
+		  PATCH_IF (BUFFER_LENGTH	 > 0x71) BEGIN
 		    READ_LONG   0x64 ___#abil_off
 		    READ_SHORT  0x68 ___#abil_num
 		    READ_LONG   0x6a ___#fx_off
@@ -48,7 +48,7 @@
 		
 		//need parameters: opcode_to_delete
 		DEFINE_PATCH_MACRO ~DELETE_SPELL_EFFECT~ BEGIN
-		  PATCH_IF (SOURCE_SIZE > 0x71) THEN BEGIN
+		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN
 		    READ_LONG  0x64 ___#abil_off
 		    READ_SHORT 0x68 ___#abil_num
 		    READ_LONG  0x6a ___#fx_off
@@ -85,7 +85,7 @@
 		
 		//deletes the extended effect with the specified opcode from the item. need parameters: opcode_to_delete
 		DEFINE_PATCH_MACRO ~DELETE_ITEM_EFFECT~ BEGIN
-		  PATCH_IF (SOURCE_SIZE > 0x71) THEN BEGIN
+		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN
 		    READ_LONG  0x64 ___#abil_off
 		    READ_SHORT 0x68 ___#abil_num
 		    READ_LONG  0x6a ___#fx_off
@@ -125,7 +125,7 @@
 		
 		//deletes the equipping effect the with specified opcode from the item. need parameters: opcode_to_delete
 		DEFINE_PATCH_MACRO ~DELETE_ITEM_EQEFFECT~ BEGIN
-		  PATCH_IF (SOURCE_SIZE > 0x71) THEN BEGIN
+		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN
 		    READ_LONG 0x64 ___#abil_off
 		    READ_SHORT 0x68 ___#abil_num
 		    READ_LONG 0x6a ___#fx_off
@@ -179,7 +179,7 @@
 		//header (default all)
 		
 		DEFINE_PATCH_MACRO ~ADD_SPELL_EFFECT~ BEGIN
-		  PATCH_IF (SOURCE_SIZE > 0x71) THEN BEGIN
+		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN
 		    READ_LONG  0x64 ___#abil_off
 		    READ_SHORT 0x68 ___#abil_num
 		    READ_LONG  0x6a ___#fx_off
@@ -273,7 +273,7 @@
 		//savebonus
 		
 		DEFINE_PATCH_MACRO ~ADD_ITEM_EQEFFECT~ BEGIN
-		  PATCH_IF (SOURCE_SIZE > 0x71) THEN BEGIN
+		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN
 		    READ_LONG 0x64 ___#abil_off
 		    READ_SHORT 0x68 ___#abil_num
 		    READ_LONG 0x6a ___#fx_off
@@ -339,7 +339,7 @@
 
 		//adds the effect to the item. Need parameters: ___#opcode target use_level fail_strref timing mr_bypass duration probability ~%resource%~
 		DEFINE_PATCH_MACRO ~ADD_ITEM_EFFECT~ BEGIN
-		  PATCH_IF (SOURCE_SIZE > 0x71) THEN BEGIN // protects against invalid files
+		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN // protects against invalid files
 		    READ_LONG   0x64 ___#abil_off //ability offset
 		    READ_SHORT  0x68 ___#abil_num //number of abilities
 		    READ_LONG   0x6a ___#fx_off //effects offset
@@ -729,7 +729,7 @@
 		//reuired: container_to_add_to (starting from 1), ~item_to_add~
 		//optional: charges1 charges2 charges3 flags
 		DEFINE_PATCH_MACRO ~ADD_AREA_ITEM~ BEGIN
-		  PATCH_IF (SOURCE_SIZE > 0x11b) BEGIN
+		  PATCH_IF (BUFFER_LENGTH	 > 0x11b) BEGIN
 		    //reading necessary offsets
 		    READ_LONG 0x70 ___#cont_off
 		    READ_SHORT 0x74 ___#cont_num
@@ -806,7 +806,7 @@
 		
 		//deletes an item from a store. ~item_to_delete~ required
 		DEFINE_PATCH_MACRO ~DELETE_STORE_ITEM~ BEGIN
-		  PATCH_IF (SOURCE_SIZE > 0x9a) BEGIN
+		  PATCH_IF (BUFFER_LENGTH	 > 0x9a) BEGIN
 		    READ_LONG 0x34 ___#4sale_off
 		    READ_LONG 0x38 ___#4sale_num
 		    READ_LONG 0x2c ___#items_purchased_off
@@ -843,7 +843,7 @@
 		
 		//deletes an item from the current area. ~item_to_delete~
 		DEFINE_PATCH_MACRO ~DELETE_AREA_ITEM~ BEGIN
-		  PATCH_IF (SOURCE_SIZE > 0x11b) BEGIN
+		  PATCH_IF (BUFFER_LENGTH	 > 0x11b) BEGIN
 		    //reading necessary offsets
 		    READ_LONG 0x70 ___#cont_off
 		    READ_SHORT 0x74 ___#cont_num
@@ -904,7 +904,7 @@
 		
 		//replace item in .sto. variables ~old_item~ ~new_item~ required number_in_stock
 		DEFINE_PATCH_MACRO ~REPLACE_STORE_ITEM~ BEGIN
-		  PATCH_IF (SOURCE_SIZE > 0x9a) BEGIN
+		  PATCH_IF (BUFFER_LENGTH	 > 0x9a) BEGIN
 		    READ_LONG 0x34 ___#4sale_off
 		    READ_LONG 0x38 ___#4sale_num
 		
@@ -955,7 +955,7 @@
 		
 		//replaces item in an area with another item. Variables ~old_item~, ~new_item~ required
 		DEFINE_PATCH_MACRO ~REPLACE_AREA_ITEM~ BEGIN
-		  PATCH_IF (SOURCE_SIZE > 0x11b) BEGIN
+		  PATCH_IF (BUFFER_LENGTH	 > 0x11b) BEGIN
 		    READ_SHORT 0x76 ___#itm_num
 		    READ_LONG  0x78 ___#itm_off
 		    WHILE (___#itm_num > 0) BEGIN
@@ -1108,7 +1108,7 @@
 		//output: soundset_0-99 (100-int array of strrefs)
 		DEFINE_ACTION_MACRO ~READ_SOUNDSET~ BEGIN
 		COPY_EXISTING ~%npc%~ ~override~
-		PATCH_IF (SOURCE_SIZE > 0x2d3) BEGIN
+		PATCH_IF (BUFFER_LENGTH	 > 0x2d3) BEGIN
 		  FOR (___#index1 = 0; ___#index1 < 100; ___#index1 = ___#index1 + 1) BEGIN
 		    SET EVALUATE_BUFFER ~%soundset%_%___#index1%~ = (0 - 1)
 		  END
@@ -1127,7 +1127,7 @@
 		//npc (.cre), overwrite (0 or 1), soundset (100-int array of strrefs)
 		DEFINE_ACTION_MACRO ~WRITE_SOUNDSET~ BEGIN
 		COPY_EXISTING_REGEXP ~^%npc%$~ ~override~
-		PATCH_IF (SOURCE_SIZE > 0x2d3) BEGIN
+		PATCH_IF (BUFFER_LENGTH	 > 0x2d3) BEGIN
 		  FOR (___#index1 = 0; ___#index1 < 100; ___#index1 = ___#index1 + 1) BEGIN
 		    READ_LONG (0xa4 + ___#index1 * 4) ___#strref
 		    SET ___#new_strref = EVALUATE_BUFFER ~%soundset%_%___#index1%~
@@ -1153,7 +1153,7 @@
 	END
     
     DEFINE_PATCH_MACRO ~ADD_AREA_REGION~ BEGIN
-       PATCH_IF (%SOURCE_SIZE% > 0xd4) BEGIN
+       PATCH_IF (%BUFFER_LENGTH	% > 0xd4) BEGIN
       //read values for existing regions
         READ_LONG 0x5c info_off
         READ_SHORT 0x5a info_num

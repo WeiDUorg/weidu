@@ -17,6 +17,9 @@ Version 225:
     on known-invalid files).
   * Fixed sc#AddWmpAre corrupting links on AR3000 on worldm25.wmp.
   * A failure in COMPILE_BAF_TO_BCS doesn't break the parser.
+  * Build-in macros now compare against the current file size, not the size
+    reported when loading the file (notably, you can launch DELETE_CRE_EFFECT
+    twice on the same CRE file).
 
 Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.
