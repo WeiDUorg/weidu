@@ -201,7 +201,7 @@ DEFINE_PATCH_FUNCTION ~FJ_CRE_REINDEX~ BEGIN
       WRITE_SHORT off_0 + i1 0xffff
     END
   END
-  BUFFER_LENGTH	 = off_0 + 0x50
+  SOURCE_SIZE	 = off_0 + 0x50
 END
 
 DEFINE_PATCH_FUNCTION ~FJ_CRE_EFF_V2~ BEGIN
@@ -220,7 +220,7 @@ DEFINE_PATCH_FUNCTION ~FJ_CRE_EFF_V2~ BEGIN
       SPRINT rfx ~~
       INNER_PATCH ~%fx%~ BEGIN
         FOR (i1 = 0; i1 < fc; i1 += 1) BEGIN
-          BUFFER_LENGTH	 += 0xd8
+          SOURCE_SIZE	 += 0xd8
           READ_SHORT ((i1 * 0x30) + 0x00) pc //Opcode
           READ_BYTE  ((i1 * 0x30) + 0x02) tg //Target
           READ_BYTE  ((i1 * 0x30) + 0x03) pw //Power
@@ -327,7 +327,7 @@ DEFINE_PATCH_FUNCTION ~t-CRE_EFF_V1~ BEGIN
       INSERT_BYTES fs (0x30 * fc)
       WRITE_ASCIIE fs ~%rfx%~
       WRITE_LONG 0x2c8 fc //Update effects count
-      BUFFER_LENGTH	 -= sz
+      SOURCE_SIZE	 -= sz
     END
   END
 END
