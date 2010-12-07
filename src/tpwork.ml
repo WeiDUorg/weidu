@@ -414,10 +414,17 @@ let rec handle_tp
 	            args_backup_filename (Printexc.to_string e)
 	      end ;
 	      
-	      log_and_print "\n%s [%s]\n"
+        let version_msg =
+          let rec getmsg lst = match lst with
+          | [] -> ""
+          | Version(a) :: _ -> Printf.sprintf " [%s]" (Dc.single_string_of_tlk_string_safe game a)
+          | hd :: tl -> getmsg tl
+          in getmsg tp.flags
+        in
+	      log_and_print "\n%s[%s]%s\n"
 	        (* "\nInstalling [%s]\n"  *)
 	        ((get_trans (-1016)))
-	        package_name ;
+	        package_name version_msg;
 	      (try
 	        Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
 	        Var.set_int32 "INTERACTIVE" (Int32.of_int (if !interactive then 1 else 0)) ;
