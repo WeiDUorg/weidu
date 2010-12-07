@@ -1837,8 +1837,7 @@ let main () =
    Util.log_channel := None
    ;;
 
-   if not !no_exit_pause && (!pause_at_end || (!return_value <> return_value_success && Var.get_string "%WEIDU_OS%" =
-   "x86_WIN32")) then begin
+   if not !no_exit_pause && (!pause_at_end || (!return_value <> return_value_success)) then begin
    Printf.printf "\nPress ENTER to exit.\n" ;
    try ignore (read_line () ) with _ -> ()
    end

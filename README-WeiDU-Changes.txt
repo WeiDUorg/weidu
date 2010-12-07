@@ -20,7 +20,9 @@ Version 225:
   * Build-in macros now compare against the current file size, not the size
     reported when loading the file (notably, you can launch DELETE_CRE_EFFECT
     twice on the same CRE file).
-
+  * 'Press ENTER to exit.' is always displayed if a component failed installing
+    (unless you explicitly use --no-exit-pause).
+  
 Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.
   * DECOMPRESS_BIFF added.
