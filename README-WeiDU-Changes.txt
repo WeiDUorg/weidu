@@ -22,6 +22,7 @@ Version 225:
     twice on the same CRE file).
   * 'Press ENTER to exit.' is always displayed if a component failed installing
     (unless you explicitly use --no-exit-pause).
+  * Close biffs' file descriptors when re-loading the key.
   
 Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.

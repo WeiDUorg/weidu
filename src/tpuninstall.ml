@@ -111,6 +111,9 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
           let keyname = Load.find_file_in_path "." "^chitin.key$" in
           let keybuff = load_file keyname in
           game.Load.key <- Key.load_key keyname keybuff ;
+          Hashtbl.iter (fun name biff ->
+            Unix.close biff.Biff.fd
+          ) game.Load.loaded_biffs;
           game.Load.loaded_biffs <- Hashtbl.create 5 ;
       | TP_Include(string_list) ->
           List.iter (fun file ->
@@ -194,6 +197,9 @@ let check_hooks game tp2 i interactive override_filename =
       let keyname = Load.find_file_in_path "." "^chitin.key$" in
       let keybuff = load_file keyname in
       game.Load.key <- Key.load_key keyname keybuff ;
+      Hashtbl.iter (fun name biff ->
+        Unix.close biff.Biff.fd
+      ) game.Load.loaded_biffs;
       game.Load.loaded_biffs <- Hashtbl.create 5 ;
   end else if (String.uppercase override_filename) = "OVERRIDE/SPELL.IDS" ||
     (String.uppercase override_filename) = "OVERRIDE\\SPELL.IDS" then begin try
