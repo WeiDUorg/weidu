@@ -1153,7 +1153,7 @@
 	END
     
     DEFINE_PATCH_MACRO ~ADD_AREA_REGION~ BEGIN
-       PATCH_IF (%BUFFER_LENGTH	% > 0xd4) BEGIN
+       PATCH_IF (BUFFER_LENGTH > 0xd4) BEGIN
       //read values for existing regions
         READ_LONG 0x5c info_off
         READ_SHORT 0x5a info_num

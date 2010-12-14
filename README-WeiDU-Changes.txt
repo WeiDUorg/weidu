@@ -1,6 +1,7 @@
 Version 226:
   * Add a space in the "Installing [XYZ]" message.
   * LAUNCH_{PATCH,ACTION}_FUNCTION evaluates variables in the function name.
+  * ADD_AREA_REGION_TRIGGER now works again.
 
 Version 225:
   * Remove ARGS.*.TEXT and READLN.*.TEXT when doing temp_to_perm_uninstall.
