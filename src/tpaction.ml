@@ -400,7 +400,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
       | TP_Launch_Action_Function (str,int_var,str_var,rets) ->
 	  let (f_int_args,f_str_args,f_rets,f_code) = try
-	    Hashtbl.find action_functions str
+	    Hashtbl.find action_functions (Var.get_string str)
 	  with _ -> failwith (Printf.sprintf "Unknown function: %s" str)
 	  in
 	  let i_did_pop = ref false in

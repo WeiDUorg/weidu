@@ -461,7 +461,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
   
     | TP_Launch_Patch_Function (str,int_var,str_var,rets) ->
 	let (f_int_args,f_str_args,f_rets,f_code) = try
-	  Hashtbl.find patch_functions str
+	  Hashtbl.find patch_functions (Var.get_string str)
 	with _ -> failwith (Printf.sprintf "Unknown function: %s" str)
 	in
 	let i_did_pop = ref false in
