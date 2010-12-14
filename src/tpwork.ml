@@ -421,7 +421,7 @@ let rec handle_tp
           | hd :: tl -> getmsg tl
           in getmsg tp.flags
         in
-	      log_and_print "\n%s[%s]%s\n"
+	      log_and_print "\n%s [%s]%s\n"
 	        (* "\nInstalling [%s]\n"  *)
 	        ((get_trans (-1016)))
 	        package_name version_msg;
