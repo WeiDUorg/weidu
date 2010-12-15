@@ -6,7 +6,7 @@
 
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
-let version = "22500"
+let version = "22600"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
@@ -227,4 +227,5 @@ let version = "22500"
 (* 222 let comment = "Now with 5% less bugs" *)
 (* 223 let comment = "I should listen more to devSin" *)
 (* 224 let comment = "Now with 15% less bugs" *)
-let comment = "Portalbendarwinden"
+(* 225 let comment = "Portalbendarwinden" *)
+let comment = "3, 7, 15, 1, 292, 1, 1, 1, 2, 1, 3, 1, 14, 2, 1, 1, 2, 2, 2, 2, 1, 84, 2, 1, 1, 15, 3, 13"
