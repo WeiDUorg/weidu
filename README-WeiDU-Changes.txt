@@ -1,3 +1,6 @@
+Version 227:
+  * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
+
 Version 226:
   * Add a space in the "Installing [XYZ]" message.
   * LAUNCH_{PATCH,ACTION}_FUNCTION evaluates variables in the function name.

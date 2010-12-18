@@ -248,8 +248,8 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	buff
 
     | TP_PatchReplaceBCSBlock(old_file, new_file, on_mismatch) -> begin
-        let old_file = Arch.backslash_to_slash old_file in
-        let new_file = Arch.backslash_to_slash new_file in
+        let old_file = Var.get_string old_file in
+        let new_file = Var.get_string new_file in
         let bcs_buff_of_baf_or_bcs file =
           let a,b = split (String.uppercase file) in
           if b = "BAF" then begin
@@ -288,8 +288,8 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
       end 
 
     | TP_PatchReplaceBCSBlockRE(old_file, new_file, on_mismatch) -> begin
-        let old_file = Arch.backslash_to_slash old_file in
-        let new_file = Arch.backslash_to_slash new_file in
+        let old_file = Var.get_string old_file in
+        let new_file = Var.get_string new_file in
         let string_to_find = load_file old_file in
         let string_to_sub_in = load_file new_file in
         let my_regexp = Str.regexp string_to_find in
