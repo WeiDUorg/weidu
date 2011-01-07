@@ -1,6 +1,7 @@
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
-
+  * REFACTOR_*_TRIGGER correctly clears the "Unfinished OR()" error message.
+  
 Version 226:
   * Add a space in the "Installing [XYZ]" message.
   * LAUNCH_{PATCH,ACTION}_FUNCTION evaluates variables in the function name.
