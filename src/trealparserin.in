@@ -172,6 +172,16 @@ nonterm (Tp.tp_flag) Tp_Flag {
 				| _ -> failwith (Printf.sprintf "%s not allowed in UNINSTALL_ORDER" x);
 			) e1;
 		Tp.Uninstall_Order (List.map String.uppercase e1) ]
+   -> QUICK_MENU ALWAYS_ASK e0:String_List END e1:Menu_List END [ Tp.Quick_Menu (e1,List.map int_of_string e0) ]
+}
+
+nonterm((Dlg.tlk_string * int list) list) Menu_List {
+  -> e1:Menu_List_Rev [ List.rev e1 ]
+}
+
+nonterm((Dlg.tlk_string * int list) list) Menu_List_Rev {
+  -> { [] }
+  -> e1:Menu_List_Rev e2:Lse BEGIN e3:String_List END { (e2,List.map int_of_string e3) :: e1 }
 }
 
 nonterm(string list) Upper_String_List_Rev {

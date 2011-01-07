@@ -43,6 +43,7 @@ type tp_flag =
   | Load_Macro of string list
   | Readme of string list
   | Uninstall_Order of string list
+  | Quick_Menu of (Dlg.tlk_string * int list) list * int list
 
 and wrapper =
   | Start_From_Tp  of tp_file

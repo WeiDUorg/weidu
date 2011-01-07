@@ -238,6 +238,9 @@ let init_default_strings () =
   
   add (-1036) "Skipping GROUP [";
   add (-1037) "] because it fails its requirements.";
+  
+  add (-1038) "[A]sk about each component, [S]kip all, or choose a pre-defined selection:";
+  add (-1039) "[A]sk about each component, [R]einstall the current configuration, [U]ninstall all, [S]kip all, or choose a pre-defined selection:";
   ()
 
 let body_of_script buff =
