@@ -306,15 +306,16 @@ let rec handle_tp
 	| "Q" -> begin
             for i = 0 to last_module_index do
               try
-		let c = get_nth_module tp i false in
-		if subcomp_forced c && not (fails_requirements c) then module_defaults.(i) <- TP_Install
-		else module_defaults.(i) <- TP_Skip ;
-		if !debug_ocaml then log_and_print "component %d is %s\n" i (match module_defaults.(i) with
-    		| TP_Install -> "Install"
-    		| TP_Skip -> "Skip"
-    		| _ -> "Internal Error");
-              with Not_found -> ();
-		finished := true
+                if module_defaults.(i) <> TP_Ask then raise Not_found;
+                let c = get_nth_module tp i false in
+                if subcomp_forced c && not (fails_requirements c) then module_defaults.(i) <- TP_Install
+                else module_defaults.(i) <- TP_Skip ;
+                if !debug_ocaml then log_and_print "component %d is %s\n" i (match module_defaults.(i) with
+                    | TP_Install -> "Install"
+                    | TP_Skip -> "Skip"
+                    | _ -> "Internal Error");
+                          with Not_found -> ();
+                finished := true
             done
         end
 	| "N" ->
@@ -702,6 +703,7 @@ let rec handle_tp
                   | "Q" ->
           for i = 0 to last_module_index do
             try
+              if module_defaults.(i) <> TP_Ask then raise Not_found;
               let the_comp = get_nth_module tp i false in
               let c = get_nth_module tp i false in
               if subcomp_forced c && not (fails_requirements c) && not (already_installed this_tp2_filename i) then module_defaults.(i) <- TP_Install
@@ -745,6 +747,7 @@ let rec handle_tp
                   | "S"
                   | "Q" ->
           for i = 0 to last_module_index do
+            if module_defaults.(i) <> TP_Ask then raise Not_found;
             try let the_comp = get_nth_module tp i false in
             let c = get_nth_module tp i false in
             if subcomp_forced c && not (fails_requirements c) && not (already_installed this_tp2_filename i) then module_defaults.(i) <- TP_Install
@@ -917,6 +920,7 @@ let rec handle_tp
 		| "Q" ->
 		    for i = 0 to last_module_index do
 		      try
+      if module_defaults.(i) <> TP_Ask then raise Not_found;
 			let c = get_nth_module tp i false in
 			if subcomp_forced c && not (fails_requirements c) then module_defaults.(i) <- TP_Install
 			else module_defaults.(i) <- TP_Skip ;
