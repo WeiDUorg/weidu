@@ -2795,6 +2795,11 @@ global option to your \ttref{TP2} file. \\
     work with this action in the TP2 - use \ttref{PATCH!IF} and
     \ttref{BUT!ONLY!IF!IT!CHANGES} instead. \\
 
+  or & \DEFSYN{QUICK!MENU} lots of parameters &
+    Used to specify one or more groups of components that can be installed in
+    a single step. See the \ttref{QUICK!MENU} tutorial for synthax, usage
+    instructions, and caveats. \\
+    
 \\
 
 \DEFINE{Language} & & 
@@ -7507,6 +7512,64 @@ installation, use \verb+ACTION_RERAISE+ (in theory, you could use
 \verb+FAIL ~%ERROR_MESSAGE%~+, but this changes the exception and its text,
 which would cause you headaches when nesting multiple \verb+TRY+s).
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{\DEFINE{QUICK!MENU} (last edit: 227)}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This tp2 flag is used to define groups of components that the user will be
+offered to install in a single step. Sample code:
+
+\begin{verbatim}
+QUICK_MENU
+  ALWAYS_ASK 5 END
+  ~Red~ BEGIN 1 2 END
+  ~Green~ BEGIN 2 3 END
+  ~Blue~ BEGIN 4 6 END
+END
+\end{verbatim}
+
+The user will be presented with the following prompt:
+
+\begin{verbatim}
+The test/test.tp2 mod has 13 distinct optional components.
+To save time, you can choose what to do with them at a high level rather than being asked about each one.
+
+[A]sk about each component, [S]kip all, or choose a pre-defined selection:
+ 1] Red
+ 2] Green
+ 3] Blue
+\end{verbatim}
+
+If some mod components were already installed, the option to [U]ninstall
+or [R]einstall the currently installed components.
+
+If the user chooses to install a group, then its components will be installed,
+and ALL other components of the mod will be uninstalled if already installed.
+
+Components in ALWAYS_ASK will always be asked for individually (unless the user
+chose to [S]kip all) and will never be installed or uninstalled because of
+QUICK_MENU. If a component is in both ALWAYS_ASK and a group the mod will
+refuse to install.
+
+Caveats:
+\begin{itemize}
+\item this command will not work with ASK_EVERY_COMPONENT or GROUP (the mod will
+refuse to install). If your mod requires to use GROUP in tandem with QUICK_MENU I
+might make the two commands work together.
+\item Because of a complex problem whose details are too technical for this
+document, component 0 of your mod must be empty (or your mod will refuse to
+install), must not be in any group or in ALWAYS_ASK (or your mod will refuse to
+install) and will always be installed (unless the user chooses [S]kip all).
+This means that your mod's components will always be grouped together (you can't
+install a component from your mod, then a second mod, and then other components
+of your mod).
+\item ALWAYS_ASK (and the listed failure points) are completely ignored when
+the components are specified in the command line (--uninstall, --yes,
+--reinstall, --force-install, --force-uninstall).
+\end{itemize}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\DEFINE{Code dumps}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -7553,6 +7616,8 @@ COPY ~bambatch/bam~ ~bambatch/bam~
   END
 BUT_ONLY
 \end{verbatim}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\DEFINE{Macros Listing}}
