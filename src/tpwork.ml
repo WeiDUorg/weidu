@@ -229,7 +229,7 @@ let rec handle_tp
       in
 
 
-      let any_already_installed = ref false in 
+      let any_already_installed = ref false in
       let any_not_yet_installed = ref false in 
 
       let subcomp_installed = Hashtbl.create 255 in 
@@ -263,7 +263,11 @@ let rec handle_tp
       let quickmenu_ask = if has_quickmenu then begin
         let quickmenu = List.find (fun x -> match x with Quick_Menu _ -> true | _ -> false) tp.flags in
         match quickmenu with
-          | Quick_Menu (x,y) -> y
+          | Quick_Menu (x,y) -> begin
+            if List.mem 0 y then failwith "ERROR: QUICK_MENU has component 0 in ALWAYS_ASK";
+            if List.exists (fun (name,lst) -> List.mem 0 lst) x then failwith "ERROR: QUICK_MENU has component 0 in a group";
+            y
+          end
           | _ -> (try assert false with Assert_failure (s,l,c) -> failwith (Printf.sprintf "Internal WeiDU failure: %s %d %d" s l c))
       end else [] in
 
@@ -291,6 +295,16 @@ let rec handle_tp
             TP_Ask
 	with Not_found -> TP_Ask)
       in
+      
+      if has_quickmenu then begin
+        try
+          let m = get_nth_module tp 0 false in
+          if m.mod_parts <> [] || m.mod_flags <> [] then 
+            failwith "ERROR: QUICK_MENU and component 0 is non-empty.";
+          module_defaults.(0) <- TP_Install;
+        with Not_found ->
+          failwith "ERROR: QUICK_MENU and component 0 isn't defined."
+      end;
 
       let handle_letter tp answer can_uninstall temp_uninst package_name m finished i =
 	let subgroup_already =
@@ -632,11 +646,15 @@ let rec handle_tp
             incr cnt;
           ) quickmenu;
           let ans = String.uppercase (read_line ()) in
-          let set_state inst uninst =
+          let set_state inst uninst al =
             for i = 0 to last_module_index do
               try
                 let the_comp = get_nth_module tp i false in
-                if not (List.mem i always) then begin
+                if List.mem i always then begin
+                  match al with
+                    | None -> ()
+                    | Some x -> module_defaults.(i) <- x
+                end else begin
                   if (already_installed this_tp2_filename i) then
                     module_defaults.(i) <- inst
                   else
@@ -647,24 +665,29 @@ let rec handle_tp
           in
           match ans with
             | "S" ->
+              set_state TP_Skip TP_Skip (Some TP_Skip);
               finished := true;
             | "A" ->
-              set_state TP_Ask TP_Ask;
+              set_state TP_Ask TP_Ask None;
+              module_defaults.(0) <- TP_Install;
               finished := true;
             | "R" ->
               if !any_already_installed then begin
-                set_state TP_Install TP_Skip;
+                set_state TP_Install TP_Skip None;
+                module_defaults.(0) <- TP_Install;
                 finished := true;
               end
             | "U" ->
               if !any_already_installed then begin
-                set_state TP_Uninstall TP_Skip;
+                set_state TP_Uninstall TP_Skip (Some TP_Uninstall);
+                module_defaults.(0) <- TP_Uninstall;
                 finished := true;
               end
             | _ -> begin try
                 let which = int_of_string ans in
                 if which < 1 || which >= !cnt then failwith "out of bounds";
-                set_state TP_Uninstall TP_Skip;
+                set_state TP_Uninstall TP_Skip None;
+                module_defaults.(0) <- TP_Install;
                 let (title,components) = (List.nth quickmenu (which - 1)) in
                 log_and_print "Installing selection %s\n" (Dc.single_string_of_tlk_string_safe game title);
                 List.iter (fun x ->

@@ -7548,26 +7548,29 @@ or [R]einstall the currently installed components.
 If the user chooses to install a group, then its components will be installed,
 and ALL other components of the mod will be uninstalled if already installed.
 
-Components in ALWAYS_ASK will always be asked for individually (unless the user
-chose to [S]kip all) and will never be installed or uninstalled because of
-QUICK_MENU. If a component is in both ALWAYS_ASK and a group the mod will
-refuse to install.
+Components in ALWAYS_ASK will always be asked for individually if the user
+chose to install one of the groups (or, of course, if he chose [A]). If the
+user chose [S], [R] or [U] the same action will be applied to the components
+in ALWAYS_ASK.
 
 Caveats:
 \begin{itemize}
-\item this command will not work with ASK_EVERY_COMPONENT or GROUP (the mod will
+\item If a component is in both ALWAYS_ASK and a group the mod will refuse to
+install.
+\item This command will not work with ASK_EVERY_COMPONENT or GROUP (the mod will
 refuse to install). If your mod requires to use GROUP in tandem with QUICK_MENU I
 might make the two commands work together.
 \item Because of a complex problem whose details are too technical for this
 document, component 0 of your mod must be empty (or your mod will refuse to
 install), must not be in any group or in ALWAYS_ASK (or your mod will refuse to
-install) and will always be installed (unless the user chooses [S]kip all).
-This means that your mod's components will always be grouped together (you can't
-install a component from your mod, then a second mod, and then other components
-of your mod).
-\item ALWAYS_ASK (and the listed failure points) are completely ignored when
-the components are specified in the command line (--uninstall, --yes,
---reinstall, --force-install, --force-uninstall).
+install) and will always be (re)installed (unless the user chooses [S]kip all).
+This also means that your mod's components will always be grouped together (you
+can't install a component from your mod, then a second mod, and then other
+components of your mod).
+\item Some of the listed failure points are not checked for when the mod is
+installed non-interactively (--yes, --force-install and friends). Test the menu
+system at least once before releasing your mod, even if you do the bulk of the
+development of your mod using --yes and the like.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
