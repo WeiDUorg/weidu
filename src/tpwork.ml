@@ -287,8 +287,6 @@ let rec handle_tp
             TP_Skip
           else if (!force_install_these <> []) || (!force_uninstall_these <> []) then
             TP_Skip
-          else if (hasgroup (get_nth_module tp i false).mod_flags) then
-            TP_Skip
           else if has_quickmenu && not (List.mem i quickmenu_ask) then
             TP_Skip
           else
@@ -842,14 +840,12 @@ let rec handle_tp
         not !sometimes_reinstall && not (!specified_specific_components) &&
         any_group_to_be_asked
       then begin
-        if has_quickmenu then begin
-          for i = 0 to last_module_index do
-            try
-              let the_comp = get_nth_module tp i false in
-              if module_defaults.(i) = TP_Ask && hasgroup the_comp.mod_flags && (not !using_quickmenu || List.mem i always) then module_defaults.(i) <- TP_Skip;
-            with Not_found -> ()
-          done
-        end;
+        for i = 0 to last_module_index do
+          try
+            let the_comp = get_nth_module tp i false in
+            if module_defaults.(i) = TP_Ask && hasgroup the_comp.mod_flags && (not !using_quickmenu || List.mem i always) then module_defaults.(i) <- TP_Skip;
+          with Not_found -> ()
+        done;
         List.iter (fun (this_grp,co) ->
         let pass = eval_pe_warn := false; try is_true (eval_pe "" game co) with _ -> true in
         eval_pe_warn := true;
