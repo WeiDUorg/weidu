@@ -7543,27 +7543,27 @@ To save time, you can choose what to do with them at a high level rather than be
 \end{verbatim}
 
 If some mod components were already installed, the option to [U]ninstall
-or [R]einstall the currently installed components.
+or [R]einstall the currently installed components will also be offered.
 
-If the user chooses to install a group, then its components will be installed,
-and ALL other components of the mod will be uninstalled if already installed.
+If the user chooses to install a pre-defined selection, then its components
+will be installed, and ALL other components of the mod will be uninstalled
+if already installed.
 
 Components in ALWAYS_ASK will always be asked for individually if the user
-chose to install one of the groups (or, of course, if he chose [A]). If the
-user chose [S], [R] or [U] the same action will be applied to the components
-in ALWAYS_ASK.
+chose to install one of the pre-defined selections (or, of course, if he chose
+[A]). If the user chose [S], [R] or [U] the same action will be applied to the
+components in ALWAYS_ASK.
 
 Caveats:
 \begin{itemize}
-\item If a component is in both ALWAYS_ASK and a group the mod will refuse to
-install.
-\item This command will not work with ASK_EVERY_COMPONENT or GROUP (the mod will
-refuse to install). If your mod requires to use GROUP in tandem with QUICK_MENU I
-might make the two commands work together.
+\item If a component is in both ALWAYS_ASK and a pre-defined selection the mod
+will refuse to install.
 \item Because of a complex problem whose details are too technical for this
 document, component 0 of your mod must be empty (or your mod will refuse to
-install), must not be in any group or in ALWAYS_ASK (or your mod will refuse to
-install) and will always be (re)installed (unless the user chooses [S]kip all).
+install), must not be in any pre-defined selection or in ALWAYS_ASK (or your
+mod will refuse to install) and will always be (re)installed (unless the user
+chooses [S]kip all). 
+
 This also means that your mod's components will always be grouped together (you
 can't install a component from your mod, then a second mod, and then other
 components of your mod).
