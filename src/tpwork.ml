@@ -265,7 +265,7 @@ let rec handle_tp
         match quickmenu with
           | Quick_Menu (x,y) -> begin
             if List.mem 0 y then failwith "ERROR: QUICK_MENU has component 0 in ALWAYS_ASK";
-            if List.exists (fun (name,lst) -> List.mem 0 lst) x then failwith "ERROR: QUICK_MENU has component 0 in a group";
+            if List.exists (fun (name,lst) -> List.mem 0 lst) x then failwith "ERROR: QUICK_MENU has component 0 in a pre-defined selection";
             y
           end
           | _ -> (try assert false with Assert_failure (s,l,c) -> failwith (Printf.sprintf "Internal WeiDU failure: %s %d %d" s l c))
@@ -613,17 +613,19 @@ let rec handle_tp
       List.exists (fun a -> a = Ask_Every_Component) tp.flags
       in
       
+      let using_quickmenu = ref false in
+      let quickmenu, always = if has_quickmenu then begin
+        let quickmenu = List.find (fun x -> match x with Quick_Menu _ -> true | _ -> false) tp.flags in
+        match quickmenu with
+          | Quick_Menu (x,y) -> x,y
+          | _ -> (try assert false with Assert_failure (s,l,c) -> failwith (Printf.sprintf "Internal WeiDU failure: %s %d %d" s l c))
+      end else [],[] in
+      
+      
       (* for big mods, ask about things in general first *)
       if not !always_yes && not !always_uninstall &&
         not !sometimes_reinstall &&  not (!specified_specific_components)
       then begin if has_quickmenu then begin
-        if hasgroups then failwith "ERROR: GROUP does not work with QUICK_MENU\n";
-        if has_ask_every then failwith "ERROR: ASK_EVERY_COMPONENT does not work with QUICK_MENU\n";
-        let quickmenu = List.find (fun x -> match x with Quick_Menu _ -> true | _ -> false) tp.flags in
-        let quickmenu,always = match quickmenu with
-          | Quick_Menu (x,y) -> x,y
-          | _ -> (try assert false with Assert_failure (s,l,c) -> failwith (Printf.sprintf "Internal WeiDU failure: %s %d %d" s l c))
-        in
         log_and_print "\n%s %d %s" (Var.get_string(get_trans (-1000))) comp_num (get_trans (-1001)) ;
         let finished = ref false in
         while not !finished do
@@ -639,21 +641,22 @@ let rec handle_tp
                 failwith (Printf.sprintf "Component %d is both in ALWAYS_ASK and QUICK_MENU" i);
               let is_inst = already_installed this_tp2_filename i in
               let is_grp  = List.mem i components in
-              let curr_is_ok = (is_inst && is_grp) || (not is_inst && not is_grp) || (List.mem i always) in
+              let curr_is_ok = i = 0 || (is_inst && is_grp) || (not is_inst && not is_grp) || (List.mem i always) in
               is_selection := !is_selection && curr_is_ok;
             done;
             log_and_print "%2d] %s%s\n" !cnt (Dc.single_string_of_tlk_string_safe game title) (if !is_selection then (get_trans (-1027)) else "");
             incr cnt;
           ) quickmenu;
           let ans = String.uppercase (read_line ()) in
-          let set_state inst uninst al =
+          let set_state inst uninst always_inst always_uninst =
             for i = 0 to last_module_index do
               try
                 let the_comp = get_nth_module tp i false in
                 if List.mem i always then begin
-                  match al with
-                    | None -> ()
-                    | Some x -> module_defaults.(i) <- x
+                  if already_installed this_tp2_filename i then
+                    module_defaults.(i) <- always_inst
+                  else if List.mem i always then
+                    module_defaults.(i) <- always_uninst
                 end else begin
                   if (already_installed this_tp2_filename i) then
                     module_defaults.(i) <- inst
@@ -665,28 +668,29 @@ let rec handle_tp
           in
           match ans with
             | "S" ->
-              set_state TP_Skip TP_Skip (Some TP_Skip);
+              set_state TP_Skip TP_Skip TP_Skip TP_Skip;
               finished := true;
             | "A" ->
-              set_state TP_Ask TP_Ask None;
+              set_state TP_Ask TP_Ask TP_Ask TP_Ask;
               module_defaults.(0) <- TP_Install;
               finished := true;
             | "R" ->
               if !any_already_installed then begin
-                set_state TP_Install TP_Skip None;
+                set_state TP_Install TP_Skip TP_Install TP_Skip;
                 module_defaults.(0) <- TP_Install;
                 finished := true;
               end
             | "U" ->
               if !any_already_installed then begin
-                set_state TP_Uninstall TP_Skip (Some TP_Uninstall);
+                set_state TP_Uninstall TP_Skip TP_Uninstall TP_Skip;
                 module_defaults.(0) <- TP_Uninstall;
                 finished := true;
               end
             | _ -> begin try
                 let which = int_of_string ans in
                 if which < 1 || which >= !cnt then failwith "out of bounds";
-                set_state TP_Uninstall TP_Skip None;
+                using_quickmenu := true;
+                set_state TP_Uninstall TP_Skip TP_Ask TP_Ask;
                 module_defaults.(0) <- TP_Install;
                 let (title,components) = (List.nth quickmenu (which - 1)) in
                 log_and_print "Installing selection %s\n" (Dc.single_string_of_tlk_string_safe game title);
@@ -812,12 +816,44 @@ let rec handle_tp
       in
 
       (* now ask about groups *)
+      let any_group_to_be_asked =
+        let ans = ref false in
+        for i = 0 to last_module_index do
+          try
+            let m = get_nth_module tp i false in
+            if module_defaults.(i) = TP_Ask && hasgroup m.mod_flags && (not !using_quickmenu || List.mem i always) then ans := true
+          with _ -> ()
+        done;
+        !ans
+      in
+      
+      let any_to_be_asked grp =
+        let ans = ref false in
+        for i = 0 to last_module_index do
+          try
+            let m = get_nth_module tp i false in
+            if module_defaults.(i) = TP_Skip && is_my_group m grp && (not !using_quickmenu || List.mem i always) then ans := true
+          with _ -> ()
+        done;
+        !ans
+      in
+      
       if hasgroups  && not !always_yes && not !always_uninstall &&
-	not !sometimes_reinstall && not (!specified_specific_components)
-      then List.iter (fun (this_grp,co) ->
+        not !sometimes_reinstall && not (!specified_specific_components) &&
+        any_group_to_be_asked
+      then begin
+        if has_quickmenu then begin
+          for i = 0 to last_module_index do
+            try
+              let the_comp = get_nth_module tp i false in
+              if module_defaults.(i) = TP_Ask && hasgroup the_comp.mod_flags && (not !using_quickmenu || List.mem i always) then module_defaults.(i) <- TP_Skip;
+            with Not_found -> ()
+          done
+        end;
+        List.iter (fun (this_grp,co) ->
         let pass = eval_pe_warn := false; try is_true (eval_pe "" game co) with _ -> true in
         eval_pe_warn := true;
-        if pass then begin
+        if pass && any_to_be_asked this_grp then begin
           let finished = ref false in
           while not !finished do
             finished := true ;
@@ -828,7 +864,7 @@ let rec handle_tp
               for i = 0 to last_module_index do
                 try
                   let the_comp = get_nth_module tp i false in
-                  if is_my_group the_comp this_grp then module_defaults.(i) <- TP_Ask ;
+                  if is_my_group the_comp this_grp && module_defaults.(i) = TP_Skip && (not !using_quickmenu || List.mem i always) then module_defaults.(i) <- TP_Ask ;
                 with Not_found -> ()
               done;
               Hashtbl.add asked_about_group this_grp true
@@ -836,7 +872,7 @@ let rec handle_tp
             | _ -> finished := false
           done;
         end else log_and_print "\n%s%s%s\n" (get_trans (-1036)) (Dc.single_string_of_tlk_string_safe game this_grp) (get_trans (-1037))
-		  ) !groups ;
+		  ) !groups end;
 
       let handle_error_generic always_yes specified_specific_components finished package_name = (fun e ->
 	return_value := return_value_error_tp2_component_install ;
