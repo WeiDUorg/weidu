@@ -275,6 +275,7 @@ let rec handle_tp
 	try
           let cli_uninstall = ref (List.exists (fun h -> h = i) !force_uninstall_these)  in
           let cli_install   = ref (List.exists (fun h -> h = i) !force_install_these  )  in
+          let m = get_nth_module tp i false in
           if !always_yes or !cli_install then
             TP_Install
           else if (!always_uninstall or !cli_uninstall) && (already_installed this_tp2_filename i) then
@@ -287,6 +288,8 @@ let rec handle_tp
             TP_Skip
           else if (!force_install_these <> []) || (!force_uninstall_these <> []) then
             TP_Skip
+          else if List.mem Tp.TPM_InstallByDefault m.mod_flags then
+            TP_Install
           else if has_quickmenu && not (List.mem i quickmenu_ask) then
             TP_Skip
           else
@@ -650,16 +653,20 @@ let rec handle_tp
             for i = 0 to last_module_index do
               try
                 let the_comp = get_nth_module tp i false in
-                if List.mem i always then begin
-                  if already_installed this_tp2_filename i then
-                    module_defaults.(i) <- always_inst
-                  else if List.mem i always then
-                    module_defaults.(i) <- always_uninst
+                if List.mem TPM_InstallByDefault the_comp.mod_flags && always_inst <> TP_Uninstall then begin
+                  module_defaults.(i) <- TP_Install
                 end else begin
-                  if (already_installed this_tp2_filename i) then
-                    module_defaults.(i) <- inst
-                  else
-                    module_defaults.(i) <- uninst
+                  if List.mem i always then begin
+                    if already_installed this_tp2_filename i then
+                      module_defaults.(i) <- always_inst
+                    else if List.mem i always then
+                      module_defaults.(i) <- always_uninst
+                  end else begin
+                    if (already_installed this_tp2_filename i) then
+                      module_defaults.(i) <- inst
+                    else
+                      module_defaults.(i) <- uninst
+                  end
                 end
               with Not_found -> ()
             done
@@ -1082,7 +1089,7 @@ let rec handle_tp
 	  let temp_uninst = temporarily_uninstalled this_tp2_filename !current in
 	  List.iter (fun f -> match f with
 	  | TPM_InstallByDefault ->
-              if !def = TP_Ask && (not can_uninstall) then def := TP_Install
+              if !def = TP_Ask then def := TP_Install
 	  | _ -> ()
 		    ) m.mod_flags ;
 	  let package_name = Dc.single_string_of_tlk_string_safe game m.mod_name in

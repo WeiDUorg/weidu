@@ -3,6 +3,7 @@ Version 227:
   * REFACTOR_*_TRIGGER correctly clears the "Unfinished OR()" error message.
   * QUICK_MENU added for allowing the modder to specify one or more 'default'
     sets of components that can be installed in a single step.
+  * INSTALL_BY_DEFAULT is now stricter.
   
 Version 226:
   * Add a space in the "Installing [XYZ]" message.
