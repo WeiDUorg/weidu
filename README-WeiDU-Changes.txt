@@ -4,6 +4,7 @@ Version 227:
   * QUICK_MENU added for allowing the modder to specify one or more 'default'
     sets of components that can be installed in a single step.
   * INSTALL_BY_DEFAULT is now stricter.
+  * ADD_ITEM_EFFECT will correctly skip magical headers.
   
 Version 226:
   * Add a space in the "Installing [XYZ]" message.
