@@ -5,6 +5,7 @@ Version 227:
     sets of components that can be installed in a single step.
   * INSTALL_BY_DEFAULT is now stricter.
   * ADD_ITEM_EFFECT will correctly skip magical headers.
+  * Can now [R]einstall Widescreen on BG1 and PST (regression).
   
 Version 226:
   * Add a space in the "Installing [XYZ]" message.

@@ -192,16 +192,8 @@ let validate_uninstall_order tp2 =
 	  order
 ;;
 
-let check_hooks game tp2 i interactive override_filename =
-  if String.uppercase override_filename = "CHITIN.KEY" then begin
-      let keyname = Load.find_file_in_path "." "^chitin.key$" in
-      let keybuff = load_file keyname in
-      game.Load.key <- Key.load_key keyname keybuff ;
-      Hashtbl.iter (fun name biff ->
-        Unix.close biff.Biff.fd
-      ) game.Load.loaded_biffs;
-      game.Load.loaded_biffs <- Hashtbl.create 5 ;
-  end else if (String.uppercase override_filename) = "OVERRIDE/SPELL.IDS" ||
+let check_pre_hooks game tp2 i interactive override_filename =
+  if (String.uppercase override_filename) = "OVERRIDE/SPELL.IDS" ||
     (String.uppercase override_filename) = "OVERRIDE\\SPELL.IDS" then begin try
       let tp2_basename = String.lowercase (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp2.tp_filename) in
       let marker = Printf.sprintf "override/spell.ids.%s.%d.marker" tp2_basename i in
@@ -212,6 +204,18 @@ let check_hooks game tp2 i interactive override_filename =
         my_unlink marker;
       end
     with e -> () end;
+;;
+
+let check_post_hooks game tp2 i interactive override_filename =
+  if String.uppercase override_filename = "CHITIN.KEY" then begin
+      let keyname = Load.find_file_in_path "." "^chitin.key$" in
+      let keybuff = load_file keyname in
+      game.Load.key <- Key.load_key keyname keybuff ;
+      Hashtbl.iter (fun name biff ->
+        Unix.close biff.Biff.fd
+      ) game.Load.loaded_biffs;
+      game.Load.loaded_biffs <- Hashtbl.create 5 ;
+  end
 ;;
   
 let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
@@ -280,8 +284,8 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 			log_and_print "Will uninstall %3d files for [%s] component %d.\n"
 			  (List.length !file_list) tp_file i;
 			List.iter (fun override_filename ->
-        check_hooks game tp2 i interactive override_filename;
-			  my_unlink override_filename;
+        check_pre_hooks game tp2 i interactive override_filename;
+          my_unlink override_filename;
 			  try
 				if !has_mappings then
 				  restore (Hashtbl.find mappings_list override_filename) override_filename
@@ -290,10 +294,11 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 				  let backup_filename = d ^ "/" ^ base in
 				  let backup_filename1 = d ^ "/" ^ (Str.global_replace (Str.regexp "[\\/]") "." override_filename) in
 				  if file_exists backup_filename then
-				restore backup_filename override_filename
+            restore backup_filename override_filename
 				  else if file_exists backup_filename1 then
-				restore backup_filename1 override_filename
-				end
+            restore backup_filename1 override_filename
+				end;
+        check_post_hooks game tp2 i interactive override_filename;
 			  with _ -> ()
 				  ;
 				  ) (!file_list)  ;
