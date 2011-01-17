@@ -1,26 +1,5 @@
 open Util
 
-(* big generic parsing function *)
-let parse_buffer filename buffer sort_of_file parse_lex_fun =
-  try
-    begin
-      let lexbuf : Lexing.lexbuf = lex_init_from_string filename buffer in
-      try
-	let result = Stats.time sort_of_file
-	    (fun () -> parse_lex_fun lexbuf) () in
-	pop_context () ;
-	log_or_print_modder "[%s] parsed\n" filename ;
-	result
-      with e ->
-	(try input_error "" (Printexc.to_string e) with _ -> () ) ;
-	pop_context () ;
-	raise e
-    end
-  with e ->
-    log_and_print "ERROR: parsing [%s]: %s\n"
-      filename (Printexc.to_string e) ;
-    raise e
-
 let load_log () =
   try
     let result = parse_file true (File Tp.log_name) "parsing .log files"
@@ -49,13 +28,13 @@ let compile_baf_filename game filename =
 
 let handle_script_buffer filename buffer =
   match split (String.uppercase filename) with
-  | _,"BAF" -> parse_buffer filename buffer "parsing .baf files"
+  | _,"BAF" -> parse_file true (String(filename,buffer)) "parsing .baf files"
 	(Bafparser.baf_file Baflexer.initial)
-  | _,_ 		-> parse_buffer filename buffer "parsing .bcs files"
+  | _,_ 		-> parse_file true (String(filename,buffer)) "parsing .bcs files"
 	(Bcsparser.bcs_file Bcslexer.initial)
 
 let handle_script_al buffer =
-	let result = parse_buffer "" buffer "parsing .baf files"
+	let result = parse_file false (String("",buffer)) "parsing .baf files"
 	(Bafparser.action_list Baflexer.initial) in
 	result
 ;;
@@ -80,7 +59,7 @@ let handle_dlg_buffer game filename buffer =
 
 let handle_d_buffer game filename buffer =
   try
-    let result = parse_buffer filename buffer "parsing .d files"
+    let result = parse_file true (String(filename,buffer)) "parsing .d files"
 	(Dparser.d_file Dlexer.initial) in
     (match result with
     | [Dc.Create(dlg) as act] ->

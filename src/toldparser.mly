@@ -790,8 +790,8 @@ optional_evaluate :
     { Tp.TP_PatchStringTextually($2,Some(false),$4,$5,Some($7)) }
 | REPLACE_EVALUATE optional_case_sensitive STRING BEGIN tp_patch_list END STRING
     { Tp.TP_PatchStringEvaluate($2,$3,$5,$7) }
-| REPLACE_BCS_BLOCK STRING STRING { Tp.TP_PatchReplaceBCSBlock($2,$3) }
-| REPLACE_BCS_BLOCK_REGEXP STRING STRING { Tp.TP_PatchReplaceBCSBlockRE($2,$3) }
+| REPLACE_BCS_BLOCK STRING STRING { Tp.TP_PatchReplaceBCSBlock($2,$3,None) }
+| REPLACE_BCS_BLOCK_REGEXP STRING STRING { Tp.TP_PatchReplaceBCSBlockRE($2,$3,None) }
 | REPLACE_CRE_ITEM STRING string_ref_or_pe  string_ref_or_pe  string_ref_or_pe  STRING  STRING  optional_equip  optional_2h
     { Tp.TP_Replace_Cre_Item(
       { Tp.item_name = $2 ;

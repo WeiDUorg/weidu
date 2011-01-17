@@ -1,8 +1,4 @@
 DEFINE_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ INT_VAR do_message = 0 RET valid BEGIN
-  tmp_0 = 0x2d4
-  tmp_1 = 0x2d4
-  tmp_2 = 0x2d4
-  tmp_3 = 0
   SPRINT m1 ~is corrupt~
   SPRINT m2 ~below minimum length~
   SPRINT m3 ~header misplaced~
@@ -12,7 +8,7 @@ DEFINE_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ INT_VAR do_message = 0 RET valid BEGIN
   PATCH_IF ~%SOURCE_RES%~ STRING_EQUAL_CASE charbase BEGIN
     valid = 0
   END ELSE BEGIN
-    PATCH_IF SOURCE_SIZE < 0x2d4 BEGIN
+    PATCH_IF BUFFER_LENGTH	 < 0x2d4 BEGIN
       valid = 0
       PATCH_IF do_message THEN BEGIN
         PATCH_PRINT ~%SOURCE_FILE% %m1%: %m2%.~ //is corrupt: below minimum length
@@ -51,214 +47,287 @@ DEFINE_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ INT_VAR do_message = 0 RET valid BEGIN
   END
   
   PATCH_IF valid THEN BEGIN 
-    fv = 0
-    kso = 0x2d4
-    ksc = 0
-    smo = 0x2d4
-    smc = 0
-    mso = 0x2d4
-    msc = 0
-    iso = 0x2d4
-    ilo = 0x2d4
-    ilc = 0
-    elo = 0x2d4
-    elc = 0
-    i_0 = 0
-    off_0 = 0
-    off_1 = 0
-    tmp_0 = 0
-    tmp_1 = 0
-    SPRINT ks fail
-    SPRINT sm fail
-    SPRINT ms fail
-    SPRINT is fail
-    SPRINT il fail
-    SPRINT el fail
-    READ_BYTE 0x33 fv //EFF version
-    PATCH_IF fv = 0 BEGIN
-      WRITE_BYTE 0x33 1
-      fv = 1
-      READ_LONG 0x2c8 fc //Effects count
-      PATCH_IF (fc > 0x0) BEGIN
-        READ_LONG 0x2c4 fs //Effects offset
-        READ_ASCII fs ~fx~ (0x30 * fc)
-        PATCH_FOR_EACH f1 IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
-          READ_LONG f1 f2
-          WRITE_LONG f1 ((f2 > fs) ? (f2 + (fc * (0x108 - 0x30))) : (f2 < 0x2d4 ? 0x2d4 : f2))
-        END
-        DELETE_BYTES fs (0x30 * fc)
-        INSERT_BYTES fs (0x108 * fc)
-        SPRINT ~rfx~ ~~
-        INNER_PATCH ~%fx%~ BEGIN
-          FOR (i1 = 0; i1 < fc; i1 += 1) BEGIN
-            SOURCE_SIZE += 0xd8
-            READ_SHORT ((i1 * 0x30) + 0x00) pc //Opcode
-            READ_BYTE  ((i1 * 0x30) + 0x02) tg //Target
-            READ_BYTE  ((i1 * 0x30) + 0x03) pw //Power
-            READ_LONG  ((i1 * 0x30) + 0x04) p1 //Parameter 1
-            READ_LONG  ((i1 * 0x30) + 0x08) p2 //Parameter 2
-            READ_BYTE  ((i1 * 0x30) + 0x0c) tm //Timing mode
-            READ_BYTE  ((i1 * 0x30) + 0x0d) dp //Dispellability
-            READ_LONG  ((i1 * 0x30) + 0x0e) dr //Duration
-            READ_BYTE  ((i1 * 0x30) + 0x12) b1 //Probability 1
-            READ_BYTE  ((i1 * 0x30) + 0x13) b2 //Probability 2
-            READ_ASCII ((i1 * 0x30) + 0x14) ~rf~ //ResRef
-            INNER_PATCH_SAVE ~rfx~ ~%rfx%~ BEGIN
-              INSERT_BYTES ((i1 * 0x108) + 0x00) 0x110
-              WRITE_LONG   ((i1 * 0x108) + 0x10) pc
-              WRITE_LONG   ((i1 * 0x108) + 0x14) tg
-              WRITE_LONG   ((i1 * 0x108) + 0x18) pw
-              WRITE_LONG   ((i1 * 0x108) + 0x1c) p1
-              WRITE_LONG   ((i1 * 0x108) + 0x20) p2
-              WRITE_BYTE   ((i1 * 0x108) + 0x24) tm
-              WRITE_LONG   ((i1 * 0x108) + 0x28) dr
-              WRITE_SHORT  ((i1 * 0x108) + 0x2c) b1
-              WRITE_SHORT  ((i1 * 0x108) + 0x2e) b2
-              WRITE_ASCIIE ((i1 * 0x108) + 0x30) ~%rf%~
-              WRITE_BYTE   ((i1 * 0x108) + 0x5c) dp
-              WRITE_LONG   ((i1 * 0x108) + 0x80) (` 0x0)
-              WRITE_LONG   ((i1 * 0x108) + 0x84) (` 0x0)
-              WRITE_LONG   ((i1 * 0x108) + 0x88) (` 0x0)
-              WRITE_LONG   ((i1 * 0x108) + 0x8c) (` 0x0)
-              WRITE_LONG   ((i1 * 0x108) + 0xa4) (` 0x0)
-              DELETE_BYTES ((i1 * 0x108) + 0x08) 0x8
-            END
-          END
-        END
-        WRITE_ASCIIE fs ~%rfx%~
-        pc = 0 //Opcode
-        tg = 0 //Target
-        pw = 0 //Power
-        p1 = 0 //Parameter 1
-        p2 = 0 //Parameter 2
-        tm = 0 //Timing mode
-        dp = 0 //Dispellability
-        dr = 0 //Duration
-        b1 = 100 //Probability 1
-        b2 = 0 //Probability 2
-        SPRINT ~rf~ ~~ //ResRef
-      END
-    END
-    PATCH_IF FILE_EXISTS_IN_GAME ~fw0125.are~ BEGIN //Tutu
-      FOR (s1 = 0xa4; s1 < 0x234; s1 += 0x4) BEGIN
-        READ_LONG s1 ss //Soundslots
-        PATCH_IF ss > 10000000 BEGIN
-          WRITE_LONG s1 ~-1~
-        END
-      END
-    END
-    READ_LONG 0x2a0 kso //Known spells offset
-    READ_LONG 0x2a4 ksc //Known spells count
-    READ_LONG 0x2a8 smo //Spell memorization info offset
-    READ_LONG 0x2ac smc //Spell memorization info count
-    READ_LONG 0x2b0 mso //Memorized spells offset
-    READ_LONG 0x2b4 msc //Memorized spells count
-    READ_LONG 0x2b8 iso //Item slot offset
-    READ_LONG 0x2bc ilo //Item offset
-    READ_LONG 0x2c0 ilc //Item count
-    READ_LONG 0x2c4 elo //Effects offset
-    READ_LONG 0x2c8 elc //Effects count
-    READ_ASCII kso ks ELSE fail (0xc * ksc)
-    READ_ASCII smo sm ELSE fail (0x10 * smc)
-    READ_ASCII mso ms ELSE fail (0xc * msc)
-    READ_ASCII iso is ELSE fail (0x50)
-    READ_ASCII ilo il ELSE fail (0x14 * ilc)
-    READ_ASCII elo el ELSE fail (elc * (0x30 + ((fv & 0x1) = 0x1 ? 0xd8 : 0)))
-    DELETE_BYTES 0x2d4 SOURCE_SIZE - 0x2d4
-    off_0 = 0x2d4
-    WRITE_LONG 0x2a0 off_0
-    PATCH_IF ~%ks%~ STR_CMP fail BEGIN
-      INSERT_BYTES off_0 0xc * ksc
-      WRITE_ASCIIE off_0 ~%ks%~
-    END ELSE BEGIN
-      ksc = 0
-      WRITE_LONG 0x2a4 ksc
-    END
-    off_0 += 0xc * ksc
-    WRITE_LONG 0x2a8 off_0
-    INSERT_BYTES off_0 0x10 * 0x11
-    PATCH_IF ~%sm%~ STR_CMP fail && smc = 0x11 BEGIN
-      WRITE_ASCIIE off_0 ~%sm%~
-    END ELSE BEGIN
-      FOR (i_0 = 0; i_0 < 7; i_0 += 1) BEGIN
-        WRITE_SHORT off_0 + i_0 * 0x10 i_0
-      END
-      FOR (i_0 = 0; i_0 < 9; i_0 += 1) BEGIN
-        WRITE_SHORT off_0 + i_0 * 0x10 + 0x70 i_0
-        WRITE_SHORT off_0 + i_0 * 0x10 + 0x76 1
-      END
-      WRITE_SHORT off_0 + 0x106 0x2
-      PATCH_IF ~%sm%~ STR_CMP fail BEGIN
-        PATCH_IF smc > 0x11 BEGIN
-          msc = 0
-          SPRINT ms fail
-        END ELSE PATCH_IF smc < 0x11 && smc > 0 BEGIN
-          PATCH_IF STRING_LENGTH EVALUATE_BUFFER ~%sm%~ = 0x10 * smc BEGIN
-            smc = 0x11
-            WHILE STRING_LENGTH EVALUATE_BUFFER ~%sm%~ > 0 BEGIN
-              off_1 = 0
-              INNER_PATCH_SAVE sm ~%sm%~ BEGIN
-                READ_SHORT 0 tmp_0
-                off_1 += tmp_0 * 0x10
-                READ_SHORT 6 tmp_0
-                off_1 += 0x70 * tmp_0 + (tmp_0 = 0x2 ? 0x10 : 0)
-                READ_SHORT 8 tmp_0
-                READ_ASCII 0 tmp_1 (0x10)
-                DELETE_BYTES 0 0x10
-              END
-              WRITE_ASCIIE off_0 + off_1 ~%tmp_1%~
-              FOR (off_1 += 0x10; off_1 < 0x110; off_1 += 0x10) BEGIN
-                WRITE_SHORT off_0 + off_1 + 0x8 tmp_0
-              END
-            END
-          END ELSE BEGIN
-            smc = 0x11
-            msc = 0
-            SPRINT ms fail
-          END
-        END
-      END
-    END
-    off_0 += 0x110
-    WRITE_LONG 0x2b0 off_0
-    PATCH_IF ~%ms%~ STR_CMP fail && ~%sm%~ STR_CMP fail && smc = 0x11 BEGIN
-      INSERT_BYTES off_0 0xc * msc
-      WRITE_ASCIIE off_0 ~%ms%~
-    END ELSE BEGIN
-      msc = 0
-      WRITE_LONG 0x2b4 msc
-    END
-    smc = 0x11
-    WRITE_LONG 0x2ac smc
-    off_0 += 0xc * msc
-    WRITE_LONG 0x2c4 off_0
-    PATCH_IF ~%el%~ STR_CMP fail BEGIN
-      INSERT_BYTES off_0 (elc * (0x30 + (((fv & 0x1) = 0x1) ? 0xd8 : 0)))
-      WRITE_ASCIIE off_0 ~%el%~
-    END ELSE BEGIN
-      elc = 0
-      WRITE_LONG 0x2c8 elc
-    END
-    off_0 += (elc * (0x30 + (((fv & 0x1) = 0x1) ? 0xd8 : 0)))
-    WRITE_LONG 0x2bc off_0
-    PATCH_IF ~%il%~ STR_CMP fail BEGIN
-      INSERT_BYTES off_0 (0x14 * ilc)
-      WRITE_ASCIIE off_0 ~%il%~
-    END ELSE BEGIN
-      ilc = 0
-      WRITE_LONG 0x2c0 ilc
-    END
-    off_0 += 0x14 * ilc
-    WRITE_LONG 0x2b8 off_0
-    INSERT_BYTES off_0 0x50
-    PATCH_IF ~%is%~ STR_CMP fail BEGIN
-      WRITE_ASCIIE off_0 ~%is%~
-    END ELSE BEGIN
-      FOR (i_0 = 0; i_0 < 0x4c; i_0 += 2) BEGIN
-        WRITE_SHORT off_0 + i1 0xffff
-      END
-    END
-    SOURCE_SIZE = off_0 + 0x50
+    LAUNCH_PATCH_FUNCTION ~FJ_CRE_REINDEX~ END
   END
 END
 
+DEFINE_PATCH_FUNCTION ~FJ_CRE_REINDEX~ BEGIN
+  fv = 0
+  kso = 0x2d4
+  ksc = 0
+  smo = 0x2d4
+  smc = 0
+  mso = 0x2d4
+  msc = 0
+  iso = 0x2d4
+  ilo = 0x2d4
+  ilc = 0
+  elo = 0x2d4
+  elc = 0
+  i_0 = 0
+  off_0 = 0
+  off_1 = 0
+  tmp_0 = 0
+  tmp_1 = 0
+  SPRINT ks fail
+  SPRINT sm fail
+  SPRINT ms fail
+  SPRINT is fail
+  SPRINT il fail
+  SPRINT el fail
+  READ_BYTE 0x33 fv //EFF version
+  PATCH_IF (fv = 0) AND NOT (FILE_EXISTS_IN_GAME ~ar0125.are~) BEGIN
+    LAUNCH_PATCH_FUNCTION ~FJ_CRE_EFF_V2~ END
+  END
+  PATCH_IF (fv != 0) AND (FILE_EXISTS_IN_GAME ~ar0125.are~) BEGIN
+    LAUNCH_PATCH_FUNCTION ~T-CRE_EFF_V1~ END
+  END
+  PATCH_IF FILE_EXISTS_IN_GAME ~fw0125.are~ BEGIN //Fix buggered Tutu refs
+    FOR (s1 = 0xa4; s1 < 0x234; s1 += 0x4) BEGIN
+      READ_LONG s1 ss //Soundslots
+      PATCH_IF ss > 10000000 BEGIN
+        WRITE_LONG s1 ~-1~
+      END
+    END
+  END
+  READ_LONG 0x2a0 kso //Known spells offset
+  READ_LONG 0x2a4 ksc //Known spells count
+  READ_LONG 0x2a8 smo //Spell memorization info offset
+  READ_LONG 0x2ac smc //Spell memorization info count
+  READ_LONG 0x2b0 mso //Memorized spells offset
+  READ_LONG 0x2b4 msc //Memorized spells count
+  READ_LONG 0x2b8 iso //Item slot offset
+  READ_LONG 0x2bc ilo //Item offset
+  READ_LONG 0x2c0 ilc //Item count
+  READ_LONG 0x2c4 elo //Effects offset
+  READ_LONG 0x2c8 elc //Effects count
+  READ_ASCII kso ks ELSE fail (0xc * ksc)
+  READ_ASCII smo sm ELSE fail (0x10 * smc)
+  READ_ASCII mso ms ELSE fail (0xc * msc)
+  READ_ASCII iso is ELSE fail (0x50)
+  READ_ASCII ilo il ELSE fail (0x14 * ilc)
+  READ_ASCII elo el ELSE fail (elc * (0x30 + ((fv & 0x1) = 0x1 ? 0xd8 : 0)))
+  DELETE_BYTES 0x2d4 BUFFER_LENGTH	 - 0x2d4
+  off_0 = 0x2d4
+  WRITE_LONG 0x2a0 off_0
+  PATCH_IF ~%ks%~ STR_CMP fail BEGIN
+    INSERT_BYTES off_0 0xc * ksc
+    WRITE_ASCIIE off_0 ~%ks%~
+  END ELSE BEGIN
+    ksc = 0
+    WRITE_LONG 0x2a4 ksc
+  END
+  off_0 += 0xc * ksc
+  WRITE_LONG 0x2a8 off_0
+  INSERT_BYTES off_0 0x10 * 0x11
+  PATCH_IF ~%sm%~ STR_CMP fail && smc = 0x11 BEGIN
+    WRITE_ASCIIE off_0 ~%sm%~
+  END ELSE BEGIN
+    FOR (i_0 = 0; i_0 < 7; i_0 += 1) BEGIN
+      WRITE_SHORT off_0 + i_0 * 0x10 i_0
+    END
+    FOR (i_0 = 0; i_0 < 9; i_0 += 1) BEGIN
+      WRITE_SHORT off_0 + i_0 * 0x10 + 0x70 i_0
+      WRITE_SHORT off_0 + i_0 * 0x10 + 0x76 1
+    END
+    WRITE_SHORT off_0 + 0x106 0x2
+    PATCH_IF ~%sm%~ STR_CMP fail BEGIN
+      PATCH_IF smc > 0x11 BEGIN
+        msc = 0
+        SPRINT ms fail
+      END ELSE PATCH_IF smc < 0x11 && smc > 0 BEGIN
+        PATCH_IF STRING_LENGTH EVALUATE_BUFFER ~%sm%~ = 0x10 * smc BEGIN
+          smc = 0x11
+          WHILE STRING_LENGTH EVALUATE_BUFFER ~%sm%~ > 0 BEGIN
+            off_1 = 0
+            INNER_PATCH_SAVE sm ~%sm%~ BEGIN
+              READ_SHORT 0 tmp_0
+              off_1 += tmp_0 * 0x10
+              READ_SHORT 6 tmp_0
+              off_1 += 0x70 * tmp_0 + (tmp_0 = 0x2 ? 0x10 : 0)
+              READ_SHORT 8 tmp_0
+              READ_ASCII 0 tmp_1 (0x10)
+              DELETE_BYTES 0 0x10
+            END
+            WRITE_ASCIIE off_0 + off_1 ~%tmp_1%~
+            FOR (off_1 += 0x10; off_1 < 0x110; off_1 += 0x10) BEGIN
+              WRITE_SHORT off_0 + off_1 + 0x8 tmp_0
+            END
+          END
+        END ELSE BEGIN
+          smc = 0x11
+          msc = 0
+          SPRINT ms fail
+        END
+      END
+    END
+  END
+  off_0 += 0x110
+  WRITE_LONG 0x2b0 off_0
+  PATCH_IF ~%ms%~ STR_CMP fail && ~%sm%~ STR_CMP fail && smc = 0x11 BEGIN
+    INSERT_BYTES off_0 0xc * msc
+    WRITE_ASCIIE off_0 ~%ms%~
+  END ELSE BEGIN
+    msc = 0
+    WRITE_LONG 0x2b4 msc
+  END
+  smc = 0x11
+  WRITE_LONG 0x2ac smc
+  off_0 += 0xc * msc
+  WRITE_LONG 0x2c4 off_0
+  PATCH_IF ~%el%~ STR_CMP fail BEGIN
+    INSERT_BYTES off_0 (elc * (0x30 + (((fv & 0x1) = 0x1) ? 0xd8 : 0)))
+    WRITE_ASCIIE off_0 ~%el%~
+  END ELSE BEGIN
+    elc = 0
+    WRITE_LONG 0x2c8 elc
+  END
+  off_0 += (elc * (0x30 + (((fv & 0x1) = 0x1) ? 0xd8 : 0)))
+  WRITE_LONG 0x2bc off_0
+  PATCH_IF ~%il%~ STR_CMP fail BEGIN
+    INSERT_BYTES off_0 (0x14 * ilc)
+    WRITE_ASCIIE off_0 ~%il%~
+  END ELSE BEGIN
+    ilc = 0
+    WRITE_LONG 0x2c0 ilc
+  END
+  off_0 += 0x14 * ilc
+  WRITE_LONG 0x2b8 off_0
+  INSERT_BYTES off_0 0x50
+  PATCH_IF ~%is%~ STR_CMP fail BEGIN
+    WRITE_ASCIIE off_0 ~%is%~
+  END ELSE BEGIN
+    FOR (i_0 = 0; i_0 < 0x4c; i_0 += 2) BEGIN
+      WRITE_SHORT off_0 + i1 0xffff
+    END
+  END
+  SOURCE_SIZE	 = off_0 + 0x50
+END
+
+DEFINE_PATCH_FUNCTION ~FJ_CRE_EFF_V2~ BEGIN
+  PATCH_IF BYTE_AT 0x33 != 1 BEGIN
+    WRITE_BYTE 0x33 1
+    READ_LONG 0x2c8 fc //Effects count
+    PATCH_IF (fc > 0x0) BEGIN
+      READ_LONG 0x2c4 fs //Effects offset
+      READ_ASCII fs fx (0x30 * fc)
+      PATCH_FOR_EACH f1 IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
+        READ_LONG f1 f2
+        WRITE_LONG f1 ((f2 > fs) ? (f2 + (fc * (0x108 - 0x30))) : (f2 < 0x2d4 ? 0x2d4 : f2))
+      END
+      DELETE_BYTES fs (0x30 * fc)
+      INSERT_BYTES fs (0x108 * fc)
+      SPRINT rfx ~~
+      INNER_PATCH ~%fx%~ BEGIN
+        FOR (i1 = 0; i1 < fc; i1 += 1) BEGIN
+          SOURCE_SIZE	 += 0xd8
+          READ_SHORT ((i1 * 0x30) + 0x00) pc //Opcode
+          READ_BYTE  ((i1 * 0x30) + 0x02) tg //Target
+          READ_BYTE  ((i1 * 0x30) + 0x03) pw //Power
+          READ_LONG  ((i1 * 0x30) + 0x04) p1 //Parameter 1
+          READ_LONG  ((i1 * 0x30) + 0x08) p2 //Parameter 2
+          READ_BYTE  ((i1 * 0x30) + 0x0c) tm //Timing mode
+          READ_BYTE  ((i1 * 0x30) + 0x0d) dp //Dispellability
+          READ_LONG  ((i1 * 0x30) + 0x0e) dr //Duration
+          READ_BYTE  ((i1 * 0x30) + 0x12) b1 //Probability 1
+          READ_BYTE  ((i1 * 0x30) + 0x13) b2 //Probability 2
+          READ_ASCII ((i1 * 0x30) + 0x14) rf //ResRef
+          READ_LONG  ((i1 * 0x30) + 0x1c) dt //Dice thrown
+          READ_LONG  ((i1 * 0x30) + 0x20) dz //Die size
+          READ_LONG  ((i1 * 0x30) + 0x24) st //Save type
+          READ_LONG  ((i1 * 0x30) + 0x28) sb //Save bonus
+          INNER_PATCH_SAVE ~rfx~ ~%rfx%~ BEGIN
+            INSERT_BYTES ((i1 * 0x108) + 0x00) 0x110
+            WRITE_LONG   ((i1 * 0x108) + 0x10) pc
+            WRITE_LONG   ((i1 * 0x108) + 0x14) tg
+            WRITE_LONG   ((i1 * 0x108) + 0x18) pw
+            WRITE_LONG   ((i1 * 0x108) + 0x1c) p1
+            WRITE_LONG   ((i1 * 0x108) + 0x20) p2
+            WRITE_BYTE   ((i1 * 0x108) + 0x24) tm
+            WRITE_LONG   ((i1 * 0x108) + 0x28) dr
+            WRITE_SHORT  ((i1 * 0x108) + 0x2c) b1
+            WRITE_SHORT  ((i1 * 0x108) + 0x2e) b2
+            WRITE_ASCIIE ((i1 * 0x108) + 0x30) ~%rf%~
+            WRITE_LONG   ((i1 * 0x108) + 0x38) dt
+            WRITE_LONG   ((i1 * 0x108) + 0x3c) dz
+            WRITE_LONG   ((i1 * 0x108) + 0x40) st
+            WRITE_LONG   ((i1 * 0x108) + 0x44) sb
+            WRITE_BYTE   ((i1 * 0x108) + 0x5c) dp
+            WRITE_LONG   ((i1 * 0x108) + 0x80) (`0)
+            WRITE_LONG   ((i1 * 0x108) + 0x84) (`0)
+            WRITE_LONG   ((i1 * 0x108) + 0x88) (`0)
+            WRITE_LONG   ((i1 * 0x108) + 0x8c) (`0)
+            WRITE_LONG   ((i1 * 0x108) + 0xa4) (`0)
+            DELETE_BYTES ((i1 * 0x108) + 0x08) 8
+          END
+        END
+      END
+      WRITE_ASCIIE fs ~%rfx%~
+    END
+  END
+END
+
+DEFINE_PATCH_FUNCTION ~t-CRE_EFF_V1~ BEGIN
+  PATCH_IF BYTE_AT 0x33 != 0 BEGIN
+    WRITE_BYTE 0x33 0
+    READ_LONG 0x2c8 fc //Effects count
+    PATCH_IF fc > 0 BEGIN
+      READ_LONG 0x2c4 fs //Effects offset
+      READ_ASCII fs fx (0x108 * fc)
+      DELETE_BYTES fs (0x108 * fc)
+      sz = 0 //Size to reduce
+      SPRINT rfx ~~
+      INNER_PATCH ~%fx%~ BEGIN
+        FOR (i1 = 0; i1 < fc; i1 += 1) BEGIN
+          READ_SHORT ((i1 * 0x108) + 0x08) pc //Opcode
+          READ_BYTE  ((i1 * 0x108) + 0x0c) tg //Target
+          READ_BYTE  ((i1 * 0x108) + 0x10) pw //Power
+          READ_LONG  ((i1 * 0x108) + 0x14) p1 //Parameter 1
+          READ_LONG  ((i1 * 0x108) + 0x18) p2 //Parameter 2
+          READ_BYTE  ((i1 * 0x108) + 0x1c) tm //Timing mode
+          READ_LONG  ((i1 * 0x108) + 0x20) dr //Duration
+          READ_BYTE  ((i1 * 0x108) + 0x24) b1 //Probability 1
+          READ_BYTE  ((i1 * 0x108) + 0x26) b2 //Probability 2
+          READ_ASCII ((i1 * 0x108) + 0x28) rf //ResRef
+          READ_LONG  ((i1 * 0x108) + 0x30) dt //Dice thrown
+          READ_LONG  ((i1 * 0x108) + 0x34) dz //Die size
+          READ_LONG  ((i1 * 0x108) + 0x38) st //Save type
+          READ_LONG  ((i1 * 0x108) + 0x3c) sb //Save bonus
+          READ_BYTE  ((i1 * 0x108) + 0x54) dp //Dispellability
+          INNER_PATCH_SAVE rfx ~%rfx%~ BEGIN
+            PATCH_IF pc < 191 BEGIN //If a valid BG1 opcode
+              sz += 0xd8
+              INSERT_BYTES ((i1 * 0x30) + 0x00) 0x30
+              WRITE_SHORT  ((i1 * 0x30) + 0x00) pc
+              WRITE_BYTE   ((i1 * 0x30) + 0x02) tg
+              WRITE_BYTE   ((i1 * 0x30) + 0x03) pw
+              WRITE_LONG   ((i1 * 0x30) + 0x04) p1
+              WRITE_LONG   ((i1 * 0x30) + 0x08) p2
+              WRITE_BYTE   ((i1 * 0x30) + 0x0c) tm
+              WRITE_BYTE   ((i1 * 0x30) + 0x0d) dp
+              WRITE_LONG   ((i1 * 0x30) + 0x0e) dr
+              WRITE_BYTE   ((i1 * 0x30) + 0x12) b1
+              WRITE_BYTE   ((i1 * 0x30) + 0x13) b2
+              WRITE_ASCIIE ((i1 * 0x30) + 0x14) ~%rf%~
+              WRITE_LONG   ((i1 * 0x30) + 0x1c) dt
+              WRITE_LONG   ((i1 * 0x30) + 0x20) dz
+              WRITE_LONG   ((i1 * 0x30) + 0x24) st
+              WRITE_LONG   ((i1 * 0x30) + 0x28) sb
+            END ELSE BEGIN
+              sz += 0x108
+              fc -= 1
+            END
+          END
+        END
+      END
+      PATCH_FOR_EACH f1 IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
+        READ_LONG f1 f2
+        WRITE_LONG f1 ((f2 > fs) ? (f2 - sz) : (f2 < 0x2d4 ? 0x2d4 : f2))
+      END
+      INSERT_BYTES fs (0x30 * fc)
+      WRITE_ASCIIE fs ~%rfx%~
+      WRITE_LONG 0x2c8 fc //Update effects count
+      SOURCE_SIZE	 -= sz
+    END
+  END
+END

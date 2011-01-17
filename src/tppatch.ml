@@ -247,56 +247,66 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	String.blit new_string 0 buff where 4 ;
 	buff
 
-    | TP_PatchReplaceBCSBlock(old_file, new_file) -> begin
-	let old_file = Arch.backslash_to_slash old_file in
-	let new_file = Arch.backslash_to_slash new_file in
-	let bcs_buff_of_baf_or_bcs file =
+    | TP_PatchReplaceBCSBlock(old_file, new_file, on_mismatch) -> begin
+        let old_file = Var.get_string old_file in
+        let new_file = Var.get_string new_file in
+        let bcs_buff_of_baf_or_bcs file =
           let a,b = split (String.uppercase file) in
           if b = "BAF" then begin
             try
               let script = parse_file true (File file) "parsing .baf files"
-		  (Bafparser.baf_file Baflexer.initial) in
+                (Bafparser.baf_file Baflexer.initial) in
               let buff = Buffer.create 1024 in
               Bcs.save_bcs game (Bcs.Save_BCS_Buffer(buff)) script ;
               Buffer.contents buff
             with e ->
               log_and_print "ERROR: error compiling [%s]: %s\n"
-		file (Printexc.to_string e) ;
+                file (Printexc.to_string e) ;
               raise e
           end else begin
             load_file file
           end
-	in
-	let old_file_buff = bcs_buff_of_baf_or_bcs old_file in
-	let string_to_find = body_of_script old_file_buff in
-	let new_file_buff = bcs_buff_of_baf_or_bcs new_file in
-	let string_to_sub_in = body_of_script new_file_buff in
-	let my_regexp = Str.regexp_string string_to_find in
-	try
+        in
+        let old_file_buff = bcs_buff_of_baf_or_bcs old_file in
+        let string_to_find = body_of_script old_file_buff in
+        let new_file_buff = bcs_buff_of_baf_or_bcs new_file in
+        let string_to_sub_in = body_of_script new_file_buff in
+        let my_regexp = Str.regexp_string string_to_find in
+        try
           let _ = Str.search_forward my_regexp buff 0 in
           Str.global_replace my_regexp string_to_sub_in buff
-	with Not_found ->
-      	  (try assert false with Assert_failure(file,line,col) -> set_errors file line);
-          log_and_print "WARNING: cannot find block matching [%s]\n"
-            old_file ;
-          buff
-    end 
+        with Not_found -> begin
+          match on_mismatch with
+          | None ->
+            (try assert false with Assert_failure(file,line,col) -> set_errors file line);
+            log_and_print "WARNING: cannot find block matching [%s]\n"
+              old_file ;
+            errors_this_component := true;
+            buff
+          | Some x -> List.fold_left (fun acc elt -> process_patch2 patch_filename game acc elt) buff x
+        end
+      end 
 
-    | TP_PatchReplaceBCSBlockRE(old_file, new_file) -> begin
-	let old_file = Arch.backslash_to_slash old_file in
-	let new_file = Arch.backslash_to_slash new_file in
-	let string_to_find = load_file old_file in
-	let string_to_sub_in = load_file new_file in
-	let my_regexp = Str.regexp string_to_find in
-	try 
+    | TP_PatchReplaceBCSBlockRE(old_file, new_file, on_mismatch) -> begin
+        let old_file = Var.get_string old_file in
+        let new_file = Var.get_string new_file in
+        let string_to_find = load_file old_file in
+        let string_to_sub_in = load_file new_file in
+        let my_regexp = Str.regexp string_to_find in
+        try 
           let _ = Str.search_forward my_regexp buff 0 in
           Str.global_replace my_regexp string_to_sub_in buff 
-	with Not_found ->
-      	  (try assert false with Assert_failure(file,line,col) -> set_errors file line);
-          log_and_print "WARNING: cannot find block matching [%s]\n"
-            old_file ;
-          buff
-    end 
+        with Not_found -> begin
+          match on_mismatch with
+          | None ->
+            (try assert false with Assert_failure(file,line,col) -> set_errors file line);
+            log_and_print "WARNING: cannot find block matching [%s]\n"
+              old_file ;
+            errors_this_component := true;
+            buff
+          | Some x -> List.fold_left (fun acc elt -> process_patch2 patch_filename game acc elt) buff x
+        end
+      end 
 
     | TP_PatchApplyBCSPatch(patch_file,opt_overwrite) -> begin
 	let patch_file = Arch.backslash_to_slash patch_file in
@@ -424,9 +434,34 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
             (if is_true (eval_pe buff game pred) then tb else eb) ;
 	!b
 
+    | TP_PatchMatch(str,opts) ->
+      let str = string_of_pe buff game str in
+      let rec walk al = match al with
+        | (pe_l,pe,pl) :: tl -> if is_true (eval_pe buff game pe) && pe_l = [] || 
+          (List.exists (fun elt ->
+            let elt = string_of_pe buff game elt in
+            let elt = Str.regexp_case_fold elt in
+            Str.string_match elt str 0 && Str.match_end () = String.length str
+          ) pe_l) then
+            List.fold_left (fun acc elt -> process_patch2 patch_filename game acc elt) buff pl
+          else walk tl
+        | [] -> failwith "PATCH_MATCH internal failure: didn't find the default state"
+      in walk opts
+     
+    | TP_PatchTry(pl,opts) ->
+      begin
+        try
+          List.fold_left (fun acc elt -> process_patch2 patch_filename game acc elt) buff pl
+        with e ->
+          current_exception := e;
+          let e = Printexc.to_string e in
+          Var.set_string "ERROR_MESSAGE" e;
+          process_patch2 patch_filename game buff (TP_PatchMatch ((PE_String (PE_LiteralString e)),opts))
+      end
+  
     | TP_Launch_Patch_Function (str,int_var,str_var,rets) ->
 	let (f_int_args,f_str_args,f_rets,f_code) = try
-	  Hashtbl.find patch_functions str
+	  Hashtbl.find patch_functions (Var.get_string str)
 	with _ -> failwith (Printf.sprintf "Unknown function: %s" str)
 	in
 	let i_did_pop = ref false in
@@ -664,18 +699,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	let row = (eval_pe buff game r) in
 	let col = (eval_pe buff game c) in
 	let str = Var.get_string str in
-	eval_pe_warn := false ;
-	let value =
-          try
-            let x = (eval_pe buff game value) in
-            Int32.to_string x
-          with _ ->
-            begin
-              match value with
-              | PE_String(x) -> Var.get_string (eval_pe_str x)
-              | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game value) ; "")
-            end
-	in eval_pe_warn := true ; 
+	let value = string_of_pe buff game value in
 	let iidx = try Var.get_int32 ("%" ^ str ^ "%") with _ -> 0l in
 	let idx = Int32.to_string iidx in
 	let sidx = str ^ idx in
@@ -773,18 +797,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	let row = Int32.to_int (eval_pe buff game row) in
 	let req_col = Int32.to_int (eval_pe buff game req_col) in
 	let lines = Str.split many_newline_or_cr_regexp buff in
-	eval_pe_warn := false ;
-	let value =
-          try
-            let x = (eval_pe buff game value) in
-            Int32.to_string x
-          with _ ->
-            begin
-              match value with
-              | PE_String(x) -> Var.get_string (eval_pe_str x)
-              | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game value) ; "")
-            end
-	in eval_pe_warn := true ; 
+	let value = string_of_pe buff game value in
 	let before = ref "" in
 	let num_rows = ref 0 in
 	let found = ref false in
@@ -847,18 +860,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	let req_col = Int32.to_int (eval_pe buff game req_col) in
 	let lines = Str.split many_newline_or_cr_regexp buff in
 
-	eval_pe_warn := false ;
-	let value =
-          try
-            let x = (eval_pe buff game value) in
-            Int32.to_string x
-          with _ ->
-            begin
-              match value with
-              | PE_String(x) -> Var.get_string (eval_pe_str x)
-              | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game value) ; "")
-            end
-	in eval_pe_warn := true ; 
+	let value = string_of_pe buff game value in
 	let slv = String.length value in
 	let max = ref slv in 
 	let entries = List.map (fun line -> 
@@ -1435,7 +1437,6 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	  with _ ->
 	    eval_pe buff game name
 	in
-	eval_pe_warn := true;
 	if !debug_ocaml then log_and_print "SET_BG2_PROFICIENCY %ld points in %ld\n" prof value;
 	let (len,  write_opc,  read_opc,        opc,pa1, pa2, tim, prb, write_prob) = if not v1 then
 	  0x108,write_int,  int_of_str_off,  8,  0x14,0x18,0x1c,0x24,write_short else
@@ -1600,6 +1601,21 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
         log_only "\n%s\n" str;
         buff
 
+    | TP_PatchWarn(msg) ->
+        let str = Dc.single_string_of_tlk_string game msg in
+        be_silent := false ;
+        let str = Var.get_string str in
+        errors_this_component := true;
+        log_and_print "\n%s\n" str;
+        buff
+      
+    | TP_PatchFail(msg) ->
+        let str = Var.get_string (Dc.single_string_of_tlk_string game msg) in
+        log_and_print "FAILURE:\n%s\n" str ;
+        failwith str
+
+    | TP_PatchReraise -> raise !current_exception
+        
     | TP_PatchSprint(name,msg) ->
         let name = eval_pe_str name in
         let (str : string) = eval_pe_tlk_str game msg in
@@ -1616,19 +1632,10 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	if !debug_ocaml then begin
 	  log_and_print "SPRINTF %s ~%s~ " name str;
 	  List.iter (fun cur ->
-	    eval_pe_warn := false ;
-	    log_and_print "%s " (try
-	      let x = (eval_pe buff game cur) in
-	      Int32.to_string x
-	    with _ ->
-	      begin
-		match cur with
-		| PE_String(x) -> Var.get_string (eval_pe_str x)
-		| _ -> (eval_pe_warn := true ; ignore (eval_pe buff game cur) ; "")
-	      end)
-		    ) vars;
+	    log_and_print "%s " (string_of_pe buff game cur)
+		) vars;
 	  log_and_print "\n"
-	end; eval_pe_warn := true ; 
+	end;
 	let vars = ref vars in
 	List.iter (fun x ->
 	  Buffer.add_string buff' (match x with
@@ -1637,23 +1644,12 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	      let cur = List.hd !vars in
 	      vars := List.tl !vars;
 	      match y with
-	      | "%s" -> (
-		  eval_pe_warn := false ;
-		  try
-		    let x = (eval_pe buff game cur) in
-		    Int32.to_string x
-		  with _ ->
-		    begin
-		      match cur with
-		      | PE_String(x) -> Var.get_string (eval_pe_str x)
-		      | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game cur) ; "")
-		    end
-		 )
+	      | "%s" -> (string_of_pe buff game cur)
 	      | "%d" -> Int32.to_string (eval_pe buff game cur)
 	      | "%x" -> Printf.sprintf "0x%lx" (eval_pe buff game cur)
 	      | _ -> failwith (Printf.sprintf "Unknown SPRINTF mode: %s" y)
 	     )
-				  )) parts; eval_pe_warn := true ; 
+				  )) parts;
         Var.set_string name (Buffer.contents buff') ;
         if !vars <> [] then failwith "SPRINTF: too many arguments";
         buff
@@ -2012,16 +2008,41 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	end else process_patch2 patch_filename game buff (TP_Add_Cre_Item(i))
 
     | TP_CompileBAFtoBCS ->
-        (try
-          let old_ok = !Dc.ok_to_resolve_strings_while_loading in
-       	  Dc.ok_to_resolve_strings_while_loading := Some(game);
-          let bcs = handle_script_buffer (patch_filename ^ ".BAF") buff in
-          let out_buff = Buffer.create 40960 in
-          Bcs.save_bcs game (Bcs.Save_BCS_Buffer(out_buff)) bcs ;
-       	  Dc.ok_to_resolve_strings_while_loading := old_ok;
-          Buffer.contents out_buff
-        with Modder.Modder_error e -> failwith e
-	| _ -> buff)
+    let old_ok = !Dc.ok_to_resolve_strings_while_loading in
+    Dc.ok_to_resolve_strings_while_loading := Some(game);
+    begin try
+      let bcs = handle_script_buffer (patch_filename ^ ".BAF") buff in
+      let out_buff = Buffer.create 40960 in
+      Bcs.save_bcs game (Bcs.Save_BCS_Buffer(out_buff)) bcs ;
+      Dc.ok_to_resolve_strings_while_loading := old_ok;
+      Buffer.contents out_buff
+    with e ->
+      Dc.ok_to_resolve_strings_while_loading := old_ok;
+      if List.mem (String.uppercase patch_filename) ["RDOG.BCS"; "RDWARF.BCS";
+        "RETTER.BCS"; "RGIBBLER.BCS"; "RHALFLIN.BCS"; "RHOBGOBA.BCS";
+        "RHOBGOBF.BCS"; "RKOBOLD.BCS"; "ROGRE.BCS"; "RSIREN.BCS";
+        "RSIRINE.BCS"] then begin
+          log_only "WARNING: ignoring known-malformed %s\n" patch_filename;
+          buff
+      end else raise e
+    end
+	
+	| TP_CompileBCStoBAF ->
+    begin try
+      let bcs = handle_script_buffer (patch_filename ^ ".BCS") buff in
+      let out_buff = Buffer.create 40960 in
+      Bcs.print_script_text game (Bcs.Save_BCS_Buffer(out_buff))
+        (Bcs.BCS_Print_Script(bcs)) false None ;
+      Buffer.contents out_buff
+    with e ->
+      if List.mem (String.uppercase patch_filename) ["RDOG.BCS"; "RDWARF.BCS";
+        "RETTER.BCS"; "RGIBBLER.BCS"; "RHALFLIN.BCS"; "RHOBGOBA.BCS";
+        "RHOBGOBF.BCS"; "RKOBOLD.BCS"; "ROGRE.BCS"; "RSIREN.BCS";
+        "RSIRINE.BCS"] then begin
+          log_only "WARNING: ignoring known-malformed %s\n" patch_filename;
+          buff
+      end else raise e
+    end
 
     | TP_CompileDLGtoD ->
         handle_dlg_buffer game patch_filename buff
@@ -2034,10 +2055,10 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 			let pre = Var.get_string (eval_pe_str pre) in
 			let post = Var.get_string (eval_pe_str post) in
 			Refactorbaf.set_refactor (Some(pre, post, case_sens, exact_m));
-			let load_triggers s = parse_buffer "" s "parsing .baf files"
+			let load_triggers s = parse_file true (String ("",s)) "parsing .baf files"
 			(Refactorbafparser.trigger_list Refactorbaflexer.initial) in
 			Refactorbaf.parse_triggers := load_triggers;
-			let res = parse_buffer patch_filename buff "parsing .d files"
+			let res = parse_file true (String(patch_filename,buff)) "parsing .d files"
 			(Refactordparser.d_file Refactordlexer.initial) in
 			Refactorbaf.set_refactor None;
 			res
@@ -2049,25 +2070,15 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 			let pre = Var.get_string (eval_pe_str pre) in
 			let post = Var.get_string (eval_pe_str post) in
 			Refactorbaf.set_refactor (Some(pre, post, case_sens, exact_m));
-			let load_triggers s = parse_buffer "" s "parsing .baf files"
+			let load_triggers s = parse_file true (String ("",s)) "parsing .baf files"
 			(Refactorbafparser.trigger_list Refactorbaflexer.initial) in
 			Refactorbaf.parse_triggers := load_triggers;
-			let res = parse_buffer patch_filename buff "parsing .baf files"
+			let res =parse_file true (String(patch_filename,buff)) "parsing .baf files"
 			(Refactorbafparser.baf_file Refactorbaflexer.initial) in
 			Refactorbaf.set_refactor None;
 			res
 		with e -> log_and_print "WARNING: REFACTOR_BAF_TRIGGER %s failed (%s)\n"
 			patch_filename (Printexc.to_string e); buff end
-	
-	| TP_CompileBCStoBAF ->
-        (try
-          let bcs = handle_script_buffer (patch_filename ^ ".BCS") buff in
-          let out_buff = Buffer.create 40960 in
-          Bcs.print_script_text game (Bcs.Save_BCS_Buffer(out_buff))
-            (Bcs.BCS_Print_Script(bcs)) false None ;
-          Buffer.contents out_buff
-        with Modder.Modder_error e -> failwith e
-	| _ -> buff)
 
     | TP_EvaluateBuffer -> Var.get_string buff
 

@@ -1,10 +1,44 @@
+Version 227:
+  * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
+  * REFACTOR_*_TRIGGER correctly clears the "Unfinished OR()" error message.
+  * QUICK_MENU added for allowing the modder to specify one or more 'default'
+    sets of components that can be installed in a single step.
+  * INSTALL_BY_DEFAULT is now stricter.
+  * ADD_ITEM_EFFECT will correctly skip magical headers.
+  * Can now [R]einstall Widescreen on BG1 and PST (regression).
+  
+Version 226:
+  * Add a space in the "Installing [XYZ]" message.
+  * LAUNCH_{PATCH,ACTION}_FUNCTION evaluates variables in the function name.
+  * ADD_AREA_REGION_TRIGGER now works again.
+
 Version 225:
   * Remove ARGS.*.TEXT and READLN.*.TEXT when doing temp_to_perm_uninstall.
   * Fixed ADD_STORE_ITEM and REMOVE_STORE_ITEM invalidating STO files under
     BG1.
   * Can now specify header ID and header type when using ITEM_EFFECT_TO_SPELL.
   * FJ_CRE_VALIDITY also enforces proper CRE order and EFFV2 effects.
-
+  * Can ADD_KIT if the kit is already present.
+  * STATE_WHICH_SAYS doesn't unload the mod's TRA.
+  * WARN tp2 action prints a message and sets the status to 'INSTALLED WITH
+    WARNINGS'.
+  * PATCH_FAIL, PATCH_WARN do the obvious thing.
+  * {PATCH,ACTION}_{MATCH,TRY,RERAISE} added.
+  * ADD_MEMORIZED_SPELL (and other CRE-altering commands) dones't break files
+    that were broken by DLTCEP.
+  * EXTEND_{TOP,BOTTOM} fails if the .baf file is invalid.
+  * COMPILE_BAF_TO_BCS and DECOMPILE_BCS_TO_BAF fails on invalid files (except
+    on known-invalid files).
+  * Fixed sc#AddWmpAre corrupting links on AR3000 on worldm25.wmp.
+  * A failure in COMPILE_BAF_TO_BCS doesn't break the parser.
+  * Build-in macros now compare against the current file size, not the size
+    reported when loading the file (notably, you can launch DELETE_CRE_EFFECT
+    twice on the same CRE file).
+  * 'Press ENTER to exit.' is always displayed if a component failed installing
+    (unless you explicitly use --no-exit-pause).
+  * Close biffs' file descriptors when re-loading the key.
+  * Write version info in the debug.
+  
 Version 224:
   * Fixed a regression in ADD_PROJECTILE and friends.
   * DECOMPRESS_BIFF added.

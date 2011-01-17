@@ -698,53 +698,58 @@ type parse_what	=
 
 (* big generic parsing function *) 
 let parse_file verbose what sort_of_file parse_lex_fun =
+  let old_parse_error_verbose = !parse_error_verbose in
   parse_error_verbose := verbose;
   let do_the_work filename lexbuf =
-    try
-      let result = Stats.time sort_of_file
-          (fun () -> parse_lex_fun lexbuf) () in
-      pop_context () ;
-      log_or_print_modder "[%s] parsed\n" filename ;
-      result
-    with e ->
-      (try input_error "" (Printexc.to_string e) with _ -> () ) ;
-      pop_context () ;
-      raise e
+    let result = Stats.time sort_of_file
+        (fun () -> parse_lex_fun lexbuf) () in
+    pop_context () ;
+    log_or_print_modder "[%s] parsed\n" filename ;
+    result
   in
-  match what with
-  | File(filename) ->
+  let ans = match what with
+    | File(filename) ->
       if Hashtbl.mem inlined_files filename then begin
-	let str = Hashtbl.find inlined_files filename in
-	let lexbuf : Lexing.lexbuf = lex_init_from_string filename str in
-	try
-	  do_the_work filename lexbuf
-	with e ->
-	  if verbose then log_and_print "ERROR: parsing [%s]: %s\n"
-	      filename (Printexc.to_string e) ;
-	  raise e
-      end else begin
-	let inchan = Case_ins.perv_open_in filename in
-	try
-	  begin
-	    let lexbuf : Lexing.lexbuf = lex_init filename inchan in
-	    let res = do_the_work filename lexbuf in
-	    close_in inchan ;
-	    res
-	  end
-	with e ->
-	  if verbose then log_and_print "ERROR: parsing [%s]: %s\n"
-	      filename (Printexc.to_string e) ;
-	  close_in inchan ; raise e
+        let str = Hashtbl.find inlined_files filename in
+        let lexbuf : Lexing.lexbuf = lex_init_from_string filename str in
+        try
+          do_the_work filename lexbuf
+        with e ->
+          if verbose then log_and_print "ERROR: parsing [%s]: %s\n"
+              filename (Printexc.to_string e) ;
+          raise e
+            end else begin
+        let inchan = Case_ins.perv_open_in filename in
+        try
+          begin
+            let lexbuf : Lexing.lexbuf = lex_init filename inchan in
+            let res = do_the_work filename lexbuf in
+            close_in inchan ;
+            res
+          end
+        with e ->
+          (try input_error "" (Printexc.to_string e) with _ -> () ) ;
+          pop_context () ;
+          if verbose then log_and_print "ERROR: parsing [%s]: %s\n"
+              filename (Printexc.to_string e) ;
+          parse_error_verbose := old_parse_error_verbose;
+          close_in inchan ; raise e
       end
-  | String (filename,str) -> begin
+    | String (filename,str) -> begin
       let lexbuf : Lexing.lexbuf = lex_init_from_string filename str in
       try
-	do_the_work filename lexbuf
+        do_the_work filename lexbuf
       with e ->
-	if verbose then log_and_print "ERROR: parsing [%s]: %s\n"
-	    filename (Printexc.to_string e) ;
-	raise e
-  end
+          (try input_error "" (Printexc.to_string e) with _ -> () ) ;
+          pop_context () ;
+        if verbose then log_and_print "ERROR: parsing [%s]: %s\n"
+          filename (Printexc.to_string e) ;
+          parse_error_verbose := old_parse_error_verbose;
+          raise e
+      end;
+  in
+  parse_error_verbose := old_parse_error_verbose;
+  ans
 
 let return_value_success = 0
 let return_value_error_tp2_component_install = 1

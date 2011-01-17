@@ -34,7 +34,7 @@ ifblock :
 	IF trigger_list THEN multistring { "IF " ^ Refactorbaf.print_tl (Refactorbaf.refactor ($2)) ^ " THEN " ^ $4 } 
 
 trigger_list:
-	| trigger_list_i	{ if !or_counter != 0 then parse_error "Unfinished OR()"; List.rev $1 }
+	| trigger_list_i	{ if !or_counter != 0 then (or_counter := 0; parse_error "Unfinished OR()"); List.rev $1 }
 	
 trigger_list_i :						{ [] }
 	| trigger_list_i not STRING STRING	{ match handle_or $2 $3 $4 with Some i -> i :: $1 | None -> $1 }

@@ -172,6 +172,16 @@ nonterm (Tp.tp_flag) Tp_Flag {
 				| _ -> failwith (Printf.sprintf "%s not allowed in UNINSTALL_ORDER" x);
 			) e1;
 		Tp.Uninstall_Order (List.map String.uppercase e1) ]
+   -> QUICK_MENU ALWAYS_ASK e0:String_List END e1:Menu_List END [ Tp.Quick_Menu (e1,List.map int_of_string e0) ]
+}
+
+nonterm((Dlg.tlk_string * int list) list) Menu_List {
+  -> e1:Menu_List_Rev [ List.rev e1 ]
+}
+
+nonterm((Dlg.tlk_string * int list) list) Menu_List_Rev {
+  -> { [] }
+  -> e1:Menu_List_Rev e2:Lse BEGIN e3:String_List END { (e2,List.map int_of_string e3) :: e1 }
 }
 
 nonterm(string list) Upper_String_List_Rev {
@@ -480,13 +490,27 @@ nonterm(Tp.tp_action) Tp_Action {
 	    Tp.mixed = e16 ;
 	    Tp.help = e17 ;
 	  })]
+	-> ACTION_RERAISE [ Tp.TP_Reraise ]
   -> FAIL e1:Lse [ Tp.TP_Fail e1 ]
+  -> WARN e1:Lse [ Tp.TP_Warn e1 ]
   -> PRINT e1:Lse [ Tp.TP_Print e1 ]
   -> LOG e1:Lse [ Tp.TP_Log e1 ]
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END [ Tp.TP_If(e1,e2,[]) ]
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END ELSE BEGIN e3:Tp_Action_List END [ Tp.TP_If(e1,e2,e3) ]
   -> ACTION_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Action_List END ELSE e3:Tp_Action [ Tp.TP_If(e1,e2,[e3]) ]
+  -> ACTION_TRY e1:Tp_Action_List e2:Action_With_List END [ Tp.TP_ActionTry(e1,e2) ]
+  -> ACTION_MATCH e1:Patch_Exp e2:Action_With_List END [ Tp.TP_ActionMatch(e1,e2) ]
   -> DECOMPRESS_BIFF e1:Patch_String_Right_List [ Tp.TP_DecompressBiff(e1) ]
+}
+
+nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List_Rev {
+	-> { [] }
+	-> e4:Action_With_List_Rev e0:Patch_Exp e1:Patch_Exp_List e2:Optional_When BEGIN e3:Tp_Action_List END [ (e0::e1,e2,e3) :: e4 ]
+	-> e4:Action_With_List_Rev ANY e2:Patch_Exp BEGIN e3:Tp_Action_List END [ ([],e2,e3) :: e4 ]
+}
+
+nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List  {
+	-> WITH e3:Action_With_List_Rev DEFAULT e2:Tp_Action_List [ List.rev (([],Tp.Pred_True,e2) :: e3) ]
 }
 
 nonterm((string * Dlg.tlk_string) list) String_Lse_List_Rev {
@@ -502,6 +526,15 @@ nonterm((string * Dlg.tlk_string) list) String_Lse_List_Rev {
 
 nonterm((string * Dlg.tlk_string) list) String_Lse_List {
 	-> e3:String_Lse_List_Rev [ List.rev e3 ]
+}
+
+nonterm(Tp.tp_patchexp list) Patch_Exp_List_Rev {
+	-> { [] }
+	-> e3:Patch_Exp_List_Rev e1:Patch_Exp [ e1 :: e3 ]
+}
+
+nonterm(Tp.tp_patchexp list) Patch_Exp_List {
+	-> e3:Patch_Exp_List_Rev [ List.rev e3 ]
 }
 
 nonterm((Tp.tp_patchexp * Dlg.tlk_string) list) Pe_Lse_List_Rev {
@@ -719,15 +752,6 @@ nonterm(Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp *
 	e1, g 0x6a, g 4, g 0x1e, g 2, g 0x20, g 2, g 0x30 ]
 }
 
-nonterm (Tp.tp_patchexp list) Patch_Exp_List_Rev {
-	-> [ [] ]
-	-> e2:Patch_Exp_List_Rev e1:Patch_Exp [ e1 :: e2 ]
-}
-
-nonterm (Tp.tp_patchexp list) Patch_Exp_List {
-	-> e2:Patch_Exp_List_Rev [ List.rev e2 ]
-}
-
 nonterm (Tp.tp_patchexp) Patch_Exp_Safe {
 	-> e1:Patch_String_Right { Tp.PE_String e1 }
 	-> LPAREN e1:Patch_Exp RPAREN { e1 }
@@ -885,8 +909,10 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> REPLACE_EVALUATE e1:Optional_Case_Sensitive e2:STRING BEGIN e3:Tp_Patch_List END
 		e4:STRING
 			[ Tp.TP_PatchStringEvaluate(e1,e2,e3,e4) ]
-	-> REPLACE_BCS_BLOCK e1:STRING e2:STRING [ Tp.TP_PatchReplaceBCSBlock(e1,e2) ]
-	-> REPLACE_BCS_BLOCK_REGEXP e1:STRING e2:STRING [ Tp.TP_PatchReplaceBCSBlockRE(e1,e2) ]
+	-> REPLACE_BCS_BLOCK e1:STRING e2:STRING [ Tp.TP_PatchReplaceBCSBlock(e1,e2,None) ]
+	-> REPLACE_BCS_BLOCK_REGEXP e1:STRING e2:STRING [ Tp.TP_PatchReplaceBCSBlockRE(e1,e2,None) ]
+	-> REPLACE_BCS_BLOCK e1:STRING e2:STRING ON_MISMATCH e3:Tp_Patch_List END [ Tp.TP_PatchReplaceBCSBlock(e1,e2,Some e3) ]
+	-> REPLACE_BCS_BLOCK_REGEXP e1:STRING e2:STRING ON_MISMATCH e3:Tp_Patch_List END [ Tp.TP_PatchReplaceBCSBlockRE(e1,e2, Some e3) ]
 	-> REPLACE_CRE_ITEM e1:STRING e2:String_Ref_Or_Pe e3:String_Ref_Or_Pe e4:String_Ref_Or_Pe
 		e5:STRING e6:STRING e7:Optional_Equip e8:Optional_2H
 			[ Tp.TP_Replace_Cre_Item { Tp.item_name = e1 ;
@@ -1027,6 +1053,8 @@ nonterm (Tp.tp_patch) Tp_Patch {
 			[ Tp.TP_PatchIf(e1,e2,e3) ]
 	-> PATCH_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Patch_List END ELSE e3:Tp_Patch
 			[ Tp.TP_PatchIf(e1,e2,[e3]) ]
+  -> PATCH_TRY e1:Tp_Patch_List e2:Patch_With_List END [ Tp.TP_PatchTry(e1,e2) ]
+  -> PATCH_MATCH e1:Patch_Exp e2:Patch_With_List END [ Tp.TP_PatchMatch(e1,e2) ]
 	-> PATCH_READLN e1:Patch_String_Left [ Tp.TP_PatchReadLN(e1) ]
 	-> PATCH_SILENT [ Tp.TP_PatchSilent ]
 	-> PATCH_VERBOSE [ Tp.TP_PatchVerbose ]
@@ -1036,6 +1064,9 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> INNER_PATCH_SAVE e1:Patch_String_Left e2:STRING BEGIN e3:Tp_Patch_List END
 			[ Tp.TP_PatchInnerBuffSave(e1,e2,e3) ]
 	-> PATCH_PRINT e1:Lse [ Tp.TP_PatchPrint(e1) ]
+	-> PATCH_RERAISE [ Tp.TP_PatchReraise ]
+  -> PATCH_FAIL e1:Lse [ Tp.TP_PatchFail(e1) ]
+	-> PATCH_WARN e1:Lse [ Tp.TP_PatchWarn(e1) ]
   -> PATCH_LOG e1:Lse [ Tp.TP_PatchLog(e1) ]
 	-> TO_LOWER e1:Patch_String_Right [ Tp.TP_PatchToLower e1 ]
 	-> TO_UPPER e1:Patch_String_Right [ Tp.TP_PatchToUpper e1 ]
@@ -1124,6 +1155,20 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> REBUILD_CRE_FILE { Tp.TP_RebuildCreFile }
 }
 
+nonterm(Tp.tp_patchexp) Optional_When {
+  -> { Tp.Pred_True }
+  -> WHEN e1:Patch_Exp {e1}
+}
+
+nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_patch list) list) Patch_With_List_Rev {
+	-> { [] }
+	-> e4:Patch_With_List_Rev e0:Patch_Exp e1:Patch_Exp_List e2:Optional_When BEGIN e3:Tp_Patch_List END [ (e0::e1,e2,e3) :: e4 ]
+	-> e4:Patch_With_List_Rev ANY e2:Patch_Exp BEGIN e3:Tp_Patch_List END [ ([],e2,e3) :: e4 ]
+}
+
+nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_patch list) list) Patch_With_List  {
+	-> WITH e3:Patch_With_List_Rev DEFAULT e2:Tp_Patch_List [ List.rev (([],Tp.Pred_True,e2) :: e3) ]
+}
 
 nonterm (Tp.tp_local_declaration list) Tp_Local_Declaration_List_Rev {
 	-> { [] }

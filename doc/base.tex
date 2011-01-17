@@ -1307,7 +1307,7 @@ instead of
 
 \item  Listing \ttref{BIFF} Contents
 
-  \CMD{ weidu --biff data/dialog.bif}
+  \CMD{ weidu --biff data\dialog.bif}
   \begin{verbatim}
         ...
   [data\Dialog.bif] contains    ABELA.DLG at index 0
@@ -1316,7 +1316,7 @@ instead of
         \end{verbatim}
 
   This shows all of the resources (e.g., \t{ACHEN.DLG} is a resource) that
-  are contained in \t{data/Dialog.bif}. 
+  are contained in \t{data\Dialog.bif}.
 
 \item  Extracting \ttref{BIFF} Contents
 
@@ -2795,6 +2795,11 @@ global option to your \ttref{TP2} file. \\
     work with this action in the TP2 - use \ttref{PATCH!IF} and
     \ttref{BUT!ONLY!IF!IT!CHANGES} instead. \\
 
+  or & \DEFSYN{QUICK!MENU} lots of parameters &
+    Used to specify one or more groups of components that can be installed in
+    a single step. See the \ttref{QUICK!MENU} tutorial for synthax, usage
+    instructions, and caveats. \\
+    
 \\
 
 \DEFINE{Language} & & 
@@ -3139,6 +3144,20 @@ P Q R 3 <br>
     If \ttref{value} evaluates to true (non-zero), the \ttref{TP2 Action}s
     in the \t{THEN}-branch are executed. Otherwise, if an \t{ELSE}-branch
     is present, its commands are executed. Otherwise nothing happens. \\
+  or & \DEFINE{ACTION!MATCH} \ttref{value} WITH \Ob \ttref{value} ...
+    \Ob WHEN \ttref{value} \Oe
+    BEGIN \ttref{TP2 Action} \Slist END \Oe ...
+    DEFAULT \ttref{TP2 Action} \Slist END &
+    See the \ttref{MATCH and TRY} tutorial.
+  \\
+  or & \DEFINE{ACTION!TRY} \ttref{TP2 Action} \Slist WITH \Ob \ttref{value} ...
+    \Ob WHEN \ttref{value} \Oe
+    BEGIN \ttref{TP2 Action} \Slist END \Oe ...
+    DEFAULT \ttref{TP2 Action} \Slist END &
+    See the \ttref{MATCH and TRY} tutorial.
+  \\
+  or & \DEFINE{ACTION!RERAISE} & See the \ttref{MATCH and TRY} tutorial.
+  \\
   or & \DEFINE{AT!EXIT} commandToRun \Ob \t{EXACT} \Oe &
     Whenever this \ttref{component} attempts to be installed, commandToRun
     is executed.  Variables (e.g., \t{\%LANGUAGE\%}) in the string
@@ -3379,8 +3398,14 @@ or & \DEFINE{ALTER!TLK!LIST} \t{BEGIN} \ttref{value} \Slist \t{END} \t{BEGIN} \t
     \ttref{component} cannot be installed. This is checked before any
     actions are executed. \\
   or & \DEFINE{FAIL} warningString &
-    If this \ttref{TP2 Action} is execution, warningString is displayed and
+    If this \ttref{TP2 Action} is executed, warningString is displayed and
     the \ttref{component} fails to install. \\
+  or & \DEFINE{WARN} displayString &
+    The string DisplayString is echoed to the user. Useful for debugging or
+    status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}
+    references, their values will be displayed. Additionally, INSTALLED WITH
+    WARNINGS is printed at the end of the install.
+    \\
   or & \DEFINE{PRINT} displayString &
     The string DisplayString is echoed to the user. Useful for debugging or
     status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}
@@ -3648,7 +3673,16 @@ is & \DEFSYN{SAY} \ttref{offset} \ttref{String} &
   The string-ref associated with \ttref{String} is written at
   \ttref{offset}. This is commonly used to change the name or
   description of a spell or item. \\
-or & \DEFINE{PATCH!PRINT} displayString & 
+  or & \DEFINE{PATCH!FAIL} warningString &
+    If this \ttref{TP2 Action} is execution, warningString is displayed and
+    the \ttref{component} fails to install. \\
+  or & \DEFINE{PATCH!WARN} displayString &
+    The string DisplayString is echoed to the user. Useful for debugging or
+    status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}
+    references, their values will be displayed. Additionally, INSTALLED WITH
+    WARNINGS is printed at the end of the install.
+    \\
+  or & \DEFINE{PATCH!PRINT} displayString & 
   The string DisplayString is echoed to the user. Useful for debugging or
   status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}
   references, their values will be displayed. See also \ttref{PRINT}.
@@ -3835,11 +3869,17 @@ or & \DEFINE{APPEND!FILE} filename &
 or & \DEFINE{APPEND!FILE!EVALUATE} filename &
   Just like \ttref{APPEND!FILE} except that \verb+%variables%+ in the contents of
   ``filename'' are evaluated before the appending. \\
-or & \DEFINE{REPLACE!BCS!BLOCK} oldFile newFile &
+or & \DEFINE{REPLACE!BCS!BLOCK} oldFile newFile \Ob ON!MISMATCH \ttref{patch} \Slist END \Oe &
   If the current file is a \ttref{BCS} file, the segment of it
   corresponding to oldFile is replaced with the contents of newFile. 
   oldFile and newFile may be \ttref{BCS} or \ttref{BAF} files. If they
-  are \ttref{BAF} files they will not get the benefit of \ttref{AUTO!TRA}. 
+  are \ttref{BAF} files they will not get the benefit of \ttref{AUTO!TRA}.
+  
+  
+  
+  If the segment corresponding to oldFile is not found and the ON!MISMATCH section
+  is present, those patches are run; if oldFile is not found and ON!MISMATCH is not
+  present, a warning message is printed.
   \\
 or & \DEFINE{INSERT!BYTES} \ttref{offset} \ttref{value} &
   The first argument is the offset, the second argument is the count. 
@@ -4045,6 +4085,20 @@ or & \DEFINE{PATCH!IF} \ttref{value} \Ob \t{THEN} \Oe \t{BEGIN}
   convenient shorthand, you may omit the \t{BEGIN}-\t{END} in the \t{ELSE}
   branch if the \t{ELSE} branch contains exactly one \t{patch}.  
   \\
+  or & \DEFINE{PATCH!MATCH}\Slist WITH \Ob \ttref{value} ...
+    \Ob WHEN \ttref{value} \Oe
+    BEGIN \ttref{patch} \Slist END \Oe 
+    ... DEFAULT \ttref{patch} \Slist END &
+    See the \ttref{MATCH and TRY} tutorial.
+  \\
+  or & \DEFINE{PATCH!TRY} \ttref{patch}\Slist WITH \Ob \ttref{value} ...
+    \Ob WHEN \ttref{value} \Oe
+    BEGIN \ttref{patch} \Slist END \Oe 
+    ... DEFAULT \ttref{patch} \Slist END &
+    See the \ttref{MATCH and TRY} tutorial.
+  \\
+  or & \DEFINE{PATCH!RERAISE} & See the \ttref{MATCH and TRY} tutorial.
+  \\
 or & \DEFINE{PATCH!INCLUDE} \t{\ttref{String}} \Slist &
     loads the file string as if it were a list of tp2 patches and executes it (as if
 		it had been typed inside your tp2).
@@ -4130,7 +4184,7 @@ or & \DEFINE{READ!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
 \ttref{variable} &
   The first \ttref{value} is the row, the second is the column and the
   third is the \emph{required column count}. The variable specified is set
-  to the the entry on the given column of the given row, but only column
+  to the entry on the given column of the given row, but only column
   with at least as many columns as the required column count are
   considered. This is the reverse of \ttref{SET!2DA!ENTRY}. \\
 or & \DEFSYN{READ!2DA!ENTRIES!NOW} string \ttref{value} &
@@ -4668,7 +4722,7 @@ or & \DEFSYN{STATE!WHICH!SAYS} \t{\ttref{value} IN \ttref{String}1 FROM \ttref{S
 \end{verbatim}
 \\
 or & \DEFINE{RESOLVE!STR!REF} ( \ttref{text} ) &
-Resolves the given text (adding it to the the tlk), and returns its TLK index
+Resolves the given text (adding it to the tlk), and returns its TLK index
 (so you can pass the result of this command to a function which then uses
 \ttref{WRITE!LONG} rather than \ttref{SAY}).
 \\
@@ -4929,7 +4983,7 @@ EXTEND_TOP_REGEXP ~ar[0-6].*bcs~ ~pathtoscript/patch.bcs~
 So there we are, instead of 100+ lines of code, I minimized it to 1 lines.
 Now, if you are understanding regexp at all, you probably are going ``Hey
 wait, why didn't you just go {\tt \ttref{EXTEND!TOP!REGEXP} "ar.*bcs"
-"pathtoscript/patch.bcs"} ?''  Well, infact, I did do that at first, but I
+"pathtoscript/patch.bcs"} ?''  Well, in fact, I did do that at first, but I
 forgot to account that there are other ``normal'' scripts that begin with AR.
 So, I had to write it so that the \ttref{regexp} had the number after the
 initial AR so that WeiDU would know only to patch the script to area files.
@@ -6559,7 +6613,7 @@ translate this, so I'll only explain the technicalities.
 
 \verb+READ_2DA_ENTRIES_NOW string col_count+
 will store inside the variable \verb+%string_row_col%+ the contents of the
-cell at row \t{\%row\%} and coloumn \t{\%col\%}, for all rows
+cell at row \t{\%row\%} and column \t{\%col\%}, for all rows
 with at least \verb+col_count+ items.
 The variable \verb+%string%+ will be set to the number of large enough
 rows (so, in effect, you also have processed \ttref{COUNT!2DA!ROWS} freely).
@@ -6583,7 +6637,7 @@ problems to not occur accidentally).
 \subsection{DEFINE,LAUNCH,LOCAL and everything else about personal macros (Last Update: v188)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Macros were originally intended as a way to repeat a certain tp2 truncon
+Macros were originally intended as a way to repeat a certain tp2 block
 with small or no changes without resorting to copy-and-paste.
 
 First, disclaimers: it's very easy to shoot yourself in the foot, since
@@ -7219,7 +7273,7 @@ END
 LAUNCH_ACTION_FUNCTION xyz INT_VAR x = 0 END
 
 OUTER_SET y = 5
-LAUNCH_ACTION_FUNCTION xyz INT_VAR y END // synonim for INT_VAR y = y
+LAUNCH_ACTION_FUNCTION xyz INT_VAR y END // synonym for INT_VAR y = y
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -7268,6 +7322,258 @@ BUT_ONLY
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{\DEFINE{MATCH and TRY} (last edit: 225)}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\verb+MATCH+ is the equivalent of switch..case in mainstream languages (except
+it also works on strings, similar to OCaml's match..with). This is a type of
+selection control statement whose purpose is to allow the value of a variable
+or expression to control the flow of program execution via a multiway branch. 
+The main reasons for using this type of statement include improving clarity
+and reducing otherwise repetitive coding.
+
+\verb+TRY+ is used to detect TP2 failures (= anything that blocks the installation
+and prints "NOT INSTALLED DUE TO ERRORS") and allows the modder to run custom
+code (without forcibly failing the installation). The syntax is very similar
+to \verb+MATCH+, which is why these two commands are presented together.
+
+This tutorial documents \verb+ACTION!MATCH+ and \verb+ACTION!TRY+, but the
+patch equivalents (\verb+PATCH!MATCH+ and \verb+PATCH!TRY+) are also
+available.
+
+This is a sample code for \verb+MATCH+:
+\begin{verbatim}
+ACTION_MATCH 12 + 14 // value
+WITH
+  15 16 // guards
+  BEGIN
+    PRINT ~15 or 16~ // guarded actions
+  END
+  15 + 5 ~str.*with%vars% and regexp~
+  BEGIN
+    PRINT ~15 + 5 or matches "str.*with%vars% and regexp"~
+  END
+  DEFAULT
+    PRINT ~default~ // default actions
+END
+\end{verbatim}
+
+To begin with, the value (12 + 14) is evaluated (can be any integer or a string).
+After that, it is compared against each guard: it is neither 15 nor 16, so its
+guarded action is not executed.  Similarly, it is neither 15 + 5 (= 20)
+nor does it match the regexp \verb+~str.*with%vars% and regexp~+ after evaluating
+variables and case-insensitive regexp, so its guarded actions aren't executed either.
+Since no listed value is printed, the default action(s) are executed (in this case,
+\verb+PRINT ~default~+).
+
+\verb+MATCH+ can also compare against strings:
+\begin{verbatim}
+OUTER_SET var = 15
+ACTION_MATCH ~string%var%~
+WITH
+  ~string12~ ~string2.*~
+  BEGIN
+    PRINT ~string12 or string2.*~
+  END
+  ~string1[12345]~
+  BEGIN
+    PRINT ~string1[12345]~
+  END
+  DEFAULT
+    PRINT ~default~
+END
+\end{verbatim}
+In this case, \verb+PRINT ~string1[12345]~+ is executed.
+
+Guards can also have a condition associated; in that case, the value must match
+against one of the guards and the condition must be true:
+\begin{verbatim}
+ACTION_MATCH ~%something%~
+WITH
+  ~none~ WHEN GAME_IS ~BG1 TotSC~
+  BEGIN
+    // ~none~ and the game is BG1
+  END
+  ~none~
+  BEGIN
+    // ~none~ and the game is not BG1
+  END
+  DEFAULT
+    // not ~none~
+END
+\end{verbatim}
+
+It is also possible to have a condition without a guard, in which case the
+syntax is:
+\begin{verbatim}
+ACTION_MATCH ~%something%~
+WITH
+  ANY GAME_IS ~BG1 TotSC~
+  BEGIN
+    // the game is BG1
+  END
+  ANY GAME_IS ~SoA ToB~
+  BEGIN
+    // the game is BG2
+  END
+  DEFAULT
+    // not BG1 or BG2
+END
+\end{verbatim}
+
+Specific cases that might be worth mentioning:
+it is possible for a guarded action to be empty, to have no default actions,
+or to only have default actions, as per the following examples:
+\begin{verbatim}
+ACTION_MATCH ~%something%~
+WITH
+  ~no action~ ~none~ ~empty~ ~~
+  BEGIN
+    // empty guarded action: default action never executed
+  END
+  ~error~
+  BEGIN
+    FAIL ~error~
+  END
+  DEFAULT
+    DO_THIS_AND_THAT
+END
+
+ACTION_MATCH ~%something%~
+WITH
+  ~value1~ ~value2~ ~value3~
+  BEGIN
+    DO_SOMETHING
+  END
+  ~error~
+  BEGIN
+    FAIL ~error~
+  END
+  DEFAULT
+    // no default action: nothing is done for unmatched values
+END
+
+ACTION_MATCH ~%something%~
+WITH
+  DEFAULT
+    // no guarded actions, only default actions: always executed
+    DO_THIS_AND_THAT
+END
+\end{verbatim}
+
+Also, no more than one group of actions is executed:
+\begin{verbatim}
+ACTION_MATCH ~string123~
+WITH
+  ~string123~
+  BEGIN
+    DO_THIS // executed
+  END
+  ~string123~
+  BEGIN
+    DO_THAT // not executed
+  END
+  DEFAULT
+    DO_BOTH // also not executed
+END
+\end{verbatim}
+\\
+\\
+\\
+\\
+\verb+TRY+ is similar to \verb+MATCH+:
+\begin{verbatim}
+ACTION_TRY
+  COPY ~override/sw1h01.itm~ ~override~
+  DO_SOMETHING_ELSE
+WITH
+  ~Unix.Unix_error(20, "stat", "override/sw1h01.itm")~
+  BEGIN
+    PRINT ~I caught sw1h01.itm not found!~
+  END
+  ~Unix.Unix_error(20, "stat", "override/.*.itm")~
+  BEGIN
+    PRINT ~I caught another missing item!~
+  END
+  DEFAULT
+    PRINT ~I caught another error!~
+END
+\end{verbatim}
+
+The actions in \verb+ACTION_TRY+ are executed. If none of those fails, the
+\verb+WITH+ part is skipped; otherwise, the error message is printed as usual
+(use \ttref{SILENT}), the exception text (from the ERROR: blah blah line) is
+saved to the \verb+%ERROR_MESSAGE%+ variable, and a \verb+MATCH+ is executed
+on that.
+
+After running the correct error handling code, execution continues after the
+end of the \verb+ACTION_TRY+ block. If you still want to block the
+installation, use \verb+ACTION_RERAISE+ (in theory, you could use
+\verb+FAIL ~%ERROR_MESSAGE%~+, but this changes the exception and its text,
+which would cause you headaches when nesting multiple \verb+TRY+s).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{\DEFINE{QUICK!MENU} (last edit: 227)}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This tp2 flag is used to define groups of components that the user will be
+offered to install in a single step. Sample code:
+
+\begin{verbatim}
+QUICK_MENU
+  ALWAYS_ASK 5 END
+  ~Red~ BEGIN 1 2 END
+  ~Green~ BEGIN 2 3 END
+  ~Blue~ BEGIN 4 6 END
+END
+\end{verbatim}
+
+The user will be presented with the following prompt:
+
+\begin{verbatim}
+The test/test.tp2 mod has 13 distinct optional components.
+To save time, you can choose what to do with them at a high level rather than being asked about each one.
+
+[A]sk about each component, [S]kip all, or choose a pre-defined selection:
+ 1] Red
+ 2] Green
+ 3] Blue
+\end{verbatim}
+
+If some mod components were already installed, the option to [U]ninstall
+or [R]einstall the currently installed components will also be offered.
+
+If the user chooses to install a pre-defined selection, then its components
+will be installed, and ALL other components of the mod will be uninstalled
+if already installed.
+
+Components in ALWAYS_ASK will always be asked for individually if the user
+chose to install one of the pre-defined selections (or, of course, if he chose
+[A]). If the user chose [S], [R] or [U] the same action will be applied to the
+components in ALWAYS_ASK.
+
+Caveats:
+\begin{itemize}
+\item If a component is in both ALWAYS_ASK and a pre-defined selection the mod
+will refuse to install.
+\item Because of a complex problem whose details are too technical for this
+document, component 0 of your mod must be empty (or your mod will refuse to
+install), must not be in any pre-defined selection or in ALWAYS_ASK (or your
+mod will refuse to install) and will always be (re)installed (unless the user
+chooses [S]kip all). 
+
+This also means that your mod's components will always be grouped together (you
+can't install a component from your mod, then a second mod, and then other
+components of your mod).
+\item Some of the listed failure points are not checked for when the mod is
+installed non-interactively (--yes, --force-install and friends). Test the menu
+system at least once before releasing your mod, even if you do the bulk of the
+development of your mod using --yes and the like.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\DEFINE{Code dumps}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This section contains code snippets that serve to document functionality
@@ -7313,6 +7619,8 @@ COPY ~bambatch/bam~ ~bambatch/bam~
   END
 BUT_ONLY
 \end{verbatim}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\DEFINE{Macros Listing}}
@@ -7540,13 +7848,22 @@ This is an ACTION macro.
 \item reports invalidity if it is charbase.cre, shorter than the minimum size, the signature mismatches, or a sub-structure has members and its offset is in the header.
 \item if a empty sub-structure's offset is in the header, point them to the end of the header.
 \item if the cre is valid, force it to use proper order (known spells, spell memorization info, memorized spells, effects, items, item slot).
-\item forces the CRE file to use EFF V2 effects internally.
+\item forces the CRE file to use EFF V2 effects internally (or EFF V1 if on BG1).
 \end{itemize}
 This is a PATCH function.
 \begin{itemize}
 \item INT_VAR do_message to 1 if you want explicit an explicit message regarding the cre invalidity. Defaults to 0.
 \item RET valid returns 1 if the CRE is well-formed, 0 otherwise.
 \end{itemize}
+
+\verb+FJ_CRE_REINDEX+: reorders creatures with nonstandard offset orders. Called by FJ_CRE_VALIDITY automatically if relevant.\\\\
+This is a PATCH function.
+
+\verb+FJ_CRE_EFF_V2+: Converts creatures using version 1 effects to version 2. Called by FJ_CRE_VALIDITY or FJ_CRE_REINDEX automatically if relevant.\\
+This is a PATCH function.
+
+\verb+T-CRE_EFF_V1+: Converts creatures using version 2 effects to version 1. Called by FJ_CRE_VALIDITY or FJ_CRE_REINDEX automatically if relevant.\\
+This is a PATCH function.
 
 \verb+ADD_AREA_REGION_TRIGGER+: adds an area region to the current are file.
 This is a PATCH macro and function. Unlike other macros you do not need to set every variable. You are only required to set those values that you need to write. 

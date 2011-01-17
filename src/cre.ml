@@ -89,8 +89,8 @@ let cre_of_string buff =
   if !debug_ocaml then log_and_print "Read Known Spells\n";
 
   let minfo = ref [] in
-  let mlist_i = ref 0 in
   for i = 0 to minfo_cnt - 1 do
+    let mlist_i = ref 0 in
     let this_buff = String.sub buff (minfo_off + i * 0x10) 0x10 in
     let level = short_of_str_off this_buff 0 in
     let count = short_of_str_off this_buff 2 in
@@ -99,8 +99,8 @@ let cre_of_string buff =
     let mlist_idx = int_of_str_off this_buff 8 in
     let mlist_cnt = int_of_str_off this_buff 0xc in
     let mlist = ref [] in
-    while !mlist_i < mlist_idx + mlist_cnt do
-      let this_buff = String.sub buff (mlist_off + !mlist_i * 0xc) 0xc in
+    while !mlist_i < mlist_cnt do
+      let this_buff = String.sub buff (mlist_off + (mlist_idx + !mlist_i) * 0xc) 0xc in
       let name = String.uppercase (get_string_of_size this_buff 0 8) in
       let memorized = 0 <> (int_of_str_off this_buff 8) in
       incr mlist_i;

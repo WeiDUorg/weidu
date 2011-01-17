@@ -43,6 +43,7 @@ type tp_flag =
   | Load_Macro of string list
   | Readme of string list
   | Uninstall_Order of string list
+  | Quick_Menu of (Dlg.tlk_string * int list) list * int list
 
 and wrapper =
   | Start_From_Tp  of tp_file
@@ -184,10 +185,14 @@ and tp_action =
   | TP_String_Set of ((string * Dlg.tlk_string) list) * (string option)
   | TP_String_Set_Evaluate of ((tp_patchexp * Dlg.tlk_string) list) * (string option)
   | TP_String_Set_Range of tp_patchexp * tp_patchexp * string
+  | TP_Reraise
   | TP_Fail of Dlg.tlk_string
+  | TP_Warn of Dlg.tlk_string
   | TP_Print of Dlg.tlk_string
   | TP_Log of Dlg.tlk_string
   | TP_If of tp_patchexp * (tp_action list) * (tp_action list)
+  | TP_ActionTry of tp_action list * (tp_patchexp list * tp_patchexp * tp_action list) list
+  | TP_ActionMatch of tp_patchexp * (tp_patchexp list * tp_patchexp * tp_action list) list
   | TP_Uninstall_Now of string * tp_patchexp
   | TP_Alter_TLK of (tp_patch list)
   | TP_Alter_TLK_Range of tp_patchexp * tp_patchexp * (tp_patch list)
@@ -268,8 +273,8 @@ and tp_patch =
   | TP_PatchString of (bool option) * (bool option) * string * Dlg.tlk_string (* regexp + text *)
   | TP_PatchStringTextually of (bool option) * (bool option) * string * string * (tp_patchexp option) (* regexp + text *)
   | TP_PatchStringEvaluate of (bool option) * string * (tp_patch list) * string (* see below *)
-  | TP_PatchReplaceBCSBlock of string * string (* old + new *)
-  | TP_PatchReplaceBCSBlockRE of string * string (* old + new *)
+  | TP_PatchReplaceBCSBlock of string * string * tp_patch list option (* old + new *)
+  | TP_PatchReplaceBCSBlockRE of string * string * tp_patch list option (* old + new *)
   | TP_PatchApplyBCSPatch of string (* patch *) * (string option) (* copyover *)
   | TP_PatchByte of tp_patchexp * tp_patchexp
   | TP_PatchShort of tp_patchexp * tp_patchexp
@@ -302,6 +307,9 @@ and tp_patch =
   | TP_DescribeItem of string
   | TP_PatchPrint of Dlg.tlk_string
   | TP_PatchLog of Dlg.tlk_string
+  | TP_PatchReraise
+  | TP_PatchFail of Dlg.tlk_string
+  | TP_PatchWarn of Dlg.tlk_string
   | TP_PatchSprint of tp_pe_string * tp_pe_tlk_string
   | TP_PatchSprintf of tp_pe_string * tp_pe_tlk_string * tp_patchexp list
   | TP_PatchTextSprint of tp_pe_string * tp_pe_string
@@ -327,6 +335,8 @@ and tp_patch =
   | TP_PatchFor of
       (tp_patch list) * tp_patchexp * (tp_patch list) * (tp_patch list)
   | TP_PatchIf of tp_patchexp * (tp_patch list) * (tp_patch list)
+  | TP_PatchTry of tp_patch list * (tp_patchexp list * tp_patchexp * tp_patch list) list
+  | TP_PatchMatch of tp_patchexp * (tp_patchexp list * tp_patchexp * tp_patch list) list
   | TP_PatchReinclude of string list
   | TP_PatchInclude of string list
   | TP_PatchRandomSeed of tp_patchexp
@@ -496,3 +506,5 @@ type installed_mods = (string * int * int * (string option) * status) list
 let log_name = "WeiDU.log"
 
 let the_log : installed_mods ref = ref []
+
+let current_exception = ref Not_found

@@ -229,7 +229,7 @@ let rec handle_tp
       in
 
 
-      let any_already_installed = ref false in 
+      let any_already_installed = ref false in
       let any_not_yet_installed = ref false in 
 
       let subcomp_installed = Hashtbl.create 255 in 
@@ -259,10 +259,23 @@ let rec handle_tp
 	with Not_found -> ()
       done ;
 
+      let has_quickmenu = List.exists (fun x -> match x with Quick_Menu _ -> true | _ -> false) tp.flags in
+      let quickmenu_ask = if has_quickmenu then begin
+        let quickmenu = List.find (fun x -> match x with Quick_Menu _ -> true | _ -> false) tp.flags in
+        match quickmenu with
+          | Quick_Menu (x,y) -> begin
+            if List.mem 0 y then failwith "ERROR: QUICK_MENU has component 0 in ALWAYS_ASK";
+            if List.exists (fun (name,lst) -> List.mem 0 lst) x then failwith "ERROR: QUICK_MENU has component 0 in a pre-defined selection";
+            y
+          end
+          | _ -> (try assert false with Assert_failure (s,l,c) -> failwith (Printf.sprintf "Internal WeiDU failure: %s %d %d" s l c))
+      end else [] in
+
       let module_defaults = Array.init (last_module_index+1) (fun i ->
 	try
           let cli_uninstall = ref (List.exists (fun h -> h = i) !force_uninstall_these)  in
           let cli_install   = ref (List.exists (fun h -> h = i) !force_install_these  )  in
+          let m = get_nth_module tp i false in
           if !always_yes or !cli_install then
             TP_Install
           else if (!always_uninstall or !cli_uninstall) && (already_installed this_tp2_filename i) then
@@ -275,12 +288,24 @@ let rec handle_tp
             TP_Skip
           else if (!force_install_these <> []) || (!force_uninstall_these <> []) then
             TP_Skip
-          else if (hasgroup (get_nth_module tp i false).mod_flags) then
+          else if List.mem Tp.TPM_InstallByDefault m.mod_flags then
+            TP_Install
+          else if has_quickmenu && not (List.mem i quickmenu_ask) then
             TP_Skip
           else
             TP_Ask
 	with Not_found -> TP_Ask)
       in
+      
+      if has_quickmenu then begin
+        try
+          let m = get_nth_module tp 0 false in
+          if m.mod_parts <> [] || m.mod_flags <> [] then 
+            failwith "ERROR: QUICK_MENU and component 0 is non-empty.";
+          module_defaults.(0) <- TP_Install;
+        with Not_found ->
+          failwith "ERROR: QUICK_MENU and component 0 isn't defined."
+      end;
 
       let handle_letter tp answer can_uninstall temp_uninst package_name m finished i =
 	let subgroup_already =
@@ -296,15 +321,16 @@ let rec handle_tp
 	| "Q" -> begin
             for i = 0 to last_module_index do
               try
-		let c = get_nth_module tp i false in
-		if subcomp_forced c && not (fails_requirements c) then module_defaults.(i) <- TP_Install
-		else module_defaults.(i) <- TP_Skip ;
-		if !debug_ocaml then log_and_print "component %d is %s\n" i (match module_defaults.(i) with
-    		| TP_Install -> "Install"
-    		| TP_Skip -> "Skip"
-    		| _ -> "Internal Error");
-              with Not_found -> ();
-		finished := true
+                if module_defaults.(i) <> TP_Ask then raise Not_found;
+                let c = get_nth_module tp i false in
+                if subcomp_forced c && not (fails_requirements c) then module_defaults.(i) <- TP_Install
+                else module_defaults.(i) <- TP_Skip ;
+                if !debug_ocaml then log_and_print "component %d is %s\n" i (match module_defaults.(i) with
+                    | TP_Install -> "Install"
+                    | TP_Skip -> "Skip"
+                    | _ -> "Internal Error");
+                          with Not_found -> ();
+                finished := true
             done
         end
 	| "N" ->
@@ -414,10 +440,17 @@ let rec handle_tp
 	            args_backup_filename (Printexc.to_string e)
 	      end ;
 	      
-	      log_and_print "\n%s [%s]\n"
+        let version_msg =
+          let rec getmsg lst = match lst with
+          | [] -> ""
+          | Version(a) :: _ -> Printf.sprintf " [%s]" (Dc.single_string_of_tlk_string_safe game a)
+          | hd :: tl -> getmsg tl
+          in getmsg tp.flags
+        in
+	      log_and_print "\n%s [%s]%s\n"
 	        (* "\nInstalling [%s]\n"  *)
 	        ((get_trans (-1016)))
-	        package_name ;
+	        package_name version_msg;
 	      (try
 	        Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
 	        Var.set_int32 "INTERACTIVE" (Int32.of_int (if !interactive then 1 else 0)) ;
@@ -580,114 +613,204 @@ let rec handle_tp
       let has_ask_every = !ask_all ||
       List.exists (fun a -> a = Ask_Every_Component) tp.flags
       in
-
+      
+      let using_quickmenu = ref false in
+      let quickmenu, always = if has_quickmenu then begin
+        let quickmenu = List.find (fun x -> match x with Quick_Menu _ -> true | _ -> false) tp.flags in
+        match quickmenu with
+          | Quick_Menu (x,y) -> x,y
+          | _ -> (try assert false with Assert_failure (s,l,c) -> failwith (Printf.sprintf "Internal WeiDU failure: %s %d %d" s l c))
+      end else [],[] in
+      
+      
       (* for big mods, ask about things in general first *)
-      if comp_num > 4 && not !always_yes && not !always_uninstall &&
-	not !sometimes_reinstall &&
-	not (has_ask_every) && not (!specified_specific_components) && not hasgroups
-      then begin
-	(* add (-1000) "\nThis mod has %d distinct optional components.\nTo save time, you can choose what to do with them at a high level rather\nthan being asked about each one.\n" ; *)
-	log_and_print "\n%s %d %s" (Var.get_string(get_trans (-1000))) comp_num (get_trans (-1001)) ;
-	let finished = ref false in
-
-	if !any_not_yet_installed then
-	  while not !finished do
-            finished := true ;
-            (* log_and_print "\nWhat should be done with all components that are NOT YET installed?\n[I]nstall them, [S]kip them, [A]sk about each one? " ; *)
-            log_and_print "\n%s" ((get_trans (-1002)));
-            match String.uppercase(read_line ()) with
-            | "R"
-            | "I" ->
-		for i = 0 to last_module_index do
-		  try
-		    let the_comp = get_nth_module tp i false in
-		    match subcomp_group the_comp with
-		    | Some(x) ->
-			(* if not (any_member_of_subcomp_group_installed x) then *)
-			module_defaults.(i) <- TP_Ask
-		    | None ->
-			if not (already_installed this_tp2_filename i) then
-			  module_defaults.(i) <- TP_Install
-		  with Not_found -> ()
-		done
-            | "S"
-            | "Q" ->
-		for i = 0 to last_module_index do
-		  try
-		    let the_comp = get_nth_module tp i false in
-		    let c = get_nth_module tp i false in
-		    if subcomp_forced c && not (fails_requirements c) && not (already_installed this_tp2_filename i) then module_defaults.(i) <- TP_Install
-		    else begin
-		      match subcomp_group the_comp with
-		      | Some(x) ->
-			  if not (any_member_of_subcomp_group_installed x) then
-			    module_defaults.(i) <- TP_Skip
-		      | None ->
-			  if not (already_installed this_tp2_filename i) then
-			    module_defaults.(i) <- TP_Skip
-		    end
-		  with Not_found -> ()
-		done
-            | "A" -> ()
-            | "X" -> specify := true
-            | _ -> finished := false
-	  done ;
-
-	finished := false ;
-	if !any_already_installed then
-	  while not !finished do
-            finished := true ;
-            (* log_and_print "\nWhat should be done with all components that are ALREADY installed?\n[R]e-install them, [U]ninstall them, [S]kip them, [A]sk about each one? " ; *)
-            log_and_print "\n%s" ((get_trans (-1003)));
-            match String.uppercase(read_line ()) with
-            | "I"
+      if not !always_yes && not !always_uninstall &&
+        not !sometimes_reinstall &&  not (!specified_specific_components)
+      then begin if has_quickmenu then begin
+        log_and_print "\n%s %d %s" (Var.get_string(get_trans (-1000))) comp_num (get_trans (-1001)) ;
+        let finished = ref false in
+        while not !finished do
+          if !any_already_installed then
+            log_and_print "\n%s\n" (get_trans (-1039))
+          else
+            log_and_print "\n%s\n" (get_trans (-1038));
+          let cnt = ref 1 in
+          List.iter (fun (title,components) ->
+            let is_selection = ref true in
+            for i = 0 to last_module_index do
+              if List.mem i components && List.mem i always then
+                failwith (Printf.sprintf "Component %d is both in ALWAYS_ASK and QUICK_MENU" i);
+              let is_inst = already_installed this_tp2_filename i in
+              let is_grp  = List.mem i components in
+              let curr_is_ok = i = 0 || (is_inst && is_grp) || (not is_inst && not is_grp) || (List.mem i always) in
+              is_selection := !is_selection && curr_is_ok;
+            done;
+            log_and_print "%2d] %s%s\n" !cnt (Dc.single_string_of_tlk_string_safe game title) (if !is_selection then (get_trans (-1027)) else "");
+            incr cnt;
+          ) quickmenu;
+          let ans = String.uppercase (read_line ()) in
+          let set_state inst uninst always_inst always_uninst =
+            for i = 0 to last_module_index do
+              try
+                let the_comp = get_nth_module tp i false in
+                if List.mem TPM_InstallByDefault the_comp.mod_flags && always_inst <> TP_Uninstall then begin
+                  module_defaults.(i) <- TP_Install
+                end else begin
+                  if List.mem i always then begin
+                    if already_installed this_tp2_filename i then
+                      module_defaults.(i) <- always_inst
+                    else if List.mem i always then
+                      module_defaults.(i) <- always_uninst
+                  end else begin
+                    if (already_installed this_tp2_filename i) then
+                      module_defaults.(i) <- inst
+                    else
+                      module_defaults.(i) <- uninst
+                  end
+                end
+              with Not_found -> ()
+            done
+          in
+          match ans with
+            | "S" ->
+              set_state TP_Skip TP_Skip TP_Skip TP_Skip;
+              finished := true;
+            | "A" ->
+              set_state TP_Ask TP_Ask TP_Ask TP_Ask;
+              module_defaults.(0) <- TP_Install;
+              finished := true;
             | "R" ->
-		for i = 0 to last_module_index do
-		  try
-		    let the_comp = get_nth_module tp i false in
-		    match subcomp_group the_comp with
-		    | Some(x) ->
-			(* if not (any_member_of_subcomp_group_installed x) then *)
-			module_defaults.(i) <- TP_Ask
-		    | None ->
-			if (already_installed this_tp2_filename i) then
-			  module_defaults.(i) <- TP_Install
-		  with Not_found -> ()
-		done
-            | "S"
-            | "Q" ->
-		for i = 0 to last_module_index do
-		  try let the_comp = get_nth_module tp i false in
-		  let c = get_nth_module tp i false in
-		  if subcomp_forced c && not (fails_requirements c) && not (already_installed this_tp2_filename i) then module_defaults.(i) <- TP_Install
-		  else begin
-		    match subcomp_group the_comp with
-		    | Some(x) ->
-			if (any_member_of_subcomp_group_installed x) then
-			  module_defaults.(i) <- TP_Skip
-		    | None ->
-			if (already_installed this_tp2_filename i) then
-			  module_defaults.(i) <- TP_Skip
-		  end
-		  with Not_found -> ()
-		done
+              if !any_already_installed then begin
+                set_state TP_Install TP_Skip TP_Install TP_Skip;
+                module_defaults.(0) <- TP_Install;
+                finished := true;
+              end
             | "U" ->
-		for i = 0 to last_module_index do
-		  try let the_comp = get_nth_module tp i false in
-		  ( match subcomp_group the_comp with
-		  | Some(x) ->
-		      if (any_member_of_subcomp_group_installed x) then
-			module_defaults.(i) <- TP_Skip
-		  | None -> () ) ;
-		  if (already_installed this_tp2_filename i) then
-                    module_defaults.(i) <- TP_Uninstall
-		  with Not_found -> ()
-		done
-            | "A" -> ()
-            | "X" -> specify := true
-            | _ -> finished := false
-	  done ;
-      end ;
+              if !any_already_installed then begin
+                set_state TP_Uninstall TP_Skip TP_Uninstall TP_Skip;
+                module_defaults.(0) <- TP_Uninstall;
+                finished := true;
+              end
+            | _ -> begin try
+                let which = int_of_string ans in
+                if which < 1 || which >= !cnt then failwith "out of bounds";
+                using_quickmenu := true;
+                set_state TP_Uninstall TP_Skip TP_Ask TP_Ask;
+                module_defaults.(0) <- TP_Install;
+                let (title,components) = (List.nth quickmenu (which - 1)) in
+                log_and_print "Installing selection %s\n" (Dc.single_string_of_tlk_string_safe game title);
+                List.iter (fun x ->
+                  module_defaults.(x) <- TP_Install
+                ) components;
+                finished := true;
+              with _ -> ()
+              end
+        done;
+      end else if comp_num > 4 && not hasgroups && not has_ask_every then begin
+        (* add (-1000) "\nThis mod has %d distinct optional components.\nTo save time, you can choose what to do with them at a high level rather\nthan being asked about each one.\n" ; *)
+        log_and_print "\n%s %d %s" (Var.get_string(get_trans (-1000))) comp_num (get_trans (-1001)) ;
+        let finished = ref false in
+
+        if !any_not_yet_installed then
+          while not !finished do
+                  finished := true ;
+                  (* log_and_print "\nWhat should be done with all components that are NOT YET installed?\n[I]nstall them, [S]kip them, [A]sk about each one? " ; *)
+                  log_and_print "\n%s" ((get_trans (-1002)));
+                  match String.uppercase(read_line ()) with
+                  | "R"
+                  | "I" ->
+          for i = 0 to last_module_index do
+            try
+              let the_comp = get_nth_module tp i false in
+              match subcomp_group the_comp with
+              | Some(x) ->
+            (* if not (any_member_of_subcomp_group_installed x) then *)
+            module_defaults.(i) <- TP_Ask
+              | None ->
+            if not (already_installed this_tp2_filename i) then
+              module_defaults.(i) <- TP_Install
+            with Not_found -> ()
+          done
+                  | "S"
+                  | "Q" ->
+          for i = 0 to last_module_index do
+            try
+              if module_defaults.(i) <> TP_Ask then raise Not_found;
+              let the_comp = get_nth_module tp i false in
+              let c = get_nth_module tp i false in
+              if subcomp_forced c && not (fails_requirements c) && not (already_installed this_tp2_filename i) then module_defaults.(i) <- TP_Install
+              else begin
+                match subcomp_group the_comp with
+                | Some(x) ->
+              if not (any_member_of_subcomp_group_installed x) then
+                module_defaults.(i) <- TP_Skip
+                | None ->
+              if not (already_installed this_tp2_filename i) then
+                module_defaults.(i) <- TP_Skip
+              end
+            with Not_found -> ()
+          done
+                  | "A" -> ()
+                  | "X" -> specify := true
+                  | _ -> finished := false
+          done ;
+
+        finished := false ;
+        if !any_already_installed then
+          while not !finished do
+                  finished := true ;
+                  (* log_and_print "\nWhat should be done with all components that are ALREADY installed?\n[R]e-install them, [U]ninstall them, [S]kip them, [A]sk about each one? " ; *)
+                  log_and_print "\n%s" ((get_trans (-1003)));
+                  match String.uppercase(read_line ()) with
+                  | "I"
+                  | "R" ->
+          for i = 0 to last_module_index do
+            try
+              let the_comp = get_nth_module tp i false in
+              match subcomp_group the_comp with
+              | Some(x) ->
+            (* if not (any_member_of_subcomp_group_installed x) then *)
+            module_defaults.(i) <- TP_Ask
+              | None ->
+            if (already_installed this_tp2_filename i) then
+              module_defaults.(i) <- TP_Install
+            with Not_found -> ()
+          done
+                  | "S"
+                  | "Q" ->
+          for i = 0 to last_module_index do
+            if module_defaults.(i) <> TP_Ask then raise Not_found;
+            try let the_comp = get_nth_module tp i false in
+            let c = get_nth_module tp i false in
+            if subcomp_forced c && not (fails_requirements c) && not (already_installed this_tp2_filename i) then module_defaults.(i) <- TP_Install
+            else begin
+              match subcomp_group the_comp with
+              | Some(x) ->
+            if (any_member_of_subcomp_group_installed x) then
+              module_defaults.(i) <- TP_Skip
+              | None ->
+            if (already_installed this_tp2_filename i) then
+              module_defaults.(i) <- TP_Skip
+            end
+            with Not_found -> ()
+          done
+                  | "U" ->
+          for i = 0 to last_module_index do
+            try let the_comp = get_nth_module tp i false in
+            ( match subcomp_group the_comp with
+            | Some(x) ->
+                if (any_member_of_subcomp_group_installed x) then
+            module_defaults.(i) <- TP_Skip
+            | None -> () ) ;
+            if (already_installed this_tp2_filename i) then
+                          module_defaults.(i) <- TP_Uninstall
+            with Not_found -> ()
+          done
+                  | "A" -> ()
+                  | "X" -> specify := true
+                  | _ -> finished := false
+          done ;
+      end end ;
 
       let is_my_group the_comp group =
 	let rec walk lst = match lst with
@@ -698,12 +821,42 @@ let rec handle_tp
       in
 
       (* now ask about groups *)
+      let any_group_to_be_asked =
+        let ans = ref false in
+        for i = 0 to last_module_index do
+          try
+            let m = get_nth_module tp i false in
+            if module_defaults.(i) = TP_Ask && hasgroup m.mod_flags && (not !using_quickmenu || List.mem i always) then ans := true
+          with _ -> ()
+        done;
+        !ans
+      in
+      
+      let any_to_be_asked grp =
+        let ans = ref false in
+        for i = 0 to last_module_index do
+          try
+            let m = get_nth_module tp i false in
+            if module_defaults.(i) = TP_Skip && is_my_group m grp && (not !using_quickmenu || List.mem i always) then ans := true
+          with _ -> ()
+        done;
+        !ans
+      in
+      
       if hasgroups  && not !always_yes && not !always_uninstall &&
-	not !sometimes_reinstall && not (!specified_specific_components)
-      then List.iter (fun (this_grp,co) ->
+        not !sometimes_reinstall && not (!specified_specific_components) &&
+        any_group_to_be_asked
+      then begin
+        for i = 0 to last_module_index do
+          try
+            let the_comp = get_nth_module tp i false in
+            if module_defaults.(i) = TP_Ask && hasgroup the_comp.mod_flags && (not !using_quickmenu || List.mem i always) then module_defaults.(i) <- TP_Skip;
+          with Not_found -> ()
+        done;
+        List.iter (fun (this_grp,co) ->
         let pass = eval_pe_warn := false; try is_true (eval_pe "" game co) with _ -> true in
         eval_pe_warn := true;
-        if pass then begin
+        if pass && any_to_be_asked this_grp then begin
           let finished = ref false in
           while not !finished do
             finished := true ;
@@ -714,7 +867,7 @@ let rec handle_tp
               for i = 0 to last_module_index do
                 try
                   let the_comp = get_nth_module tp i false in
-                  if is_my_group the_comp this_grp then module_defaults.(i) <- TP_Ask ;
+                  if is_my_group the_comp this_grp && module_defaults.(i) = TP_Skip && (not !using_quickmenu || List.mem i always) then module_defaults.(i) <- TP_Ask ;
                 with Not_found -> ()
               done;
               Hashtbl.add asked_about_group this_grp true
@@ -722,7 +875,7 @@ let rec handle_tp
             | _ -> finished := false
           done;
         end else log_and_print "\n%s%s%s\n" (get_trans (-1036)) (Dc.single_string_of_tlk_string_safe game this_grp) (get_trans (-1037))
-		  ) !groups ;
+		  ) !groups end;
 
       let handle_error_generic always_yes specified_specific_components finished package_name = (fun e ->
 	return_value := return_value_error_tp2_component_install ;
@@ -829,6 +982,7 @@ let rec handle_tp
 		| "Q" ->
 		    for i = 0 to last_module_index do
 		      try
+      if module_defaults.(i) <> TP_Ask then raise Not_found;
 			let c = get_nth_module tp i false in
 			if subcomp_forced c && not (fails_requirements c) then module_defaults.(i) <- TP_Install
 			else module_defaults.(i) <- TP_Skip ;
@@ -935,7 +1089,7 @@ let rec handle_tp
 	  let temp_uninst = temporarily_uninstalled this_tp2_filename !current in
 	  List.iter (fun f -> match f with
 	  | TPM_InstallByDefault ->
-              if !def = TP_Ask && (not can_uninstall) then def := TP_Install
+              if !def = TP_Ask then def := TP_Install
 	  | _ -> ()
 		    ) m.mod_flags ;
 	  let package_name = Dc.single_string_of_tlk_string_safe game m.mod_name in
