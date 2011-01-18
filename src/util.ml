@@ -672,7 +672,6 @@ let input_error_to_stdout = ref true
 let parse_error_verbose = ref true
 
 let input_error sort_msg msg =
-  errors_this_component := true;
   let c = the_context () in
   let near_text = Lexing.lexeme c.lexbuf in
   if !parse_error_verbose then (if !input_error_to_stdout then
