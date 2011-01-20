@@ -122,7 +122,7 @@ and tp_action =
   | TP_ActionClearArray of tp_pe_string
   | TP_CopyAllGamFiles of tp_patch list * tp_constraint list
   | TP_Copy   of tp_copy_args
-  | TP_Move of (string * string) list
+  | TP_Move of (string * string) list * bool
   | TP_DisableFromKey of tp_pe_string list
   | TP_CopyLarge of tp_copy_large_args
   | TP_CopyRandom of (string list list) * (tp_patch list) * (tp_constraint list)
@@ -154,11 +154,12 @@ and tp_action =
   | TP_Outer_While of tp_patchexp * (tp_action list)
   | TP_Require_File of string * (Dlg.tlk_string)
   | TP_Forbid_File of string * (Dlg.tlk_string)
-  | TP_Append of string * string * (tp_constraint list) * bool * bool
+  | TP_Append of string * string * (tp_constraint list) * bool * bool * bool
         (* When bool is true, load the file as bif or override; otherwise, it's loaded
          * as a normal file.
          * When bool is true, keep CRLF as they are. Otherwise, apply Weimer's wacky
       	 * CRLF handling.
+         * Create backup?
          *)
   | TP_Append_Col of string * string * tp_patchexp * (tp_constraint list)
         (* prepend to the string int blank entries (EG for ADD_KIT) *)

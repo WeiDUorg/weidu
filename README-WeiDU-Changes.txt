@@ -8,6 +8,7 @@ Version 227:
   * Can now [R]einstall Widescreen on BG1 and PST (regression).
   * Can compile BAF files with numerical object.ids references (in particular,
     can install Widescreen over Auril's Bane).
+  * APPEND(_OUTER) +, MOVE + don't create backups or are uninstalled.
   
 Version 226:
   * Add a space in the "Installing [XYZ]" message.
