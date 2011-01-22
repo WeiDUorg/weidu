@@ -109,7 +109,7 @@ let handle_tra_filename filename =
     Dc.notChanged := false;
     Stats.time "adding translation strings" Dc.add_trans_strings result
   end else begin
-    log_and_print_modder "%s file not found. Skipping...\n" filename
+    Modder.handle_msg "SETUP_TRA" (Printf.sprintf "%s file not found. Skipping...\n" filename)
   end
 
 let get_tra_list_filename filename =

@@ -1,3 +1,7 @@
+Version 228:
+  * If you have MODDER SETUP_TRA NONE, no warnings will be printed if a .tra is
+    missing.
+
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
   * REFACTOR_*_TRIGGER correctly clears the "Unfinished OR()" error message.
