@@ -3307,6 +3307,25 @@ unusabilities
 	If  msectype.2da already contains sectypeName, the variable is set to
 	the sectype's current identifier and no other operation is performed.
 	\\
+  or & \DEFINE{ADD!AREA!FLAG} areaFlagName &
+	Adds a new (guaranteed-unique) area flag to areaflag.ids, and sets
+  the areaFlagName variable to the index of the bit the flag is associated
+  with: the flag can be set with 
+  \verb+WRITE_SHORT 0x48 THIS | (1 << areaFlagName)+.
+	
+	
+	
+	If  areaflag.ids already contains areaflagname, the variable is set to
+	the flag's current identifier and no other operation is performed.
+  
+  
+  
+  Also note that only 8 area flags can be added to an unmodded installation
+  of BG2; as such, don't add a new area flag type unless you really need it
+  (most likely, another modder is already using a flag with a similar name,
+  and you can share the flag between your mods without issue).
+	\\
+  
   or & \DEFINE{ADD!PROJECTILE} modpath/PROName.PRO &
     Appends an entry for PROName to \t{PROJECTL.IDS} and assigns it the next
     available ProRef number.  Then copies the file \t{modpath/PROName.PRO}

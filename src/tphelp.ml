@@ -129,6 +129,7 @@ let action_to_str a = match a with
 | TP_Add_Kit _ -> "ADD_KIT"
 | TP_CopyKit _ -> "COPY_KIT"
 | TP_Add_Music _ -> "ADD_MUSIC"
+| TP_Add_AreaFlag _ -> "ADD_AREA_FLAG"
 | TP_Add_Projectile _ -> "ADD_PROJECTILE"
 | TP_Add_2DA ("MSCHOOL.2DA",_,_) -> "ADD_SCHOOL"
 | TP_Add_2DA ("MSECTYPE.2DA",_,_) -> "ADD_SECTYPE"

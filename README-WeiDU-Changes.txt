@@ -5,6 +5,7 @@ Version 228:
   * [ SOUNDNAME ] will now strip the extraneous spaces.
   * New macros and functions: RES_NUM_OF_SPELL_NAME, RES_NAME_OF_SPELL_NUM,
     NAME_NUM_OF_SPELL_RES, GET_UNIQUE_FILE_NAME.
+  * ADD_AREA_FLAG tp2 action added.
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
