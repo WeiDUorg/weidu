@@ -1,0 +1,98 @@
+DEFINE_ACTION_FUNCTION ~RES_NAME_OF_SPELL_NUM~
+  INT_VAR spell_num = 0
+  RET spell_res
+      spell_name
+  BEGIN
+    LAUNCH_ACTION_MACRO ~RES_NAME_OF_SPELL_NUM~
+END
+
+DEFINE_ACTION_FUNCTION ~RES_NUM_OF_SPELL_NAME~
+  STR_VAR spell_name = ~~
+  RET spell_res
+      spell_num
+  BEGIN
+    LAUNCH_ACTION_MACRO ~RES_NUM_OF_SPELL_NAME~
+END
+
+DEFINE_ACTION_FUNCTION ~NAME_NUM_OF_SPELL_RES~
+  STR_VAR spell_res = ~~
+  RET spell_num
+      spell_name
+  BEGIN
+    LAUNCH_ACTION_MACRO ~NAME_NUM_OF_SPELL_RES~
+END
+
+DEFINE_ACTION_MACRO ~RES_NAME_OF_SPELL_NUM~ BEGIN
+  ACTION_IF ( ~%spell_num%~ < 2000 && ~%spell_num%~ >= 1000 ) BEGIN
+    OUTER_SPRINT lc_ast "SPPR"
+  END ELSE ACTION_IF ( ~%spell_num%~ < 3000 && ~%spell_num%~ >= 2000 ) BEGIN
+    OUTER_SPRINT lc_ast "SPWI"
+  END ELSE ACTION_IF ( ~%spell_num%~ < 4000 && ~%spell_num%~ >= 3000 ) BEGIN
+    OUTER_SPRINT lc_ast "SPIN"
+  END ELSE ACTION_IF ( ~%spell_num%~ < 5000 && ~%spell_num%~ >= 4000 ) BEGIN
+    OUTER_SPRINT lc_ast "SPCL"
+  END ELSE BEGIN
+    FAIL ~Invalid spell number: %spell_num%~
+  END
+  OUTER_PATCH ~~ BEGIN
+    LOOKUP_IDS_SYMBOL_OF_INT spell_name SPELL spell_num
+  END
+  OUTER_SET lc_asn = spell_num
+  OUTER_WHILE lc_asn >= 1000 BEGIN
+    OUTER_SET lc_asn -= 1000
+  END
+  ACTION_IF lc_asn < 10 THEN BEGIN
+    OUTER_SPRINT spell_res "%lc_ast%00%lc_asn%"
+  END ELSE ACTION_IF lc_asn < 100 THEN BEGIN
+    OUTER_SPRINT spell_res "%lc_ast%0%lc_asn%"
+  END ELSE BEGIN
+    OUTER_SPRINT spell_res "%lc_ast%%lc_asn%"
+  END
+END
+
+
+DEFINE_ACTION_MACRO ~RES_NUM_OF_SPELL_NAME~ BEGIN
+  OUTER_SET spell_num = IDS_OF_SYMBOL (SPELL ~%spell_name%~)
+  ACTION_IF ( ~%spell_num%~ < 2000 && ~%spell_num%~ >= 1000 ) BEGIN
+    OUTER_SPRINT lc_ast "SPPR"
+  END ELSE ACTION_IF ( ~%spell_num%~ < 3000 && ~%spell_num%~ >= 2000 ) BEGIN
+    OUTER_SPRINT lc_ast "SPWI"
+  END ELSE ACTION_IF ( ~%spell_num%~ < 4000 && ~%spell_num%~ >= 3000 ) BEGIN
+    OUTER_SPRINT lc_ast "SPIN"
+  END ELSE ACTION_IF ( ~%spell_num%~ < 5000 && ~%spell_num%~ >= 4000 ) BEGIN
+    OUTER_SPRINT lc_ast "SPCL"
+  END ELSE BEGIN
+    FAIL ~Invalid spell number: %spell_num%~
+  END
+  OUTER_SET lc_asn = spell_num
+  OUTER_WHILE lc_asn >= 1000 BEGIN
+    OUTER_SET lc_asn -= 1000
+  END
+  ACTION_IF lc_asn < 10 THEN BEGIN
+    OUTER_SPRINT spell_res "%lc_ast%00%lc_asn%"
+  END ELSE ACTION_IF lc_asn < 100 THEN BEGIN
+    OUTER_SPRINT spell_res "%lc_ast%0%lc_asn%"
+  END ELSE BEGIN
+    OUTER_SPRINT spell_res "%lc_ast%%lc_asn%"
+  END
+END
+
+DEFINE_ACTION_MACRO ~NAME_NUM_OF_SPELL_RES~ BEGIN
+  ACTION_IF ~%spell_res%~ STRING_MATCHES_REGEXP ~^SPPR[0-9][0-9][0-9]$~ THEN BEGIN
+    OUTER_SET lc_ast = 1
+  END ELSE ACTION_IF ~%spell_res%~ STRING_MATCHES_REGEXP ~^SPWI[0-9][0-9][0-9]$~ THEN BEGIN
+    OUTER_SET lc_ast = 2
+  END ELSE ACTION_IF ~%spell_res%~ STRING_MATCHES_REGEXP ~^SPIN[0-9][0-9][0-9]$~ THEN BEGIN
+    OUTER_SET lc_ast = 3
+  END ELSE ACTION_IF ~%spell_res%~ STRING_MATCHES_REGEXP ~^SPCL[0-9][0-9][0-9]$~ THEN BEGIN
+    OUTER_SET lc_ast = 4
+  END ELSE BEGIN
+    FAIL ~Invalid spell resource: %spell_res%~
+  END
+  OUTER_PATCH ~%spell_res%~ BEGIN
+    REPLACE_EVALUATE ~SP..\([0-9][0-9][0-9]\)~ BEGIN
+      SPRINT spell_num ~%lc_ast%%MATCH1%~
+    END ~%MATCH0%~
+    LOOKUP_IDS_SYMBOL_OF_INT spell_name SPELL spell_num
+  END
+END

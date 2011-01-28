@@ -7907,6 +7907,32 @@ Example: For the X values: ab_RT_Vx_X_0, ab_RT_Vx_X_1, ab_RT_Vx_X_2
 NOTE: The original code released in WeiDU v211 has been overhauled and re-released in v212. Therefore, the user defined variable names have been changed. If you used the 211 version you will need to update your mod to use the variables in this version. Sorry for the inconvenience...
 
 
+\\
+\verb+RES_NUM_OF_SPELL_NAME+: converts a spell.ids reference to resource name.
+This is an ACTION patch and function.
+\begin{itemize}
+\item SPRINT spell_name to the IDS symbolic reference of a spell.
+\item RETURNS spell_num to the IDS numerical reference of that spell.
+\item RETURNS spell_res to the resource name for the referenced spell.
+\end{itemize}
+\\
+
+\verb+RES_NAME_OF_SPELL_NUM+: converts a spell.ids reference to resource name.
+This is an ACTION patch and function.
+\begin{itemize}
+\item SET spell_num to the IDS numerical reference of that spell.
+\item RETURNS spell_name to the IDS symbolic reference of a spell.
+\item RETURNS spell_res to the resource name for the referenced spell.
+\end{itemize}
+
+\verb+NAME_NUM_OF_SPELL_RES+: converts a spell resource name to a spell.ids reference.
+This is an ACTION patch and function.
+\begin{itemize}
+\item SPRINT spell_res to the resource name for the referenced spell.
+\item RETURNS spell_num to the IDS numerical reference of that spell.
+\item RETURNS spell_name to the IDS symbolic reference of a spell.
+\end{itemize}
+
 \subsection{\DEFINE{fj_are_structure}}
 Adds a structure to an area file. All variables are zero or blank by default unless otherwise indicated. Fields designated by an asterisk are typically required; all others are optional.
 This is a PATCH function.
@@ -8728,8 +8754,9 @@ The Bigg would additionally like to thank the following contributors:
 \item plainab {sends tp2 macros!}
 \item wisp (sends documentation and tp2 macros/functions!)
 \item Miloch (sends documentation and tp2 macros/functions!)
-\item SConrad {sends tp2 functions!}
-\item Nythrun {sends tp2 functions!}
+\item SConrad (sends tp2 functions!)
+\item Nythrun (sends tp2 functions!)
+\item Galactycon (sends tp2 macros!)
 \end{itemize}
 and additionally
 \begin{itemize}

@@ -3,6 +3,8 @@ Version 228:
     missing.
   * sc#addWmpAre can set area flags.
   * [ SOUNDNAME ] will now strip the extraneous spaces.
+  * New macros: RES_NUM_OF_SPELL_NAME, RES_NAME_OF_SPELL_NUM,
+    NAME_NUM_OF_SPELL_RES.
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
