@@ -112,7 +112,7 @@ let blank = [' ' '\012' '\r']
 | '^'   { adj lexbuf ; STRING_CONCAT }
 
 | "=="  { adj lexbuf ; EQUALSEQUALS }
-| "["[^']']*"]" { str_adj lexbuf ; SOUND(strip (string_of lexbuf)) }
+| "["[^']']*"]" { str_adj lexbuf ; SOUND(remove_trailing_space(strip (string_of lexbuf))) }
 | "~"[^'~']*"~"
 | '"'[^'"']*'"'
 | '%'[^'%']*'%'  { str_adj lexbuf ; STRING(strip (string_of lexbuf)) }

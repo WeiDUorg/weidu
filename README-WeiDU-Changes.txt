@@ -2,6 +2,7 @@ Version 228:
   * If you have MODDER SETUP_TRA NONE, no warnings will be printed if a .tra is
     missing.
   * sc#addWmpAre can set area flags.
+  * [ SOUNDNAME ] will now strip the extraneous spaces.
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.

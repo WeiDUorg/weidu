@@ -108,7 +108,7 @@ rule initial = parse
 (* do not edit or remove the following line.
 PUT SYMBOLS *)
 
-| "["[^']']*"]" { str_adj lexbuf ; SOUND(strip (string_of lexbuf)) }
+| "["[^']']*"]" { str_adj lexbuf ; SOUND(remove_trailing_space(strip (string_of lexbuf))) }
 | "~"[^'~']*"~"
 | '"'[^'"']*'"'
 | '%'[^'%']*'%'  { str_adj lexbuf ; STRING(strip (string_of lexbuf)) }

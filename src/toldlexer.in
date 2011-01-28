@@ -358,7 +358,7 @@ rule initial = parse
 | "=>"   { adj lexbuf ; EQUALSGREATER }
 | "=="  { adj lexbuf ; EQUALSEQUALS }
 | "!="  { adj lexbuf ; NOTEQUALS }
-| "["[^']']*"]" { str_adj lexbuf ; SOUND(strip (string_of lexbuf)) }
+| "["[^']']*"]" { str_adj lexbuf ; SOUND(remove_trailing_space(strip (string_of lexbuf))) }
 | "~"[^'~']*"~"
 | '"'[^'"']*'"'
 | '%'[^'%']*'%'  { str_adj lexbuf ; STRING(strip (string_of lexbuf)) }
