@@ -442,7 +442,7 @@ nonterm(Tp.tp_action) Tp_Action {
 	-> AT_UNINSTALL_EXIT e1:STRING e2:Optional_Exact [ Tp.TP_At_Uninstall_Exit(e1,e2) ]
 	-> AT_INTERACTIVE_UNINSTALL_EXIT e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Uninstall_Exit(e1,e2) ]
 	-> ADD_MUSIC e1:STRING e2:STRING [ Tp.TP_Add_Music {Tp.music_name=e1;Tp.music_file=e2} ]
-  -> ADD_AREA_FLAG e1:Patch_String_Right [ Tp.TP_Add_AreaFlag(e1) ]
+  -> ADD_AREA_TYPE e1:Patch_String_Right [ Tp.TP_Add_AreaType(e1) ]
 	-> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List e6:Tp_When_List
 		[ if e6 <> [] then log_and_print_modder "\n\nWARNING: ignoring non-empty constraint list on ADD_SPELL\n\n"; Tp.TP_Add_Spell(e1,e2,e3,e4,e5,None,None) ]
 	-> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List IF_EXISTING e6:Tp_Patch_List END

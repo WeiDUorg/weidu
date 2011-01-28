@@ -179,7 +179,7 @@ and tp_action =
 	(* old kit, new kit, changes *)
   | TP_Add_Music of tp_add_music
   | TP_Add_Projectile of tp_add_projectile
-  | TP_Add_AreaFlag of tp_pe_string
+  | TP_Add_AreaType of tp_pe_string
   | TP_Add_2DA of string * tp_pe_string * Dlg.tlk_string
   | TP_Add_Spell of string * tp_patchexp * tp_patchexp * string * (tp_patch list) * (tp_patch list) option * (tp_patch list) option
   | TP_Silent

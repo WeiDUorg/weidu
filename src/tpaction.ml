@@ -1070,31 +1070,31 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						  end
       end
 	  
-	  | TP_Add_AreaFlag(flag) -> begin
+	  | TP_Add_AreaType(flag) -> begin
 		let flag = Var.get_string (eval_pe_str flag) in
-		if is_true (eval_pe "" game (PE_FileContainsEvaluated(PE_LiteralString "AREAFLAG.iDS",
+		if is_true (eval_pe "" game (PE_FileContainsEvaluated(PE_LiteralString "AREATYPE.iDS",
 			PE_LiteralString("[ \t\n\r]" ^ flag ^ "[ \t\n\r]")))) then begin
-        Var.set_int32 (flag) (Bcs.int_of_sym game "AREAFLAG" flag) ;
-				log_and_print "\n\nArea Flag [%s] already present! Skipping!\n\n" flag
+        Var.set_int32 (flag) (Bcs.int_of_sym game "AREATYPE" flag) ;
+				log_and_print "\n\nArea Type [%s] already present! Skipping!\n\n" flag
 			end else begin
-				let a,b = split "AREAFLAG.IDS" in
+				let a,b = split "AREATYPE.IDS" in
 				let buff,path = 
-					Load.load_resource "ADD_AREA_FLAG" game true a b
+					Load.load_resource "ADD_AREA_TYPE" game true a b
 				in
         let rec trynumber i =
-          if i = 16 then failwith (Printf.sprintf "No space in areaflag.ids for %s" flag);
+          if i = 16 then failwith (Printf.sprintf "No space in areatype.ids for %s" flag);
           let number = 1 lsl i in
-          if is_true (eval_pe "" game (PE_FileContainsEvaluated(PE_LiteralString "AREAFLAG.iDS",
+          if is_true (eval_pe "" game (PE_FileContainsEvaluated(PE_LiteralString "AREATYPE.iDS",
               PE_LiteralString("[ \t\n\r]" ^ string_of_int number ^ "[ \t\n\r]"))))
           then trynumber (i + 1)
           else i
         in
 				let number = trynumber 0 in
-				let a1 = TP_Append("areaflag.ids",
+				let a1 = TP_Append("areatype.ids",
 					(Printf.sprintf "%d %s" (1 lsl number) flag),[],true,false,true) in
 				process_action tp a1;
 				Var.set_int32 flag (Int32.of_int number) ;
-				log_and_print "Added Area Flag %s\n" flag;
+				log_and_print "Added Area Type %s\n" flag;
 			end
 	  end
 	  
