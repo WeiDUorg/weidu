@@ -7909,7 +7909,7 @@ NOTE: The original code released in WeiDU v211 has been overhauled and re-releas
 
 \\
 \verb+RES_NUM_OF_SPELL_NAME+: converts a spell.ids reference to resource name.
-This is an ACTION patch and function.
+This is an ACTION macro and function.
 \begin{itemize}
 \item SPRINT spell_name to the IDS symbolic reference of a spell.
 \item RETURNS spell_num to the IDS numerical reference of that spell.
@@ -7918,20 +7918,42 @@ This is an ACTION patch and function.
 \\
 
 \verb+RES_NAME_OF_SPELL_NUM+: converts a spell.ids reference to resource name.
-This is an ACTION patch and function.
+This is an ACTION macro and function.
 \begin{itemize}
 \item SET spell_num to the IDS numerical reference of that spell.
 \item RETURNS spell_name to the IDS symbolic reference of a spell.
 \item RETURNS spell_res to the resource name for the referenced spell.
 \end{itemize}
+\\
 
 \verb+NAME_NUM_OF_SPELL_RES+: converts a spell resource name to a spell.ids reference.
-This is an ACTION patch and function.
+This is an ACTION macro and function.
 \begin{itemize}
 \item SPRINT spell_res to the resource name for the referenced spell.
 \item RETURNS spell_num to the IDS numerical reference of that spell.
 \item RETURNS spell_name to the IDS symbolic reference of a spell.
 \end{itemize}
+\\
+
+\verb+GET_UNIQUE_FILE_NAME+: Creates a file name that is currently unallocated.
+This is a PATCH and ACTION function.
+This function will create a filename using __ as a prefix. __ is reserved by
+The Bigg and writeable by anybody, as long as you dynamically create the file
+name (either by using this function or other code of your devising). If you
+provide 'base', it will attempt to create the file name from base (similarly
+to the Tutu algorithm); for example, \verb+base = spwi117+ might yield
+\verb+filename = __pwi117.%extension%+; if this file already exists
+(or you didn't provide \verb+base+), then WeiDU will attempt sequentially
+with \verb+__000000.%extension%+,  \verb+__000001.%extension%+, up to
+\verb+__999999.%extension%+, at which point the searched name space is exausted
+and the patch will fail. This allows you to create (at least) a million files
+per extension, which is enough for the foreseeable future.
+\begin{itemize}
+\item STR_VAR extension to the desired extension (required).
+\item STR_VAR base to the resource of the cloned resource (optional).
+\item RET filename the currently unallocated file name.
+\end{itemize}
+\\
 
 \subsection{\DEFINE{fj_are_structure}}
 Adds a structure to an area file. All variables are zero or blank by default unless otherwise indicated. Fields designated by an asterisk are typically required; all others are optional.
