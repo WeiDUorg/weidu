@@ -6,6 +6,7 @@ Version 228:
   * New macros and functions: RES_NUM_OF_SPELL_NAME, RES_NAME_OF_SPELL_NUM,
     NAME_NUM_OF_SPELL_RES, GET_UNIQUE_FILE_NAME.
   * ADD_AREA_TYPE tp2 action added.
+  * Failures inside REPLACE_EVALUATE now are propagated outside of it.
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
