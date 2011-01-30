@@ -7,6 +7,7 @@ Version 228:
     NAME_NUM_OF_SPELL_RES, GET_UNIQUE_FILE_NAME.
   * ADD_AREA_TYPE tp2 action added.
   * Failures inside REPLACE_EVALUATE now are propagated outside of it.
+  * WRITE_* in REPLACE_EVALUATE is really ignored.
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.

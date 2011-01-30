@@ -990,9 +990,10 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
         Var.set_string v group ; 
         with _ -> ()) 
       done ; 
+      let tmp_buff = ref (String.copy !work_buff) in
       ignore (
       List.fold_left (fun acc elt -> 
-        process_patch2 patch_filename game acc elt) !work_buff pl
+        process_patch2 patch_filename game acc elt) !tmp_buff pl
        ) ;
       let this_replacement = Var.get_string replace in
       let old_before = Str.string_before !work_buff start_idx in
