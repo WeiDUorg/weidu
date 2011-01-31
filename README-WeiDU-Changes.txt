@@ -8,6 +8,7 @@ Version 228:
   * ADD_AREA_TYPE tp2 action added.
   * Failures inside REPLACE_EVALUATE now are propagated outside of it.
   * WRITE_* in REPLACE_EVALUATE is really ignored.
+  * Tolower now works again on Windows.
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.

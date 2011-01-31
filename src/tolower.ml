@@ -33,30 +33,40 @@ let askfor func mess =
 let rec find_and_lower cur_dir () =
   let dh = Unix.opendir cur_dir in
   let dirlist = ref [] in
+  let done_ht = Hashtbl.create 5 in
   try
     while true do
       let element = Unix.readdir dh in
       let implicit = element.[0] = '.' in
       let element = cur_dir ^ "/" ^ element in
-      let stats = Unix.lstat element in
-      let is_a_symlink = stats.Unix.st_kind = Unix.S_LNK in
+      
+      let is_a_symlink = try
+          let stats = Unix.lstat element in
+          stats.Unix.st_kind = Unix.S_LNK
+        with _ ->
+          true
+      in
       if not implicit && not is_a_symlink then begin
-		let exists = try
-			Unix.access (String.lowercase element) [ Unix.F_OK ];
-			element <> String.lowercase element
-		with _ -> false in
-		if exists then begin
-			dirlist := (element, true) :: !dirlist;
-		end else begin
-			Unix.rename element "TMP_THIS_IS_A_VERY_TMP_NAME";
-			Unix.rename "TMP_THIS_IS_A_VERY_TMP_NAME" (String.lowercase element);
-			if stats.Unix.st_kind = Unix.S_DIR then begin
-			  dirlist := (String.lowercase element, false) :: !dirlist;
-			end
-		end
-      end
+        let exists = Hashtbl.mem done_ht (String.lowercase element) in
+        if exists then begin
+          dirlist := (element, true) :: !dirlist;
+        end else begin
+          Unix.rename element "TMP_THIS_IS_A_VERY_TMP_NAME";
+          Unix.rename "TMP_THIS_IS_A_VERY_TMP_NAME" (String.lowercase element);
+          let is_a_dir = try
+              let stats = Unix.lstat element in
+              stats.Unix.st_kind = Unix.S_DIR
+            with _ ->
+              true
+          in
+          if is_a_dir then begin
+            dirlist := (String.lowercase element, false) :: !dirlist;
+          end
+        end
+      end;
+      Hashtbl.add done_ht (String.lowercase element) true;
     done
-  with _ -> Unix.closedir dh;
+  with End_of_file -> Unix.closedir dh;
     List.iter (fun (x, do_del) ->
 	    find_and_lower x ();
 		if do_del then Unix.rmdir x
@@ -113,9 +123,7 @@ let get_wine_cfg () =
  *)
 askfor (find_and_lower ".") "Do you want to lowercase everything?
   (run if you extracted some mods since the last time you ran this utility)\n"
-;;
-
+;
 askfor get_wine_cfg "Do you want to generate linux.ini from baldur.ini?
 (needed once per installation)\n"
-;;
-
+;
