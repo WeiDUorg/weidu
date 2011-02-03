@@ -19,6 +19,7 @@ let ask_all = ref false
 let forced_language = ref ( 0-1 )
 let force_install_these : int list ref = ref []
 let force_uninstall_these : int list ref = ref []
+let chosen_quick_menu : int option ref = ref None
 let specified_specific_components = ref false
 let skip_at_view = ref false
 let quick_log = ref false

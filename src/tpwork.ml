@@ -132,7 +132,7 @@ let rec handle_tp
 		    let str = Arch.handle_view_command str !skip_at_view in
 		    let answer = ref "" in
 		    if !always_uninstall || !always_yes || !sometimes_reinstall ||
-		    !force_uninstall_these <> [] || !force_install_these <> [] then
+		    !force_uninstall_these <> [] || !force_install_these <> [] || !chosen_quick_menu <> None then
 		      answer := "N";
 		    if !skip_at_view || not !interactive then answer := "N";
 		    while !answer <> "Y" && !answer <> "N" do
@@ -260,12 +260,22 @@ let rec handle_tp
       done ;
 
       let has_quickmenu = List.exists (fun x -> match x with Quick_Menu _ -> true | _ -> false) tp.flags in
+      if !chosen_quick_menu <> None && not has_quickmenu then failwith "--quick-menu given without a QUICK_MENU defined";
       let quickmenu_ask = if has_quickmenu then begin
         let quickmenu = List.find (fun x -> match x with Quick_Menu _ -> true | _ -> false) tp.flags in
         match quickmenu with
           | Quick_Menu (x,y) -> begin
             if List.mem 0 y then failwith "ERROR: QUICK_MENU has component 0 in ALWAYS_ASK";
             if List.exists (fun (name,lst) -> List.mem 0 lst) x then failwith "ERROR: QUICK_MENU has component 0 in a pre-defined selection";
+            if !chosen_quick_menu <> None then begin
+              if (value_of_option !chosen_quick_menu < 1 || List.length x < value_of_option !chosen_quick_menu)
+                then failwith (Printf.sprintf "--quick-menu %d out of range 1-%d" (value_of_option !chosen_quick_menu) (List.length x));
+              List.iter (fun lst -> List.iter (fun i ->
+                if not (List.mem i y) then failwith (Printf.sprintf "Component %d is not in ALWAYS_ASK and --quick-menu was given" i);
+              ) lst) [!force_uninstall_these; !force_install_these];
+              List.iter (fun i -> force_install_these := i :: !force_install_these)
+                (snd (List.nth x (value_of_option !chosen_quick_menu - 1)));
+            end;
             y
           end
           | _ -> (try assert false with Assert_failure (s,l,c) -> failwith (Printf.sprintf "Internal WeiDU failure: %s %d %d" s l c))
@@ -273,14 +283,14 @@ let rec handle_tp
 
       let module_defaults = Array.init (last_module_index+1) (fun i ->
 	try
-          let cli_uninstall = ref (List.exists (fun h -> h = i) !force_uninstall_these)  in
-          let cli_install   = ref (List.exists (fun h -> h = i) !force_install_these  )  in
+          let cli_uninstall = List.exists (fun h -> h = i) !force_uninstall_these in
+          let cli_install   = List.exists (fun h -> h = i) !force_install_these   in
           let m = get_nth_module tp i false in
-          if !always_yes or !cli_install then
+          if !always_yes or cli_install then
             TP_Install
-          else if (!always_uninstall or !cli_uninstall) && (already_installed this_tp2_filename i) then
+          else if (!always_uninstall or cli_uninstall) && (already_installed this_tp2_filename i) then
             TP_Uninstall
-          else if (!always_uninstall or !cli_uninstall) then
+          else if (!always_uninstall or cli_uninstall) then
             TP_Skip
           else if !sometimes_reinstall && (already_installed this_tp2_filename i) then
             TP_Install
@@ -289,6 +299,8 @@ let rec handle_tp
           else if (!force_install_these <> []) || (!force_uninstall_these <> []) then
             TP_Skip
           else if List.mem Tp.TPM_InstallByDefault m.mod_flags then
+            TP_Install
+          else if has_quickmenu && i = 0 then
             TP_Install
           else if has_quickmenu && not (List.mem i quickmenu_ask) then
             TP_Skip
@@ -302,7 +314,6 @@ let rec handle_tp
           let m = get_nth_module tp 0 false in
           if m.mod_parts <> [] || m.mod_flags <> [] then 
             failwith "ERROR: QUICK_MENU and component 0 is non-empty.";
-          module_defaults.(0) <- TP_Install;
         with Not_found ->
           failwith "ERROR: QUICK_MENU and component 0 isn't defined."
       end;

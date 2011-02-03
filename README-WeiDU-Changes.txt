@@ -13,6 +13,9 @@ Version 228:
   * DECOMPILE_DLG_TO_D uses SOURCE_RES and not SOURCE_FILE as a file name
     (prints BEGIN ~FILE~ and not BEGIN ~FILE.DLG~, avoids breaking the
     resulting file).
+  * --quick-menu can install one of the quick selections from the command line.
+    Can be combined with --force-(un)install, but only if the latter components
+    are defined in ALWAYS_ASK.
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
