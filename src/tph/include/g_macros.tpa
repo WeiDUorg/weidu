@@ -177,6 +177,7 @@
 		//savingthrow
 		//savebonus
 		//header (default all)
+		//insert_point (last by default)
 		
 		DEFINE_PATCH_MACRO ~ADD_SPELL_EFFECT~ BEGIN
 		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN
@@ -189,24 +190,26 @@
 		      PATCH_IF (___#index1 = (header - 1)) OR (header = 0) BEGIN //header=1 means ___#index1=0
 		        READ_SHORT  (___#abil_off + 0x1e + (0x28 * ___#index1)) ___#abil_fx_num
 		        READ_SHORT  (___#abil_off + 0x20 + (0x28 * ___#index1)) ___#abil_fx_idx
+            
+            ___#insert_point = !VARIABLE_IS_SET insert_point OR !IS_AN_INT insert_point OR insert_point < 0 OR insert_point > ___#abil_fx_num ? ___#abil_fx_num : insert_point
+            
+		        INSERT_BYTES (___#fx_off +        (0x30 * (___#insert_point + ___#abil_fx_idx))) 0x30
 
-		        INSERT_BYTES (___#fx_off +        (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) 0x30
-
-		        WRITE_SHORT  (___#fx_off +        (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) opcode
-		        WRITE_BYTE   (___#fx_off + 0x02 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) target
-		        WRITE_BYTE   (___#fx_off + 0x03 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) power
-		        WRITE_LONG   (___#fx_off + 0x04 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) parameter1
-		        WRITE_LONG   (___#fx_off + 0x08 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) parameter2
-		        WRITE_BYTE   (___#fx_off + 0x0c + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) timing
-		        WRITE_BYTE   (___#fx_off + 0x0d + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) resist_dispel
-		        WRITE_LONG   (___#fx_off + 0x0e + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) duration
-		        WRITE_BYTE   (___#fx_off + 0x12 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) probability1
-		        WRITE_BYTE   (___#fx_off + 0x13 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) probability2
-		        WRITE_EVALUATED_ASCII (___#fx_off + 0x14 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) ~%resource%~ #8
-		        WRITE_LONG   (___#fx_off + 0x1c + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) dicenumber
-		        WRITE_LONG   (___#fx_off + 0x20 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) dicesize
-		        WRITE_LONG   (___#fx_off + 0x24 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) savingthrow
-		        WRITE_LONG   (___#fx_off + 0x28 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) savebonus
+		        WRITE_SHORT  (___#fx_off +        (0x30 * (___#insert_point + ___#abil_fx_idx))) opcode
+		        WRITE_BYTE   (___#fx_off + 0x02 + (0x30 * (___#insert_point + ___#abil_fx_idx))) target
+		        WRITE_BYTE   (___#fx_off + 0x03 + (0x30 * (___#insert_point + ___#abil_fx_idx))) power
+		        WRITE_LONG   (___#fx_off + 0x04 + (0x30 * (___#insert_point + ___#abil_fx_idx))) parameter1
+		        WRITE_LONG   (___#fx_off + 0x08 + (0x30 * (___#insert_point + ___#abil_fx_idx))) parameter2
+		        WRITE_BYTE   (___#fx_off + 0x0c + (0x30 * (___#insert_point + ___#abil_fx_idx))) timing
+		        WRITE_BYTE   (___#fx_off + 0x0d + (0x30 * (___#insert_point + ___#abil_fx_idx))) resist_dispel
+		        WRITE_LONG   (___#fx_off + 0x0e + (0x30 * (___#insert_point + ___#abil_fx_idx))) duration
+		        WRITE_BYTE   (___#fx_off + 0x12 + (0x30 * (___#insert_point + ___#abil_fx_idx))) probability1
+		        WRITE_BYTE   (___#fx_off + 0x13 + (0x30 * (___#insert_point + ___#abil_fx_idx))) probability2
+		        WRITE_EVALUATED_ASCII (___#fx_off + 0x14 + (0x30 * (___#insert_point + ___#abil_fx_idx))) ~%resource%~ #8
+		        WRITE_LONG   (___#fx_off + 0x1c + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicenumber
+		        WRITE_LONG   (___#fx_off + 0x20 + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicesize
+		        WRITE_LONG   (___#fx_off + 0x24 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savingthrow
+		        WRITE_LONG   (___#fx_off + 0x28 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savebonus
 
 		        //correcting effects number
 		        WRITE_SHORT (___#abil_off + 0x1e + (0x28 * ___#index1)) (___#abil_fx_num + 1)
@@ -279,7 +282,7 @@
 		    READ_LONG 0x6a ___#fx_off
 		    READ_SHORT 0x6e ___#eqfx_index
 		    READ_SHORT 0x70 ___#eqfx_num
-
+		    
 		    INSERT_BYTES (___#fx_off + ___#eqfx_index) 0x30
 
 		    WRITE_SHORT  (___#fx_off + ___#eqfx_index) opcode
@@ -349,23 +352,25 @@
 		        READ_SHORT  (___#abil_off + 0x1e + (0x38 * ___#index1)) ___#abil_fx_num
 		        READ_SHORT  (___#abil_off + 0x20 + (0x38 * ___#index1)) ___#abil_fx_idx
 		
-		        INSERT_BYTES (___#fx_off +        (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) 0x30
+		        ___#insert_point = !VARIABLE_IS_SET insert_point OR !IS_AN_INT insert_point OR insert_point < 0 OR insert_point > ___#abil_fx_num ? ___#abil_fx_num : insert_point
+		        
+		        INSERT_BYTES (___#fx_off +        (0x30 * (___#insert_point + ___#abil_fx_idx))) 0x30
 		
-		        WRITE_SHORT  (___#fx_off +        (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) opcode
-		        WRITE_BYTE   (___#fx_off + 0x02 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) target
-		        WRITE_BYTE   (___#fx_off + 0x03 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) power
-		        WRITE_LONG   (___#fx_off + 0x04 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) parameter1
-		        WRITE_LONG   (___#fx_off + 0x08 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) parameter2
-		        WRITE_BYTE   (___#fx_off + 0x0c + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) timing
-		        WRITE_BYTE   (___#fx_off + 0x0d + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) resist_dispel
-		        WRITE_LONG   (___#fx_off + 0x0e + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) duration
-		        WRITE_BYTE   (___#fx_off + 0x12 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) probability1
-		        WRITE_BYTE   (___#fx_off + 0x13 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) probability2
-		        WRITE_EVALUATED_ASCII (___#fx_off + 0x14 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) ~%resource%~ #8
-		        WRITE_LONG   (___#fx_off + 0x1c + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) dicenumber
-		        WRITE_LONG   (___#fx_off + 0x20 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) dicesize
-		        WRITE_LONG   (___#fx_off + 0x24 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) savingthrow
-		        WRITE_LONG   (___#fx_off + 0x28 + (0x30 * (___#abil_fx_num + ___#abil_fx_idx))) savebonus
+		        WRITE_SHORT  (___#fx_off +        (0x30 * (___#insert_point + ___#abil_fx_idx))) opcode
+		        WRITE_BYTE   (___#fx_off + 0x02 + (0x30 * (___#insert_point + ___#abil_fx_idx))) target
+		        WRITE_BYTE   (___#fx_off + 0x03 + (0x30 * (___#insert_point + ___#abil_fx_idx))) power
+		        WRITE_LONG   (___#fx_off + 0x04 + (0x30 * (___#insert_point + ___#abil_fx_idx))) parameter1
+		        WRITE_LONG   (___#fx_off + 0x08 + (0x30 * (___#insert_point + ___#abil_fx_idx))) parameter2
+		        WRITE_BYTE   (___#fx_off + 0x0c + (0x30 * (___#insert_point + ___#abil_fx_idx))) timing
+		        WRITE_BYTE   (___#fx_off + 0x0d + (0x30 * (___#insert_point + ___#abil_fx_idx))) resist_dispel
+		        WRITE_LONG   (___#fx_off + 0x0e + (0x30 * (___#insert_point + ___#abil_fx_idx))) duration
+		        WRITE_BYTE   (___#fx_off + 0x12 + (0x30 * (___#insert_point + ___#abil_fx_idx))) probability1
+		        WRITE_BYTE   (___#fx_off + 0x13 + (0x30 * (___#insert_point + ___#abil_fx_idx))) probability2
+		        WRITE_EVALUATED_ASCII (___#fx_off + 0x14 + (0x30 * (___#insert_point + ___#abil_fx_idx))) ~%resource%~ #8
+		        WRITE_LONG   (___#fx_off + 0x1c + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicenumber
+		        WRITE_LONG   (___#fx_off + 0x20 + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicesize
+		        WRITE_LONG   (___#fx_off + 0x24 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savingthrow
+		        WRITE_LONG   (___#fx_off + 0x28 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savebonus
 		
 		        //correcting effects number
 		        WRITE_SHORT (___#abil_off + 0x1e + (0x38 * ___#index1)) (___#abil_fx_num + 1)
