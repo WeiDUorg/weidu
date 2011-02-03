@@ -3307,6 +3307,25 @@ unusabilities
 	If  msectype.2da already contains sectypeName, the variable is set to
 	the sectype's current identifier and no other operation is performed.
 	\\
+  or & \DEFINE{ADD!AREA!TYPE} areaTypeName &
+	Adds a new (guaranteed-unique) area type to areatype.ids, and sets
+  the areaTypeName variable to the index of the bit the type is associated
+  with: the type can be set with 
+  \verb+WRITE_SHORT 0x48 THIS | (1 << areaTypeName)+.
+	
+	
+	
+	If  areatype.ids already contains areaTypeName, the variable is set to
+	the type's current identifier and no other operation is performed.
+  
+  
+  
+  Also note that only 8 area types can be added to an unmodded installation
+  of BG2; as such, don't add a new area type type unless you really need it
+  (most likely, another modder is already using a type with a similar name,
+  and you can share the type between your mods without issue).
+	\\
+  
   or & \DEFINE{ADD!PROJECTILE} modpath/PROName.PRO &
     Appends an entry for PROName to \t{PROJECTL.IDS} and assigns it the next
     available ProRef number.  Then copies the file \t{modpath/PROName.PRO}
@@ -7907,6 +7926,54 @@ Example: For the X values: ab_RT_Vx_X_0, ab_RT_Vx_X_1, ab_RT_Vx_X_2
 NOTE: The original code released in WeiDU v211 has been overhauled and re-released in v212. Therefore, the user defined variable names have been changed. If you used the 211 version you will need to update your mod to use the variables in this version. Sorry for the inconvenience...
 
 
+\\
+\verb+RES_NUM_OF_SPELL_NAME+: converts a spell.ids reference to resource name.
+This is an ACTION macro and function.
+\begin{itemize}
+\item SPRINT spell_name to the IDS symbolic reference of a spell.
+\item RETURNS spell_num to the IDS numerical reference of that spell.
+\item RETURNS spell_res to the resource name for the referenced spell.
+\end{itemize}
+\\
+
+\verb+RES_NAME_OF_SPELL_NUM+: converts a spell.ids reference to resource name.
+This is an ACTION macro and function.
+\begin{itemize}
+\item SET spell_num to the IDS numerical reference of that spell.
+\item RETURNS spell_name to the IDS symbolic reference of a spell.
+\item RETURNS spell_res to the resource name for the referenced spell.
+\end{itemize}
+\\
+
+\verb+NAME_NUM_OF_SPELL_RES+: converts a spell resource name to a spell.ids reference.
+This is an ACTION macro and function.
+\begin{itemize}
+\item SPRINT spell_res to the resource name for the referenced spell.
+\item RETURNS spell_num to the IDS numerical reference of that spell.
+\item RETURNS spell_name to the IDS symbolic reference of a spell.
+\end{itemize}
+\\
+
+\verb+GET_UNIQUE_FILE_NAME+: Creates a file name that is currently unallocated.
+This is a PATCH and ACTION function.
+This function will create a filename using __ as a prefix. __ is reserved by
+The Bigg and writeable by anybody, as long as you dynamically create the file
+name (either by using this function or other code of your devising). If you
+provide 'base', it will attempt to create the file name from base (similarly
+to the Tutu algorithm); for example, \verb+base = spwi117+ might yield
+\verb+filename = __pwi117.%extension%+; if this file already exists
+(or you didn't provide \verb+base+), then WeiDU will attempt sequentially
+with \verb+__000000.%extension%+,  \verb+__000001.%extension%+, up to
+\verb+__999999.%extension%+, at which point the searched name space is exausted
+and the patch will fail. This allows you to create (at least) a million files
+per extension, which is enough for the foreseeable future.
+\begin{itemize}
+\item STR_VAR extension to the desired extension (required).
+\item STR_VAR base to the resource of the cloned resource (optional).
+\item RET filename the currently unallocated file name.
+\end{itemize}
+\\
+
 \subsection{\DEFINE{fj_are_structure}}
 Adds a structure to an area file. All variables are zero or blank by default unless otherwise indicated. Fields designated by an asterisk are typically required; all others are optional.
 This is a PATCH function.
@@ -8333,6 +8400,10 @@ This is an ACTION function.
 \item INT_VAR \verb+yCoord+ to the area's Y (north-south) coordinate;
 \item INT_VAR \verb+tTime+ to the area's travel time in hours * 4 (so 2 = 8 hours);
 \item INT_VAR \verb+inclSv+ to 1 to patch saved game worldmaps as well as the master worldmap;
+\item INT_VAR \verb+visible+ to 1 if you want the 'visible' flag to be set;
+\item INT_VAR \verb+visibleAdjacent+ to 1 if you want the 'visible from adjacent' flag to be set;
+\item INT_VAR \verb+reachable+ to 1 if you want the 'reachable' flag to be set;
+\item INT_VAR \verb+visited+ to 1 if you want the 'visited' flag to be set;
 \item RET \verb+areNum+ returns the worldmap entry number for the new area;
 \end{itemize}
 An example best illustrates the use of this function.
@@ -8724,8 +8795,9 @@ The Bigg would additionally like to thank the following contributors:
 \item plainab {sends tp2 macros!}
 \item wisp (sends documentation and tp2 macros/functions!)
 \item Miloch (sends documentation and tp2 macros/functions!)
-\item SConrad {sends tp2 functions!}
-\item Nythrun {sends tp2 functions!}
+\item SConrad (sends tp2 functions!)
+\item Nythrun (sends tp2 functions!)
+\item Galactycon (sends tp2 macros!)
 \end{itemize}
 and additionally
 \begin{itemize}

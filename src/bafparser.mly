@@ -181,7 +181,7 @@ let rec handle_compound_or_bracket obj cpos_ref arg = match arg with
     handle_bracket_list l 0 obj  
 | BA_Compound (s,next_arg) -> 
     begin 
-      let x = int_of_sym (the_game ()) "OBJECT" s in 
+      let x = try int_of_sym (the_game ()) "OBJECT" s with _ -> Int32.of_string s in 
       handle_compound_or_bracket obj (cpos_ref) next_arg ;
       assign_compound x !cpos_ref obj ;
       decr cpos_ref 
@@ -190,7 +190,11 @@ let rec handle_compound_or_bracket obj cpos_ref arg = match arg with
     obj.o_identifiers <- int_of_sym (the_game ()) "OBJECT" s ;
     decr cpos_ref
 
-| BA_Integer i -> parse_error (Printf.sprintf "expecting compound object specifier or [bracket.object.specifier], got integer %ld" i)
+| BA_Integer i -> obj.o_identifiers <- i; 
+  decr cpos_ref;
+  begin try
+    parse_error (Printf.sprintf "expecting compound object specifier or [bracket.object.specifier], got integer %ld. Recovering." i)
+  with _ -> () end
 | BA_String s -> 
     obj.o_name <- s 
 	(* parse_error (Printf.sprintf "expecting compound object specifier or [bracket.object.specifier], got string \"%s\"" s) *)
@@ -211,7 +215,6 @@ let rec verify_arg_list name al fl = match (al,fl) with
       in
       let act = (match ah',fh.arg_kind with
       | (BA_Integer i), Arg_Integer -> Act_Integer(i)
-
 
       | (BA_Bracket([(Bracket_Symbol s)])), Arg_Integer
       | (BA_String s), Arg_Integer 
@@ -243,6 +246,14 @@ let rec verify_arg_list name al fl = match (al,fl) with
           let tmp = empty_object_param () in
           tmp.o_name <- s; 
           Act_Object(tmp)
+
+      | (BA_Integer _), Arg_Object ->
+          begin try
+            parse_error (Printf.sprintf "Type mismatch in \"%s\" argument of [%s].\n\tExpecting type \"%s\". Recovering" fh.arg_comment name (print_arg_kind fh.arg_kind))
+          with _ -> () end;
+          let obj = empty_object_param () in 
+          handle_compound_or_bracket obj (ref 4) ah ;
+          Act_Object(obj) 
 
       | (BA_Bracket _), Arg_Object 
       | (BA_Symbol _), Arg_Object 
@@ -344,7 +355,13 @@ ifblock_list :                  { [] }
   arg : | SYMBOL opt_arg rect_opt { BA_Rect((match $2 with
     None -> BA_Symbol($1) 
   | Some(a) -> BA_Compound($1,a)),$3) }
-| INTEGER rect_opt { BA_Rect(BA_Integer($1),$2) }
+| INTEGER opt_arg rect_opt { BA_Rect((match $2 with
+    None -> BA_Integer($1)
+  | Some(a) -> begin
+      try parse_error "Numerical object.ids reference. Recovering."
+      with _ -> ()
+    end;
+    BA_Compound(Int32.to_string $1,a)),$3) }
 | STRING rect_opt { BA_Rect(BA_String($1),$2) }
 | TILDE_STRING sound_opt 
     { let result = Dlg.Local_String({ lse_male = $1 ; lse_male_sound = $2; 

@@ -1,0 +1,46 @@
+DEFINE_ACTION_FUNCTION ~GET_UNIQUE_FILE_NAME~
+  STR_VAR extension = ""
+          base = ""
+  RET filename
+  BEGIN
+    OUTER_PATCH ~~ BEGIN
+      LPF ~GET_UNIQUE_FILE_NAME~ STR_VAR extension = EVALUATE_BUFFER "%extension%" base = EVALUATE_BUFFER "%base%" RET filename = filename END
+    END
+END
+
+DEFINE_PATCH_FUNCTION ~GET_UNIQUE_FILE_NAME~
+  STR_VAR extension = ""
+          base = ""
+  RET filename
+  BEGIN
+    PATCH_IF ~%extension%~ STRING_EQUAL_CASE ~~ THEN BEGIN
+      PATCH_FAIL ~GET_UNIQUE_FILE_NAME requires to define the extension variable.~
+    END
+    PATCH_IF ~%base%~ STRING_COMPARE_CASE ~~ THEN BEGIN
+      INNER_PATCH_SAVE maybe ~%base%~ BEGIN
+        PATCH_IF BUFFER_LENGTH = 8 THEN BEGIN
+          DELETE_BYTES 0 2
+        END ELSE PATCH_IF BUFFER_LENGTH = 7 THEN BEGIN
+          DELETE_BYTES 0 1
+        END
+      END
+    END ELSE BEGIN
+      SPRINT maybe 000000
+    END
+
+    runOnce = 0
+    WHILE FILE_EXISTS_IN_GAME ~__%maybe%.%extension%~ && (!(IS_AN_INT ~%maybe%~) || (maybe > 999999)) BEGIN
+      maybe = runOnce ? maybe + 1 : 0
+      runOnce = 1
+      WHILE STRING_LENGTH ~%maybe%~ < 6 BEGIN
+        SPRINT maybe ~0%maybe%~
+      END
+    END
+    
+    
+    PATCH_IF IS_AN_INT maybe && maybe > 999999 THEN BEGIN
+      PATCH_FAIL ~Namespace __[0-9]{6}\.%extension% is depleted.~
+    END
+    
+    SPRINT filename ~__%maybe%.%extension%~
+END

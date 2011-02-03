@@ -1,3 +1,19 @@
+Version 228:
+  * If you have MODDER SETUP_TRA NONE, no warnings will be printed if a .tra is
+    missing.
+  * sc#addWmpAre can set area flags.
+  * [ SOUNDNAME ] will now strip the extraneous spaces.
+  * New macros and functions: RES_NUM_OF_SPELL_NAME, RES_NAME_OF_SPELL_NUM,
+    NAME_NUM_OF_SPELL_RES, GET_UNIQUE_FILE_NAME.
+  * ADD_AREA_TYPE tp2 action added.
+  * Failures inside REPLACE_EVALUATE now are propagated outside of it.
+  * WRITE_* in REPLACE_EVALUATE is really ignored.
+  * Tolower now works again on Windows.
+  * ADD_STORE_ITEM doesn't break the file when the store sells no items.
+  * DECOMPILE_DLG_TO_D uses SOURCE_RES and not SOURCE_FILE as a file name
+    (prints BEGIN ~FILE~ and not BEGIN ~FILE.DLG~, avoids breaking the
+    resulting file).
+
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
   * REFACTOR_*_TRIGGER correctly clears the "Unfinished OR()" error message.
@@ -6,6 +22,9 @@ Version 227:
   * INSTALL_BY_DEFAULT is now stricter.
   * ADD_ITEM_EFFECT will correctly skip magical headers.
   * Can now [R]einstall Widescreen on BG1 and PST (regression).
+  * Can compile BAF files with numerical object.ids references (in particular,
+    can install Widescreen over Auril's Bane).
+  * APPEND(_OUTER) +, MOVE + don't create backups or are uninstalled.
   
 Version 226:
   * Add a space in the "Installing [XYZ]" message.

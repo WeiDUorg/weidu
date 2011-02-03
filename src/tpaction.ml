@@ -51,7 +51,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
   Stats.time str (fun () ->
     try
       (match a with
-      | TP_Move(filelist) ->
+      | TP_Move(filelist, do_backup) ->
 	    let move src dst =
 			let ok = ref true in
 			try ignore (String.index src ' '); ok := false with _ -> ();
@@ -71,16 +71,16 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						copy_file_list = [ (src,dst) ];
 						copy_patch_list = [];
 						copy_constraint_list = [];
-						copy_backup = true;
+						copy_backup = do_backup;
 						copy_at_end = false;
 						copy_save_inlined = false;
 					});
 				end else begin
 					log_or_print "Moving %s to %s\n" src dst;
+					if do_backup then begin match !move_list_chn with
+            | Some(chn) -> output_string chn (src ^ " " ^ dst ^ "\n") ; flush chn
+            | None -> () end;
 					Case_ins.unix_rename src dst;
-					match !move_list_chn with
-					| Some(chn) -> output_string chn (src ^ " " ^ dst ^ "\n") ; flush chn
-					| None -> ()
 				end
 			end else
 				log_and_print "MOVE %s %s: source is a directory\n" src dst;
@@ -1049,7 +1049,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						    let str_to_append = Printf.sprintf "%d %s %s"
 							this_music_number m.music_name music_base_name in
 						    
-						    let a1 = TP_Append("SONGLIST.2DA",str_to_append,[],true,false) in
+						    let a1 = TP_Append("SONGLIST.2DA",str_to_append,[],true,false,true) in
 						    
 						    let dest_music_file = "music/" ^ music_base_name_lower in
 						    let a2 = TP_Copy(
@@ -1070,6 +1070,34 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						  end
       end
 	  
+	  | TP_Add_AreaType(flag) -> begin
+		let flag = Var.get_string (eval_pe_str flag) in
+		if is_true (eval_pe "" game (PE_FileContainsEvaluated(PE_LiteralString "AREATYPE.iDS",
+			PE_LiteralString("[ \t\n\r]" ^ flag ^ "[ \t\n\r]")))) then begin
+        Var.set_int32 (flag) (Bcs.int_of_sym game "AREATYPE" flag) ;
+				log_and_print "\n\nArea Type [%s] already present! Skipping!\n\n" flag
+			end else begin
+				let a,b = split "AREATYPE.IDS" in
+				let buff,path = 
+					Load.load_resource "ADD_AREA_TYPE" game true a b
+				in
+        let rec trynumber i =
+          if i = 16 then failwith (Printf.sprintf "No space in areatype.ids for %s" flag);
+          let number = 1 lsl i in
+          if is_true (eval_pe "" game (PE_FileContainsEvaluated(PE_LiteralString "AREATYPE.iDS",
+              PE_LiteralString("[ \t\n\r]" ^ string_of_int number ^ "[ \t\n\r]"))))
+          then trynumber (i + 1)
+          else i
+        in
+				let number = trynumber 0 in
+				let a1 = TP_Append("areatype.ids",
+					(Printf.sprintf "%d %s" (1 lsl number) flag),[],true,false,true) in
+				process_action tp a1;
+				Var.set_int32 flag (Int32.of_int number) ;
+				log_and_print "Added Area Type %s\n" flag;
+			end
+	  end
+	  
 	  | TP_Add_2DA(f,s,r) -> begin
 		let s = Var.get_string (eval_pe_str s) in
 		if is_true (eval_pe "" game (PE_FileContainsEvaluated(PE_LiteralString f,
@@ -1089,7 +1117,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 				| _ -> log_and_print "ERROR: cannot resolve SAY patch\n" ; failwith "resolve"
 				in
 				let a1 = TP_Append(f,
-					(Printf.sprintf "%s %d" s t),[],true,false) in
+					(Printf.sprintf "%s %d" s t),[],true,false,true) in
 				process_action tp a1;
 				Var.set_int32 s (Int32.of_int number) ;
 				log_and_print "Added %s %s\n" f s;
@@ -1112,7 +1140,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						    List.iter (process_action tp) [a1];
 						    let this_pro_number = get_next_line_number "PROJECTL.IDS" in
 						    let a1 = TP_Append("PROJECTL.IDS",
-								       (Printf.sprintf "%d %s" this_pro_number this_pro_name),[],true,false) in
+								       (Printf.sprintf "%d %s" this_pro_number this_pro_name),[],true,false,true) in
 						    let dest_pro_file = "override/" ^ (Case_ins.filename_basename p.pro_file) in
 						    let a2 = TP_Copy(
 						      { copy_get_existing = false;
@@ -1129,7 +1157,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						    if Load.file_exists_in_game game "missile.ids" then begin
 						      let this_miss_number = get_next_line_number "MISSILE.IDS" in
 						      let a1a = TP_Append("MISSILE.IDS",
-									  (Printf.sprintf "%d %s" this_miss_number this_missile_name),[],true,false) in
+									  (Printf.sprintf "%d %s" this_miss_number this_missile_name),[],true,false,true) in
 						      process_action tp a1a;
 						    end;
 						    process_action tp a2;
@@ -1285,14 +1313,14 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						    log_and_print "\n\nKit [%s] already present! Skipping!\n\n"
 						      k.kit_name
 						  end else begin
-						    let a1 = TP_Append("CLASWEAP.2DA",k.clasweap,[],true,false) in
+						    let a1 = TP_Append("CLASWEAP.2DA",k.clasweap,[],true,false,true) in
 						    let a2 = TP_Append_Col("WEAPPROF.2DA",k.weapprof,Tp.get_pe_int "2",[]) in
-						    let a3 = TP_Append("ABCLASRQ.2DA",k.abclasrq,[],true,false) in
-						    let a4 = TP_Append("ABDCDSRQ.2DA",k.abdcdsrq,[],true,false) in
-						    let a5 = TP_Append("ABDCSCRQ.2DA",k.abdcscrq,[],true,false) in
-						    let a_e1 = TP_Append("ABCLSMOD.2DA",k.abclsmod,[],true,false) in
-						    let a_e2 = TP_Append("DUALCLAS.2DA",k.dualclas,[],true,false) in
-						    let a6 = TP_Append("ALIGNMNT.2DA",k.alignmnt,[],true,false) in
+						    let a3 = TP_Append("ABCLASRQ.2DA",k.abclasrq,[],true,false,true) in
+						    let a4 = TP_Append("ABDCDSRQ.2DA",k.abdcdsrq,[],true,false,true) in
+						    let a5 = TP_Append("ABDCSCRQ.2DA",k.abdcscrq,[],true,false,true) in
+						    let a_e1 = TP_Append("ABCLSMOD.2DA",k.abclsmod,[],true,false,true) in
+						    let a_e2 = TP_Append("DUALCLAS.2DA",k.dualclas,[],true,false,true) in
+						    let a6 = TP_Append("ALIGNMNT.2DA",k.alignmnt,[],true,false,true) in
 						    let abil_file = String.uppercase (Case_ins.filename_basename k.ability_file) in
 						    if !debug_ocaml then log_and_print "%s\n" abil_file;
 						    let abil_file_no_ext = Case_ins.filename_chop_extension abil_file in
@@ -1335,19 +1363,19 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 							lower_index mixed_index help_index
 							abil_file_no_ext this_kit_prof_number
 							k.unused_class in
-						    let a8 = TP_Append("KITLIST.2DA",append_to_kitlist,[],true,false) in
+						    let a8 = TP_Append("KITLIST.2DA",append_to_kitlist,[],true,false,true) in
 						    let include_actions = List.map (fun file ->
 						      let num = get_next_line_number (file ^ ".2DA" ) in
 						      let str = Printf.sprintf "%d	%d" num this_kit_number in
-						      TP_Append(file ^ ".2DA",str,[],true,false)
+						      TP_Append(file ^ ".2DA",str,[],true,false,true)
 										   ) include_list in
 						    let abbr = Printf.sprintf  "%s		 %s" k.kit_name k.tob_abbr in
-						    let a9 = TP_Append("LUABBR.2DA",abbr,[],true,false) in
+						    let a9 = TP_Append("LUABBR.2DA",abbr,[],true,false,true) in
 						    let a10 = TP_Set_Col("25STWEAP.2DA",
 									 ("" :: "" :: k.kit_name :: k.tob_start),this_kit_prof_number+1) in
 						    let a11 = TP_Append("KIT.IDS",
 									(Printf.sprintf "0x%x %s" (0x4000 + this_kit_number)
-									   k.kit_name),[],true,false) in
+									   k.kit_name),[],true,false,true) in
 						    let fix2da1 = TP_Copy ({
 									   copy_get_existing = true;
 									   copy_use_regexp = false;
@@ -1845,7 +1873,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    end
 	  end
 	      
-      | TP_Append(file,src,con_l,frombif,keep_crlf) ->
+      | TP_Append(file,src,con_l,frombif,keep_crlf,do_backup) ->
 	  let file = Arch.backslash_to_slash file in
 	  if Case_ins.filename_check_suffix(String.lowercase file) "ids" then Bcs.clear_ids_map game ;
 	  log_and_print "Appending to files ...\n" ;
@@ -1895,7 +1923,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	      else file
 	    in
 	    Stats.time "saving files" (fun () ->
-	      let out = open_for_writing dest true in
+	      let out = open_for_writing_internal do_backup dest true in
 	      if keep_crlf then begin
 		output_string out buff;
 		if !debug_ocaml then log_and_print "%s\n" buff;
@@ -2098,7 +2126,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let bif = Case_ins.filename_chop_extension s ^ ".bif" in
             close_out (open_for_writing bif true);
             let sz = Cbif.cbf2bif (Case_ins.fix_name s) (Case_ins.fix_name bif) in
-            process_action tp (TP_Move [s, (match !backup_dir with | None -> "" | Some(x) -> x) ^ "/" ^ Filename.basename s]);
+            process_action tp (TP_Move ([s, (match !backup_dir with | None -> "" | Some(x) -> x) ^ "/" ^ Filename.basename s], true));
             log_and_print "[%s] decompressed bif file %d bytes\n" s sz
           ) else if Filename.check_suffix s "bif" then (
             let tmp = "tb#decompress_biff_temp_file.bif" in

@@ -979,32 +979,32 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	in
 	let i = ref 0 in
 	let work_buff = ref buff in
-	(try
-          while true do
-            let start_idx = Str.search_forward my_regexp !work_buff !i in
-            for j = 0 to 20 do
-              let v = Printf.sprintf "MATCH%d" j in 
-              (* Var.remove_var v ;  *) 
-              (try let group = Str.matched_group j !work_buff in
-              Var.set_string v group ; 
-              with _ -> ()) 
-            done ; 
-            (try 
-              ignore (
-              List.fold_left (fun acc elt -> 
-                process_patch2 patch_filename game acc elt) !work_buff pl
-             ) ;
-            with _ -> ());
-            let this_replacement = Var.get_string replace in
-            let old_before = Str.string_before !work_buff start_idx in
-            let old_after = Str.string_after !work_buff start_idx in 
-            let new_after = 
-              Str.replace_first my_regexp this_replacement old_after
-            in
-            work_buff := (old_before ^ new_after) ;
-            i := start_idx + String.length this_replacement
-          done
-	with _ -> () ) ;
+  let finished = ref false in
+  while not !finished do
+    let start_idx = try Str.search_forward my_regexp !work_buff !i with Not_found -> finished := true; -1 in
+    if not !finished then begin
+      for j = 0 to 20 do
+        let v = Printf.sprintf "MATCH%d" j in 
+        (* Var.remove_var v ;  *) 
+        (try let group = Str.matched_group j !work_buff in
+        Var.set_string v group ; 
+        with _ -> ()) 
+      done ; 
+      let tmp_buff = ref (String.copy !work_buff) in
+      ignore (
+      List.fold_left (fun acc elt -> 
+        process_patch2 patch_filename game acc elt) !tmp_buff pl
+       ) ;
+      let this_replacement = Var.get_string replace in
+      let old_before = Str.string_before !work_buff start_idx in
+      let old_after = Str.string_after !work_buff start_idx in 
+      let new_after = 
+        Str.replace_first my_regexp this_replacement old_after
+      in
+      work_buff := (old_before ^ new_after) ;
+      i := start_idx + String.length this_replacement
+    end
+  done;
 	!work_buff
 
     | TP_PatchString(case_sens,match_exact,find,what) ->
@@ -2272,9 +2272,9 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	else begin
           log_and_print "Patching %s.ITM into store...\n" (String.uppercase item);
           (* Update the offsets by 28 bytes *)
-          if ipurchasedoffset > isaleoffset then write_int buff 0x2c (ipurchasedoffset + 28);
-          if cureoffset > isaleoffset then write_int buff 0x70 (cureoffset + 28);
-          if drinksoffset > isaleoffset then write_int buff 0x4c (drinksoffset + 28);
+          if ipurchasedoffset >= isaleoffset then write_int buff 0x2c (ipurchasedoffset + 28);
+          if cureoffset >= isaleoffset then write_int buff 0x70 (cureoffset + 28);
+          if drinksoffset >= isaleoffset then write_int buff 0x4c (drinksoffset + 28);
           (* Add 1 to the #items for sale *)
           write_int buff 0x38 (numisale + 1);
           let added = ref false in

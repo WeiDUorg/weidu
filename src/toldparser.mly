@@ -542,8 +542,8 @@ optional_evaluate :
 | ACTION_READLN patch_STRING_left { Tp.TP_Action_ReadLN($2) }
 | REQUIRE_FILE STRING lse { Tp.TP_Require_File($2,$3) }
 | FORBID_FILE STRING lse { Tp.TP_Forbid_File($2,$3) }
-| APPEND STRING STRING tp_when_list { Tp.TP_Append($2,$3,$4,true,false) }
-| APPEND_OUTER STRING STRING tp_when_list { Tp.TP_Append($2,$3,$4,false,false) }
+| APPEND STRING STRING tp_when_list { Tp.TP_Append($2,$3,$4,true,false,true) }
+| APPEND_OUTER STRING STRING tp_when_list { Tp.TP_Append($2,$3,$4,false,false,true) }
 | APPEND_COL STRING STRING tp_when_list { Tp.TP_Append_Col($2,$3,Tp.get_pe_int "0",$4) }
 | APPEND_COL STRING STRING  STRING tp_when_list { Tp.TP_Append_Col($2,$3,(Tp.get_pe_int $4),$5) }
 | EXTEND_TOP STRING STRING tp_patch_list optional_using

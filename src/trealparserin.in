@@ -330,7 +330,7 @@ nonterm(Tp.tp_action) Tp_Action {
         Tp.copy_at_end = false ;
         Tp.copy_save_inlined = (e1 = 2) ;
 			}]
-	-> MOVE e1:Str_Str_List [ Tp.TP_Move(e1) ]
+	-> MOVE e0:Optional_Plus e1:Str_Str_List [ Tp.TP_Move(e1,e0) ]
 	-> DISABLE_FROM_KEY e1: Patch_String_Left_List [ Tp.TP_DisableFromKey e1 ]
 	-> COPY_ALL_GAM_FILES e1:Tp_Patch_List e2:Tp_When_List [ Tp.TP_CopyAllGamFiles(e1,e2) ]
 	-> COPY_LARGE e1:Optional_Plus e2:Optional_Glob e3:Str_Str_List [ Tp.TP_CopyLarge {
@@ -425,10 +425,10 @@ nonterm(Tp.tp_action) Tp_Action {
   -> ACTION_READLN e1:Patch_String_Left [ Tp.TP_Action_ReadLN e1 ]
   -> REQUIRE_FILE e1:STRING e2:Lse [ Tp.TP_Require_File(e1,e2) ]
   -> FORBID_FILE e1:STRING e2:Lse [ Tp.TP_Forbid_File(e1,e2) ]
-  -> APPEND e1:STRING e2:STRING e3:Tp_When_List [ Tp.TP_Append(e1,e2,e3,true,false) ]
-  -> APPEND_OUTER e1:STRING e2:STRING e3:Tp_When_List [ Tp.TP_Append(e1,e2,e3,false,false) ]
-  -> APPEND e1:STRING e2:STRING e3:Tp_When_List KEEP_CRLF [ Tp.TP_Append(e1,e2,e3,true,true) ]
-  -> APPEND_OUTER e1:STRING e2:STRING e3:Tp_When_List KEEP_CRLF [ Tp.TP_Append(e1,e2,e3,false,true) ]
+  -> APPEND e0:Optional_Plus e1:STRING e2:STRING e3:Tp_When_List [ Tp.TP_Append(e1,e2,e3,true,false,e0) ]
+  -> APPEND_OUTER e0:Optional_Plus e1:STRING e2:STRING e3:Tp_When_List [ Tp.TP_Append(e1,e2,e3,false,false,e0) ]
+  -> APPEND e0:Optional_Plus e1:STRING e2:STRING e3:Tp_When_List KEEP_CRLF [ Tp.TP_Append(e1,e2,e3,true,true,e0) ]
+  -> APPEND_OUTER e0:Optional_Plus e1:STRING e2:STRING e3:Tp_When_List KEEP_CRLF [ Tp.TP_Append(e1,e2,e3,false,true,e0) ]
   -> APPEND_COL e1:STRING e2:STRING e3:Tp_When_List [ Tp.TP_Append_Col(e1,e2,Tp.get_pe_int "0",e3) ]
   -> APPEND_COL e1:STRING e2:STRING e3:Patch_Exp e4:Tp_When_List [ Tp.TP_Append_Col(e1,e2,e3,e4) ]
   -> EXTEND_TOP e1:STRING e2:STRING e3:Tp_Patch_List e4:Optional_Using [ Tp.TP_Extend_Top(false,e1,e2,e3,e4) ]
@@ -442,6 +442,7 @@ nonterm(Tp.tp_action) Tp_Action {
 	-> AT_UNINSTALL_EXIT e1:STRING e2:Optional_Exact [ Tp.TP_At_Uninstall_Exit(e1,e2) ]
 	-> AT_INTERACTIVE_UNINSTALL_EXIT e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Uninstall_Exit(e1,e2) ]
 	-> ADD_MUSIC e1:STRING e2:STRING [ Tp.TP_Add_Music {Tp.music_name=e1;Tp.music_file=e2} ]
+  -> ADD_AREA_TYPE e1:Patch_String_Right [ Tp.TP_Add_AreaType(e1) ]
 	-> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List e6:Tp_When_List
 		[ if e6 <> [] then log_and_print_modder "\n\nWARNING: ignoring non-empty constraint list on ADD_SPELL\n\n"; Tp.TP_Add_Spell(e1,e2,e3,e4,e5,None,None) ]
 	-> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List IF_EXISTING e6:Tp_Patch_List END

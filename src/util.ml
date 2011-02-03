@@ -648,6 +648,16 @@ let strip str =
   let len = String.length str in
   String.sub str 1 (len - 2)
 
+let rec remove_trailing_space str =
+  let len = String.length str in
+  if len < 2 then str else
+  match str.[0],str.[len - 1] with
+  | ' ',' ' -> remove_trailing_space (String.sub str 1 (len - 2))
+  | ' ',_   -> remove_trailing_space (String.sub str 1 (len - 1))
+  | _  ,' ' -> remove_trailing_space (String.sub str 0 (len - 1))
+  | _  ,_   -> str
+  
+  
 let error_chn_ht = Hashtbl.create 11
 let error_chn_base = ref "iwg2/errors"
 let get_error_chn sort =

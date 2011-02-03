@@ -89,7 +89,7 @@ let from_ht = Hashtbl.create 511
 
 let load_dlg name buff = begin
   let result = Stats.time "unmarshal DLG" (fun () ->
-    let name = String.uppercase name in
+    let name = let a,b = split name in String.uppercase a in
     try
       if String.sub buff 0 8 <> "DLG V1.0" then begin
 	failwith "not a valid DLG file (wrong sig)"

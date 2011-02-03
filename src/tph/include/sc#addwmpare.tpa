@@ -3,11 +3,16 @@ DEFINE_ACTION_FUNCTION sc#addWmpAre //STR_VAR areName  = "sc#ar00"   // default 
                                     //        strName  = "Stockholm" // default area name
                                     //        strDesc  = "#-1"       // default area description
 
-                                    INT_VAR //mapIcon  = 26          // default map icon is 26, City Gates
+                                    //INT_VAR mapIcon  = 26          // default map icon is 26, City Gates
                                     //        xCoord   = 500         // default x coordinate
                                     //        yCoord   = 500         // default y coordinate
                                     //        inclSv   = 1           // include save games bool; default yes
 
+                                    INT_VAR visible = 0
+                                            visibleAdjacent = 0
+                                            reachable = 0
+                                            visited = 0
+                                    
                                     STR_VAR   worldmap = "worldmap"
 
                                     RET     areNum
@@ -112,6 +117,11 @@ DEFINE_ACTION_FUNCTION sc#addWmpAre //STR_VAR areName  = "sc#ar00"   // default 
             WRITE_EVALUATED_ASCII ( "%area_off%" +        ( 0xf0 * "%area_num%" ) ) "%areName%"  // area reference
             WRITE_EVALUATED_ASCII ( "%area_off%" + 0x08 + ( 0xf0 * "%area_num%" ) ) "%areName%"  // area reference
             WRITE_EVALUATED_ASCII ( "%area_off%" + 0x10 + ( 0xf0 * "%area_num%" ) ) "%areName%"  // area reference
+            WRITE_LONG            ( "%area_off%" + 0x30 + ( 0xf0 * "%area_num%" ) )              // flags
+                                      ( ( visible         ? 0 : BIT0  ) |
+                                        ( visibleAdjacent ? 0 : BIT1  ) |
+                                        ( reachable       ? 0 : BIT2  ) |
+                                        ( visited         ? 0 : BIT3  ) )
             WRITE_LONG            ( "%area_off%" + 0x34 + ( 0xf0 * "%area_num%" ) ) "%mapIcon%"  // map icon
             WRITE_LONG            ( "%area_off%" + 0x38 + ( 0xf0 * "%area_num%" ) ) "%xCoord%"   // x coordinate
             WRITE_LONG            ( "%area_off%" + 0x3C + ( 0xf0 * "%area_num%" ) ) "%yCoord%"   // y coordinate
