@@ -10,6 +10,9 @@ Version 228:
   * WRITE_* in REPLACE_EVALUATE is really ignored.
   * Tolower now works again on Windows.
   * ADD_STORE_ITEM doesn't break the file when the store sells no items.
+  * DECOMPILE_DLG_TO_D uses SOURCE_RES and not SOURCE_FILE as a file name
+    (prints BEGIN ~FILE~ and not BEGIN ~FILE.DLG~, avoids breaking the
+    resulting file).
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
