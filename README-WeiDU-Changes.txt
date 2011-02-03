@@ -9,6 +9,7 @@ Version 228:
   * Failures inside REPLACE_EVALUATE now are propagated outside of it.
   * WRITE_* in REPLACE_EVALUATE is really ignored.
   * Tolower now works again on Windows.
+  * ADD_STORE_ITEM doesn't break the file when the store sells no items.
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.

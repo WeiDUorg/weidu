@@ -2272,9 +2272,9 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	else begin
           log_and_print "Patching %s.ITM into store...\n" (String.uppercase item);
           (* Update the offsets by 28 bytes *)
-          if ipurchasedoffset > isaleoffset then write_int buff 0x2c (ipurchasedoffset + 28);
-          if cureoffset > isaleoffset then write_int buff 0x70 (cureoffset + 28);
-          if drinksoffset > isaleoffset then write_int buff 0x4c (drinksoffset + 28);
+          if ipurchasedoffset >= isaleoffset then write_int buff 0x2c (ipurchasedoffset + 28);
+          if cureoffset >= isaleoffset then write_int buff 0x70 (cureoffset + 28);
+          if drinksoffset >= isaleoffset then write_int buff 0x4c (drinksoffset + 28);
           (* Add 1 to the #items for sale *)
           write_int buff 0x38 (numisale + 1);
           let added = ref false in
