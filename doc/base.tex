@@ -7706,7 +7706,7 @@ This is a PATCH macro and function.
 \item SPRINT ~new_itm_spl~ to a spell you want to copy effects to.
 \end{itemize}
 
-\verb+ADD_SPELL_EFFECT+: adds an extended effect to a spell. All variables except probability1 are 0 by default.
+\verb+ADD_SPELL_EFFECT+: adds an extended effect to a spell. All variables except probability1 and insert_point are 0 by default.
 This is a PATCH macro and function.
 \begin{itemize}
 \item SET opcode to opcode
@@ -7725,6 +7725,7 @@ This is a PATCH macro and function.
 \item SET savingthrow to type of savingthrow to be allowed against the effect
 \item SET savebonus to saving throw bonus
 \item SET header to number of extended header (starting from 1) the effect should be added to (by default the effect is added to every header).
+\item SET insert_point to the position of the effect. If this variable is 0 the effect will be inserted as the first effect of the extended header. If this variable is negative or greater than the number of effects, the effect will be inserted as the last effect. The effect is added as the last effect by default.
 \end{itemize}
 
 \verb+ADD_ITEM_EFFECT+: adds an extended effect to an item.
