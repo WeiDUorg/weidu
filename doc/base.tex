@@ -7640,6 +7640,36 @@ COPY ~bambatch/bam~ ~bambatch/bam~
     PATCH_PRINT ~%SOURCE_FILE% is not a compressed BAM.~
   END
 BUT_ONLY
+
+//Defines an array associating creatures with a new amount of gold
+ACTION_DEFINE_ASSOCIATIVE_ARRAY newgold BEGIN
+  ~arkion~ => 100
+  ~ardrou~ => 10
+  ~berrun~ => 58
+  ~brevli~ => 5
+  ~brielb~ => 200
+  ~gurke~ => 20
+  ~oublek~ => 1000
+  ~perdue%~ => 75
+  ~pheirk%~ => 38
+  ~scar~ => 1026
+  ~sonner~ => 150
+  ~wenric~ => 170
+  ~jarlaxle~ => 25
+  ~ppsime~ => 50
+  ~yschearl~ => 150
+END
+
+//Writes the new amount of gold for each creature above if it exists
+ACTION_PHP_EACH newgold AS crename => gold BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME ~%crename%.cre~ BEGIN
+    COPY_EXISTING ~%crename%.cre~ ~override~
+      PATCH_IF SOURCE_SIZE > 0x2d3 BEGIN
+        WRITE_LONG 0x1c gold
+      END
+    BUT_ONLY
+  END
+END
 \end{verbatim}
 
 

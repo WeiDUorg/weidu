@@ -16,6 +16,7 @@ Version 228:
   * --quick-menu can install one of the quick selections from the command line.
     Can be combined with --force-(un)install, but only if the latter components
     are defined in ALWAYS_ASK.
+  * Added some more code dumps to the docs.
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
