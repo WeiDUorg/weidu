@@ -7992,19 +7992,22 @@ This is an ACTION macro and function.
 This is a PATCH and ACTION function.
 This function will create a filename using __ as a prefix. __ is reserved by
 The Bigg and writeable by anybody, as long as you dynamically create the file
-name (either by using this function or other code of your devising). If you
-provide 'base', it will attempt to create the file name from base (similarly
-to the Tutu algorithm); for example, \verb+base = spwi117+ might yield
-\verb+filename = __pwi117.%extension%+; if this file already exists
-(or you didn't provide \verb+base+), then WeiDU will attempt sequentially
-with \verb+__000000.%extension%+,  \verb+__000001.%extension%+, up to
-\verb+__999999.%extension%+, at which point the searched name space is exausted
-and the patch will fail. This allows you to create (at least) a million files
-per extension, which is enough for the foreseeable future.
+name (either by using this function or other code of your devising). The algorithm
+creates file names in base 36, going from __0000.ext to __zzzz.ext; this allows for
+36 ^ 4 = 1679616 unique file names.
+
+
+
+To allow users to reinstall your mod without breaking the identity of these files, you
+can use the 'base' parameter to ensure that the same thing will be mapped to the same
+file on reinstalls. For instance, if you're iterating through Mages to give each of
+them a spellbook, base should contain your modder prefix, an identifier for the purpose
+of the call, and the file name you're working on, for instance:
+\verb+~tb#spellbooks_%SOURCE_RES%~+
 \begin{itemize}
 \item STR_VAR extension to the desired extension (required).
-\item STR_VAR base to the resource of the cloned resource (optional).
-\item RET filename the currently unallocated file name.
+\item STR_VAR base to a string unique to your mod and current file (optional).
+\item RET filename the currently unallocated file name (sans the extension).
 \end{itemize}
 \\
 
