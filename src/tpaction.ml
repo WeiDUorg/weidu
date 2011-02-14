@@ -1218,7 +1218,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    let cells = List.map (Str.split many_whitespace_regexp) lines in
 	    let headers = List.nth cells 2 in
 	    let rec get_where lst cnt = match lst with
-	    | hd :: tl -> if hd = oldString then cnt else get_where tl (cnt + 1)
+	    | hd :: tl -> if String.uppercase hd = String.uppercase oldString then cnt else get_where tl (cnt + 1)
 	    | [] -> failwith (Printf.sprintf "Unknown kit: %s" oldString)
 	    in
 	    let column = get_where headers 1 in

@@ -17,6 +17,8 @@ Version 228:
     Can be combined with --force-(un)install, but only if the latter components
     are defined in ALWAYS_ASK.
   * Added some more code dumps to the docs.
+  * COPY_KIT works if there is a case mismatch between two of the kit-related
+    2das.
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
