@@ -2063,7 +2063,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 			Refactorbaf.set_refactor None;
 			res
 		with e -> log_and_print "WARNING: REFACTOR_D_TRIGGER %s failed (%s)\n"
-			patch_filename (Printexc.to_string e); buff end
+			patch_filename (Printexc.to_string e); errors_this_component := true; buff end
 		
     | TP_RefactorBafTrigger(pre,post,case_sens, exact_m) -> begin
 		try
@@ -2078,7 +2078,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 			Refactorbaf.set_refactor None;
 			res
 		with e -> log_and_print "WARNING: REFACTOR_BAF_TRIGGER %s failed (%s)\n"
-			patch_filename (Printexc.to_string e); buff end
+			patch_filename (Printexc.to_string e); errors_this_component := true; buff end
 
     | TP_EvaluateBuffer -> Var.get_string buff
 

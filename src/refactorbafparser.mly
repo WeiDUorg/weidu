@@ -7,7 +7,13 @@ let or_counter = ref 0
 let build_or = ref []
 
 let handle_or is_not s1 s2 =
-	let res = if is_not then NotTrigger(s1^s2) else Trigger(s1^s2) in
+  let s,trig_ov = if String.lowercase s1 = "triggeroverride" then begin
+    let s2 = String.sub s2 1 (String.length s2 - 2) in
+    let i = String.index s2 ',' in
+    Str.string_after s2 (i + 1),Some (Str.string_before s2 i)
+  end else s1 ^ s2,None
+  in
+	let res = if is_not then NotTrigger(s,trig_ov) else Trigger(s,trig_ov) in
 	if !or_counter = 0 then Some res else begin
 		build_or := res :: !build_or;
 		decr or_counter;

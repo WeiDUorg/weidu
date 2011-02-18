@@ -2,8 +2,8 @@ open Util
 
 type trigger =
 	| Or of trigger list
-	| Trigger of string
-	| NotTrigger of string
+	| Trigger of string * string option
+	| NotTrigger of string * string option
 
 let do_refactor : (Str.regexp * string * bool) option ref = ref None
 
@@ -45,16 +45,18 @@ let rec print_t t =
 	| Or [] -> ""
 	| Or [t] -> print_t t
 	| Or tl -> "OR(" ^ string_of_int (List.length tl) ^ ") " ^ print_tl tl
-	| Trigger s -> s
-	| NotTrigger s -> "!" ^ s
+	| Trigger (s,None) -> s
+	| Trigger (s,Some a) -> Printf.sprintf "TriggerOverride(%s,%s)" a s
+	| NotTrigger (s,None) -> "!" ^ s
+	| NotTrigger (s,Some a) -> Printf.sprintf "!TriggerOverride(%s,%s)" a s
 
 and print_tl tl =
 	List.fold_left (fun acc elt -> acc^ " " ^ print_t elt) "" tl
 
 let rec find pre tl =
 	List.exists (fun t -> match t with
-	| Trigger s
-	| NotTrigger s -> Str.string_match pre s 0 && Str.matched_string s = s
+	| Trigger (s,_)
+	| NotTrigger (s,_) -> Str.string_match pre s 0 && Str.matched_string s = s
 	| Or tl -> find pre tl
 	) tl
 	
@@ -62,8 +64,8 @@ let fix_trigger acc tl =
 	List.iter (fun t -> acc := t :: !acc) (List.rev tl)
 
 let rec invert and_acc or_acc t = match t with 
-	| Trigger s -> or_acc := NotTrigger s :: !or_acc
-	| NotTrigger s -> or_acc := Trigger s :: !or_acc
+	| Trigger (s,a) -> or_acc := NotTrigger (s,a) :: !or_acc
+	| NotTrigger (s,a) -> or_acc := Trigger (s,a) :: !or_acc
 	| Or tl' -> List.iter (invert or_acc and_acc) (List.rev tl')
 
 let rec fix_nottrigger acc tl =
@@ -78,8 +80,23 @@ let rec fix_nottrigger acc tl =
 		) !and_acc
 ;;
 
-let sub pre post s =
-	!parse_triggers (Str.global_replace pre post s)
+let rec enforce_actor tl a =
+  List.map (fun t ->
+    match t with
+    | Trigger (s,None) -> Trigger(s,a)
+    | NotTrigger(s,None) -> NotTrigger(s,a)
+    | Or tl1 -> Or (enforce_actor tl1 a)
+    | Trigger(s,Some a)
+    | NotTrigger(s,Some a) -> failwith (Printf.sprintf
+      "REFACTOR_*_TRIGGER tries to add TriggerOverride to a trigger that already uses TriggerOverride"
+      )
+  ) tl
+
+let sub pre post s a =
+	let tl = !parse_triggers (Str.global_replace pre post s) in
+  match a with
+  | None -> tl
+  | Some x -> enforce_actor tl a
 
 let fix_or_internal pre post acc tl =
 	let old_tl = ref [] in
@@ -87,14 +104,14 @@ let fix_or_internal pre post acc tl =
 	let found = ref false in
 	List.iter (fun t -> match t with
 	|	Or _ -> failwith "Nested OR()"
-	|	Trigger s -> if find pre [t] && not !found then begin
+	|	Trigger (s,a) -> if find pre [t] && not !found then begin
 			found := true;
-			new_tl := List.append (sub pre post s) !new_tl
+			new_tl := List.append (sub pre post s a) !new_tl
 		end
 		else old_tl := t :: !old_tl
-	|	NotTrigger s -> if find pre [t] && not !found then begin
+	|	NotTrigger (s,a) -> if find pre [t] && not !found then begin
 			found := true;
-			List.iter (invert new_tl old_tl) (sub pre post s)
+			List.iter (invert new_tl old_tl) (sub pre post s a)
 		end
 		else old_tl := t :: !old_tl
 	) tl;
@@ -116,8 +133,8 @@ let fix_or_internal pre post acc tl =
 
 let rec subst pre post acc tl =
 	List.iter (fun t -> if find pre [t] then match t with
-	|	Trigger s -> fix_trigger acc (sub pre post s)
-	|	NotTrigger s -> fix_nottrigger acc (sub pre post s)
+	|	Trigger (s,a) -> fix_trigger acc (sub pre post s a)
+	|	NotTrigger (s,a) -> fix_nottrigger acc (sub pre post s a)
 	|	Or tl -> fix_or pre post acc tl
 	else acc := t :: !acc
 	) tl;
@@ -130,8 +147,8 @@ and fix_or pre post acc tl =
 	end else acc := !acc' @ !acc
 
 let rec remove_spacer tl = List.map (fun t -> match t with
-|	Trigger s -> Trigger (Str.global_replace spacer_r "" s)
-|	NotTrigger s -> NotTrigger (Str.global_replace spacer_r "" s)
+|	Trigger (s,a) -> Trigger (Str.global_replace spacer_r "" s,a)
+|	NotTrigger (s,a) -> NotTrigger (Str.global_replace spacer_r "" s,a)
 |	Or tl' -> Or (remove_spacer tl')
 ) tl
 
