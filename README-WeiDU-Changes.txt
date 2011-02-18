@@ -19,6 +19,8 @@ Version 228:
   * Added some more code dumps to the docs.
   * COPY_KIT works if there is a case mismatch between two of the kit-related
     2das.
+  * WeiDU now translates between TriggerOverride() and NextObjectTrigger()
+    syntaxes (for use with ToBEx).
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
