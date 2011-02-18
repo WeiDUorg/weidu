@@ -429,6 +429,8 @@ let tc_of_tlk_index = Hashtbl.create 511
 
 let use_trans_ref = ref false 
 
+let reprint_trigger : (string -> string) ref = ref (fun s -> failwith "Dlg.reprint_trigger not implemented")
+
 let emit_d dlg out_name dt dft o ot only_state reprint_d_action 
     transitive toplevel = 
   begin
@@ -586,7 +588,7 @@ let emit_d dlg out_name dt dft o ot only_state reprint_d_action
 	    if not trivial_weighting then 
               print_weight o i s.state_trigger s.state_trigger_weight ;
 	    Printf.bprintf o "~%s~ THEN BEGIN %s%d"
-              (convert_raw_text_out s.state_trigger)
+              (convert_raw_text_out (!reprint_trigger s.state_trigger))
               str i;
 
 	    if !emit_from && !comments then begin 
@@ -612,7 +614,7 @@ let emit_d dlg out_name dt dft o ot only_state reprint_d_action
 	    Array.iteri (fun j t ->
               try 
 		Printf.bprintf o "  IF ~%s~ THEN%s%s%s%s%s\n" 
-		  (os t.trans_trigger) 
+		  (os (match t.trans_trigger with None -> None | Some x -> Some (!reprint_trigger x)))
 		  (print_reply t.trans_str) 
 		  (print_action t.action)
 		  (print_journal t.journal_str)

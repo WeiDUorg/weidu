@@ -739,7 +739,7 @@ type aarg =
 type print_what =
   | BCS_Print_Script of script
   | BCS_Print_ActionList of action list 
-  | BCS_Print_TriggerList of trigger list
+  | BCS_Print_TriggerList of trigger list * bool
 
 let trigger_to_arg_list ss t ids game =
   match is_concat_string ss ids with
@@ -836,29 +836,7 @@ let print_script_text game how what comments strhandle =
   in
   let rec print_cr (tl,rl) =
     bcs_printf "IF\n" ;
-    let or_count = ref 0 in
-    let rec print_trigger_loop tr =
-      match tr with
-      | t :: [] when String.lowercase ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
-        failwith "NextTriggerObject() without a next trigger (broken TriggerOverride)"
-      | t :: t1 :: tl when String.lowercase ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
-        let indent = 2 + if !or_count > 0 then (decr or_count ; 2) else 0 in
-        bcs_printf "%.*s" indent " " ;
-        bcs_printf "%sTriggerOverride(" (if t1.negated then "!" else "");
-        print_obj t.t_5;
-        bcs_printf ",";
-        if print_trigger {t1 with negated = false} > 0 then
-          failwith "OR() cannot be used inside NextTriggerObject / TriggerOverride";
-        bcs_printf ")\n";
-        print_trigger_loop tl
-      | t :: tl ->
-        let indent = 2 + if !or_count > 0 then (decr or_count ; 2) else 0 in
-        bcs_printf "%.*s" indent " " ;
-        or_count := !or_count + (print_trigger t) ;
-        bcs_printf "\n";
-        print_trigger_loop tl
-      | [] -> ()
-    in print_trigger_loop tl;
+    print_trigger_list tl false;
     bcs_printf "THEN\n" ;
     List.iter (fun (w,al) -> 
       bcs_printf "  RESPONSE #%d\n" w ;
@@ -1046,6 +1024,28 @@ let print_script_text game how what comments strhandle =
       | _ -> ()
     end ;
     bcs_printf "\n"
+  and print_trigger_list tr compiling_to_dlg =
+    let or_count = ref 0 in
+    match tr with
+    | t :: [] when not compiling_to_dlg && String.lowercase ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
+      failwith "NextTriggerObject() without a next trigger (broken TriggerOverride)"
+    | t :: t1 :: tl when not compiling_to_dlg && String.lowercase ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
+      let indent = 2 + if !or_count > 0 then (decr or_count ; 2) else 0 in
+      bcs_printf "%.*s" indent " " ;
+      bcs_printf "%sTriggerOverride(" (if t1.negated then "!" else "");
+      print_obj t.t_5;
+      bcs_printf ",";
+      if print_trigger {t1 with negated = false} > 0 then
+        failwith "OR() cannot be used inside NextTriggerObject / TriggerOverride";
+      bcs_printf ")\n";
+      print_trigger_list tl compiling_to_dlg
+    | t :: tl ->
+      let indent = 2 + if !or_count > 0 then (decr or_count ; 2) else 0 in
+      bcs_printf "%.*s" indent " " ;
+      or_count := !or_count + (print_trigger t) ;
+      bcs_printf "\n";
+      print_trigger_list tl compiling_to_dlg
+    | [] -> ()
   and print_trigger t =
     if (t.negated) then bcs_printf "!" ;
     let ids = best_ids_of_trigger game t in
@@ -1081,8 +1081,7 @@ let print_script_text game how what comments strhandle =
   match what with
   | BCS_Print_Script(s) -> List.iter print_cr s
   | BCS_Print_ActionList(al) -> List.iter print_action al
-  | BCS_Print_TriggerList(tl) -> List.iter
-	(fun t -> ignore (print_trigger t)) tl
+  | BCS_Print_TriggerList(tl,dlg) -> print_trigger_list tl dlg
 
 let parse_al : (string -> action list) ref =  ref (fun al -> failwith "Internal: Bcs.parse_al is not loaded")	
 	

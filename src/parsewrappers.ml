@@ -160,6 +160,18 @@ let reprint_d_action str pfun = begin
   pop_context () ;
   result
 end
+;;
+
+Dlg.reprint_trigger := (fun s ->
+  let lexbuf = lex_init_from_internal_string "" s in
+  let lexbuf = Lexing.from_string (String.copy s) in
+  let res = Bafparser.trigger_list Baflexer.initial lexbuf in
+  let buff = Buffer.create (String.length s) in
+  Bcs.print_script_text (Load.the_game()) (Bcs.Save_BCS_Buffer(buff))
+    (Bcs.BCS_Print_TriggerList(res,false)) false None ;
+  Buffer.contents buff
+)
+;;
 
 let emit_dlg_files game output_dir =
   if (!Dc.d_action_list <> []) then begin
@@ -194,4 +206,4 @@ let tp2_queues: string Queue.t = Queue.create ()
 let enqueue_tp2_filename filename =
   log_only "Enqueuing [%s] for TP2 processing.\n" filename ;
   Queue.add filename tp2_queues
-
+;;

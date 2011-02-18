@@ -40,7 +40,7 @@ let verify_trigger_list s =
     let res = Bafparser.trigger_list Baflexer.initial lexbuf in
     let buff = Buffer.create (String.length s) in
     Bcs.print_script_text (the_game()) (Bcs.Save_BCS_Buffer(buff))
-      (Bcs.BCS_Print_TriggerList(res)) false None ;
+      (Bcs.BCS_Print_TriggerList(res,true)) false None ;
     let result = Buffer.contents buff in
     result
   with e ->
