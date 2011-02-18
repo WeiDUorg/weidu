@@ -280,7 +280,7 @@ let rec verify_arg_list name al fl = match (al,fl) with
       %}
 
   %token LPAREN RPAREN LBRACKET RBRACKET PERIOD COMMA
-  %token ACTIONOVERRIDE AT
+  %token ACTIONOVERRIDE AT TRIGGEROVERRIDE
   %token NOT EOF
   %token IF THEN END RESPONSE EOF ANYONE
   %nonassoc NOT 
@@ -306,8 +306,20 @@ ifblock_list :                  { [] }
 
   trigger_list :                  { [] }
 | trigger trigger_list          { $1 :: $2 }
+| opt_not TRIGGEROVERRIDE LPAREN arg COMMA trigger RPAREN trigger_list {
+    if $6.negated then parse_error "inner trigger in TriggerOverride() is negated";
+    let act_list = ref (verify_arg_list "TriggerOverride" [$4]
+			  [ { arg_kind = Arg_Object ; arg_comment = "Actor" ; arg_file = "" } ])
+    in 
+    let actor = get_next_object act_list in
+    { (empty_trigger ()) with trigger_id = (try
+        ids_of_sym (the_game ()) "TRIGGER" "NextTriggerObject"
+      with _ -> parse_error
+        "[NextTriggerObject] not found in TRIGGER.IDS for TriggerOverride; missing ToBEx?").i_num
+      ; t_5 = actor; } :: {$6 with negated = $1 } :: $8
+ }
     ;
-
+    
   trigger : opt_not SYMBOL LPAREN arg_list RPAREN 
     {
      let ids = 

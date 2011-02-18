@@ -27,6 +27,7 @@ let _ = List.iter
       ("RESPONSE", RESPONSE) ;
       ("ANYONE", ANYONE) ;
       ("ACTIONOVERRIDE", ACTIONOVERRIDE) ;
+      ("TRIGGEROVERRIDE", TRIGGEROVERRIDE) ;
     ]
 }
 
