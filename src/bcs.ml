@@ -837,11 +837,28 @@ let print_script_text game how what comments strhandle =
   let rec print_cr (tl,rl) =
     bcs_printf "IF\n" ;
     let or_count = ref 0 in
-    List.iter (fun t ->
-      let indent = 2 + if !or_count > 0 then (decr or_count ; 2) else 0 in
-      bcs_printf "%.*s" indent " " ;
-      or_count := !or_count + (print_trigger t) ;
-	      ) tl ;
+    let rec print_trigger_loop tr =
+      match tr with
+      | t :: [] when String.lowercase ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
+        failwith "NextTriggerObject() without a next trigger (broken TriggerOverride)"
+      | t :: t1 :: tl when String.lowercase ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
+        let indent = 2 + if !or_count > 0 then (decr or_count ; 2) else 0 in
+        bcs_printf "%.*s" indent " " ;
+        bcs_printf "%sTriggerOverride(" (if t1.negated then "!" else "");
+        print_obj t.t_5;
+        bcs_printf ",";
+        if print_trigger {t1 with negated = false} > 0 then
+          failwith "OR() cannot be used inside NextTriggerObject / TriggerOverride";
+        bcs_printf ")\n";
+        print_trigger_loop tl
+      | t :: tl ->
+        let indent = 2 + if !or_count > 0 then (decr or_count ; 2) else 0 in
+        bcs_printf "%.*s" indent " " ;
+        or_count := !or_count + (print_trigger t) ;
+        bcs_printf "\n";
+        print_trigger_loop tl
+      | [] -> ()
+    in print_trigger_loop tl;
     bcs_printf "THEN\n" ;
     List.iter (fun (w,al) -> 
       bcs_printf "  RESPONSE #%d\n" w ;
@@ -1047,7 +1064,6 @@ let print_script_text game how what comments strhandle =
           if t.t_5.o_name <> "" then
             bcs_printf "  // %s" (name_of_res t.t_5.o_name "CRE" 0xc)
     end ;
-    bcs_printf "\n" ;
     if String.uppercase ids.i_name = "OR" then
       (Int32.to_int t.t_1)
     else 0
