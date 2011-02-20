@@ -21,6 +21,9 @@ Version 228:
     2das.
   * WeiDU now translates between TriggerOverride() and NextObjectTrigger()
     syntaxes (for use with ToBEx).
+  * REGISTRY_{BG1,BG2,PST,IWD1,IWD2}_PATH variables set (if available) to the
+    relevant game path as read from the registry, or to the empty string if
+    the game path is not available in the registry.
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.

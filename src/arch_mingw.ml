@@ -103,7 +103,9 @@ let check_UAC () =
 let game_path_by_type name =
   match String.lowercase name with
   | "bg2"  -> registry_path ()
+  | "bg1"
   | "bg"   -> bg_registry_path ()
+  | "iwd1"
   | "iwd"  -> iwd_registry_path ()
   | "iwd2" -> iwd2_registry_path ()
   | "pst"  -> pst_registry_path ()

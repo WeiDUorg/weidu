@@ -287,6 +287,14 @@ let all_the_assoc a =
   set_string "LNL" "\n";
   set_string "TAB" "\t";
   
+  List.iter (fun game ->
+    let var = "REGISTRY_" ^ (String.uppercase game) ^ "_PATH" in
+    try
+      let res = Arch.game_path_by_type game in
+      set_string var (if res = "." then "" else res)
+    with _ -> set_string var ""
+  ) ["bg1"; "bg2"; "pst"; "iwd1"; "iwd2"];
+  
   ()
 
 let _ =

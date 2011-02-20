@@ -962,6 +962,9 @@ WeiDU will also search for BG1, IWD and PST. \\ \DEFINE{--nogame}  & Do not
 load any default game files. Unless you also specified \ttref{--tlkin}, no
 \t{DIALOG.TLK} will be loaded. Unless you also specified \ttref{--search},
 no \t{override} directory will be used. \\
+{tt \DEFINE{--game-by-type} X & tries to guess the game path by reading
+the registry; X can be one of BG1, BG2, PST, IWD1 or IWD2.
+\\
 \DEFINE{--search} \t{X}	& Look in {\tt X} for input files (cumulative).
 \t{X} is treated as an \t{override} directory and is given priority over 
 the default \t{override} directory. \\
@@ -8703,6 +8706,12 @@ WNL "\r\n" // Windows new line
 MNL "\r" // (pre-OSX) Macintosh new line
 LNL "\n" // Linux/Unix/OSX new line
 TAB "\t" // tabulation character
+
+REGISTRY_BG1_PATH the path of BG1 (as read from the registry), or empty if not available.
+REGISTRY_BG2_PATH ditto for BG2.
+REGISTRY_PST_PATH ditto for PST.
+REGISTRY_IWD1_PATH ditto for IWD1.
+REGISTRY_IWD2_PATH ditto for IWD2.
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
