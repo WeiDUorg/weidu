@@ -1927,7 +1927,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	      if keep_crlf then begin
 		output_string out buff;
 		if !debug_ocaml then log_and_print "%s\n" buff;
-		if Str.last_chars buff 2 <> "\r\n" then output_string out "\r\n";
+		if String.length buff < 2 || Str.last_chars buff 2 <> "\r\n" then output_string out "\r\n";
 		let src = if String.lowercase dest = "quests.ini" && Arch.view_command = "start"
 		then (Str.global_replace (Str.regexp "\\([^\r]\\)\n") "\\1\r\n" src) else src in
 		output_string out src;
