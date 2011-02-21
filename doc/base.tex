@@ -4762,6 +4762,35 @@ or & \DEFINE{BUFFER!LENGTH} &
 Returns the length of the string currently being patched, or 0 if outside of
 a patch expression. \\
 
+or & \DEFINE{INDEX}  \ttref{optcase}  \ttref{optexact} \ttref{string}1
+\ttref{string}2 \Ob \ttref{value} \Oe &
+Returns the index of the first regexp match of string1 inside string2, or
+-1 if not found. If provided, value specifies from what point of string2
+the searching should begin (instead of 0).
+\\
+
+or & \DEFINE{RINDEX}  \ttref{optcase}  \ttref{optexact} \ttref{string}1
+\ttref{string}2 \Ob \ttref{value} \Oe &
+Returns the index of the last regexp match of string1 inside string2, or
+-1 if not found. If provided, value specifies from what point of string2
+the searching should begin (instead of STRING!LENGTH string2).
+\\
+
+or & \DEFINE{INDEX!BUFFER}  \ttref{optcase}  \ttref{optexact} \ttref{string}
+\Ob \ttref{value} \Oe &
+Returns the index of the first regexp match of string inside the current string, or
+-1 if not found. If provided, value specifies from what point of the string
+the searching should begin (instead of 0).
+\\
+
+or & \DEFINE{RINDEX!BUFFER}  \ttref{optcase}  \ttref{optexact} \ttref{string}
+\Ob \ttref{value} \Oe &
+Returns the index of the last regexp match of string inside the current string, or
+-1 if not found. If provided, value specifies from what point of the string
+the searching should begin (instead of BUFFER!LENGTH).
+\\
+
+
 or & \DEFINE{STRING!LENGTH} \ttref{String} &
 Returns the length of the argument \ttref{String} (after variable evaluation). \\
 

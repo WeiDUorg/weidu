@@ -62,6 +62,7 @@ let rec pe_to_str pe = "(" ^ (match pe with
 | PE_Random(e1,e2) -> Printf.sprintf "RANDOM(%s %s)" (pe_to_str e1) (pe_to_str e2)
 | PE_Buffer_Length -> "BUFFER_LENGTH"
 | PE_String_Length(e1) -> Printf.sprintf "STRING_LENGTH %s" (pe_str_str e1)
+| PE_Index(e0,e1,e2,e3,e4,e5) -> Printf.sprintf "%sINDEX (%s %s %s%s%s)" (if e0 then "" else "R") (if e1 = Some true then "CASE_SENSITIVE" else "CASE_INSENSITIVE") (if e2 = Some true then "EXACT_MATCH" else "EVALUATE_REGEXP") (pe_str_str e3) (match e4 with None -> "" | Some x -> " " ^ pe_to_str x) (match e5 with None -> ""  | Some x -> " " ^ pe_str_str x)
 
 | PE_FileContainsEvaluated(s1,s2) -> Printf.sprintf "FILE_CONTAINS_EVALUATED(%s %s)" (pe_str_str s1) (pe_str_str s2)
 

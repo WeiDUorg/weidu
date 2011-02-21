@@ -178,6 +178,33 @@ let rec eval_pe buff game p =
   | PE_Buffer_Length ->
       Int32.of_int (String.length buff)
 
+  | PE_Index(from_end,case_sens,match_exact,what,start,where) ->
+    let case_sens = match case_sens with
+            None -> false
+          | Some(x) -> x
+    in
+    let match_exact = match match_exact with
+            None -> false
+          | Some(x) -> x
+    in
+    let find = Var.get_string (eval_pe_str what) in
+    let my_regexp = match case_sens, match_exact with
+      false, false -> Str.regexp_case_fold        find
+    | true , false -> Str.regexp                  find
+    | false, true  -> Str.regexp_string_case_fold find
+    | true , true  -> Str.regexp_string           find
+    in
+    let where = match where with
+    | None -> buff
+    | Some x -> Var.get_string (eval_pe_str x)
+    in
+    let start = match from_end, start with
+    | false, None -> 0
+    | true, None -> String.length where
+    | _, Some x -> Int32.to_int (eval_pe where game x)
+    in
+    Int32.of_int (try (if from_end then Str.search_backward else Str.search_forward) my_regexp where start with _ -> 0 - 1)
+      
   | PE_FileContainsEvaluated(filename, reg) ->
       begin
 	let filename = eval_pe_str filename in 

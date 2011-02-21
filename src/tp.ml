@@ -459,6 +459,7 @@ and tp_patchexp =
   | PE_Random of tp_patchexp * tp_patchexp
   | PE_Buffer_Length
   | PE_String_Length of tp_pe_string
+  | PE_Index of bool * bool option * bool option * tp_pe_string * tp_patchexp option * tp_pe_string option
   | PE_FileContainsEvaluated of tp_pe_string * tp_pe_string
 
   | PE_If of tp_patchexp * tp_patchexp * tp_patchexp

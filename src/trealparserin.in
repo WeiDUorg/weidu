@@ -538,6 +538,11 @@ nonterm(Tp.tp_patchexp list) Patch_Exp_List {
 	-> e3:Patch_Exp_List_Rev [ List.rev e3 ]
 }
 
+nonterm(Tp.tp_patchexp option) Optional_Patch_Exp {
+  -> { None }
+  -> e1:Patch_Exp { Some e1 }
+}
+
 nonterm((Tp.tp_patchexp * Dlg.tlk_string) list) Pe_Lse_List_Rev {
 	-> { [] }
 	-> e3:Pe_Lse_List_Rev e1:Patch_Exp e2:Lse [ (e1,e2) :: e3 ]
@@ -791,6 +796,10 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
 			[ Tp.PE_Random(e1,e2) ]
 	-> BUFFER_LENGTH [ Tp.PE_Buffer_Length ]
 	-> STRING_LENGTH e1:Patch_String_Right [ Tp.PE_String_Length e1 ]
+  -> INDEX LPAREN e1:Optional_Case_Sensitive e2:Optional_Match_Exact e4:Patch_String_Right e5:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ Tp.PE_Index(false,e1,e2,e4,e3,Some e5) ]
+  -> RINDEX LPAREN e1:Optional_Case_Sensitive e2:Optional_Match_Exact e4:Patch_String_Right e5:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ Tp.PE_Index(true,e1,e2,e4,e3,Some e5) ]
+  -> INDEX_BUFFER LPAREN e1:Optional_Case_Sensitive e2:Optional_Match_Exact e4:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ Tp.PE_Index(false,e1,e2,e4,e3,None) ]
+  -> RINDEX_BUFFER LPAREN e1:Optional_Case_Sensitive e2:Optional_Match_Exact e4:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ Tp.PE_Index(true,e1,e2,e4,e3,None) ]
 	-> FILE_CONTAINS_EVALUATED LPAREN e1:Patch_String_Right e2:Patch_String_Right RPAREN
 			[ Tp.PE_FileContainsEvaluated(e1,e2) ]
 	-> FILE_EXISTS e1:Patch_String_Right [ Tp.Pred_File_Exists e1 ]

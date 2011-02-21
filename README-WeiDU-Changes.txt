@@ -26,6 +26,7 @@ Version 228:
     the game path is not available in the registry.
   * KEEP_CRLF doesn't crash the installer if the file is zero or one byte
     long.
+  * INDEX, RINDEX, INDEX_BUFFER, RINDEX_BUFFER added.
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.
