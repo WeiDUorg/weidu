@@ -86,11 +86,19 @@ DEFINE_ACTION_FUNCTION sc#addWmpAre //STR_VAR areName  = "sc#ar00"   // default 
   // save games
   ACTION_IF ( "%inclSv%" ) BEGIN
     PRINT ~Adding wmp area "%strName%"~
+    MKDIR save
     GET_DIRECTORY_ARRAY save save ~~
+    LAUNCH_ACTION_FUNCTION ~sc#savepatch~ END
+    MKDIR mpsave
+    GET_DIRECTORY_ARRAY save mpsave ~~
+    LAUNCH_ACTION_FUNCTION ~sc#savepatch~ END
+  END
+END
 
-    ACTION_PHP_EACH save AS from => to BEGIN
+
+DEFINE_ACTION_FUNCTION sc#savepatch BEGIN
+   ACTION_PHP_EACH save AS from => to BEGIN
       ACTION_IF ( FILE_EXISTS ~%to%/%worldmap%.wmp~ == 1 ) BEGIN
-
         COPY ~%to%/%worldmap%.wmp~ ~%to%/%worldmap%.wmp~
           // read offsets
           READ_LONG 0x30 "area_num"
@@ -107,7 +115,6 @@ DEFINE_ACTION_FUNCTION sc#addWmpAre //STR_VAR areName  = "sc#ar00"   // default 
           END
 
           PATCH_IF t-found = 0 BEGIN //If the area doesn't exist in the worldmap
-
             // add the new area; first we update # of areas, and the following link offset
             WRITE_LONG 0x30 ( "%area_num%" + 1 )
             WRITE_LONG 0x38 ( "%link_off%" + 0xf0 )
@@ -159,7 +166,6 @@ DEFINE_ACTION_FUNCTION sc#addWmpAre //STR_VAR areName  = "sc#ar00"   // default 
       END
     END
   END
-END
 
 
 DEFINE_PATCH_FUNCTION sc#toNewAre BEGIN
