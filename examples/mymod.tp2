@@ -216,12 +216,11 @@ Disadvantages:
 -  An archer cannot wear any metal armor.~
 
 /* This snippet shows how to use the kit number as a variable name to
- * assign this kit to a creature. The "0" and the "0x40" are necessary. 
+ * assign this kit to a creature. The "0" and the "0x4000" are necessary. 
  * These offsets should be the same for all CREs. 
 COPY ~mymod/fighter.cre~ ~override/fighter.cre~ 
   WRITE_SHORT   0x244 0
-  WRITE_BYTE    0x246 ~%WWARCH%~
-  WRITE_BYTE    0x247 0x40
+  WRITE_SHORT   0x246 0x4000 + ~%WWARCH%~
 */
 
 /* This snippet shows how to add a MUS file to SONGLIST.2DA. It also 
