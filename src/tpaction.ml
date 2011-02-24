@@ -1360,11 +1360,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 							failwith "resolve"
 						    in
 						    let this_kit_number = get_next_line_number "KITLIST.2DA" in
-              if file_exists "tobex.dll" && this_kit_number > 0x4500 then begin
+              if file_exists "tobex.dll" && this_kit_number > 0x500 then begin
                 failwith ("Throne of Bhaal (with ToBEx installed) cannot currently support more than 1280 kits.\n" ^
                   "Ask Ascension64 to further increase the limit in ToBEx");
               end;
-              if not (file_exists "tobex.dll") && this_kit_number > 0x4100 then begin
+              if not (file_exists "tobex.dll") && this_kit_number > 0x100 then begin
                 if engine_is "tob" then begin 
                   failwith "Throne of Bhaal requires ToBEx to support more than 256 kits."
                 end else begin
