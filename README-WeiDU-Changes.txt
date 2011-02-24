@@ -28,6 +28,7 @@ Version 228:
     long.
   * INDEX, RINDEX, INDEX_BUFFER, RINDEX_BUFFER added.
   * sc#addWmpAre patches save games under mpsave as well as under save.
+  * Visibly fail if ADD_KIT or ADD_MUSIC are going out-of-bounds.
 
 Version 227:
   * REPLACE_BCS_BLOCK(_REGEXP) now parses variable names.

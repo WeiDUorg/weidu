@@ -578,3 +578,6 @@ let string_of_pe buff game pe =
   eval_pe_warn := true ; 
   value
   
+let engine_is str =
+  1l = eval_pe "" (Load.the_game()) (PE_GameIs (str,false))
+  
