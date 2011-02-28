@@ -6,7 +6,7 @@
 
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
-let version = "22707"
+let version = "22800"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
@@ -229,4 +229,5 @@ let version = "22707"
 (* 224 let comment = "Now with 15% less bugs" *)
 (* 225 let comment = "Portalbendarwinden" *)
 (* 226 let comment = "3, 7, 15, 1, 292, 1, 1, 1, 2, 1, 3, 1, 14, 2, 1, 1, 2, 2, 2, 2, 1, 84, 2, 1, 1, 15, 3, 13" *)
-let comment = "A putrid, half-eaten hare"
+(* 227 let comment = "A putrid, half-eaten hare" *)
+let comment = "Procastination is the b"
