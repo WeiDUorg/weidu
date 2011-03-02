@@ -790,8 +790,8 @@ let rec handle_tp
                   | "S"
                   | "Q" ->
           for i = 0 to last_module_index do
-            if module_defaults.(i) <> TP_Ask then raise Not_found;
             try let the_comp = get_nth_module tp i false in
+            if module_defaults.(i) <> TP_Ask then raise Not_found;
             let c = get_nth_module tp i false in
             if subcomp_forced c && not (fails_requirements c) && not (already_installed this_tp2_filename i) then module_defaults.(i) <- TP_Install
             else begin

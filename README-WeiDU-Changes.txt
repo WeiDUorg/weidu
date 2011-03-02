@@ -1,6 +1,8 @@
 Version 229:
   * Fixed some errors decompiling DLG files.
   * Some errors were printed but not logged.
+  * Fixed an error that was preventing '[S]kip all installed components' from
+    working.
 
 Version 228:
   * If you have MODDER SETUP_TRA NONE, no warnings will be printed if a .tra is
