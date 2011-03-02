@@ -114,6 +114,7 @@ ifdef WINDIR
 	PROJECT3_CMODULES  = reg
 	export GLOB      = glob_win32
 	export USEOPT = .opt
+  export TKDIR = obj
 else
 	uname=$(shell uname)
 	ifeq "$(uname)" "Linux"
@@ -129,6 +130,7 @@ else
 		export WEIDU_ARCH = x86
 		export WEIDU_OS = unix
 		export USEOPT = .opt
+    export TKDIR = obj
 	else
 		ifeq "$(uname)" "Darwin"
 			# (2) Mac OS X, using GCC as the C compiler
@@ -143,6 +145,7 @@ else
 			export WEIDU_ARCH = mac
 			export WEIDU_OS = osx
 			export USEOPT = .opt
+      export TKDIR = obj-tk
 		endif
 	endif
 endif
