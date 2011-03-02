@@ -61,5 +61,5 @@ let main () =
 
 try
   main ()
-with e -> log_and_print "Error: %s\n" (Printexc.to_string e)
+with e -> log_and_print "Error: %s\n" (printexc_to_string e)
 ;;

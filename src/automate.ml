@@ -83,7 +83,7 @@ let process file game min o =
     | _ -> log_and_print "Not automating [%s]\n" file  
   end with e -> begin 
     log_and_print "Error automating [%s] : %s \n" file
-      (Printexc.to_string e)
+      (printexc_to_string e)
   end 
 
 let automate_file game file_name min o =

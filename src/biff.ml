@@ -385,7 +385,7 @@ let load_biff filename =
     )
   with e -> 
     log_and_print "ERROR: BIFF [%s] cannot be loaded: %s\n" filename 
-      (Printexc.to_string e);
+      (printexc_to_string e);
     raise e
 
 let check_file biff i ign =

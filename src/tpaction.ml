@@ -381,7 +381,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             List.iter (process_action tp) al
           with e ->
             current_exception := e;
-            let e = Printexc.to_string e in
+            let e = printexc_to_string e in
             Var.set_string "ERROR_MESSAGE" e;
             process_action tp (TP_ActionMatch ((PE_String (PE_LiteralString e)),opts))
         end
@@ -823,7 +823,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 		      try process_patch2 src game acc elt
 		      with e -> log_and_print
 			  "ERROR: [%s] -> [%s] Patching Failed (COPY) (%s)\n"
-			  src dest (Printexc.to_string e); raise e)
+			  src dest (printexc_to_string e); raise e)
 		      buff plist
 		  in
 		  let dest =
@@ -884,7 +884,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 			    Case_ins.unix_chmod dest 511 ; (* 511 = octal 0777 = a+rwx *)
 			  with e -> ()
 			      (* log_or_print "WARNING: chmod %s : %s\n" filename
-				 (Printexc.to_string e) *)
+				 (printexc_to_string e) *)
 			end ;
 			if make_a_backup then
 			  log_only "Copied [%s] to [%s]\n" src dest
@@ -1627,7 +1627,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	      recursive_mkdir (Var.get_string str) 511 (* 511 = octal 0777 = a+rwx *)
 	    with e ->
 	      (
-	       log_and_print "Problem %s on %s : tp.ml\n" (Printexc.to_string e) str
+	       log_and_print "Problem %s on %s : tp.ml\n" (printexc_to_string e) str
 	      )
 		    ) str_l
       end
@@ -1802,7 +1802,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 		  Case_ins.unix_chmod dest 511 ; (* 511 = octal 0777 = a+rwx *)
 		with e -> ()
 		    (* log_or_print "WARNING: chmod %s : %s\n" filename
-		       (Printexc.to_string e) *)
+		       (printexc_to_string e) *)
 	      end ;) () ;
 	    log_or_print "Set text in [%s] column-wise\n" file
 	  end
@@ -1882,7 +1882,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 		    Case_ins.unix_chmod dest 511 ; (* 511 = octal 0777 = a+rwx *)
 		  with e -> ()
 		      (* log_or_print "WARNING: chmod %s : %s\n" filename
-			 (Printexc.to_string e) *)
+			 (printexc_to_string e) *)
 		end ;) () ;
 	      log_or_print "Appended text to [%s] column-wise\n" file
 	    end
@@ -1961,7 +1961,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 		  Case_ins.unix_chmod dest 511 ; (* 511 = octal 0777 = a+rwx *)
 		with e -> ()
 		    (* log_or_print "WARNING: chmod %s : %s\n" filename
-		       (Printexc.to_string e) *)
+		       (printexc_to_string e) *)
 	      end ;) () ;
 	    log_or_print "Appended text to [%s]\n" file
 	  end 
@@ -2085,7 +2085,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 Case_ins.unix_chmod destpath 511 ; (* 511 = octal 0777 = a+rwx *)
               with e -> ()
               (* log_or_print "WARNING: chmod %s : %s\n" filename
-                 (Printexc.to_string e) *)
+                 (printexc_to_string e) *)
             end ;
           ) () ;
           log_or_print "Extended script [%s] with [%s]\n" dest src
@@ -2171,7 +2171,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
     with e -> (* from: let rec process_action = try *)
       (if !continue_on_error then begin
 	log_and_print "WARNING: Continuing despite [%s]\n"
-	  (Printexc.to_string e);
+	  (printexc_to_string e);
 
 	(try assert false with Assert_failure(file,line,col) -> set_errors file line);
       end else begin

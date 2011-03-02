@@ -45,7 +45,7 @@ let verify_trigger_list s =
     result
   with e ->
     log_and_print "WARNING: cannot verify trigger ~%s~: %s\n" s
-      (Printexc.to_string e) ;
+      (printexc_to_string e) ;
     (try assert false with Assert_failure(file,line,col) -> set_errors file line);
     s
   in 
@@ -65,7 +65,7 @@ let verify_action_list s =
     Buffer.contents buff
   with e ->
     log_and_print "WARNING: cannot verify action ~%s~: %s\n" s
-      (Printexc.to_string e) ;
+      (printexc_to_string e) ;
     (try assert false with Assert_failure(file,line,col) -> set_errors file line);
     s
   in

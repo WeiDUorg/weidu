@@ -171,7 +171,7 @@ let extract game o output_dir min_num =
 	end 
     with e -> begin
       log_and_print "\nKit.extract: ~%s~\n\t%s\n\n" kitlist_line 
-        (Printexc.to_string e) ; exit 1 
+        (printexc_to_string e) ; exit 1 
     end 
 	    ) kitlist_l ;
 

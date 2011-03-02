@@ -147,4 +147,4 @@ else
 	endif
 endif
 
-export COMPILEFLAGS = -w y -ccopt -w 
+export COMPILEFLAGS = -w y -ccopt -w -g

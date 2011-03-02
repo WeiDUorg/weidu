@@ -187,7 +187,7 @@ let load_dlg name buff = begin
               symbolic_label = string_of_int i ;
             }
            with e -> log_and_print "ERROR: problem loading state %d: %s\n" i
-               (Printexc.to_string e) ; raise e
+               (printexc_to_string e) ; raise e
 				       ) ;
          dlg_flags = flags ;
        } end
@@ -621,11 +621,11 @@ let emit_d dlg out_name dt dft o ot only_state reprint_d_action
 		  (print_flags t.unknown_flags)
 		  (print_goto t.next) 
               with e -> log_and_print "ERROR: problem emitting trans %d: %s\n" j
-		  (Printexc.to_string e) ; raise e
+		  (printexc_to_string e) ; raise e
 			) s.trans ;
 	    Printf.bprintf o "END%s\n" (if str = "" || not !comments then "" else " */");
 	  with e -> log_and_print "ERROR: problem emitting state %d: %s\n" i
-	      (Printexc.to_string e) ; raise e
+	      (printexc_to_string e) ; raise e
       end in 
 
       Array.iteri (fun i s ->

@@ -7,7 +7,7 @@ let load_log () =
     Tp.the_log := List.map (fun (a,b,c,d) -> ((String.uppercase a),b,c,d,Tp.Installed)) result
   with e ->
     log_or_print "WARNING: parsing log [%s]: %s\n" Tp.log_name
-      (Printexc.to_string e) ;
+      (printexc_to_string e) ;
     Tp.the_log := []
 
 let handle_baf_filename filename =
@@ -24,7 +24,7 @@ let compile_baf_filename game filename =
     close_out out
   with e ->
     (log_and_print "ERROR: error compiling [%s]: %s\n"
-       filename (Printexc.to_string e) ; raise e)
+       filename (printexc_to_string e) ; raise e)
 
 let handle_script_buffer filename buffer =
   match split (String.uppercase filename) with
@@ -96,7 +96,7 @@ let handle_tra_filename filename =
 	      Marshal.from_channel inchan in
 	  close_in inchan ;
 	  result
-      with e -> log_and_print "TRB trouble: %s\n\n" (Printexc.to_string e);
+      with e -> log_and_print "TRB trouble: %s\n\n" (printexc_to_string e);
 	raise e
       end
       | _, _ ->
@@ -186,7 +186,7 @@ let emit_dlg_files game output_dir =
     with e ->
       Dc.clear_state () ;
       (*log_and_print "ERROR: problem processing D files: %s\n"
-	(Printexc.to_string e) ; *)
+	(printexc_to_string e) ; *)
       raise e) ;
     Hashtbl.iter (fun name dlg ->
       let filename = output_dir ^ "/" ^ name ^ ".dlg" in
@@ -201,7 +201,7 @@ let emit_dlg_files game output_dir =
       with e ->
 	Dc.clear_state () ;
 	log_and_print "ERROR: problem saving [%s]: %s\n" filename
-	  (Printexc.to_string e) ;
+	  (printexc_to_string e) ;
 	raise e
 		 ) Dc.available_dlgs ;
   end ;

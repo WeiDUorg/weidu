@@ -31,7 +31,7 @@ open Tppe
          end
 		 ) record
      with e ->
-       log_and_print "WARNING: Unable to uninstall STRING_SET references from [%s]: %s\n" filename (Printexc.to_string e);
+       log_and_print "WARNING: Unable to uninstall STRING_SET references from [%s]: %s\n" filename (printexc_to_string e);
        (try assert false with Assert_failure(file,line,col) -> set_errors file line));
      my_unlink filename;
      my_unlink (filename ^ ".TEXT");
@@ -45,7 +45,7 @@ let record_strset_uninstall_info game filename =
       Mymarshal.write_unsetstr filename game.Load.str_sets;
       game.Load.str_sets <- []
     with e ->
-      log_and_print "WARNING: Unable to write STRING_SET uninstall info to [%s]: %s\n" filename (Printexc.to_string e);(try assert false with Assert_failure(file,line,col) -> set_errors file line)
+      log_and_print "WARNING: Unable to write STRING_SET uninstall info to [%s]: %s\n" filename (printexc_to_string e);(try assert false with Assert_failure(file,line,col) -> set_errors file line)
   end
 
 (************************************************************************
@@ -337,7 +337,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 	end;
     with e ->
       log_and_print "Error Uninstalling [%s] component %d:\n%s\n"
-	tp_file i (Printexc.to_string e);
+	tp_file i (printexc_to_string e);
       (try assert false with Assert_failure(file,line,col) -> set_errors file line)
 			     ) ()
 
@@ -458,7 +458,7 @@ let uninstall game handle_tp2_filename tp2 i interactive =
             (a,b,c,sopt,Temporarily_Uninstalled) :: (prepare tl)
           with e ->
             log_and_print "ERROR: This Mod is too old (or too new) to uninstall that component for you.\nUpgrade to the newest versions of this mod and that one and try again.\n[%s]\n"
-              (Printexc.to_string e);(try assert false with Assert_failure(file,line,col) -> set_errors file line);
+              (printexc_to_string e);(try assert false with Assert_failure(file,line,col) -> set_errors file line);
             worked := false ; 
             lst 
         end

@@ -449,7 +449,7 @@ let make_xplist game o = begin
 		     ) dlg.Dlg.state 
 	end 
       end
-    end with e -> log_or_print "Exception %s\n" (Printexc.to_string e)
+    end with e -> log_or_print "Exception %s\n" (printexc_to_string e)
 	      ) game.key.resource ;
 
   log_or_print "%d dlg-skill entires.\n" (List.length !sid) ;

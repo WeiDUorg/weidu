@@ -55,7 +55,7 @@ let load_target_res r e =
       buff
     with exc -> 
       error e "%8s: resource not found in target: %s\n" 
-	(Printexc.to_string exc) r ; raise exc 
+	(printexc_to_string exc) r ; raise exc 
 		    ) () 
 
 let load_source_res r e =
@@ -66,7 +66,7 @@ let load_source_res r e =
       buff
     with exc -> 
       error e "%8s: resource not found in source: %s\n" 
-	(Printexc.to_string exc) r ; raise exc 
+	(printexc_to_string exc) r ; raise exc 
 		    ) () 
 
 type convert_eff_args = { 
@@ -919,7 +919,7 @@ Hashtbl.iter (fun (new_name, old_name, ext) _ ->
     handle_new_res res new_name new_biff_index
   with e ->
     error "KEY" "Cannot add %8s.%s to KEY: %s (in Source)\n" 
-      old_name ext (Printexc.to_string e) 
+      old_name ext (printexc_to_string e) 
 	     ) add_to_key_list ;
 { 
   Key.biff = Array.append (config.target).Load.key.Key.biff 

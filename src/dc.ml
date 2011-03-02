@@ -1396,6 +1396,6 @@ let dc game lst =
     ()
   with e ->
     log_and_print "ERROR: %s [%s]: %s\n" !what !where
-      (Printexc.to_string e);
+      (printexc_to_string e);
     raise e
 

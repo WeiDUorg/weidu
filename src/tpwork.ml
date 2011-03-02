@@ -448,7 +448,7 @@ let rec handle_tp
 	        with e ->
 		  (try assert false with Assert_failure(file,line,col) -> set_errors file line);
 	          log_and_print "WARNING: Unable to read --args references from [%s]: %s\n"
-	            args_backup_filename (Printexc.to_string e)
+	            args_backup_filename (printexc_to_string e)
 	      end ;
 	      
         let version_msg =
@@ -497,7 +497,7 @@ let rec handle_tp
 	          with e ->
 		    (try assert false with Assert_failure(file,line,col) -> set_errors file line);
 	            log_and_print "WARNING: Unable to read readln references from [%s]: %s\n"
-	              args_backup_filename (Printexc.to_string e)
+	              args_backup_filename (printexc_to_string e)
 	        end ;
 	        List.iter (process_action_real our_lang game this_tp2_filename tp) m.mod_parts ;
 	        if !interactive then begin
@@ -890,7 +890,7 @@ let rec handle_tp
 
       let handle_error_generic always_yes specified_specific_components finished package_name = (fun e ->
 	return_value := return_value_error_tp2_component_install ;
-	log_and_print "ERROR: %s\n" (Printexc.to_string e) ;
+	log_and_print "ERROR: %s\n" (printexc_to_string e) ;
 	Dc.clear_state () ;
 	(if (!log_file <> "") then
 	  log_and_print "%s %s %s %s\n" ((get_trans (-1004))) !log_file
@@ -1367,7 +1367,7 @@ let rec handle_tp
 	      (process tl)  
 	    with e ->
      	      (try assert false with Assert_failure(file,line,col) -> set_errors file line);
-	      log_and_print "ERROR Re-Installing [%s] component %d %s\nTry to re-install it manually.\n%s\n" a c (str_of_str_opt sopt) (Printexc.to_string e) ;
+	      log_and_print "ERROR Re-Installing [%s] component %d %s\nTry to re-install it manually.\n%s\n" a c (str_of_str_opt sopt) (printexc_to_string e) ;
 	      return_value := return_value_error_tp2_component_install ; 
 	      (a,b,c,sopt,Permanently_Uninstalled) :: (process tl)
 	  end 

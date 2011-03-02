@@ -261,7 +261,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
               Buffer.contents buff
             with e ->
               log_and_print "ERROR: error compiling [%s]: %s\n"
-                file (Printexc.to_string e) ;
+                file (printexc_to_string e) ;
               raise e
           end else begin
             load_file file
@@ -454,7 +454,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
           List.fold_left (fun acc elt -> process_patch2 patch_filename game acc elt) buff pl
         with e ->
           current_exception := e;
-          let e = Printexc.to_string e in
+          let e = printexc_to_string e in
           Var.set_string "ERROR_MESSAGE" e;
           process_patch2 patch_filename game buff (TP_PatchMatch ((PE_String (PE_LiteralString e)),opts))
       end
@@ -1221,7 +1221,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 		  Case_ins.unix_chmod (filename ^ "/baldur.gam") 511 ; (* 511 = octal 0777 = a+rwx *)
 		with e -> ()
 		    (* log_or_print "WARNING: chmod %s : %s\n" filename 
-		       (Printexc.to_string e) *)
+		       (printexc_to_string e) *)
 	      end ;
             end) dlist;
 
@@ -1281,7 +1281,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 		  Case_ins.unix_chmod (filename ^ "/baldur.gam") 511 ; (* 511 = octal 0777 = a+rwx *)
 		with e -> ()
 		    (* log_or_print "WARNING: chmod %s : %s\n" filename
-		       (Printexc.to_string e) *)
+		       (printexc_to_string e) *)
               end ;
             end) mpdlist;
 
@@ -1334,7 +1334,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
             Case_ins.unix_chmod "override/baldur.gam" 511 ; (* 511 = octal 0777 = a+rwx *)
           with e -> ()
               (* log_or_print "WARNING: chmod %s : %s\n" filename
-		 (Printexc.to_string e) *)
+		 (printexc_to_string e) *)
         end ;
         buff
 
@@ -2063,7 +2063,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 			Refactorbaf.set_refactor None;
 			res
 		with e -> log_and_print "WARNING: REFACTOR_D_TRIGGER %s failed (%s)\n"
-			patch_filename (Printexc.to_string e); errors_this_component := true; buff end
+			patch_filename (printexc_to_string e); errors_this_component := true; buff end
 		
     | TP_RefactorBafTrigger(pre,post,case_sens, exact_m) -> begin
 		try
@@ -2078,7 +2078,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 			Refactorbaf.set_refactor None;
 			res
 		with e -> log_and_print "WARNING: REFACTOR_BAF_TRIGGER %s failed (%s)\n"
-			patch_filename (Printexc.to_string e); errors_this_component := true; buff end
+			patch_filename (printexc_to_string e); errors_this_component := true; buff end
 
     | TP_EvaluateBuffer -> Var.get_string buff
 

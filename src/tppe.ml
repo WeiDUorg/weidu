@@ -473,7 +473,7 @@ let rec eval_pe buff game p =
              )
           with
             FoundInt(i) -> raise (FoundInt i)
-          | a -> if !debug_ocaml then log_and_print "%s\n" (Printexc.to_string a)
+          | a -> if !debug_ocaml then log_and_print "%s\n" (printexc_to_string a)
         in
         
         Dc.push_copy_trans_modder ();

@@ -3,6 +3,7 @@ Version 229:
   * Some errors were printed but not logged.
   * Fixed an error that was preventing '[S]kip all installed components' from
     working.
+  * --print-backtrace prints the stack trace when an error is found.
 
 Version 228:
   * If you have MODDER SETUP_TRA NONE, no warnings will be printed if a .tra is

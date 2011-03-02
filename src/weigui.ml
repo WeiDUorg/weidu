@@ -22,13 +22,13 @@ let parse_buffer filename buffer sort_of_file parse_lex_fun =
 	log_or_print "[%s] parsed\n" filename ;
 	result
       with e ->
-	(try input_error "" (Printexc.to_string e) with _ -> () ) ;
+	(try input_error "" (printexc_to_string e) with _ -> () ) ;
 	pop_context () ;
 	raise e
     end
   with e ->
     log_and_print "ERROR: parsing [%s]: %s\n"
-      filename (Printexc.to_string e) ;
+      filename (printexc_to_string e) ;
     raise e
 
 (* parse various files *)
@@ -39,7 +39,7 @@ let load_log () =
     List.map (fun (a,b,c,d) -> ((String.uppercase a),b,c,d,Tp.Installed)) result
   with e ->
     log_or_print "WARNING: parsing log [%s]: %s\n" Tp.log_name
-      (Printexc.to_string e) ;
+      (printexc_to_string e) ;
     []
 ;;
 
@@ -542,5 +542,5 @@ let main () =
 try
   main ();
   mainLoop();
-with e -> log_and_print "uncaught exception: %s\n" (Printexc.to_string e);
+with e -> log_and_print "uncaught exception: %s\n" (printexc_to_string e);
 ;;

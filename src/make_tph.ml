@@ -47,4 +47,4 @@ close_out o;
 
 try
   main ()
-with e -> print_endline (Printexc.to_string e)
+with e -> print_endline (printexc_to_string e)

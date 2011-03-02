@@ -214,7 +214,7 @@ let main () =
     with e ->
       begin
 	log_and_print "ERROR: Cannot perform auto-update, going ahead anyway!\n\t%s\n"
-	  (Printexc.to_string e) ;
+	  (printexc_to_string e) ;
 (*				 exit return_value_error_autoupdate *)
       end ) ;
     if List.exists (fun arg -> let a,b = split arg in (String.uppercase b) = "TP2")
@@ -297,7 +297,8 @@ let main () =
     "\tX Y... X, Y... will be stored in the %argvx% variables (cumulative)";
     "--args-list", Myarg.List (fun s -> Var.set_string ("argv[" ^ (string_of_int !counter) ^ "]") s; incr counter),
     "\tX Y... X, Y... will be stored in the %argvx% variables (cumulative)";
-    "--debug-ocaml", Myarg.Set Util.debug_ocaml,"\tenables random debugging information for the OcaML source (rarely of interest to end-users" ;
+    "--print-backtrace", Myarg.Unit (fun () -> print_backtrace := true; Printexc.record_backtrace true),"\tprints OCaml stack trace when reporting an exception (rarely of interest to end-users)";
+    "--debug-ocaml", Myarg.Set Util.debug_ocaml,"\tenables random debugging information for the Ocaml source (rarely of interest to end-users)" ;
     "--debug-boiic", Myarg.Set Tp.debug_boiic,"\tprints out which files have been changed by BUT_ONLY_IF_IT_CHANGES" ;
     "--debug-change", Myarg.Set Tp.debug_change,"\tprints a warning if a file is being COPY_EXISTED without receiving a change." ;
     "--clear-memory", Myarg.Set Tpstate.clear_memory,"\tcalls CLEAR_MEMORY after every action evaluation.";
@@ -616,7 +617,7 @@ let main () =
 
    with e -> 
    log_and_print "ERROR: problem force-ifying file [%s]: %s\n" file
-   (Printexc.to_string e) ;
+   (printexc_to_string e) ;
    raise e
    end
    | _ -> () 
@@ -787,7 +788,7 @@ let main () =
    end
    with e ->
    log_and_print "Failed to create patch for [%s] to [%s] : %s\n" s d
-   (Printexc.to_string e)
+   (printexc_to_string e)
    end
    | _ -> ()) ;
 
@@ -827,7 +828,7 @@ let main () =
    end
    with e ->
    log_and_print "Failed to create patch for [%s] to [%s] : %s\n" s d
-   (Printexc.to_string e)
+   (printexc_to_string e)
    end
    | _ -> ()) ;
 
@@ -861,7 +862,7 @@ let main () =
    end
    with e -> 
    log_and_print "Failed to patch file [%s] with patch [%s] : %s\n" s d
-   (Printexc.to_string e)
+   (printexc_to_string e)
    end
    | _,_ -> ()) ; 
 
@@ -945,9 +946,9 @@ let main () =
    with e -> 
    begin 
    print_theout "\nThe ENTIRE FILE [%s] is missing:\n\t%s\n"
-   d (Printexc.to_string e) ; 
+   d (printexc_to_string e) ; 
    log_and_print "Skipping [%s] and [%s] : %s\n" s d
-   (Printexc.to_string e)
+   (printexc_to_string e)
    end 
    in
    if (Case_ins.unix_stat s).Unix.st_kind <> Unix.S_REG then begin
@@ -1103,7 +1104,7 @@ let main () =
    log_and_print "[%s] created from [%s]\n" path fullpath 
    end
    end with e ->
-   log_and_print "[%s] --biff-get error: %s\n" str (Printexc.to_string e)
+   log_and_print "[%s] --biff-get error: %s\n" str (printexc_to_string e)
    end in 
 
    List.iter (fun str -> 
@@ -1119,7 +1120,7 @@ let main () =
    if not !any_matches then
    log_and_print "\nNo matches for: %s\n" str
    with e ->
-   log_and_print "\nERROR: %s\n" (Printexc.to_string e)	
+   log_and_print "\nERROR: %s\n" (printexc_to_string e)	
    ) !bg_list
    end ;
 
@@ -1176,7 +1177,7 @@ let main () =
    let dlg = 
    try Dlg.load_dlg imp_base buff 
    with e -> log_and_print "ERROR: problem loading [%s]: %s\n" b
-   (Printexc.to_string e) ; raise e
+   (printexc_to_string e) ; raise e
    in 
    let out_name = 
    if theout.file = "" then 
@@ -1187,7 +1188,7 @@ let main () =
    let transout_name = (Case_ins.filename_chop_extension out_name ^ ".tra" ) in 
    (dlg,out_name,transout_name,b,e,final_path)
    with e -> log_and_print "ERROR: problem handling [%s]: %s\n" b
-   (Printexc.to_string e) ; raise e
+   (printexc_to_string e) ; raise e
    ) !dlg_list 
    in
    for i = 1 to if !transitive || !two_pass then 2 else 1 do 
@@ -1217,7 +1218,7 @@ let main () =
    if not theout.append then close_out out_chan ; 
    with e -> 
    log_and_print "ERROR: problem creating [%s] from [%s]: %s\n" out_name
-   b (Printexc.to_string e) ;
+   b (printexc_to_string e) ;
    raise e
    ) loaded_dlgs ;
    done ;
@@ -1458,7 +1459,7 @@ let main () =
 
    with e -> 
    log_and_print "ERROR: problem tra-ifying file [%s]: %s\n" file
-   (Printexc.to_string e) ; 
+   (printexc_to_string e) ; 
    raise e
    end
    | _ -> () 
@@ -1474,7 +1475,7 @@ let main () =
    Bcs.save_bcs game (Bcs.Save_BCS_OC(out)) script ;
    close_out out
    with e -> log_and_print "ERROR: problem loading [%s]: %s\n" str
-   (Printexc.to_string e) ; raise e
+   (printexc_to_string e) ; raise e
    ) !baf_list ;
 
 
@@ -1527,7 +1528,7 @@ let main () =
    end
    with e ->
    log_and_print "ERROR: problem parsing TP file [%s]: %s\n" tp_file
-   (Printexc.to_string e) ;
+   (printexc_to_string e) ;
    raise e
    done
    end ;
@@ -1592,7 +1593,7 @@ let main () =
    end
    with e ->
    log_and_print "ERROR: problem parsing TP file [%s]: %s\n" tp_file
-   (Printexc.to_string e) ;
+   (printexc_to_string e) ;
    raise e
    done
    end ;
@@ -1737,10 +1738,10 @@ let main () =
    close_out out
    with e -> 
    log_and_print "ERROR: problem printing script [%s]: %s\n" b 
-   (Printexc.to_string e) ; close_out out 
+   (printexc_to_string e) ; close_out out 
    )
    with e -> log_and_print "ERROR: problem handling [%s]: %s\n" b
-   (Printexc.to_string e) 
+   (printexc_to_string e) 
    ) !bcs_list ;
 
    (match !backup_list_chn with
@@ -1802,7 +1803,7 @@ let main () =
    (try
    Stats.time "stuff not covered elsewhere" main ();
    with e ->
-   log_and_print "\nFATAL ERROR: %s\n" (Printexc.to_string e) )
+   log_and_print "\nFATAL ERROR: %s\n" (printexc_to_string e) )
 
    ;;
 

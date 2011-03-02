@@ -93,6 +93,15 @@ let log_and_print_modder fmt =
   in
   Printf.kprintf k fmt
 
+let print_backtrace = ref false
+
+let printexc_to_string e =
+  if !print_backtrace then
+    Printexc.to_string e ^ "\n" ^
+    Printexc.get_backtrace()
+  else
+    Printexc.to_string e
+  
 let set_errors file line =
   if !debug_ocaml then log_and_print "Warning at %s.%d\n" file line;
   errors_this_component := true;
@@ -113,7 +122,7 @@ let recursive_mkdir directory mode =
     with e -> (
       match e with
       | Unix.Unix_error(Unix.EEXIST,_,_) -> ()
-      | _ -> log_and_print "Problem %s on %s: util.ml\n" (Printexc.to_string e) !added_up_dir ;
+      | _ -> log_and_print "Problem %s on %s: util.ml\n" (printexc_to_string e) !added_up_dir ;
      )
 	     ) dir_split
 
@@ -165,7 +174,7 @@ let set_backup_dir str i =
     move_list_chn := Some(Case_ins.perv_open_out_bin move_filename);
   with e -> 
     log_and_print "WARNING: unable to open [%s]: %s
-      Will be unable to UNINSTALL later.\n" backup_filename (Printexc.to_string e))
+      Will be unable to UNINSTALL later.\n" backup_filename (printexc_to_string e))
 
 let log_file = ref "" 
 let append_to_log = ref false 
@@ -185,7 +194,7 @@ let init_log version filename =
     log_only "\n"  
   with e ->
     Printf.printf "WARNING: unable to open log file [%s]: %s"
-      filename (Printexc.to_string e) ;
+      filename (printexc_to_string e) ;
     () 
 
 let int32_of_str_off str off =
@@ -354,7 +363,7 @@ let my_unlink file =
       Case_ins.unix_unlink file
     with e ->
       log_only "Unable to Unlink [%s]: %s\n"
-	file (Printexc.to_string e)
+	file (printexc_to_string e)
   end
   
 let my_rmdir dir = 
@@ -363,7 +372,7 @@ let my_rmdir dir =
       Case_ins.unix_rmdir dir
     with e ->
       log_only "Unable to Rmdir [%s]: %s\n"
-	dir (Printexc.to_string e)
+	dir (printexc_to_string e)
   end
 
 let rec backup_if_extant filename =
@@ -503,7 +512,7 @@ let open_for_writing_internal backup filename binary =
         Case_ins.unix_chmod filename 511 ; (* 511 = octal 0777 = a+rwx *)
       with e -> () 
           (* log_or_print "WARNING: chmod %s : %s\n" filename 
-             (Printexc.to_string e) *)
+             (printexc_to_string e) *)
     end ;
   let out_chn = (if binary then Case_ins.perv_open_out_bin else Case_ins.perv_open_out) filename in
   out_chn 
@@ -727,7 +736,7 @@ let parse_file verbose what sort_of_file parse_lex_fun =
           do_the_work filename lexbuf
         with e ->
           if verbose then log_and_print "ERROR: parsing [%s]: %s\n"
-              filename (Printexc.to_string e) ;
+              filename (printexc_to_string e) ;
           raise e
             end else begin
         let inchan = Case_ins.perv_open_in filename in
@@ -739,10 +748,10 @@ let parse_file verbose what sort_of_file parse_lex_fun =
             res
           end
         with e ->
-          (try input_error "" (Printexc.to_string e) with _ -> () ) ;
+          (try input_error "" (printexc_to_string e) with _ -> () ) ;
           pop_context () ;
           if verbose then log_and_print "ERROR: parsing [%s]: %s\n"
-              filename (Printexc.to_string e) ;
+              filename (printexc_to_string e) ;
           parse_error_verbose := old_parse_error_verbose;
           close_in inchan ; raise e
       end
@@ -751,10 +760,10 @@ let parse_file verbose what sort_of_file parse_lex_fun =
       try
         do_the_work filename lexbuf
       with e ->
-          (try input_error "" (Printexc.to_string e) with _ -> () ) ;
+          (try input_error "" (printexc_to_string e) with _ -> () ) ;
           pop_context () ;
         if verbose then log_and_print "ERROR: parsing [%s]: %s\n"
-          filename (Printexc.to_string e) ;
+          filename (printexc_to_string e) ;
           parse_error_verbose := old_parse_error_verbose;
           raise e
       end;

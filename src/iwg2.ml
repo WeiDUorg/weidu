@@ -536,7 +536,7 @@ let rec convert r e = Stats.time e (fun () ->
     Hashtbl.replace already_converted (upper_r,e) new_r ; 
     new_r
   end with exc -> begin
-    error "CONVERT" "%8s.%s : %s\n" r e (Printexc.to_string exc) ;
+    error "CONVERT" "%8s.%s : %s\n" r e (printexc_to_string exc) ;
     Hashtbl.remove already_converted (upper_r,e) ;
     raise exc end
 				   ) () 
@@ -2446,12 +2446,12 @@ and convert_spl new_r r =
     mutate_spl new_r r i 
   with
     e -> error "SPL" "[%s.SPL] error mutating SPL: %s\n" r 
-	(Printexc.to_string e); raise e);
+	(printexc_to_string e); raise e);
 
   let buff = try serialize_spl i r
   with 
     e -> error "SPL" "[%s.SPL] error serializing SPL: %s\n" r 
-	(Printexc.to_string e); raise e;
+	(printexc_to_string e); raise e;
   in
   save_in_override new_r "SPL" buff 
 
@@ -2484,7 +2484,7 @@ and convert_itm new_r r =
 
   let i = try read_itm buff with e -> 
     error "ITM" "[%s.ITM] error reading BG2 ITM: %s\n" r 
-      (Printexc.to_string e); raise e in
+      (printexc_to_string e); raise e in
 
   let can_drop = i.i_flags land 0x4 = 0x4 in 
   Hashtbl.add already_converted (new_r,"is_droppable")
@@ -2494,7 +2494,7 @@ and convert_itm new_r r =
     mutate_itm new_r r i 
   with
     e -> error "ITM" "[%s.ITM] error mutating ITM: %s\n" r 
-	(Printexc.to_string e); raise e);
+	(printexc_to_string e); raise e);
 
   let buff = serialize_itm i in
   save_in_override new_r "ITM" buff 
@@ -3077,7 +3077,7 @@ and mutate_cre new_r r c isnpc =
   let slist = Array.to_list c.c_spells in 
   let max_spell = try max_spell_of c 
   with e -> log_and_print "ERROR: MUTATE: MAX_SPELL: %s: %s\n" r
-      (Printexc.to_string e) ; exit 1 
+      (printexc_to_string e) ; exit 1 
   in
   let slist = List.filter (fun (num,res) -> 
     if String.uppercase res = "NONE" then false else 
@@ -3575,17 +3575,17 @@ and convert_cre new_r r = begin
         let cre = 
           try read_bg2_cre new_r r buff with e -> 
             error "CRE" "[%8s.CRE] error reading Source CRE: %s\n" r 
-              (Printexc.to_string e); raise e 
+              (printexc_to_string e); raise e 
         in
 
         (try mutate_cre new_r r cre false with e -> 
           error "CRE" "[%8s.CRE] error mutating CRE: %s\n" r 
-            (Printexc.to_string e); raise e) ;
+            (printexc_to_string e); raise e) ;
 
         let result_buffer = 
           try prepare_iwd2_cre r cre with e ->
             error "CRE" "[%8s.CRE] error preparing Target CRE: %s\n" r 
-              (Printexc.to_string e); raise e 
+              (printexc_to_string e); raise e 
         in
 
         save_in_override_generic new_r "CRE" (fun oc ->
@@ -3596,11 +3596,11 @@ and convert_cre new_r r = begin
       begin 
         let cre = try read_bg2_cre new_r r buff with e -> 
           error "CRE" "[%8s.CRE] error reading Source CRE: %s\n" r 
-            (Printexc.to_string e); raise e in
+            (printexc_to_string e); raise e in
 
         let output = try prepare_bg2_cre r cre with e ->
           error "CRE" "[%8s.CRE] error preparing Target CRE: %s\n" r 
-            (Printexc.to_string e); raise e in
+            (printexc_to_string e); raise e in
 
         save_in_override new_r "CRE" output 
       end
@@ -3880,7 +3880,7 @@ and convert_dlg_internal new_r incoming_lst = begin
             (fun () -> Bafparser.action_list Baflexer.initial lexbuf) () 
         with e -> 
           error "DLG" "[%s] PARSE ACTION ~%s~ : %s\n" fn s 
-            (Printexc.to_string e) ; [] 
+            (printexc_to_string e) ; [] 
         in 
         let new_al = try 
           let args = default_convert_bcs_args in 
@@ -3888,7 +3888,7 @@ and convert_dlg_internal new_r incoming_lst = begin
 			  (fun a -> convert_bcs_action a context args true ) al) 
         with e -> 
           error "DLG" "[%s] CONVERT ACTION ~%s~ : %s\n" fn s 
-            (Printexc.to_string e) ; [] 
+            (printexc_to_string e) ; [] 
         in
         let new_al = List.filter (fun a ->
           a.action_id <> Int32.of_int 121 (* start cut scene mode *)
@@ -3902,7 +3902,7 @@ and convert_dlg_internal new_r incoming_lst = begin
         Buffer.contents buff 
       with e -> 
         error "DLG" "[%s] PRINT ACTION ~%s~ : %s\n" fn s 
-          (Printexc.to_string e) ; "")
+          (printexc_to_string e) ; "")
     end in 
 
     (* Convert Triggers *) 
@@ -3915,13 +3915,13 @@ and convert_dlg_internal new_r incoming_lst = begin
             (fun () -> Bafparser.trigger_list Baflexer.initial lexbuf) () 
         with e -> 
           error "DLG" "[%s] PARSE TRIGGER ~%s~ : %s\n" fn s 
-            (Printexc.to_string e) ; [] 
+            (printexc_to_string e) ; [] 
         in 
         let new_al = try 
           List.flatten (List.map (fun a -> convert_bcs_trigger a context) al ) 
         with e -> begin
           error "DLG" "[%s] CONVERT TRIGGER ~%s~ : %s\n" fn s 
-            (Printexc.to_string e) ; [] 
+            (printexc_to_string e) ; [] 
         end
         in
         new_al
@@ -3933,7 +3933,7 @@ and convert_dlg_internal new_r incoming_lst = begin
         Buffer.contents buff 
       with e -> 
         error "ERROR" "DLG: [%s] TRIGGER ~%s~ : %s\n" fn s 
-          (Printexc.to_string e) ; "")
+          (printexc_to_string e) ; "")
     end in
 
     let d = Stats.time "DLG load" (Dlg.load_dlg r) buff in 
@@ -4287,7 +4287,7 @@ and convert_bcs_trigger c context =
 	best_ids_of_trigger (config.source) c 
       with e ->
 	error "BCS" "[%s.BCS] BEST BG2 TRIGGER %lx: %s\n" context c.trigger_id 
-          (Printexc.to_string e); raise e
+          (printexc_to_string e); raise e
     in
     c.t_5 <- convert_bcs_obj c.t_5 ; 
     (* try to find a similar trigger in IWD2 *) 
@@ -4314,7 +4314,7 @@ and convert_bcs_trigger c context =
       end
     with e -> 
       ( error "TRIGGER" "FAILED: %s: %s\n" 
-	  (print_trigger orig_c) (Printexc.to_string e)) ; raise e
+	  (print_trigger orig_c) (printexc_to_string e)) ; raise e
 			   ) () 
 
 and convert_trigger_almost b c almost context = 
@@ -5103,7 +5103,7 @@ and print_action a =
     let regexp = Str.regexp "[\\[\\]]" in
     Str.global_replace regexp " " str 
   with e -> 
-    Printf.sprintf "cannot print source: %s" (Printexc.to_string e)
+    Printf.sprintf "cannot print source: %s" (printexc_to_string e)
 
 and print_trigger a =
   try 
@@ -5114,7 +5114,7 @@ and print_trigger a =
     let regexp = Str.regexp "[\\[\\]]" in
     Str.global_replace regexp " " str 
   with e -> 
-    Printf.sprintf "cannot print source: %s" (Printexc.to_string e)
+    Printf.sprintf "cannot print source: %s" (printexc_to_string e)
 
 
 
@@ -5127,7 +5127,7 @@ and convert_bcs_action a context args in_dlg : Bcs.action list =
 	best_ids_of_action (config.source) a 
       with e ->
 	error "ACTION" "[%s.BCS] BEST BG2 ACTION %lx: %s\n" context a.action_id 
-          (Printexc.to_string e); raise e
+          (printexc_to_string e); raise e
     in
     (* convert the object parameters *) 
     (try a.a_1 <- convert_bcs_obj a.a_1 ;
@@ -5135,7 +5135,7 @@ and convert_bcs_action a context args in_dlg : Bcs.action list =
       a.a_3 <- convert_bcs_obj a.a_3 ;
     with e -> 
       error "ACTION" "CONVERT OBJ OF ACTION %ld: %s\n" a.action_id 
-	(Printexc.to_string e);
+	(printexc_to_string e);
       raise e
     ) ;
     (* the ActionOverride("foo",DoThis(Myself)) fixup! *) 
@@ -5174,7 +5174,7 @@ and convert_bcs_action a context args in_dlg : Bcs.action list =
       [ { empty_a with  action_id = target_action "DisplayString" ;
           a_2 = player1 ; a_4 = Int32.of_int (debug_string 
 						(Printf.sprintf "WeiDU: %s %s : %s (do not report this unless something actually goes wrong)" context 
-						   (print_action orig_a) (Printexc.to_string e))); } ] 
+						   (print_action orig_a) (printexc_to_string e))); } ] 
 			  ) () 
 
 and convert_bcs new_r r args prepend_this = begin
@@ -5395,7 +5395,7 @@ and convert_bcs new_r r args prepend_this = begin
     save_in_override_generic new_r "BCS" (fun oc -> 
       save_bcs (config.target) (Save_BCS_OC(oc)) new_cr_list) ;
   with e -> 
-    (error "BCS" "FAILED: %s: %s\n" r (Printexc.to_string e) ;
+    (error "BCS" "FAILED: %s: %s\n" r (printexc_to_string e) ;
      raise e)
 end 
 
@@ -6048,7 +6048,7 @@ and convert_gam new_r r = begin
           error "GAM" "%s.variable: error merging '%s' '%s' '%s' -> %s: %s\n" 
             var 
             npc.npc_cre_dlg npc.npc_pdialog npc.npc_interdia res 
-            (Printexc.to_string e); 
+            (printexc_to_string e); 
 		   ) npc_banter_ht 
 
   | _ -> () ) ; 
@@ -6497,7 +6497,7 @@ let eff_list_hack () = begin
 
   let i = try read_itm buff with e -> 
     error "ITM" "[%s.ITM] error reading BG2 ITM: %s\n" r 
-      (Printexc.to_string e); raise e in
+      (printexc_to_string e); raise e in
 
   let spl_buff = load_target_res "effblud1" "SPL" in 
   write_short spl_buff 0xaa 139 ;
@@ -6509,7 +6509,7 @@ let eff_list_hack () = begin
     mutate_itm new_r r i 
   with
     e -> error "ITM" "[%s.ITM] error mutating ITM: %s\n" r 
-	(Printexc.to_string e); raise e);
+	(printexc_to_string e); raise e);
 
   i.i_abil.(0).a_eff <- Array.init 93 (fun num ->
     let num = num + 0 in 
@@ -7122,7 +7122,7 @@ let rl () = begin
   let cost = eval_itm i in
   unsorted := (cost, poss, (Tlk.pretty_print config.source.Load.dialog i.i_iname)) :: !unsorted ; 
   with e -> 
-  log_and_print "Error (%s) on %s\n" (Printexc.to_string e) poss 
+  log_and_print "Error (%s) on %s\n" (printexc_to_string e) poss 
   ) !matches ;
 
   let sorted = List.sort (fun (a,b,c) (a',b',c') -> a - a') !unsorted in
@@ -7601,7 +7601,7 @@ let main () = begin
         result 
       with e -> 
         log_and_print "ERROR: parsing [%s]: %s\n" filename 
-          (Printexc.to_string e) ; exit 1 
+          (printexc_to_string e) ; exit 1 
     end
   in 
 
@@ -7767,7 +7767,7 @@ end
 (try 
   Stats.time "main" main () 
 with e -> 
-  log_and_print "\nERROR: %s\n" (Printexc.to_string e) ) 
+  log_and_print "\nERROR: %s\n" (printexc_to_string e) ) 
 
 ;;
 

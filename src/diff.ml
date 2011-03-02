@@ -65,7 +65,7 @@ let get_patch orig_buff new_buff ncont =begin
   try
     fixdouble (Xdiff.diff orig_buff new_buff ncont)
   with e -> begin
-    log_and_print "create_patch: couldn't create patch: %s\n" (Printexc.to_string e);
+    log_and_print "create_patch: couldn't create patch: %s\n" (printexc_to_string e);
     raise Not_found
   end
 end
