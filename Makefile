@@ -96,7 +96,9 @@ src/arch2.ml :
 	echo "let associate_these a = Var.set_string \"WEIDU_ARCH\" \"$(WEIDU_ARCH)\" ; Var.set_string \"WEIDU_OS\" \"$(WEIDU_OS)\"; Var.set_string \"WEIDU_VER\" !Util.weidu_version" > src/arch2.ml
 	echo "let _ = associate_these ()" >> src/arch2.ml
 
-$(OBJDIR)/tparser.cmx : src/trealparserin.in src/tlexer.in src/make_gr.ml src/aliases.in src/make_tll.ml
+$(OBJDIR)/tparser.cmx : src/trealparserin.in src/tlexer.in src/make_gr.ml src/aliases.in src/make_tll.ml $(OBJDIR)/trealparser.cmx
+
+$(OBJDIR)/parsewrapper.cmx : $(OBJDIR)/tparser.cmx
 
 # Include now the common set of rules for OCAML
 include Makefile.msvc
