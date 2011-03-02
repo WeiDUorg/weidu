@@ -39,69 +39,8 @@ NATIVECAML := 1
 OBJDIR      := obj/$(ARCHOS)
 DEPENDDIR   := obj/.depend
 
-# First stuff that makes the executable
-# to add later:
-WEIDU_BASE_MODULES  := case_ins stats arch version parsing tph util modder var arch2 xor \
-	eff_table key cbif biff tlk load cre \
-        ids idslexer idslexer2 idsparser \
-        bcs bcslexer bcsparser \
-        dlg dc \
-		refactorbaf refactorbaflexer refactorbafparser refactordlexer refactordparser \
-        baflexer bafparser \
-        diff sav mos tp dlexer dparser \
-        smutil useract lexerint parsetables arraystack objpool glr lrparse \
-        automate kit tpstate tphelp trealparser tlexer toldparser toldlexer tparser parsewrappers mymarshal tppe tpuninstall tppatch tpaction tpwork
-ifdef ITEMLIST
-WEIDU_BASE_MODULES  += pretty itemlist
-endif
-WEIDU_MODULES  =  myarg $(WEIDU_BASE_MODULES) autoupdate main
+include Depends
 
-MODULES        = $(WEIDU_MODULES) iwgconf iwgrule iwglexer iwgparser iwg2 myarg weinstall tolower
-SOURCEDIRS     := src zlib glob xdiff elkhound
-MLLS           := dlexer.mll idslexer.mll idslexer2.mll bcslexer.mll baflexer.mll iwglexer.mll tlexer.mll toldlexer.mll refactorbaflexer.mll refactordlexer.mll
-MLYS           := dparser.mly idsparser.mly bcsparser.mly bafparser.mly iwgparser.mly toldparser.mly refactorbafparser.mly refactordparser.mly
-GRS            := trealparserin.gr
-
-src/tph.ml : src/tph/include/* src/tph/define/* src/make_tph.ml
-	ocaml str.cma unix.cma -w p src/make_tph.ml
-
-$(OBJDIR)/trealparser.ml : $(OBJDIR)/trealparserin.ml src/make_par.ml
-	cp $(OBJDIR)/trealparserin.ml $(OBJDIR)/trealparser.ml
-
-$(OBJDIR)/trealparser.mli : $(OBJDIR)/trealparserin.mli
-	cp $(OBJDIR)/trealparserin.mli $(OBJDIR)/trealparser.mli
-
-src/tlexer.mll : src/tlexer.in src/trealparserin.gr src/make_tll.ml
-	ocaml str.cma unix.cma -w p src/make_tll.ml
-
-src/trealparserin.gr : src/trealparserin.in src/aliases.in src/make_gr.ml
-	ocaml str.cma unix.cma -w p src/make_gr.ml
-
-src/toldlexer.mll : src/toldlexer.in src/trealparserin.gr src/make_old_mll.ml
-	ocaml str.cma unix.cma -w p src/make_old_mll.ml
-
-src/arch.ml : src/$(ARCH_FILE).ml
-	cp src/$(ARCH_FILE).ml src/arch.ml
-
-src/case_ins.ml : src/$(CASE_FILE).ml
-	cp src/$(CASE_FILE).ml src/case_ins.ml
-
-src/tparser.ml : src/tparser.in
-	cp src/tparser.in src/tparser.ml
-
-src/arch2.ml :
-	echo "let associate_these a = Var.set_string \"WEIDU_ARCH\" \"$(WEIDU_ARCH)\" ; Var.set_string \"WEIDU_OS\" \"$(WEIDU_OS)\"; Var.set_string \"WEIDU_VER\" !Util.weidu_version" > src/arch2.ml
-	echo "let _ = associate_these ()" >> src/arch2.ml
-
-$(OBJDIR)/tparser.cmx : src/trealparserin.in src/tlexer.in src/make_gr.ml src/aliases.in src/make_tll.ml $(OBJDIR)/trealparser.cmx
-
-$(OBJDIR)/parsewrapper.cmx : $(OBJDIR)/tparser.cmx
-
-$(OBJDIR)/mymarshal.cmx : $(OBJDIR)/dlexer.cmx
-
-# Include now the common set of rules for OCAML
-include Makefile.msvc
-include Makefile.ocaml
 CAMLFLAGS      += -I zlib -I xdiff
 
    # Now the rule to make WeiDU
