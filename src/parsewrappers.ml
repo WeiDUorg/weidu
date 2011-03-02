@@ -163,13 +163,19 @@ end
 ;;
 
 Dlg.reprint_trigger := (fun s ->
-  let lexbuf = lex_init_from_internal_string "" s in
-  let lexbuf = Lexing.from_string (String.copy s) in
-  let res = Bafparser.trigger_list Baflexer.initial lexbuf in
-  let buff = Buffer.create (String.length s) in
-  Bcs.print_script_text (Load.the_game()) (Bcs.Save_BCS_Buffer(buff))
-    (Bcs.BCS_Print_TriggerList(res,false)) false None ;
-  Buffer.contents buff
+  ignore_context_error := true;
+  let ans = try
+    let lexbuf = lex_init_from_internal_string "" s in
+    let lexbuf = Lexing.from_string (String.copy s) in
+    let res = Bafparser.trigger_list Baflexer.initial lexbuf in
+    let buff = Buffer.create (String.length s) in
+    Bcs.print_script_text (Load.the_game()) (Bcs.Save_BCS_Buffer(buff))
+      (Bcs.BCS_Print_TriggerList(res,false)) false None ;
+    Buffer.contents buff
+  with _ -> s
+  in
+  ignore_context_error := false;
+  ans
 )
 ;;
 
