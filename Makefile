@@ -62,26 +62,23 @@ MLLS           := dlexer.mll idslexer.mll idslexer2.mll bcslexer.mll baflexer.ml
 MLYS           := dparser.mly idsparser.mly bcsparser.mly bafparser.mly iwgparser.mly toldparser.mly refactorbafparser.mly refactordparser.mly
 GRS            := trealparserin.gr
 
-$(OBJDIR)/mytop :
-	ocamlmktop -o ${OBJDIR}/mytop str.cma unix.cma
+src/tph.ml : src/tph/include/* src/tph/define/* src/make_tph.ml
+	ocaml str.cma unix.cma -w p src/make_tph.ml
 
-src/tph.ml : src/tph/include/* src/tph/define/* src/make_tph.ml $(OBJDIR)/mytop
-	./${OBJDIR}/mytop -w p src/make_tph.ml
-
-$(OBJDIR)/trealparser.ml : $(OBJDIR)/trealparserin.ml $(OBJDIR)/mytop src/make_par.ml
+$(OBJDIR)/trealparser.ml : $(OBJDIR)/trealparserin.ml src/make_par.ml
 	cp $(OBJDIR)/trealparserin.ml $(OBJDIR)/trealparser.ml
 
 $(OBJDIR)/trealparser.mli : $(OBJDIR)/trealparserin.mli
 	cp $(OBJDIR)/trealparserin.mli $(OBJDIR)/trealparser.mli
 
-src/tlexer.mll : src/tlexer.in src/trealparserin.gr src/make_tll.ml $(OBJDIR)/mytop
-	./${OBJDIR}/mytop -w p src/make_tll.ml
+src/tlexer.mll : src/tlexer.in src/trealparserin.gr src/make_tll.ml
+	ocaml str.cma unix.cma -w p src/make_tll.ml
 
-src/trealparserin.gr : src/trealparserin.in src/aliases.in src/make_gr.ml $(OBJDIR)/mytop
-	./${OBJDIR}/mytop -w p src/make_gr.ml
+src/trealparserin.gr : src/trealparserin.in src/aliases.in src/make_gr.ml
+	ocaml str.cma unix.cma -w p src/make_gr.ml
 
-src/toldlexer.mll : src/toldlexer.in src/trealparserin.gr src/make_old_mll.ml $(OBJDIR)/mytop
-	./${OBJDIR}/mytop -w p src/make_old_mll.ml
+src/toldlexer.mll : src/toldlexer.in src/trealparserin.gr src/make_old_mll.ml
+	ocaml str.cma unix.cma -w p src/make_old_mll.ml
 
 src/arch.ml : src/$(ARCH_FILE).ml
 	cp src/$(ARCH_FILE).ml src/arch.ml
@@ -89,7 +86,7 @@ src/arch.ml : src/$(ARCH_FILE).ml
 src/case_ins.ml : src/$(CASE_FILE).ml
 	cp src/$(CASE_FILE).ml src/case_ins.ml
 
-src/tparser.ml : src/tparser.in src/trealparserin.in
+src/tparser.ml : src/tparser.in
 	cp src/tparser.in src/tparser.ml
 
 src/arch2.ml :
@@ -99,6 +96,8 @@ src/arch2.ml :
 $(OBJDIR)/tparser.cmx : src/trealparserin.in src/tlexer.in src/make_gr.ml src/aliases.in src/make_tll.ml $(OBJDIR)/trealparser.cmx
 
 $(OBJDIR)/parsewrapper.cmx : $(OBJDIR)/tparser.cmx
+
+$(OBJDIR)/mymarshal.cmx : $(OBJDIR)/dlexer.cmx
 
 # Include now the common set of rules for OCAML
 include Makefile.msvc
@@ -212,7 +211,7 @@ clean:
 	rm -f $(PROJECT_EXECUTABLE) $(PROJECT_EXECUTABLE2) $(PROJECT_EXECUTABLE3) \
 	$(PROJECT_EXECUTABLE4)  src/arch.ml src/arch2.ml src/case_ins.ml \
 	src/*parser*.ml src/*parser*.mli src/*lexer*.ml src/*lexer*.mli src/*.cmi \
-	src/tlexer.mll src/trealparserin.gr $(OBJDIR)/mytop*  \
+	src/tlexer.mll src/trealparserin.gr  \
 	src/toldlexer.mll src/tph.ml
 	find obj -exec rm {} \;
 	$(MAKE) -f Makefile-tk clean
