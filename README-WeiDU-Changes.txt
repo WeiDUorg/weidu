@@ -1,5 +1,6 @@
 Version 229:
   * Fixed some errors decompiling DLG files.
+  * Some errors were printed but not logged.
 
 Version 228:
   * If you have MODDER SETUP_TRA NONE, no warnings will be printed if a .tra is

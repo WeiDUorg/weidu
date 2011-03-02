@@ -467,7 +467,7 @@ let eff_of_spl_itm buff =
 		  resist_dispel = 0; raw_offset = 0;} 
 			 ) 
   with e -> 
-    Printf.printf "ERROR: %s\nERROR: Problem Listing Effects (perhaps not a BG2 resource?)\n" (Printexc.to_string e); 
+    log_and_print "ERROR: %s\nERROR: Problem Listing Effects (perhaps not a BG2 resource?)\n" (Printexc.to_string e); 
     [| |] 
 
 (*

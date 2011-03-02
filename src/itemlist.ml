@@ -501,7 +501,7 @@ let itm_randomizer game o =
   let max_idx = Array.length game.Load.dialog in 
   (try while true do
     let f = Unix.readdir d_h in
-    Printf.printf "Processing [%s]\n" f ; 
+    log_and_print "Processing [%s]\n" f ; 
     try 
       let buff = load_file f in
       let price = int32_of_str_off buff 0x34 in 

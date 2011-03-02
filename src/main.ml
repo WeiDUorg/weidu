@@ -786,7 +786,7 @@ let main () =
    print_theout "\tAPPLY_BCS_PATCH ~%s~\n" out_name
    end
    with e ->
-   Printf.printf "Failed to create patch for [%s] to [%s] : %s\n" s d
+   log_and_print "Failed to create patch for [%s] to [%s] : %s\n" s d
    (Printexc.to_string e)
    end
    | _ -> ()) ;
@@ -826,7 +826,7 @@ let main () =
    print_theout "\tCOMPILE_BAF_TO_BCS\n";
    end
    with e ->
-   Printf.printf "Failed to create patch for [%s] to [%s] : %s\n" s d
+   log_and_print "Failed to create patch for [%s] to [%s] : %s\n" s d
    (Printexc.to_string e)
    end
    | _ -> ()) ;
@@ -860,7 +860,7 @@ let main () =
    end
    end
    with e -> 
-   Printf.printf "Failed to patch file [%s] with patch [%s] : %s\n" s d
+   log_and_print "Failed to patch file [%s] with patch [%s] : %s\n" s d
    (Printexc.to_string e)
    end
    | _,_ -> ()) ; 
@@ -946,7 +946,7 @@ let main () =
    begin 
    print_theout "\nThe ENTIRE FILE [%s] is missing:\n\t%s\n"
    d (Printexc.to_string e) ; 
-   Printf.printf "Skipping [%s] and [%s] : %s\n" s d
+   log_and_print "Skipping [%s] and [%s] : %s\n" s d
    (Printexc.to_string e)
    end 
    in
@@ -972,9 +972,9 @@ let main () =
    let male = Tlk.pretty_print game.Load.dialog i in
    let female = Tlk.pretty_print_opt game.Load.dialogf i in
    if (female = "" || male = female) then
-   Printf.printf "String #%d is %s\n" i male 
+   log_and_print "String #%d is %s\n" i male 
    else
-   Printf.printf "String #%d is %s (MALE)\nString #%d is %s (FEMALE)\n" i male i female 
+   log_and_print "String #%d is %s (MALE)\nString #%d is %s (FEMALE)\n" i male i female 
    in 
    if !ds_list <> [] && ( !user_min <> None || !user_max <> None) then begin
    let my_min = match !user_min with
@@ -1003,7 +1003,7 @@ let main () =
    ) false reg_list 
    in
    if matches_one then 
-   Printf.printf "String #%d is %s\n" i (Tlk.pretty_print game.Load.dialog i)
+   log_and_print "String #%d is %s\n" i (Tlk.pretty_print game.Load.dialog i)
    ) game.Load.dialog 
    end ; 
 
@@ -1103,7 +1103,7 @@ let main () =
    log_and_print "[%s] created from [%s]\n" path fullpath 
    end
    end with e ->
-   Printf.printf "[%s] --biff-get error: %s\n" str (Printexc.to_string e)
+   log_and_print "[%s] --biff-get error: %s\n" str (Printexc.to_string e)
    end in 
 
    List.iter (fun str -> 
@@ -1839,7 +1839,7 @@ let main () =
    ;;
 
    if not !no_exit_pause && (!pause_at_end || (!return_value <> return_value_success)) then begin
-   Printf.printf "\nPress ENTER to exit.\n" ;
+   log_and_print "\nPress ENTER to exit.\n" ;
    try ignore (read_line () ) with _ -> ()
    end
 

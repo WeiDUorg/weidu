@@ -95,7 +95,7 @@ let load_dlg name buff = begin
 	failwith "not a valid DLG file (wrong sig)"
       end ;
       if String.length buff < 52 then begin
-	Printf.printf "WARNING: %s is not a valid DLG file (too small)\n" name ;
+	log_and_print "WARNING: %s is not a valid DLG file (too small)\n" name ;
 	{ name = name ;
           state = [| |] ;
           dlg_flags = 0;
@@ -620,11 +620,11 @@ let emit_d dlg out_name dt dft o ot only_state reprint_d_action
 		  (print_journal t.journal_str)
 		  (print_flags t.unknown_flags)
 		  (print_goto t.next) 
-              with e -> Printf.printf "ERROR: problem emitting trans %d: %s\n" j
+              with e -> log_and_print "ERROR: problem emitting trans %d: %s\n" j
 		  (Printexc.to_string e) ; raise e
 			) s.trans ;
 	    Printf.bprintf o "END%s\n" (if str = "" || not !comments then "" else " */");
-	  with e -> Printf.printf "ERROR: problem emitting state %d: %s\n" i
+	  with e -> log_and_print "ERROR: problem emitting state %d: %s\n" i
 	      (Printexc.to_string e) ; raise e
       end in 
 

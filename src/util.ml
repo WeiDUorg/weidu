@@ -581,17 +581,18 @@ type input_context = {
     mutable warn_only : bool ;
   }
 let context_stack = ref []
+let ignore_context_error = ref false
 let push_context filename lexbuf =
   let new_context = { line = 1; col = 0; delta = 0;
 		      filename = filename ; lexbuf = lexbuf ; warn_only = false } in
   context_stack := new_context :: !context_stack
 let pop_context () = match !context_stack with
-  [] -> log_and_print "ERROR: no current parsing context to pop!\n" ; ()
+  [] -> if not !ignore_context_error then log_and_print "ERROR: no current parsing context to pop!\n" ; ()
 | hd::tl ->
     context_stack := List.tl !context_stack
 let the_context () = match !context_stack with
   hd :: tl -> hd
-| [] -> log_and_print "ERROR: no current parsing context\n" ;
+| [] -> if not !ignore_context_error then log_and_print "ERROR: no current parsing context\n" ;
     failwith "no current parsing context"
 
 let lex_init (file: string)
