@@ -4,8 +4,7 @@ Version 229:
   * Fixed an error that was preventing '[S]kip all installed components' from
     working.
   * --print-backtrace prints the stack trace when an error is found.
-  * The Elkhound array is now memorized as a sparse array. Let me know if this
-    breaks your mod.
+  * A number of changes made to the compile algorithm.
 
 Version 228:
   * If you have MODDER SETUP_TRA NONE, no warnings will be printed if a .tra is
