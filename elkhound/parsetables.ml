@@ -59,13 +59,11 @@ type tParseTables = {
   (* action table, indexed by (state*actionCols + lookahead) *)
   actionCols: int;
   actionTable_val: int array array;
-  actionTable_cnt: int array array;
   mutable actionTable_use: int array;
 
   (* goto table, indexed by (state*gotoCols + nontermId) *)
   gotoCols: int;
   gotoTable_val: int array array;
-  gotoTable_cnt: int array array;
   mutable gotoTable_use: int array;
 
   (* production info, indexed by production id *)
@@ -95,32 +93,37 @@ type tParseTables = {
   finalProductionIndex: int;
 }
 
-let build_table vals cnts =
-  let res = Array.make (Array.fold_left (+) 0 (Array.map (Array.fold_left (+) 0) cnts)) 0 in
-  if Array.length vals <> Array.length cnts then failwith "build_table internal 1";
+let build_table vals def =
+  let res = Array.make (Array.fold_left (+) 0 (Array.map (Array.fold_left (fun acc elt -> acc + (if elt > 10000000 then elt - 10000000 else 1)) 0) vals)) def in
+  let used_space = Array.fold_left (+) 0 (Array.map Array.length vals) in
+  let not_null = ref 0 in
   let pointer = ref 0 in
   for i = 0 to Array.length vals - 1 do
     let val_arr = vals.(i) in
-    let cnt_arr = cnts.(i) in
     for j = 0 to Array.length val_arr - 1 do
-    if Array.length val_arr <> Array.length cnt_arr then failwith "build_table internal 2";
-      let this_val =     val_arr.(j) in
-      let this_cnt = ref cnt_arr.(j) in
-      while !this_cnt > 0 do
+      let this_val = val_arr.(j) in
+      if this_val <= 10000000 then begin
         res.(!pointer) <- this_val;
         incr pointer;
-        decr this_cnt;
-      done;
+        incr not_null;
+      end else begin
+        let cnt = ref (this_val - 10000000) in
+        while !cnt > 0 do
+          incr pointer;
+          decr cnt;
+        done
+      end
     done
   done;
+  Printf.printf "elements: %d significative: %d space used: %d\n" (Array.length res) !not_null used_space;
   if !pointer <> Array.length res then failwith "build_table internal 3";
   res
 
 let build_actionTable tables =
-  tables.actionTable_use <- build_table tables.actionTable_val tables.actionTable_cnt
+  tables.actionTable_use <- build_table tables.actionTable_val 0
   
 let build_gotoTable tables =
-  tables.gotoTable_use <- build_table tables.gotoTable_val tables.gotoTable_cnt
+  tables.gotoTable_use <- build_table tables.gotoTable_val 65535
 
 
 (* -------------- ParseTables client access interface -------------- *)
