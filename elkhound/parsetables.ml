@@ -58,14 +58,14 @@ type tParseTables = {
 
   (* action table, indexed by (state*actionCols + lookahead) *)
   actionCols: int;
-  actionTable_val: int array;
-  actionTable_cnt: int array;
+  actionTable_val: int array array;
+  actionTable_cnt: int array array;
   mutable actionTable_use: int array;
 
   (* goto table, indexed by (state*gotoCols + nontermId) *)
   gotoCols: int;
-  gotoTable_val: int array;
-  gotoTable_cnt: int array;
+  gotoTable_val: int array array;
+  gotoTable_cnt: int array array;
   mutable gotoTable_use: int array;
 
   (* production info, indexed by production id *)
@@ -96,22 +96,24 @@ type tParseTables = {
 }
 
 let build_table vals cnts =
-  let res = Array.make (Array.fold_left (+) 0 cnts) 0 in
+  let res = Array.make (Array.fold_left (+) 0 (Array.map (Array.fold_left (+) 0) cnts)) 0 in
   if Array.length vals <> Array.length cnts then failwith "build_table internal 1";
   let pointer = ref 0 in
-  let nonnull = ref 0 in
   for i = 0 to Array.length vals - 1 do
-    let this_val = vals.(i) in
-    let this_cnt = ref cnts.(i) in
-    while !this_cnt > 0 do
-      res.(!pointer) <- this_val;
-      incr pointer;
-      decr this_cnt;
-      if this_val <> 0 && this_val <> 65535 then
-        incr nonnull
-    done;
+    let val_arr = vals.(i) in
+    let cnt_arr = cnts.(i) in
+    for j = 0 to Array.length val_arr - 1 do
+    if Array.length val_arr <> Array.length cnt_arr then failwith "build_table internal 2";
+      let this_val =     val_arr.(j) in
+      let this_cnt = ref cnt_arr.(j) in
+      while !this_cnt > 0 do
+        res.(!pointer) <- this_val;
+        incr pointer;
+        decr this_cnt;
+      done;
+    done
   done;
-  if !pointer <> Array.length res then failwith "build_table internal 2";
+  if !pointer <> Array.length res then failwith "build_table internal 3";
   res
 
 let build_actionTable tables =

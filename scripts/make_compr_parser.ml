@@ -23,6 +23,7 @@ let main () =
     let vals = Buffer.create 5000 in
     let cnts = Buffer.create 5000 in
     let val_cnt = ref 0 in
+    let subarr_cnt = ref 0 in
     let val_old = ref min_int in
     while true do
       let line = input_line i in
@@ -31,8 +32,8 @@ let main () =
           try if String.sub line 2 len = str then begin
             seeking := false;
             Printf.fprintf o "%s_use = [| |];\n" str;
-            Printf.bprintf vals "%s_val = [|\n" str;
-            Printf.bprintf cnts "%s_cnt = [|\n" str;
+            Printf.bprintf vals "%s_val = [| [|\n" str;
+            Printf.bprintf cnts "%s_cnt = [| [|\n" str;
           end
           with Invalid_argument _ -> ()
         ) ["actionTable", 11; "gotoTable",9];
@@ -50,9 +51,9 @@ let main () =
           val_old := min_int;
           val_cnt := 0;
           Buffer.output_buffer o vals;
-          output_string o "|];\n";
+          output_string o "|] |];\n";
           Buffer.output_buffer o cnts;
-          output_string o "|];\n";
+          output_string o "|] |];\n";
           Buffer.reset vals;
           Buffer.reset cnts;
         end else begin
@@ -65,7 +66,12 @@ let main () =
               if ans = !val_old then incr val_cnt else begin
                 if !val_cnt > 0 then begin
                   Printf.bprintf vals "%d; " !val_old;
-                  Printf.bprintf cnts "%d; " !val_cnt
+                  Printf.bprintf cnts "%d; " !val_cnt;
+                  if !subarr_cnt = 100 then begin
+                    Buffer.add_string vals "|]; [|";
+                    Buffer.add_string cnts "|]; [|";
+                    subarr_cnt := 0;
+                  end else incr subarr_cnt
                 end;
                 val_cnt := 1;
                 val_old := ans;
