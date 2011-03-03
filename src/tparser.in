@@ -66,9 +66,18 @@ object (self)
   end
 end
 
+let realTables = ref None
+
 let parse start lexbuf =
+  let decomp_tables = match !realTables with
+  | Some x -> x
+  | None ->
+      let ans = build_table arithParseTables in
+      realTables := Some ans;
+      ans
+  in
   let (tables:tParseTables), (actions:tUserActions) =
-    (arithParseTables, arithUserActions)
+    (decomp_tables, arithUserActions)
   in
   let lex:tLexer = (new tLexer ) in
   lex#set_tok (tokenKind start);

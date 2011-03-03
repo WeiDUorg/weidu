@@ -11,7 +11,7 @@
  * The way to make array of char efficiently is using strings, but
  * that's a TODO at best, for now.
  *)
-
+open Util
 
 (* for action entries; some places may still be called int *)
 type tActionEntry = int
@@ -58,13 +58,13 @@ type tParseTables = {
 
   (* action table, indexed by (state*actionCols + lookahead) *)
   actionCols: int;
-  actionTable_val: int array array;
-  mutable actionTable_use: int array;
+  actionTable_val: string;
+  actionTable_use: int array;
 
   (* goto table, indexed by (state*gotoCols + nontermId) *)
   gotoCols: int;
-  gotoTable_val: int array array;
-  mutable gotoTable_use: int array;
+  gotoTable_val: string;
+  gotoTable_use: int array;
 
   (* production info, indexed by production id *)
   prodInfo_rhsLen: int array;         (* this is 'unsigned char' array in C++ *)
@@ -93,44 +93,40 @@ type tParseTables = {
   finalProductionIndex: int;
 }
 
-let build_table vals def =
-  let res = Array.make (Array.fold_left (+) 0 (Array.map (Array.fold_left (fun acc elt -> acc + (if elt > 10000000 then elt - 10000000 else 1)) 0) vals)) def in
-  let used_space = Array.fold_left (+) 0 (Array.map Array.length vals) in
+let build_table vals target =
+  if String.length vals land 1 = 1 then failwith "build_table internal 1";
+  let used_space = String.length vals in
   let not_null = ref 0 in
   let pointer = ref 0 in
-  for i = 0 to Array.length vals - 1 do
-    let val_arr = vals.(i) in
-    for j = 0 to Array.length val_arr - 1 do
-      let this_val = val_arr.(j) in
-      if this_val <= 10000000 then begin
-        res.(!pointer) <- this_val;
+  let str_p = ref 0 in
+  while !str_p < String.length vals do
+    let this_val = signed_short_of (short_of_str_off vals !str_p) in
+    incr str_p;
+    incr str_p;
+    if this_val <= 0x4000 then begin
+      target.(!pointer) <- this_val;
+      incr pointer;
+      incr not_null;
+    end else begin
+      let cnt = ref (this_val - 0x4000) in
+      while !cnt > 0 do
         incr pointer;
-        incr not_null;
-      end else begin
-        let cnt = ref (this_val - 10000000) in
-        while !cnt > 0 do
-          incr pointer;
-          decr cnt;
-        done
-      end
-    done
+        decr cnt;
+      done;
+    end
   done;
-  Printf.printf "elements: %d significative: %d space used: %d\n" (Array.length res) !not_null used_space;
-  if !pointer <> Array.length res then failwith "build_table internal 3";
-  res
+  if !str_p <> String.length vals then failwith "build_table internal 2";
+  if !pointer <> Array.length target then failwith "build_table internal 3"
 
-let build_actionTable tables =
-  tables.actionTable_use <- build_table tables.actionTable_val 0
-  
-let build_gotoTable tables =
-  tables.gotoTable_use <- build_table tables.gotoTable_val 65535
+let build_table tables =
+  build_table tables.actionTable_val tables.actionTable_use;
+  build_table tables.gotoTable_val tables.gotoTable_use;
+  tables
 
 
 (* -------------- ParseTables client access interface -------------- *)
 let getActionEntry (tables: tParseTables) (state: int) (tok: int) : tActionEntry =
 begin
-  if Array.length tables.actionTable_use = 0 then
-    build_actionTable tables;
   tables.actionTable_use.(state * tables.actionCols + tok)
 end
 
@@ -180,8 +176,6 @@ end
 let getGotoEntry (tables: tParseTables) (stateId: tStateId)
                  (nontermId: int) : tGotoEntry =
 begin
-  if Array.length tables.gotoTable_use = 0 then
-    build_gotoTable tables;
   tables.gotoTable_use.(stateId * tables.gotoCols + nontermId)
 end
 
