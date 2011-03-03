@@ -58,11 +58,15 @@ type tParseTables = {
 
   (* action table, indexed by (state*actionCols + lookahead) *)
   actionCols: int;
-  actionTable: tActionEntry array;
+  actionTable_val: int array;
+  actionTable_cnt: int array;
+  mutable actionTable_use: int array;
 
   (* goto table, indexed by (state*gotoCols + nontermId) *)
   gotoCols: int;
-  gotoTable: tGotoEntry array;
+  gotoTable_val: int array;
+  gotoTable_cnt: int array;
+  mutable gotoTable_use: int array;
 
   (* production info, indexed by production id *)
   prodInfo_rhsLen: int array;         (* this is 'unsigned char' array in C++ *)
@@ -91,82 +95,38 @@ type tParseTables = {
   finalProductionIndex: int;
 }
 
+let build_table vals cnts =
+  let res = Array.make (Array.fold_left (+) 0 cnts) 0 in
+  if Array.length vals <> Array.length cnts then failwith "build_table internal 1";
+  let pointer = ref 0 in
+  let nonnull = ref 0 in
+  for i = 0 to Array.length vals - 1 do
+    let this_val = vals.(i) in
+    let this_cnt = ref cnts.(i) in
+    while !this_cnt > 0 do
+      res.(!pointer) <- this_val;
+      incr pointer;
+      decr this_cnt;
+      if this_val <> 0 && this_val <> 65535 then
+        incr nonnull
+    done;
+  done;
+  if !pointer <> Array.length res then failwith "build_table internal 2";
+  res
 
-(* ------------- sample parse tables (from arith.gr.gen.cc) ------------ *)
-let handcoded_arithParseTables:tParseTables = {
-  numTerms = 8;
-  numNonterms = 4;
-  numProds = 8;
-
-  numStates = 16;
-
-  actionCols = 8;
-  actionTable = [|    (* 128 elements *)
-    (* 0*) 0; 3; 0; 0; 0; 0; 8; 0;
-    (* 1*) 0; 0; 0; 0; 0; 0; 0; 0;
-    (* 2*) -6; 0; -6; -6; -6; -6; 0; -6;
-    (* 3*) 0; 3; 0; 0; 0; 0; 8; 0;
-    (* 4*) 0; 3; 0; 0; 0; 0; 8; 0;
-    (* 5*) 0; 3; 0; 0; 0; 0; 8; 0;
-    (* 6*) 0; 3; 0; 0; 0; 0; 8; 0;
-    (* 7*) 0; 3; 0; 0; 0; 0; 8; 0;
-    (* 8*) -8; 0; -8; -8; -8; -8; 0; -8;
-    (* 9*) 2; 0; 4; 5; 6; 7; 0; 0;
-    (*10*) 0; 0; 4; 5; 6; 7; 0; 9;
-    (*11*) -2; 0; -2; -2; 6; 7; 0; -2;
-    (*12*) -3; 0; -3; -3; 6; 7; 0; -3;
-    (*13*) -4; 0; -4; -4; -4; -4; 0; -4;
-    (*14*) -5; 0; -5; -5; -5; -5; 0; -5;
-    (*15*) -7; 0; -7; -7; -7; -7; 0; -7
-  |];
-
-  gotoCols = 4;
-  gotoTable = [|     (* 64 elements *)
-    (* 0*) 65535; 65535; 9; 15;
-    (* 1*) 65535; 65535; 65535; 65535;
-    (* 2*) 65535; 65535; 65535; 65535;
-    (* 3*) 65535; 65535; 11; 15;
-    (* 4*) 65535; 65535; 12; 15;
-    (* 5*) 65535; 65535; 13; 15;
-    (* 6*) 65535; 65535; 14; 15;
-    (* 7*) 65535; 65535; 10; 15;
-    (* 8*) 65535; 65535; 65535; 65535;
-    (* 9*) 65535; 65535; 65535; 65535;
-    (*10*) 65535; 65535; 65535; 65535;
-    (*11*) 65535; 65535; 65535; 65535;
-    (*12*) 65535; 65535; 65535; 65535;
-    (*13*) 65535; 65535; 65535; 65535;
-    (*14*) 65535; 65535; 65535; 65535;
-    (*15*) 65535; 65535; 65535; 65535
-  |];
-
-  prodInfo_rhsLen = [|       (* 8 elements *)
-    (*0*) 2; 3; 3; 3; 3; 1; 1; 3
-  |];
-  prodInfo_lhsIndex = [|     (* 8 elements *)
-    (*0*) 1; 2; 2; 2; 2; 2; 2; 3
-  |];
-
-  stateSymbol = [|           (* 16 elements *)
-    (*0*) 0; 1; 2; 3; 4; 5; 6; 7; 8; -3; -3; -3; -3; -3; -3; -4
-  |];
-
-  ambigTableSize = 0;
-  ambigTable = [| |];        (* 0 elements *)
-
-  nontermOrder = [|          (* 4 elements *)
-    (*0*) 3; 2; 1; 0
-  |];
-
-  startState = 0;
-  finalProductionIndex = 0
-} 
+let build_actionTable tables =
+  tables.actionTable_use <- build_table tables.actionTable_val tables.actionTable_cnt
+  
+let build_gotoTable tables =
+  tables.gotoTable_use <- build_table tables.gotoTable_val tables.gotoTable_cnt
 
 
 (* -------------- ParseTables client access interface -------------- *)
 let getActionEntry (tables: tParseTables) (state: int) (tok: int) : tActionEntry =
 begin
-  tables.actionTable.(state * tables.actionCols + tok)
+  if Array.length tables.actionTable_use = 0 then
+    build_actionTable tables;
+  tables.actionTable_use.(state * tables.actionCols + tok)
 end
 
 let getActionEntry_noError (tables: tParseTables) (state: int) (tok: int) : tActionEntry =
@@ -215,7 +175,9 @@ end
 let getGotoEntry (tables: tParseTables) (stateId: tStateId)
                  (nontermId: int) : tGotoEntry =
 begin
-  tables.gotoTable.(stateId * tables.gotoCols + nontermId)
+  if Array.length tables.gotoTable_use = 0 then
+    build_gotoTable tables;
+  tables.gotoTable_use.(stateId * tables.gotoCols + nontermId)
 end
 
 (* needs tables for compression *)
