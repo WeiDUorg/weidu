@@ -15,10 +15,18 @@ let read_num str pos =
   with e -> min_int
 ;;
 
-let output o i s =
-  let byte0 = i land 0xff in
-  let byte1 = (i land 0xff00) lsr 8 in
-  Printf.fprintf o "\\%03d\\%03d" byte0 byte1;
+let str_of_int32 o i =
+  let d = Int32.to_int (Int32.logand i 255l) in
+  let i = Int32.shift_right_logical i 8 in
+  let c = Int32.to_int (Int32.logand i 255l) in
+  let i = Int32.shift_right_logical i 8 in
+  let b = Int32.to_int (Int32.logand i 255l) in
+  let i = Int32.shift_right_logical i 8 in
+  let a = Int32.to_int (Int32.logand i 255l) in
+  Printf.fprintf o "\\%03d\\%03d\\%03d\\%03d" d c b a
+
+let output_int o i s =
+  str_of_int32 o (Int32.of_int i);
   if !s > 1000 then begin
     output_string o "\\\n";
     s := 0
@@ -26,29 +34,15 @@ let output o i s =
     incr s
   end
 
-
-let output_int o i s =
-  if i < 0 - 0x8000 || i > 0x4000 then failwith "output_int: WRITE_SSHORT out of bounds\n";
-  output o i s
-  
-let output_def o i s =
-  if i >= 0x4000 || i <= 0 then failwith "output_def: WRITE_SSHORT out of bounds\n";
-  let i = i + 0x4000 in
-  output o i s
-
 let restructure_table i o name def =
   Printf.fprintf o "%s_val = \"" name;
   let finished = ref false in
-  let val_cnt = ref 0 in
   let length = ref 0 in
   let s = ref 0 in
   while not !finished do
     let line = input_line i in
     if String.sub line 2 2 = "|]" then begin
       finished := true;
-      if !val_cnt > 0 then begin
-        output_def o !val_cnt s
-      end;
       output_string o "\";\n";
       Printf.fprintf o "%s_use = Array.make %d %d;\n" name (!length) def;
     end else begin
@@ -59,15 +53,7 @@ let restructure_table i o name def =
         let ans = read_num line pos in
         if ans = min_int then scanned := true else begin
           incr length;
-          if ans = def then begin
-            incr val_cnt
-          end else begin
-            if !val_cnt > 0 then begin
-              output_def o !val_cnt s;
-              val_cnt := 0;
-            end;
-            output_int o ans s;
-          end
+          output_int o ans s;
         end
       done;
     end

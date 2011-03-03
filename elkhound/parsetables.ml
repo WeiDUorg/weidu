@@ -100,20 +100,14 @@ let build_table vals target =
   let pointer = ref 0 in
   let str_p = ref 0 in
   while !str_p < String.length vals do
-    let this_val = signed_short_of (short_of_str_off vals !str_p) in
+    let this_val = int_of_str_off vals !str_p in
     incr str_p;
     incr str_p;
-    if this_val <= 0x4000 then begin
-      target.(!pointer) <- this_val;
-      incr pointer;
-      incr not_null;
-    end else begin
-      let cnt = ref (this_val - 0x4000) in
-      while !cnt > 0 do
-        incr pointer;
-        decr cnt;
-      done;
-    end
+    incr str_p;
+    incr str_p;
+    target.(!pointer) <- this_val;
+    incr pointer;
+    incr not_null;
   done;
   if !str_p <> String.length vals then failwith "build_table internal 2";
   if !pointer <> Array.length target then failwith "build_table internal 3"
