@@ -117,10 +117,10 @@ DEFINE_PATCH_FUNCTION ~ADD_CRE_EFFECT~
           school = 0
           lowestafflvl = 0
           highestafflvl = 0
-          casterx = 0
-          castery = 0
-          targetx = 0
-          targety = 0
+          casterx = 0 - 1
+          castery = 0 - 1
+          targetx = 0 - 1
+          targety = 0 - 1
           restype = 0
           sourceslot = "-1"
           casterlvl = 0

@@ -9,6 +9,7 @@ Version 229:
     prevents you from forgetting the matching COMPILE_*_TO_*.
   * REFACTOR_TRIGGER acts as REFACTOR_BCS_TRIGGER or REFACTOR_D_TRIGGER
     depending on file type.
+  * Changed something I do not care about in ADD_CRE_EFFECT.
 
 Version 228:
   * If you have MODDER SETUP_TRA NONE, no warnings will be printed if a .tra is
