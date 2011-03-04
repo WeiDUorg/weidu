@@ -5,6 +5,10 @@ Version 229:
     working.
   * --print-backtrace prints the stack trace when an error is found.
   * A number of changes made to the compile algorithm.
+  * DECOMPILE_AND_PATCH added; it works like DECOMPILE_*_TO_*, except that it
+    prevents you from forgetting the matching COMPILE_*_TO_*.
+  * REFACTOR_TRIGGER acts as REFACTOR_BCS_TRIGGER or REFACTOR_D_TRIGGER
+    depending on file type.
 
 Version 228:
   * If you have MODDER SETUP_TRA NONE, no warnings will be printed if a .tra is

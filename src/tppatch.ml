@@ -2050,7 +2050,29 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
     | TP_CompileDtoDLG ->
         handle_d_buffer game patch_filename buff
 
-	| TP_RefactorDTrigger(pre,post,case_sens, exact_m) -> begin
+  | TP_DecompileAndPatch pl ->
+    let (dec,com) =
+      let base,ext = split (String.lowercase patch_filename) in
+      match ext with
+      | "bcs"
+      | "bs" ->
+        (TP_CompileBCStoBAF,TP_CompileBAFtoBCS)
+      | "dlg" ->
+        (TP_CompileDLGtoD,TP_CompileDtoDLG)
+      | _ ->
+        failwith (Printf.sprintf "Unknown extension for DECOMPILE_AND_PATCH: %s" ext)
+    in
+    let ans =
+      process_patch2 patch_filename game
+        (List.fold_left
+          (fun acc elt -> process_patch2 patch_filename game acc elt)
+          (process_patch2 patch_filename game buff dec)
+          pl)
+        com
+    in
+    ans
+  
+	| TP_RefactorTrigger(pre,post,case_sens, exact_m, which) -> begin
 		try
 			let pre = Var.get_string (eval_pe_str pre) in
 			let post = Var.get_string (eval_pe_str post) in
@@ -2058,28 +2080,28 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 			let load_triggers s = parse_file true (String ("",s)) "parsing .baf files"
 			(Refactorbafparser.trigger_list Refactorbaflexer.initial) in
 			Refactorbaf.parse_triggers := load_triggers;
-			let res = parse_file true (String(patch_filename,buff)) "parsing .d files"
-			(Refactordparser.d_file Refactordlexer.initial) in
+      let (fn,name) =
+        let base,ext = match which with
+            Some x -> "", x
+          | None -> split (String.lowercase patch_filename)
+        in
+        match ext with
+        | "bs" 
+        | "baf"
+        | "bcs" ->
+          ((Refactorbafparser.baf_file Refactorbaflexer.initial),"parsing .baf files")
+        | "d"
+        | "dlg" ->
+          ((Refactordparser.d_file Refactordlexer.initial),"parsing .d files")
+        | _ ->
+          failwith (Printf.sprintf "Unknown extension for REFACTOR_*_TRIGGER: %s" ext)
+      in
+			let res = parse_file true (String(patch_filename,buff)) name fn in
 			Refactorbaf.set_refactor None;
 			res
-		with e -> log_and_print "WARNING: REFACTOR_D_TRIGGER %s failed (%s)\n"
+		with e -> log_and_print "WARNING: REFACTOR_TRIGGER %s failed (%s)\n"
 			patch_filename (printexc_to_string e); errors_this_component := true; buff end
 		
-    | TP_RefactorBafTrigger(pre,post,case_sens, exact_m) -> begin
-		try
-			let pre = Var.get_string (eval_pe_str pre) in
-			let post = Var.get_string (eval_pe_str post) in
-			Refactorbaf.set_refactor (Some(pre, post, case_sens, exact_m));
-			let load_triggers s = parse_file true (String ("",s)) "parsing .baf files"
-			(Refactorbafparser.trigger_list Refactorbaflexer.initial) in
-			Refactorbaf.parse_triggers := load_triggers;
-			let res =parse_file true (String(patch_filename,buff)) "parsing .baf files"
-			(Refactorbafparser.baf_file Refactorbaflexer.initial) in
-			Refactorbaf.set_refactor None;
-			res
-		with e -> log_and_print "WARNING: REFACTOR_BAF_TRIGGER %s failed (%s)\n"
-			patch_filename (printexc_to_string e); errors_this_component := true; buff end
-
     | TP_EvaluateBuffer -> Var.get_string buff
 
     | TP_EvaluateBufferSpecial s ->

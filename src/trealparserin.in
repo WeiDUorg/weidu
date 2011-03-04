@@ -1148,12 +1148,16 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> DECOMPILE_BCS_TO_BAF { Tp.TP_CompileBCStoBAF }
 	-> COMPILE_D_TO_DLG { Tp.TP_CompileDtoDLG }
 	-> DECOMPILE_DLG_TO_D { Tp.TP_CompileDLGtoD }
+  -> DECOMPILE_AND_PATCH BEGIN e1:Tp_Patch_List DECOMPILE_AND_PATCH_END { Tp.TP_DecompileAndPatch e1 }
+	-> REFACTOR_TRIGGER e3:Optional_Case_Sensitive e4:Optional_Match_Exact e1:Patch_String_Right e2:Patch_String_Right {
+		let g v d = match v with None -> d | Some x -> x in
+		Tp.TP_RefactorTrigger(e1,e2,g e3 false, g e4 false,None) }
 	-> REFACTOR_D_TRIGGER e3:Optional_Case_Sensitive e4:Optional_Match_Exact e1:Patch_String_Right e2:Patch_String_Right {
 		let g v d = match v with None -> d | Some x -> x in
-		Tp.TP_RefactorDTrigger(e1,e2,g e3 false, g e4 false) }
+		Tp.TP_RefactorTrigger(e1,e2,g e3 false, g e4 false,Some "d") }
 	-> REFACTOR_BAF_TRIGGER e3:Optional_Case_Sensitive e4:Optional_Match_Exact e1:Patch_String_Right e2:Patch_String_Right {
 		let g v d = match v with None -> d | Some x -> x in
-		Tp.TP_RefactorBafTrigger(e1,e2,g e3 false, g e4 false) }
+		Tp.TP_RefactorTrigger(e1,e2,g e3 false, g e4 false,Some "baf") }
 	-> EVALUATE_BUFFER { Tp.TP_EvaluateBuffer }
 	-> EVALUATE_BUFFER_SPECIAL e1:STRING { Tp.TP_EvaluateBufferSpecial e1 }
 	-> DECOMPRESS_REPLACE_FILE e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp { Tp.TP_Decompress(e1,e2,e3,Tp.TP_DW_ReplaceFile) }
