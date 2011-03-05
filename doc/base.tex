@@ -940,6 +940,10 @@ variables (even implicit ones created by \t{WeiDU}). \\
 \ttref{TP2} processing and the results they evaluate to. Among other
 things, this is useful for catching parenthesis errors in your
 \ttref{value}s. \\
+{\tt \DEFINE{--modder} \Ob X Y \Oe \Slist} & enables the 
+\ttref{MODDER} mode and sets the \ttref{MODDER} option X to Y (cumulative,
+-list synthax).
+\\
 \DEFINE{--clear-memory} & calls \ttref{CLEAR!MEMORY} after every \ttref{TP2} action.
 \\
 \multicolumn{2}{c}{ \color{red} Automatic Updating Options } \\
@@ -7063,6 +7067,8 @@ Each option can be set to either NONE, WARN or FAIL with the above syntax,
 with the obvious meaning. If none are chosen, WARN is assumed. WARN may generate false positives.
 In this case, "INSTALLED WITH WARNINGS" is not displayed.
 
+Options set via the the command line supercede options set via the MODDER statement.
+
 Here the list of feedback options that you can configure, along with use cases when you
 should deactivate them. In all other cases, using FAIL or WARN is a case of personal
 preference (for example, use WARN early in the development process and FAIL when you're
@@ -7102,10 +7108,8 @@ near the beta status).
      \end{itemize}
 \end{itemize}
 
-As you can see, all of these are catching either really stupid coding practices
-(yes, biffing ARE files is really stupid) or are avoidable with minor code
-restructuring, but with some people these kind of things are enough to start flame wars,
-so here's a way to choose what things I should let through. *shrugs*
+An important note: if a tp2 sets MODDER, the debugging mode might propagate to
+other mods. As such, \emph{REMEMBER TO TURN MODDER OFF WHEN YOU RELEASE YOUR MOD.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\DEFINE{READLN} (Last update: v203)}

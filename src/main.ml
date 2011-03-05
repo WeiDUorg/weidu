@@ -265,14 +265,14 @@ let main () =
       Tp.specified_specific_components := true),		 "\tX installs component X number (cumulative)" ;
     "--force-uninstall", Myarg.Int (fun d -> force_uninstall_these_main := d :: !force_uninstall_these_main;
       Tp.specified_specific_components := true), "\tX uninstalls component X number (cumulative)" ;
-    "--force-install-rest", 	Myarg.Rest (fun d -> force_install_these_main 	:= (int_of_string d) :: !force_install_these_main;
-      Tp.specified_specific_components := true),		 "\tX Y... installs component number X, Y... (cumulative)" ;
-    "--force-install-list", 	Myarg.List (fun d -> force_install_these_main 	:= (int_of_string d) :: !force_install_these_main;
-      Tp.specified_specific_components := true),		 "\tX Y... installs component number X, Y... (cumulative)" ;
-    "--force-uninstall-rest", Myarg.Rest (fun d -> force_uninstall_these_main := (int_of_string d) :: !force_uninstall_these_main;
-      Tp.specified_specific_components := true), "\tX Y... uninstalls component number X, Y... (cumulative)" ;
-    "--force-uninstall-list", Myarg.List (fun d -> force_uninstall_these_main := (int_of_string d) :: !force_uninstall_these_main;
-      Tp.specified_specific_components := true), "\tX Y... uninstalls component number X, Y... (cumulative)" ;
+    "--force-install-rest", 	Myarg.Rest (Myarg.Int (fun d -> force_install_these_main 	:= d :: !force_install_these_main;
+      Tp.specified_specific_components := true)),		 "\tX Y... installs component number X, Y... (cumulative)" ;
+    "--force-install-list", 	Myarg.List (Myarg.Int (fun d -> force_install_these_main 	:= d :: !force_install_these_main;
+      Tp.specified_specific_components := true)),		 "\tX Y... installs component number X, Y... (cumulative)" ;
+    "--force-uninstall-rest", Myarg.Rest (Myarg.Int (fun d -> force_install_these_main 	:= d :: !force_install_these_main;
+      Tp.specified_specific_components := true)), "\tX Y... uninstalls component number X, Y... (cumulative)" ;
+    "--force-uninstall-list", Myarg.List (Myarg.Int (fun d -> force_uninstall_these_main 	:= d :: !force_uninstall_these_main;
+      Tp.specified_specific_components := true)), "\tX Y... uninstalls component number X, Y... (cumulative)" ;
     "--quick-menu", Myarg.Int (fun d -> Tp.chosen_quick_menu := Some d), "\tX installs the quick menu selection X";
     "--process-script", Myarg.String (fun s -> process_script := s; Tp.skip_at_view := true; Tp.quick_log := true), "\tX process installation script X";
     "--skip-at-view", Myarg.Set Tp.skip_at_view, "\tkills AT_* ~VIEW this~";
@@ -286,21 +286,22 @@ let main () =
   ], "\tX Y lists all components in X using language Y";
     "--save-components-name", Myarg.Set save_comp_name, "\trewrites weidu.log, printing every component name";
     "--change-log",Myarg.String (fun s -> change_log := s :: !change_log), "\tgenerates a changelog for the given resource (cumulative)";
-    "--change-log-list",Myarg.List (fun s -> change_log := s :: !change_log), "\tgenerates a changelog for the given resource (cumulative)";
-    "--change-log-rest",Myarg.Rest (fun s -> change_log := s :: !change_log), "\tgenerates a changelog for the given resource (cumulative)";
+    "--change-log-list",Myarg.List (Myarg.String (fun s -> change_log := s :: !change_log)), "\tgenerates a changelog for the given resource (cumulative)";
+    "--change-log-rest",Myarg.Rest (Myarg.String (fun s -> change_log := s :: !change_log)), "\tgenerates a changelog for the given resource (cumulative)";
     "--noautoupdate", Myarg.Set no_auto_update,"\tdo not auto-update WeiDU setup files" ;
     "--noselfupdatemsg", Myarg.Clear Autoupdate.self_update_message,"\tdo not print any self-updating messages" ;
     "--update-all", Myarg.Set auto_update_all,"\tauto-update all WeiDU setup files";
     "--args", Myarg.String (fun s -> Var.set_string ("argv[" ^ (string_of_int !counter) ^ "]") s; incr counter),
     "\tX X will be stored in the %argv[x]% variable (cumulative)";
-    "--args-rest", Myarg.Rest (fun s -> Var.set_string ("argv[" ^ (string_of_int !counter) ^ "]") s; incr counter),
+    "--args-rest", Myarg.Rest (Myarg.String (fun s -> Var.set_string ("argv[" ^ (string_of_int !counter) ^ "]") s; incr counter)),
     "\tX Y... X, Y... will be stored in the %argvx% variables (cumulative)";
-    "--args-list", Myarg.List (fun s -> Var.set_string ("argv[" ^ (string_of_int !counter) ^ "]") s; incr counter),
+    "--args-list", Myarg.List (Myarg.String (fun s -> Var.set_string ("argv[" ^ (string_of_int !counter) ^ "]") s; incr counter)),
     "\tX Y... X, Y... will be stored in the %argvx% variables (cumulative)";
     "--print-backtrace", Myarg.Unit (fun () -> print_backtrace := true; Printexc.record_backtrace true),"\tprints OCaml stack trace when reporting an exception (rarely of interest to end-users)";
     "--debug-ocaml", Myarg.Set Util.debug_ocaml,"\tenables random debugging information for the Ocaml source (rarely of interest to end-users)" ;
     "--debug-boiic", Myarg.Set Tp.debug_boiic,"\tprints out which files have been changed by BUT_ONLY_IF_IT_CHANGES" ;
     "--debug-change", Myarg.Set Tp.debug_change,"\tprints a warning if a file is being COPY_EXISTED without receiving a change." ;
+    "--modder", Myarg.List (Myarg.TwoStrings (fun a b -> Modder.set_modder [a, b, 10])), "\tX Y... enables the MODDER mode and sets the MODDER option X to Y (cumulative)";
     "--clear-memory", Myarg.Set Tpstate.clear_memory,"\tcalls CLEAR_MEMORY after every action evaluation.";
     "--script-style", Myarg.String (fun s ->
       let n = match String.uppercase s with
@@ -370,8 +371,8 @@ let main () =
     "--biff-value", Myarg.Int (fun i -> biff_short := i), "X\t... or list those containing value X ..." ;
     "--biff-value-at", Myarg.Int (fun i -> biff_short_at := i), "X\t... at offset X" ;
     "--biff-get", Myarg.String (fun s -> bg_list := s :: !bg_list), "X\textract resource X from game BIFFs (cumulative, regexp allowed)" ;
-    "--biff-get-rest", Myarg.Rest (fun s -> bg_list := s :: !bg_list), "X, Y, ...\textract resources X, Y, ... from game BIFFs (regexp allowed)" ;
-    "--biff-get-list", Myarg.List (fun s -> bg_list := s :: !bg_list), "X, Y, ...\textract resources X, Y, ... from game BIFFs (regexp allowed)" ;
+    "--biff-get-rest", Myarg.Rest (Myarg.String (fun s -> bg_list := s :: !bg_list)), "X, Y, ...\textract resources X, Y, ... from game BIFFs (regexp allowed)" ;
+    "--biff-get-list", Myarg.List (Myarg.String (fun s -> bg_list := s :: !bg_list)), "X, Y, ...\textract resources X, Y, ... from game BIFFs (regexp allowed)" ;
     "--make-biff", Myarg.String (fun s -> make_biff := Some(s)), "X\tmake data\\X.bif from all files in folder X, update CHITIN.KEY" ;
     "--remove-biff", Myarg.String (fun s -> remove_biff := Some(s)), "X\tremove references to biff X and its resources, update CHITIN.KEY" ;
 

@@ -148,7 +148,7 @@ nonterm (Tp.tp_flag) Tp_Flag {
 		[ Tp.Define_Patch_Macro(e1,e2,e3) ]
 	-> LOAD e1:String_List
 		[ Tp.TP_No_If_Eval() ]
-	-> MODDER e1:Str_Str_List [ Modder.set_modder [];Modder.set_modder e1;
+	-> MODDER e1:Str_Str_List [ Modder.set_modder (List.map (fun (a,b) -> (a,b,20)) e1);
 		Tp.Menu_Style "1" ]
 	-> ALLOW_MISSING e1:Upper_String_List [ Tp.Allow_Missing e1 ]
 	-> SCRIPT_STYLE e1:STRING

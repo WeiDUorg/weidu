@@ -26,12 +26,13 @@ type spec =
   | Set of bool ref            (* Set the reference to true *)
   | Clear of bool ref          (* Set the reference to false *)
   | String of (string -> unit) (* Call the function with a string argument *)
+  | TwoStrings of (string -> string -> unit)
   | Int of (int -> unit)       (* Call the function with an int argument *)
   | Float of (float -> unit)   (* Call the function with a float argument *)
   | Tuple of spec list
-  | Rest of (string -> unit)   (* Stop interpreting keywords and call the
+  | Rest of spec               (* Stop interpreting keywords and call the
                                   function with each remaining argument *)
-  | List of (string -> unit)   (* As with Rest, but stop if a parameter is found which
+  | List of spec               (* As with Rest, but stop if a parameter is found which
                                   starts with - IE --foo-list a b c --bar bla *)
 
 exception Bad of string
@@ -76,6 +77,31 @@ let usage speclist errmsg =
 let current = ref 0;;
 
 let parse speclist anonfun errmsg =
+  let is_null s = match s with
+    Unit _
+  | Set _
+  | Clear _ -> true
+  | _ -> false
+  in
+  let is_recursive s = match s with
+    Rest _
+  | List _ -> true
+  | _ -> false
+  in
+  let is_tuple s = match s with
+    Tuple _ -> true
+  | _ -> false
+  in
+  List.iter (fun x ->
+    let a,spec,b = x in
+    match spec with
+    | Rest s
+    | List s -> if is_recursive s || is_null s then failwith "Internal error: cannot nest recursive specs";
+    | Tuple sl -> List.iter (fun s -> if is_recursive s || is_tuple s || is_null s then
+        failwith "Internal error: cannot nest tuple specs"
+      ) sl
+    | _ -> ()
+  ) speclist;
   let initpos = !current in
   let stop error =
     let progname =
@@ -109,43 +135,47 @@ let parse speclist anonfun errmsg =
       in
       begin try
         let rec treat_action action =
-	  match action with
-	  | Unit f -> f ();
-	  | Set r -> r := true;
-	  | Clear r -> r := false;
-	  | String f when !current + 1 < l ->
-	      let arg = Sys.argv.(!current+1) in
-	      f arg;
-	      incr current;
-	  | Int f when !current + 1 < l ->
-	      let arg = Sys.argv.(!current+1) in
-	      begin try f (int_of_string arg)
-	      with Failure "int_of_string" -> stop (Wrong (s, arg, "an integer"))
-	      end;
-	      incr current;
-	  | Float f when !current + 1 < l ->
-	      let arg = Sys.argv.(!current+1) in
-	      f (float_of_string arg);
-	      incr current;
-	  | Rest f ->
-	      while !current < l-1 do
-	        f Sys.argv.(!current+1);
-	        incr current;
-	      done;
-	  | List f ->
-	      let found_minus = ref false in
-	      while (!current < l-1) && (not !found_minus) do
-	        if Sys.argv.(!current+1).[0] = '-' then begin
-	          found_minus := true ;
-	        end else begin
-	          f Sys.argv.(!current+1);
-	          incr current;
-	        end
-	      done;
-	  | Tuple specs ->
-	      List.iter treat_action specs;
-	  | _ -> stop (Missing s)
-	in treat_action action
+          match action with
+          | Unit f -> f ();
+          | Set r -> r := true;
+          | Clear r -> r := false;
+          | String f when !current + 1 < l ->
+              let arg = Sys.argv.(!current+1) in
+              f arg;
+              incr current;
+          | TwoStrings f when !current + 2 < l ->
+              let arg1 = Sys.argv.(!current+1) in
+              incr current;
+              let arg2 = Sys.argv.(!current+1) in
+              f arg1 arg2;
+              incr current;
+          | Int f when !current + 1 < l ->
+              let arg = Sys.argv.(!current+1) in
+              begin try f (int_of_string arg)
+              with Failure "int_of_string" -> stop (Wrong (s, arg, "an integer"))
+              end;
+              incr current;
+          | Float f when !current + 1 < l ->
+              let arg = Sys.argv.(!current+1) in
+              f (float_of_string arg);
+              incr current;
+          | Rest f ->
+              while !current < l-1 do
+                treat_action f;
+              done;
+          | List f ->
+              let found_minus = ref false in
+              while (!current < l-1) && (not !found_minus) do
+                if Sys.argv.(!current+1).[0] = '-' then begin
+                  found_minus := true ;
+                end else begin
+                  treat_action f;
+                end
+              done;
+          | Tuple specs ->
+              List.iter treat_action specs;
+          | _ -> stop (Missing s)
+        in treat_action action
       with Bad m -> stop (Message m);
       end;
       incr current;

@@ -7,30 +7,40 @@ type modder_level =
   | Warn
   | None
 
+let level_of_string s2 =
+   match String.uppercase s2 with
+      | "NONE" -> None
+      | "WARN" -> Warn
+      | "FAIL" -> Fail
+      | _ -> failwith (Printf.sprintf "Unknown MODDER mode: %s" s2)
+
+let string_of_level s2 =
+   match s2 with
+      | None -> "NONE"
+      | Warn -> "WARN"
+      | Fail -> "FAIL"
+  
 let mode = Hashtbl.create 5
 
 let options = ["SETUP_TRA";"AREA_VARIABLES";"MISSING_EXTERN";"MISSING_RESREF";"ICT2_ACTIONS";
   "MISSING_EVAL"]
 
 let set_modder str_l =
-  debug_modder := true;
-  List.iter (fun x -> Hashtbl.replace mode x Warn) options;
-  List.iter (fun (s1,s2) ->
-    let s2 = match String.uppercase s2 with
-    | "NONE" -> None
-    | "WARN" -> Warn
-    | "FAIL" -> Fail
-    | _ -> failwith (Printf.sprintf "Unknown MODDER mode: %s" s2)
-    in
+  if not !debug_modder then begin
+    debug_modder := true;
+    List.iter (fun x -> Hashtbl.replace mode x (Warn,100)) options;
+  end;
+  List.iter (fun (s1,s2,prio) ->
+    let s2 = level_of_string s2 in
     let s1 = String.uppercase s1 in
-    (try
-      ignore (Hashtbl.find mode s1);
-    with _ -> failwith (Printf.sprintf "Unknown MODDER option: %s" s1));
-    Hashtbl.replace mode s1 s2
-	    ) str_l
+    let old_prio = (try
+      snd (Hashtbl.find mode s1);
+    with _ -> failwith (Printf.sprintf "Unknown MODDER option: %s" s1)) in
+    if prio <= old_prio then Hashtbl.replace mode s1 (s2, prio)
+	    ) str_l;
 ;;
 
-let get x = if !debug_modder then try Hashtbl.find mode (String.uppercase x) with _ -> Warn else None
+let get x = if !debug_modder then try fst (Hashtbl.find mode (String.uppercase x)) with _ -> Warn else None
 
 let handle_deb test str =
   if get test <> None then log_and_print "%s" str;
