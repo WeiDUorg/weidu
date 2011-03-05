@@ -11,6 +11,8 @@ Version 229:
     depending on file type.
   * Changed something I do not care about in ADD_CRE_EFFECT.
   * FJ_CRE_VALIDITY doesn't break files when converting EFFV1 to/from EFFV2.
+  * MODDER MISSING_EVAL warns you if it thinks you forgot to use EVAL in some
+    places.
 
 Version 228:
   * If you have MODDER SETUP_TRA NONE, no warnings will be printed if a .tra is

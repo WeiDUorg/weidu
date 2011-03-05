@@ -460,8 +460,9 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
       end
   
     | TP_Launch_Patch_Function (str,int_var,str_var,rets) ->
+  let str = Var.get_string str in
 	let (f_int_args,f_str_args,f_rets,f_code) = try
-	  Hashtbl.find patch_functions (Var.get_string str)
+	  Hashtbl.find patch_functions str
 	with _ -> failwith (Printf.sprintf "Unknown function: %s" str)
 	in
 	let i_did_pop = ref false in
@@ -476,7 +477,9 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	    List.iter (fun (a,b) ->
 	      let a = eval_pe_str a in
 		  Hashtbl.add done_var_ht a true;
-	      Var.set_string a (eval_pe_str b)
+        let b = eval_pe_str b in
+        check_missing_eval ("STR_VAR \"" ^ a ^ "\" = \"" ^ b ^ "\" for LAUNCH_PATCH_FUNCTION \"" ^ str ^ "\"") b;
+	      Var.set_string a b
 		      ) str_var;
 	    List.iter (fun (a,b) ->
 	      let a = eval_pe_str a in
@@ -1143,6 +1146,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	let where = Int32.to_int (eval_pe buff game where) in
 	let what = if evaluate then Var.get_string (eval_pe_str what)
         else eval_pe_str what in 
+  check_missing_eval ("WRITE_ASCII " ^ (string_of_int where) ^ " \"" ^ what ^ "\" (should be WRITE_ASCIIE)") what;
 	let what = match reqdSize with
 	| None -> what
 	| Some(i) -> 

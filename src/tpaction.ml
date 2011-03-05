@@ -399,8 +399,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  Hashtbl.replace patch_functions str (a,b,c,d)
 
       | TP_Launch_Action_Function (str,int_var,str_var,rets) ->
+    let str = Var.get_string str in
 	  let (f_int_args,f_str_args,f_rets,f_code) = try
-	    Hashtbl.find action_functions (Var.get_string str)
+	    Hashtbl.find action_functions str
 	  with _ -> failwith (Printf.sprintf "Unknown function: %s" str)
 	  in
 	  let i_did_pop = ref false in
@@ -415,7 +416,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    List.iter (fun (a,b) ->
 	      let a = eval_pe_str a in
 		  Hashtbl.add done_var_ht a true;
-	      Var.set_string a (eval_pe_str b)
+        let b = eval_pe_str b in
+        check_missing_eval ("STR_VAR \"" ^ a ^ "\" = \"" ^ b ^ "\" for LAUNCH_ACTION_FUNCTION \"" ^ str ^ "\"") b;
+	      Var.set_string a b
 		      ) str_var;
 	    List.iter (fun (a,b) ->
 	      let a = eval_pe_str a in
@@ -1725,7 +1728,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 		  newd1 (String.length contents) ;
 		Hashtbl.add inlined_files (Arch.backslash_to_slash newd1) contents
 	      end;
-	      (match split (String.uppercase (Case_ins.filename_basename d)) with
+	      (
+        if Modder.enabled "MISSING_EVAL" then check_missing_eval ("COMPILE " ^ d) (load_file newd1);
+        match split (String.uppercase (Case_ins.filename_basename d)) with
 	      | _,"BAF" -> compile_baf_filename game newd1
 	      | _,"D" -> handle_d_filename newd1
 	      | _,_ -> ()

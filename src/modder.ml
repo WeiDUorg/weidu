@@ -9,7 +9,8 @@ type modder_level =
 
 let mode = Hashtbl.create 5
 
-let options = ["SETUP_TRA"     ;"AREA_VARIABLES";"MISSING_EXTERN";"MISSING_RESREF";"ICT2_ACTIONS"]
+let options = ["SETUP_TRA";"AREA_VARIABLES";"MISSING_EXTERN";"MISSING_RESREF";"ICT2_ACTIONS";
+  "MISSING_EVAL"]
 
 let set_modder str_l =
   debug_modder := true;

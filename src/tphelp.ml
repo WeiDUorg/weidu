@@ -296,3 +296,16 @@ let get_line_count file game =
 	in
 	count lines 0
 	
+let check_missing_eval for_what str =
+  if Modder.enabled "MISSING_EVAL" then begin
+    let check s =
+      if Var.get_string s <> s then begin
+        Modder.handle_msg "MISSING_EVAL" (Printf.sprintf "\nPossible missing EVALUATE_BUFFER in %s\n" for_what);
+        true
+      end else begin
+        false
+      end
+    in
+    ignore ((check str) || (check ("%" ^ str ^ "%")))
+  end
+  

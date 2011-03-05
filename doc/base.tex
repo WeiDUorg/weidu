@@ -7045,7 +7045,7 @@ We expect somebody to actually write a mod which uses this form more seriously
 this construct and use their code as a more useful example.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{MODDER} (Last update: v203)}
+\subsection{\DEFINE{MODDER} (Last update: v229)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The MODDER flag allows for more debugging info to be reported. It is suggested to
@@ -7092,6 +7092,14 @@ near the beta status).
 		 the same state, only the warning is printed, further actions are not processed.
      \\
      When to use NONE: you want to ICT2 into a state with different exit actions.
+\item missing_eval: WeiDU thinks that you forgot to use EVALUATE_BUFFER to evaluate
+     variables in a command. Currently used for:
+     \begin{itemize}
+     \item WRITE_ASCII (vs. WRITE_ASCIIE)
+     \item STR_VAR
+     \item COMPILE
+     \item arrays
+     \end{itemize}
 \end{itemize}
 
 As you can see, all of these are catching either really stupid coding practices

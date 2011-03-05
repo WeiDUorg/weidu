@@ -39,6 +39,10 @@ let rec eval_pe_str s = match s with
 | PE_Dollars(s,a,do_eval,do_add) ->
     let a = List.map (fun x -> Var.get_string (eval_pe_str x)) a in
     let s = eval_pe_str s in
+    
+    let array_text = "$\"" ^ s ^ "\"(" ^ (List.fold_left (fun acc this -> acc ^ (if acc = "" then "\"" else "\"\"") ^ this) "" a) ^ "\")" in
+    List.iter (check_missing_eval ("array parameter at " ^ array_text)) a;
+    check_missing_eval ("array name at " ^ array_text) s;
     let result = List.fold_left (fun acc this -> acc ^ "_" ^ this) s a in
     let result = if do_eval then
       ( try
