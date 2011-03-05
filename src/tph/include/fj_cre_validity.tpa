@@ -82,6 +82,7 @@ DEFINE_PATCH_FUNCTION ~FJ_CRE_REINDEX~ BEGIN
   PATCH_IF (fv != 0) AND (FILE_EXISTS_IN_GAME ~ar0125.are~) BEGIN
     LAUNCH_PATCH_FUNCTION ~T-CRE_EFF_V1~ END
   END
+  READ_BYTE 0x33 fv //EFF version
   PATCH_IF FILE_EXISTS_IN_GAME ~fw0125.are~ BEGIN //Fix buggered Tutu refs
     FOR (s1 = 0xa4; s1 < 0x234; s1 += 0x4) BEGIN
       READ_LONG s1 ss //Soundslots

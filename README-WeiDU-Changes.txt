@@ -10,6 +10,7 @@ Version 229:
   * REFACTOR_TRIGGER acts as REFACTOR_BCS_TRIGGER or REFACTOR_D_TRIGGER
     depending on file type.
   * Changed something I do not care about in ADD_CRE_EFFECT.
+  * FJ_CRE_VALIDITY doesn't break files when converting EFFV1 to/from EFFV2.
 
 Version 228:
   * If you have MODDER SETUP_TRA NONE, no warnings will be printed if a .tra is
