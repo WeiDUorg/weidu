@@ -4269,22 +4269,18 @@ or & \DEFINE{COMPILE!D!TO!DLG} &
   compiled to a \ttref{DLG}. Typically this is only used after a
   \ttref{DECOMPILE!DLG!TO!D}.  \\
 or & \DEFINE{DECOMPILE!AND!PATCH} BEGIN \ttref{patch} \Slist 
-  \verb+DECOMPILE!AND!PATCH!END+ &
+  \verb+END+ &
   Acts like
   \begin{verbatim}
     DECOMPILE_BCS_TO_BAF // or DLG_TO_D
     patch list
     COMPILE_BAF_TO_BCS // or D_TO_DLG
   \end{verbatim}
-  except it enforces that the DECOMPILE is followed by the compile
-  (and can indiscriminately patch BCS and DLG files).
-  \begin{verbatim}
-  
-  \end{verbatim}
-  \verb+DECOMPILE!AND!PATCH!END+ is used instead of \verb+END+ to aid in
-  detecting mods that use \verb+DECOMPILE!A!TO!B+ without the matching
-  \verb+COMPILE!B!TO!A+; you will be able to use \verb+END+ in
-  a future version of WeiDU.
+  except it enforces that the DECOMPILE is followed by the compile,
+  can indiscriminately patch BCS and DLG files, and is guaranteed not to leave
+  a decompiled file in the override (if decompiling, patching or recompiling
+  fails, a warning is printed and the original version of the file is left in
+  the override).
 \\
 or & \DEFINE{REFACTOR!TRIGGER} \ttref{optcase} \ttref{optexact} String String &
   Works like \ttref{REPLACE!TEXTUALLY}, except that it only works on triggers
