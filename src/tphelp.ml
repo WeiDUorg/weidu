@@ -300,7 +300,7 @@ let check_missing_eval for_what str =
   if Modder.enabled "MISSING_EVAL" then begin
     let check s =
       if Var.get_string s <> s then begin
-        Modder.handle_msg "MISSING_EVAL" (Printf.sprintf "\nPossible missing EVALUATE_BUFFER in %s\n" for_what);
+        Modder.handle_deb "MISSING_EVAL" (Printf.sprintf "\nWARNING: possible missing EVALUATE_BUFFER in\n[%s]\n" for_what);
         true
       end else begin
         false
