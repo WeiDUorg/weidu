@@ -150,4 +150,8 @@ else
 	endif
 endif
 
-export COMPILEFLAGS = -w y -ccopt -w -g
+ifeq ($(findstring stable,$(wildcard stable)), )
+	export COMPILEFLAGS = -w y -ccopt -w -g
+else
+	export COMPILEFLAGS = -w y -ccopt -w
+endif
