@@ -689,13 +689,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    | true,  true  -> false, false
 	    | _ -> failwith "COPY type internal"
 	    in
+	    let slist = List.map (fun (x,y) -> (Var.get_string x, Var.get_string y)) slist in
+
 	    let slist = List.map (fun (x,y) ->
 	      (if bts1 then Arch.backslash_to_slash x else x),
 	      (if bts2 then Arch.backslash_to_slash y else y)
 				 ) slist
 	    in
-	    
-	    let slist = List.map (fun (x,y) -> (Var.get_string x, Var.get_string y)) slist in
 	    
 	    let slist =
 	      if get_existing = true && use_reg = true then begin
