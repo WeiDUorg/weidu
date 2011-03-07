@@ -508,18 +508,11 @@
 			WRITE_LONG 0x2c8 (___#fx_num + 1)
 			
       //correcting offsets
-      PATCH_FOR_EACH ___#offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
+      PATCH_FOR_EACH ___#offset IN 0x2b8 0x2bc BEGIN //item num and islot
         READ_LONG ___#offset ___#current_off
-        PATCH_IF (___#offset = 0x2b8) BEGIN
-          SET ___#current_count = 38
-        END ELSE BEGIN
-          READ_LONG (___#offset + 4) ___#current_count
-        END
-        PATCH_IF (___#current_count > 0) AND (___#current_off >= ___#fx_off) BEGIN
-          WRITE_LONG ___#offset (___#current_off + 0x30)
-        END
-      END
-      
+        WRITE_LONG ___#offset (___#current_off + 0x30)
+      END      
+
 			//reset vars
 			SET opcode = 0
 			SET target = 0
@@ -607,18 +600,12 @@
 		    WRITE_LONG 0x2c8 (___#fx_num + 1)   
 		
 		    //correcting offsets
-      PATCH_FOR_EACH ___#offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
-        READ_LONG ___#offset ___#current_off
-        PATCH_IF (___#offset = 0x2b8) BEGIN
-          SET ___#current_count = 38
-        END ELSE BEGIN
-          READ_LONG (___#offset + 4) ___#current_count
-        END
-        PATCH_IF (___#current_count > 0) AND (___#current_off >= ___#fx_off) BEGIN
-          WRITE_LONG ___#offset (___#current_off + 0x108)
-        END
-      END		
-		  //reset vars
+		    PATCH_FOR_EACH ___#offset IN 0x2b8 0x2bc BEGIN //item num and islot
+		      READ_LONG ___#offset ___#current_off
+		      WRITE_LONG ___#offset (___#current_off + 0x108)
+		    END
+
+        //reset vars
 		  SET opcode = 0
 		  SET target = 0
 		  SET timing = 0
