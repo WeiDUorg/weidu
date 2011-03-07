@@ -15,6 +15,7 @@ Version 229:
     places.
   * Can set MODDER options via --modder command line.
   * Fixed an inconsistency with backslashes on Linux.
+  * Added more configurability to FJ_CRE_VALIDITY and subfunctions.
 
 Version 228:
   * If you have MODDER SETUP_TRA NONE, no warnings will be printed if a .tra is

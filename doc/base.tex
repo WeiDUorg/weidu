@@ -7969,11 +7969,17 @@ This is an ACTION macro.
 This is a PATCH function.
 \begin{itemize}
 \item INT_VAR do_message to 1 if you want explicit an explicit message regarding the cre invalidity. Defaults to 0.
+\item INT_VAR do_reindex to 0 if you don't want the creature file to be reindexed. Defaults to 1.
+\item INT_VAR do_eff to 0 if you don't want EFFv1 <-> EFFv2 conversion to be applied. Defaults to 1.
 \item RET valid returns 1 if the CRE is well-formed, 0 otherwise.
 \end{itemize}
 
 \verb+FJ_CRE_REINDEX+: reorders creatures with nonstandard offset orders. Called by FJ_CRE_VALIDITY automatically if relevant.\\\\
 This is a PATCH function.
+\begin{itemize}
+\item INT_VAR do_reindex to 0 if you don't want the creature file to be reindexed. Defaults to 1.
+\item INT_VAR do_eff to 0 if you don't want EFFv1 <-> EFFv2 conversion to be applied. Defaults to 1.
+\end{itemize}
 
 \verb+FJ_CRE_EFF_V2+: Converts creatures using version 1 effects to version 2. Called by FJ_CRE_VALIDITY or FJ_CRE_REINDEX automatically if relevant.\\
 This is a PATCH function.
