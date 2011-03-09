@@ -16,6 +16,7 @@ Version 229:
   * Can set MODDER options via --modder command line.
   * Fixed an inconsistency with backslashes on Linux.
   * Added more configurability to FJ_CRE_VALIDITY and subfunctions.
+  * More fixes with sc#addWmpAre.
 
 Version 228:
   * If you have MODDER SETUP_TRA NONE, no warnings will be printed if a .tra is
