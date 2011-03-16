@@ -399,9 +399,10 @@ let rec eval_pe buff game p =
   | PE_GameIs(game_list,game_or_engine) -> begin
       let game_list = Str.split many_whitespace_regexp (Var.get_string game_list) in
       let f x = (eval_pe buff game (Pred_File_Exists_In_Game (PE_LiteralString x))) = 1l in
-      let tutu = if game_or_engine then f "fw0125.are" else false in
-      let  bgt = if game_or_engine then f "ar7200.are" else false in
-      let   ca = if game_or_engine then f "tc1300.are" else false in
+      let tutu     = if game_or_engine then f "fw0125.are" else false in
+      let  bgt     = if game_or_engine then f "ar7200.are" else false in
+      let   ca     = if game_or_engine then f "tc1300.are" else false in
+      let iwdinbg2 = if game_or_engine then f "ar9201.are" else false in
       let  bg2 = f "ar0083.are"   in
       let  tob = f "ar6111.are"   in
       let iwd2 = f "ar6050.are"   in
@@ -415,23 +416,26 @@ let rec eval_pe buff game p =
       let res = List.exists (fun this ->
         match String.uppercase this with
         | "BG2"
-        | "SOA"        -> bg2 && not tutu && not tob && not ca
-        | "TOB"        -> bg2 && not tutu &&     tob && not ca
+        | "SOA"        -> bg2 && not tutu && not tob && not ca && not iwdinbg2
+        | "TOB"        -> bg2 && not tutu &&     tob && not ca && not iwdinbg2
         | "IWD2"       -> iwd2
         | "PST"        -> pst
         | "BG1"        -> bg1 && not tosc && not bg2
         | "TOTSC"      -> bg1 &&     tosc && not bg2 && not iwd1
         | "IWD"
-        | "IWD1"       -> iwd1 && not how && not tolm
-        | "HOW"        -> iwd1 &&     how && not tolm
-        | "TOTLM"      -> iwd1 &&     how &&     tolm
+        | "IWD1"       -> iwd1 && not how && not tolm && not bg2
+        | "HOW"        -> iwd1 &&     how && not tolm && not bg2
+        | "TOTLM"      -> iwd1 &&     how &&     tolm && not bg2
         | "TUTU"       -> tutu && not ttsc
         | "TUTU_TOTSC"
         | "TUTU+TOTSC" -> tutu &&     ttsc
         | "BGT"        -> bgt
-	| "CA"         -> ca
-	| _ -> failwith (Printf.sprintf "No rule to identify %s" (String.uppercase this))
-			    ) game_list in
+        | "CA"         -> ca
+        | "IWD-IN-BG2"
+        | "IWD_IN_BG2"
+        | "IWDINBG2"   -> bg2 && iwdinbg2
+        | _ -> failwith (Printf.sprintf "No rule to identify %s" (String.uppercase this))
+      ) game_list in
       if res then 1l else 0l;
   end
   | PE_IsAnInt(x) -> let old_eval_pe_warn = !eval_pe_warn in (eval_pe_warn := false ;

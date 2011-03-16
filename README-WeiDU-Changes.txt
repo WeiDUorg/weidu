@@ -1,3 +1,6 @@
+Version 230:
+  * GAME_IS support for IWD-in-BG2.
+
 Version 229:
   * Fixed some errors decompiling DLG files.
   * Some errors were printed but not logged.
