@@ -1111,7 +1111,7 @@ let rec handle_tp
               if (already) then
 		def := (if is_forbid_file then TP_Ask else TP_Uninstall)
               else begin
-		let warn = Dc.single_string_of_tlk_string game warn in
+		let warn = Dc.single_string_of_tlk_string_safe game warn in
 		log_and_print "\n%s: [%s]\n\t%s\n" msg package_name warn ;
 		def := TP_Skip
               end

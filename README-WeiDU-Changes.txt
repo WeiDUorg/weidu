@@ -1,5 +1,7 @@
 Version 230:
   * GAME_IS support for IWD-in-BG2.
+  * Fixed a case of missing @ reference killing the whole of WeiDU and not
+    saving WeiDU.log.
 
 Version 229:
   * Fixed some errors decompiling DLG files.
