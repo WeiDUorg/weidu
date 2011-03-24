@@ -41,6 +41,29 @@ let handle_script_al buffer =
 
 Bcs.parse_al := handle_script_al
 	
+let check_file_exists file =
+  if Modder.enabled "OVERWRITING_FILE" then begin
+    if file_exists file then
+      Modder.handle_deb "OVERWRITING_FILE" (Printf.sprintf "Overwriting [%s], which already exists\n" file)
+    else begin
+      let name = Filename.basename file in
+      let (a,b) = split name in
+      if (try
+        Load.skip_next_load_error := true;
+        let buff,path = Load.load_resource "FILE_EXISTS_IN_GAME" (Load.the_game()) true a b in
+        (String.length buff > 0) 
+      with Failure _ -> false
+      | Invalid_argument "String.create" -> true (* File is > 2^24 bytes *)
+      | _ -> false
+      )  then
+        Modder.handle_deb "OVERWRITING_FILE" (Printf.sprintf "Overwriting [%s], which is defined in a biff\n" file);
+    end;
+  end;
+;;
+
+modder_check_file_exists := check_file_exists
+;;
+  
 let handle_dlg_buffer game filename buffer =
   let emit_from = !Dlg.emit_from in
   let comments = !Dlg.comments in

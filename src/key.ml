@@ -307,7 +307,7 @@ let remove_biff key filename =
     resource = newres ; }
 
 let remove_files key file_lst =
-	let new_resfind = key.resfind in
+	let new_resfind = Hashtbl.copy key.resfind in
 	let file_hsh = Hashtbl.create 5 in
 	List.iter (fun file ->
 		let (name,ext) = split file in

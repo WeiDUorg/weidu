@@ -504,7 +504,10 @@ let list_of_files_in_directory d =
     Unix.closedir dh 
   with _ -> ()) ; !result
 
+let modder_check_file_exists : (string -> unit) ref = ref (fun s -> failwith "Util.modder_check_file_exists not initialized")
+  
 let open_for_writing_internal backup filename binary =
+  !modder_check_file_exists filename;
   (if (backup) then backup_if_extant filename) ;
   if file_exists filename then (* if it already exists *)
     begin (* handle read-only files! *)
