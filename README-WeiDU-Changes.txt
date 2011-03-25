@@ -4,6 +4,7 @@ Version 230:
     saving WeiDU.log.
   * MODDER OVERWRITING_FILE prints a message if you are writing to a file that
     exists physically and/or in biffs.
+  * MODDER messages are also visible in SILENT mode.
 
 Version 229:
   * Fixed some errors decompiling DLG files.

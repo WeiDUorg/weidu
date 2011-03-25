@@ -43,12 +43,12 @@ let set_modder str_l =
 let get x = if !debug_modder then try fst (Hashtbl.find mode (String.uppercase x)) with _ -> Warn else None
 
 let handle_deb test str =
-  if get test <> None then log_and_print "%s" str;
+  if get test <> None then (let old_be_silent = !be_silent in be_silent := false; log_and_print "%s" str; be_silent := old_be_silent);
   if get test =  Warn then (try assert false with Assert_failure(file,line,col) -> set_errors file line);
   if get test =  Fail then raise (Modder_error str)
 
 let handle_msg test str =
-  if get test <> None then log_and_print "%s" str;
+  if get test <> None then (let old_be_silent = !be_silent in be_silent := false; log_and_print "%s" str; be_silent := old_be_silent);
 ;;
 
 let enabled test =
