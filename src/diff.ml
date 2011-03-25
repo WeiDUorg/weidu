@@ -82,7 +82,9 @@ let compare_rt (o : ('a, out_channel, unit) format -> 'a) old_buff new_buff =
   let saved_a = Hashtbl.create 5 in
   let mismatch = Hashtbl.create 5 in
   while !i < cnt_i && !i < cnt_o do
-    let l1,l2 = lines_i.(!i),lines_o.(!j) in
+    let l1,l2,i',j' = lines_i.(!i),lines_o.(!j),1,1 in
+    i := !i + i';
+    j := !j + j';
     if l1 <> l2 then
       o "REPLACE_TEXTUALLY CASE_SENSITIVE EXACT_MATCH ~%s~ ~%s~" l1 l2
     ;
@@ -92,8 +94,6 @@ let compare_rt (o : ('a, out_channel, unit) format -> 'a) old_buff new_buff =
     Hashtbl.add saved_i l1 true;
     Hashtbl.add saved_o l2 true;
     Hashtbl.add saved_a (l1,l2) true;
-    incr i;
-    incr j;
   done;
   if Hashtbl.length mismatch <> 0 then o "\n%s%s" "" "";
   Hashtbl.iter (fun k v ->
