@@ -69,3 +69,34 @@ let get_patch orig_buff new_buff ncont =begin
     raise Not_found
   end
 end
+
+let compare_rt (o : ('a, out_channel, unit) format -> 'a) old_buff new_buff =
+  let lines_i = Array.of_list (Str.split many_newline_or_cr_regexp old_buff) in
+  let lines_o = Array.of_list (Str.split many_newline_or_cr_regexp new_buff) in
+  let cnt_i = Array.length lines_i in
+  let cnt_o = Array.length lines_o in
+  let i = ref 0 in
+  let j = ref 0 in
+  let saved_i = Hashtbl.create 5 in
+  let saved_o = Hashtbl.create 5 in
+  let saved_a = Hashtbl.create 5 in
+  let mismatch = Hashtbl.create 5 in
+  while !i < cnt_i && !i < cnt_o do
+    let l1,l2 = lines_i.(!i),lines_o.(!j) in
+    if l1 <> l2 then
+      o "REPLACE_TEXTUALLY CASE_SENSITIVE EXACT_MATCH ~%s~ ~%s~" l1 l2
+    ;
+    if Hashtbl.mem saved_i l1 && not (Hashtbl.mem saved_a (l1,l2)) then
+      Hashtbl.add mismatch l1 true;
+    o "%s%s\n" "" "";
+    Hashtbl.add saved_i l1 true;
+    Hashtbl.add saved_o l2 true;
+    Hashtbl.add saved_a (l1,l2) true;
+    incr i;
+    incr j;
+  done;
+  if Hashtbl.length mismatch <> 0 then o "\n%s%s" "" "";
+  Hashtbl.iter (fun k v ->
+    o "// will mismatch when a source line is ~%s~\n%s" k ""
+  ) mismatch
+;;

@@ -5,6 +5,7 @@ Version 230:
   * MODDER OVERWRITING_FILE prints a message if you are writing to a file that
     exists physically and/or in biffs.
   * MODDER messages are also visible in SILENT mode.
+  * --rcmp-from added. Undocumented because its output is unreliable.
 
 Version 229:
   * Fixed some errors decompiling DLG files.

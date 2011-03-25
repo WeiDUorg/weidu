@@ -106,6 +106,9 @@ let main () =
   let bcmp_src = ref None in
   let bcmp_dest = ref None in
 
+  let rcmp_src = ref None in
+  let rcmp_dest = ref None in
+  
   let textcmp_src = ref None in
   let textcmp_dest = ref None in
 
@@ -402,6 +405,8 @@ let main () =
     "--tcmp-to", Myarg.String (fun s -> tcmp_dest := Some(s)), "X\t... with this one (or this directory)";
     "--bcmp-from", Myarg.String (fun s -> bcmp_src := Some(s)), "X\temit APPLY_BCS_PATCH to turn this BCS file..." ;
     "--bcmp-to", Myarg.String (fun s -> bcmp_dest := Some(s)), "X\t... into this one" ;
+    "--rcmp-from",Myarg.String (fun s -> rcmp_src := Some(s)), "X\temit REPLACE_TEXTUALLY patches to turn this file..." ;
+    "--rcmp-to",Myarg.String (fun s -> rcmp_dest := Some(s)), "X\t... into this one" ;
     "--textcmp-from", Myarg.String (fun s -> textcmp_src := Some(s)), "X\temit APPLY_BCS_PATCH to turn this textual file..." ;
     "--textcmp-to", Myarg.String (fun s -> textcmp_dest := Some(s)), "X\t... into this one" ;
     (* For debugging patch/diff: *)
@@ -832,6 +837,21 @@ let main () =
    (printexc_to_string e)
    end
    | _ -> ()) ;
+   
+   (match !rcmp_src, !rcmp_dest with
+   | Some (s), Some(d) ->
+    let load file =
+      let a,b = split (Filename.basename file) in
+      let buff = try load_file file with e -> fst (Load.load_resource "--rcmp" (Load.the_game()) true a b) in
+      match String.uppercase b with
+      | "DLG" -> buff
+      | "BCS"
+      | "BS" -> buff
+      | _ -> buff
+    in
+    Diff.compare_rt print_theout (load s) (load d)
+  | _ -> ()
+  )  ;
 
 (* For debugging patch/diff: *)
    (match !bcmp_orig,!bcmp_patch with
