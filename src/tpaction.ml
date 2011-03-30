@@ -217,7 +217,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	      (let a,b = split filespec in a) ;
 	    Var.set_int "BASH_FOR_SIZE" (file_size file);
 	    List.iter (process_action tp) al ;
-		    ) !find_list ;
+		    ) (List.rev !find_list) ;
 	  
       | TP_ActionDefineArray(arr,vals) ->
 	  let i = ref 0 in

@@ -588,7 +588,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
           Var.set_int "BASH_FOR_SIZE" (file_size file);
           the_buff := List.fold_left (fun acc elt ->
             process_patch2 patch_filename game acc elt) !the_buff pl
-		  ) !find_list ;
+		  ) (List.rev !find_list) ;
 	!the_buff
 
     | TP_PatchClearArray(arr) ->

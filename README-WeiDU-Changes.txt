@@ -6,6 +6,7 @@ Version 230:
     exists physically and/or in biffs.
   * MODDER messages are also visible in SILENT mode.
   * --rcmp-from added. Undocumented because its output is unreliable.
+  * *_BASH_FOR lists files in ASCIIbetical order, rather than inverse order.
 
 Version 229:
   * Fixed some errors decompiling DLG files.
