@@ -8,6 +8,7 @@ Version 230:
   * --rcmp-from added. Undocumented because its output is unreliable.
   * *_BASH_FOR lists files in ASCIIbetical order, rather than inverse order.
   * *_BASH_FOR sets BASH_FOR_EXT.
+  * APPEND, APPEND_OUTER - works like COPY -.
 
 Version 229:
   * Fixed some errors decompiling DLG files.

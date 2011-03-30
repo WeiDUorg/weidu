@@ -155,7 +155,7 @@ and tp_action =
   | TP_Outer_While of tp_patchexp * (tp_action list)
   | TP_Require_File of string * (Dlg.tlk_string)
   | TP_Forbid_File of string * (Dlg.tlk_string)
-  | TP_Append of string * string * (tp_constraint list) * bool * bool * bool
+  | TP_Append of string * string * (tp_constraint list) * bool * bool * int
         (* When bool is true, load the file as bif or override; otherwise, it's loaded
          * as a normal file.
          * When bool is true, keep CRLF as they are. Otherwise, apply Weimer's wacky

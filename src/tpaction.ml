@@ -1060,7 +1060,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						    let str_to_append = Printf.sprintf "%d %s %s"
 							this_music_number m.music_name music_base_name in
 						    
-						    let a1 = TP_Append("SONGLIST.2DA",str_to_append,[],true,false,true) in
+						    let a1 = TP_Append("SONGLIST.2DA",str_to_append,[],true,false,0) in
 						    
 						    let dest_music_file = "music/" ^ music_base_name_lower in
 						    let a2 = TP_Copy(
@@ -1102,7 +1102,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
         in
 				let number = trynumber 0 in
 				let a1 = TP_Append("areatype.ids",
-					(Printf.sprintf "%d %s" (1 lsl number) flag),[],true,false,true) in
+					(Printf.sprintf "%d %s" (1 lsl number) flag),[],true,false,0) in
 				process_action tp a1;
 				Var.set_int32 flag (Int32.of_int number) ;
 				log_and_print "Added Area Type %s\n" flag;
@@ -1128,7 +1128,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 				| _ -> log_and_print "ERROR: cannot resolve SAY patch\n" ; failwith "resolve"
 				in
 				let a1 = TP_Append(f,
-					(Printf.sprintf "%s %d" s t),[],true,false,true) in
+					(Printf.sprintf "%s %d" s t),[],true,false,0) in
 				process_action tp a1;
 				Var.set_int32 s (Int32.of_int number) ;
 				log_and_print "Added %s %s\n" f s;
@@ -1151,7 +1151,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						    List.iter (process_action tp) [a1];
 						    let this_pro_number = get_next_line_number "PROJECTL.IDS" in
 						    let a1 = TP_Append("PROJECTL.IDS",
-								       (Printf.sprintf "%d %s" this_pro_number this_pro_name),[],true,false,true) in
+								       (Printf.sprintf "%d %s" this_pro_number this_pro_name),[],true,false,0) in
 						    let dest_pro_file = "override/" ^ (Case_ins.filename_basename p.pro_file) in
 						    let a2 = TP_Copy(
 						      { copy_get_existing = false;
@@ -1168,7 +1168,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						    if Load.file_exists_in_game game "missile.ids" then begin
 						      let this_miss_number = get_next_line_number "MISSILE.IDS" in
 						      let a1a = TP_Append("MISSILE.IDS",
-									  (Printf.sprintf "%d %s" this_miss_number this_missile_name),[],true,false,true) in
+									  (Printf.sprintf "%d %s" this_miss_number this_missile_name),[],true,false,0) in
 						      process_action tp a1a;
 						    end;
 						    process_action tp a2;
@@ -1324,14 +1324,14 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						    log_and_print "\n\nKit [%s] already present! Skipping!\n\n"
 						      k.kit_name
 						  end else begin
-						    let a1 = TP_Append("CLASWEAP.2DA",k.clasweap,[],true,false,true) in
+						    let a1 = TP_Append("CLASWEAP.2DA",k.clasweap,[],true,false,0) in
 						    let a2 = TP_Append_Col("WEAPPROF.2DA",k.weapprof,Tp.get_pe_int "2",[]) in
-						    let a3 = TP_Append("ABCLASRQ.2DA",k.abclasrq,[],true,false,true) in
-						    let a4 = TP_Append("ABDCDSRQ.2DA",k.abdcdsrq,[],true,false,true) in
-						    let a5 = TP_Append("ABDCSCRQ.2DA",k.abdcscrq,[],true,false,true) in
-						    let a_e1 = TP_Append("ABCLSMOD.2DA",k.abclsmod,[],true,false,true) in
-						    let a_e2 = TP_Append("DUALCLAS.2DA",k.dualclas,[],true,false,true) in
-						    let a6 = TP_Append("ALIGNMNT.2DA",k.alignmnt,[],true,false,true) in
+						    let a3 = TP_Append("ABCLASRQ.2DA",k.abclasrq,[],true,false,0) in
+						    let a4 = TP_Append("ABDCDSRQ.2DA",k.abdcdsrq,[],true,false,0) in
+						    let a5 = TP_Append("ABDCSCRQ.2DA",k.abdcscrq,[],true,false,0) in
+						    let a_e1 = TP_Append("ABCLSMOD.2DA",k.abclsmod,[],true,false,0) in
+						    let a_e2 = TP_Append("DUALCLAS.2DA",k.dualclas,[],true,false,0) in
+						    let a6 = TP_Append("ALIGNMNT.2DA",k.alignmnt,[],true,false,0) in
 						    let abil_file = String.uppercase (Case_ins.filename_basename k.ability_file) in
 						    if !debug_ocaml then log_and_print "%s\n" abil_file;
 						    let abil_file_no_ext = Case_ins.filename_chop_extension abil_file in
@@ -1382,19 +1382,19 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 							lower_index mixed_index help_index
 							abil_file_no_ext this_kit_prof_number
 							k.unused_class in
-						    let a8 = TP_Append("KITLIST.2DA",append_to_kitlist,[],true,false,true) in
+						    let a8 = TP_Append("KITLIST.2DA",append_to_kitlist,[],true,false,0) in
 						    let include_actions = List.map (fun file ->
 						      let num = get_next_line_number (file ^ ".2DA" ) in
 						      let str = Printf.sprintf "%d	%d" num this_kit_number in
-						      TP_Append(file ^ ".2DA",str,[],true,false,true)
+						      TP_Append(file ^ ".2DA",str,[],true,false,0)
 										   ) include_list in
 						    let abbr = Printf.sprintf  "%s		 %s" k.kit_name k.tob_abbr in
-						    let a9 = TP_Append("LUABBR.2DA",abbr,[],true,false,true) in
+						    let a9 = TP_Append("LUABBR.2DA",abbr,[],true,false,0) in
 						    let a10 = TP_Set_Col("25STWEAP.2DA",
 									 ("" :: "" :: k.kit_name :: k.tob_start),this_kit_prof_number+1) in
 						    let a11 = TP_Append("KIT.IDS",
 									(Printf.sprintf "0x%x %s" (0x4000 + this_kit_number)
-									   k.kit_name),[],true,false,true) in
+									   k.kit_name),[],true,false,0) in
 						    let fix2da1 = TP_Copy ({
 									   copy_get_existing = true;
 									   copy_use_regexp = false;
@@ -1944,31 +1944,44 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	      else file
 	    in
 	    Stats.time "saving files" (fun () ->
-	      let out = open_for_writing_internal do_backup dest true in
-	      if keep_crlf then begin
-		output_string out buff;
-		if !debug_ocaml then log_and_print "%s\n" buff;
-		if String.length buff < 2 || Str.last_chars buff 2 <> "\r\n" then output_string out "\r\n";
-		let src = if String.lowercase dest = "quests.ini" && Arch.view_command = "start"
-		then (Str.global_replace (Str.regexp "\\([^\r]\\)\n") "\\1\r\n" src) else src in
-		output_string out src;
-		if !debug_ocaml then log_and_print "%s\n" src;
-		if Str.last_chars src 2 <> "\r\n" then output_string out "\r\n";
-	      end else begin
-		let nice_newlines = Str.global_replace
-		    many_newline_or_cr_regexp "\r\n" (buff ^ "\r\n") in
-		output_string out nice_newlines ;
-		output_string out src ;
-		output_string out "\r\n" ;
-	      end;
-	      close_out out ;
-	      begin (* handle read-only files! *)
-		try
-		  Case_ins.unix_chmod dest 511 ; (* 511 = octal 0777 = a+rwx *)
-		with e -> ()
-		    (* log_or_print "WARNING: chmod %s : %s\n" filename
-		       (printexc_to_string e) *)
-	      end ;) () ;
+        let save_to fn =
+          if keep_crlf then begin
+            fn buff;
+            if !debug_ocaml then log_and_print "%s\n" buff;
+            if String.length buff < 2 || Str.last_chars buff 2 <> "\r\n" then fn "\r\n";
+            let src = if String.lowercase dest = "quests.ini" && Arch.view_command = "start"
+            then (Str.global_replace (Str.regexp "\\([^\r]\\)\n") "\\1\r\n" src) else src in
+            fn src;
+            if !debug_ocaml then log_and_print "%s\n" src;
+            if Str.last_chars src 2 <> "\r\n" then fn "\r\n";
+          end else begin
+            let nice_newlines = Str.global_replace
+                many_newline_or_cr_regexp "\r\n" (buff ^ "\r\n") in
+            fn nice_newlines ;
+            fn src ;
+            fn "\r\n" ;
+          end;
+        in
+        if do_backup = 2 then begin
+          let out_buff = Buffer.create 1000 in
+          save_to (Buffer.add_string out_buff);
+          let result_buff = Buffer.contents out_buff in
+          log_only_modder "Defined Inlined File [%s] (length %d)\n"
+            dest (String.length result_buff) ;
+          Hashtbl.add inlined_files (Arch.backslash_to_slash dest) result_buff
+        end else begin
+        let out = open_for_writing_internal (do_backup = 0) dest true in
+        save_to (output_string out);
+        close_out out ;
+        begin (* handle read-only files! *)
+          try
+            Case_ins.unix_chmod dest 511 ; (* 511 = octal 0777 = a+rwx *)
+          with e -> ()
+        (* log_or_print "WARNING: chmod %s : %s\n" filename
+           (printexc_to_string e) *)
+          end ;
+        end;
+      ) () ;
 	    log_or_print "Appended text to [%s]\n" file
 	  end 
 	      
