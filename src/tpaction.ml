@@ -213,8 +213,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    Var.set_string "BASH_FOR_DIRECTORY" directory ;
 	    Var.set_string "BASH_FOR_FILESPEC" file ;
 	    Var.set_string "BASH_FOR_FILE" filespec ;
-	    Var.set_string "BASH_FOR_RES"
-	      (let a,b = split filespec in a) ;
+	    let a,b = split filespec in
+	    Var.set_string "BASH_FOR_RES" a;
+      Var.set_string "BASH_FOR_EXT" b;
 	    Var.set_int "BASH_FOR_SIZE" (file_size file);
 	    List.iter (process_action tp) al ;
 		    ) (List.rev !find_list) ;

@@ -7,6 +7,7 @@ Version 230:
   * MODDER messages are also visible in SILENT mode.
   * --rcmp-from added. Undocumented because its output is unreliable.
   * *_BASH_FOR lists files in ASCIIbetical order, rather than inverse order.
+  * *_BASH_FOR sets BASH_FOR_EXT.
 
 Version 229:
   * Fixed some errors decompiling DLG files.

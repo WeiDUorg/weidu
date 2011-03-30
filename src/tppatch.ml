@@ -583,8 +583,9 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
           Var.set_string "BASH_FOR_DIRECTORY" directory ;
           Var.set_string "BASH_FOR_FILESPEC" file ;
           Var.set_string "BASH_FOR_FILE" filespec ;
-          Var.set_string "BASH_FOR_RES"
-            (let a,b = split filespec in a) ;
+          let a,b = split filespec in
+          Var.set_string "BASH_FOR_RES" a;
+          Var.set_string "BASH_FOR_EXT" b;
           Var.set_int "BASH_FOR_SIZE" (file_size file);
           the_buff := List.fold_left (fun acc elt ->
             process_patch2 patch_filename game acc elt) !the_buff pl
