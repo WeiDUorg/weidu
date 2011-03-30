@@ -316,9 +316,15 @@ let remove_files key file_lst =
 	) file_lst;
 	let new_file_count = ref (Array.length key.resource) in
 	Array.iter ( fun item ->
-		if Hashtbl.mem file_hsh (item.res_name, (ext_of_key item.res_type)) then
+		if Hashtbl.mem file_hsh (item.res_name, (ext_of_key item.res_type)) then begin
+      log_only "DISABLE_FROM_KEY [%s.%s]: success\n" item.res_name (ext_of_key item.res_type) ;
+      Hashtbl.remove file_hsh (item.res_name, (ext_of_key item.res_type));
 			decr new_file_count
+    end
 	) key.resource;
+  Hashtbl.iter (fun (a,b) _ ->
+    log_only "DISABLE_FROM_KEY [%s.%s]: file does not exit\n" a b;
+  ) file_hsh;
 	let index = ref 0 in
 	let new_resource = Array.init !new_file_count (fun _ ->
 		let item = ref (key.resource.(!index)) in

@@ -9,6 +9,7 @@ Version 230:
   * *_BASH_FOR lists files in ASCIIbetical order, rather than inverse order.
   * *_BASH_FOR sets BASH_FOR_EXT.
   * APPEND, APPEND_OUTER - works like COPY -.
+  * DISABLE_FROM_KEY prints to the log file the name of the files it removes.
 
 Version 229:
   * Fixed some errors decompiling DLG files.
