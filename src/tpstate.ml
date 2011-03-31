@@ -27,31 +27,20 @@ let rec get_menu_style fl = match fl with
  ************************************************************************)
 let loaded_tph: (string,tp_action list)Hashtbl.t = Hashtbl.create 5
 let loaded_tpp: (string,tp_patch list)Hashtbl.t = Hashtbl.create 5
-let action_macros: (string,tp_local_declaration list * tp_action list)Hashtbl.t = Hashtbl.create 10
-let patch_macros: (string,tp_local_declaration list * tp_patch list)Hashtbl.t = Hashtbl.create 10
-let action_functions: (string,(tp_pe_string * tp_patchexp) list *
-			 (tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_action list) Hashtbl.t = Hashtbl.create 10
-let patch_functions: (string,(tp_pe_string * tp_patchexp) list *
+let macros: (string,tp_local_declaration list * tp_patch list)Hashtbl.t = Hashtbl.create 10
+let functions: (string,(tp_pe_string * tp_patchexp) list *
 			(tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_patch list) Hashtbl.t = Hashtbl.create 10
 let readln_strings: string list ref = ref []
 
 let clear_codes () =
-  let var_spec = Hashtbl.copy action_macros in
-  Hashtbl.iter ( fun a b -> Hashtbl.remove action_macros a
+  let var_spec = Hashtbl.copy macros in
+  Hashtbl.iter ( fun a b -> Hashtbl.remove macros a
 		) var_spec ;
-  Hashtbl.clear action_macros;
-  let var_spec = Hashtbl.copy patch_macros in
-  Hashtbl.iter ( fun a b -> Hashtbl.remove patch_macros a
+  Hashtbl.clear macros;
+  let var_spec = Hashtbl.copy functions in
+  Hashtbl.iter ( fun a b -> Hashtbl.remove functions a
 		) var_spec ;
-  Hashtbl.clear patch_macros;
-  let var_spec = Hashtbl.copy action_functions in
-  Hashtbl.iter ( fun a b -> Hashtbl.remove action_functions a
-		) var_spec ;
-  Hashtbl.clear action_functions;
-  let var_spec = Hashtbl.copy patch_functions in
-  Hashtbl.iter ( fun a b -> Hashtbl.remove patch_functions a
-		) var_spec ;
-  Hashtbl.clear patch_functions;
+  Hashtbl.clear functions;
 ;;
 
 (************************************************************************

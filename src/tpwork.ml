@@ -485,9 +485,9 @@ let rec handle_tp
 	          Always(al) -> List.iter (process_action_real our_lang game this_tp2_filename tp) al
 	        | TP_No_If_Eval () -> has_if_eval_bug := false ;
 	        | Define_Action_Macro(str,decl,al) ->
-	            Hashtbl.replace action_macros str (decl, al)
+	            Hashtbl.replace macros str (decl, [TP_PatchInnerAction al])
 	        | Define_Patch_Macro(str,decl,al) ->
-	            Hashtbl.replace patch_macros str (decl, al)
+	            Hashtbl.replace macros str (decl, al)
 	        | _ -> ()
 			  ) tp.flags ;
 	        if file_exists readln_backup_filename && not !interactive then begin

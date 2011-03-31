@@ -47,10 +47,109 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
   let process_action = (process_action_real our_lang game this_tp2_filename) in
   let process_patch2 = process_patch2_real process_action tp in
+  
+  let run_patch x = ignore (process_patch2 "" game "" x) in
+  let pl_of_al x = [TP_PatchInnerAction x] in
+  
   let str = action_to_str a in
   Stats.time str (fun () ->
     try
       (match a with
+	      
+      | TP_ActionBashFor(where,al) ->
+        run_patch (TP_PatchBashFor (where,pl_of_al al))
+	  
+      | TP_ActionDefineArray(arr,vals) ->
+        run_patch (TP_PatchDefineArray(arr,vals))
+
+      | TP_ActionDefineAssociativeArray(arr,vals) ->
+        run_patch (TP_DefineAssociativeArray(arr,vals))
+	  
+      | TP_Action_For_Each(var,sl,al) ->
+        run_patch (TP_PatchForEach(var,sl,pl_of_al al))
+	  
+	  
+      | TP_ActionPHPEach(var,invar,outvar,al) ->
+        run_patch (TP_PatchPHPEach(var,invar,outvar,pl_of_al al))
+	  
+      | TP_Outer_For(init,guard,inc,body) ->
+        run_patch (TP_PatchFor(init,guard,inc,pl_of_al body))
+	    
+      | TP_Outer_While(guard,body) ->
+        run_patch (TP_PatchWhile(guard,pl_of_al body))
+	    
+      | TP_Outer_Inner_Buff(buff_var,pl) ->
+        run_patch (TP_PatchInnerBuff(buff_var,pl))
+	    
+      | TP_Outer_Inner_Buff_Save(store_var,buff_var,pl) ->
+        run_patch (TP_PatchInnerBuffSave(store_var,buff_var,pl))
+
+      | TP_Outer_Set(name,value) ->
+        run_patch (TP_PatchSet(name,value))
+	  
+      | TP_Outer_Sprint(name,msg) ->
+        run_patch (TP_PatchSprint(name,msg))
+	  
+      | TP_Outer_Text_Sprint (var,str) ->
+        run_patch (TP_PatchTextSprint(var,str))
+
+      | TP_Print(msg) ->
+        run_patch(TP_PatchPrint(msg))
+
+      | TP_Warn(msg) ->
+        run_patch(TP_PatchWarn(msg))
+	    
+      | TP_Log(msg) ->
+        run_patch(TP_PatchLog(msg))
+      
+      | TP_Fail(msg) ->
+        run_patch(TP_PatchFail(msg))
+
+      | TP_Reraise ->
+        run_patch(TP_PatchReraise)
+      
+      | TP_If(p,al1,al2) ->
+        run_patch(TP_PatchIf(p,pl_of_al al1, pl_of_al al2))
+        
+      | TP_ActionMatch(str,opts) ->
+        run_patch(TP_PatchMatch(str, List.map (fun (a,b,c) -> a,b,pl_of_al c) opts))
+       
+      | TP_ActionTry(al,opts) ->
+        run_patch(TP_PatchTry(pl_of_al al, List.map (fun (a,b,c) -> a,b,pl_of_al c) opts))
+        
+      | TP_Define_Action_Macro(str,decl,al) ->
+	  Hashtbl.replace macros str (decl, pl_of_al al)
+
+      | TP_Define_Patch_Macro(str,decl,al) ->
+	  Hashtbl.replace macros str (decl, al)
+
+      | TP_Define_Action_Function (str,a,b,c,d) ->
+	  Hashtbl.replace functions str (a,b,c,pl_of_al d)
+
+      | TP_Define_Patch_Function (str,a,b,c,d) ->
+	  Hashtbl.replace functions str (a,b,c,d)
+
+      | TP_Launch_Action_Function (a,b,c,d) ->
+        run_patch (TP_Launch_Patch_Function (a,b,c,d))
+
+      | TP_Launch_Action_Macro(str) ->
+        run_patch (TP_Launch_Patch_Macro str)
+	  
+      | TP_Action_ReadLN(x) ->
+        run_patch (TP_PatchReadLN x)
+	      
+      | TP_RandomSeed(i) ->
+        run_patch (TP_PatchRandomSeed i)
+	  
+      | TP_ActionClearArray(arr) ->
+        run_patch (TP_PatchClearArray arr)
+
+      | TP_Silent ->
+        run_patch (TP_PatchSilent)
+        
+      | TP_Verbose ->
+        run_patch (TP_PatchVerbose)
+        
       | TP_Move(filelist, do_backup) ->
 	    let move src dst =
 			let ok = ref true in
@@ -182,137 +281,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    game.Load.loaded_biffs <- Hashtbl.create 5 ;
 	    if !debug_ocaml then log_and_print "Unmarshaled the key\n";
 	  end
-	      
-      | TP_ActionBashFor(where,al) ->
-	  let find_list = ref [] in
-	  let where = List.map (fun (a,b,c)-> Var.get_string a,b , Var.get_string c) where in
-	  List.iter ( fun (directory,exact_match,regexp_string) ->
-	    try
-	      let dh = Case_ins.unix_opendir directory in
-	      let reg = begin match exact_match with
-	      | Some(true) ->
-		  Str.regexp_string_case_fold
-	      | _ ->
-		  Str.regexp_case_fold
-	      end regexp_string
-	      in
-	      (try
-		while true do
-		  let next = Unix.readdir dh in
-		  if ((Case_ins.unix_stat (directory ^ "/" ^ next)).Unix.st_kind =
-		      Unix.S_REG) && (Str.string_match reg next 0) then
-		    find_list := (String.uppercase (directory ^ "/" ^ next)) :: !find_list
-		done
-	      with End_of_file -> () );
-	      Unix.closedir dh ;
-	    with _ -> ()
-		     ) where ;
-	  List.iter (fun file ->
-	    let directory = Case_ins.filename_dirname file in
-	    let filespec = Case_ins.filename_basename file in
-	    Var.set_string "BASH_FOR_DIRECTORY" directory ;
-	    Var.set_string "BASH_FOR_FILESPEC" file ;
-	    Var.set_string "BASH_FOR_FILE" filespec ;
-	    let a,b = split filespec in
-	    Var.set_string "BASH_FOR_RES" a;
-      Var.set_string "BASH_FOR_EXT" b;
-	    Var.set_int "BASH_FOR_SIZE" (file_size file);
-	    List.iter (process_action tp) al ;
-		    ) (List.rev !find_list) ;
-	  
-      | TP_ActionDefineArray(arr,vals) ->
-	  let i = ref 0 in
-	  List.iter (fun x ->
-	    Var.set_string
-	      (eval_pe_str (PE_Dollars(arr,[get_pe_string (string_of_int !i)],
-				       false,true))) (Var.get_string x);
-	    incr i
-		    ) vals;
-
-      | TP_ActionDefineAssociativeArray(arr,vals) ->
-	  List.iter (fun (x,y) ->
-	    Var.set_string
-	      (eval_pe_str (PE_Dollars(arr,[x],
-				       false,true))) (Var.get_string (eval_pe_str y));
-		    ) vals;
-	  
-      | TP_Action_For_Each(var,sl,al) ->
-	  let var = eval_pe_str var in
-	  let sl = List.map Var.get_string sl in
-	  List.iter (fun x ->
-	    Var.set_string var x ;
-	    List.iter (process_action tp) al ;
-		    ) sl ;
-	  
-	  
-      | TP_ActionPHPEach(var,invar,outvar,al) ->
-	  let var_s = Var.get_string (eval_pe_str var) in
-	  let var = PE_LiteralString(var_s) in
-	  let values = try Hashtbl.find !Var.arrays var_s with _ -> [] in
-	  let outvar = eval_pe_str outvar in
-	  let  invar = eval_pe_str	invar in
-	  List.iter ( fun x ->
-	    let i = ref 0 in
-	    List.iter ( fun y ->
-	      if !i = 0 then Var.set_string invar y;
-	      Var.add_local_string (invar ^ "_" ^ string_of_int !i) y;
-	      incr i
-		       ) x;
-	    let x = List.map get_pe_string x in
-	    let this_value = eval_pe_str (PE_Dollars(var,x,true,false)) in
-	    Var.set_string outvar this_value;
-	    List.iter (process_action tp) al ;
-	    for j = 0 to (List.length x) - 1 do
-	      Var.remove_local (invar ^ "_" ^ string_of_int j)
-	    done
-		     ) (List.rev values);
-	  
-      | TP_Outer_For(init,guard,inc,body) ->
-	  let cmd_list = init @ [ TP_PatchWhile(guard,[(TP_PatchInnerAction body)] @ inc) ] in
-	  let b = ref "" in
-	  let patch_filename = "" in
-	  b := List.fold_left (fun acc elt ->
-	    process_patch2 patch_filename game acc elt) !b cmd_list  ;
-	  ()
-	    
-      | TP_Outer_While(guard,body) ->
-	  let cmd_list = [ TP_PatchWhile(guard,[TP_PatchInnerAction body])] in
-	  let b = ref "" in
-	  let patch_filename = "" in
-	  b := List.fold_left (fun acc elt ->
-	    process_patch2 patch_filename game acc elt) !b cmd_list  ;
-	  ()
-	    
-      | TP_Outer_Inner_Buff(buff_var,pl) ->
-	  let new_buff = Var.get_string buff_var in
-	  let filename = Printf.sprintf "INNER_PATCH %S" buff_var in
-	  let dummy = List.fold_left (fun acc elt ->
-	    process_patch2 filename game acc elt) new_buff pl in
-	  ()
-	    
-      | TP_Outer_Inner_Buff_Save(store_var,buff_var,pl) ->
-	  let new_buff = Var.get_string buff_var in
-	  let filename = Printf.sprintf "INNER_PATCH_SAVE %S" buff_var in
-	  let result = List.fold_left (fun acc elt ->
-	    process_patch2 filename game acc elt) new_buff pl
-	  in
-	  Var.set_string (eval_pe_str store_var) (Var.get_string result)
-
-      | TP_Outer_Set(name,value) ->
-	  let value = (eval_pe "" game value) in
-	  let name = eval_pe_str name in
-	  Var.set_int32 name value ;
-	  
-      | TP_Outer_Sprint(name,msg) ->
-	  let name = eval_pe_str name in
-	  let (str : string) = eval_pe_tlk_str game msg in
-	  let value = Var.get_string str in
-	  Var.set_string name value  ;
-	  
-      | TP_Outer_Text_Sprint (var,str) ->
-	  let var = eval_pe_str var in
-	  let str = Var.get_string (eval_pe_str str) in
-	  Var.add_local_string var str
 	    
       | TP_Forbid_File(file,error_msg) ->
 	  log_and_print "Checking for forbidden files ...\n" ;
@@ -328,154 +296,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  end else begin
 	    log_or_print "[%s] not found (as desired)\n" file ;
 	  end
-
-      | TP_Print(msg) ->
-	  let str = Dc.single_string_of_tlk_string game msg in
-	  be_silent := false ;
-	  let str = Var.get_string str in
-	  log_and_print "\n%s\n" str
-
-      | TP_Warn(msg) ->
-	  let str = Dc.single_string_of_tlk_string game msg in
-	  be_silent := false ;
-	  let str = Var.get_string str in
-    errors_this_component := true;
-	  log_and_print "\n%s\n" str
-	    
-      | TP_Log(msg) ->
-        let str = Dc.single_string_of_tlk_string game msg in
-        let str = Var.get_string str in
-        log_only "\n%s\n" str
-      
-      | TP_Fail(msg) ->
-	  let str = Var.get_string (Dc.single_string_of_tlk_string game msg) in
-	  log_and_print "FAILURE:\n%s\n" str ;
-	  failwith str
-
-    | TP_Reraise -> raise !current_exception
-      | TP_If(p,al1,al2) ->
-	  let res = is_true (eval_pe "" game p) in
-	  (* log_or_print "IF evaluates to %b\n" res ; *)
-	  if res then begin
-	    List.iter (process_action tp) al1
-	  end else begin
-	    List.iter (process_action tp) al2
-	  end
-	      
-      | TP_ActionMatch(str,opts) ->
-        let str = string_of_pe "" game str in
-        let rec walk al = match al with
-          | (pe_l,pe,al) :: tl -> if is_true (eval_pe "" game pe) && pe_l = [] || 
-            (List.exists (fun elt ->
-              let elt = string_of_pe "" game elt in
-              let elt = Str.regexp_case_fold elt in
-              Str.string_match elt str 0 && Str.match_end () = String.length str
-            ) pe_l) then
-              List.iter (process_action tp) al
-            else walk tl
-          | [] -> failwith "ACTION_MATCH internal failure: didn't find the default state"
-        in walk opts
-       
-      | TP_ActionTry(al,opts) ->
-        begin
-          try
-            List.iter (process_action tp) al
-          with e ->
-            current_exception := e;
-            let e = printexc_to_string e in
-            Var.set_string "ERROR_MESSAGE" e;
-            process_action tp (TP_ActionMatch ((PE_String (PE_LiteralString e)),opts))
-        end
-        
-      | TP_Define_Action_Macro(str,decl,al) ->
-	  Hashtbl.replace action_macros str (decl, al)
-
-      | TP_Define_Patch_Macro(str,decl,al) ->
-	  Hashtbl.replace patch_macros str (decl, al)
-
-      | TP_Define_Action_Function (str,a,b,c,d) ->
-	  Hashtbl.replace action_functions str (a,b,c,d)
-
-      | TP_Define_Patch_Function (str,a,b,c,d) ->
-	  Hashtbl.replace patch_functions str (a,b,c,d)
-
-      | TP_Launch_Action_Function (str,int_var,str_var,rets) ->
-    let str = Var.get_string str in
-	  let (f_int_args,f_str_args,f_rets,f_code) = try
-	    Hashtbl.find action_functions str
-	  with _ -> failwith (Printf.sprintf "Unknown function: %s" str)
-	  in
-	  let i_did_pop = ref false in
-	  begin try
-	    Var.var_push();
-		let done_var_ht = Hashtbl.create 5 in
-	    List.iter (fun (a,b) ->
-	      let a = eval_pe_str a in
-		  Hashtbl.add done_var_ht a true;
-	      Var.set_int32 a (eval_pe "" game b)
-		      ) int_var;
-	    List.iter (fun (a,b) ->
-	      let a = eval_pe_str a in
-		  Hashtbl.add done_var_ht a true;
-        let b = eval_pe_str b in
-        check_missing_eval ("STR_VAR \"" ^ a ^ "\" = \"" ^ b ^ "\" for LAUNCH_ACTION_FUNCTION \"" ^ str ^ "\"") b;
-	      Var.set_string a b
-		      ) str_var;
-	    List.iter (fun (a,b) ->
-	      let a = eval_pe_str a in
-	      if not (Hashtbl.mem done_var_ht a) then Var.set_int32 a (eval_pe "" game b)
-	    ) f_int_args;
-	    List.iter (fun (a,b) ->
-	      let a = eval_pe_str a in
-	      if not (Hashtbl.mem done_var_ht a) then Var.set_string a (eval_pe_str b)
-	    ) f_str_args;
-	    List.iter (process_action tp) f_code;
-	    let final_returns = Hashtbl.create 5 in
-	    List.iter (fun a ->
-	      let a = eval_pe_str a in
-	      let v = Var.get_string_exact ("%" ^ a ^ "%") in
-	      Hashtbl.add final_returns a v;
-		      ) f_rets;
-	    Var.var_pop();
-	    i_did_pop := true;
-	    List.iter (fun (a,b) ->
-	      let a = eval_pe_str a in
-	      let b = eval_pe_str b in
-	      Var.set_string a (try Hashtbl.find final_returns b with Not_found -> failwith (Printf.sprintf "Unknown return value: %s" b));
-		      ) rets;
-	  with e -> (if not !i_did_pop then Var.var_pop(); raise e); end
-
-      | TP_Launch_Action_Macro(str) ->
-	  let (decl, actions) =
-	    try
-	      Hashtbl.find action_macros (Var.get_string str)
-	    with _ ->
-	      failwith (Printf.sprintf "Unknown Macro: %s" str)
-		(*					 ( [] , [] ) *)
-	  in
-	  List.iter (fun x -> match x with
-	    TP_LocalSet(var,pe) ->
-	      let pe = (eval_pe "" game pe) in
-	      let var = eval_pe_str var in
-	      Var.add_local_int32 var pe
-	  | TP_LocalSprint (var,str) ->
-	      let var = eval_pe_str var in
-	      let (str : string) = eval_pe_tlk_str game str in
-	      let str = Var.get_string str in
-	      Var.add_local_string var str
-	  | TP_LocalTextSprint (var,str) ->
-	      let var = eval_pe_str var in
-	      let str = Var.get_string (eval_pe_str str) in
-	      Var.add_local_string var str
-		    ) decl ;
-	  List.iter (process_action tp) actions ;
-	  List.iter (fun x -> match x with
-	    TP_LocalSet(var,_)
-	  | TP_LocalSprint (var,_)
-	  | TP_LocalTextSprint (var,_) ->
-	      let var = eval_pe_str var in
-	      Var.remove_local var
-		    ) decl ;
 	  
       | TP_Reinclude(string_list) ->
 	  let string_list = List.map Var.get_string string_list in
@@ -507,22 +327,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    List.iter (process_action tp) tph_parsed ;
 		    ) string_list ;
 	  
-      | TP_Action_ReadLN(x) ->
-	  if !interactive then begin
-	    let y = read_line ()in
-      log_only "User answer: \"%s\"\n" y;
-	    Var.set_string (eval_pe_str x) y;
-	    readln_strings:= y :: !readln_strings;
-	  end else begin
-	    match !readln_strings with
-	    | b :: tl ->
-        log_only "Stored answer: \"%s\"\n" b;
-        Var.set_string (eval_pe_str x) b;
-        readln_strings := tl
-	    | [] ->
-		log_and_print "Not enough backed up entries in your replies"; failwith "Missing READLN strings"
-	  end;
-	  
       | TP_Uninstall_Now(name,comp) ->
 	  let comp = Int32.to_int (eval_pe "" game comp) in
 	  let name = Var.get_string name in
@@ -537,18 +341,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  end else
 	    log_or_print "%s component #%d not present, good.\n"
 	      name comp
-	      
-      | TP_RandomSeed(i) ->
-	  eval_pe_warn := false ;
-	  let _ = try
-	    let x = Int32.to_int (eval_pe "" game i) in
-	    Random.init x ;
-	  with _ ->
-	    begin
-	      Random.self_init () ;
-	    end
-	  in
-	  eval_pe_warn := true ;
 	  
       | TP_ClearMemory ->
 	  log_and_print "Clearing the variables.\n" ;
@@ -589,15 +381,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  List.iter (process_action_real our_lang game this_tp2_filename tp)
 	  [ TP_ClearArrays; TP_ClearMemory; TP_ClearInlined;
 		TP_ClearCodes; TP_Clear_Ids_Map ]
-	  
-      | TP_ActionClearArray(arr) ->
-	  let arr = eval_pe_str arr in
-	  while Hashtbl.mem !Var.arrays arr do
-	    Hashtbl.remove !Var.arrays arr
-	  done;
-
-      | TP_Silent -> be_silent := true ;
-      | TP_Verbose -> be_silent := false ;
 	  
       | TP_CopyRandom(slistlist,plist,wlist) ->
 	  List.iter (fun slist ->
