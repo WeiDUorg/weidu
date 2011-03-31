@@ -6,7 +6,7 @@
 
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
-let version = "22900"
+let version = "22901"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
