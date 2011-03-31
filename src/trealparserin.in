@@ -502,6 +502,13 @@ nonterm(Tp.tp_action) Tp_Action {
   -> ACTION_TRY e1:Tp_Action_List e2:Action_With_List END [ Tp.TP_ActionTry(e1,e2) ]
   -> ACTION_MATCH e1:Patch_Exp e2:Action_With_List END [ Tp.TP_ActionMatch(e1,e2) ]
   -> DECOMPRESS_BIFF e1:Patch_String_Right_List [ Tp.TP_DecompressBiff(e1) ]
+  -> ACTION_TO_LOWER e1:Patch_String_Right [ Tp.TP_ActionToLower e1 ]
+	-> ACTION_TO_UPPER e1:Patch_String_Right [ Tp.TP_ActionToUpper e1 ]
+	-> ACTION_GET_STRREF     e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        false,false) ]
+	-> ACTION_GET_STRREF_F   e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        true,false) ]
+	-> ACTION_GET_STRREF_S   e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        false,true) ]
+	-> ACTION_GET_STRREF_FS  e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        true,true) ]
+
 }
 
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List_Rev {

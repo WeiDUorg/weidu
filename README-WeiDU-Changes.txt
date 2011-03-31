@@ -10,6 +10,7 @@ Version 230:
   * *_BASH_FOR sets BASH_FOR_EXT.
   * APPEND, APPEND_OUTER - works like COPY -.
   * DISABLE_FROM_KEY prints to the log file the name of the files it removes.
+  * ACTION_ variants for GET_STRREF_*, TO_LOWER and TO_UPPER.
 
 Version 229:
   * Fixed some errors decompiling DLG files.

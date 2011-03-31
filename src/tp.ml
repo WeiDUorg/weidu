@@ -201,6 +201,9 @@ and tp_action =
   | TP_Alter_TLK_Range of tp_patchexp * tp_patchexp * (tp_patch list)
   | TP_Alter_TLK_List  of (tp_patchexp list) * (tp_patch list)
   | TP_DecompressBiff of tp_pe_string list
+  | TP_ActionToLower of tp_pe_string
+  | TP_ActionToUpper of tp_pe_string
+  | TP_ActionGetStrRef of tp_patchexp * tp_pe_string * bool * bool
 
 (*
   and predicate =

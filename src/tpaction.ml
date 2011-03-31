@@ -149,6 +149,15 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
         
       | TP_Verbose ->
         run_patch (TP_PatchVerbose)
+
+      | TP_ActionToLower x ->
+        run_patch (TP_PatchToLower x)
+
+      | TP_ActionToUpper x ->
+        run_patch (TP_PatchToUpper x)
+
+      | TP_ActionGetStrRef (a,b,c,d) ->
+        run_patch (TP_PatchGetStrRef(a,b,c,d))
         
       | TP_Move(filelist, do_backup) ->
 	    let move src dst =
