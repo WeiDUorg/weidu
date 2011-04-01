@@ -11,6 +11,8 @@ Version 230:
   * APPEND, APPEND_OUTER - works like COPY -.
   * DISABLE_FROM_KEY prints to the log file the name of the files it removes.
   * ACTION_ variants for GET_STRREF_*, TO_LOWER and TO_UPPER.
+  * GET_UNIQUE_FILE_NAME uses one IDS file per extension (so it can create
+    both __ABCD.CRE and __ABCD.ITM).
 
 Version 229:
   * Fixed some errors decompiling DLG files.

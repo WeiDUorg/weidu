@@ -38,28 +38,27 @@ DEFINE_PATCH_FUNCTION ~GET_UNIQUE_FILE_NAME~
     END
     
     INNER_ACTION BEGIN
-      ACTION_IF ! FILE_EXISTS_IN_GAME ~get_unique_filename.ids~ THEN BEGIN
+      ACTION_IF ! FILE_EXISTS_IN_GAME ~get_unique_filename_%extension%.ids~ THEN BEGIN
         <<<<<<<< empty
         >>>>>>>>
-        COPY + empty ~get_unique_filename.ids~
+        COPY + empty ~get_unique_filename_%extension%.ids~
       END
     END
     
-    SPRINT base ~%extension%_%base%~
-    value = IDS_OF_SYMBOL (~get_unique_filename~ ~%base%~)
+    value = IDS_OF_SYMBOL (~get_unique_filename_%extension%~ ~%base%~)
     PATCH_IF value = 0 - 1 THEN BEGIN
       found = 0
       WHILE !found BEGIN
         ++value
         LPF ~BASE36~ INT_VAR value = value RET maybe = base36 END
-        LOOKUP_IDS_SYMBOL_OF_INT exists get_unique_filename value
+        LOOKUP_IDS_SYMBOL_OF_INT exists get_unique_filename_%extension% value
         PATCH_IF IS_AN_INT exists
           && !FILE_EXISTS_IN_GAME ~__%maybe%.%extension%~ THEN BEGIN 
           found = 1
         END
       END
       INNER_ACTION BEGIN
-        APPEND + ~get_unique_filename.ids~ ~%value% %base%~
+        APPEND + ~get_unique_filename_%extension%.ids~ ~%value% %base%~
       END
     END ELSE BEGIN
       LPF ~BASE36~ INT_VAR value = value RET maybe = base36 END
