@@ -361,7 +361,7 @@ optional_evaluate :
 | DEFINE_PATCH_MACRO STRING BEGIN tp_local_declaration_list tp_patch_list END tp_flag_list
     { (Tp.Define_Patch_Macro($2,$4,$5)) :: $7 }
 | LOAD string_list tp_flag_list { (Tp.Load_Macro($2)) :: $3 }
-| MODDER tp_flag_list { debug_modder := true ; $2 }
+| MODDER tp_flag_list { Modder.set_modder [] ; $2 }
 | ALLOW_MISSING upper_string_list tp_flag_list
     { Tp.Allow_Missing($2) :: $3 }
 | SCRIPT_STYLE STRING tp_flag_list

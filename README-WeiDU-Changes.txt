@@ -13,6 +13,7 @@ Version 230:
   * ACTION_ variants for GET_STRREF_*, TO_LOWER and TO_UPPER.
   * GET_UNIQUE_FILE_NAME uses one IDS file per extension (so it can create
     both __ABCD.CRE and __ABCD.ITM).
+  * Fixed MODDER being unitialized in old-parser mode.
 
 Version 229:
   * Fixed some errors decompiling DLG files.

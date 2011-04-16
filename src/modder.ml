@@ -28,16 +28,24 @@ let options = ["SETUP_TRA";"AREA_VARIABLES";"MISSING_EXTERN";"MISSING_RESREF";"I
 let set_modder str_l =
   if not !debug_modder then begin
     debug_modder := true;
-    List.iter (fun x -> Hashtbl.replace mode x (Warn,100)) options;
+    List.iter (fun x -> match x with
+    | "OVERWRITING_FILE" -> Hashtbl.replace mode x (None,100)
+    | _ -> Hashtbl.replace mode x (Warn,100)
+    ) options;
   end;
   List.iter (fun (s1,s2,prio) ->
     let s2 = level_of_string s2 in
     let s1 = String.uppercase s1 in
-    let old_prio = (try
+    let old_prio = try
       snd (Hashtbl.find mode s1);
-    with _ -> failwith (Printf.sprintf "Unknown MODDER option: %s" s1)) in
+    with
+      _ ->
+        if List.mem s1 options then log_and_print "Known but unassigned MODDER option: %s" s1
+        else failwith (Printf.sprintf "Unknown MODDER option: %s" s1);
+        1000
+    in
     if prio <= old_prio then Hashtbl.replace mode s1 (s2, prio)
-	    ) str_l;
+	) str_l;
 ;;
 
 let get x = if !debug_modder then try fst (Hashtbl.find mode (String.uppercase x)) with _ -> Warn else None
