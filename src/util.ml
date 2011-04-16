@@ -149,7 +149,7 @@ let backup_dir = ref None
 let backup_list_chn = ref None
 let mappings_list_chn = ref None
 let move_list_chn = ref None
-let fuck_list_chn = ref None
+let other_list_chn = ref None
 
 let set_backup_dir str i =
   let i = Printf.sprintf "%d" i in 
@@ -165,19 +165,19 @@ let set_backup_dir str i =
   (match !move_list_chn with
     Some(c) -> close_out c
   | None -> ()) ; 
-  (match !fuck_list_chn with
+  (match !other_list_chn with
     Some(c) -> close_out c
   | None -> ()) ; 
   let backup_filename = (backup_dir_name ^ "/UNINSTALL." ^ i) in
   let mappings_filename = (backup_dir_name ^ "/MAPPINGS." ^ i) in
   let move_filename = (backup_dir_name ^ "/MOVE." ^ i) in
-  let fuck_filename = (backup_dir_name ^ "/FUCK." ^ i) in
+  let other_filename = (backup_dir_name ^ "/OTHER." ^ i) in
   Hashtbl.clear backup_ht ; 
   (try
     backup_list_chn := Some(Case_ins.perv_open_out_bin backup_filename);
     mappings_list_chn := Some(Case_ins.perv_open_out_bin mappings_filename);
     move_list_chn := Some(Case_ins.perv_open_out_bin move_filename);
-    fuck_list_chn := Some(Case_ins.perv_open_out_bin fuck_filename);
+    other_list_chn := Some(Case_ins.perv_open_out_bin other_filename);
   with e -> 
     log_and_print "WARNING: unable to open [%s]: %s
       Will be unable to UNINSTALL later.\n" backup_filename (printexc_to_string e))
@@ -516,7 +516,7 @@ let open_for_writing_internal backup filename binary =
   !modder_check_file_exists filename;
   if (backup) then backup_if_extant filename else 
   (
-   match !fuck_list_chn with
+   match !other_list_chn with
    | Some(chn) -> output_string chn (filename ^ "\n") ; flush chn
    | None -> ()
   );

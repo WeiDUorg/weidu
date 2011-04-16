@@ -188,7 +188,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 					if do_backup then begin match !move_list_chn with
             | Some(chn) -> output_string chn (src ^ " " ^ dst ^ "\n") ; flush chn
             | None -> () end;
-          begin match !fuck_list_chn with
+          begin match !other_list_chn with
             | Some(chn) -> output_string chn (src ^ "\n") ; output_string chn (dst ^ "\n") ; flush chn
             | None -> () end;
 					Case_ins.unix_rename src dst;
@@ -268,7 +268,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 		  if ((Case_ins.unix_stat (directory ^ "/" ^ next)).Unix.st_kind =
 		      Unix.S_REG) && (Str.string_match reg next 0) then
       (
-       match !fuck_list_chn with
+       match !other_list_chn with
        | Some(chn) -> output_string chn ("override/" ^ next ^ "\n") ; flush chn
        | None -> ()
       );

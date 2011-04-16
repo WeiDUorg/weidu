@@ -1698,7 +1698,7 @@ let main () =
      done
    with End_of_file -> close_in infile) [
       (Case_ins.perv_open_in (Printf.sprintf "%s/%d/MAPPINGS.%d" backup_dir comp comp),true);
-      (Case_ins.perv_open_in (Printf.sprintf "%s/%d/FUCK.%d" backup_dir comp comp), false)
+      (Case_ins.perv_open_in (Printf.sprintf "%s/%d/OTHER.%d" backup_dir comp comp), false)
    ];
    ) !Tp.the_log;
    List.iter (fun file1 ->

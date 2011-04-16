@@ -228,8 +228,8 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
       let m_filename = (Printf.sprintf "%s/MAPPINGS.%d" d i) in
       let u_strset_filename = (Printf.sprintf "%s/UNSETSTR.%d" d i) in
       let move_filename = (Printf.sprintf "%s/MOVE.%d" d i) in
-      let fuck_filename = (Printf.sprintf "%s/FUCK.%d" d i) in
-      my_unlink fuck_filename;
+      let other_filename = (Printf.sprintf "%s/OTHER.%d" d i) in
+      my_unlink other_filename;
 	  let uninstall_move () = 
 		  (
 		   try begin
