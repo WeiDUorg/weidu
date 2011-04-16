@@ -41,7 +41,7 @@ DEFINE_PATCH_FUNCTION ~GET_UNIQUE_FILE_NAME~
       ACTION_IF ! FILE_EXISTS_IN_GAME ~get_unique_filename_%extension%.ids~ THEN BEGIN
         <<<<<<<< empty
         >>>>>>>>
-        COPY + empty ~get_unique_filename_%extension%.ids~
+        COPY + empty ~override/get_unique_filename_%extension%.ids~
       END
     END
     
