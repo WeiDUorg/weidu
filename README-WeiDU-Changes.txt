@@ -14,6 +14,7 @@ Version 230:
   * GET_UNIQUE_FILE_NAME uses one IDS file per extension (so it can create
     both __ABCD.CRE and __ABCD.ITM).
   * Fixed MODDER being unitialized in old-parser mode.
+  * Fixed another bug with tolower.
 
 Version 229:
   * Fixed some errors decompiling DLG files.

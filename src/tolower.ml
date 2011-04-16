@@ -3,7 +3,7 @@
  * and other Linux-only boringness
  *)
 
-open Util;;
+open Util;; 
 
 (*
  * Bare-bones interface
@@ -40,25 +40,21 @@ let rec find_and_lower cur_dir () =
       let implicit = element.[0] = '.' in
       let element = cur_dir ^ "/" ^ element in
       
-      let is_a_symlink = try
-          let stats = Unix.lstat element in
-          stats.Unix.st_kind = Unix.S_LNK
-        with _ ->
-          true
+      let is_a_symlink =
+        let stats = Unix.lstat element in
+        stats.Unix.st_kind = Unix.S_LNK
       in
       if not implicit && not is_a_symlink then begin
         let exists = Hashtbl.mem done_ht (String.lowercase element) in
         if exists then begin
           dirlist := (element, true) :: !dirlist;
         end else begin
+          let is_a_dir =
+            let stats = Unix.lstat element in
+            stats.Unix.st_kind = Unix.S_DIR
+          in
           Unix.rename element "TMP_THIS_IS_A_VERY_TMP_NAME";
           Unix.rename "TMP_THIS_IS_A_VERY_TMP_NAME" (String.lowercase element);
-          let is_a_dir = try
-              let stats = Unix.lstat element in
-              stats.Unix.st_kind = Unix.S_DIR
-            with _ ->
-              true
-          in
           if is_a_dir then begin
             dirlist := (String.lowercase element, false) :: !dirlist;
           end
