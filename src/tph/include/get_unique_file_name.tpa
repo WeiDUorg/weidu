@@ -51,7 +51,7 @@ DEFINE_PATCH_FUNCTION ~GET_UNIQUE_FILE_NAME~
       WHILE !found BEGIN
         ++value
         LPF ~BASE36~ INT_VAR value = value RET maybe = base36 END
-        LOOKUP_IDS_SYMBOL_OF_INT exists get_unique_filename_%extension% value
+        LOOKUP_IDS_SYMBOL_OF_INT exists ~get_unique_filename_%extension%~ value
         PATCH_IF IS_AN_INT exists
           && !FILE_EXISTS_IN_GAME ~__%maybe%.%extension%~ THEN BEGIN 
           found = 1
