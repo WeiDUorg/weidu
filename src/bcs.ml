@@ -229,6 +229,26 @@ let check_file_presence_trigger string script_style ids game first_or_second_str
     ) ;
   ()
 
+let check_ids_presence_trigger value script_style ids game =
+  if Modder.get "MISSING_RESREF" = Modder.None then ()
+  else (* if script_style = Load.BG then *)
+    (
+     let ext = match ids with
+     | 0x4031l (* HaveSpellRes *)
+       -> "spl"
+
+     | _ -> ""
+     in
+
+     if ext <> "" then begin
+       if value = 0l
+       then (Modder.handle_deb "MISSING_RESREF"
+   (Printf.sprintf "POSSIBLE ERROR: spell '0' called for trigger %d.\n" (Int32.to_int ids)))
+
+     end
+    ) ;
+  ()
+
 let check_file_presence_action string script_style ids game first_or_second_string =
   if Modder.get "MISSING_RESREF" = Modder.None then ()
   else (* if script_style = Load.BG then *)
@@ -367,6 +387,36 @@ let check_file_presence_action string script_style ids game first_or_second_stri
      end
     ) ;
   ()
+  
+let check_ids_presence_action value script_style ids game =
+  if Modder.get "MISSING_RESREF" = Modder.None then ()
+  else (* if script_style = Load.BG then *)
+    (
+     let ext = match ids with
+     | 31l  (* SpellRES *)
+     | 95l  (* SpellPointRES *)
+     | 113l (* ForceSpellRES *)
+     | 114l (* ForceSpellPointRES *)
+     | 160l (* ApplySpellRES *)
+     | 181l (* ReallyForceSpellRES *)
+     | 191l (* SpellNoDecRES *)
+     | 192l (* SpellPointNoDecRES *)
+     | 240l (* ReallyForceSpellDeadRES *)
+     | 318l (* ForceSpellRangeRES *)
+     | 319l (* ForceSpellPointRangeRES *)
+     | 337l (* ReallyForceSpellPointRES *)
+       -> "spl"
+     | _ -> ""
+     in
+
+     if ext <> "" then begin
+       if value = 0l
+       then (Modder.handle_deb "MISSING_RESREF"
+   (Printf.sprintf "POSSIBLE ERROR: spell '0' called for action %d.\n" (Int32.to_int ids)))
+
+     end
+    ) ;
+  ()
 
 let save_bcs game how bcs =
   Stats.time "marshal BCS" (fun () ->
@@ -390,6 +440,7 @@ let save_bcs game how bcs =
     and save_t game t =
       check_file_presence_trigger t.t_3 game.Load.script_style t.trigger_id game 1 ;
       check_file_presence_trigger t.t_4 game.Load.script_style t.trigger_id game 2 ;
+      check_ids_presence_trigger t.t_1 game.Load.script_style t.trigger_id game;
       begin
 	match game.Load.script_style with
 	| Load.PST ->
@@ -418,6 +469,7 @@ let save_bcs game how bcs =
     and save_a game a =
       check_file_presence_action a.a_8 game.Load.script_style a.action_id game 1 ;
       check_file_presence_action a.a_9 game.Load.script_style a.action_id game 2 ;
+      check_ids_presence_action a.a_4 game.Load.script_style a.action_id game;
       bcs_printf "AC\n%ld" a.action_id;
       save_obj game a.a_1 ;
       save_obj game a.a_2 ;

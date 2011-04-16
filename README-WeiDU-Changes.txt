@@ -15,6 +15,7 @@ Version 230:
     both __ABCD.CRE and __ABCD.ITM).
   * Fixed MODDER being unitialized in old-parser mode.
   * Fixed another bug with tolower.
+  * Spell(Myself,0) will print a warning in MODDER MISSING_RESREF mode.
 
 Version 229:
   * Fixed some errors decompiling DLG files.
