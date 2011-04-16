@@ -1653,52 +1653,53 @@ let main () =
    let (tpfile,lang,comp,comp_name,status) = cur_mod in
    let tp2 = parse_tp2 tpfile in
    let backup_dir = tp2.Tp.backup in
-   let infile = Case_ins.perv_open_in (Printf.sprintf "%s/%d/MAPPINGS.%d" backup_dir comp comp) in
-   begin
-   try
-   while true do
-   let line = input_line infile in
-   let parts = Str.split many_whitespace_regexp line in
-   let (a,b) = match parts with
-   | a :: b :: _ -> (a,b)
-   | a :: [] -> (a,"")
-   | [] -> failwith "Empty line in a MAPPINGS file."
-   in
-   let (a,b) = (String.uppercase a, String.uppercase b) in
-   let a_stem = Str.global_replace (Str.regexp "^OVERRIDE[/\\]") "" a in
-   if (List.mem a_stem change_log) then begin
-   log_and_print "%s\n" line;
-   let m = Tpstate.get_nth_module tp2 comp true in
-   Dc.push_trans();
-   (try
-   let l = List.nth tp2.Tp.languages lang in
-   List.iter add_tras l.Tp.lang_tra_files ;
-   with _ -> ()
-   ) ;
-   let comp_str = Dc.single_string_of_tlk_string_safe game m.Tp.mod_name in
-	let subcomp_group the_comp =
-	  let rec walk lst = match lst with
-	  | Tp.TPM_SubComponents(ts,a,b) :: tl -> Some(ts)
-	  | hd :: tl -> walk tl
-	  | [] -> None
-	  in walk the_comp.Tp.mod_flags
-	in
-	let subcomp_str = (
-	  match subcomp_group m with
-	  | None    -> ""
-	  | Some(x) -> "" ^ (Dc.single_string_of_tlk_string_safe game x) ^ " -> ") in
-	let rec get_version lst = match lst with
-	| Tp.Version(lse) :: _ -> ": " ^ Dc.single_string_of_tlk_string_safe game lse
-	|	_ :: tl -> get_version tl
-	| [] -> ""
-	in
-	let version = get_version tp2.Tp.flags in
-   Dc.pop_trans();
-   Hashtbl.replace backup_lists a ((tpfile, lang, comp, comp_str, subcomp_str, version, b) :: get_file a);
-   end
-   done
-   with End_of_file -> close_in infile
-   end;
+   List.iter (fun (infile,saveable) ->
+     try
+     while true do
+     let line = input_line infile in
+     let parts = Str.split many_whitespace_regexp line in
+     let (a,b) = match parts with
+     | a :: b :: _ -> (a,b)
+     | a :: [] -> (a,"")
+     | [] -> failwith "Empty line in a MAPPINGS file."
+     in
+     let (a,b) = (String.uppercase a, String.uppercase b) in
+     let a_stem = Str.global_replace (Str.regexp "^OVERRIDE[/\\]") "" a in
+     if (List.mem a_stem change_log) then begin
+       log_and_print "%s\n" line;
+       let m = Tpstate.get_nth_module tp2 comp true in
+       Dc.push_trans();
+       (try
+       let l = List.nth tp2.Tp.languages lang in
+       List.iter add_tras l.Tp.lang_tra_files ;
+       with _ -> ()
+       ) ;
+       let comp_str = Dc.single_string_of_tlk_string_safe game m.Tp.mod_name in
+      let subcomp_group the_comp =
+        let rec walk lst = match lst with
+        | Tp.TPM_SubComponents(ts,a,b) :: tl -> Some(ts)
+        | hd :: tl -> walk tl
+        | [] -> None
+        in walk the_comp.Tp.mod_flags
+      in
+      let subcomp_str = (
+        match subcomp_group m with
+        | None    -> ""
+        | Some(x) -> "" ^ (Dc.single_string_of_tlk_string_safe game x) ^ " -> ") in
+      let rec get_version lst = match lst with
+      | Tp.Version(lse) :: _ -> ": " ^ Dc.single_string_of_tlk_string_safe game lse
+      |	_ :: tl -> get_version tl
+      | [] -> ""
+      in
+      let version = get_version tp2.Tp.flags in
+       Dc.pop_trans();
+       Hashtbl.replace backup_lists a ((tpfile, lang, comp, comp_str, subcomp_str, version, b, saveable) :: get_file a);
+     end
+     done
+   with End_of_file -> close_in infile) [
+      (Case_ins.perv_open_in (Printf.sprintf "%s/%d/MAPPINGS.%d" backup_dir comp comp),true);
+      (Case_ins.perv_open_in (Printf.sprintf "%s/%d/FUCK.%d" backup_dir comp comp), false)
+   ];
    ) !Tp.the_log;
    List.iter (fun file1 ->
    let file1 = String.uppercase file1 in
@@ -1707,11 +1708,11 @@ let main () =
    let (base,ext) = split file1 in
    let i = ref 0 in
    print_theout "\n\n\nMods affecting %s:\n" file1;
-   List.iter (fun (tpfile,lang,comp,comp_str,subcomp_str,version,backup) ->
+   List.iter (fun (tpfile,lang,comp,comp_str,subcomp_str,version,backup,saveable) ->
    let out = Printf.sprintf "%s/%s.%05d.%s" theout.dir base !i ext in
-   if file_exists backup then copy_large_file backup out "--change-log";
+   if saveable && file_exists backup then copy_large_file backup out "--change-log";
    print_theout "%05d: %s~%s~ %d %d // %s%s%s\n" !i
-   (if backup = "" then "/* from game biffs */ "  else "") tpfile lang comp subcomp_str comp_str version;
+   (if not saveable then "/* acted upon in an indetectable manner */" else if backup = "" then "/* from game biffs */ "  else "") tpfile lang comp subcomp_str comp_str version;
    incr i;
    ) file_log
    ) change_log;

@@ -16,6 +16,7 @@ Version 230:
   * Fixed MODDER being unitialized in old-parser mode.
   * Fixed another bug with tolower.
   * Spell(Myself,0) will print a warning in MODDER MISSING_RESREF mode.
+  * --change-log can figure out about MOVE, DISABLE_FROM_KEY or MAKE_BIFF.
 
 Version 229:
   * Fixed some errors decompiling DLG files.
