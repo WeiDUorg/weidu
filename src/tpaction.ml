@@ -852,9 +852,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						    let this_music_number = get_next_line_number "SONGLIST.2DA" in
                 if not (file_exists "tobex.dll") && this_music_number >100 then begin
                   if engine_is "tob" then begin 
-                    failwith "Throne of Bhaal requires ToBEx to support more than 256 kits."
+                    failwith "Throne of Bhaal requires ToBEx to support more than 100 musics."
                   end else begin
-                    failwith "Shadows of Amn cannot support more than 256 kits. Install Throne of Bhaal and ToBEx."
+                    failwith "Shadows of Amn cannot support more than 100 musics. Install Throne of Bhaal and ToBEx."
                   end
                 end;
 						    let str_to_append = Printf.sprintf "%d %s %s"
