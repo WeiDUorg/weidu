@@ -19,6 +19,7 @@ Version 230:
   * LANGUAGE ~path/with/%WEIDU_OS%variable.tra~ works.
   * --rcmp-from partially implemented. Undocumented because its output is
     unreliable.
+  * Synchronize the sample prompts.tra with the real string list.
 
 Version 229:
   * Fixed some errors decompiling DLG files.
