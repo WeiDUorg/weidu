@@ -1639,6 +1639,7 @@ let main () =
    with _ -> []
    in
    let add_tras s =
+   let s = Tpstate.decompile_var s in
    let x =
    try Hashtbl.find tras s
    with _ ->

@@ -111,7 +111,7 @@ let rec handle_tp
               log_and_print "%s [%s]\n" (get_trans (-1035)) l.lang_name ;
               log_or_print "[%s] has %d top-level TRA files\n"
 		l.lang_name (List.length l.lang_tra_files) ;
-              List.iter handle_tra_filename (List.map Arch.backslash_to_slash l.lang_tra_files)
+              List.iter handle_tra_filename (List.map Arch.backslash_to_slash (List.map decompile_var l.lang_tra_files))
 	end
       in
       Var.set_string "TP2_AUTHOR" tp.author ;
@@ -1278,7 +1278,7 @@ let rec handle_tp
 		  let l = List.nth tp2.languages b in
 		  our_lang := Some(l) ;
 		  our_lang_index := b ;
-		  List.iter handle_tra_filename (List.map Arch.backslash_to_slash l.lang_tra_files);
+		  List.iter handle_tra_filename (List.map Arch.backslash_to_slash (List.map decompile_var l.lang_tra_files));
 		  (*  log_and_print "Re-Installing Using Language [%s]\n" l.lang_name ;*)
 		  log_and_print "%s [%s]\n" ((get_trans (-1012))) l.lang_name ;
 		  Var.set_string "LANGUAGE" l.lang_dir_name ;

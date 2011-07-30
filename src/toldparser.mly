@@ -386,7 +386,7 @@ optional_evaluate :
 | LANGUAGE STRING STRING string_list tp_lang_list
     { { Tp.lang_name = $2 ;
 	Tp.lang_dir_name = $3 ;
-	Tp.lang_tra_files = $4 ;
+	Tp.lang_tra_files = (List.map (fun s -> Tp.Must_Get_Var s) $4) ;
       } :: $5 }
     ;
 

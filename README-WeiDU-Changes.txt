@@ -5,7 +5,6 @@ Version 230:
   * MODDER OVERWRITING_FILE prints a message if you are writing to a file that
     exists physically and/or in biffs.
   * MODDER messages are also visible in SILENT mode.
-  * --rcmp-from added. Undocumented because its output is unreliable.
   * *_BASH_FOR lists files in ASCIIbetical order, rather than inverse order.
   * *_BASH_FOR sets BASH_FOR_EXT.
   * APPEND, APPEND_OUTER - works like COPY -.
@@ -17,6 +16,9 @@ Version 230:
   * Fixed another bug with tolower.
   * Spell(Myself,0) will print a warning in MODDER MISSING_RESREF mode.
   * --change-log can figure out about MOVE, DISABLE_FROM_KEY or MAKE_BIFF.
+  * LANGUAGE ~path/with/%WEIDU_OS%variable.tra~ works.
+  * --rcmp-from partially implemented. Undocumented because its output is
+    unreliable.
 
 Version 229:
   * Fixed some errors decompiling DLG files.

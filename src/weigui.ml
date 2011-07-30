@@ -89,6 +89,7 @@ let get_component_name a b c =
     (try
       let l = List.nth tp2.Tp.languages b in
       List.iter (fun s ->
+		let s = Tpstate.decompile_var s in
         let x =
           try Hashtbl.find tra_ht s
           with _ ->

@@ -197,7 +197,7 @@ nonterm(Tp.tp_lang list) Tp_Lang_List_Rev {
 	-> [ [] ]
 	-> e4:Tp_Lang_List_Rev LANGUAGE e1:STRING e2:STRING e3:String_List [ { Tp.lang_name = e1 ;
       Tp.lang_dir_name = e2 ;
-      Tp.lang_tra_files = e3 ;
+      Tp.lang_tra_files = (List.map (fun s -> Tp.Must_Get_Var s) e3) ;
   } :: e4 ]
 }
 

@@ -45,6 +45,9 @@ type tp_flag =
   | Readme of string list
   | Uninstall_Order of string list
   | Quick_Menu of (Dlg.tlk_string * int list) list * int list
+  
+and must_get_var =
+  | Must_Get_Var of string
 
 and wrapper =
   | Start_From_Tp  of tp_file
@@ -63,7 +66,7 @@ and tp_file = {
 and tp_lang = {
     lang_name : string ;
     lang_dir_name : string ;
-    lang_tra_files : string list ;
+    lang_tra_files : must_get_var list ;
   }
 
 and tp_mod = {

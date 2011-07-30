@@ -171,6 +171,11 @@ let print_log () =
       (str_of_str_opt sopt)
 	    ) !the_log
 
+let decompile_var s = 
+	match s with
+	| Must_Get_Var x -> Var.get_string x
+;;
+		
 let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filename log tp2_ht tra_ht vocal intro =
   let out = Buffer.create 10000 in
   if vocal then (log_or_print "Saving This Log:\n" ; print_log ());
@@ -200,7 +205,8 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
             (try
               let l = List.nth tp2.languages b in
               List.iter (fun s ->
-                let x =
+                let s = decompile_var s in
+				let x =
                   (* log_or_print "*** Loading %s for %s.\n" s a; *)
                   try Hashtbl.find tra_ht s
                   with _ ->
