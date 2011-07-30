@@ -1655,7 +1655,9 @@ let main () =
    let tp2 = parse_tp2 tpfile in
    let backup_dir = tp2.Tp.backup in
    List.iter (fun (infile,saveable) ->
-     try
+     if file_exists infile then
+	 let infile = Case_ins.perv_open_in infile in
+	 try
      while true do
      let line = input_line infile in
      let parts = Str.split many_whitespace_regexp line in
@@ -1698,8 +1700,8 @@ let main () =
      end
      done
    with End_of_file -> close_in infile) [
-      (Case_ins.perv_open_in (Printf.sprintf "%s/%d/MAPPINGS.%d" backup_dir comp comp),true);
-      (Case_ins.perv_open_in (Printf.sprintf "%s/%d/OTHER.%d" backup_dir comp comp), false)
+      (Printf.sprintf "%s/%d/MAPPINGS.%d" backup_dir comp comp,true);
+      (Printf.sprintf "%s/%d/OTHER.%d" backup_dir comp comp, false)
    ];
    ) !Tp.the_log;
    List.iter (fun file1 ->
