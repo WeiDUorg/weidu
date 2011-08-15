@@ -20,8 +20,6 @@ Version 230:
   * --rcmp-from partially implemented. Undocumented because its output is
     unreliable.
   * Synchronize the sample prompts.tra with the real string list.
-  * No spurious "spell '0' called for action XYZ" when compiling *Res
-    actions.
 
 Version 229:
   * Fixed some errors decompiling DLG files.
