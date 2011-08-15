@@ -229,7 +229,7 @@ let check_file_presence_trigger string script_style ids game first_or_second_str
     ) ;
   ()
 
-let check_ids_presence_trigger value script_style ids game =
+let check_ids_presence_trigger value file script_style ids game =
   if Modder.get "MISSING_RESREF" = Modder.None then ()
   else (* if script_style = Load.BG then *)
     (
@@ -241,7 +241,7 @@ let check_ids_presence_trigger value script_style ids game =
      in
 
      if ext <> "" then begin
-       if value = 0l
+       if value = 0l && file = ""
        then (Modder.handle_deb "MISSING_RESREF"
    (Printf.sprintf "POSSIBLE ERROR: spell '0' called for trigger %d.\n" (Int32.to_int ids)))
 
@@ -388,7 +388,7 @@ let check_file_presence_action string script_style ids game first_or_second_stri
     ) ;
   ()
   
-let check_ids_presence_action value script_style ids game =
+let check_ids_presence_action value file script_style ids game =
   if Modder.get "MISSING_RESREF" = Modder.None then ()
   else (* if script_style = Load.BG then *)
     (
@@ -410,7 +410,7 @@ let check_ids_presence_action value script_style ids game =
      in
 
      if ext <> "" then begin
-       if value = 0l
+       if value = 0l && file = ""
        then (Modder.handle_deb "MISSING_RESREF"
    (Printf.sprintf "POSSIBLE ERROR: spell '0' called for action %d.\n" (Int32.to_int ids)))
 
@@ -440,7 +440,7 @@ let save_bcs game how bcs =
     and save_t game t =
       check_file_presence_trigger t.t_3 game.Load.script_style t.trigger_id game 1 ;
       check_file_presence_trigger t.t_4 game.Load.script_style t.trigger_id game 2 ;
-      check_ids_presence_trigger t.t_1 game.Load.script_style t.trigger_id game;
+      check_ids_presence_trigger t.t_1 t.t_3 game.Load.script_style t.trigger_id game;
       begin
 	match game.Load.script_style with
 	| Load.PST ->
@@ -469,7 +469,7 @@ let save_bcs game how bcs =
     and save_a game a =
       check_file_presence_action a.a_8 game.Load.script_style a.action_id game 1 ;
       check_file_presence_action a.a_9 game.Load.script_style a.action_id game 2 ;
-      check_ids_presence_action a.a_4 game.Load.script_style a.action_id game;
+      check_ids_presence_action a.a_4 a.a_8 game.Load.script_style a.action_id game;
       bcs_printf "AC\n%ld" a.action_id;
       save_obj game a.a_1 ;
       save_obj game a.a_2 ;
