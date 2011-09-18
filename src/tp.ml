@@ -154,7 +154,7 @@ and tp_action =
   | TP_Outer_Set of tp_pe_string * tp_patchexp
   | TP_Outer_Sprint of tp_pe_string * tp_pe_tlk_string
   | TP_Outer_Text_Sprint of tp_pe_string * tp_pe_string
-  | TP_ActionDefineAssociativeArray of tp_pe_string * (tp_pe_string * tp_pe_string) list
+  | TP_ActionDefineAssociativeArray of tp_pe_string * ((tp_pe_string list) * tp_pe_string) list
   | TP_Outer_While of tp_patchexp * (tp_action list)
   | TP_Require_File of string * (Dlg.tlk_string)
   | TP_Forbid_File of string * (Dlg.tlk_string)
@@ -274,7 +274,7 @@ and tp_patch =
   | TP_PatchBashFor of ((string * (bool option) * string) list) * (tp_patch list)
   | TP_PatchClearArray of tp_pe_string
   | TP_PatchDefineArray of tp_pe_string * string list
-  | TP_DefineAssociativeArray of tp_pe_string * (tp_pe_string * tp_pe_string) list
+  | TP_DefineAssociativeArray of tp_pe_string * ((tp_pe_string list) * tp_pe_string) list
   | TP_PatchPHPEach of tp_pe_string * tp_pe_string * tp_pe_string * tp_patch list
   | TP_PatchForEach of tp_pe_string * string list * tp_patch list
   | TP_PatchStrRef of tp_patchexp * Dlg.tlk_string (* offset + text *)

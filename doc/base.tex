@@ -3517,7 +3517,7 @@ or & \DEFINE{GET!FILE!ARRAY} \ttref{String} path \ttref{regexp} &
   The array \verb+$string(0)+, \verb+$string{1}+ etc is set to the file names, including path, that match regexp in path. The path is relative to the installation directory (e.g. save/000000000-Auto-Save).\\
 or & \DEFINE{GET!DIRECTORY!ARRAY} \ttref{String} path \ttref{regexp} &
   Like \ttref{GET!FILE!ARRAY} except regexp is matched against directories instead of files.\\
-or & \DEFINE{ACTION!DEFINE!ASSOCIATIVE!ARRAY} \t{\ttref{String} BEGIN key1 => result1} \Slist \t{END} &
+or & \DEFINE{ACTION!DEFINE!ASSOCIATIVE!ARRAY} \t{\ttref{String} BEGIN key1 \Ob , key2 ... \Oe => result1} \Slist \t{END} &
   Sets the array \verb+$string+, indexed by the keys, to the corresponding results. The results can either be \ttref{String}s or \ttref{value}s.
   Example:
   \begin{verbatim}
@@ -4017,7 +4017,7 @@ As you can see, the value for Offset2 isn't included in the set, since it varies
 
 "Offset2" corresponds to the result from \ttref{GET!OFFSET!ARRAY}. "Offset" is read from the start of the file. "Iterations" and "Index" are read from Offset2 + value. Apart from that GET!OFFSET!ARRAY2 functions like \ttref{GET!OFFSET!ARRAY}. A more detailed explanation can be had in the \ttref{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} tutorial.\\
      
-or & \DEFINE{DEFINE!ASSOCIATIVE!ARRAY} \t{\ttref{String} BEGIN key1 => result1} \Slist \t{END} &
+or & \DEFINE{DEFINE!ASSOCIATIVE!ARRAY} \t{\ttref{String} BEGIN key1 \Ob , key2 ... \Oe => result1} \Slist \t{END} &
   Sets the array \verb+$string+, indexed by the keys, to the corresponding results. The results can either be \ttref{String}s or \ttref{value}s.
   Example:
   \begin{verbatim}

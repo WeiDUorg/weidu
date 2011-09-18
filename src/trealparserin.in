@@ -674,14 +674,25 @@ nonterm((string * string) list) Rev_Str_Str_List {
 	-> e3:Rev_Str_Str_List e1:STRING e2:STRING [ (e1,e2) :: e3 ]
 }
 
-nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) Associative_String_List_Rev {
+nonterm(((Tp.tp_pe_string list) * Tp.tp_pe_string) list) Associative_String_List_Rev {
 	-> { [] }
-	-> e3:Associative_String_List_Rev e1:Patch_String_Left EQUALSGREATER e2:Patch_String_Right
+	-> e3:Associative_String_List_Rev e1:Array_Parameter_List EQUALSGREATER e2:Patch_String_Right
 		[ (e1,e2) :: e3 ]
 }
 
-nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) Associative_String_List {
+nonterm(((Tp.tp_pe_string list) * Tp.tp_pe_string) list) Associative_String_List {
 	-> e3:Associative_String_List_Rev
+		[ List.rev e3 ]
+}
+
+nonterm(Tp.tp_pe_string list) Array_Parameter_List_Rev {
+	-> e1:Patch_String_Left { [e1] }
+	-> e3:Array_Parameter_List_Rev COMMA e1:Patch_String_Left
+		[ e1 :: e3 ]
+}
+
+nonterm(Tp.tp_pe_string list) Array_Parameter_List {
+	-> e3:Array_Parameter_List_Rev
 		[ List.rev e3 ]
 }
 

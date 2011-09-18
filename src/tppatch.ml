@@ -612,7 +612,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
     | TP_DefineAssociativeArray(arr,vals) ->
 	List.iter (fun (x,y) ->
 	  Var.set_string
-	    (eval_pe_str (PE_Dollars(arr,[x],
+	    (eval_pe_str (PE_Dollars(arr,x,
 				     false,true))) (Var.get_string (eval_pe_str y));
 		  ) vals;
 	buff
