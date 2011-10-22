@@ -1,3 +1,6 @@
+Version 231:
+  * GAME_IS ~TOS~ for detecting The Original Saga.
+
 Version 230:
   * GAME_IS support for IWD-in-BG2.
   * Fixed a case of missing @ reference killing the whole of WeiDU and not
@@ -20,6 +23,7 @@ Version 230:
   * --rcmp-from partially implemented. Undocumented because its output is
     unreliable.
   * Synchronize the sample prompts.tra with the real string list.
+  * DEFINE_ASSOCIATIVE_ARRAY can define multi-variable arrays.
 
 Version 229:
   * Fixed some errors decompiling DLG files.
