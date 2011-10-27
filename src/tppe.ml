@@ -413,7 +413,6 @@ let rec eval_pe buff game p =
       let  how = f "ar9109.are"   in
       let tolm = f "ar9715.are"   in
       let ttsc = f "fw2003.are"   in
-	  let tos  = if game_or_engine then file_exists "music/death.mus" else false in
       let res = List.exists (fun this ->
         match String.uppercase this with
         | "BG2"
@@ -423,7 +422,6 @@ let rec eval_pe buff game p =
         | "PST"        -> pst
         | "BG1"        -> bg1 && not tosc && not bg2
         | "TOTSC"      -> bg1 &&     tosc && not bg2 && not iwd1
-        | "TOS"        -> bg1 &&     tosc && not bg2 && not iwd1 && tos
         | "IWD"
         | "IWD1"       -> iwd1 && not how && not tolm && not bg2
         | "HOW"        -> iwd1 &&     how && not tolm && not bg2
