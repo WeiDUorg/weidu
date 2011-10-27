@@ -1,6 +1,8 @@
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
     of the ones it was told to.
+ * SET_2DA_ENTRY now works correctly if the file begins with a newline and/or
+   carriage return (ex. IWD1/TotSC scrlev.ids).
 
 Version 230:
   * GAME_IS support for IWD-in-BG2.

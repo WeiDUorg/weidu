@@ -895,7 +895,10 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	in
 	process entries row ;
 	(try begin 
-          let pos = ref 0 in 
+          let pos = ref 0 in
+		  while buff.[!pos] = '\n' || buff.[!pos] = '\r' do
+		    incr pos;
+		  done;
           for n = 1 to !newlines_sofar do
             pos := (Str.search_forward many_newline_or_cr_regexp buff !pos) ;
             pos := Str.match_end () ;
