@@ -1,3 +1,7 @@
+Version 231:
+  * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
+    of the ones it was told to.
+
 Version 230:
   * GAME_IS support for IWD-in-BG2.
   * Fixed a case of missing @ reference killing the whole of WeiDU and not

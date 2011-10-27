@@ -333,13 +333,14 @@ let remove_files key file_lst =
 	let index = ref 0 in
 	let new_resource = Array.init !new_file_count (fun _ ->
 		let item = ref (key.resource.(!index)) in
-		while Hashtbl.mem file_hsh (!item.res_name, (ext_of_key !item.res_type)) do
+		while not (Hashtbl.mem new_resfind (!item.res_name, (ext_of_key !item.res_type))) do
 			incr index;
 			item := key.resource.(!index)
 		done;
 		incr index;
 		!item
 	) in
+	assert (!index - List.length file_lst + Hashtbl.length file_hsh = !new_file_count);
 	{ key with
 		resfind = new_resfind;
 		resource = new_resource;
