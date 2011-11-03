@@ -459,10 +459,10 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
           process_patch2 patch_filename game buff (TP_PatchMatch ((PE_String (PE_LiteralString e)),opts))
       end
   
-    | TP_Launch_Patch_Function (str,int_var,str_var,rets) ->
+    | TP_Launch_Patch_Function (str,is_patch,int_var,str_var,rets) ->
   let str = Var.get_string str in
 	let (f_int_args,f_str_args,f_rets,f_code) = try
-	  Hashtbl.find functions str
+	  Hashtbl.find functions (str, is_patch)
 	with _ -> failwith (Printf.sprintf "Unknown function: %s" str)
 	in
 	let i_did_pop = ref false in
@@ -507,10 +507,10 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	  buff
 	with e -> (if not !i_did_pop then Var.var_pop(); raise e); end
 
-    | TP_Launch_Patch_Macro(str) ->
+    | TP_Launch_Patch_Macro(str, is_patch) ->
 	let (decl, actions) =
           try
-            Hashtbl.find macros (Var.get_string str)
+            Hashtbl.find macros (Var.get_string str, is_patch)
           with _ ->
             failwith (Printf.sprintf "Unknown macro: %s" str)
 (*           ( [] , [] ) *)

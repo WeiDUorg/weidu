@@ -925,9 +925,9 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> SAY e1:Patch_Exp e2:Lse [ Tp.TP_PatchStrRef(e1,e2) ]
 	-> SAY_EVALUATED e1:Patch_Exp e2:STRING [ Tp.TP_PatchStrRefEvaluated(e1,e2) ]
 	-> DESCRIBE_ITEM e1:STRING [ Tp.TP_DescribeItem e1 ]
-	-> LAUNCH_PATCH_MACRO e1:STRING [ Tp.TP_Launch_Patch_Macro e1 ]
+	-> LAUNCH_PATCH_MACRO e1:STRING [ Tp.TP_Launch_Patch_Macro (e1,true) ]
   -> LAUNCH_PATCH_FUNCTION e1:STRING e2:LaunchFunctionIntVar e3:LaunchFunctionStrVar e4:LaunchFunctionRet END
-		[ Tp.TP_Launch_Patch_Function(e1,e2,e3,e4) ]
+		[ Tp.TP_Launch_Patch_Function(e1,true,e2,e3,e4) ]
 		-> REPLACE e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:Lse
 			[ Tp.TP_PatchString(e1,e2,e3,e4) ]
 	-> REPLACE_TEXTUALLY e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:STRING

@@ -302,8 +302,8 @@ and tp_patch =
 						tp_patchexp * tp_patchexp * tp_patchexp * tp_patchexp)
   | TP_PatchGetOffsetArray2 of tp_pe_string * (tp_patchexp * tp_patchexp * tp_patchexp
 						 * tp_patchexp * tp_patchexp * tp_patchexp * tp_patchexp * tp_patchexp)
-  | TP_Launch_Patch_Macro of string
-  | TP_Launch_Patch_Function of string* (tp_pe_string * tp_patchexp) list *
+  | TP_Launch_Patch_Macro of string * bool
+  | TP_Launch_Patch_Function of string * bool * (tp_pe_string * tp_patchexp) list *
 	(tp_pe_string * tp_pe_string) list * (tp_pe_string * tp_pe_string) list
   | TP_Add_Known_Spell of string * tp_patchexp * string
   | TP_Add_Memorized_Spell of string * tp_patchexp * string * tp_patchexp

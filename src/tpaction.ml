@@ -118,22 +118,22 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
         run_patch(TP_PatchTry(pl_of_al al, List.map (fun (a,b,c) -> a,b,pl_of_al c) opts))
         
       | TP_Define_Action_Macro(str,decl,al) ->
-	  Hashtbl.replace macros str (decl, pl_of_al al)
+	  Hashtbl.replace macros (str,false) (decl, pl_of_al al)
 
       | TP_Define_Patch_Macro(str,decl,al) ->
-	  Hashtbl.replace macros str (decl, al)
+	  Hashtbl.replace macros (str,true) (decl, al)
 
       | TP_Define_Action_Function (str,a,b,c,d) ->
-	  Hashtbl.replace functions str (a,b,c,pl_of_al d)
+	  Hashtbl.replace functions (str,false) (a,b,c,pl_of_al d)
 
       | TP_Define_Patch_Function (str,a,b,c,d) ->
-	  Hashtbl.replace functions str (a,b,c,d)
+	  Hashtbl.replace functions (str,true) (a,b,c,d)
 
       | TP_Launch_Action_Function (a,b,c,d) ->
-        run_patch (TP_Launch_Patch_Function (a,b,c,d))
+        run_patch (TP_Launch_Patch_Function (a,false,b,c,d))
 
       | TP_Launch_Action_Macro(str) ->
-        run_patch (TP_Launch_Patch_Macro str)
+        run_patch (TP_Launch_Patch_Macro (str,false))
 	  
       | TP_Action_ReadLN(x) ->
         run_patch (TP_PatchReadLN x)
