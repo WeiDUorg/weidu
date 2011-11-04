@@ -167,6 +167,11 @@ and tp_action =
          *)
   | TP_Append_Col of string * string * tp_patchexp * (tp_constraint list)
         (* prepend to the string int blank entries (EG for ADD_KIT) *)
+		* bool * int
+		 (* When bool is true, load the file as bif or override; otherwise, it's loaded
+         * as a normal file.
+         * Create backup?
+         *)
   | TP_Set_Col of string * (string list) * int
   | TP_Extend_Top of bool * string * string * (tp_patch list) * (string list)
   | TP_Extend_Bottom of bool * string * string * (tp_patch list) * (string list)

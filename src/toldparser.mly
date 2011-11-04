@@ -544,8 +544,8 @@ optional_evaluate :
 | FORBID_FILE STRING lse { Tp.TP_Forbid_File($2,$3) }
 | APPEND STRING STRING tp_when_list { Tp.TP_Append($2,$3,$4,true,false,0) }
 | APPEND_OUTER STRING STRING tp_when_list { Tp.TP_Append($2,$3,$4,false,false,0) }
-| APPEND_COL STRING STRING tp_when_list { Tp.TP_Append_Col($2,$3,Tp.get_pe_int "0",$4) }
-| APPEND_COL STRING STRING  STRING tp_when_list { Tp.TP_Append_Col($2,$3,(Tp.get_pe_int $4),$5) }
+| APPEND_COL STRING STRING tp_when_list { Tp.TP_Append_Col($2,$3,Tp.get_pe_int "0",$4,true,0) }
+| APPEND_COL STRING STRING  STRING tp_when_list { Tp.TP_Append_Col($2,$3,(Tp.get_pe_int $4),$5,true,0) }
 | EXTEND_TOP STRING STRING tp_patch_list optional_using
     { Tp.TP_Extend_Top(false,$2,$3,$4,$5) }
 | EXTEND_BOTTOM STRING STRING tp_patch_list optional_using

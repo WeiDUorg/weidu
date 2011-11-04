@@ -1125,7 +1125,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						      k.kit_name
 						  end else begin
 						    let a1 = TP_Append("CLASWEAP.2DA",k.clasweap,[],true,false,0) in
-						    let a2 = TP_Append_Col("WEAPPROF.2DA",k.weapprof,Tp.get_pe_int "2",[]) in
+						    let a2 = TP_Append_Col("WEAPPROF.2DA",k.weapprof,Tp.get_pe_int "2",[],true,0) in
 						    let a3 = TP_Append("ABCLASRQ.2DA",k.abclasrq,[],true,false,0) in
 						    let a4 = TP_Append("ABDCDSRQ.2DA",k.abdcdsrq,[],true,false,0) in
 						    let a5 = TP_Append("ABDCSCRQ.2DA",k.abdcscrq,[],true,false,0) in
@@ -1613,7 +1613,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    log_or_print "Set text in [%s] column-wise\n" file
 	  end
 	      
-      | TP_Append_Col(file,src,count_prepend,con_l) ->
+      | TP_Append_Col(file,src,count_prepend,con_l,frombif,do_backup) ->
 	  let file = Arch.backslash_to_slash (Var.get_string file) in
 	  let temp = Var.get_string src in
 	  let src_list = Str.split (Str.regexp "[ \t]+") temp in
@@ -1632,8 +1632,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  
 	  let src_list = prepend count_prepend src_list in
 	  log_and_print "Appending to files column-wise ...\n" ;
-	  let eight,three = split (String.uppercase file) in
-	  let buff,loaded_path = Load.load_resource "APPEND_COLUMN" game true eight three in
+	  let buff = if frombif then
+		let eight,three = split (String.uppercase file) in
+		let buff,loaded_path = Load.load_resource "APPEND_COLUMN" game true eight three in
+		buff
+	  else
+	    load_file file
+	  in
 	  if buff = "" then
 	    log_or_print "[%s]: empty or does not exist\n" file
 	  else begin 
@@ -1668,28 +1673,47 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 		  end 
 				      ) true con_l in 
 	    if okay then begin (* do the append *) 
-	      let dest = "override/" ^ file in 
+	      let dest = if frombif then
+			"override/" ^ file
+		  else
+			file
+		  in
 	      let buff_as_lines = Str.split many_newline_or_cr_regexp buff in
 	      if List.length buff_as_lines <> List.length src_list then begin
 		log_and_print "Cannot append column-wise because there are %d lines in %s but I was only given %d things to append\n" (List.length buff_as_lines) file (List.length src_list)  ;
 		failwith ("cannot append column-wise to " ^ file)
 	      end ;
 	      Stats.time "saving files" (fun () -> 
-		let out = open_for_writing dest true in
-		List.iter2 (fun orig app ->
-		  output_string out orig ;
-		  output_string out " " ;
-		  output_string out app ;
-		  output_string out "\r\n" 
-			   ) buff_as_lines src_list ; 
-		close_out out ;
-		begin (* handle read-only files! *)
-		  try
-		    Case_ins.unix_chmod dest 511 ; (* 511 = octal 0777 = a+rwx *)
-		  with e -> ()
-		      (* log_or_print "WARNING: chmod %s : %s\n" filename
-			 (printexc_to_string e) *)
-		end ;) () ;
+		    if do_backup = 2 then begin
+				let out_buff = Buffer.create 1000 in
+				List.iter2 (fun orig app ->
+				  Buffer.add_string out_buff orig ;
+				  Buffer.add_string out_buff " " ;
+				  Buffer.add_string out_buff app ;
+				  Buffer.add_string out_buff "\r\n" 
+				) buff_as_lines src_list ; 
+				let result_buff = Buffer.contents out_buff in
+				log_only_modder "Defined Inlined File [%s] (length %d)\n"
+					dest (String.length result_buff) ;
+				Hashtbl.add inlined_files (Arch.backslash_to_slash dest) result_buff
+			end else begin
+				let out = open_for_writing_internal (do_backup = 0) dest true in
+				List.iter2 (fun orig app ->
+				  output_string out orig ;
+				  output_string out " " ;
+				  output_string out app ;
+				  output_string out "\r\n" 
+					   ) buff_as_lines src_list ; 
+				close_out out ;
+				begin (* handle read-only files! *)
+				  try
+					Case_ins.unix_chmod dest 511 ; (* 511 = octal 0777 = a+rwx *)
+				  with e -> ()
+					  (* log_or_print "WARNING: chmod %s : %s\n" filename
+					 (printexc_to_string e) *)
+				end
+			end
+		  ) () ;
 	      log_or_print "Appended text to [%s] column-wise\n" file
 	    end
 	  end

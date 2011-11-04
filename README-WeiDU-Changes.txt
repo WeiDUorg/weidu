@@ -5,6 +5,8 @@ Version 231:
    carriage return (ex. IWD1/TotSC scrlev.ids).
  * Fixed a regression that caused a patch macro to overwrite an action macro
    by the same name (or functions, or vice versa).
+ * APPEND_COL_OUTER added.
+ * APPEND_COL can take optBackup.
 
 Version 230:
   * GAME_IS support for IWD-in-BG2.

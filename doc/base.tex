@@ -3084,7 +3084,7 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
       Waits for the user to provided an enter-terminated string and store it in
       variable. Said string will be stored and re-used at reinstall time. See the
       \ttref{READLN} tutorial. \\
-or & \DEFSYN{APPEND} filename newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe  &
+or & \DEFSYN{APPEND} \ttref{optNoBackup} filename newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe  &
       If there are no \ttref{when} conditions or they are all true, the
       ASCII text newText is appended to the existing file filename (which
       is read from the game \ttref{BIFF}s or the \t{override} folder).
@@ -3097,7 +3097,7 @@ or & \DEFSYN{APPEND} filename newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe 
       CRLF will be written; otherwise, if the file does not end with CRLF,
       it will be written before newText.
       \\
-  or & \DEFINE{APPEND!OUTER} filename newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe  &
+  or & \DEFINE{APPEND!OUTER} \ttref{optNoBackup} filename newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe  &
       If there are no \ttref{when} conditions or they are all true, the
       ASCII text newText is appended to the existing file filename (which
       is treated as a path to a file).
@@ -3110,9 +3110,32 @@ or & \DEFSYN{APPEND} filename newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe 
       CRLF will be written; otherwise, if the file does not end with CRLF,
       it will be written before newText.
       \\
-  or & \DEFINE{APPEND!COL} filename newText \Ob prepend \Oe \ttref{when} \Slist &
+  or & \DEFINE{APPEND!COL} \ttref{optNoBackup} filename newText \Ob prepend \Oe \ttref{when} \Slist &
       If there are no \ttref{when} conditions or they are all true, the
-      string newText is appended column-wise to the existing file filename.
+      string newText is appended column-wise to the existing file filename (which
+      is read from the game \ttref{BIFF}s or the \t{override} folder).
+      If filename was:
+      \begin{rawhtml}<br>
+A B C <br>
+D E F <br>
+X Y Z <br>
+P Q R <br>
+      \end{rawhtml}
+      and newText was \t{"0 1 2 3"}, the result would be:
+      \begin{rawhtml}<br>
+A B C 0 <br>
+D E F 1 <br>
+X Y Z 2 <br>
+P Q R 3 <br>
+      \end{rawhtml}
+      You must have the same number of whitespace-separated words in
+      newText as there are columns in filename. Prepend empty cells are 
+	  assumed to be at the beginning of newText. A cell containing exactly
+	  {\verb`$`} is printed as empty. \\
+  or & \DEFINE{APPEND!COL!OUTER} \ttref{optNoBackup} filename newText \Ob prepend \Oe \ttref{when} \Slist &
+      If there are no \ttref{when} conditions or they are all true, the
+      string newText is appended column-wise to the existing file filename (which
+      is treated as a path to a file).
       If filename was:
       \begin{rawhtml}<br>
 A B C <br>
