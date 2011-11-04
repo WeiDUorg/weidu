@@ -3012,10 +3012,23 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
        to files in the save/ and mpsave/ directories. The savegame from the biffs is
        backuped as usual.}  \\
 
-  or & \DEFINE{MOVE} fromFile toFile ... &
+  or & \DEFINE{MOVE} fromFile toFile ... \verb+(+ \ttref{directory-file-regexp} \verb+)+ toFile ... &
        You may specify as many fromFile-toFile pairs as you like. Each
-       fromFile is moved to its associated toFile. Wildcard support will
-       be added on request.
+       fromFile is moved to its associated toFile.
+	   
+	   If fromFile is a file, toFile can be a file or a directory; if fromFile is a
+	   directory, toFile must be a directory; if fromFile doesn't exist, an error is
+	   raised.
+
+	   \verb+MOVE+ also supports the \ttref{directory-file-regexp} construct
+	   in place of fromFile; in this form, it must be wrapped in parenthesis,
+	   toFile must be a directory, and no error is raised if no file is matched. Examples:
+	   \begin{verbatim}
+MOVE ~sourceFile~ ~destinationFile~
+MOVE ~sourceFile~ ~destinationDirectory~
+MOVE ~sourceDirectory~ ~destinationDirectory~
+MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory~
+	   \end{verbatim}
        
        Safety notes: when uninstalling, MOVE is restored first,
        then all generic actions are restored, then AT!*!UNINSTALL is handled.

@@ -197,6 +197,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 				log_and_print "MOVE %s %s: source is a directory\n" src dst;
 	    in
 		List.iter (fun (src,dst) ->
+		match src with
+		| TP_File src ->
 			let src = Var.get_string src in
 			let dst = Var.get_string dst in
 			if is_directory src then begin
@@ -209,7 +211,35 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 				)  (Sys.readdir src)
 			end else
 				move src dst
-	    ) filelist
+		| TP_Directory_Regexp (dir, match_exact, regexp) ->
+			let dir = Var.get_string dir in
+			let regexp = Var.get_string regexp in
+			let dst = Var.get_string dst in
+			if not (is_directory dst) then failwith 
+				(Printf.sprintf "MOVE ([%s] [%s]) [%s]: can't move a directory into a file, or destination directory not existing"
+					dir regexp dst
+				);
+			let dh = Case_ins.unix_opendir dir in
+			let reg = begin match match_exact with
+			| Some(true) ->
+				Str.regexp_string_case_fold
+			| _ ->
+				Str.regexp_case_fold
+			end regexp
+			in
+			(try
+			  while true do
+				let next = Unix.readdir dh in
+				if ((Case_ins.unix_stat (dir ^ "/" ^ next)).Unix.st_kind =
+					Unix.S_REG) && (Str.string_match reg next 0) then begin
+					let file = (String.uppercase (dir ^ "/" ^ next)) in
+					let filespec = Case_ins.filename_basename file in
+					move file (dst ^ "/" ^ filespec)
+				end
+			  done
+			with End_of_file -> () );
+			Unix.closedir dh ;
+		) filelist
       | TP_DisableFromKey(file_lst) ->
 		let file_lst = List.map Var.get_string (List.map eval_pe_str file_lst) in
 		let file_lst = List.map String.uppercase file_lst in
@@ -1980,7 +2010,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let bif = Case_ins.filename_chop_extension s ^ ".bif" in
             close_out (open_for_writing bif true);
             let sz = Cbif.cbf2bif (Case_ins.fix_name s) (Case_ins.fix_name bif) in
-            process_action tp (TP_Move ([s, (match !backup_dir with | None -> "" | Some(x) -> x) ^ "/" ^ Filename.basename s], true));
+            process_action tp (TP_Move ([TP_File s, (match !backup_dir with | None -> "" | Some(x) -> x) ^ "/" ^ Filename.basename s], true));
             log_and_print "[%s] decompressed bif file %d bytes\n" s sz
           ) else if Filename.check_suffix s "bif" then (
             let tmp = "tb#decompress_biff_temp_file.bif" in

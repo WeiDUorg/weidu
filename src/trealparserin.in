@@ -330,7 +330,7 @@ nonterm(Tp.tp_action) Tp_Action {
         Tp.copy_at_end = false ;
         Tp.copy_save_inlined = (e1 = 2) ;
 			}]
-	-> MOVE e0:Optional_Plus e1:Str_Str_List [ Tp.TP_Move(e1,e0) ]
+	-> MOVE e0:Optional_Plus e1:TP_Move_List [ Tp.TP_Move(e1,e0) ]
 	-> DISABLE_FROM_KEY e1: Patch_String_Left_List [ Tp.TP_DisableFromKey e1 ]
 	-> COPY_ALL_GAM_FILES e1:Tp_Patch_List e2:Tp_When_List [ Tp.TP_CopyAllGamFiles(e1,e2) ]
 	-> COPY_LARGE e1:Optional_Plus e2:Optional_Glob e3:Str_Str_List [ Tp.TP_CopyLarge {
@@ -665,6 +665,16 @@ nonterm(Tp.tp_constraint) Tp_When {
 	-> IF_SIZE_IS e1:STRING [ Tp.TP_IfSizeIs(my_int_of_string e1) ]
 	-> IF_EVAL e1:Patch_Exp [ Tp.TP_Eval e1 ]
 	-> BUT_ONLY_IF_IT_CHANGES [ Tp.TP_ButOnlyIfItChanges ]
+}
+
+nonterm((Tp.file_or_directory_regexp * string) list) TP_Move_List {
+	-> e1:Rev_TP_Move_List [ List.rev e1 ]
+}
+
+nonterm((Tp.file_or_directory_regexp * string) list) Rev_TP_Move_List {
+	-> { [] }
+	-> e5:Rev_TP_Move_List e1:STRING e4:STRING [ (Tp.TP_File e1, e4) :: e5 ]
+	-> e5:Rev_TP_Move_List LPAREN e1:STRING e2:Optional_Match_Exact e3:STRING RPAREN e4:STRING [ (Tp.TP_Directory_Regexp (e1,e2,e3), e4) :: e5 ]
 }
 
 nonterm((string * string) list) Str_Str_List {

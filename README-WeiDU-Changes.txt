@@ -9,6 +9,7 @@ Version 231:
  * APPEND_COL can take optBackup.
  * ADD_MUSIC, ADD_KIT also check for tob_hacks and/or GemRB when doing bounds
    check.
+ * MOVE supports the directory-file-regexp construct in its from section.
 
 Version 230:
   * GAME_IS support for IWD-in-BG2.

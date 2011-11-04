@@ -111,6 +111,11 @@ and store_args = {
     overwrite_store_item  : bool ; (* normally TRUE *)
   }
 
+and file_or_directory_regexp =
+| TP_File of string
+| TP_Directory_Regexp of string * (bool option) * string
+
+
 and tp_action =
   | TP_ActionBashFor of ((string * (bool option) * string) list) * (tp_action list)
   | TP_ActionDefineArray of tp_pe_string * string list
@@ -126,7 +131,7 @@ and tp_action =
   | TP_ActionClearArray of tp_pe_string
   | TP_CopyAllGamFiles of tp_patch list * tp_constraint list
   | TP_Copy   of tp_copy_args
-  | TP_Move of (string * string) list * bool
+  | TP_Move of (file_or_directory_regexp * string) list * bool
   | TP_DisableFromKey of tp_pe_string list
   | TP_CopyLarge of tp_copy_large_args
   | TP_CopyRandom of (string list list) * (tp_patch list) * (tp_constraint list)
