@@ -7,6 +7,8 @@ Version 231:
    by the same name (or functions, or vice versa).
  * APPEND_COL_OUTER added.
  * APPEND_COL can take optBackup.
+ * ADD_MUSIC, ADD_KIT also check for tob_hacks and/or GemRB when doing bounds
+   check.
 
 Version 230:
   * GAME_IS support for IWD-in-BG2.

@@ -311,4 +311,69 @@ let check_missing_eval for_what str =
     in
     ignore ((check str) || (check ("%" ^ str ^ "%")))
   end
-  
+
+let version_greater i c =
+	let installed = Str.split (Str.regexp_string ".") (Str.global_replace many_whitespace_or_nl_regexp "" i) in
+	let cmp = Str.split (Str.regexp_string ".") c in
+	let rec compare installed cmp = match installed, cmp with
+	| [], [] -> true
+	| hd1 :: tl1, hd2 :: tl2 ->
+		log_and_print "compare %s %s\n" hd1 hd2;
+		if (int_of_string hd1) < (int_of_string hd2) then false
+		else if (int_of_string hd1) > (int_of_string hd2) then true
+		else compare tl1 tl2
+	| _ -> failwith (Printf.sprintf "version numbers have different lengths: [%s] vs [%s]" i c)
+	in
+	compare installed cmp
+;;
+
+let checks_passed = Hashtbl.create 5
+;;
+
+let check_enhanced_engine allow_tobhacks allow_tobex allow_gemrb =
+	if Hashtbl.mem checks_passed (allow_tobhacks, allow_tobex, allow_gemrb) then
+		Hashtbl.find checks_passed (allow_tobhacks, allow_tobex, allow_gemrb)
+	else begin
+		let any_ok = ref false in
+		let ans = if (match allow_gemrb with
+		| None -> false
+		| Some cmp_version ->
+			if file_exists "gemrb_version.txt" then begin
+				let gemrb_version = load_file "gemrb_version.txt" in
+				version_greater gemrb_version cmp_version
+			end else false
+		) then true else if
+		(match allow_tobex with
+		| None -> false
+		| Some cmp_version ->
+			if file_exists "tobex_ini/tobexver.txt" then begin
+				let tobex_version = int_of_string (load_file "tobex_ini/tobexver.txt") in
+				tobex_version >= cmp_version
+			end else false
+		) then true else
+		(match allow_tobhacks with
+		| None -> false
+		| Some signature ->
+			if file_exists "bgmain.exe" then begin
+				let all_match = ref true in
+				let count = Int32.to_int (Var.get_int32_extended (signature ^ "_count")) in
+				if count <= 0 then false else begin 
+					let bgmain_buff = load_file "bgmain.exe" in
+					for i = 1 to count do
+						let offset = Int32.to_int (Var.get_int32_extended (signature ^ "_address_" ^ string_of_int i)) in
+						let signature = Var.get_string_exact ("%" ^ signature ^ "_patch_bytes_" ^ string_of_int i ^ "%") in
+						let cmp = String.sub bgmain_buff offset (String.length signature) in
+						if (signature <> cmp) then begin
+							all_match := false;
+						end else begin
+						end
+					done;
+					!all_match
+				end
+			end else false
+		) in
+		if ans then
+			Hashtbl.add checks_passed (allow_tobhacks, allow_tobex, allow_gemrb) true;
+		ans
+	end
+;;

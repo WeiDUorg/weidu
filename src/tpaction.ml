@@ -850,13 +850,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						    log_and_print "Adding %s Music ...\n" m.music_name;
 						    let music_base_name_lower = Case_ins.filename_basename m.music_file in
 						    let this_music_number = get_next_line_number "SONGLIST.2DA" in
-                if not (file_exists "tobex.dll") && this_music_number >100 then begin
-                  if engine_is "tob" then begin 
-                    failwith "Throne of Bhaal requires ToBEx to support more than 100 musics."
-                  end else begin
-                    failwith "Shadows of Amn cannot support more than 100 musics. Install Throne of Bhaal and ToBEx."
-                  end
-                end;
+							if this_music_number > 100 then begin
+							  if not (check_enhanced_engine (Some "tb#music") (Some 20) (Some "0.6.6")) then begin
+								failwith "The game requires tob_hacks, ToBEx or GemRB to support more than 100 musics."
+							  end
+							end;
 						    let str_to_append = Printf.sprintf "%d %s %s"
 							this_music_number m.music_name music_base_name in
 						    
@@ -1164,17 +1162,15 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 							failwith "resolve"
 						    in
 						    let this_kit_number = get_next_line_number "KITLIST.2DA" in
-              if file_exists "tobex.dll" && this_kit_number > 0x500 then begin
-                failwith ("Throne of Bhaal (with ToBEx installed) cannot currently support more than 1280 kits.\n" ^
-                  "Ask Ascension64 to further increase the limit in ToBEx");
-              end;
-              if not (file_exists "tobex.dll") && this_kit_number > 0x100 then begin
-                if engine_is "tob" then begin 
-                  failwith "Throne of Bhaal requires ToBEx to support more than 256 kits."
-                end else begin
-                  failwith "Shadows of Amn cannot support more than 256 kits. Install Throne of Bhaal and ToBEx."
-                end
-              end;
+							  if this_kit_number > 0x500 then begin
+								failwith ("The game cannot currently support more than 1280 kits.\n" ^
+								  "Ask Ascension64 to further increase the limit in ToBEx");
+							  end;
+							  if this_kit_number > 0x100 then begin
+								if not (check_enhanced_engine (None) (Some 20) (Some "0.6.6")) then begin 
+								  failwith "The game requires ToBEx or GemRB to support more than 256 kits."
+								end
+							  end;
 						    let this_kit_prof_number = get_next_col_number "WEAPPROF.2DA" in
 						    let append_to_kitlist = Printf.sprintf
 							"%d  %s %d %d %d %s %d %s"
