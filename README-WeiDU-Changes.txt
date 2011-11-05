@@ -1,15 +1,17 @@
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
     of the ones it was told to.
- * SET_2DA_ENTRY now works correctly if the file begins with a newline and/or
-   carriage return (ex. IWD1/TotSC scrlev.ids).
- * Fixed a regression that caused a patch macro to overwrite an action macro
-   by the same name (or functions, or vice versa).
- * APPEND_COL_OUTER added.
- * APPEND_COL can take optBackup.
- * ADD_MUSIC, ADD_KIT also check for tob_hacks and/or GemRB when doing bounds
-   check.
- * MOVE supports the directory-file-regexp construct in its from section.
+  * SET_2DA_ENTRY now works correctly if the file begins with a newline and/or
+    carriage return (ex. IWD1/TotSC scrlev.ids).
+  * Fixed a regression that caused a patch macro to overwrite an action macro
+    by the same name (or functions, or vice versa).
+  * APPEND_COL_OUTER added.
+  * APPEND_COL can take optBackup.
+  * ADD_MUSIC, ADD_KIT also check for tob_hacks and/or GemRB when doing bounds
+    check.
+  * MOVE supports the directory-file-regexp construct in its from section.
+  * You can MOVE + (but not MOVE) a file to a file, even if the path contains
+    spaces. Don't use this feature without a real reason.
 
 Version 230:
   * GAME_IS support for IWD-in-BG2.

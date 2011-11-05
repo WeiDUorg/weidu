@@ -164,7 +164,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 			let ok = ref true in
 			(try ignore (String.index src ' '); ok := false with _ -> ());
 			(try ignore (String.index dst ' '); ok := false with _ -> ());
-			if not !ok then failwith 
+			if do_backup && not !ok then failwith 
 				(Printf.sprintf "MOVE [%s] [%s]: source and destination can't contain spaces"
 					src dst
 				);
@@ -189,7 +189,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						| Some(chn) -> output_string chn (src ^ " " ^ dst ^ "\n") ; flush chn
 						| None -> ()
 					);
-					( match !other_list_chn with
+					if !ok then ( match !other_list_chn with
 						| Some(chn) -> output_string chn (src ^ "\n") ; output_string chn (dst ^ "\n") ; flush chn
 						| None -> ()
 					);
