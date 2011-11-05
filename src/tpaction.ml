@@ -162,15 +162,15 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Move(filelist, do_backup) ->
 	    let move src dst =
 			let ok = ref true in
-			try ignore (String.index src ' '); ok := false with _ -> ();
-			try ignore (String.index dst ' '); ok := false with _ -> ();
+			(try ignore (String.index src ' '); ok := false with _ -> ());
+			(try ignore (String.index dst ' '); ok := false with _ -> ());
 			if not !ok then failwith 
 				(Printf.sprintf "MOVE [%s] [%s]: source and destination can't contain spaces"
 					src dst
 				);
 			let dst = if is_directory dst then dst ^ "/" ^ (Case_ins.filename_basename src) else dst in
-			if not (is_directory src) then begin
-				if (file_exists dst) then begin
+			if not (is_directory src) then (
+				if (file_exists dst) then (
 					log_or_print "MOVE %s %s: destination exists, falling back to COPY\n" src dst;
 					process_action tp (TP_Copy{
 						copy_get_existing = false;
@@ -183,18 +183,19 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						copy_at_end = false;
 						copy_save_inlined = false;
 					});
-				end else begin
+				) else (
 					log_or_print "Moving %s to %s\n" src dst;
-					if do_backup then begin match !move_list_chn with
-            | Some(chn) -> output_string chn (src ^ " " ^ dst ^ "\n") ; flush chn
-            | None -> () end;
-          begin match !other_list_chn with
-            | Some(chn) -> output_string chn (src ^ "\n") ; output_string chn (dst ^ "\n") ; flush chn
-            | None -> () end;
+					if do_backup then ( match !move_list_chn with
+						| Some(chn) -> output_string chn (src ^ " " ^ dst ^ "\n") ; flush chn
+						| None -> ()
+					);
+					( match !other_list_chn with
+						| Some(chn) -> output_string chn (src ^ "\n") ; output_string chn (dst ^ "\n") ; flush chn
+						| None -> ()
+					);
 					Case_ins.unix_rename src dst;
-				end
-			end else
-				log_and_print "MOVE %s %s: source is a directory\n" src dst;
+				)
+			) else log_and_print "MOVE %s %s: source is a directory\n" src dst;
 	    in
 		List.iter (fun (src,dst) ->
 		match src with
