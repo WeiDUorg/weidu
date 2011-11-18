@@ -195,6 +195,8 @@ let main () =
 
   let use_trans = ref false in 
   let test_trans = ref false in 
+  
+  let no_auto_tp2 = ref false in
 
   let argv0_base, argv0_ext = split (String.uppercase 
 				       (Case_ins.filename_basename Sys.argv.(0))) in
@@ -292,6 +294,7 @@ let main () =
     "--change-log-list",Myarg.List (Myarg.String (fun s -> change_log := s :: !change_log)), "\tgenerates a changelog for the given resource (cumulative)";
     "--change-log-rest",Myarg.Rest (Myarg.String (fun s -> change_log := s :: !change_log)), "\tgenerates a changelog for the given resource (cumulative)";
     "--noautoupdate", Myarg.Set no_auto_update,"\tdo not auto-update WeiDU setup files" ;
+	"--no-auto-tp2", Myarg.Set no_auto_tp2, "\tdo not run setup-mymod.tp2 even if argv[0] is setup-mymod.exe" ;
     "--noselfupdatemsg", Myarg.Clear Autoupdate.self_update_message,"\tdo not print any self-updating messages" ;
     "--update-all", Myarg.Set auto_update_all,"\tauto-update all WeiDU setup files";
     "--args", Myarg.String (fun s -> Var.set_string ("argv[" ^ (string_of_int !counter) ^ "]") s; incr counter),
@@ -500,7 +503,7 @@ let main () =
 
    (* see if SETUP is in our base name *)
    let setup_regexp = Str.regexp_case_fold "setup" in
-   begin
+   if not !no_auto_tp2 then begin
    try
    let _ = Str.search_forward setup_regexp argv0_base 0 in
    auto () ;
