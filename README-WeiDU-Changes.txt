@@ -15,6 +15,7 @@ Version 231:
   * Automatically set ~%WEIDU_EXECUTABLE%~ to the name of the currently running
     WeiDU executable (E.G. C:\games\bg2\setup-mymod.exe or /usr/bin/WeiDU).
   * AT_NOW ~VIEW foo~ uses xdg-open instead of firefox on Unix.
+  * MAKE_BIFF only biffs files that match against the search regexp.
 
 Version 230:
   * GAME_IS support for IWD-in-BG2.

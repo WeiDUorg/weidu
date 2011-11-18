@@ -296,14 +296,16 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	      (try
 		while true do
 		  let next = Unix.readdir dh in
+		  if !debug_ocaml then log_and_print "%s\n" next;
 		  if ((Case_ins.unix_stat (directory ^ "/" ^ next)).Unix.st_kind =
 		      Unix.S_REG) && (Str.string_match reg next 0) then
       (
+		  if !debug_ocaml then log_and_print "  match!\n";
+      find_list := (String.uppercase (directory ^ "/" ^ next)) :: !find_list;
        match !other_list_chn with
        | Some(chn) -> output_string chn ("override/" ^ next ^ "\n") ; flush chn
        | None -> ()
       );
-      find_list := (String.uppercase (directory ^ "/" ^ next)) :: !find_list
 		done
 	      with End_of_file -> () );
 	      Unix.closedir dh ;
