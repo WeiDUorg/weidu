@@ -402,6 +402,8 @@ let rec handle_tp
 	      let readln_backup_filename =
 	        Printf.sprintf "%s/%d/READLN.%d" tp.backup i i
 	      in
+		  
+		  Var.set_string "WEIDU_EXECUTABLE" Sys.argv.(0);
 	      
 	      if !interactive && (!Var.cli_variables = None) then begin
 	        let counter = ref 0 in

@@ -18,7 +18,7 @@ let backslash_to_slash s =
 				s
 
 (* how to view a text (or HTML) file on 90% of linuxes *)
-let view_command = "firefox ./"
+let view_command = "xdg-open ./"
 
 let do_auto_update = true
 

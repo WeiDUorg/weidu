@@ -12,6 +12,9 @@ Version 231:
   * MOVE supports the directory-file-regexp construct in its from section.
   * You can MOVE + (but not MOVE) a file to a file, even if the path contains
     spaces. Don't use this feature without a real reason.
+  * Automatically set ~%WEIDU_EXECUTABLE%~ to the name of the currently running
+    WeiDU executable (E.G. C:\games\bg2\setup-mymod.exe or /usr/bin/WeiDU).
+  * AT_NOW ~VIEW foo~ uses xdg-open instead of firefox on Unix.
 
 Version 230:
   * GAME_IS support for IWD-in-BG2.
