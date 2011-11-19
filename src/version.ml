@@ -6,7 +6,7 @@
 
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
-let version = "23003"
+let version = "23100"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
@@ -232,4 +232,5 @@ let version = "23003"
 (* 227 let comment = "A putrid, half-eaten hare" *)
 (* 228 let comment = "Procastination is the b" *)
 (* 229 let comment = "Braaaains for Paaaper" *)
-let comment = "Unpaid overtime sux"
+(* 230 let comment = "Unpaid overtime sux" *)
+let comment = "Magic tricks using Hashtables"
