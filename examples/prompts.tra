@@ -43,7 +43,7 @@
 @-1020= "Skipping"
 @-1021= "Removing [";
 @-1022= "] (component #";
-@-1023= "="
+@-1023= ")"
 @-1024= "SUCCESSFULLY REMOVED ["
 
 @-1025= "]?\n[R]e-install, [N]o Change, [U]ninstall, [Q]uit or choose one:"
