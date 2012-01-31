@@ -3,8 +3,7 @@
  * and other Linux-only boringness
  *)
 
-open BatteriesInit
-open Util;; 
+open Util
 
 (*
  * Bare-bones interface
