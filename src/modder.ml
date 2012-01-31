@@ -1,3 +1,4 @@
+open BatteriesInit
 open Util
 
 exception Modder_error of string

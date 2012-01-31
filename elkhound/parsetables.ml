@@ -1,6 +1,7 @@
 (* parsetables.ml *)
 (* representation of parsing tables *)
 (* based on elkhound/parsetables.h *)
+open BatteriesInit
 
 
 (* The C++ implementation is designed so the sizes of the various

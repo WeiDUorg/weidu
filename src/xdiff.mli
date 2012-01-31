@@ -3,6 +3,7 @@
    Returns the unified diff between the string "orig_buff" and
    "new_buff". 
  *)
+
 external diff: string -> string -> int -> string = "xdiff_diff"
 
 (* Usage: new_buff, rej_buff = patch orig_buff patch_buff 

@@ -6,6 +6,7 @@
 
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
+open BatteriesInit
 let version = "23100"
 
 (* Historical Comments: *)

@@ -31,6 +31,7 @@
  *
  *)
 
+open BatteriesInit
 (******************************************************************************)
 (* Pretty printer 
    This module contains several fast, but sub-optimal heuristics to pretty-print 

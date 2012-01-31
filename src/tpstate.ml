@@ -2,6 +2,7 @@
  * Functions to store the current state of WeiDU
  *)
 
+open BatteriesInit
 open Util
 open Tp
 

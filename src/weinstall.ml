@@ -1,3 +1,6 @@
+
+open BatteriesInit
+
 let log_and_print fmt =
   let k result = begin
     output_string stdout result ; flush stdout ;

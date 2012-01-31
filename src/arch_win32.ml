@@ -7,6 +7,7 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 (* Win32 Arch-Specific definitions *)
+open BatteriesInit
 
 let slash_to_backslash s =
   Str.global_replace (Str.regexp_string "/") "\\\\" s 

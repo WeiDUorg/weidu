@@ -1,5 +1,6 @@
 (* smutil.ml *)
 (* some random utilities I think should be built in to the language *)
+open BatteriesInit
 
 let isEmpty (lst: 'a list) : bool =
 begin

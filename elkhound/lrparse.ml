@@ -1,6 +1,7 @@
 (* lrparse.ml *)
 (* deterministic LALR(1) parser *)
 
+open BatteriesInit
 open Lexerint       (* tLexerInterface *)
 open Parsetables    (* actionTable, etc. *)
 open Useract        (* reductionAction *)

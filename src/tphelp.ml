@@ -1,6 +1,7 @@
 (* Text functions
  *)
 
+open BatteriesInit
 open Util
 open Tp
 

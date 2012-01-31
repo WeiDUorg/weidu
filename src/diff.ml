@@ -1,4 +1,5 @@
 (* Diff routines using xdiff library *)
+open BatteriesInit
 open Util
 open Xdiff
 open Str

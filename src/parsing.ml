@@ -20,6 +20,7 @@
 
 (* The parsing engine *)
 
+open BatteriesInit
 open Lexing
 
 (* Internal interface to the parsing engine *)

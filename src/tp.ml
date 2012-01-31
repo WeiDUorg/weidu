@@ -10,6 +10,7 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 (* Talk-Patcher / Installer *)
+open BatteriesInit
 open Util
 
 let always_yes = ref false

@@ -1,4 +1,5 @@
 (* Disjoint Timings *)
+open BatteriesInit
 
 type t = { mutable start : float; 
            mutable above_me : float ;

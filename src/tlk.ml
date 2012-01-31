@@ -1,4 +1,5 @@
 (* Infinity Engine [TLK] Format *)
+open BatteriesInit
 open Util
 
 (* let flags_parse = 7  *)

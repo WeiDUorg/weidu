@@ -1,4 +1,5 @@
 (* Infinity Engine [DLG] *)
+open BatteriesInit
 open Util
 
 let emit_from = ref true 

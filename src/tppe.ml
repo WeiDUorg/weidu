@@ -1,6 +1,7 @@
 (* Functions to evaluate a patch expression
  *)
 
+open BatteriesInit
 open Util
 open Tp
 open Parsewrappers

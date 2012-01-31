@@ -3,6 +3,7 @@
 (* based on elkhound/useract.h *)
 
 (* for now, some actual user actions *)
+open BatteriesInit
 
 
 (* secret to type casting in OCaml: the Obj module *)

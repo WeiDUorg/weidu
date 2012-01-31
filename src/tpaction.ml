@@ -1,3 +1,4 @@
+open BatteriesInit
 open Util
 open Diff
 open Tp
@@ -534,6 +535,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    let slist =
 	      if get_existing = true && use_reg = true then begin
 		let files_in_chitin = Key.list_of_key_resources game.Load.key use_glob in
+		log_and_print "read %d files\n" (List.length files_in_chitin);
 		let new_list = List.map (fun (s,p) ->
 		  let regexp = Str.regexp_case_fold s in
 		  let matches = ref [] in
@@ -549,7 +551,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 		    matches
 					) slist in
 		let new_list = List.flatten new_list in
-		Key.nodup new_list
+		List.sort_unique compare new_list
 	      end else if use_glob then begin
 		let res = ref [] in
 		List.iter (fun (s,p) ->

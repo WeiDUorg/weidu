@@ -3,6 +3,7 @@
 (* based on elkhound/lexerint.h *)
 
 
+open BatteriesInit
 open Useract      (* tSemanticValue *)
 
 

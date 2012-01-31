@@ -1,3 +1,4 @@
+open BatteriesInit
 open Util
 
 let load_log () =

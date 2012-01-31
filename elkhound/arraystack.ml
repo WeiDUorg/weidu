@@ -1,6 +1,7 @@
 (* arraystack.ml *)
 (* stack of pointers implemented as an array *)
 
+open BatteriesInit
 
 (* grow an array *)
 let growArray (arr: 'a array) (newLen: int) (null: 'a) : 'a array =

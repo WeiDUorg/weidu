@@ -8,6 +8,7 @@
 
 (* generic utilities *)
 
+open BatteriesInit
 open Arch
 
 type local_string_entry = {

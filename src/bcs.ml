@@ -5,6 +5,7 @@
    diffs/src.bcs.ml.diff file, as the output of a diff -Bw -c -N command.
 
    It was originally taken from Westley Weimer's WeiDU 185. *)
+open BatteriesInit
 open Util
 open Ids
 

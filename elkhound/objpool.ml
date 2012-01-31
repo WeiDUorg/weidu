@@ -1,5 +1,6 @@
 (* objpool.ml *)
 (* pool of allocated objects for explicit re-use *)
+open BatteriesInit
                                   
 (* This object pool maintains a set of objects that are available
  * for use.  It must be given a way to create new objects. *)

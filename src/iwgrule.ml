@@ -1,6 +1,7 @@
 (*
  * Weimer's BG2 -> IWD2 automatic converter
  *)
+open BatteriesInit
 open Util
 open Bcs
 open Ids

@@ -1,5 +1,6 @@
 (* Kit Extraction Code *)
 
+open BatteriesInit
 open Util
 
 let lines buffer = Str.split (Str.regexp "[\r\n]+") buffer

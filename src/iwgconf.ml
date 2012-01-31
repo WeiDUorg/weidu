@@ -1,4 +1,5 @@
 (* WeiMorph configuration information *)
+open BatteriesInit
 
 type variant = BG1
   | BG2

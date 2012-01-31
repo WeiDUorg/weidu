@@ -3,6 +3,7 @@
  * and other Linux-only boringness
  *)
 
+open BatteriesInit
 open Util;; 
 
 (*

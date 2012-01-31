@@ -2,6 +2,7 @@
 (* GLR parser *)
 (* based on elkhound/glr.h and elkhound/glr.cc *)
 
+open BatteriesInit
 open Arraystack      (* tArrayStack *)
 open Objpool         (* tObjPool *)
 open Useract         (* tSemanticValue *)

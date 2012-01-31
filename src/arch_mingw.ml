@@ -7,6 +7,7 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 (* MinGW Arch-Specific Definitions *)
+open BatteriesInit
 
 (* Query the Windows Registry to find out about Infinity Engine games. *)
 

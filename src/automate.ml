@@ -1,5 +1,6 @@
 (* automatically make a TP2 file section for all files in the given
  * directory *)
+open BatteriesInit
 open Util
 
 let process file game min o =

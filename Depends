@@ -1,7 +1,8 @@
 
 # First stuff that makes the executable
 # to add later:
-WEIDU_BASE_MODULES  := case_ins stats arch version parsing tph util modder var arch2 xor \
+WEIDU_BASE_MODULES  := batList batteriesInit \
+	case_ins stats arch version parsing tph util modder var arch2 xor \
 	eff_table key cbif biff tlk load cre \
         ids idslexer idslexer2 idsparser \
         bcs bcslexer bcsparser \
@@ -14,10 +15,10 @@ WEIDU_BASE_MODULES  := case_ins stats arch version parsing tph util modder var a
 ifdef ITEMLIST
 WEIDU_BASE_MODULES  += pretty itemlist
 endif
-WEIDU_MODULES  =  myarg $(WEIDU_BASE_MODULES) autoupdate main
+WEIDU_MODULES  =  $(WEIDU_BASE_MODULES) myarg autoupdate main
 
 MODULES        = $(WEIDU_MODULES) iwgconf iwgrule iwglexer iwgparser iwg2 myarg weinstall tolower
-SOURCEDIRS     := src zlib glob xdiff elkhound
+SOURCEDIRS     := src zlib glob xdiff elkhound batteries-lite
 MLLS           := dlexer.mll idslexer.mll idslexer2.mll bcslexer.mll baflexer.mll iwglexer.mll tlexer.mll toldlexer.mll refactorbaflexer.mll refactordlexer.mll
 MLYS           := dparser.mly idsparser.mly bcsparser.mly bafparser.mly iwgparser.mly toldparser.mly refactorbafparser.mly refactordparser.mly
 GRS            := trealparserin.gr

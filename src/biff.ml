@@ -7,6 +7,7 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 (* Infinity Engine [BIF] *)
+open BatteriesInit
 open Util
 open Key
 open Cbif

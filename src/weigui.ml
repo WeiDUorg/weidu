@@ -4,6 +4,7 @@
    28 April 2006, and taken from the src/main.ml file from Westley Weimer's
    WeiDU 185, as subsequently edited by me. *)
 
+open BatteriesInit
 open Util
 open Version
 open Tk

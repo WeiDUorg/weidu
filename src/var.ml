@@ -10,6 +10,7 @@
  * TP2 Patch Variables
  *)
 
+open BatteriesInit
 open Util
 
 let debug_assign = ref false 

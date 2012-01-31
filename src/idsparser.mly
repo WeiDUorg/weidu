@@ -1,4 +1,5 @@
 %{
+open BatteriesInit
 open Util
 open Ids
 

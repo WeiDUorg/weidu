@@ -7,6 +7,7 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 (* Mac OSX Arch-Specific Definitions *)
+open BatteriesInit
 
 let registry_paths = ref [ "\\BGII - SoA\\" ] 
 

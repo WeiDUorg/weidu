@@ -1,3 +1,4 @@
+open BatteriesInit
 (* Pervasives FS calls *)
 let perv_open_out s = open_out s ;;
 let perv_open_out_gen m i s = open_out_gen m i s ;;

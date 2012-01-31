@@ -1,3 +1,4 @@
+open BatteriesInit
 open Util
 (* Decompression routines for compressed bif files *)
 

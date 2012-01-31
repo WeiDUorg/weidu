@@ -1,3 +1,4 @@
+open BatteriesInit
 (* Pervasives FS calls *)
 let backslash_to_slash s =
   let s = Str.global_replace (Str.regexp "\\\\") "/" s in
