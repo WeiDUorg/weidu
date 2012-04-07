@@ -694,13 +694,12 @@
 		
 		        DELETE_BYTES (___#itm_off + (___#cur_itm * 0x14)) 0x14
 		        SET ___#itm_num = ___#itm_num - 1
-		        SET ___#delta = ___#delta + 1
 		
 		        //correct offsets
 		        PATCH_FOR_EACH ___#offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
 		          READ_LONG ___#offset ___#current_off
 		          PATCH_IF ___#current_off > ___#itm_off BEGIN
-		            WRITE_LONG ___#offset (___#current_off - ___#delta * 0x14)
+		            WRITE_LONG ___#offset (___#current_off - 0x14)
 		          END
 		        END
 		
