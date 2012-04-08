@@ -277,6 +277,11 @@
 		
 		DEFINE_PATCH_MACRO ~ADD_ITEM_EQEFFECT~ BEGIN
 		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN
+                    PATCH_IF (~%SOURCE_EXT%~ STRING_EQUAL_CASE ~spl~ = 1) BEGIN
+                      ___#hdr_size = 0x28
+                    END ELSE BEGIN
+                      ___#hdr_size = 0x38
+                    END
 		    READ_LONG 0x64 ___#abil_off
 		    READ_SHORT 0x68 ___#abil_num
 		    READ_LONG 0x6a ___#fx_off
@@ -307,10 +312,10 @@
 
 		    //correcting 1st effect ___#index1es
 		    FOR (___#index2 = 0 ; ___#index2 < ___#abil_num ; ___#index2 = ___#index2 + 1) BEGIN
-		      READ_SHORT (___#abil_off + ___#index2 * 0x38 + 0x20) ___#1effect_index
+		      READ_SHORT (___#abil_off + ___#index2 * ___#hdr_size + 0x20) ___#1effect_index
 		      PATCH_IF (___#1effect_index > ___#eqfx_index) //if abilility after eq effects
 		            OR ((___#1effect_index = ___#eqfx_index) AND (___#eqfx_num = 0)) BEGIN
-		        WRITE_SHORT (___#abil_off + ___#index2 * 0x38 + 0x20) (___#1effect_index + 1) //increase 1 effect ___#index1 by 1
+		        WRITE_SHORT (___#abil_off + ___#index2 * ___#hdr_size + 0x20) (___#1effect_index + 1) //increase 1 effect ___#index1 by 1
 		      END
 		    END
 		    //no offsets to correct
@@ -581,8 +586,8 @@
 		    WRITE_LONG (___#fx_off + 0x4c) lowestafflvl
 		    WRITE_LONG (___#fx_off + 0x50) highestafflvl
 		    WRITE_LONG (___#fx_off + 0x54) resist_dispel
-		    WRITE_BYTE (___#fx_off + 0x58) parameter3
-		    WRITE_BYTE (___#fx_off + 0x59) parameter4
+		    WRITE_LONG (___#fx_off + 0x58) parameter3
+		    WRITE_LONG (___#fx_off + 0x5c) parameter4
 		    WRITE_EVALUATED_ASCII (___#fx_off + 0x68) ~%vvcresource%~ #8
 		    WRITE_EVALUATED_ASCII (___#fx_off + 0x70) ~%resource2%~ #8
 		    WRITE_LONG (___#fx_off + 0x78) casterx
@@ -654,7 +659,11 @@
 		    READ_LONG 0x2c8 ___#fx_num
 		    SET ___#delta = 0
 		    FOR (___#index1 = 0; ___#index1 < ___#fx_num; ___#index1 = ___#index1 + 1) BEGIN
-		      READ_LONG (___#fx_off + ___#index1 * (___#fx_flag = 1 ? 0x108 : 0x30) + (___#fx_flag = 1 ? 0x8 : 0x0)) ___#opcode
+                      PATCH_IF ___#fx_flag = 0 BEGIN
+                        READ_SHORT (___#fx_off + ___#index1 * 0x30) ___#opcode
+                      END ELSE BEGIN
+                        READ_LONG (___#fx_off + ___#index1 * 0x108 + 8) ___#opcode
+                      END
 		      PATCH_IF ((___#opcode = opcode_to_delete) OR (opcode_to_delete = (0 - 1))) BEGIN
 		        DELETE_BYTES (___#fx_off + ___#index1 * (___#fx_flag = 1 ? 0x108 : 0x30)) ___#fx_flag = 1 ? 0x108 : 0x30
 		        SET ___#delta = ___#delta + 1 //track deleted number

@@ -146,6 +146,11 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   fj_cre_strref7       = ` 0
   fj_cre_strref8       = ` 0
   fj_cre_strref9       = ` 0
+  fj_duration          = 1000
+  fj_wander_distance   = 1000
+  fj_mvmt_distance     = 1000
+  fj_day_prob          = 100
+  fj_night_prob        = 100
 
   // map notes
   fj_note_strref       = ` 0
@@ -642,8 +647,8 @@ PHP_EACH struct AS key => value BEGIN
       WRITE_SHORT  fj_return_offset + 0x78 fj_delay
       WRITE_SHORT  fj_return_offset + 0x7a fj_method
       WRITE_LONG   fj_return_offset + 0x7c fj_duration
-      WRITE_SHORT  fj_return_offset + 0x80 fj_wander_distance
-      WRITE_SHORT  fj_return_offset + 0x82 fj_mvmt_distance
+      WRITE_SHORT  fj_return_offset + 0x80 fj_wander_dist_spawn
+      WRITE_SHORT  fj_return_offset + 0x82 fj_mvmt_dist_spawn
       WRITE_SHORT  fj_return_offset + 0x84 fj_max_num
       WRITE_SHORT  fj_return_offset + 0x86 fj_enable
       WRITE_LONG   fj_return_offset + 0x88 fj_schedule
