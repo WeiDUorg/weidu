@@ -3040,6 +3040,14 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory~
        MAKE!BIFF after MOVE. Do not use the --make-biff command-line argument).
        \\
 
+  or & \DEFINE{DELETE} \ttref{optGlob} file ... &
+        Removes one or more files from the file system. If optGlob is not specified, the
+        file is moved to the backup folder; if optGlob is specified, the file is definitively
+        removed.
+        
+        Don't use without a real reason.
+       \\
+
   or & \DEFINE{DISABLE!FROM!KEY} file ... &
 		Removes one or more files from the chitin.key, while leaving the
 		containing bif file itself untouched.

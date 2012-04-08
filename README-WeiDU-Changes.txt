@@ -14,6 +14,7 @@ Version 232:
   * Can properly backup COPY actions on files that contains spaces in their
     names (or paths).
   * MOVEs are uninstalled in LIFO and not FIFO order.
+  * DELETE, DELETE + added.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

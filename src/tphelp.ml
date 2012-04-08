@@ -182,6 +182,7 @@ let action_to_str a = match a with
 | TP_ActionToLower _ -> "ACTION_TO_LOWER"
 | TP_ActionToUpper _ -> "ACTION_TO_UPPER"
 | TP_ActionGetStrRef _ -> "ACTION_GET_STRREF"
+| TP_Delete _ -> "DELETE"
 
 
 (************************************************************************

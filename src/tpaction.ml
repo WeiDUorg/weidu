@@ -159,7 +159,16 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
       | TP_ActionGetStrRef (a,b,c,d) ->
         run_patch (TP_PatchGetStrRef(a,b,c,d))
-        
+
+      | TP_Delete(filelist, do_backup) ->
+				List.iter (fun file ->
+					let file = Var.get_string(eval_pe_str file) in
+					if do_backup then begin
+						backup_if_extant file;
+					end;
+					Sys.remove file;
+			  ) filelist
+				
       | TP_Move(filelist, do_backup) ->
 	    let move src dst =
 			let ok = ref true in

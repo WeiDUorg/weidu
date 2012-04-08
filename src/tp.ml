@@ -135,6 +135,7 @@ and tp_action =
   | TP_CopyAllGamFiles of tp_patch list * tp_constraint list
   | TP_Copy   of tp_copy_args
   | TP_Move of (file_or_directory_regexp * string) list * bool
+	| TP_Delete of tp_pe_string list * bool
   | TP_DisableFromKey of tp_pe_string list
   | TP_CopyLarge of tp_copy_large_args
   | TP_CopyRandom of (string list list) * (tp_patch list) * (tp_constraint list)
