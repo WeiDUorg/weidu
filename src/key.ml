@@ -262,7 +262,6 @@ let list_of_key_resources : key -> bool -> string list = fun key use_override ->
     Printf.sprintf "%s.%s" r.res_name (ext_of_key r.res_type)) key.resource)) in
   if use_override then begin
     let from_override = List.map String.uppercase (Array.to_list (Sys.readdir "override")) in
-    log_and_print "nodup-ing %d from key, %d from override\n" (List.length from_key) (List.length from_override);
     List.sort_unique compare (from_key @ from_override)
   end else from_key
 
