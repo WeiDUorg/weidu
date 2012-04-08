@@ -46,6 +46,7 @@ type tp_flag =
   | Readme of string list
   | Uninstall_Order of string list
   | Quick_Menu of (Dlg.tlk_string * int list) list * int list
+  | Auto_Eval_Strings
   
 and must_get_var =
   | Must_Get_Var of string
@@ -62,6 +63,7 @@ and tp_file = {
     flags     : tp_flag list ;
     languages : tp_lang list ;
     module_list : tp_mod list ;
+	is_auto_eval_string : bool;
   }
 
 and tp_lang = {
@@ -529,3 +531,17 @@ let log_name = "WeiDU.log"
 let the_log : installed_mods ref = ref []
 
 let current_exception = ref Not_found
+
+let saved_tp = ref None
+
+let the_tp () = match !saved_tp with
+| None -> {
+	tp_filename = "TP FILE NOT LOADED";
+    backup = "TP FILE NOT LOADED";
+    author = "TP FILE NOT LOADED";
+    flags = [];
+    languages = [];
+    module_list = [];
+	is_auto_eval_string = false;
+}
+| Some x -> x

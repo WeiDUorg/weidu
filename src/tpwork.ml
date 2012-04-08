@@ -320,7 +320,7 @@ let rec handle_tp
           failwith "ERROR: QUICK_MENU and component 0 isn't defined."
       end;
 
-      let handle_letter tp answer can_uninstall temp_uninst package_name m finished i =
+      let handle_letter_inner tp answer can_uninstall temp_uninst package_name m finished i =
 	let subgroup_already =
 	  match subcomp_group m with
 	  | Some(ts) ->
@@ -588,6 +588,17 @@ let rec handle_tp
               ((get_trans (-1023))) ;
             finished := true
 	| _ -> ()
+      in
+
+      let handle_letter tp answer can_uninstall temp_uninst package_name m finished i =
+        saved_tp := Some tp;
+	try
+          let ans = handle_letter_inner tp answer can_uninstall temp_uninst package_name m finished i in
+	  saved_tp := None;
+	  ans
+	with e ->
+	  saved_tp := None;
+	  raise e
       in
 
       let specify = ref false in

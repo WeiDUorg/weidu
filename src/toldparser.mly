@@ -347,6 +347,7 @@ optional_evaluate :
 	Tp.flags = $5 ;
 	Tp.languages = $6 ;
 	Tp.module_list = $7 ;
+	Tp.is_auto_eval_string = List.mem Tp.Auto_Eval_Strings $5;
       } }
     ;
 

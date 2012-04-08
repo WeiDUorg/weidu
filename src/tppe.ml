@@ -32,7 +32,10 @@ let is_true i = i <> 0l
 let if_true p = if p then 1l else 0l
 
 let rec eval_pe_str s = match s with
-| PE_LiteralString(s) -> s
+| PE_LiteralString(s) -> (
+	match (the_tp()).is_auto_eval_string with
+	| false -> s
+	| true -> Var.get_string s)
 | PE_GetVar(p) -> (try Var.get_string_exact ("%" ^ eval_pe_str p ^ "%") with _ -> eval_pe_str p)
 | PE_Evaluate(p) -> Var.get_string (eval_pe_str p)
 | PE_Uppercase(s) -> String.uppercase (eval_pe_str s)

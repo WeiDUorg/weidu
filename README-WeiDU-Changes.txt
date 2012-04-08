@@ -3,6 +3,9 @@ Versione 232:
   * Fixed a stack overflow when using COPY_EXISTING_REGEXP and you have more
     than ~60000 files between your override and key.
   * Lowercase the file name of binaries on Linux.
+  * AUTO_EVAL_STRINGS adds an implicit EVALUATE_BUFFER in front of every patch
+    string (notably, when dealing with arrays or functions).
+  * in LAUNCH_*_FUNCTION, RET num is shorthand for RET num = ~%num%~.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
