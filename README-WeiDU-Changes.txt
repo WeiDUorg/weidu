@@ -9,6 +9,8 @@ Version 232:
   * Fixes to this and that in the macros.
   * REPLACE_ACTION_TEXT evaluates variables.
   * REPLACE_TRANS_ACTION warns if you're using invalid actions.
+  * REPLACE_TRIGGER_TEXT evaluates IF and UNLESS also in state triggers, not
+    only in trans triggers.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

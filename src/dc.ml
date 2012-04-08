@@ -666,9 +666,11 @@ let rec process_action game a = match a with
     let process dlg =
       let r = Str.regexp_case_fold s_from in
       Array.iter (fun state ->
+				if passes d_when state.Dlg.state_trigger then begin
         if !debug_ocaml then log_and_print "~%s~\n" state.Dlg.state_trigger;
         state.Dlg.state_trigger <- Str.global_replace r s_to
             state.Dlg.state_trigger ;
+				end;
         Array.iter (fun trans ->
           match trans.Dlg.trans_trigger with
             Some(trans_str) ->
