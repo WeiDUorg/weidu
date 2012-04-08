@@ -232,21 +232,24 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
       let other_filename = (Printf.sprintf "%s/OTHER.%d" d i) in
       my_unlink other_filename;
 	  let uninstall_move () = 
-		  (
-		   try begin
-		 let inchan = Case_ins.perv_open_in_bin move_filename in
-		 try
-		   while true do
-			 let line = input_line inchan in
-			 let pieces = split_log_line line in
-			 match pieces with
-			   a :: b :: [] -> Case_ins.unix_rename b a
-			 | _ -> ()
-		   done
-		 with End_of_file -> (close_in inchan)
-		 | _ -> ()
-		   end with _ -> ()
-		  );
+			let lst = ref [] in
+		  (try begin
+		     let inchan = Case_ins.perv_open_in_bin move_filename in
+    		 try
+		       while true do
+    		  	 let line = input_line inchan in
+		    	   let pieces = split_log_line line in
+			       match pieces with
+			         a :: b :: [] -> lst := (a,b) :: !lst;
+			       | _ -> ()
+		       done
+		     with
+				 | End_of_file -> (close_in inchan)
+		     | _ -> ()
+		  end with _ -> ());
+			List.iter (fun (a,b) ->
+				  Case_ins.unix_rename b a
+		  ) !lst;
 		  my_unlink move_filename;
 	  in
 	  let uninstall_strset () =
