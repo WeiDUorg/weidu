@@ -8,6 +8,7 @@ Version 232:
   * In LAUNCH_*_FUNCTION, RET num is shorthand for RET num = ~%num%~.
   * Fixes to this and that in the macros.
   * REPLACE_ACTION_TEXT evaluates variables.
+  * REPLACE_ACTION_TEXT warns if you're using invalid actions.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
