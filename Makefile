@@ -103,7 +103,7 @@ $(PROJECT2_EXECUTABLE) : $(PROJECT2_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                     $^
 	cp $(PROJECT2_EXECUTABLE) .
 
-# compile WeiGUI with the Labltk bindings!
+# compile weigui with the Labltk bindings!
 weigui: FORCE
 	$(MAKE) -f Makefile-tk weigui
 
@@ -175,40 +175,40 @@ linux_zip :
 else
 windows_zip : weidu weinstall weigui tolower clean
 	rm iwg2* weimorph* || true
-	mv weid*.exe WeiDU.exe
-	mv weig*.exe WeiGUI.exe
+	mv weid*.exe weidu.exe
+	mv weig*.exe weigui.exe
 	mv wein*.exe WeInstall.exe
-	mv tolo*.exe ToLower.exe
-	strip WeiDU.exe || true
-	upx --best WeiDU.exe || echo "No EXE Compression"
-	strip WeiGUI.exe || true
-	upx --best WeiGUI.exe || echo "No EXE Compression"
+	mv tolo*.exe tolower.exe
+	strip weidu.exe || true
+	upx --best weidu.exe || echo "No EXE Compression"
+	strip weigui.exe || true
+	upx --best weigui.exe || echo "No EXE Compression"
 	strip WeInstall.exe || true
 	upx --best WeInstall.exe || echo "No EXE Compression"
-	strip ToLower.exe || true
-	upx --best ToLower.exe || echo "No EXE Compression"
+	strip tolower.exe || true
+	upx --best tolower.exe || echo "No EXE Compression"
 	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU/*.exe WeiDU/COPYING WeiDU/README* WeiDU/*.dll WeiDU/examples )
 src_zip : clean
-	(cd .. ; zip -9r WeiDU-Src-$(VER).zip WeiDU/* -x WeiDU/WeiDU.exe -x WeiDU/ToLower.exe \
-   -x WeiDU/WeInstall.exe -x WeiDU/WeiGUI.exe -x WeiDU/*.dll; )
+	(cd .. ; zip -9r WeiDU-Src-$(VER).zip WeiDU/* -x WeiDU/weidu.exe -x WeiDU/tolower.exe \
+   -x WeiDU/weinstall.exe -x WeiDU/weigui.exe -x WeiDU/*.dll; )
 build : weidu
 	rm iwg2* weimorph* || true
-	cp weid*$(EXE) ../WeiDU-Linux/WeiDU || true
-	cp wein*$(EXE) ../WeiDU-Linux/WeInstall || true
-	cp weig*$(EXE) ../WeiDU-Linux/WeiGUI || true
+	cp weid*$(EXE) ../WeiDU-Linux/weidu || true
+	cp wein*$(EXE) ../WeiDU-Linux/weinstall || true
+	cp weig*$(EXE) ../WeiDU-Linux/weigui || true
 	cp tolower$(EXE) ../WeiDU-Linux/tolower || true
 linux_zip : weidu weinstall weigui tolower
 	rm iwg2* weimorph* || true
-	mv weid*$(EXE) ../WeiDU-Linux/WeiDU || true
-	mv wein*$(EXE) ../WeiDU-Linux/WeInstall || true
-	mv weig*$(EXE) ../WeiDU-Linux/WeiGUI || true
+	mv weid*$(EXE) ../WeiDU-Linux/weidu || true
+	mv wein*$(EXE) ../WeiDU-Linux/weinstall || true
+	mv weig*$(EXE) ../WeiDU-Linux/weigui || true
 	mv tolower$(EXE) ../WeiDU-Linux/tolower || true
-	strip ../WeiDU-Linux/WeiDU || true
-	upx --best ../WeiDU-Linux/WeiDU || echo "No EXE Compression"
-	strip ../WeiDU-Linux/WeInstall || true
-	upx --best ../WeiDU-Linux/WeInstall || echo "No EXE Compression"
-	strip ../WeiDU-Linux/WeiGUI || true
-	upx --best ../WeiDU-Linux/WeiGUI || echo "No EXE Compression"
+	strip ../WeiDU-Linux/weidu || true
+	upx --best ../WeiDU-Linux/weidu || echo "No EXE Compression"
+	strip ../WeiDU-Linux/weinstall || true
+	upx --best ../WeiDU-Linux/weinstall || echo "No EXE Compression"
+	strip ../WeiDU-Linux/weigui || true
+	upx --best ../WeiDU-Linux/weigui || echo "No EXE Compression"
 	strip ../WeiDU-Linux/tolower || true
 	upx --best ../WeiDU-Linux/tolower || echo "No EXE Compression"
 	cp README* ../WeiDU-Linux

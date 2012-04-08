@@ -2,6 +2,7 @@ Versione 232:
   * Fixed blah blah blah for the benefit of non-English speaking people.
   * Fixed a stack overflow when using COPY_EXISTING_REGEXP and you have more
     than ~60000 files between your override and key.
+  * Lowercase the file name of binaries on Linux.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
