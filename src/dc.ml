@@ -629,14 +629,14 @@ let rec process_action game a = match a with
     dlg.Dlg.state.(num).Dlg.state_trigger_weight <- Dlg.Offset(w)
 
 | Replace_Action_Text(nl,s_from,s_to,use_regexp,d_when) ->
-    let r = Str.regexp_case_fold s_from in
+    let r = Str.regexp_case_fold (Var.get_string s_from) in
+		let s_to = Var.get_string s_to in
     let process dlg =
       Array.iter (fun state ->
         Array.iter (fun trans ->
           (match trans.Dlg.action with
             Some(trans_str) ->
 			  if passes d_when trans_str then begin
-				if !debug_ocaml then log_and_print "~%s~\n" trans_str;
 				trans.Dlg.action <- Some(Str.global_replace r s_to trans_str);
 			  end
           | None -> ());

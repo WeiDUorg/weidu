@@ -7,6 +7,7 @@ Version 232:
     string (notably, when dealing with arrays or functions).
   * In LAUNCH_*_FUNCTION, RET num is shorthand for RET num = ~%num%~.
   * Fixes to this and that in the macros.
+  * REPLACE_ACTION_TEXT evaluates variables.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
