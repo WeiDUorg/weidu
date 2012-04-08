@@ -290,7 +290,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
         check_pre_hooks game tp2 i interactive override_filename;
           my_unlink override_filename;
 			  try
-				if !has_mappings then
+				if !has_mappings && Hashtbl.mem mappings_list override_filename then
 				  restore (Hashtbl.find mappings_list override_filename) override_filename
 				else begin
 				  let base = Case_ins.filename_basename override_filename in

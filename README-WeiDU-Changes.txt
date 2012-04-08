@@ -11,6 +11,9 @@ Version 232:
   * REPLACE_TRANS_ACTION warns if you're using invalid actions.
   * REPLACE_TRIGGER_TEXT evaluates IF and UNLESS also in state triggers, not
     only in trans triggers.
+  * Can properly backup COPY actions on files that contains spaces in their
+    names (or paths). However, this is unreliable if a mod is touching multiple
+    identically named files containing spaces.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
