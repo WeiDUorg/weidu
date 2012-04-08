@@ -238,7 +238,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 		 try
 		   while true do
 			 let line = input_line inchan in
-			 let pieces = Str.split (Str.regexp " ") line in
+			 let pieces = split_log_line line in
 			 match pieces with
 			   a :: b :: [] -> Case_ins.unix_rename b a
 			 | _ -> ()
@@ -274,7 +274,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 			   begin try
 			   while true do
 				 let line = input_line inchan in
-				 let pieces = Str.split (Str.regexp " ") line in
+         let pieces = split_log_line line in
 				 match pieces with
 				   a :: b :: [] -> Hashtbl.add mappings_list a b
 				 | _ -> ()

@@ -187,7 +187,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 				) else (
 					log_or_print "Moving %s to %s\n" src dst;
 					if do_backup then ( match !move_list_chn with
-						| Some(chn) -> output_string chn (src ^ " " ^ dst ^ "\n") ; flush chn
+						| Some(chn) -> output_string chn (src ^ log_line_separator ^ dst ^ "\n") ; flush chn
 						| None -> ()
 					);
 					if !ok then ( match !other_list_chn with

@@ -26,6 +26,8 @@ let many_whitespace_or_nl_regexp = Str.regexp "[ \t\r\n]+"
 let many_not_whitespace_regexp = Str.regexp "[^ \t\n\r]+"
 let many_cr_regexp = Str.regexp "\r\r*"
 
+let log_line_separator = "TB#\"SPACE\""
+
 let dos2unix = Str.global_replace many_cr_regexp "\r"
 
 let errors_this_component = ref false
@@ -417,18 +419,13 @@ let rec backup_if_extant filename =
 		;
 	  (
 	   match !mappings_list_chn with
-	   | Some(chn) -> output_string chn (filename ^ " " ^ !where ^ "\n"); flush chn
+	   | Some(chn) -> output_string chn (filename ^ log_line_separator ^ !where ^ "\n"); flush chn
 	   | None -> ()
 	  );
 	  copy_large_file name !where "creating a backup"
 	with e ->
           log_and_print "ERROR: error copying [%s]\n" name ;
           raise e
-       )
-    | Some(dir) when not (file_exists filename) -> (
-	match !mappings_list_chn with
-	| Some(chn) -> output_string chn (filename ^ "\n"); flush chn
-	| None -> ()
        )
     | _ -> ()
   end
@@ -798,3 +795,8 @@ let bool_xor a b =
   ((a && not b) || (not a && b))
 
 let eval_pe_warn = ref true
+
+let split_log_line line = 
+	let pieces = Str.split (Str.regexp log_line_separator) line in
+	if List.length pieces = 2 then pieces else
+		Str.split (Str.regexp " ") line
