@@ -1664,7 +1664,7 @@ let main () =
 	 try
      while true do
      let line = input_line infile in
-     let parts = Str.split many_whitespace_regexp line in
+     let parts = split_log_line line in
      let (a,b) = match parts with
      | a :: b :: _ -> (a,b)
      | a :: [] -> (a,"")
