@@ -15,6 +15,7 @@ Version 232:
     names (or paths).
   * MOVEs are uninstalled in LIFO and not FIFO order.
   * DELETE, DELETE + added.
+  * NAME_NUM_OF_SPELL_RES returns correct results.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
