@@ -46,7 +46,7 @@ DEFINE_PATCH_FUNCTION ~ADD_SPELL_EFFECT~
           savingthrow = 0
           savebonus = 0
           header = 0
-          insert_point = "-1"
+          insert_point = 0
   STR_VAR resource = ~~
 BEGIN
   LAUNCH_PATCH_MACRO ~ADD_SPELL_EFFECT~
@@ -68,8 +68,8 @@ DEFINE_PATCH_FUNCTION ~ADD_ITEM_EFFECT~
           savingthrow = 0
           savebonus = 0
           header = 0
-		  type = 3
-		  insert_point = "-1"
+          type = 3
+          insert_point = 0
   STR_VAR resource = ~~
 BEGIN
   LAUNCH_PATCH_MACRO ~ADD_ITEM_EFFECT~
