@@ -18,3 +18,4 @@ diffs/*
 *~
 .project
 .paths
+.settings/
