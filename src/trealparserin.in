@@ -4,10 +4,11 @@ open Util
 open Load
 open Tphelp
 
-let rec left_to_right p = match p with
+let rec left_to_right p = log_and_print "left_to_right %s\r\n" (pe_str_str p) ;
+  match p with
   | Tp.PE_LiteralString s -> Tp.PE_LiteralString s
   | Tp.PE_GetVar s -> Tp.PE_GetVar (left_to_right s)
-  | Tp.PE_Evaluate s -> Tp.PE_Evaluate(left_to_right p)
+  | Tp.PE_Evaluate s -> Tp.PE_Evaluate(left_to_right s)
   | Tp.PE_Lowercase s -> Tp.PE_Lowercase(left_to_right s)
   | Tp.PE_Uppercase s -> Tp.PE_Uppercase(left_to_right s)
   | Tp.PE_Dollars (s,sl,true,false) -> Tp.PE_Dollars(left_to_right s, List.map left_to_right sl, false, true)
@@ -624,7 +625,7 @@ nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStrMaybe_List {
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStrMaybe_List_Rev {
 	-> { [] }
 	-> e1:PeStr_PeStrMaybe_List_Rev e2:Patch_String_Left EQUALS e3:Patch_String_Right [ (e2,e3) :: e1 ]
-  -> e1:PeStr_PeStrMaybe_List_Rev e2:Patch_String_Left [ (e2, Tp.PE_GetVar(left_to_right e2))::e1 ]
+  -> e1:PeStr_PeStrMaybe_List_Rev e2:Patch_String_Left [ (e2, left_to_right e2)::e1 ]
 }
 
 nonterm(string list) String_List_Rev {
