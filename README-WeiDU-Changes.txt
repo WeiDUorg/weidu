@@ -16,6 +16,7 @@ Version 232:
   * MOVEs are uninstalled in LIFO and not FIFO order.
   * DELETE, DELETE + added.
   * NAME_NUM_OF_SPELL_RES returns correct results.
+  * If a directory named debugs exists, put debug files there, not in ./.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

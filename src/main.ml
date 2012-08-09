@@ -210,7 +210,10 @@ let main () =
       Load.set_dialog_tlk_path "dialog.tlk" ;
       Load.set_dialogf_tlk_path "dialogf.tlk" ;
     end;
-    init_log Version.version (argv0_base ^ ".DEBUG") ;
+    if is_directory "debugs" then
+			init_log Version.version ("debugs/" ^ argv0_base ^ ".DEBUG")
+		else
+			init_log Version.version (argv0_base ^ ".DEBUG") ;
     (try
       if (Arch.do_auto_update) then begin
 	if not !no_auto_update then
