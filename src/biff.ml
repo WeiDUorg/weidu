@@ -331,11 +331,11 @@ let load_normal_biff filename size fd buff =
     let num_file_entry = int_of_str_off buff 8 in
     let num_tileset_entry = int_of_str_off buff 12 in
     let offset_file_entry = int_of_str_off buff 16 in
-    let offset_tileset_entry = offset_file_entry + (num_file_entry * 16) in 
-    let table_len = offset_file_entry + (num_file_entry * 16) +
+    let offset_tileset_entry = (num_file_entry * 16) in 
+    let table_len = (num_file_entry * 16) +
 	(num_tileset_entry * 20) in 
     let buff = String.create table_len in 
-    let _ = Unix.lseek fd 0 Unix.SEEK_SET in 
+    let _ = Unix.lseek fd offset_file_entry Unix.SEEK_SET in 
     my_read table_len fd buff filename ; 
     let result = 
       {
@@ -343,7 +343,7 @@ let load_normal_biff filename size fd buff =
        filename = filename ;
        compressed = false ; 
        files = Array.init num_file_entry (fun i -> 
-	 let off = offset_file_entry + (i * 16) in                                  
+	 let off = (i * 16) in                                  
 	 {
           res_loc = int_of_str_off buff (off + 0) ;
           res_offset = int_of_str_off buff (off + 4) ;

@@ -17,6 +17,8 @@ Version 232:
   * DELETE, DELETE + added.
   * NAME_NUM_OF_SPELL_RES returns correct results.
   * If a directory named debugs exists, put debug files there, not in ./.
+  * Do not fail if reading a bif file > 16 MB that puts the file entries after
+    the file contents (instead of before). Thanks Blaze for coding this.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
