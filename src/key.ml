@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 (* Note added due to LGPL terms.
 
    This file was edited by Valerio Bigiani, AKA The Bigg, starting from
@@ -73,6 +76,11 @@ let _ =
   assoc "WED" 0x3e9 ;
   assoc "WFX" 0x005 ;
   assoc "WMP" 0x3f7 ;
+  assoc "FNT" 0x400 ;
+  assoc "WBM" 0x401 ;
+  assoc "GUI" 0x402 ;
+  assoc "SQL" 0x403 ;
+  assoc "PVRZ" 0x404 ;
   ()
     
 let ext_of_key key = 
