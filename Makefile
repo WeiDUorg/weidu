@@ -1,3 +1,6 @@
+# This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+# starting from 18 December 2012 and WeiDU 232.
+
 # Note added due to LGPL terms.
 #
 # This file was edited by Valerio Bigiani, AKA The Bigg, starting from
@@ -177,14 +180,14 @@ windows_zip : weidu weinstall weigui tolower clean
 	rm iwg2* weimorph* || true
 	mv weid*.exe weidu.exe
 	mv weig*.exe weigui.exe
-	mv wein*.exe WeInstall.exe
+	mv wein*.exe weinstall.exe
 	mv tolo*.exe tolower.exe
 	strip weidu.exe || true
 	upx --best weidu.exe || echo "No EXE Compression"
 	strip weigui.exe || true
 	upx --best weigui.exe || echo "No EXE Compression"
-	strip WeInstall.exe || true
-	upx --best WeInstall.exe || echo "No EXE Compression"
+	strip weinstall.exe || true
+	upx --best weinstall.exe || echo "No EXE Compression"
 	strip tolower.exe || true
 	upx --best tolower.exe || echo "No EXE Compression"
 	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU/*.exe WeiDU/COPYING WeiDU/README* WeiDU/*.dll WeiDU/examples )

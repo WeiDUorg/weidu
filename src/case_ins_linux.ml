@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 open BatteriesInit
 (* Pervasives FS calls *)
 let backslash_to_slash s =
@@ -22,7 +25,7 @@ let unix_rmdir s = Unix.rmdir (String.lowercase (backslash_to_slash s));;
 
 let sys_readdir s = Sys.readdir (String.lowercase (backslash_to_slash s));;
 
-let weidu_executable = "WeiDU" ;;
+let weidu_executable = "weidu" ;;
 
 (* No lowercasing to avoid the bug with ADD_* lowercasing also the variable *)
 let filename_basename s = Filename.basename (backslash_to_slash s) ;;

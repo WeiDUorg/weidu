@@ -4,7 +4,7 @@ open Util
 open Load
 open Tphelp
 
-let rec left_to_right p = log_and_print "left_to_right %s\r\n" (pe_str_str p) ;
+let rec left_to_right p =
   match p with
   | Tp.PE_LiteralString s -> Tp.PE_LiteralString s
   | Tp.PE_GetVar s -> Tp.PE_GetVar (left_to_right s)
