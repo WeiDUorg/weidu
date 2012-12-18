@@ -19,6 +19,7 @@ Version 232:
   * If a directory named debugs exists, put debug files there, not in ./.
   * Do not fail if reading a bif file > 16 MB that puts the file entries after
     the file contents (instead of before). Thanks Blaze for coding this.
+  * GAME_IS and ENGINE_IS recognise BGEE.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

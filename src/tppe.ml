@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 (* Functions to evaluate a patch expression
  *)
 
@@ -417,6 +420,7 @@ let rec eval_pe buff game p =
       let  how = f "ar9109.are"   in
       let tolm = f "ar9715.are"   in
       let ttsc = f "fw2003.are"   in
+      let bgee = f "oh1000.are"   in
       let res = List.exists (fun this ->
         match String.uppercase this with
         | "BG2"
@@ -425,7 +429,7 @@ let rec eval_pe buff game p =
         | "IWD2"       -> iwd2
         | "PST"        -> pst
         | "BG1"        -> bg1 && not tosc && not bg2
-        | "TOTSC"      -> bg1 &&     tosc && not bg2 && not iwd1
+        | "TOTSC"      -> bg1 &&     tosc && not bg2 && not iwd1 && not bgee
         | "IWD"
         | "IWD1"       -> iwd1 && not how && not tolm && not bg2
         | "HOW"        -> iwd1 &&     how && not tolm && not bg2
@@ -438,6 +442,7 @@ let rec eval_pe buff game p =
         | "IWD-IN-BG2"
         | "IWD_IN_BG2"
         | "IWDINBG2"   -> bg2 && iwdinbg2
+        | "BGEE"       -> bgee
         | _ -> failwith (Printf.sprintf "No rule to identify %s" (String.uppercase this))
       ) game_list in
       if res then 1l else 0l;
