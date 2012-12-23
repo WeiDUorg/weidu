@@ -20,6 +20,8 @@ Version 232:
   * Do not fail if reading a bif file > 16 MB that puts the file entries after
     the file contents (instead of before). Thanks Blaze for coding this.
   * GAME_IS and ENGINE_IS recognise BGEE.
+  * Handle BGEE's new file types.
+  * Updated the standard library of macros and functions to account for BGEE.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
