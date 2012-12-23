@@ -606,7 +606,7 @@ nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) LaunchFunctionStrVar {
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) LaunchFunctionRet {
 	-> { [] }
-	-> RET e1:PeStr_PeStrMaybe_List { e1 }
+	-> RET e1:PeStr_PeStrMaybeLit_List { e1 }
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStr_List {
@@ -625,7 +625,17 @@ nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStrMaybe_List {
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStrMaybe_List_Rev {
 	-> { [] }
 	-> e1:PeStr_PeStrMaybe_List_Rev e2:Patch_String_Left EQUALS e3:Patch_String_Right [ (e2,e3) :: e1 ]
-  -> e1:PeStr_PeStrMaybe_List_Rev e2:Patch_String_Left [ (e2, left_to_right e2)::e1 ]
+	-> e1:PeStr_PeStrMaybe_List_Rev e2:Patch_String_Left [ (e2, Tp.PE_GetVar(left_to_right e2))::e1 ]
+}
+
+nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStrMaybeLit_List {
+        -> e1:PeStr_PeStrMaybeLit_List_Rev [ List.rev e1 ]
+}
+
+nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStrMaybeLit_List_Rev {
+        -> { [] }
+        -> e1:PeStr_PeStrMaybeLit_List_Rev e2:Patch_String_Left EQUALS e3:Patch_String_Right [ (e2,e3) :: e1 ]
+        -> e1:PeStr_PeStrMaybeLit_List_Rev e2:Patch_String_Left [ (e2, left_to_right e2) :: e1 ]
 }
 
 nonterm(string list) String_List_Rev {

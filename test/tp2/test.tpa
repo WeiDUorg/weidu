@@ -1,0 +1,65 @@
+
+/* Test the evaluation of function arguments and return values
+*/
+DEFINE_ACTION_FUNCTION test_fun_eval BEGIN
+  DEFINE_ACTION_FUNCTION fun_eval
+    INT_VAR
+      int_arg = 0
+      int_arg2 = 0
+    STR_VAR
+      str_arg = ""
+      str_arg2 = ""
+      str_arg3 = ""
+    RET
+      int_ret
+      int_ret2
+      str_ret
+      str_ret2
+  BEGIN
+    ACTION_IF int_arg != 1 BEGIN
+      FAIL "test_fun_eval failed on int eval"
+    END
+    ACTION_IF int_arg2 != 1 BEGIN
+      FAIL "test_fun_eval failed on int eval 2"
+    END
+    ACTION_IF !"%str_arg%" STRING_EQUAL foo BEGIN
+      FAIL "test_fun_eval failed on str eval"
+    END
+    ACTION_IF !"%str_arg2%" STRING_EQUAL foo BEGIN
+      FAIL "test_fun_eval failed on str eval 2"
+    END
+    ACTION_IF !"%str_arg3%" STRING_EQUAL foo BEGIN
+      FAIL "test_fun_eval failed on str eval 3"
+    END
+    OUTER_SET int_ret = 1
+    OUTER_SET int_ret2 = 1
+    OUTER_SPRINT str_ret bar
+    OUTER_SPRINT str_ret2 bar
+  END
+
+  OUTER_SET int_arg = 1
+  OUTER_SPRINT str_arg foo
+  OUTER_SPRINT str_arg3_outer foo
+  OUTER_SET int_ret = 0      //If this fails ("Unknown return value: 0"), there be bugs: RETs should not be evaluated
+  OUTER_SPRINT str_ret ""
+  LAF fun_eval
+    INT_VAR int_arg int_arg2 = 1
+    STR_VAR str_arg str_arg2 = foo str_arg3 = EVAL "%str_arg3_outer%"
+    RET int_ret int_ret2_outer = int_ret2 str_ret str_ret2_outer = str_ret2
+  END
+
+  ACTION_IF int_ret != 1 BEGIN
+    FAIL "test_fun_eval failed on int ret eval"
+  END
+  ACTION_IF int_ret2_outer != 1 BEGIN
+    FAIL "test_fun_eval failed on int ret eval 2"
+  END
+  ACTION_IF !"%str_ret%" STRING_EQUAL bar BEGIN
+    FAIL "test_fun_eval failed on str ret eval"
+  END
+  ACTION_IF !"%str_ret2_outer%" STRING_EQUAL bar BEGIN
+    FAIL "test_fun_eval failed on str ret eval 2"
+  END
+END
+
+LAF test_fun_eval END

@@ -5,7 +5,7 @@ Version 232:
   * Lowercase the file name of binaries on Linux.
   * AUTO_EVAL_STRINGS adds an implicit EVALUATE_BUFFER in front of every patch
     string (notably, when dealing with arrays or functions).
-  * In LAUNCH_*_FUNCTION, RET num is shorthand for RET num = ~%num%~.
+  * In LAUNCH_*_FUNCTION, RET num is shorthand for RET num = num.
   * Fixes to this and that in the macros.
   * REPLACE_ACTION_TEXT evaluates variables.
   * REPLACE_TRANS_ACTION warns if you're using invalid actions.
