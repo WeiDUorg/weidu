@@ -250,6 +250,8 @@ let load_game () =
     end else
       None, "(none)"
   in
+  if not (is_directory "override") then
+    Case_ins.unix_mkdir "override" 511 ;
   let result =
     {
      key = key ;

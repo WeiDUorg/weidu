@@ -22,6 +22,7 @@ Version 232:
   * GAME_IS and ENGINE_IS recognise BGEE.
   * Handle BGEE's new file types.
   * Updated the standard library of macros and functions to account for BGEE.
+  * While loading game resources, create an override directory if none exists.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
