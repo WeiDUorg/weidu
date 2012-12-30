@@ -735,7 +735,7 @@
 		
 		
 		//adds an item in an area. 
-		//reuired: container_to_add_to (starting from 1), ~item_to_add~
+		//required: container_to_add_to (starting from 1), ~item_to_add~
 		//optional: charges1 charges2 charges3 flags
 		DEFINE_PATCH_MACRO ~ADD_AREA_ITEM~ BEGIN
 		  PATCH_IF (BUFFER_LENGTH	 > 0x11b) BEGIN

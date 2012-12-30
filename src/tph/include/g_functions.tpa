@@ -177,7 +177,7 @@ END
 
 
 DEFINE_PATCH_FUNCTION ~ADD_AREA_ITEM~
-  INT_VAR container_to_add_to = 0
+  INT_VAR container_to_add_to = 1
           charges1 = 0
           charges2 = 0
           charges3 = 0

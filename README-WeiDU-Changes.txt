@@ -23,6 +23,8 @@ Version 232:
   * Handle BGEE's new file types.
   * Updated the standard library of macros and functions to account for BGEE.
   * While loading game resources, create an override directory if none exists.
+  * Correct inaccuracies in the documentation of the ADD_AREA_ITEM macro. The
+    ADD_AREA_ITEM function defaults to container_to_add_to = 1 instead of 0.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
