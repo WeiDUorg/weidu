@@ -3,6 +3,9 @@
 open Util
 open Load
 
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 (* Note added due to LGPL terms.
 
    This file was edited by Valerio Bigiani, AKA The Bigg, starting from
@@ -403,7 +406,7 @@ action :
 | REPLACE_TRANS_TRIGGER STRING BEGIN string_list END BEGIN int_list END STRING STRING when_list
     { current_unit := Some(String.uppercase $2);
       current_unit := None ;
-      Dc.Replace_Trans_Trigger(String.uppercase $2,$4,$7,$9,verify_action_list $10,$11) }
+      Dc.Replace_Trans_Trigger(String.uppercase $2,$4,$7,$9,verify_trigger_list $10,$11) }
 | SET_WEIGHT STRING STRING STRING_REF
     { Dc.Set_Weight($2,$3,$4) }
 | chain3_prologue chain3_list compound_chain3_list chain3_epilogue
