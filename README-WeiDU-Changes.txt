@@ -25,6 +25,7 @@ Version 232:
   * While loading game resources, create an override directory if none exists.
   * Correct inaccuracies in the documentation of the ADD_AREA_ITEM macro. The
     ADD_AREA_ITEM function defaults to container_to_add_to = 1 instead of 0.
+  * Use BG2's TLK format and scripting style for BGEE.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

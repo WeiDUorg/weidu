@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 (* Note added due to LGPL terms.
 
    This file was edited by Valerio Bigiani, AKA The Bigg, starting from
@@ -281,10 +284,19 @@ let load_game () =
              begin
                try
                  let _ = Key.find_resource key "CLOWNRAN" "IDS" in (Tlk.is_bg2 := false;IWD1)
-               with Not_found -> 
-		 try
-		   let _ = Key.find_resource key "FLYTHR01" "MVE" in(Tlk.is_bg2 := true; BG2)
-		 with Not_found -> (Tlk.is_bg2 := false;BG1)
+               with Not_found ->
+                 begin
+		   try
+		     let _ = Key.find_resource key "FLYTHR01" "MVE" in(Tlk.is_bg2 := true; BG2)
+		   with Not_found ->
+                     try
+                       let _ = Key.find_resource key "OH1000" "ARE" in
+                        (* Really BGEE, but I think we can mooch off the BG2 script style
+                           for now. is_bg2 is seemingly just for how strings are stored in
+                           the TLK, and BGEE stores them the BG2 way. *)
+                       (Tlk.is_bg2 := true; BG2)
+                     with Not_found -> (Tlk.is_bg2 := false;BG1)
+                 end
              end
          end
      end
