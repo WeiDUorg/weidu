@@ -26,6 +26,7 @@ Version 232:
   * Correct inaccuracies in the documentation of the ADD_AREA_ITEM macro. The
     ADD_AREA_ITEM function defaults to container_to_add_to = 1 instead of 0.
   * Use BG2's TLK format and scripting style for BGEE.
+  * We no longer distribute WeiGUI.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

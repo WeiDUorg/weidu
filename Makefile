@@ -176,16 +176,16 @@ zip :
 linux_zip :
   echo cannot make zip -- itemlist included
 else
-windows_zip : weidu weinstall weigui tolower clean
+windows_zip : weidu weinstall tolower clean #weigui
 	rm iwg2* weimorph* || true
 	mv weid*.exe weidu.exe
-	mv weig*.exe weigui.exe
+	#mv weig*.exe weigui.exe
 	mv wein*.exe weinstall.exe
 	mv tolo*.exe tolower.exe
 	strip weidu.exe || true
 	upx --best weidu.exe || echo "No EXE Compression"
-	strip weigui.exe || true
-	upx --best weigui.exe || echo "No EXE Compression"
+	#strip weigui.exe || true
+	#upx --best weigui.exe || echo "No EXE Compression"
 	strip weinstall.exe || true
 	upx --best weinstall.exe || echo "No EXE Compression"
 	strip tolower.exe || true
@@ -200,30 +200,30 @@ build : weidu
 	cp wein*$(EXE) ../WeiDU-Linux/weinstall || true
 	cp weig*$(EXE) ../WeiDU-Linux/weigui || true
 	cp tolower$(EXE) ../WeiDU-Linux/tolower || true
-linux_zip : weidu weinstall weigui tolower
+linux_zip : weidu weinstall tolower #weigui
 	rm iwg2* weimorph* || true
 	mv weid*$(EXE) ../WeiDU-Linux/weidu || true
 	mv wein*$(EXE) ../WeiDU-Linux/weinstall || true
-	mv weig*$(EXE) ../WeiDU-Linux/weigui || true
+	#mv weig*$(EXE) ../WeiDU-Linux/weigui || true
 	mv tolower$(EXE) ../WeiDU-Linux/tolower || true
 	strip ../WeiDU-Linux/weidu || true
 	upx --best ../WeiDU-Linux/weidu || echo "No EXE Compression"
 	strip ../WeiDU-Linux/weinstall || true
 	upx --best ../WeiDU-Linux/weinstall || echo "No EXE Compression"
-	strip ../WeiDU-Linux/weigui || true
-	upx --best ../WeiDU-Linux/weigui || echo "No EXE Compression"
+	#strip ../WeiDU-Linux/weigui || true
+	#upx --best ../WeiDU-Linux/weigui || echo "No EXE Compression"
 	strip ../WeiDU-Linux/tolower || true
 	upx --best ../WeiDU-Linux/tolower || echo "No EXE Compression"
 	cp README* ../WeiDU-Linux
 	(cd .. ; zip -9r WeiDU-Linux-$(VER).zip WeiDU-Linux )
-osx_zip : weidu weinstall weigui
+osx_zip : weidu weinstall #weigui
 	rm iwg2* weimorph* || true
 	mv weid*$(EXE) ../WeiDU-mac/WeiDU/weidu-mac || true
 	mv wein*$(EXE) ../WeiDU-mac/WeiDU/weinstall || true
-	mv weig*$(EXE) ../WeiDU-mac/WeiDU/weigui    || true
+	#mv weig*$(EXE) ../WeiDU-mac/WeiDU/weigui    || true
 	strip ../WeiDU-mac/WeiDU/weidu-mac || true
 	strip ../WeiDU-mac/WeiDU/weinstall || true
-	strip ../WeiDU-mac/WeiDU/weigui    || true
+	#strip ../WeiDU-mac/WeiDU/weigui    || true
 	cp README* ../WeiDU-mac/WeiDU
 	sed -e's/version_plist=.*/version_plist=\"${VERBIG}\"/g'  '../WeiDU-mac/WeiDU/WeiDU Installer.command' > t
 	mv t ../WeiDU-mac/WeiDU/WeiDU\ Installer.command
