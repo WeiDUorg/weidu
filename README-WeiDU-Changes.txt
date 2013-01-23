@@ -27,6 +27,8 @@ Version 232:
     ADD_AREA_ITEM function defaults to container_to_add_to = 1 instead of 0.
   * Use BG2's TLK format and scripting style for BGEE.
   * We no longer distribute WeiGUI.
+  * The variable "%SAVE_DIRECTORY%" evaluates to the location of the current
+    game's saves. Compatible with BGEE.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

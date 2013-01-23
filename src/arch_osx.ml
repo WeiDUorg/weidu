@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 (* Note added due to LGPL terms.
 
    This file was edited by Valerio Bigiani, AKA The Bigg, starting from
@@ -76,6 +79,10 @@ let get_version f =
 
 let check_UAC () =
   false
+;;
+
+let get_user_personal_dir () =
+  failwith "get_user_personal_dir should not be called on this architecture"; (* because it is currently Windows only *)
 ;;
 
 let game_path_by_type name =

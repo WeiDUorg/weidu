@@ -19,6 +19,12 @@ let registry_game_paths () =
   List.map (fun str ->
     if str = "." then str else Case_ins.filename_dirname str
 	   ) str_list 
+(*
+ * game_type can be:
+ * "bgee"    - BGEE
+ * "generic" - everything that is a game but not one of the above
+ *)
+let game_type = ref "generic"
 
 let game_paths = ref [] 
 
@@ -294,13 +300,14 @@ let load_game () =
                         (* Really BGEE, but I think we can mooch off the BG2 script style
                            for now. is_bg2 is seemingly just for how strings are stored in
                            the TLK, and BGEE stores them the BG2 way. *)
-                       (Tlk.is_bg2 := true; BG2)
+                       (Tlk.is_bg2 := true; game_type := "bgee"; BG2)
                      with Not_found -> (Tlk.is_bg2 := false;BG1)
                  end
              end
          end
      end
    } in
+  Var.game_dependent_vars !game_type ;
   (match result.dialogf with
     Some(df) -> begin
       let dfl = Array.length df in

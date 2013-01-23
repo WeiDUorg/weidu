@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 (* Note added due to LGPL terms.
 
    This file was edited by Valerio Bigiani, AKA The Bigg, starting from
@@ -302,3 +305,14 @@ let _ =
   all_the_assoc () ;
   ()
 
+let game_dependent_vars game_type =
+  let save_dir = "SAVE_DIRECTORY" in
+  match String.lowercase game_type with
+  | "bgee" ->
+      begin
+        try
+          let personal = Arch.get_user_personal_dir () in
+          set_string save_dir (personal ^ "/Baldur's Gate - Enhanced Edition/save")
+        with _ -> set_string save_dir ""
+      end
+  | _ -> set_string save_dir "./save"

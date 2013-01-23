@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 (* Note added due to LGPL terms.
 
    This file was edited by Valerio Bigiani, AKA The Bigg, starting from
@@ -101,6 +104,8 @@ let check_UAC () =
   win_check_UAC ()
 ;;
 
+external get_user_personal_dir : unit -> string = "get_user_personal_dir"
+
 let game_path_by_type name =
   match String.lowercase name with
   | "bg2"  -> registry_path ()
@@ -110,4 +115,5 @@ let game_path_by_type name =
   | "iwd"  -> iwd_registry_path ()
   | "iwd2" -> iwd2_registry_path ()
   | "pst"  -> pst_registry_path ()
+  | "bgee" -> failwith (Printf.sprintf "game-by-type does not support BGEE") (* Because you can have up to three concurrent installations *)
   | _ -> failwith (Printf.sprintf "Unknown game: %s" name)

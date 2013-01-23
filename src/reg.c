@@ -1,3 +1,6 @@
+// This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+// starting from 18 December 2012 and WeiDU 232.
+
 #define WIN32_LEAN_AND_MEAN     1
 /* MinGW has a bug in windows.h */
 #ifndef __MINGW32__
@@ -115,5 +118,20 @@ CAMLprim value win_check_UAC(void)
     return Val_bool(buf[0]);
 }
 
-// to compile:
-// cl reg.c /link ADVAPI32.LIB
+CAMLprim value get_user_personal_dir(void)
+{
+  HKEY hKey = 0;
+  char unexpBuf[SIZE] = {'.', 0};
+  DWORD unexpBufSize = sizeof(unexpBuf);
+  DWORD type = REG_EXPAND_SZ;
+  const char* subkey = "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders";
+  char expBuf[SIZE] = {'.', 0};
+  DWORD expBufSize = sizeof(expBuf);
+
+  RegOpenKeyEx(HKEY_CURRENT_USER, subkey, 0, KEY_QUERY_VALUE, &hKey);
+  RegQueryValueExA(hKey, "Personal", 0, &type, (BYTE*)unexpBuf, &unexpBufSize);
+  ExpandEnvironmentStrings(&unexpBuf, (BYTE*)expBuf, &expBufSize);
+  RegCloseKey(hKey);
+
+  return copy_string(expBuf);
+}
