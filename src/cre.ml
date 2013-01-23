@@ -46,7 +46,7 @@ let cre_of_string buff =
   | "CRE V1.2" -> 0x378
   | "CRE V2.2" -> raise Cre22
   | "CRE V9.0" -> 0x33c
-  | _ -> failwith "not a vaild CRE file"
+  | _ -> failwith "not a valid CRE file"
   in
 
   let main_body = String.sub buff 0 head_length in
@@ -167,7 +167,7 @@ let string_of_cre cre =
   | "CRE V1.2" -> 0x378
   | "CRE V2.2" -> raise Cre22
   | "CRE V9.0" -> 0x33c
-  | _ -> failwith "not a vaild CRE file"
+  | _ -> failwith "not a valid CRE file"
   in
   let known_off_off = head_length - 0x34 in
   let known_cnt_off = head_length - 0x30 in
