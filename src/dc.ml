@@ -1229,7 +1229,7 @@ let pctta late game tl keep = (* process_copy_trans__trans_array *)
     let expanded_trans_a = Array.of_list expanded_trans_list in
     expanded_trans_a
   with s ->
-    log_and_print "ERROR: Cannot process COPY_TRANS\n" ;
+    log_and_print "ERROR: Cannot process COPY_TRANS (%s)\n" (printexc_to_string s) ;
     raise s
 
 let process_copy_trans late game a = match a with
