@@ -100,9 +100,9 @@
 ifdef WINDIR
 	# (0) X86 / Windows / Cygwin, using MINGW as the C compiler
 	export ARCHOS    = x86_WIN32
-	export OCAMLDIR  = C:\\OVerbld\\ocaml\\bin
-	export OCAMLLIB  = C:\\OVerbld\\ocaml\\lib
-	export CAMLP4LIB = C:\\OVerbld\\ocaml\\lib\\camlp4
+	export OCAMLDIR  = C:\\ocaml\\bin
+	export OCAMLLIB  = C:\\ocaml\\lib
+	export CAMLP4LIB = C:\\ocaml\\lib\\camlp4
 	export OBJEXT    = o
 	export ARCH_FILE = arch_mingw
 	export CASE_FILE = case_ins_win

@@ -31,11 +31,13 @@
 \def\textpipe{|}
 
 \title{WeiDU Documentation}
-\author{Valerio Bigiani, AKA The Bigg\\
-\mailto{thebigg@spellholdstudios.net}\\
-edited according to the GPL from the original version by \\
+\author{Fredrik Lindgren, a.k.a. Wisp\\
+\mailto{lindgren.fredrik@gmail.com}\\
+edited according to the GPL from source code by \\
+Valerio Bigiani, AKA The Bigg \\
+\mailto{thebigg@spellholdstudios.net} and\\
 Westley Weimer\\
- \mailto{weimer@cs.berkley.edu}}
+\mailto{weimer@cs.berkley.edu}}
 
 \begin{document}
 
@@ -4318,20 +4320,28 @@ LOOKUP_IDS_SYMBOL_OF_INT baz ~spell~ 77777
   \t{777777}. \\
 
 or & \DEFINE{COMPILE!BAF!TO!BCS} &
+\textbf{DEPRECATED.} Use \ttref{DECOMPILE!AND!PATCH} instead.
+
   The current file, which must be a valid \ttref{BAF} script, is compiled
   to a \ttref{BCS}. In general you should use the \ttref{COMPILE}
   \ttref{TP2 Action} instead, unless you are using other \t{patch} commands
   to modify the file under consideration. \\
 or & \DEFINE{DECOMPILE!BCS!TO!BAF} &
+\textbf{DEPRECATED.} Use \ttref{DECOMPILE!AND!PATCH} instead.
+
   The current file, which must be a valid \ttref{BCS} script, is decompiled
   to a \ttref{BAF}. \\
 or & \DEFINE{DECOMPILE!DLG!TO!D} &
+\textbf{DEPRECATED.} Use \ttref{DECOMPILE!AND!PATCH} instead.
+
   The current file, which must be a valid \ttref{DLG} file, is decompile
   to a textual \ttref{D} file (with string refs and no comments). Once you
   have a \ttref{D} file you can use other \t{patch} commands to change the
   actions and triggers around. You should use \ttref{D} actions (like
   \ttref{REPLACE!ACTION!TEXT}) instead whenever possible.  \\
 or & \DEFINE{COMPILE!D!TO!DLG} &
+\textbf{DEPRECATED.} Use \ttref{DECOMPILE!AND!PATCH} instead.
+
   The current file, which must be a valid \ttref{D} file that defines
   a single \ttref{DLG} file (via an obvious \ttref{BEGIN} action) is
   compiled to a \ttref{DLG}. Typically this is only used after a
@@ -8913,17 +8923,25 @@ automatic memory management, higher-order functions and efficient native
 code generation. If these terms mean nothing to you, you probably won't be
 able to modify the source code.
 
-However, if you do want to modify the source and then recompile WeiDU, it's
-quite easy. Make sure that you have OCaml 3.10 (or newer), sed (or Perl
-5.6), make and either gcc or (optionally) cl (the Microsoft Visual C
-Compiler).
+Building WeiDU on Windows requires OCaml 4.01 or more recent, Cygwin and the
+elkhound program. The OCaml installer can install the required Cygwin
+packages. Building WeiGUI additionally requires OCaml-provided Tcl/Tk.
 
-Edit the \t{Configuration} file and pick your configuration. If you're not
-x86/windows/cygwin or x86/linux, you'll have to do some tweaking. Then just
-type \t{make clean} and then \t{make}. Presto, you've recompiled it.
+WeiDU can also be built on x86/x86-64 GNU/Linux and PPC OS X. The exact status
+on building WeiDU on x86/x86-64 OS X is not known, but there have been reports
+of success.
+
+WeiDU uses a Make system that aims to correctly auto-configure itself, through
+the file \t{Configuration}.
 
 WeiDU uses the GPL'd \t{zlib} and \t{xdiff} libraries, as well as portions from
-the GPL'd \t{ocaml, batteries included} library and the BSD'd \t{Elkhound} program.
+the GPL'd \t{ocaml, batteries included} library.
+
+Elkhound is available as source code under a BSD licence and as
+pre-compiled x86 executables for Windows and GNU/Linux (built on
+Debian Squeeze).
+
+For more information, please refer to the forum.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Special Thanks}
