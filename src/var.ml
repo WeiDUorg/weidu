@@ -311,8 +311,8 @@ let game_dependent_vars game_type =
   | "bgee" ->
       begin
         try
-          let personal = Arch.get_user_personal_dir () in
-          set_string save_dir (personal ^ "/Baldur's Gate - Enhanced Edition/save")
+          let bgee_user_dir = Arch.get_bgee_user_dir () in
+          set_string save_dir (bgee_user_dir ^ "/save")
         with _ -> set_string save_dir ""
       end
   | _ -> set_string save_dir "./save"

@@ -87,8 +87,10 @@ let check_UAC () =
   false
 ;;
 
-let get_user_personal_dir () =
-  failwith "get_user_personal_dir should not be called on this architecture" (* because it is currently Windows only *)
+(* external get_user_personal_dir : unit -> string = "get_user_home_dir" *)
+
+let get_bgee_user_dir () =
+  failwith "get_bgee_user_dir should not be called on this architecture"
 ;;
 
 let game_path_by_type name =
