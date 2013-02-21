@@ -893,7 +893,7 @@ processing. \\
 \DEFINE{--reinstall}  	& Re-install all \ttref{TP2} components that are
 already installed and do not prompt for a key to be pressed at the end of
 \ttref{TP2} processing. \\
-\DEFINE{--language}m  \t{X}   & Sets the \ttref{TP2} \ttref{Language} to the one
+\DEFINE{--language}  \t{X}   & Sets the \ttref{TP2} \ttref{Language} to the one
 passed here. Has no effect if the value is bigger than the language count
 (I.E. you'll get asked for the language, unless you gave --uninstall, --reinstall
 or --force-uninstall). \\
@@ -3866,7 +3866,7 @@ or & \DEFINE{EVALUATE!BUFFER!SPECIAL} string &
 	inside the current file are replaced by their values, where X is to be intended
 	as string. Example:
 \begin{verbatim}
-<<<<<<<< .../script.baf
+<<<<<<<< .../mymod-inlined/script.baf
 IF
   See($myvar$)
 THEN
@@ -3874,7 +3874,7 @@ THEN
     Kill(%myvar%)
 END
 >>>>>>>>
-EXTEND_TOP ~sola.bcs~ ~.../script.baf~
+EXTEND_TOP ~sola.bcs~ ~.../mymod-inlined/script.baf~
   SPRINT myvar = ~"Anomen"~
   EVALUATE_BUFFER_SPECIAL ~$~
 \end{verbatim}
@@ -3887,7 +3887,7 @@ or & \DEFINE{EVALUATE!BUFFER} &
   should probably be a plain text file in order for this to make much sense)
   are replaced by their values. Example:
 \begin{verbatim}
-<<<<<<<< .../script.baf
+<<<<<<<< .../mymod-inlined/script.baf
 IF
   See(%myvar%)
 THEN
@@ -3895,7 +3895,7 @@ THEN
     Kill(%myvar%)
 END
 >>>>>>>>
-EXTEND_TOP ~sola.bcs~ ~.../script.baf~
+EXTEND_TOP ~sola.bcs~ ~.../mymod-inlined/script.baf~
   SPRINT myvar = ~"Anomen"~
   EVALUATE_BUFFER
 \end{verbatim}
@@ -4237,13 +4237,13 @@ or & \DEFINE{INSERT!2DA!ROW} \t{\ttref{value}1 \ttref{value}2 \ttref{String}} &
   the nth line in the original file (starting count from 0); finally, if row count is greater
   than the number of lines, the component will fail to install.
 \begin{verbatim}
-<<<<<<<< 2dafile
+<<<<<<<< ~.../mymod-inlined/2dafile~
 asd foo
 a b c
 d e f
 g h i
 >>>>>>>>
-COPY ~2dafile~ ~2dafile~
+COPY ~.../mymod-inlined/2dafile~ ~.../mymod-inlined/2dafile~
 INSERT_2DA_ROW 3 3 ~4 4 4~
 INSERT_2DA_ROW 2 3 ~3 3 3~
 INSERT_2DA_ROW 1 3 ~2 2 2~
@@ -8856,8 +8856,7 @@ REGISTRY_PST_PATH ditto for PST.
 REGISTRY_IWD1_PATH ditto for IWD1.
 REGISTRY_IWD2_PATH ditto for IWD2.
 
-SAVE_DIRECTORY the directory in which the current game type stores its saved games. This is "./save" on non-BGEE games and something like
-"%USERPROFILE%/Baldur's Gate - Enhanced Edition/save" on BGEE games, where the absolute path is read from the Windows registry.
+SAVE_DIRECTORY evaluates to the directory in which the current game type stores its saved games. This is "./save" on non-BGEE games. On Windows BGEE games this is "%PATH%\Baldur's Gate - Enhanced Edition\save", where PATH is the user's personal directory as read from the Windows registry. On OS X BGEE games this is "$HOME/Library/Containers/com.beamdog.baldursgateenhancededition/Data/Documents/Baldur's Gate - Enhanced Edition/save", where HOME is the user's home directory, as retrieved by uid from the user database.
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
