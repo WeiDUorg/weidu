@@ -86,7 +86,7 @@ external get_user_personal_dir : unit -> string = "get_user_home_dir"
 let get_bgee_user_dir () =
   let personal = get_user_personal_dir () in
   personal ^
-  "/Library/Containers/com.beamdog.baldursgateenhancededition/Data/Documents/Baldur's Gate - Enhanced Edition"
+  "/Documents/Baldur's Gate - Enhanced Edition"
 ;;
 
 let game_path_by_type name =
