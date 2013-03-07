@@ -63,7 +63,7 @@ PROJECT_CMODULES   += zlib adler32 inflate uncompr inftrees zutil inffast $(GLOB
 PROJECT_CMODULES   += xemit xpatchi xutils xdiffi xprepare $(ARCH_C_FILES)
 PROJECT_CMODULES   += crc32 compress deflate trees
 
-PROJECT_OCAML_LIBS = unix str #OCaml changed libstr.a into libcamlstr.a and "you are not supposed to link with -lstr"
+PROJECT_OCAML_LIBS = unix str #OCaml changed libstr into libcamlstr and "you are not supposed to link with -lstr"
 PROJECT_LIBS       = unix camlstr
 .PHONY: weidu
 weidu:  $(PROJECT_EXECUTABLE)
@@ -71,7 +71,7 @@ $(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                         $(PROJECT_CMODULES:%=$(OBJDIR)/%.$(OBJEXT))
 	@$(NARRATIVE) Linking $(COMPILETOWHAT) $@
 	$(CAMLLINK) -o $@ \
-                    $(PROJECT_OCMAL_LIBS:%=%.$(CMXA)) \
+                    $(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
                     $(PROJECT_LIBS:%=-cclib -l%) \
                     $(PROJECT_CLIBS:%=-cclib %) \
                     $^
