@@ -63,14 +63,15 @@ PROJECT_CMODULES   += zlib adler32 inflate uncompr inftrees zutil inffast $(GLOB
 PROJECT_CMODULES   += xemit xpatchi xutils xdiffi xprepare $(ARCH_C_FILES)
 PROJECT_CMODULES   += crc32 compress deflate trees
 
-PROJECT_LIBS       = unix str
+PROJECT_OCAML_LIBS = unix str #OCaml changed libstr.a into libcamlstr.a and "you are not supposed to link with -lstr"
+PROJECT_LIBS       = unix camlstr
 .PHONY: weidu
 weidu:  $(PROJECT_EXECUTABLE)
 $(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                         $(PROJECT_CMODULES:%=$(OBJDIR)/%.$(OBJEXT))
 	@$(NARRATIVE) Linking $(COMPILETOWHAT) $@
 	$(CAMLLINK) -o $@ \
-                    $(PROJECT_LIBS:%=%.$(CMXA)) \
+                    $(PROJECT_OCMAL_LIBS:%=%.$(CMXA)) \
                     $(PROJECT_LIBS:%=-cclib -l%) \
                     $(PROJECT_CLIBS:%=-cclib %) \
                     $^
@@ -115,14 +116,15 @@ weigui: FORCE
 PROJECT3_EXECUTABLE = $(OBJDIR)/tolower$(EXE)
 PROJECT3_MODULES    = tolower
 PROJECT3_CMODULES   =
-PROJECT3_LIBS       = unix str
+PROJECT3_OCAML_LIBS = unix str
+PROJECT3_LIBS       = unix camlstr
 .PHONY: tolower
 tolower: $(PROJECT3_EXECUTABLE)
 $(PROJECT3_EXECUTABLE) : $(PROJECT3_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                         $(PROJECT3_CMODULES:%=$(OBJDIR)/%.$(OBJEXT))
 	@$(NARRATIVE) Linking $(COMPILETOWHAT) $@
 	$(CAMLLINK) -o $@ \
-                    $(PROJECT3_LIBS:%=%.$(CMXA)) \
+                    $(PROJECT3_OCAML_LIBS:%=%.$(CMXA)) \
                     $(PROJECT3_LIBS:%=-cclib -l%) \
                     $(PROJECT3_CLIBS:%=-cclib %) \
                     $^
@@ -133,14 +135,15 @@ $(PROJECT3_EXECUTABLE) : $(PROJECT3_MODULES:%=$(OBJDIR)/%.$(CMO)) \
 PROJECT4_EXECUTABLE = $(OBJDIR)/weinstall$(EXE)
 PROJECT4_MODULES    =  case_ins weinstall
 PROJECT4_CMODULES   =
-PROJECT4_LIBS       = unix str
+PROJECT4_OCAML_LIBS = unix str
+PROJECT4_LIBS       = unix camlstr
 .PHONY: weinstall
 weinstall: $(PROJECT4_EXECUTABLE)
 $(PROJECT4_EXECUTABLE) : $(PROJECT4_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                         $(PROJECT4_CMODULES:%=$(OBJDIR)/%.$(OBJEXT))
 	@$(NARRATIVE) Linking $(COMPILETOWHAT) $@
 	$(CAMLLINK) -o $@ \
-                    $(PROJECT4_LIBS:%=%.$(CMXA)) \
+                    $(PROJECT4_OCAML_LIBS:%=%.$(CMXA)) \
                     $(PROJECT4_LIBS:%=-cclib -l%) \
                     $(PROJECT4_CLIBS:%=-cclib %) \
                     $^
