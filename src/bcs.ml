@@ -726,7 +726,7 @@ let split6 s =
 let rec best_ids_of_trigger game c =
   let ids = every_ids_of_int game "TRIGGER" c.trigger_id in 
   if ids = [] then begin
-    log_and_print "Cannot resolve trigger 0x%lx\n" c.trigger_id ;
+    log_and_print "ERROR: cannot resolve trigger 0x%lx\n" c.trigger_id ;
     raise Not_found
   end else begin
     let rec proc lst = match lst with
@@ -735,7 +735,7 @@ let rec best_ids_of_trigger game c =
 	  c.trigger_id <- Int32.add c.trigger_id (0x4000l) ;
 	  best_ids_of_trigger game c ;
 	end else begin
-	  log_and_print "Cannot resolve trigger 0x%lx\n" c.trigger_id ; raise e
+	  log_and_print "ERROR: cannot resolve trigger 0x%lx\n" c.trigger_id ; raise e
 	end)
     | ids :: tl -> 
 	let string_formal_count = List.fold_left  
@@ -756,7 +756,7 @@ let rec best_ids_of_trigger game c =
 let rec best_ids_of_action game a = 
   let ids = every_ids_of_int game "ACTION" a.action_id in 
   if ids = [] then begin
-    log_and_print "Cannot resolve action 0x%lx\n" a.action_id ;
+    log_and_print "ERROR: cannot resolve action 0x%lx\n" a.action_id ;
     raise Not_found
   end else begin
     let rec proc lst = match lst with
@@ -765,7 +765,7 @@ let rec best_ids_of_action game a =
 	  a.action_id <- Int32.add a.action_id (0x4000l);
 	  best_ids_of_action game a ;
 	end else begin 
-	  log_and_print "Cannot resolve action %ld\n" a.action_id ; raise e
+	  log_and_print "ERROR: cannot resolve action %ld\n" a.action_id ; raise e
 	end)
     | ids :: tl -> 
 	let string_formal_count = List.fold_left  
