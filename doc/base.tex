@@ -5042,9 +5042,10 @@ it. If the tutorial-writer is kind enough, they'll state dependencies while
 introducing the subject.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\ttref{COPY!EXISTING!REGEXP}}
+\subsection{\ttref{COPY!EXISTING!REGEXP} (Last update: v232)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-This tutorial was thoughtfully provided by Japheth.
+This tutorial was thoughtfully provided by Japheth and edited by Wisp to
+conform to contemporary good practices.
 
 The purpose of \ttref{COPY!EXISTING} and \ttref{COPY!EXISTING!REGEXP} is to
 patch a file for patching. It will grab the file out of the \ttref{BIFF}s,
@@ -5063,8 +5064,8 @@ rather than the varying damages they do in SOA.  To do this with the
 handed swords like this:
 
 \begin{verbatim}
-COPY_EXISTING ~sw1h01.itm~ ~override/sw1h01.itm~
-              ~sw1h02.itm~ ~override/sw1h02.itm~
+COPY_EXISTING ~sw1h01.itm~ ~override~
+              ~sw1h02.itm~ ~override~
               etc...
 \end{verbatim}
 
@@ -5074,26 +5075,14 @@ at this:
 
 \begin{verbatim}
 COPY_EXISTING_REGEXP ~sw1h..[^abc].*itm~ ~override~
-  WRITE_LONG 0x88 "6"
-  WRITE_LONG 0x8a "1"
+  //our patching code goes here
 \end{verbatim}
 
 I'll explain how the \ttref{regexp} wildcards in the above example work:
 I want to avoid copying over the files sw1h54a.itm, sw1h54b.itm and
 sw1h54c.itm because they are the three components that make up the
-Equalizer, and because of that, the offsets of 0x88 and 0x8a won't work
-because they don't exist in those items.
-
-To find which offset to \ttref{WRITE!LONG} at I opened up Near Infinity,
-(found at \ahrefurl{\url{http://www.idi.ntnu.no/~joh/ni/}})
-and looked up the offset with
-it.  Fortunately for us, the offset is the same in all items, so we can
-make the changes in one shot. {\tt \ttref{WRITE!LONG} 0x88 "6"} is telling
-WeiDU to write the value of 6 at offset 88 hex.  Similarly, {\tt
-\ttref{WRITE!LONG} 0x8a "1"} is telling WeiDU to write the value 1 at
-offset 8a hex.
-
-The 6 is the dice size and the 1 is the number of dice.
+Equalizer and are thus not actual swords. The regexp fragment \verb+[^abc]+
+is an exclusion set that will match any character but ``a'', ``b'' and ``c''.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\ttref{EXTEND!TOP!REGEXP}}
@@ -5102,7 +5091,7 @@ This tutorial was thoughtfully provided by Japheth.
 
 Let's take this situation that I was in:
 
-I am making a Hirelings mod, and in order to get non party NPC's to
+I am making a Hirelings mod, and in order to get non-party NPC's to
 transition from area to area, I needed to make use of a combination of
 MakeGlobal(), InMyArea(O:Object*) and MoveGlobalObject(O:Object*,O:Target*).
 
@@ -5112,12 +5101,12 @@ strange reason, the cre's wouldn't move to smaller areas, only the large
 "main" areas.  (Like The Docks, Temple District, Slums, etc.)  So I
 figured, "Huh, guess I'm going to have to put the script in every area
 script".  (Area scripts are scripts that are assigned to areas that are ran
-while you are in the area.  Pretty obvious right?)
+while you are in the area.  Pretty obvious, right?)
 
 Now, writing the code to \ttref{EXTEND!TOP} this little script into every area
 script would of taken quite a while, and well, rather than do that, I
 humbly requested Wes to implement the \ttref{regexp} feature of
-\ttref{EXTEND!TOP} and \ttref{EXTEND!BOTTOM}, and he obliged.  (My penance
+\ttref{EXTEND!TOP} and \ttref{EXTEND!BOTTOM}, and Westley obliged.  (My penance
 for that request is writing the docs you are reading right now.)
 
 So now with Wes' help, I could \ttref{EXTEND!TOP} to every area in 1 fell
@@ -5140,11 +5129,12 @@ So, I had to write it so that the \ttref{regexp} had the number after the
 initial AR so that WeiDU would know only to patch the script to area files.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\ttref{READ!BYTE} and \ttref{PATCH!IF} (Last update: v189)}
+\subsection{\ttref{READ!BYTE} and \ttref{PATCH!IF} (Last update: v232)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial was thoughtfully provided by Japheth, and shamelessly edited
-by Bigg to use PATCH!IF rather than IF!EVAL.
+by Bigg to use PATCH!IF rather than IF!EVAL. It was then further edited by
+Wisp to conform to contemporary good practices.
 
 \ttref{READ!BYTE}, \ttref{READ!SHORT} and \ttref{READ!LONG} can be
 potentially powerful functions when used in conjunction with
@@ -5152,8 +5142,8 @@ potentially powerful functions when used in conjunction with
 
 Here's a brief demonstration.
 
-The scenario: I want to make all longswords in the game do 1D6 damage,
-rather than their normal 1D8. To do that manually would be a pain, so why
+The scenario: I want to make all longswords require 10 strength,
+rather than their normal 6. To do that manually would be a pain, so why
 not use the great feature of \ttref{READ!BYTE}/LONG/SHORT?
 
 Here's how it's done.
@@ -5167,39 +5157,36 @@ COPY_EXISTING_REGEXP ~.*\.itm~ ~override~
 
 All this does is copy all files with a .itm extension to the override folder.
 
-Next, we read the item category offset into a variable. We'll use the variable
+Next, we read the value of the item-type offset into a variable. We'll use the variable
 name "type".
 
 \begin{verbatim}
-READ_BYTE "0x1c" "type"
+READ_SHORT 0x1c type
 \end{verbatim}
 
-I found the offset by looking at an item file in Near Infinity. The
+I found the offset by looking at the file format for items in the IESDP:
+\ahrefurl{\url{http://iesdp.gibberlings3.net/}}. The
 variable "type" can really be anything, it's just what I've chosen.
 
 We should edit the item only if the item is really a longsword:
 
 \begin{verbatim}
-PATCH_IF ("%type%" = "0x14") BEGIN
+PATCH_IF (type = 0x14) BEGIN
 \end{verbatim}
 
-So, to call back our variable, you just wrap it with \% signs. 0x14 is just
-the value for longsword. If you look at the Category offset in Near
-Infinity (which is 0x1c), and scroll down in the box below, you'll see
-Longsword (20).  The 20 just represents the decimal value. 0x14 is just 20
-in hexadecimal.
+0x14 is just the value for longsword. If you look at the item-type offset (which
+is 0x1c) in the IESDP, you will see a link to a list of known values. 0x14 is the
+value for large/long swords.
 
 Now that we're done reading that into a variable and doing the checks, we can now
-\ttref{WRITE!SHORT} the values we want to give our new longswords. Namely,
-6 for damage and 1 for dice size. (Or, 1D6 for simplicity sake.)
+\ttref{WRITE!BYTE} the value we want to give our new longswords. That is, a strength
+requirement of 10.
 
 \begin{verbatim}
-WRITE_SHORT 0x88 6
-WRITE_SHORT 0x8a 1
+WRITE_BYTE 0x26 10
 \end{verbatim}
 
-0x88 is the offset for dicesize and 0x8a is the offset for the number of
-dice.  Again, I found these offsets using Near Infinity beforehand.
+0x26 is the offset for required strength.  Again, I found this offset by referring to the IESDP beforehand.
 
 \begin{verbatim}
 END
@@ -5211,23 +5198,21 @@ the item if it didn't change (IE, if it wasn't a long sword).
 
 So, to loop through the logic again, this is what we're saying:
 
-If the category is longsword, make the dice size 6 and the dice damage 1. If
+If the category is longsword, set the required strength to 10. If
 there are no changes, ignore the file and don't copy it over.
 
-And that's it. Now all items with the category Longsword will have 1D6 as their
-dice damage. Pretty neat eh? Obviously you can do many, many other types of
+And that's it. Now all items with the category Longsword will have a required strength of 10.
+Pretty neat, eh? Obviously you can do many, many other types of
 thing with these functions. So go ahead and experiment.
 
 Here's the full code:
 
 \begin{verbatim}
 COPY_EXISTING_REGEXP ~.*\.itm~ ~override~
-  READ_BYTE     "0x1c" "type"
+  READ_SHORT 0x1c type
 
-  PATCH_IF ("%type%" = "0x14") BEGIN
-    WRITE_SHORT   0x88 6
-    WRITE_SHORT   0x8a 1
-
+  PATCH_IF (type = 0x14) BEGIN
+    WRITE_BYTE 0x26 10
   END
 BUT_ONLY_IF_IT_CHANGES
 \end{verbatim}
@@ -5238,8 +5223,9 @@ it kind of is if you've never worked with bytes before. Here's a very brief
 synopsis.
 
 Use READ/WRITE!SHORT for anything that is two bytes. You can determine this
-easily by looking at the field you want to change in NI and subtracting the
-next listed field's offset from the offset of the field you want to change.
+easily by looking at the field you want to change in the IESDP or the program
+Near Infinity and subtracting the next listed field's offset from the offset
+of the field you want to change.
 
 For example, if I wanted to change Bodhi's Max HP here's what I would do.
 First look at her creature file in NI. (She has many, but for the sake of
@@ -5254,37 +5240,36 @@ figure this out as well.
 Use READ/WRITE!BYTE for anything that is one byte. Again, use the
 above example to figure this out.
 
-Use \ttref{WRITE!ASCII} for things like death variable, dialogues, scripts,
-etc. Note, that if you're \ttref{WRITE!ASCII}ing to say, the death
-variable, and the previous death variable entry is longer than the one
+Use \ttref{WRITE!ASCII} for things like script name, dialogues, scripts,
+etc. Note, that if you're \ttref{WRITE!ASCII}ing to say, the script name,
+and the previous script-name entry is longer than the one
 you're writing, then you'll have spillover after \ttref{WRITE!ASCII}. To
-avoid this, embed a null character at the end of your string. So, if I have
+avoid this, specify a required size that equals the length of the script-name field.
+So, if I have
 \begin{verbatim}
 WRITE_ASCII 0x280 ~Guy~
-\end{verbatim} 
-I would want to put a null character right after the y in Guy. You can do
-this by using a hex editor and inserting 00 after the y.
+\end{verbatim}
+I would actually want to write this
+\begin{verbatim}
+WRITE_ASCII 0x280 ~Guy~ #32
+\end{verbatim}
 
 These are by no means "hard and fast" rules, but generally they ring true.
-However, there could be times when you need to \ttref{WRITE!LONG} twice if
-the field is 8 bytes long, etc.
 
 Also, if you tried to run the template, you'd have noticed that it didn't work
 correctly. That's because there are some corrupt files in the key (that is,
-files of size 0). To avoid that, WeiDU gives us the \verb+%SOURCE_SIZE%+ variable,
-which is set to the original file size. We can simply check that the file is
-large enough. Using either NI or the IESDP, we see that a basic itm file must
-have at least 0x72 bytes long, so we can check that before doing anything:
+files of size 0). To avoid that, WeiDU gives us the \verb+SOURCE_SIZE+ variable,
+which is set to the original file size, in number of bytes. We can simply check that the
+file is large enough. Using either NI or the IESDP, we see that a basic itm file must be
+least 0x72 bytes long, so we can check that before doing anything:
 
 \begin{verbatim}
 COPY_EXISTING_REGEXP ~.*\.itm~ ~override~
-  PATCH_IF ("%SOURCE_SIZE%" > "0x71") BEGIN
-    READ_BYTE     "0x1c" "type"
+  PATCH_IF (SOURCE_SIZE > 0x71) BEGIN
+    READ_SHORT 0x1c type
 
-    PATCH_IF ("%type%" = "0x14") BEGIN
-      WRITE_SHORT   0x88 6
-      WRITE_SHORT   0x8a 1
-
+    PATCH_IF (type = 0x14) BEGIN
+      WRITE_BYTE 0x26 10
     END
   END
 BUT_ONLY_IF_IT_CHANGES
@@ -5295,10 +5280,16 @@ Again, we instruct WeiDU to not do a thing if the file is not large enough.
 And that, as they say, is that.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\ttref{value}s and expressions  (Last update: v189)}
+\subsection{\ttref{value}s and expressions  (Last update: v232)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial was thoughtfully provided by Japheth, and shamelessly edited
-by Bigg to use PATCH!IF rather than IF!EVAL.
+by Bigg to use PATCH!IF rather than IF!EVAL. It was then further edited by
+Wisp to conform to contemporary good practices.
+
+\textbf{Note well:} This tutorial can be considered an example of how to use
+WeiDU's low-level functionality. The preferred way of accomplishing the task in
+this tutorial (adding items to creatures) is with \ttref{ADD!CRE!ITEM}. Many
+other things can and should today also be done with higher-level functionality.
 
 Using expressions with WeiDU can get quite complex, however the power they
 give you is more than worth the effort in learning how to use them.
@@ -5319,13 +5310,24 @@ And if that's the case, the shield you specify won't be used because of our
 
 Anyways, on to the example.  I'll use acolyte1.cre as my example creature.
 
+\textbf{Caveat:} This will only work on standard-ordered creature files, for
+which
+\begin{verbatim}
+known_spells_offset <=
+memorization_offset <=
+memorized_spells_offset <=
+effects_offset <=
+items_offset <=
+item_slots_offset
+\end{verbatim}
+
 The first thing we want to do is copy the creature over so it's ready for
-patching, and ensure it isn't corrupt.  That's easy to do using a simple \ttref{COPY!EXISTING}
-statement:
+patching, and ensure it isn't corrupt.  That's easy to do using a simple
+\ttref{COPY!EXISTING} statement:
 
 \begin{verbatim}
-COPY_EXISTING ~acolyte1.cre~ ~override/acolyte1.cre~
-  PATCH_IF ("%SOURCE_SIZE%" > "0x2d3") BEGIN
+COPY_EXISTING ~acolyte1.cre~ ~override~
+  PATCH_IF (SOURCE_SIZE > 0x2d3) BEGIN
 \end{verbatim}
 
 Next, we need to read in the offsets so we know where to insert our bytes and
@@ -5336,12 +5338,12 @@ The offsets we need to read in are the item slots offset, the items offset and
 the number of items.  This is how we do it:
 
 \begin{verbatim}
-READ_LONG "0x2bc" "itemsoffset"
-READ_LONG "0x2b8" "itemslot"
-READ_LONG "0x2c0" "#items"
+READ_LONG 0x2bc itemsoffset
+READ_LONG 0x2b8 itemslot
+READ_LONG 0x2c0 numberofitems
 \end{verbatim}
 
-"itemsoffset", "itemslot" and "\#items" can be anything you choose, but I
+"itemsoffset", "itemslot" and "numberofitems" can be anything you choose, but I
 would name them something that's easy to remember because we'll be using
 them later.
 
@@ -5355,22 +5357,20 @@ equal the offset for the shield slot.)
 This is done like so:
 
 \begin{verbatim}
-READ_SHORT ("%itemslot%" + 0x04) "shield"
+READ_SSHORT (itemslot + 0x04) shield
 \end{verbatim}
-
-Note: To access your variables after they've been read, you always have to
-wrap them in percent signs.
 
 We want to tell WeiDU only to do this if the shield slot is
 *empty*.  This is where \ttref{PATCH!IF} comes in handy.  The way a creature
-file is setup is that if a slot is set to -1, it means it's empty.  WeiDU
-
-doesn't read unsigned bytes, so if the value is indeed -1, it will come out
-as 65535 as the value.  So, this is the statement we use to tell WeiDU only
-to execute all of the above code if "\%shield\%" is -1:
+file is setup is that if a slot is set to -1, it means it's empty.  WeiDU can
+read signed values with e.g., \ttref{READ!SSHORT}. Signed values are ones for
+which a subset of values are interpreted as having a negative sign. In this
+example, if we were to read the value with \t{READ!SHORT} instead, all values
+would be interpreted as positive (so instead of -1, the value of "shield" would
+be 65535).
 
 \begin{verbatim}
-PATCH_IF ("%shield%" = "65535") BEGIN
+PATCH_IF (shield = "-1") BEGIN
 \end{verbatim}
 
 Now, we have to update the shield slot to reflect that it's the newest item
@@ -5382,37 +5382,37 @@ has.) and use that as our value to write.
 To do that, this is what we do:
 
 \begin{verbatim}
-WRITE_SHORT ("%itemslot%" + 0x04) "%#items%"
+WRITE_SHORT (itemslot + 0x04) numberofitems
 \end{verbatim}
 
 Now we have to update the itemslot offset value to reflect the fact that
-we've added a new item to the creature.  An item is *always* 0x14 bytes.
+we're adding a new item to the creature.  An item is *always* 0x14 bytes.
 We already know the offset of the itemslot offset and we've already read
 it's value, so all we need to do is add 0x14 to it
 
 \begin{verbatim}
-WRITE_LONG 0x2b8 ("%itemslot%" + 0x14)
+WRITE_LONG 0x2b8 (itemslot + 0x14)
 \end{verbatim}
 
-The last step before inserting our bytes is to increase the \#items by 1 to
+The last step before inserting our bytes is to increase the numberofitems by 1 to
 reflect the fact that we've added an item to the creature.  We've already
-read in the number of items into "\%\#items\%" so this is dead easy:
+read in the number of items into "numberofitems" so this is dead easy:
 
 \begin{verbatim}
-WRITE_LONG 0x2c0 ("%#items%" + 1)
+WRITE_LONG 0x2c0 (numberofitems + 1)
 \end{verbatim}
 
 Now we can actually insert out bytes.  To do this we have to take the
 number of items that the creature has multiplied by 0x14 and add that to
 the itemsoffset.  (The reason we can't just insert it right at
-"\%itemsoffset\%" is because it would mess up the order of the items in game.
+"itemsoffset" is because it would mess up the order of the items in game.
 If we inserted the shield at the beginning, then the creature would more
 than likely have some items equipped in some weird places in the game.)
 
 This is done like so:
 
 \begin{verbatim}
-INSERT_BYTES ("%itemsoffset%" + "%#items%" * 0x14) 0x14
+INSERT_BYTES (itemsoffset + numberofitems * 0x14) 0x14
 \end{verbatim}
 
 Now we can actually write our information for our item.  You don't need the
@@ -5422,7 +5422,7 @@ file, we just need to use the same formula as above because we'll be
 writing at the same offset that we inserted our bytes at:
 
 \begin{verbatim}
-WRITE_ASCII ("%itemsoffset%" + "%#items%" * 0x14) ~shld01~
+WRITE_ASCII (itemsoffset + numberofitems * 0x14) ~shld01~
 \end{verbatim}
 
 If you wanted to add a magical shield to the creature file and wanted it to
@@ -5431,7 +5431,7 @@ bytes to the previous expression and \ttref{WRITE!LONG} the value of 1.
 Like this:
 
 \begin{verbatim}
-WRITE_LONG ("%itemsoffset%" + ("%#items%" * 0x14) + 0x10) 1
+WRITE_LONG (itemsoffset + (numberofitems * 0x14) + 0x10) 1
 \end{verbatim}
 
 Finally, we close the PATCH!IF statements and add BUT!ONLY!IF!CHANGES.
@@ -5445,22 +5445,22 @@ BUT_ONLY_IF_IT_CHANGES
 Here's the full code:
 
 \begin{verbatim}
-COPY_EXISTING ~acolyte1.cre~ ~override/acolyte1.cre~
-  PATCH_IF ("%SOURCE_SIZE%" > "0x2d3") BEGIN
-    READ_LONG "0x2bc" "itemsoffset"
-    READ_LONG "0x2b8" "itemslot"
-    READ_LONG "0x2c0" "#items"
-    READ_SHORT ("%itemslot%" + 0x04) "shield"
+COPY_EXISTING ~acolyte1.cre~ ~override~
+  PATCH_IF (SOURCE_SIZE > 0x2d3) BEGIN
+    READ_LONG 0x2bc itemsoffset
+    READ_LONG 0x2b8 itemslot
+    READ_LONG 0x2c0 numberofitems
+    READ_SSHORT (itemslot + 0x04) shield
 
-    PATCH_IF ("%shield%" = "65535") BEGIN
+    PATCH_IF (shield = "-1") BEGIN
 
-      WRITE_SHORT ("%itemslot%" + 0x04) "%#items%"
-      WRITE_LONG 0x2b8 ("%itemslot%" + 0x14)
-      WRITE_LONG 0x2c0 ("%#items%" + 1)
+      WRITE_SHORT (itemslot + 0x04) numberofitems
+      WRITE_LONG 0x2b8 (itemslot + 0x14)
+      WRITE_LONG 0x2c0 (numberofitems + 1)
 
-      INSERT_BYTES ("%itemsoffset%" + "%#items%" * 0x14) 0x14
+      INSERT_BYTES (itemsoffset + numberofitems * 0x14) 0x14
 
-      WRITE_ASCII ("%itemsoffset%" + "%#items%" * 0x14) ~shld01~
+      WRITE_ASCII (itemsoffset + numberofitems * 0x14) ~shld01~
     END
   END
 BUT_ONLY_IF_IT_CHANGES
@@ -5470,22 +5470,22 @@ Note that you can use the \ttref{PRINT} action in a \ttref{tp2} to debug
 your code as well.  Like this:
 
 \begin{verbatim}
-COPY_EXISTING ~acolyte1.cre~ ~override/acolyte1.cre~
-  PATCH_IF ("%SOURCE_SIZE%" > "0x2d3") BEGIN
-    READ_LONG "0x2bc" "itemsoffset"
-    READ_LONG "0x2b8" "itemslot"
-    READ_LONG "0x2c0" "#items"
-    READ_SHORT ("%itemslot%" + 0x04) "shield"
+COPY_EXISTING ~acolyte1.cre~ ~override~
+  PATCH_IF (SOURCE_SIZE > 0x2d3) BEGIN
+    READ_LONG 0x2bc itemsoffset
+    READ_LONG 0x2b8 itemslot
+    READ_LONG 0x2c0 numberofitems
+    READ_SSHORT (itemslot + 0x04) shield
 
-    PATCH_IF ("%shield%" = "65535") BEGIN
+    PATCH_IF (shield = "-1") BEGIN
 
-      WRITE_SHORT ("%itemslot%" + 0x04) "%#items%"
-      WRITE_LONG 0x2b8 ("%itemslot%" + 0x14)
-      WRITE_LONG 0x2c0 ("%#items%" + 1)
+      WRITE_SHORT (itemslot + 0x04) numberofitems
+      WRITE_LONG 0x2b8 (itemslot + 0x14)
+      WRITE_LONG 0x2c0 (numberofitems + 1)
 
-      INSERT_BYTES ("%itemsoffset%" + "%#items%" * 0x14) 0x14
+      INSERT_BYTES (itemsoffset + numberofitems * 0x14) 0x14
 
-      WRITE_ASCII ("%itemsoffset%" + "%#items%" * 0x14) ~shld01~
+      WRITE_ASCII (itemsoffset + numberofitems * 0x14) ~shld01~
     END
   END
 BUT_ONLY_IF_IT_CHANGES
@@ -5499,7 +5499,7 @@ things.  The changes that would have to be made are as follows:
 
 \begin{enumerate}
 \item Change acolyte1.cre to the actual creature that you want to modify
-\item You'll have to change ("\%itemslot\%" + 0x04) to something else if you
+\item You'll have to change ("itemslot" + 0x04) to something else if you
 are adding anything else but a shield.  You can figure this out by
 subtracting the slot offset of the slot you want to modify from the item
 slots offset.
@@ -5535,7 +5535,7 @@ This tutorial and this feature were thoughtfully provided by Japheth.
   normally would.
 
 \begin{verbatim}
-COPY_EXISTING ~ribald.sto~ ~override/ribald.sto~
+COPY_EXISTING ~ribald.sto~ ~override~
 \end{verbatim}
 
   Next we issue the ADD!STORE!ITEM patch expression with the following
@@ -5545,7 +5545,7 @@ COPY_EXISTING ~ribald.sto~ ~override/ribald.sto~
 ADD_STORE_ITEM "myitem" #10 #0 #0 ~IDENTIFIED~ #5
 \end{verbatim}
 
-  ``myitem'' is the name of the item file that we will want to appear in the
+  "myitem" is the name of the item file that we will want to appear in the
   store without it's .itm extension.
   \#10 is the first extension headers number of charges
   The two \#0s that follow are the second and third extension headers number
@@ -5582,10 +5582,10 @@ ADD_STORE_ITEM + ~hamm05~ #10 #0 #0 ~IDENTIFIED~ #5
   the new item would look like this:
 
 \begin{verbatim}
-COPY_EXISTING ~ribald.sto~ ~override/ribald.sto~
+COPY_EXISTING ~ribald.sto~ ~override~
 ADD_STORE_ITEM ~myitem~ #10 #0 #0 ~IDENTIFIED~ #5
 
-COPY ~mymod/myitem.itm~ ~override/myitem.itm~
+COPY ~mymod/myitem.itm~ ~override~
 \end{verbatim}
 
   Note that you can also add a final optional string argument if you want
@@ -5595,12 +5595,9 @@ COPY ~mymod/myitem.itm~ ~override/myitem.itm~
 ADD_STORE_ITEM ~myitem~ #10 #0 #0 ~IDENTIFIED~ #1 ~UNLIMITED~
 \end{verbatim}
 
-  That's about all there is to it.
-
-
 Note that as of v188 you can specify the position of the item being added:
 \begin{verbatim}
-COPY_EXISTING ~ribald.sto~ ~override/ribald.sto~
+COPY_EXISTING ~ribald.sto~ ~override~
   ADD_STORE_ITEM ~myitem~   AFTER  ~olditem~ #10 #0 #0 ~IDENTIFIED~ #5
   ADD_STORE_ITEM ~otheritm~ BEFORE ~olditem~ #10 #0 #0 ~IDENTIFIED~ #5
 \end{verbatim}
@@ -5617,7 +5614,7 @@ COPY_EXISTING ~ribald.sto~ ~override/ribald.sto~
   \t{AFTER  ~olditem~} will add the item exactly after olditem,
     or to the bottom of the stack if olditem is missing.
 
-As of 192, if there's a list of items in BEFORE|AFTER olditem (IE \verb+~item1 item2 item3+),
+As of 192, if there's a list of items in BEFORE|AFTER olditem (IE \verb+~item1 item2 item3~+),
 we add the new item BEFORE or AFTER the first item that is present in the list.
 
 As of 211, you can specify a (zero-based) hardcoded position via \verb+AT position+.
@@ -5653,7 +5650,7 @@ you will want to appear in the \ttref{GAM} file.  I'm pretty sure we all
 know how to do this, but for completeness, here it is:
 
 \begin{verbatim}
-COPY ~mymod/mynpc.cre~ ~override/mynpc.cre~
+COPY ~mymod/mynpc.cre~ ~override~
 \end{verbatim}
 
 After the \ttref{COPY} statement, make sure you do all your \ttref{SAY}s
@@ -5664,7 +5661,7 @@ updates to your cre file to be reflected in the \ttref{GAM} file as well.
 Here's a typical patch statement for most NPC mods:
 
 \begin{verbatim}
-COPY ~mymod/mynpc.cre~ ~override/mynpc.cre~
+COPY ~mymod/mynpc.cre~ ~override~
   SAY NAME1 ~Japh~
   SAY NAME2 ~Japh~
 \end{verbatim}
@@ -5676,10 +5673,10 @@ arguments:
 ADD_GAM_NPC "mynpc" "ar2600" #123 #456
 \end{verbatim}
 
-``mynpc'' is the name of your NPCs cre file that you're copying over without
+"mynpc" is the name of your NPCs cre file that you're copying over without
 the .cre extension.
 
-``ar2600'' is the area that you want him/her placed in.  In this case we're
+"ar2600" is the area that you want him/her placed in.  In this case we're
 placing the NPC in Candlekeep.
 
 \#123 is the x co-ordinate on the map.
@@ -5690,7 +5687,7 @@ That's all there is to it.  Just to recap, here's the full set of
 expressions we would use:
 
 \begin{verbatim}
-COPY ~mymod/mynpc.cre~ ~override/mynpc.cre~
+COPY ~mymod/mynpc.cre~ ~override~
   SAY NAME1 ~Japh~
   SAY NAME2 ~Japh~
   // Do any other patching stuff here
@@ -5836,13 +5833,17 @@ Finally, if \t{newEntry} is a string that contains any
 That's the end of this tutorial.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{WHILE} Loops (Last update: v189)}
+\subsection{\DEFINE{WHILE} Loops (Last update: v232)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial was thoughtfully provided by Idobek, and shamelessly edited
 by Bigg to use PATCH!IF rather than IF!EVAL, and PATCH!IF rather than WHILE.
+It was then further edited by Wisp to make it look slightly more contemporary.
 
-So what is a \t{WHILE} loop? Well very simply put it is a way of
+\textbf{Note:} In almost all circumstances, it is preferable to use \ttref{FOR}
+instead.
+
+So what is a \t{WHILE} loop? Well, very simply put it is a way of
 applying the same patch to a file multiple times under a different
 condition each time. Or it is a way of applying different patches depending
 upon the conditions. This example will show both of these methods. Keeping
@@ -5856,59 +5857,59 @@ First, as always, we need to copy the files ready for patching, and throw
 in the usual sanity check:
 \begin{verbatim}
 COPY_EXISTING_REGEXP ~.*\.itm~ ~override~
-  PATCH_IF ("%SOURCE_SIZE%" > "0x71") BEGIN
+  PATCH_IF (SOURCE_SIZE > 0x71) BEGIN
 \end{verbatim}
 We only want to modify axes so let's find out what the item is:
 \begin{verbatim}
-READ_BYTE 0x1c "category"
+READ_BYTE 0x1c category
 \end{verbatim}
 Once we are done with our patching we will use \ttref{PATCH!IF} to tell
 WeiDU to only patch axes:
 
 \begin{verbatim}
-PATCH!IF ("%category%" = 25) BEGIN
+PATCH!IF (category = 25) BEGIN
 \end{verbatim}
 Now, we need to find out how many abilities there are and where they are
 located:
 \begin{verbatim}
-READ_LONG 0x64 "abilitiesoffset"
-READ_SHORT 0x68 "#abilities"
+READ_LONG 0x64 abilitiesoffset
+READ_SHORT 0x68 numberofabilities
 \end{verbatim}
 So far, so good. Here's where the fun begins. We want to patch examine
-every ability in the item. We need to use a \t{WHILE} loop to patch the
+every ability in the item. We use a \t{WHILE} loop to patch the
 abilities one by one. We open the loop like so:
 \begin{verbatim}
-WHILE ("%#abilities%" > 0) BEGIN
+WHILE (numberofabilities > 0) BEGIN
 \end{verbatim}
 For the \t{WHILE} loop to progress and close we need to modify the
-"\#abilities" variable. We use the \ttref{SET} command to do this:
+"numberofabilities" variable. We use the \ttref{SET} command to do this:
 
 \begin{verbatim}
-SET "#abilities" = ("%#abilities%" - 1)
+SET numberofabilities = (numberofabilities - 1)
 END
 \end{verbatim}
 These lines are placed at the end of the \t{WHILE} loop. WeiDU will
-process the abilities from last to first and reduce the "\#abilities"
-variable by one each time. Once the "\#abilities" variable hits zero the
+process the abilities from last to first and reduce the "numberofabilities"
+variable by one each time. Once the "numberofabilities" variable hits zero the
 \t{WHILE} loop will stop.
 
 OK, now we need to find out what type of ability we are looking at. Within
 an item an ability is 0x38 bytes, abilities also count from 0 within items
 so we must take this into account:
 \begin{verbatim}
-READ_BYTE ("%abilitiesoffset%" + ("%#abilities%" - 1) * 0x38) "abilitytype"
+READ_BYTE (abilitiesoffset + (numberofabilities - 1) * 0x38) abilitytype
 \end{verbatim}
 Now we get to the meat of the patch. This patch is conditional on the
 ability type we have just read. First we will deal with the melee damage
 patch. We are going to be using a \ttref{PATCH!IF} command to do this
 
 \begin{verbatim}
-PATCHING ("%abilitytype%" = 1) BEGIN
+PATCHING (abilitytype = 1) BEGIN
 \end{verbatim}
 So we are patching when the ability type is 1 (melee). Time for the actual patch:
 \begin{verbatim}
-WRITE_SHORT ("%abilitiesoffset%" + ("%#abilities%" - 1) * 0x38 + 0x16) 6
-WRITE_SHORT ("%abilitiesoffset%" + ("%#abilities%" - 1) * 0x38 + 0x18) 2
+WRITE_SHORT (abilitiesoffset + (numberofabilities - 1) * 0x38 + 0x16) 6
+WRITE_SHORT (abilitiesoffset + (numberofabilities - 1) * 0x38 + 0x18) 2
 \end{verbatim}
 Time to close the PATCH!IF statement.
 \begin{verbatim}
@@ -5917,14 +5918,14 @@ END
 We use exactly the same method for ranged abilities:
 \begin{verbatim}
 
-PATCH!IF ("%abilitytype%" = 2) BEGIN
-   WRITE_SHORT ("%abilitiesoffset%" + ("%#abilities%" - 1) * 0x38 + 0x16) 12
-   WRITE_SHORT ("%abilitiesoffset%" + ("%#abilities%" - 1) * 0x38 + 0x18) 1
+PATCH!IF (abilitytype = 2) BEGIN
+   WRITE_SHORT (abilitiesoffset + (numberofabilities - 1) * 0x38 + 0x16) 12
+   WRITE_SHORT (abilitiesoffset + (numberofabilities - 1) * 0x38 + 0x18) 1
 END
 \end{verbatim}
 We can now close the main loop (using the aforementioned method):
 \begin{verbatim}
-SET "#abilities" = ("%#abilities%" - 1)
+SET numberofabilities = (numberofabilities - 1)
 END
 \end{verbatim}
 We are done with our patches so we can add our usual END and BUT!ONLY.
@@ -5936,22 +5937,22 @@ BUT!ONLY!IF!IT!CHANGES
 The full code is:
 \begin{verbatim}
 COPY_EXISTING_REGEXP ~.*\.itm~ ~override~
-  PATCH_IF ("%SOURCE_SIZE%" > "0x71") BEGIN
-    READ_BYTE 0x1c "category"
-    PATCH_IF ("%category%" = 25) BEGIN
-      READ_LONG 0x64 "abilitiesoffset"
-      READ_SHORT 0x68 "#abilities"
-      WHILE ("%#abilities%" > 0) BEGIN
-        READ_BYTE ("%abilitiesoffset%" + ("%#abilities%" - 1) * 0x38) "abilitytype"
-        PATCH_IF ("%abilitytype%" = 1) BEGIN
-          WRITE_SHORT ("%abilitiesoffset%" + ("%#abilities%" - 1) * 0x38 + 0x16) 6
-          WRITE_SHORT ("%abilitiesoffset%" + ("%#abilities%" - 1) * 0x38 + 0x18) 2
+  PATCH_IF (SOURCE_SIZE > 0x71) BEGIN
+    READ_BYTE 0x1c category
+    PATCH_IF (category = 25) BEGIN
+      READ_LONG 0x64 abilitiesoffset
+      READ_SHORT 0x68 numberofabilities
+      WHILE (numberofabilities > 0) BEGIN
+        READ_BYTE (abilitiesoffset + (numberofabilities - 1) * 0x38) abilitytype
+        PATCH_IF (abilitytype = 1) BEGIN
+          WRITE_SHORT (abilitiesoffset + (numberofabilities - 1) * 0x38 + 0x16) 6
+          WRITE_SHORT (abilitiesoffset + (numberofabilities - 1) * 0x38 + 0x18) 2
         END
-        PATCH_IF ("%abilitytype%" = 2) BEGIN
-          WRITE_SHORT ("%abilitiesoffset%" + ("%#abilities%" - 1) * 0x38 + 0x16) 12
-          WRITE_SHORT ("%abilitiesoffset%" + ("%#abilities%" - 1) * 0x38 + 0x18) 1
+        PATCH_IF (abilitytype = 2) BEGIN
+          WRITE_SHORT (abilitiesoffset + (numberofabilities - 1) * 0x38 + 0x16) 12
+          WRITE_SHORT (abilitiesoffset + (numberofabilities - 1) * 0x38 + 0x18) 1
         END
-        SET "#abilities" = ("%#abilities%" - 1)
+        SET numberofabilities = (numberofabilities - 1)
       END
     END
   END
@@ -5977,11 +5978,12 @@ So what have we done? Let's list the steps involved:
 That's the end of this tutorial.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Bitwise Operators (Last update: v189)}
+\subsection{Bitwise Operators (Last update: v232)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial was thoughtfully provided by CamDawg, and shamelessly edited
-by Bigg to use PATCH!IF rather than IF!EVAL.
+by Bigg to use PATCH!IF rather than IF!EVAL. It was then further edited by
+Wisp to make it look slightly more contemporary.
 
 This was a topic that I struggled with while trying to convert some kits
 with unusual item restrictions. Thanks to WeiDU's new bitwise operators,
@@ -6010,7 +6012,7 @@ bytes of class/race restrictions as a single chunk of data.)
 
 A quick aside about notation before I proceed. Numbers in binary (the
 strings of bits) are preceded with 0b and hexadecimal numbers (typically
-the bytes) are preceded with 0x.  Eight bits make a byte and bits read
+the bytes) are preceded with 0x.  Eight bits make a byte and bits are read
 right-to-left. So if the second bit is 1 and the rest 0, then the bit would
 be written as 0b00000010.
 
@@ -6048,13 +6050,13 @@ mage robes usable by bards. This would go into your TP2 file.
 
 \begin{verbatim}
 COPY_EXISTING_REGEXP GLOB ~.*\.itm~ ~override~ //copies all item files
-  PATCH_IF ("%SOURCE_SIZE%" > "0x71") BEGIN // avoid crashing on empty items
-    READ_BYTE    "0x20" "mage" //reads the byte containing the mage usability flag
-    PATCH_IF (("%mage%" BAND "0b00000100") = "0b00000000") BEGIN // if it is usable by mages
-      READ_BYTE    "0x1E" "bard" //reads the byte containing bard usability flag
-      READ_SHORT    "0x1C" "type" //reads the byte containing item type
-      PATCH_IF ("%type%" = "67") OR ("%type%" = "2") BEGIN // if it is a robe or armor
-        WRITE_BYTE    "0x1E" ("%bard%" BAND "0b10111111")  // makes usable by bards
+  PATCH_IF (SOURCE_SIZE > 0x71) BEGIN // avoid crashing on empty items
+    READ_BYTE    0x20 mage //reads the byte containing the mage usability flag
+    PATCH_IF ((mage BAND 0b00000100) = 0b00000000) BEGIN // if it is usable by mages
+      READ_BYTE    0x1E bard //reads the byte containing bard usability flag
+      READ_SHORT    0x1C type //reads the byte containing item type
+      PATCH_IF (type = 67) OR (type = 2) BEGIN // if it is a robe or armor
+        WRITE_BYTE    0x1E (bard BAND 0b10111111)  // makes usable by bards
       END
     END
   END
@@ -6063,12 +6065,12 @@ BUT_ONLY_IF_IT_CHANGES
 
 This is the same basic idea in Japheth's BYTE tutorial , except now we're
 utilizing the bitwise operators in the writing and evaluation commands. The
-mage usability flag is the bit 2 in byte 0x20 (IESDP). By checking "\%mage\%"
+mage usability flag is the bit 2 in byte 0x20 (IESDP). By checking "mage"
 BAND 0b00000100, the values of any of the 7 other bits (0-1,3-7) are set to
 0, whereas bit 2 is equal to 0 if and only if it is 0 to begin with.
 Therefore the statement will only be true if the item is usable by mages
 (bit 2 = 0). If that is true and the item is a robe or armor, then we write
-("\%bard\%" BAND "0b10111111") into the bard usability byte, 0x1E. By using 1
+("bard" BAND 0b10111111) into the bard usability byte, 0x1E. By using 1
 in bits 0-5 and 7, this ensures that the original value of the flag is
 preserved, and using 0 in bit 6 ensures that bit 6 is set to 0 regardless
 of its previous value--making it usable by bards whether it was before or
@@ -6084,12 +6086,12 @@ and dwarves.
 
 \begin{verbatim}
 COPY_EXISTING_REGEXP GLOB ~.*\.itm~ ~override~ //copies all item files
-  PATCH_IF ("%SOURCE_SIZE%" > "0x71") BEGIN // avoid crashing on empty items
-    READ_BYTE    "0x21" "race" //reads the byte containing race usability flags we're interested in
-    READ_BYTE    "0x31" "prof" //reads the byte containing item type
-    PATCH_IF ("%prof%" = "93") OR    // two-handed sword
-             ("%prof%" = "99") BEGIN // or halberd
-      WRITE_BYTE    "0x21" ("%race%" BOR "0b00010101")  // makes unusable by dwarves, halflings, and gnomes
+  PATCH_IF (SOURCE_SIZE > 0x71) BEGIN // avoid crashing on empty items
+    READ_BYTE    0x21 race //reads the byte containing race usability flags we're interested in
+    READ_BYTE    0x31 prof //reads the byte containing item type
+    PATCH_IF (prof = 93) OR    // two-handed sword
+             (prof = 99) BEGIN // or halberd
+      WRITE_BYTE    0x21 (race BOR 0b00010101)  // makes unusable by dwarves, halflings, and gnomes
     END
   END
 BUT_ONLY_IF_IT_CHANGES
@@ -6103,7 +6105,7 @@ indicator if it is a two-handed sword IMHO.
 
 The unusability flags for dwarves, halflings and gnomes are all in byte
 0x2F at bits 0, 2, and 4 respectively (thanks again IESDP). By writing
-"\%race\%" BOR "0b00010101" to byte 0x2F we're preserving the values of bits
+"race" BOR 0b00010101 to byte 0x2F we're preserving the values of bits
 1,3, and 5-7 while setting the 0, 2, and 4 bits to 1 (unusable) regardless
 of their previous values.
 
@@ -6111,7 +6113,7 @@ Thanks especially to Smoketest for helping me with this, Japheth for the
 tutorial that inspired this and the help given, and the IESDP team.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Scripting Styles}\label{sec-scripting-styles}
+\subsection{Scripting Styles (Last Update: v232)}\label{sec-scripting-styles}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 While the \ttref{BCS} and \ttref{BAF} script formats are common to all
@@ -6128,12 +6130,18 @@ IWD2 BAF Object & \t{EA.GENERAL.RACE.SUBRACE.CLASS.SPECIFIC.GENDER.ALIGNMNT} \\
 \end{tabular}
 
 If \t{SUBRACE.IDS} is present in \t{CHITIN.}\ttref{KEY}, the scripting
-style is autodetected as IWD2. Otherwise, if \t{FACTION.IDS} is present,
-the scripting style is autodetected as PST. Otherwise the scripting style
-is set to BG. The \t{--script-style} command-line argument and the
+style is autodetected as IWD2. Otherwise, if \t{BONES.IDS} is present,
+the scripting style is autodetected as PST. Otherwise, if \t{CLOWNRAN.IDS} is
+present, the scripting syle is autodetected as IWD1. Otherwise, if \t{FLYTHR01.MVE}
+is present, the scripting style is autodetected as BG2. Otherwise, if \t{OH1000.ARE}
+is present, the scripting style is autodetected as BGEE/BG2. Otherwise the scripting style
+is set to BG1. The \t{--script-style} command-line argument and the
 \ttref{SCRIPT!STYLE} \ttref{TP2} flag both override this default.
 You should not need to use \t{--script-style} explicitly if the
 \t{--game} is set correctly.
+
+Furthermore, the scripting style is coupled with the format used for TLK strings. If
+the scripting style is BG2, strings are stored in the BG2 format.
 
 Also, \t{IWD1} and \t{IWD2} have different rules for parsing certain IDS files,
 which contain spaces and/or commas in the tokens.
@@ -6303,7 +6311,7 @@ Inventory Slots:
 Now here is the syntax:
 
 \begin{verbatim}
-COPY_EXISTING ~alynar.cre~ ~override/alynar.cre~
+COPY_EXISTING ~alynar.cre~ ~override~
   ADD_CRE_ITEM ~itemname~ #charge1 #charge2 #charge3 ~Flags~ ~Inventory Slots~ [EQUIP] [TWOHANDED]
 \end{verbatim}
 
@@ -6315,7 +6323,7 @@ Example \#1:
 If I want to add a Ring of Protection to Sir Alynar, here's what I'd do:
 
 \begin{verbatim}
-COPY_EXISTING ~alynar.cre~ ~override/alynar.cre~
+COPY_EXISTING ~alynar.cre~ ~override~
   ADD_CRE_ITEM ~ring06~ #0 #0 #0 ~IDENTIFIED~ ~RRING LRING~
 \end{verbatim}
 
@@ -6330,7 +6338,7 @@ If I want to add a +2 Longsword to his second weapon slot, but \emph{don't}
 want to equip it, here's what I'd do:
 
 \begin{verbatim}
-COPY_EXISTING ~alynar.cre~ ~override/alynar.cre~
+COPY_EXISTING ~alynar.cre~ ~override~
   ADD_CRE_ITEM ~sw1h06~ #0 #0 #0 ~IDENTIFIED~ ~WEAPON2~
 \end{verbatim}
 
@@ -6342,7 +6350,7 @@ Example \#3:
 Same deal as example \#2 except now I want to equip the sword.
 
 \begin{verbatim}
-COPY_EXISTING ~alynar.cre~ ~override/alynar.cre~
+COPY_EXISTING ~alynar.cre~ ~override~
   ADD_CRE_ITEM ~sw1h06~ #0 #0 #0 ~IDENTIFIED~ ~WEAPON2~ EQUIP
 \end{verbatim}
 
@@ -6355,7 +6363,7 @@ Example \#4:
 If you want to add a two-handed weapon \emph{and} equip it, here's what you do:
 
 \begin{verbatim}
-COPY_EXISTING ~alynar.cre~ ~override/alynar.cre~
+COPY_EXISTING ~alynar.cre~ ~override~
   ADD_CRE_ITEM ~sw2h01~ #0 #0 #0 ~NONE~ ~WEAPON2~ EQUIP TWOHANDED
 \end{verbatim}
 
@@ -6408,7 +6416,7 @@ In the WeiDU download package (from http://www.weidu.org), you will find a
 file in the \t{examples} folder called \DEFINE{prompts.tra}.  This is the
 file that you modify to customize your installer. Go look at it now.
 
-Upon loading, weidu always looks to see if a \t{prompts.tra} file exists in
+Upon loading, WeiDU always looks to see if a \t{prompts.tra} file exists in
 the folder that corresponds to the language that the user selects.  If so,
 then weidu automatically loads the file and uses it to display your strings
 instead of the ones that are normally coded into it.  In order to change
@@ -6433,9 +6441,9 @@ To change the install component text, find the section of prompts.tra that
 corresponds with the text that you wish to change.  In this case, we want
 to change \t{@-1006} and \t{@-1008}.  If you look at these lines, you will
 see a strange \\n that does not actually appear when the installer is
-running.  This is a carriage return (or ``new line'') character.  It simply
+running.  This is a line feed (or ``new line'') character.  It simply
 indicates that you want any text following it to be inserted below the text
-that precedes the carriage return.
+that precedes the line feed.
 
 The name of the component in your mod is always inserted immediately
 following \t{@-1006} without any spaces.  This means that you are going to
@@ -6445,8 +6453,8 @@ quite strange.  The name of the component also is always followed (with no
 spaces) by either line \t{@-1007} or \t{@-1008} depending on whether the
 component is already installed or not.
 
-If you want to include more text in your custom line before the \t{[I]nstall or
-[N]ot Install} stuff, then simply place it before the \\n character.
+If you want to include more text in your custom line before the \t{[I]nstall} or
+\t{[N]ot Install} stuff, then simply place it before the \\n character.
 
 To generate the custom text that I presented above, change the lines in
 your prompts.tra file to read:
@@ -6459,8 +6467,8 @@ After making these changes, place \t{prompts.tra} into the TRA folder.
 
 If you are familiar with the default text in the installer, then you will
 recognize the all of the lines that are listed in \t{prompts.tra}.  You may
-change any of the text, but simply remember the meaning of the carriage
-return.  The WeiDU installer will not word wrap, meaning that if you insert
+change any of the text, but simply remember the meaning of the line feed.
+The WeiDU installer will not word wrap, meaning that if you insert
 a very large line that is not broken up by \\n, the user will not be able
 to see all of it.  You should do some experimentation to determine the
 optimal length for each line (it's roughly 72 characters).
@@ -6497,6 +6505,9 @@ might have (e.g., ``can see invisible'') and make them additional equipped
 effects of the ``skin'' item. Finally we'll add that personalized ``skin''
 item to the monster's inventory. If the monster is \t{C6BODHI.CRE}, we'll
 call the skin \t{C6BODHI.ITM}.
+
+Note that you would normally \emph{always} use a modder prefix for your new
+items and other files.
 
 We'll give the code in pieces. First, we want to go over every existing
 creature and make sure that \t{CREATURE.ITM} doesn't already exist in the
@@ -6548,7 +6559,7 @@ normally somewhat dangerous because it is reset every time you enter a
 \ttref{COPY} -- but we're OK here.
 
 Our template \t{footemp.itm} item has a number of pre-made equipped
-abilities (e.g., no dispel, bypass resistance, apply 100\% of the time to
+abilities (e.g., no dispel, bypass resistance, apply 100 \% of the time to
 the wearer, last while equipped) that are just lacking concrete values.
 Here we fill in the animation and armor class. Next we'll do the
 resistances:
@@ -6685,7 +6696,7 @@ yourself in the foot:
   COPY_EXISTING ~weapprof.2da~ ~override~
     SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 7  3
     SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 39 3
-  DO_SOMETHING_ELSE
+  //do something else
   COPY_EXISTING ~weapprof.2da~ ~override~
     SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 40 3
     SET_2DA_ENTRIES_NOW ~_#_#_#weapprof~ 1
@@ -6693,7 +6704,7 @@ yourself in the foot:
 // this, however, is a bug:
   COPY_EXISTING ~weapprof.2da~ ~override~
     SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 7  3 /* (*) */
-  DO_SOMETHING_ELSE
+  //do something else
   COPY_EXISTING ~kitlist.2da~ ~override~
     SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 40 3
     SET_2DA_ENTRIES_NOW ~_#_#_#weapprof~ 1
@@ -6792,13 +6803,16 @@ problems to not occur accidentally).
 Macros were originally intended as a way to repeat a certain tp2 block
 with small or no changes without resorting to copy-and-paste.
 
+\textbf{Note well:} In almost all circumstances it is preferable to use functions instead
+of macros.
+
 First, disclaimers: it's very easy to shoot yourself in the foot, since
 there aren't any limits to the variable scoping of macros. Due to this reason, this tutorial
 will skip on most basic stuff - if you're going to consider this, you should
 already be a master of patching. \\
 Also, for brevity, I'll give only examples involving tp2 actions. You can
 do everything you're about to read here by substituting DEFINE!ACTION!MACRO
-and LAUNCH!ACTION!MACRO with DEFINE!PATCH!MACRO and LAUNCH!PATH!MACRO. There
+and LAUNCH!ACTION!MACRO with DEFINE!PATCH!MACRO and LAUNCH!PATCH!MACRO. There
 is no change in the treatment of LOCAL!SPRINT/LOCAL!SET.
 
 For starters, you might want to define a macro that prints "Hello World!" to
@@ -6852,23 +6866,23 @@ Variables inside macros that are changed keep their new value once the
 macro has finished being computed. This is bad and good at the same time.
 For example, you might want to calculate a factorial:
 \begin{verbatim}
-// set ~%factorial_index%~ to the factorial you'd like to compute,
-// ~%factorial_result%~ to 1,
-// keep a backup copy of ~%factorial_index%~
-// ~%factorial_result%~ will yield the resulting factorial.
+// set ~factorial_index~ to the factorial you'd like to compute,
+// ~factorial_result~ to 1,
+// keep a backup copy of ~factorial_index~
+// ~factorial_result~ will yield the resulting factorial.
 DEFINE_ACTION_MACRO ~factorial~ BEGIN
-  ACTION_IF ~%factorial_index%~ != 1 THEN
+  ACTION_IF factorial_index != 1 THEN
   BEGIN
-    OUTER_SET ~factorial_result~ = ~%factorial_result%~ * ~%factorial_index%~
-    OUTER_SET ~factorial_index~ = ~%factorial_index%~ - 1
+    OUTER_SET factorial_result = factorial_result * factorial_index
+    OUTER_SET factorial_index = factorial_index - 1
      LAUNCH_ACTION_MACRO ~factorial~
   END
 END
 
 /* ... */
-OUTER_SET ~factorial_index_old~ = 5
-OUTER_SET ~factorial_index~ = 5
-OUTER_SET ~factorial_result~ = 1
+OUTER_SET factorial_index_old = 5
+OUTER_SET factorial_index = 5
+OUTER_SET factorial_result = 1
 LAUNCH_ACTION_MACRO ~factorial~
 PRINT ~%factorial_index_old%! = %factorial_result%~
 \end{verbatim}
@@ -6900,15 +6914,15 @@ are set to the value they had before the macro was processed. They work for both
 actions and patches. For example, here is a corrected
 factorial macro (also converted to patch):
 \begin{verbatim}
-// set ~%tb#factorial_index%~ to the factorial you'd like to compute,
-// ~%tb#factorial_result%~ to 1,
-// ~%ftb#actorial_result%~ will yield the resulting factorial.
+// set ~tb#factorial_index~ to the factorial you'd like to compute,
+// ~tb#factorial_result~ to 1,
+// ~ftb#actorial_result~ will yield the resulting factorial.
 DEFINE_PATCH_MACRO ~tb#factorial~ BEGIN
-  LOCAL_SET ~tb#factorial_index~ = ~%factorial_index%~
-  PATCH_IF ~%tb#factorial_index%~ != 1 THEN
+  LOCAL_SET tb#factorial_index = factorial_index
+  PATCH_IF tb#factorial_index != 1 THEN
   BEGIN
-    SET ~tb#factorial_result~ = ~%tb#factorial_result%~ * ~%tb#factorial_index%~
-    SET ~tb#factorial_index~ = ~%tb#factorial_index%~ - 1
+    SET tb#factorial_result = tb#factorial_result * tb#factorial_index
+    SET tb#factorial_index = tb#factorial_index - 1
     LAUNCH_PATCH_MACRO ~tb#factorial~
   END
 END

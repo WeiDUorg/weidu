@@ -29,6 +29,7 @@ Version 232:
   * We no longer distribute WeiGUI.
   * The variable "%SAVE_DIRECTORY%" evaluates to the location of the current
     game's saves. Compatible with BGEE.
+  * Updated some of the TP2 tutorials to be slightly more contemporary.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
