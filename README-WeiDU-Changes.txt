@@ -32,6 +32,7 @@ Version 232:
     with BGEE. Update sc#addWmpAre and COPY_ALL_GAM_FILES accordingly.
   * Updated some of the TP2 tutorials to be slightly more contemporary.
   * Mention MOVE + in the documentation.
+  * MOVE falls back onto COPY_LARGE instead of COPY when the destination exists.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

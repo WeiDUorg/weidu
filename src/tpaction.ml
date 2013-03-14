@@ -184,9 +184,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 			let dst = if is_directory dst then dst ^ "/" ^ (Case_ins.filename_basename src) else dst in
 			if not (is_directory src) then (
 				if (file_exists dst) then (
-					log_or_print "MOVE [%s] [%s]: destination exists, falling back to COPY\n" src dst;
-					process_action tp (TP_Copy{
-						copy_get_existing = false;
+					log_or_print "MOVE [%s] [%s]: destination exists, falling back to COPY_LARGE\n" src dst;
+					process_action tp (TP_CopyLarge{
+                                                copy_large_use_glob = false;
+                                                copy_large_file_list = [ (src,dst) ];
+                                                copy_large_backup = do_backup;
+
+						(*copy_get_existing = false;
 						copy_use_regexp = false;
 						copy_use_glob = false;
 						copy_file_list = [ (src,dst) ];
@@ -194,7 +198,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						copy_constraint_list = [];
 						copy_backup = do_backup;
 						copy_at_end = false;
-						copy_save_inlined = false;
+						copy_save_inlined = false; *)
 					});
 				) else (
 					log_or_print "Moving %s to %s\n" src dst;
