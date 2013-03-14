@@ -3020,7 +3020,9 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
        to files in the save/ and mpsave/ directories. The savegame from the biffs is
        backed up as usual.}  \\
 
-  or & \DEFINE{MOVE} fromFile toFile ... \verb+(+ \ttref{directory-file-regexp} \verb+)+ toFile ... &
+  or & \DEFINE{MOVE} \ttref{optNoBackup} fromFile toFile ... \verb+(+ \ttref{directory-file-regexp} \verb+)+ toFile ... &
+       If optNoBackup is specified, additionally, fromFile may be moved to toFile even if one or both contain spaces in their names.
+
        You may specify as many fromFile-toFile pairs as you like. Each
        fromFile is moved to its associated toFile.
 
@@ -3046,10 +3048,10 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
        MAKE!BIFF after MOVE. Do not use the --make-biff command-line argument).
        \\
 
-  or & \DEFINE{DELETE} \ttref{optGlob} file ... &
-        Removes one or more files from the file system. If optGlob is not specified, the
-        file is moved to the backup folder; if optGlob is specified, the file is definitively
-        removed.
+  or & \DEFINE{DELETE} \ttref{optNoBackup} file ... &
+        Removes one or more files from the file system. %If optNoBackup is not specified, the
+        %file is moved to the backup folder; if optNoBackup is specified, the file is definitively
+        %removed.
 
         Don't use without a real reason.
        \\
@@ -3672,21 +3674,21 @@ or & \DEFINE{ACTION!GET!STRREF} \ttref{value} \ttref{variable} &
 \\
 
 \DEFINE{optNoBackup} & &
-  A \ttref{COPY} command normally makes a backup copy of its target (if one
+  A \ttref{COPY}, \ttref{MOVE} or \ttref{DELETE} command normally makes a backup copy of its target (if one
   exists) so that the mod can be uninstalled later by restoring the backup.
   \\
 
   is &   & If you don't say anything here, WeiDU {\em will} make a backup
-           copy of the file and the \ttref{COPY} will be undone if the mod
+           copy of the file and the \ttref{COPY}, \ttref{MOVE} or \ttref{DELETE} will be undone if the mod
            is uninstalled. \\
   or & \t{+} & If you put a \t{+} here, WeiDU will {\em not} make a backup
-           copy of the file and the \ttref{COPY} will {\em not} be
+           copy of the file and the \ttref{COPY}, \ttref{MOVE} or \ttref{DELETE} will {\em not} be
            undone if the mod is uninstalled. {\em Do not use this feature without
 			a real reason.} \\
   or & \t{-} & If you put a \t{-} here, WeiDU will {\em not} copy the file,
            but only store it as an inlined file (so you can patch a file and
            then use it for \ttref{EXTEND!BOTTOM} or whatever).
-           This option is not available for \ttref{COPY!LARGE}. \\
+           This option is not available for \ttref{COPY!LARGE}, \ttref{MOVE} or \ttref{DELETE}. \\
 \\
 
 \DEFINE{directory-file-regexp} & & This is a directory path and a \ttref{regexp} string.

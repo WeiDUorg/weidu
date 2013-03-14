@@ -31,6 +31,7 @@ Version 232:
     game's saves. Also "%MPSAVE_DIRECTORY%" for multiplayer saves. Compatible
     with BGEE. Update sc#addWmpAre and COPY_ALL_GAM_FILES accordingly.
   * Updated some of the TP2 tutorials to be slightly more contemporary.
+  * Mention MOVE + in the documentation.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

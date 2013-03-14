@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 open BatteriesInit
 open Util
 open Diff
@@ -181,7 +184,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 			let dst = if is_directory dst then dst ^ "/" ^ (Case_ins.filename_basename src) else dst in
 			if not (is_directory src) then (
 				if (file_exists dst) then (
-					log_or_print "MOVE %s %s: destination exists, falling back to COPY\n" src dst;
+					log_or_print "MOVE [%s] [%s]: destination exists, falling back to COPY\n" src dst;
 					process_action tp (TP_Copy{
 						copy_get_existing = false;
 						copy_use_regexp = false;
@@ -205,7 +208,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 					);
 					Case_ins.unix_rename src dst;
 				)
-			) else log_and_print "MOVE %s %s: source is a directory\n" src dst;
+			) else log_and_print "MOVE [%s] [%s]: source is a directory\n" src dst;
 	    in
 		List.iter (fun (src,dst) ->
 		match src with
