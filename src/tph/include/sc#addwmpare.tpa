@@ -91,11 +91,11 @@ DEFINE_ACTION_FUNCTION sc#addWmpAre //STR_VAR areName  = "sc#ar00"   // default 
   // save games
   ACTION_IF ( "%inclSv%" ) BEGIN
     PRINT ~Adding wmp area "%strName%"~
-    MKDIR save
-    GET_DIRECTORY_ARRAY save save ~~
+    MKDIR "%SAVE_DIRECTORY%"
+    GET_DIRECTORY_ARRAY save "%SAVE_DIRECTORY%" ~~
     LAUNCH_ACTION_FUNCTION ~sc#savepatch~ END
-    MKDIR mpsave
-    GET_DIRECTORY_ARRAY save mpsave ~~
+    MKDIR "%MPSAVE_DIRECTORY%"
+    GET_DIRECTORY_ARRAY save "%MPSAVE_DIRECTORY%" ~~
     LAUNCH_ACTION_FUNCTION ~sc#savepatch~ END
   END
 END

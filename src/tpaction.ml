@@ -409,13 +409,17 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  let temp_name = Var.get_string "%TP2_FILE_NAME%" in
 	  let temp_bname = Var.get_string "%TP2_BASE_NAME%" in
 	  let temp_num = Var.get_string "%COMPONENT_NUMBER%" in
+          let temp_save = Var.get_string "%SAVE_DIRECTORY%" in
+          let temp_mpsave = Var.get_string "%MPSAVE_DIRECTORY%" in
 	  Var.clear_var () ;
 	  Var.all_the_assoc () ;
 	  Var.set_string "TP2_AUTHOR" temp_author ;
 	  Var.set_string "LANGUAGE" temp_lang ;
 	  Var.set_string "TP2_FILE_NAME" temp_name ;
-      Var.set_string "TP2_BASE_NAME" temp_bname ;
-      Var.set_string "COMPONENT_NUMBER" temp_num ;
+          Var.set_string "TP2_BASE_NAME" temp_bname ;
+          Var.set_string "COMPONENT_NUMBER" temp_num ;
+          Var.set_string "SAVE_DIRECTORY" temp_save ;
+          Var.set_string "MPSAVE_DIRECTORY" temp_mpsave ;
 	  Arch2.associate_these () ;
 	  
       | TP_ClearArrays ->
@@ -491,16 +495,16 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	    let dlist = list_of_files_in_directory base_dir in
 	    List.iter (fun filename ->
 	      let filename = base_dir ^ "/" ^ filename in
-	      if is_directory filename					&&
-		filename <> base_dir ^ "/."		&&
-				       filename <> base_dir ^ "/.."
+	      if is_directory filename &&
+                 filename <> base_dir ^ "/." &&
+                 filename <> base_dir ^ "/.."
 	      then
 		file_list := !file_list @ [(filename ^ "/baldur.gam", filename ^ "/baldur.gam")] ;
 		      ) dlist ;
 	    ()
 	  in
-	  get_gam_list "save" ;
-	  get_gam_list "mpsave" ;
+	  get_gam_list (Var.get_string "%SAVE_DIRECTORY%") ;
+	  get_gam_list (Var.get_string "%MPSAVE_DIRECTORY%") ;
 	  let my_copy_args = {
 	    copy_get_existing = false;
 	    copy_use_regexp = false;

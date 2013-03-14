@@ -1175,6 +1175,8 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
     | TP_Patch_Gam(cre_name,area,x,y) ->
 
         (* Patch baldur.gam in save directories *)
+        (* This intentionally uses "save" instead of "%SAVE_DIRECTORY%" because the latter
+           is not applicable to BG1, which this function is exclusive to. *)
 
         let dlist = list_of_files_in_directory "save" in
         List.iter
@@ -1235,6 +1237,8 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
             end) dlist;
 
         (* Patch baldur.gam in mpsave directories *)
+        (* This intentionally uses "mpsave" instead of "%MPSAVE_DIRECTORY%" because the latter
+           is not applicable to BG1, which this function is exclusive to. *)
 
         let mpdlist = list_of_files_in_directory "mpsave" in
         List.iter

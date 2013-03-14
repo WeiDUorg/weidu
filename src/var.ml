@@ -309,14 +309,17 @@ let _ =
   all_the_assoc () ;
   ()
 
+(* Bear CLEAR_MEMORY in mind if any more of these are added. *)
 let game_dependent_vars game_type =
   let save_dir = "SAVE_DIRECTORY" in
+  let mpsave_dir = "MPSAVE_DIRECTORY" in
   match String.lowercase game_type with
   | "bgee" ->
       begin
         try
           let bgee_user_dir = Arch.get_bgee_user_dir () in
-          set_string save_dir (bgee_user_dir ^ "/save")
-        with _ -> set_string save_dir ""
+          set_string save_dir (bgee_user_dir ^ "/save");
+          set_string mpsave_dir (bgee_user_dir ^ "/mpsave");
+        with _ -> (set_string save_dir ""; set_string mpsave_dir "")
       end
-  | _ -> set_string save_dir "./save"
+  | _ -> (set_string save_dir "./save"; set_string mpsave_dir "./mpsave")

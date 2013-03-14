@@ -3018,7 +3018,7 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
        games, applying the list of patches. If there are any \ttref{when} conditions
        and any of them are false, the copy does not happen. \emph{NO BACKUP is applied
        to files in the save/ and mpsave/ directories. The savegame from the biffs is
-       backuped as usual.}  \\
+       backed up as usual.}  \\
 
   or & \DEFINE{MOVE} fromFile toFile ... \verb+(+ \ttref{directory-file-regexp} \verb+)+ toFile ... &
        You may specify as many fromFile-toFile pairs as you like. Each
@@ -8858,20 +8858,22 @@ BIT0  0b00000000000000000000000000000001
 BIT1  0b00000000000000000000000000000010
 <snip>
 BIT31 0b10000000000000000000000000000000
-
-WNL "\r\n" // Windows new line
-MNL "\r" // (pre-OSX) Macintosh new line
-LNL "\n" // Linux/Unix/OSX new line
-TAB "\t" // tabulation character
-
-REGISTRY_BG1_PATH the path of BG1 (as read from the registry), or empty if not available.
-REGISTRY_BG2_PATH ditto for BG2.
-REGISTRY_PST_PATH ditto for PST.
-REGISTRY_IWD1_PATH ditto for IWD1.
-REGISTRY_IWD2_PATH ditto for IWD2.
-
-SAVE_DIRECTORY evaluates to the directory in which the current game type stores its saved games. This is "./save" on non-BGEE games. On Windows BGEE games this is "%PATH%\Baldur's Gate - Enhanced Edition\save", where PATH is the user's personal directory as read from the Windows registry. On OS X BGEE games this is "$HOME/Library/Containers/com.beamdog.baldursgateenhancededition/Data/Documents/Baldur's Gate - Enhanced Edition/save", where HOME is the user's home directory, as retrieved by uid from the user database.
 \end{verbatim}
+
+\verb+WNL "\r\n"+ // Windows new line\\
+\verb+MNL "\r"+ // (pre-OSX) Macintosh new line\\
+\verb+LNL "\n"+ // Linux/Unix/OSX new line\\
+\verb+TAB "\t"+ // tabulation character
+
+\verb+REGISTRY_BG1_PATH+ the path of BG1 (as read from the registry), or empty if not available.\\
+\verb+REGISTRY_BG2_PATH+ ditto for BG2.\\
+\verb+REGISTRY_PST_PATH+ ditto for PST.\\
+\verb+REGISTRY_IWD1_PATH+ ditto for IWD1.\\
+\verb+REGISTRY_IWD2_PATH+ ditto for IWD2.
+
+\verb+SAVE_DIRECTORY+ evaluates to the directory in which the current game type stores its saved games. This is "./save" on non-BGEE games. On Windows BGEE games this is "\%PATH\%\backslash Baldur's Gate - Enhanced Edition\backslash save", where PATH is the user's personal directory as read from the Windows registry. On OS X BGEE games this is "\$HOME/Documents/Baldur's Gate - Enhanced Edition/save", where HOME is the user's home directory, as retrieved by uid from the user database.
+
+\verb+MPSAVE_DIRECTORY+ evaluates to the directory in which the current game type stores its multiplayer saved games. The determination is done the same way as with the save directory, but for the directory mpsave instead.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Common File Formats}

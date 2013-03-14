@@ -28,7 +28,8 @@ Version 232:
   * Use BG2's TLK format and scripting style for BGEE.
   * We no longer distribute WeiGUI.
   * The variable "%SAVE_DIRECTORY%" evaluates to the location of the current
-    game's saves. Compatible with BGEE.
+    game's saves. Also "%MPSAVE_DIRECTORY%" for multiplayer saves. Compatible
+    with BGEE. Update sc#addWmpAre and COPY_ALL_GAM_FILES accordingly.
   * Updated some of the TP2 tutorials to be slightly more contemporary.
 
 Version 231:
