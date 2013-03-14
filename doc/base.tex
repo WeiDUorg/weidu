@@ -3021,9 +3021,10 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
        backed up as usual.}  \\
 
   or & \DEFINE{MOVE} \ttref{optNoBackup} fromFile toFile ... \verb+(+ \ttref{directory-file-regexp} \verb+)+ toFile ... &
-       If optNoBackup is specified, additionally, fromFile may be moved to toFile even if one or both contain spaces in their names.
+       If optNoBackup is specified, in addition to the usual effects, fromFile may be moved to toFile even if
+       one or both contain spaces in their names. Don't use this feature without a real reason.
 
-       You may specify as many fromFile-toFile pairs as you like. Each
+       You may specify as many fromFile--toFile pairs as you like. Each
        fromFile is moved to its associated toFile.
 
 	   If fromFile is a file, toFile can be a file or a directory; if fromFile is a

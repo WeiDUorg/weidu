@@ -30,7 +30,7 @@ Version 232:
   * The variable "%SAVE_DIRECTORY%" evaluates to the location of the current
     game's saves. Also "%MPSAVE_DIRECTORY%" for multiplayer saves. Compatible
     with BGEE. Update sc#addWmpAre and COPY_ALL_GAM_FILES accordingly.
-  * Updated some of the TP2 tutorials to be slightly more contemporary.
+  * Update some of the TP2 tutorials to be slightly more contemporary.
   * Mention MOVE + in the documentation.
   * MOVE falls back onto COPY_LARGE instead of COPY when the destination exists.
 
