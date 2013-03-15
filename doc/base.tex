@@ -8157,17 +8157,17 @@ of the call, and the file name you're working on, for instance:
 \\
 
 \verb+ALTER_AREA_ENTRANCE+: patch coordinates and orientation of \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Entrance}}{area party entrance points}.
-This is a PATCH function. For all integer arguments, a negative value results in no change to that field and the default value is -1. The argument \verb+entry_name+ is required.
+This is a PATCH function. For all integer variables, a negative value results in no change to that field and the default value is -1. The variable \verb+entry_name+ is required.
 \begin{itemize}
 \item INT_VAR \verb+x_coord+ to the new X coordinate.
 \item INT_VAR \verb+y_coord+ to the new Y coordinate.
 \item INT_VAR \verb+orient+ to the new orientation.
-\item STR_VAR \verb+entry_name+ to the name of the entrance point to be altered. This argument is required.
+\item STR_VAR \verb+entry_name+ to the name of the entrance point to be altered. This variable is required.
 \end{itemize}
 \\
 
 \verb+ALTER_AREA_REGION+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Info}}{area regions}, also known as area triggers.
-This is a PATCH function. For all integer arguments, a negative value results in no change and the default value is -1. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. For all string arguments except \verb+trig_name+, the default value is the string "same", which results in no change to that field. The argument \verb+trig_name+ is required.
+This is a PATCH function. For all integer variables, a negative value results in no change and the default value is -1. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. For all string variables except \verb+trigger_name+, the default value is the string "same", which results in no change to that field. The variable \verb+trigger_name+ is required.
 \begin{itemize}
 \item INT_VAR \verb+type+ to the new type of the region.
 \item INT_VAR \verb+cursor+ to the new cursor index to be used.
@@ -8187,21 +8187,21 @@ This is a PATCH function. For all integer arguments, a negative value results in
 \item INT_VAR \verb+flag_impassable_npc+ to the new value of the flag known as \t{cannot be passed by NPCs} (bit 9).
 \item INT_VAR \verb+flag_activation_point+ to the new value of the flag known as \t{use activation point} (bit 10).
 \item INT_VAR \verb+flag_connect_to_door+ to the new value of the flag known as \t{connected to door} (bit 11).
-\item STR_VAR \verb+trig_name+ to the name of the region to be patched. This argument is required.
-\item STR_VAR \verb+dest_area+ to the resref of the new destination area.
-\item STR_VAR \verb+ent_name+ to the new entrance name of the destination area.
+\item STR_VAR \verb+trigger_name+ to the name of the region to be patched. This variable is required.
+\item STR_VAR \verb+destination_area+ to the resref of the new destination area.
+\item STR_VAR \verb+entrance_name+ to the new entrance name of the destination area.
 \item STR_VAR \verb+door_key+ to the resref of the key item.
 \item STR_VAR \verb+door_script+ to the resref of the region script.
 \end{itemize}
 \\
 
 \verb+ALTER_AREA_ACTOR+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Actor}}{area actors}.
-This is a PATCH function. All integer arguments default to the value -1 and a negative value results in no change to the corresponding field. All string arguments except \verb+actor_name+ default to the string "same", which results in no change to the corresponding field. The argument \verb+actor_name+ is required.
+This is a PATCH function. All integer variables default to the value -1 and a negative value results in no change to the corresponding field. All string variables except \verb+actor_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+actor_name+ is required.
 \begin{itemize}
 \item INT_VAR \verb+x_coord+ to the new x coordinate.
 \item INT_VAR \verb+y_coord+ to the new y coordinate.
 \item INT_VAR \verb+orient+ to the new facing direction.
-\item STR_VAR \verb+actor_name+ to the name of the actor to be patched. This argument is required.
+\item STR_VAR \verb+actor_name+ to the name of the actor to be patched. This variable is required.
 \item STR_VAR \verb+dlg_file+ to the resref of the new dialogue file.
 \item STR_VAR \verb+script_override+ to the resref of the new override script.
 \item STR_VAR \verb+script_general+ to the resref of the new general script.
@@ -8213,26 +8213,26 @@ This is a PATCH function. All integer arguments default to the value -1 and a ne
 \end{itemize}
 \\
 
-\verb+ALTER_AREA_CONTAINER+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Container}}{area containers}, but not their contents. This is a PATCH function. All integer arguments default to -1 and negative values result in no change to the corresponding field. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. All string arguments except \verb+cont_name+ default to the string "same", which results in no change to the corresponding field. The argument \verb+cont_name+ is required.
+\verb+ALTER_AREA_CONTAINER+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Container}}{area containers}, but not their contents. This is a PATCH function. All integer variables default to -1 and negative values result in no change to the corresponding field. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. All string variables except \verb+container_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+container_name+ is required.
 \begin{itemize}
-\item INT_VAR \verb+cont_type+ to the new type of the container. %changed this
+\item INT_VAR \verb+container_type+ to the new type of the container.
 \item INT_VAR \verb+trapped+ to whether the container should be trapped.
 \item INT_VAR \verb+detected+ to whether the container trap should be detected.
-\item INT_VAR \verb+lockpick_strref+ to the new strref of the lockpick string. %changed this
-\item INT_VAR \verb+lock_difficulty+ to the new difficulty of the lock. %changed this
-\item INT_VAR \verb+trap_detect+ to the new difficulty of trap detection. %changed this
-\item INT_VAR \verb+trap_remove+ to the new difficulty of trap removal. %changed this
+\item INT_VAR \verb+lockpick_strref+ to the new strref of the lockpick string.
+\item INT_VAR \verb+lock_difficulty+ to the new difficulty of the lock.
+\item INT_VAR \verb+trap_detect+ to the new difficulty of trap detection.
+\item INT_VAR \verb+trap_remove+ to the new difficulty of trap removal.
 \item INT_VAR \verb+flag_locked+ to the new value of the flag known as \t{locked} (bit 0).
 \item INT_VAR \verb+flag_mlocked+ to the new value of the flag known as \t{magical lock} (bit 2).
 \item INT_VAR \verb+flag_resets+ to the new value of the flag known as \t{trap resets} (bit 3).
 \item INT_VAR \verb+flag_disabled+ to the new value of the flag known as \t{disabled} (bit 5).
-\item STR_VAR \verb+cont_name+ to the name of the container to be patched. This argument is required.
-\item STR_VAR \verb+cont_script+ to the resref of the new container script.
-\item STR_VAR \verb+cont_key+ to the resref of the new container key.
+\item STR_VAR \verb+container_name+ to the name of the container to be patched. This variable is required.
+\item STR_VAR \verb+container_script+ to the resref of the new container script.
+\item STR_VAR \verb+container_key+ to the resref of the new container key.
 \end{itemize}
 \\
 
-\verb+ALTER_AREA_DOOR+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Door}}{area doors.} This is a PATCH function. All integer arguments default to -1 and negative values result in no change to the corresponding field. All string arguments except \verb+door_name+ default to the string "same", which results in no change to the corresponding field. The argument \verb+door_name+ is required.
+\verb+ALTER_AREA_DOOR+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Door}}{area doors.} This is a PATCH function. All integer variables default to -1 and negative values result in no change to the corresponding field. All string variables except \verb+door_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+door_name+ is required.
 \begin{itemize}
 \item INT_VAR \verb+door_icon+ to the new cursor index.
 \item INT_VAR \verb+trap_detect+ to the new difficulty of trap detection.
@@ -8240,12 +8240,156 @@ This is a PATCH function. All integer arguments default to the value -1 and a ne
 \item INT_VAR \verb+trapped+ to whether the door should be trapped.
 \item INT_VAR \verb+detected+ to whether the door trap should be detected.
 \item INT_VAR \verb+door_detect+ to the new difficulty of door detection.
-\item INT_VAR \verb+lock_difficulty+ to the new difficulty of the lock. %changed this
-\item STR_VAR \verb+door_name+ to the name of the door to be patched. This argument is required.
+\item INT_VAR \verb+lock_difficulty+ to the new difficulty of the lock.
+\item STR_VAR \verb+door_name+ to the name of the door to be patched. This variable is required.
 \item STR_VAR \verb+door_key+ to the resref of the new door key.
 \item STR_VAR \verb+door_script+ to the resref of the new door script.
 \end{itemize}
 \\
+
+\verb+ALTER_ITEM_EFFECT+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/itm_v1.htm#itmv1_Feature_Block}}{global (equipping) effects} and/or \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/itm_v1.htm#itmv1_Extended_Header}}{effects on extended headers}. This is a PATCH function. All integer variables except \verb+check_globals+, \verb+check_headers+, \verb+header+ and \verb+savebonus+ default to -1 and negative values result in no change to the corresponding field. The integer variables \verb+check_globals+, \verb+check_headers+ and \verb+header+ default to 0. The integer variable \verb+savebonus+ defaults to -11 and values lower than -10 result in no change to the corresponding field. The string variable \verb+resource+ defaults to the string "same", which results in no change to the corresponding field.
+
+Note that both \verb+check_globals+ and \verb+check_headers+ are 0 by default, so you need to change one or both of these to 1 to perform any patching at all. If you patch headers, you can further target by using type to target melee, ranged, or magical headers. \verb+match_opcode+ can be left at -1 to match all effects on your targeted range or targeted to a specific opcode. If the opcode itself needs to be changed, you can use \verb+match_opcode+ to target the existing effect and \verb+new_opcode+ as the new opcode to use. \verb+duration_high+ is an alternative to \verb+duration+, mainly for changing the overall duration of an item's effects. The idea is to allow you to mass patch effects to new durations while leaving the one-time only cosmetics and visuals--which are usual instant or only run for a few seconds--unchanged.
+\begin{itemize}
+\item INT_VAR \verb+check_globals+ to whether to check global (on-equip) effects (0 for no, 1 for yes). (default 0)
+\item INT_VAR \verb+check_headers+ to whether to check effects on extended headers (0 for no, 1 for yes). (default 0)
+\item INT_VAR \verb+header+ to the number of the ability header that should be altered. A value of 0 matches all headers. (default 0)
+\item INT_VAR \verb+header_type+ to which type of header that should be checked. If this variable is -1, all header types will be checked.this
+\item INT_VAR \verb+match_opcode+ to which type of opcode to match. If this variable is -1, all opcodes are a match.
+\item INT_VAR \verb+new_opcode+ to the value the matched opcode should be changed into.
+\item INT_VAR \verb+target+ to the new target.
+\item INT_VAR \verb+power+ to the new power.
+\item INT_VAR \verb+parameter1+ to the new parameter1.
+\item INT_VAR \verb+parameter2+ to the new parameter2.
+\item INT_VAR \verb+timing+ to the new timing mode.
+\item INT_VAR \verb+resist_dispel+ to the new resist/dispel.
+\item INT_VAR \verb+duration+ to the new duration.
+\item INT_VAR \verb+duration_high+ to the new duration, but is only written if the existing duration is greater than 5.
+\item INT_VAR \verb+probability1+ to the new probability1 (the upper bound).
+\item INT_VAR \verb+probability2+ to the new probability2 (the lower bound).
+\item INT_VAR \verb+dicenumber+ to the new number of dice. This field is instead used for maximum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+dicesize+ to the new size of dice. This field is also instead for minimum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+savingthrow+ to the new saving-throw type.
+\item INT_VAR \verb+savebonus+ to the new saving-throw bonus/penalty. This variable can take negative values down to -10 while still writing to the corresponding field. (default -11)
+\item STR_VAR \verb+resource+ to the new resource reference.
+\end{itemize}
+\\
+
+\verb+ALTER_ITEM_HEADER+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/itm_v1.htm#itmv1_Extended_Header}}{ability headers} on items. This is a PATCH function. All integer variables except \verb+match_icon+ and \verb+header+ default to -1 and negative values result in no change to the corresponding field. The integer variables \verb+match_icon+ and \verb+header+ default to 0. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. The string variable \verb+icon+ defaults to the string "same", which results in no change to the corresponding field.
+
+\verb+header_type+ is used to limit the scope of matching. The default value of -1 will match all types of headers while values of 0-4 will match headers with those values. If \verb+match_icon+ is 1, the icon resource reference will be match with the \verb+icon+ variable as an additional qualifier. This is useful for items which have multiple magic abilities. \verb+header+ can also be used to limit patching to the Nth header, counting from 1 as the first header. The default is 0, which will match all headers.
+
+\begin{itemize}
+\item INT_VAR \verb+header_type+ to the type of header to be matched. If this variable is -1, all headers will be a match.
+\item INT_VAR \verb+match_icon+ to whether to match the ability icon (0 for no, 1 for yes). (default 0)
+\item INT_VAR \verb+header+ to the number of the ability header (starting from 1) that should be altered. A value of 0 matches all header. (default 0)
+\item INT_VAR \verb+new_header_type+ to the value the matched header should be changed into.
+\item INT_VAR \verb+identify+ to the new identification requirement.
+\item INT_VAR \verb+location+ to the new new ability location.
+\item INT_VAR \verb+target+ to the new target.
+\item INT_VAR \verb+range+ to the new range.
+\item INT_VAR \verb+launcher+ to the new required launcher.
+\item INT_VAR \verb+speed+ to the new speed factor.
+\item INT_VAR \verb+thac0_bonus+ to the new THAC0 bonus.
+\item INT_VAR \verb+dicesize+ to the new dice size.
+\item INT_VAR \verb+primary_type+ to the new primary type (school).
+\item INT_VAR \verb+dicenumber+ to the new number of dice.
+\item INT_VAR \verb+secondary_type+ to the new secondary type.
+\item INT_VAR \verb+damage_bonus+ to the new damage bonus.
+\item INT_VAR \verb+damage_type+ to the new damage type.
+\item INT_VAR \verb+charges+ to the new number of charges.
+\item INT_VAR \verb+drained+ to the new charge-depletion behaviour.
+\item INT_VAR \verb+projectile+ to the new projectile.
+\item INT_VAR \verb+animation_overhand+ to the new overhand animation percentage.
+\item INT_VAR \verb+animation_backhand+ to the new backhand animation percentage.
+\item INT_VAR \verb+animation_thrust+ to the new thrust animation percentage.
+\item INT_VAR \verb+arrow+ to the new arrow qualifier.
+\item INT_VAR \verb+bolt+ to the new bolt qualifier.
+\item INT_VAR \verb+bullet+ to the new bullet qualifier.
+\item INT_VAR \verb+flag_strength+ to the new value of the flag known as \t{add strength bonus} (bit 0).
+\item INT_VAR \verb+flag_break+ to the new value of the flag known as \t{breakable} (bit 1).
+\item INT_VAR \verb+flag_hostile+ to the new value of the flag known as \t{hostile} (bit 10).
+\item INT_VAR \verb+flag_recharge+ to the new value of the flag known as \t{recharges} (bit 11).
+\item INT_VAR \verb+flag_bypass+ to the new value of the flag known as \t{bypass armor} (bit 16). This flag is not available in all games.
+\item INT_VAR \verb+flag_keenedge+ to the new value of the flag known as \t{keen edge} (bit 17). This flag is not available in all games.
+\item INT_VAR \verb+flag_backstab+ to the new value of the flag known as \t{toggle backstab} (bit 25). This flag is not available in all games.
+\item INT_VAR \verb+flag_noinvisible+ to the new value of the flag known as \t{cannot target invisible} (bit 26). This flag is not available in all games.
+\item STR_VAR \verb+icon+ to the resource reference to be used for matching if \verb+match_icon+ is 1, or the new ability icon if \verb+match_icon+ is 0.
+\end{itemize}
+\\
+
+\verb+DELETE_ITEM_HEADER+: delete ability headers, also known as \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/itm_v1.htm#itmv1_Extended_Header}}{extended headers}, from items. This is a PATCH function. All integer variables default to 0.
+
+This function will delete one or more ability headers, along with all of their associated effects, and properly re-index the file.
+
+\begin{itemize}
+\item INT_VAR \verb+header_type+ to the header type to delete. If this variable is -1, all header types will be a match. (default 0)
+\end{itemize}
+\\
+
+\verb+ALTER_SPELL_EFFECT+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/spl_v1.htm#splv1_Feature_Block}}{effects} on spells. This is a PATCH function. All integer variables except \verb+check_globals+, \verb+check_headers+, \verb+header+ and \verb+savebonus+ default to -1 and negative values result in no change to the corresponding field. The integer variables \verb+check_globals+ and \verb+header+ default to 0. The integer variable \verb+check_headers+ defaults to 1. The integer variable \verb+savebonus+ defaults to -11 and values lower than -10 result in no change to the corresponding field. The string variable \verb+resource+ defaults to the string "same", which results in no change to the corresponding field.
+
+Note that both \verb+check_globals+ and \verb+check_headers+ are 0 by default, so you need to change one or both of these to 1 to perform any patching at all. If you patch headers, you can further target by using type to target melee, ranged, or magical headers. \verb+match_opcode+ can be left at -1 to match all effects on your targeted range or targeted to a specific opcode. If the opcode itself needs to be changed, you can use \verb+match_opcode+ to target the existing effect and \verb+new_opcode+ as the new opcode to use. \verb+duration_high+ is an alternative to \verb+duration+, mainly for changing the overall duration of an item's effects. The idea is to allow you to mass patch effects to new durations while leaving the one-time only cosmetics and visuals--which are usual instant or only run for a few seconds--unchanged.
+\begin{itemize}
+\item INT_VAR \verb+check_globals+ to whether to check global effects (0 for no, 1 for yes). (default 0)
+\item INT_VAR \verb+check_headers+ to whether to check effects on extended headers (0 for no, 1 for yes). (default 1)
+\item INT_VAR \verb+header+ to the number of the ability header that should be altered. A value of 0 matches all headers. (default 0)
+\item INT_VAR \verb+header_type+ to which type of header that should be checked. If this variable is -1, all header types will be checked.this
+\item INT_VAR \verb+match_opcode+ to which type of opcode to match. If this variable is -1, all opcodes are a match.
+\item INT_VAR \verb+new_opcode+ to the value the matched opcode should be changed into.
+\item INT_VAR \verb+target+ to the new target.
+\item INT_VAR \verb+power+ to the new power.
+\item INT_VAR \verb+parameter1+ to the new parameter1.
+\item INT_VAR \verb+parameter2+ to the new parameter2.
+\item INT_VAR \verb+timing+ to the new timing mode.
+\item INT_VAR \verb+resist_dispel+ to the new resist/dispel.
+\item INT_VAR \verb+duration+ to the new duration.
+\item INT_VAR \verb+duration_high+ to the new duration, but is only written if the existing duration is greater than 5.
+\item INT_VAR \verb+probability1+ to the new probability1 (the upper bound).
+\item INT_VAR \verb+probability2+ to the new probability2 (the lower bound).
+\item INT_VAR \verb+dicenumber+ to the new number of dice. This field is instead used for maximum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+dicesize+ to the new size of dice. This field is also instead for minimum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+savingthrow+ to the new saving-throw type.
+\item INT_VAR \verb+savebonus+ to the new saving-throw bonus/penalty. This variable can take negative values down to -10 while still writing to the corresponding field. (default -11)
+\item STR_VAR \verb+resource+ to the new resource reference.
+\end{itemize}
+\\
+
+\verb+ALTER_SPELL_HEADER+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/spl_v1.htm#splv1_Extended_Header}}{ability headers} on spells. This is a PATCH function.All integer variables except \verb+match_icon+ and \verb+header+ default to -1 and negative values result in no change to the corresponding field. The integer variables \verb+match_icon+ and \verb+header+ default to 0. The string variable \verb+icon+ defaults to the string "same", which results in no change to the corresponding field.
+
+\verb+header_type+ is used to limit the scope of matching. The default value of -1 will match all types of headers while values of 0-4 will match headers with those values. If \verb+match_icon+ is 1, the icon resource reference will be match with the \verb+icon+ variable as an additional qualifier. This is useful for items which have multiple magic abilities. \verb+header+ can also be used to limit patching to the Nth header, counting from 1 as the first header. The default is 0, which will match all headers.
+
+\begin{itemize}
+\item INT_VAR \verb+header_type+ to the type of header to be matched. If this variable is -1, all headers will be a match.
+\item INT_VAR \verb+match_icon+ to whether to match the ability icon (0 for no, 1 for yes). (default 0)
+\item INT_VAR \verb+header+ to the number of the ability header (starting from 1) that should be altered. A value of 0 matches all header. (default 0)
+\item INT_VAR \verb+new_header_type+ to the value the matched header should be changed into.
+\item INT_VAR \verb+location+ to the new new ability location.
+\item INT_VAR \verb+target+ to the new target.
+\item INT_VAR \verb+range+ to the new range.
+\item INT_VAR \verb+min_level+ to the new required minimum level.
+\item INT_VAR \verb+speed+ to the new speed factor.
+\item INT_VAR \verb+thac0_bonus+ to the new THAC0 bonus.
+\item INT_VAR \verb+dicesize+ to the new dice size.
+\item INT_VAR \verb+dicenumber+ to the new number of dice.
+\item INT_VAR \verb+damage_bonus+ to the new damage bonus.
+\item INT_VAR \verb+damage_type+ to the new damage type.
+\item INT_VAR \verb+charges+ to the new number of charges.
+\item INT_VAR \verb+projectile+ to the new projectile.
+\item STR_VAR \verb+icon+ to the resource reference to be used for matching if \verb+match_icon+ is 1, or the new ability icon if \verb+match_icon+ is 0.
+\end{itemize}
+\\
+
+\verb+DELETE_SPELL_HEADER+: delete ability headers, also known as \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/itm_v1.htm#itmv1_Extended_Header}}{extended headers}, from spells. This is a PATCH function. The integer variable \verb+header_type+ defaults to 0. The integer variable \verb+min_level+ defaults to -1 and if this variable is 0 or greater, only headers with a matching minimum level will be deleted.
+
+This function will delete one or more ability headers, along with all of their associated effects, and properly re-index the file.
+
+\begin{itemize}
+\item INT_VAR \verb+header_type+ to the header type to delete. If this variable is -1, all header types will be a match. (default 0)
+\item INT_VAR \verb+min_level+ to the minimum level to be matched. If this variable is negative, it will not be used for matching. (default -1)
+\end{itemize}
+\\
+
 
 \subsection{\DEFINE{fj_are_structure}}
 Adds a structure to an area file. All variables are zero or blank by default unless otherwise indicated. Fields designated by an asterisk are typically required; all others are optional.
