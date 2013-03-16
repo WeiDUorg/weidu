@@ -1,4 +1,4 @@
-DEFINE_PATCH_FUNCTION ASSIGN_CRE_SCRIPT
+DEFINE_PATCH_FUNCTION ADD_CRE_SCRIPT
   INT_VAR
     offset_start = SCRIPT_OVERRIDE
     offset_end = SCRIPT_DEFAULT
@@ -10,18 +10,18 @@ BEGIN
   PATCH_IF "%script%" STR_CMP "" BEGIN
     READ_ASCII 0 sig (3)
     PATCH_IF "%sig%" STR_CMP "CRE" BEGIN
-      PATCH_FAIL "ERROR: ASSIGN_CRE_SCRIPT called on invalid creature file"
+      PATCH_FAIL "ERROR: ADD_CRE_SCRIPT called on invalid creature file"
     END
     PATCH_FOR_EACH var IN offset_start offset_end BEGIN
       PATCH_IF EVAL "%%var%%" < 0 BEGIN
-        PATCH_FAIL "ERROR: ASSIGN_CRE_SCRIPT: invalid argument: %var%"
+        PATCH_FAIL "ERROR: ADD_CRE_SCRIPT: invalid argument: %var%"
       END
     END
     PATCH_IF offset_end < offset_start BEGIN
-      PATCH_FAIL "ERROR: ASSIGN_CRE_SCRIPT: offset_end cannot be less than offset_start"
+      PATCH_FAIL "ERROR: ADD_CRE_SCRIPT: offset_end cannot be less than offset_start"
     END
     PATCH_IF offset_end > BUFFER_LENGTH BEGIN
-      PATCH_FAIL "ERROR: ASSIGN_CRE_SCRIPT: offset_end cannot be greater than the size of the file"
+      PATCH_FAIL "ERROR: ADD_CRE_SCRIPT: offset_end cannot be greater than the size of the file"
     END
     script_length = 0x8
     done = 0
@@ -35,7 +35,7 @@ BEGIN
       END
     END
     PATCH_IF !done BEGIN
-      PATCH_PRINT "WARNING: ASSIGN_CRE_SCRIPT was unable to assign script %script%"
+      PATCH_PRINT "WARNING: ADD_CRE_SCRIPT was unable to assign script %script%"
     END
   END
 END

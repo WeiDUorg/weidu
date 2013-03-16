@@ -33,6 +33,9 @@ Version 232:
   * Update some of the TP2 tutorials to be slightly more contemporary.
   * Mention MOVE + in the documentation.
   * MOVE falls back onto COPY_LARGE instead of COPY when the destination exists.
+  * Add the new functions ALTER_AREA_(ENTRANCE|REGION|ACTOR|CONTAINER|DOOR),
+    ALTER_(ITEM|SPELL)_(EFFECT|HEADER), DELETE_(ITEM|SPELL)_HEADER, by CamDawg,
+    and the new functions SUBSTRING and ADD_CRE_SCRIPT.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
