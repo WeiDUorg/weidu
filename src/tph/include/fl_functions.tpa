@@ -1,0 +1,85 @@
+DEFINE_PATCH_FUNCTION ASSIGN_CRE_SCRIPT
+  INT_VAR
+    offset_start = SCRIPT_OVERRIDE
+    offset_end = SCRIPT_DEFAULT
+  STR_VAR
+    script = ""
+  RET
+    success
+BEGIN
+  PATCH_IF "%script%" STR_CMP "" BEGIN
+    READ_ASCII 0 sig (3)
+    PATCH_IF "%sig%" STR_CMP "CRE" BEGIN
+      PATCH_FAIL "ERROR: ASSIGN_CRE_SCRIPT called on invalid creature file"
+    END
+    PATCH_FOR_EACH var IN offset_start offset_end BEGIN
+      PATCH_IF EVAL "%%var%%" < 0 BEGIN
+        PATCH_FAIL "ERROR: ASSIGN_CRE_SCRIPT: invalid argument: %var%"
+      END
+    END
+    PATCH_IF offset_end < offset_start BEGIN
+      PATCH_FAIL "ERROR: ASSIGN_CRE_SCRIPT: offset_end cannot be less than offset_start"
+    END
+    PATCH_IF offset_end > BUFFER_LENGTH BEGIN
+      PATCH_FAIL "ERROR: ASSIGN_CRE_SCRIPT: offset_end cannot be greater than the size of the file"
+    END
+    script_length = 0x8
+    done = 0
+    success = 0
+    FOR (script_offset = offset_start; script_offset <= offset_end && !done; script_offset += script_length) BEGIN
+      READ_ASCII script_offset escript
+      PATCH_IF "%escript%" STRING_EQUAL "" OR "%escript%" STRING_EQUAL_CASE "none" BEGIN
+        WRITE_ASCIIE script_offset "%script%"
+        done = 1
+        success = 1
+      END
+    END
+    PATCH_IF !done BEGIN
+      PATCH_PRINT "WARNING: ASSIGN_CRE_SCRIPT was unable to assign script %script%"
+    END
+  END
+END
+
+
+DEFINE_ACTION_FUNCTION SUBSTRING
+  INT_VAR
+    start = 0
+    length = 0
+  STR_VAR
+    string = ""
+  RET
+    substring
+BEGIN
+  ACTION_FOR_EACH var IN start length BEGIN
+    ACTION_IF EVAL "%%var%%" < 0 BEGIN
+      FAIL "ERROR: SUBSTRING: invalid argument: %var%"
+    END
+  END
+  ACTION_IF length > STRING_LENGTH "%string%" BEGIN
+    FAIL "ERROR: SUBSTRING: the substring cannot be longer than the string"
+  END
+  ACTION_IF start > STRING_LENGTH "%string%" BEGIN
+    FAIL "ERROR: SUBSTRING: the substring cannot be taken at an offset greater than the string length"
+  END
+  ACTION_IF start + length > STRING_LENGTH "%string%" BEGIN
+    FAIL "ERROR: SUBSTRING: attempt to take substring out of bounds"
+  END
+  OUTER_PATCH "%string%" BEGIN
+    READ_ASCII start substring (length)
+  END
+END
+
+
+DEFINE_PATCH_FUNCTION SUBSTRING
+  INT_VAR
+    start = 0
+    length = 0
+  STR_VAR
+    string = ""
+  RET
+    substring
+BEGIN
+  INNER_ACTION BEGIN
+    LAF SUBSTRING INT_VAR start length STR_VAR string RET substring END
+  END
+END
