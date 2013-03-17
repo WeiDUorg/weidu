@@ -20,7 +20,7 @@ let load_file name =
 
 let main () =
   let o = open_out "src/tph.ml" in
-  output_string o "(* DO NOT EDIT, file generated automatically by src/make_tph.ml from src/tph/* *)
+  output_string o "(* DO NOT EDIT, file generated automatically by scripts/make_tph.ml from src/tph/* *)
 let list_of_stuff = [";
 let file_define  = Sys.readdir "src/tph/define"  in
 let file_include = Sys.readdir "src/tph/include" in
