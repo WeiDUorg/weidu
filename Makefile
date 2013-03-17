@@ -190,7 +190,7 @@ windows_zip : weidu weinstall tolower clean #weigui
 	upx --best weinstall.exe || echo "No EXE Compression"
 	strip tolower.exe || true
 	upx --best tolower.exe || echo "No EXE Compression"
-	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU/*.exe WeiDU/COPYING WeiDU/README* WeiDU/*.dll WeiDU/examples )
+	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU/*.exe WeiDU/COPYING WeiDU/README* WeiDU/*.dll WeiDU/examples WeiDU/*.manifest)
 src_zip : clean
 	(cd .. ; zip -9r WeiDU-Src-$(VER).zip WeiDU/* -x WeiDU/weidu.exe -x WeiDU/tolower.exe \
    -x WeiDU/weinstall.exe -x WeiDU/weigui.exe -x WeiDU/*.dll; )
