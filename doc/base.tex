@@ -8174,17 +8174,17 @@ of the call, and the file name you're working on, for instance:
 \\
 
 \verb+ALTER_AREA_ENTRANCE+: patch coordinates and orientation of \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Entrance}}{area party entrance points}.
-This is a PATCH function. For all integer variables, a negative value results in no change to that field and the default value is -1. The variable \verb+entry_name+ is required.
+This is a PATCH function. For all integer variables, a negative value results in no change to that field and the default value is -1. The variable \verb+entrance_name+ is required.
 \begin{itemize}
 \item INT_VAR \verb+x_coord+ to the new X coordinate.
 \item INT_VAR \verb+y_coord+ to the new Y coordinate.
 \item INT_VAR \verb+orient+ to the new orientation.
-\item STR_VAR \verb+entry_name+ to the name of the entrance point to be altered. This variable is required.
+\item STR_VAR \verb+entrance_name+ to the name of the entrance point to be altered. This variable is required.
 \end{itemize}
 \\
 
 \verb+ALTER_AREA_REGION+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Info}}{area regions}, also known as area triggers.
-This is a PATCH function. For all integer variables, a negative value results in no change and the default value is -1. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. For all string variables except \verb+trigger_name+, the default value is the string "same", which results in no change to that field. The variable \verb+trigger_name+ is required.
+This is a PATCH function. For all integer variables, a negative value results in no change and the default value is -1. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. For all string variables except \verb+region_name+, the default value is the string "same", which results in no change to that field. The variable \verb+region_name+ is required.
 \begin{itemize}
 \item INT_VAR \verb+type+ to the new type of the region.
 \item INT_VAR \verb+cursor+ to the new cursor index to be used.
@@ -8195,7 +8195,7 @@ This is a PATCH function. For all integer variables, a negative value results in
 \item INT_VAR \verb+flag_locked+ to the new value of the flag known as \t{locked} or \t{invisible trap} (bit 0).
 \item INT_VAR \verb+flag_resets+ to the new value of the flag known as \t{trap resets} (bit 1).
 \item INT_VAR \verb+flag_party_required+ to the new value of the flag known as \t{party is required} (bit 2).
-\item INT_VAR \verb+trap_detectable+ to the new value of the flag known as \t{trap is detectable} (bit 3).
+\item INT_VAR \verb+flag_trap_detectable+ to the new value of the flag known as \t{trap is detectable} (bit 3).
 \item INT_VAR \verb+flag_trap_enemies+ to the new value of the flag known as \t{trap can be set off by enemies} (bit 4).
 \item INT_VAR \verb+flag_tutorial+ to the new value of the flag known as \t{tutorial trigger} (bit 5).
 \item INT_VAR \verb+flag_trap_npcs+ to the new value of the flag known as \t{trap can be set off by NPCs} (bit 6).
@@ -8204,7 +8204,7 @@ This is a PATCH function. For all integer variables, a negative value results in
 \item INT_VAR \verb+flag_impassable_npc+ to the new value of the flag known as \t{cannot be passed by NPCs} (bit 9).
 \item INT_VAR \verb+flag_activation_point+ to the new value of the flag known as \t{use activation point} (bit 10).
 \item INT_VAR \verb+flag_connect_to_door+ to the new value of the flag known as \t{connected to door} (bit 11).
-\item STR_VAR \verb+trigger_name+ to the name of the region to be patched. This variable is required.
+\item STR_VAR \verb+region_name+ to the name of the region to be patched. This variable is required.
 \item STR_VAR \verb+destination_area+ to the resref of the new destination area.
 \item STR_VAR \verb+entrance_name+ to the new entrance name of the destination area.
 \item STR_VAR \verb+door_key+ to the resref of the key item.
@@ -8251,7 +8251,7 @@ This is a PATCH function. All integer variables default to the value -1 and a ne
 
 \verb+ALTER_AREA_DOOR+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Door}}{area doors.} This is a PATCH function. All integer variables default to -1 and negative values result in no change to the corresponding field. All string variables except \verb+door_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+door_name+ is required.
 \begin{itemize}
-\item INT_VAR \verb+door_icon+ to the new cursor index.
+\item INT_VAR \verb+cursor+ to the new cursor index.
 \item INT_VAR \verb+trap_detect+ to the new difficulty of trap detection.
 \item INT_VAR \verb+trap_remove+ to the new difficulty of trap removal.
 \item INT_VAR \verb+trapped+ to whether the door should be trapped.
@@ -8271,7 +8271,7 @@ Note that both \verb+check_globals+ and \verb+check_headers+ are 0 by default, s
 \item INT_VAR \verb+check_globals+ to whether to check global (on-equip) effects (0 for no, 1 for yes). (default 0)
 \item INT_VAR \verb+check_headers+ to whether to check effects on extended headers (0 for no, 1 for yes). (default 0)
 \item INT_VAR \verb+header+ to the number of the ability header that should be altered. A value of 0 matches all headers. (default 0)
-\item INT_VAR \verb+header_type+ to which type of header that should be checked. If this variable is -1, all header types will be checked.this
+\item INT_VAR \verb+header_type+ to which type of header that should be checked. If this variable is -1, all header types will be checked.
 \item INT_VAR \verb+match_opcode+ to which type of opcode to match. If this variable is -1, all opcodes are a match.
 \item INT_VAR \verb+new_opcode+ to the value the matched opcode should be changed into.
 \item INT_VAR \verb+target+ to the new target.
