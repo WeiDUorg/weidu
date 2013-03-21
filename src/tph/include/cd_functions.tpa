@@ -1,4 +1,6 @@
 /*
+Author: CamDawg
+
 v1: for iwd fixpack v2
 v2: for iwd fixpack v3, bgee fixpack development
   fixed bug with unterminated WRITE_ASCII for item icons
@@ -14,13 +16,12 @@ v6: final touchups for WeiDU inclusion
   CONVERT_BG_IWD_DURATION now converts both directions
   ALTER_AREA_ENTRANCE, ALTER_AREA_REGION now compare the target with _CASE rather than _REGEXP
   the immunity fx batch stuff shouldn't have been included
-  flag_backstab and flag_noinvis support added for ALTER_ITEM_HEADER
+  flag_backstab and flag_noinvisible support added for ALTER_ITEM_HEADER
 v7: heavy-handed editing by Wisp
   all functions follow the naming convention ALTER_FOO_BAR instead of FOO_ALTER_BAR
-  exclude CONVERT_BG_IWD_DURATION
+  exclude CONVERT_BG_IWD_DURATION, because I think it is too niche
   rename a bunch of fields for increased clarity and consistency, real or imaginary
-  0x02, 0x0c, 0x10, 0x12 in the ITM extended header are bytes, not words
-  ALTER_ITEM_EFFECT cannot be used to alter number or index of extended effects
+  ALTER_*_EFFECT cannot be used to alter number or index of extended effects
   condense pairs of item/spell functions to reduce repetition and retain the old functions as shell functions
 */
 
@@ -433,7 +434,12 @@ BEGIN
     PATCH_IF ((header_type < 0 AND !match_icon) OR (abil_type = header_type) OR ((match_icon = 1) AND ("%icon_file%" STRING_COMPARE_CASE "%icon%" = 0))) BEGIN
       SET ip = abil_off + (index * header_length)
       SET pro_off = header_length = 0x38 ? 0x2a : 0x26
-      PATCH_IF (new_header_type >= 0)    BEGIN WRITE_SHORT (ip)        new_header_type    END
+      /* Some of these write lengths do not line up perfectly with the known SPL ability. Some
+       * fields are bytes in the ITM ability but (presumed to be) words in the SPL ability.
+       * However, legal values for the relevant fields never fall outside the byte range, so
+       * we WRITE_BYTE regardless of header type. -Wisp
+       */
+      PATCH_IF (new_header_type >= 0)    BEGIN WRITE_BYTE  (ip)        new_header_type    END
       PATCH_IF (identify >= 0)           BEGIN WRITE_BYTE  (ip + 0x01) identify           END
       PATCH_IF (location >= 0)           BEGIN WRITE_BYTE  (ip + 0x02) location           END
       PATCH_IF (target >= 0)             BEGIN WRITE_BYTE  (ip + 0x0c) target             END
