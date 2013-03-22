@@ -192,8 +192,7 @@ windows_zip : weidu weinstall tolower clean #weigui
 	upx --best tolower.exe || echo "No EXE Compression"
 	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU/*.exe WeiDU/COPYING WeiDU/README* WeiDU/*.dll WeiDU/examples WeiDU/*.manifest)
 src_zip : clean
-	(cd .. ; zip -9r WeiDU-Src-$(VER).zip WeiDU/* -x WeiDU/weidu.exe -x WeiDU/tolower.exe \
-   -x WeiDU/weinstall.exe -x WeiDU/weigui.exe -x WeiDU/*.dll; )
+	(cd .. ; zip -9r WeiDU-Src-$(VER).zip weidu/* -x weidu/*.exe -x weidu/*.dll; )
 build : weidu
 	rm iwg2* weimorph* || true
 	cp weid*$(EXE) ../WeiDU-Linux/weidu || true
@@ -202,6 +201,7 @@ build : weidu
 	cp tolower$(EXE) ../WeiDU-Linux/tolower || true
 linux_zip : weidu weinstall tolower #weigui
 	rm iwg2* weimorph* || true
+	test -d ../WeiDU-Linux || mkdir ../WeiDU-Linux
 	mv weid*$(EXE) ../WeiDU-Linux/weidu || true
 	mv wein*$(EXE) ../WeiDU-Linux/weinstall || true
 	#mv weig*$(EXE) ../WeiDU-Linux/weigui || true
@@ -215,19 +215,24 @@ linux_zip : weidu weinstall tolower #weigui
 	strip ../WeiDU-Linux/tolower || true
 	upx --best ../WeiDU-Linux/tolower || echo "No EXE Compression"
 	cp README* ../WeiDU-Linux
+	cp COPYING ../WeiDU-Linux
+	cp -r examples ../WeiDU-Linux
 	(cd .. ; zip -9r WeiDU-Linux-$(VER).zip WeiDU-Linux )
 osx_zip : weidu weinstall #weigui
 	rm iwg2* weimorph* || true
-	mv weid*$(EXE) ../WeiDU-mac/WeiDU/weidu-mac || true
-	mv wein*$(EXE) ../WeiDU-mac/WeiDU/weinstall || true
-	#mv weig*$(EXE) ../WeiDU-mac/WeiDU/weigui    || true
-	strip ../WeiDU-mac/WeiDU/weidu-mac || true
-	strip ../WeiDU-mac/WeiDU/weinstall || true
-	#strip ../WeiDU-mac/WeiDU/weigui    || true
-	cp README* ../WeiDU-mac/WeiDU
-	sed -e's/version_plist=.*/version_plist=\"${VERBIG}\"/g'  '../WeiDU-mac/WeiDU/WeiDU Installer.command' > t
-	mv t ../WeiDU-mac/WeiDU/WeiDU\ Installer.command
-	(cd ../WeiDU-mac ; zip -9r ../WeiDU-Mac-$(VER).zip * )
+	test -d ../WeiDU-Mac || mkdir ../WeiDU-Mac
+	mv weid*$(EXE) ../WeiDU-Mac/weidu || true
+	mv wein*$(EXE) ../WeiDU-Mac/weinstall || true
+	#mv weig*$(EXE) ../WeiDU-Mac/weigui    || true
+	strip ../WeiDU-Mac/weidu || true
+	strip ../WeiDU-Mac/weinstall || true
+	#strip ../WeiDU-Mac/weigui    || true
+	cp README* ../WeiDU-Mac
+	cp COPYING ../WeiDU-Mac
+	cp -r examples ../WeiDU-Mac
+	#sed -e's/version_plist=.*/version_plist=\"${VERBIG}\"/g'  '../WeiDU-Mac/WeiDU Installer.command' > t
+	#mv t ../WeiDU-Mac/WeiDU\ Installer.command
+	(cd .. ; zip -9r WeiDU-Mac-$(VER).zip WeiDU-Mac )
 endif
 
 IWD2_DIR = "/cygdrive/c/Program Files/Black Isle/Icewind Dale II/"
