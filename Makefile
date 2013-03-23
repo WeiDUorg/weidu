@@ -227,6 +227,9 @@ osx_zip : weidu weinstall #weigui
 	strip ../WeiDU-Mac/weidu || true
 	strip ../WeiDU-Mac/weinstall || true
 	#strip ../WeiDU-Mac/weigui    || true
+	upx --best ../WeiDU-Mac/weidu || echo "No EXE Compression"
+	upx --best ../WeiDU-Mac/weinstall || echo "No EXE Compression"
+	#upx --best ../WeiDU-Mac/weigui || echo "No EXE Compression"
 	cp README* ../WeiDU-Mac
 	cp COPYING ../WeiDU-Mac
 	cp -r examples ../WeiDU-Mac
