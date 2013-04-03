@@ -575,7 +575,7 @@ PHP_EACH struct AS key => value BEGIN
 
     // actor
     PATCH_IF( fj_structure_type == 0x54 )BEGIN
-      WRITE_ASCIIE fj_return_offset + 0x00 ~%fj_name%~
+      WRITE_ASCIIE fj_return_offset + 0x00 ~%fj_name%~ #32
       WRITE_SHORT  fj_return_offset + 0x20 fj_loc_x
       WRITE_SHORT  fj_return_offset + 0x22 fj_loc_y
       WRITE_SHORT  fj_return_offset + 0x24 fj_dest_x
@@ -589,14 +589,14 @@ PHP_EACH struct AS key => value BEGIN
       WRITE_SHORT  fj_return_offset + 0x3e fj_mvmt_dist_actor
       WRITE_LONG   fj_return_offset + 0x40 fj_schedule
       WRITE_LONG   fj_return_offset + 0x44 fj_num_talked
-      WRITE_ASCIIE fj_return_offset + 0x48 ~%fj_dlg_resref%~
-      WRITE_ASCIIE fj_return_offset + 0x50 ~%fj_bcs_override%~
-      WRITE_ASCIIE fj_return_offset + 0x58 ~%fj_bcs_general%~
-      WRITE_ASCIIE fj_return_offset + 0x60 ~%fj_bcs_class%~
-      WRITE_ASCIIE fj_return_offset + 0x68 ~%fj_bcs_race%~
-      WRITE_ASCIIE fj_return_offset + 0x70 ~%fj_bcs_default%~
-      WRITE_ASCIIE fj_return_offset + 0x78 ~%fj_bcs_specific%~
-      WRITE_ASCIIE fj_return_offset + 0x80 ~%fj_cre_resref%~
+      WRITE_ASCIIE fj_return_offset + 0x48 ~%fj_dlg_resref%~ #8
+      WRITE_ASCIIE fj_return_offset + 0x50 ~%fj_bcs_override%~ #8
+      WRITE_ASCIIE fj_return_offset + 0x58 ~%fj_bcs_general%~ #8
+      WRITE_ASCIIE fj_return_offset + 0x60 ~%fj_bcs_class%~ #8
+      WRITE_ASCIIE fj_return_offset + 0x68 ~%fj_bcs_race%~ #8
+      WRITE_ASCIIE fj_return_offset + 0x70 ~%fj_bcs_default%~ #8
+      WRITE_ASCIIE fj_return_offset + 0x78 ~%fj_bcs_specific%~ #8
+      WRITE_ASCIIE fj_return_offset + 0x80 ~%fj_cre_resref%~ #8
     END ELSE
 
     // region
@@ -724,7 +724,7 @@ PHP_EACH struct AS key => value BEGIN
     // door
     PATCH_IF( fj_structure_type == 0xa8 )BEGIN
       WRITE_ASCIIE fj_return_offset + 0x00 ~%fj_name%~ #32
-      WRITE_ASCIIE fj_return_offset + 0x20 ~%fj_door_wed_id%~
+      WRITE_ASCIIE fj_return_offset + 0x20 ~%fj_door_wed_id%~ #8
       WRITE_LONG   fj_return_offset + 0x28 fj_flags
       WRITE_SHORT  fj_return_offset + 0x38 fj_open_box_left
       WRITE_SHORT  fj_return_offset + 0x3a fj_open_box_top
@@ -734,8 +734,8 @@ PHP_EACH struct AS key => value BEGIN
       WRITE_SHORT  fj_return_offset + 0x42 fj_closed_box_top
       WRITE_SHORT  fj_return_offset + 0x44 fj_closed_box_right
       WRITE_SHORT  fj_return_offset + 0x46 fj_closed_box_bottom
-      WRITE_ASCIIE fj_return_offset + 0x58 ~%fj_door_open_wav%~
-      WRITE_ASCIIE fj_return_offset + 0x60 ~%fj_door_close_wav%~
+      WRITE_ASCIIE fj_return_offset + 0x58 ~%fj_door_open_wav%~ #8
+      WRITE_ASCIIE fj_return_offset + 0x60 ~%fj_door_close_wav%~ #8
       WRITE_LONG   fj_return_offset + 0x68 fj_cursor_idx
       WRITE_SHORT  fj_return_offset + 0x6c fj_trap_detect
       WRITE_SHORT  fj_return_offset + 0x6e fj_trap_remove
@@ -743,8 +743,8 @@ PHP_EACH struct AS key => value BEGIN
       WRITE_SHORT  fj_return_offset + 0x72 fj_trap_status
       WRITE_SHORT  fj_return_offset + 0x74 fj_trap_loc_x
       WRITE_SHORT  fj_return_offset + 0x76 fj_trap_loc_y
-      WRITE_ASCIIE fj_return_offset + 0x78 ~%fj_key_resref%~
-      WRITE_ASCIIE fj_return_offset + 0x80 ~%fj_door_script%~
+      WRITE_ASCIIE fj_return_offset + 0x78 ~%fj_key_resref%~ #8
+      WRITE_ASCIIE fj_return_offset + 0x80 ~%fj_door_script%~ #8
       WRITE_LONG   fj_return_offset + 0x88 fj_detect_diff
       WRITE_LONG   fj_return_offset + 0x8c fj_locked_diff
       WRITE_SHORT  fj_return_offset + 0x90 fj_open_loc_x
@@ -754,7 +754,7 @@ PHP_EACH struct AS key => value BEGIN
       WRITE_LONG   fj_return_offset + 0x98 fj_lockpick_strref
       WRITE_ASCIIE fj_return_offset + 0x9c ~%fj_travel_trigger%~ #24
       WRITE_LONG   fj_return_offset + 0xb4 fj_dlg_strref
-      WRITE_ASCIIE fj_return_offset + 0xb8 ~%fj_dlg_resref%~
+      WRITE_ASCIIE fj_return_offset + 0xb8 ~%fj_dlg_resref%~ #8
       PHP_EACH fj_door_open_vert   AS key1 => value1 BEGIN
         WRITE_SHORT fj_return_offset + 0x30 THIS + 0x01
       END
@@ -868,7 +868,7 @@ PHP_EACH struct AS key => value BEGIN
     PATCH_IF( fj_structure_type == 0xc8 )BEGIN
       WRITE_LONG   fj_return_offset + 0x000 fj_loc_x
       WRITE_LONG   fj_return_offset + 0x004 fj_loc_y
-      WRITE_ASCIIE fj_return_offset + 0x008 ~%fj_note_text%~
+      WRITE_ASCIIE fj_return_offset + 0x008 ~%fj_note_text%~ #500
       WRITE_LONG   fj_return_offset + 0x1fc fj_color
     END ELSE
 

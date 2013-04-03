@@ -36,6 +36,7 @@ Version 232:
   * Add the new functions ALTER_AREA_(ENTRANCE|REGION|ACTOR|CONTAINER|DOOR),
     ALTER_(ITEM|SPELL)_(EFFECT|HEADER), DELETE_(ITEM|SPELL)_HEADER, by CamDawg,
     and the new functions SUBSTRING and ADD_CRE_SCRIPT.
+  * fj_are_structure writes ASCII safely for all the user-provided strings.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
