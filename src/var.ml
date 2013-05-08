@@ -157,13 +157,9 @@ let get_string_special reg str =
 let get_string = get_string_special variable_regexp
 
 let get_string_exact str =
-  try
-    (match Hashtbl.find !variables str with
-    | Int32(v) -> Int32.to_string v
-    | String(s) -> s)
-  with Not_found ->
-    log_and_print "ERROR: cannot find variable %s\n" str;
-    raise Not_found
+  match Hashtbl.find !variables str with
+  | Int32(v) -> Int32.to_string v
+  | String(s) -> s
 
 
 let clear_var () =
