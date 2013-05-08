@@ -37,6 +37,7 @@ Version 232:
     ALTER_(ITEM|SPELL)_(EFFECT|HEADER), DELETE_(ITEM|SPELL)_HEADER, by CamDawg,
     and the new functions SUBSTRING and ADD_CRE_SCRIPT.
   * fj_are_structure writes ASCII safely for all the user-provided strings.
+  * Fail with a better error when doing out-of-bounds READ_2DA_ENTRY_FORMERs.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

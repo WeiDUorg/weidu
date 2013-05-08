@@ -794,12 +794,18 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	buff
 
     | TP_Read2DAFormer(str, row, col, var) ->
-	let row = Int32.to_int (eval_pe buff game row) in
-	let col = Int32.to_int (eval_pe buff game col) in
-	let str = Var.get_string str in
-	let str = Printf.sprintf "%%%s_%d_%d%%" str row col in
-	Var.set_string var (Var.get_string_exact str);
-	buff
+	  let row = Int32.to_int (eval_pe buff game row) in
+	  let col = Int32.to_int (eval_pe buff game col) in
+	  let str = Var.get_string str in
+	  let str = Printf.sprintf "%%%s_%d_%d%%" str row col in
+          begin
+            try
+	      Var.set_string var (Var.get_string_exact str);
+            with Not_found ->
+              let msg = Printf.sprintf "ERROR: READ_2DA_ENTRY_FORMER failed on variable %s" str in
+              failwith msg;
+          end ;
+	  buff
 
     | TP_PatchInsert2DARow(row,req_col,value) ->
 	let row = Int32.to_int (eval_pe buff game row) in
