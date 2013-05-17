@@ -562,24 +562,29 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	List.iter ( fun (directory,exact_match,regexp_string) ->
           try
             let dh = Case_ins.unix_opendir directory in
-            let reg = begin match exact_match with
-            | Some(true) ->
-                Str.regexp_string_case_fold
-            | _ ->
-                Str.regexp_case_fold
-            end regexp_string
-            in
             (try
-              while true do
-		let next = Unix.readdir dh in
-		if ((Case_ins.unix_stat (directory ^ "/" ^ next)).Unix.st_kind =
-                    Unix.S_REG) && (Str.string_match reg next 0) then
-                  find_list := (String.uppercase (directory ^ "/" ^ next)) :: !find_list
-              done
-            with End_of_file -> () );
+              let reg = begin match exact_match with
+              | Some(true) ->
+                  Str.regexp_string_case_fold
+              | _ ->
+                  Str.regexp_case_fold
+              end regexp_string
+              in
+              (try
+                while true do
+		  let next = Unix.readdir dh in
+		  if ((Case_ins.unix_stat (directory ^ "/" ^ next)).Unix.st_kind =
+                      Unix.S_REG) && (Str.string_match reg next 0) then
+                    find_list := (String.uppercase (directory ^ "/" ^ next)) :: !find_list
+                done
+              with End_of_file -> () );
+            with e ->
+              log_and_print "Warning: BASH_FOR encountered %s\nIt will proceed with a partial file list\n" (printexc_to_string e) ;
+              );
             Unix.closedir dh ;
-          with _ -> ()
-		   ) where ;
+          with _ ->
+            ()
+	      ) where ;
 	let the_buff = ref buff in
 	List.iter (fun file ->
           let directory = Case_ins.filename_dirname file in
