@@ -113,7 +113,7 @@ weigui: FORCE
 # rule for tolower
 
 PROJECT3_EXECUTABLE = $(OBJDIR)/tolower$(EXE)
-PROJECT3_MODULES    = tolower
+PROJECT3_MODULES    = batList batteriesInit tolower
 PROJECT3_CMODULES   =
 PROJECT3_LIBS       = unix str
 .PHONY: tolower
