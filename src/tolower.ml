@@ -37,30 +37,32 @@ let rec find_and_lower cur_dir () =
   try
     while true do
       let element = Unix.readdir dh in
-      let implicit = element.[0] = '.' in
-      let element = cur_dir ^ "/" ^ element in
-      
-      let is_a_symlink =
-        let stats = Unix.lstat element in
-        stats.Unix.st_kind = Unix.S_LNK
-      in
-      if not implicit && not is_a_symlink then begin
-        let exists = Hashtbl.mem done_ht (String.lowercase element) in
-        if exists then begin
-          dirlist := (element, true) :: !dirlist;
-        end else begin
-          let is_a_dir =
-            let stats = Unix.lstat element in
-            stats.Unix.st_kind = Unix.S_DIR
-          in
-          Unix.rename element "TMP_THIS_IS_A_VERY_TMP_NAME";
-          Unix.rename "TMP_THIS_IS_A_VERY_TMP_NAME" (String.lowercase element);
-          if is_a_dir then begin
-            dirlist := (String.lowercase element, false) :: !dirlist;
+      if not (Hashtbl.mem done_ht element) then begin
+        let implicit = element.[0] = '.' in
+        let element = cur_dir ^ "/" ^ element in
+
+        let is_a_symlink =
+          let stats = Unix.lstat element in
+          stats.Unix.st_kind = Unix.S_LNK
+        in
+        let is_a_dir =
+          let stats = Unix.lstat element in
+          stats.Unix.st_kind = Unix.S_DIR
+        in
+        if not implicit && not is_a_symlink then begin
+          let exists = Hashtbl.mem done_ht (String.lowercase element) in
+          if exists && is_a_dir then begin
+            dirlist := (element, true) :: !dirlist;
+          end else begin
+            Unix.rename element "TMP_THIS_IS_A_VERY_TMP_NAME";
+            Unix.rename "TMP_THIS_IS_A_VERY_TMP_NAME" (String.lowercase element);
+            if is_a_dir then begin
+              dirlist := (String.lowercase element, false) :: !dirlist;
+            end
           end
-        end
+        end;
+        Hashtbl.add done_ht (String.lowercase element) true;
       end;
-      Hashtbl.add done_ht (String.lowercase element) true;
     done
   with End_of_file -> Unix.closedir dh;
     List.iter (fun (x, do_del) ->
