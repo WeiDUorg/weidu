@@ -498,7 +498,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
 	  let final_returns = Hashtbl.create 5 in
 	  List.iter (fun a ->
 	    let a = eval_pe_str a in
-	    let v = Var.get_string_exact ("%" ^ a ^ "%") in
+	    let v = (try Var.get_string_exact ("%" ^ a ^ "%") with Not_found -> failwith (Printf.sprintf "Uninitialised return value: %s" a)) in
 	    Hashtbl.add final_returns a v;
 		    ) f_rets;
 	  Var.var_pop();
