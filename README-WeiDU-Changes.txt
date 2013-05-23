@@ -38,6 +38,8 @@ Version 232:
     and the new functions SUBSTRING and ADD_CRE_SCRIPT.
   * fj_are_structure writes ASCII safely for all the user-provided strings.
   * Fail with a better error when doing out-of-bounds READ_2DA_ENTRY_FORMERs.
+  * If ADD_PROJECTILE is used to add an already existing projectile, the
+    returned IDS value will not be off by 1.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

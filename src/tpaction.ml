@@ -993,7 +993,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  if is_true (eval_pe "" game
 			(PE_FileContainsEvaluated(PE_LiteralString "PROJECTL.IDS",
 						  PE_LiteralString ("[ %tab%%wnl%]" ^ this_pro_name ^ "[ %tab%%wnl%]")))) then begin
-						    Var.set_int32 (this_pro_name) (Bcs.int_of_sym game "PROJECTL" this_pro_name) ;
+						    Var.set_int32 (this_pro_name) (Int32.add (Bcs.int_of_sym game "PROJECTL" this_pro_name) (Int32.of_int 1)) ;
 						    log_and_print "\n\nPRO [%s] already present! Skipping!\n\n"
 						      this_pro_name
 						  end else begin
