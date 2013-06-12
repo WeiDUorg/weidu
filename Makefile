@@ -19,8 +19,6 @@
 # If you're an old user and try to compile WeiDU yourself, you need to edit
 # the file 'Configuration' rather than this one.
 ############################################################################
-Configuration:
-	cp sample.Configurataion Configuration
 
 include Configuration
 

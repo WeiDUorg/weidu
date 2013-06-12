@@ -9,8 +9,6 @@ ifdef WINDIR
 	# (0) X86 / Windows / Cygwin, using MINGW as the C compiler
 	export ARCHOS    = x86_WIN32
 	export OCAMLDIR  = C:\\ocaml\\bin
-	export OCAMLLIB  = C:\\ocaml\\lib
-	export CAMLP4LIB = C:\\ocaml\\lib\\camlp4
 	export OBJEXT    = o
 	export ARCH_FILE = arch_mingw
 	export CASE_FILE = case_ins_win
@@ -29,8 +27,6 @@ else
 		# (1) X86 / Linux, using GCC as the C Compiler
 		export ARCHOS    = x86_LINUX
 		export OCAMLDIR  = /usr/bin
-		export OCAMLLIB  = /usr/lib/ocaml
-		export CAMLP4LIB = /usr/lib/ocaml/camlp4
 		export OBJEXT    = o
 		export ARCH_FILE = arch_unix
 		export CASE_FILE = case_ins_linux
@@ -44,8 +40,6 @@ else
 			# (2) Mac OS X, using GCC as the C compiler
 			export ARCHOS    = x86_LINUX
 			export OCAMLDIR  = /usr/local/bin
-			export OCAMLLIB  = /usr/local/lib/ocaml
-			export CAMLP4LIB = /usr/local/lib/ocaml/camlp4
 			export OBJEXT    = o
 	        	export ARCH_FILE = arch_osx
 			export CASE_FILE = case_ins_mac
