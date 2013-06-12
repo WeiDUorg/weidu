@@ -3211,16 +3211,16 @@ P Q R 3
     If \ttref{value} evaluates to true (non-zero), the \ttref{TP2 Action}s
     in the \t{THEN}-branch are executed. Otherwise, if an \t{ELSE}-branch
     is present, its commands are executed. Otherwise nothing happens. \\
-  or & \DEFINE{ACTION!MATCH} \ttref{value} WITH \Ob \ttref{value} ...
-    \Ob WHEN \ttref{value} \Oe
-    BEGIN \ttref{TP2 Action} \Slist END \Oe ...
-    DEFAULT \ttref{TP2 Action} \Slist END &
+  or & \DEFINE{ACTION!MATCH} \ttref{value} \t{WITH} \Ob \ttref{value} ...
+    \Ob \t{WHEN} \ttref{value} \Oe
+    \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} \Oe ...
+    \t{DEFAULT} \ttref{TP2 Action} \Slist \t{END} &
     See the \ttref{MATCH and TRY} tutorial.
   \\
-  or & \DEFINE{ACTION!TRY} \ttref{TP2 Action} \Slist WITH \Ob \ttref{value} ...
-    \Ob WHEN \ttref{value} \Oe
-    BEGIN \ttref{TP2 Action} \Slist END \Oe ...
-    DEFAULT \ttref{TP2 Action} \Slist END &
+  or & \DEFINE{ACTION!TRY} \ttref{TP2 Action} \Slist \t{WITH} \Ob \ttref{value} ...
+    \Ob \t{WHEN} \ttref{value} \Oe
+    \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} \Oe ...
+    \t{DEFAULT} \ttref{TP2 Action} \Slist \t{END} &
     See the \ttref{MATCH and TRY} tutorial.
   \\
   or & \DEFINE{ACTION!RERAISE} & See the \ttref{MATCH and TRY} tutorial.
@@ -3409,8 +3409,8 @@ COPY ~MyMod/MYDART.ITM~ ~override/MYDART.ITM~
 \end{verbatim}
     \\
   or & \DEFINE{ADD!SPELL} newSPLfile type level idsName \ttref{patch} \Slist
-       \Ob IF!EXISTING \ttref{patch} \Slist END \Oe
-		\Ob ON!DISABLE \ttref{patch} \Slist END \Oe	   &
+       \Ob \t{IF!EXISTING} \ttref{patch} \Slist \t{END} \Oe
+		\Ob \t{ON!DISABLE} \ttref{patch} \Slist \t{END} \Oe	   &
     adds newSPLfile as a spell of type and level into the game (IE, SPPR102 or
     whatnot), in the first empty slot possible, appends the idsName to
     spell.ids, and sets \verb+%idsName%+
