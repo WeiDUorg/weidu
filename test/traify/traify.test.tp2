@@ -1,0 +1,26 @@
+BACKUP "test/backup"
+AUTHOR me
+
+BEGIN ~test~
+
+/* Test unsounded before sounded */
+OUTER_SPRINT foo ~Foo~
+/* Test if we can traify duplicates */
+OUTER_SPRINT fooo ~Foo~
+OUTER_SPRINT bar ~Foo~ [FOO]
+OUTER_SPRINT barr ~Foo~ [FOO]
+
+/* Test sounded before unsounded */
+OUTER_SPRINT foo2 ~Foo2~ [FOO]
+OUTER_SPRINT bar2 ~Foo2~
+
+/* Test empty sound syntax */
+OUTER_SPRINT foo3 ~Foo3~ []
+
+/* Test strings that differ by sound */
+OUTER_SPRINT foo4 ~Foo4~ [FOO]
+OUTER_SPRINT bar4 ~Foo4~ [BAR]
+
+/* Test strings that differ by text */
+OUTER_SPRINT foo5 ~Foo5~ [FOO5]
+OUTER_SPRINT bar5 ~Bar5~ [FOO5]

@@ -19,3 +19,6 @@ no-game/*.D
 
 quitch/*.TP2
         A small test made to demonstrate a bug that Quitch reported. 
+
+traify/*
+        Tests for --traify and --traify-old-tra.

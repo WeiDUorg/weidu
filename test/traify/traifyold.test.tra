@@ -1,0 +1,10 @@
+@0    = ~test~
+@1    = ~Foo~
+@2    = ~Foo~ [FOO]
+@3    = ~Foo2~ [FOO]
+@4    = ~Foo2~
+@5    = ~Foo3~
+@6    = ~Foo4~ [FOO]
+@7    = ~Foo4~ [BAR]
+@8    = ~Foo5~ [FOO5]
+@9    = ~Bar5~ [FOO5]

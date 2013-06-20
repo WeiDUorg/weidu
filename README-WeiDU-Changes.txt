@@ -45,6 +45,10 @@ Version 232:
   * Add the function HANDLE_AUDIO, which can install .ogg audio on any supported
     platform and game (including BG:EE).
   * Fix a bug in MOVE that could cause mod rollback to fail.
+  * Traify distinguishes between sounded and unsounded strings. Traify also
+    doesn't destroy your (D|TP*|BAF) or TRA files on syntax errors or the like.
+    --traify-old-tra can be used on the output TRA of --traify to correctly
+    merge new strings into an old traification.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

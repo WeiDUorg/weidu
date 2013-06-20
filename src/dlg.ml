@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 (* Infinity Engine [DLG] *)
 open BatteriesInit
 open Util
@@ -719,3 +722,32 @@ let make_trans_of_next next = {
   trans_trigger = None ;
   action = None ;
   next = next; } 
+
+let sort_list_for_traify list =
+  let sounded, unsounded = List.partition (fun (index, ls) ->
+    ls.lse_male_sound <> "" || ls.lse_female_sound <> "") list in
+  List.append sounded unsounded
+
+let lse_of_ts ts =
+  (match ts with
+  | Local_String(ls) -> ls
+  | _ -> failwith "Internal error: ts is not an lse")
+
+let make_list_for_traify traify_num =
+  let local_strings = (match !local_string_ht with
+  | Some (l) -> l
+  | None -> failwith "Internal error: no local strings for traify") in
+  let ls_table = Hashtbl.create (List.length local_strings) in
+  let uniques = List.filter (fun ls ->
+    if Hashtbl.mem ls_table ls then
+      false
+    else begin
+      Hashtbl.add ls_table ls true ;
+      true
+    end) (List.rev local_strings) in
+  let counter = ref !traify_num in
+  let enumerated = List.map (fun ts ->
+    let tuple = (!counter, (lse_of_ts ts)) in
+    counter := !counter + 1 ;
+    tuple) uniques in
+  sort_list_for_traify enumerated

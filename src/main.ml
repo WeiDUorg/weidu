@@ -786,14 +786,14 @@ let untraify untraify_d untraify_tra =
               (if lse.lse_male <> "" then begin
                 "~" ^ lse.lse_male ^ "~" ^ (
                                            if lse.lse_male_sound <> "" then begin
-                                             " [ " ^ lse.lse_male_sound ^ " ] ";
+                                             " [" ^ lse.lse_male_sound ^ "]";
                                            end else "" )
               end else "") ^
               (if (lse.lse_female <> "") &&
                 (lse.lse_female <> lse.lse_male) then begin
-                  " ~" ^ lse.lse_female ^ "~ " ^
+                  " ~" ^ lse.lse_female ^ "~" ^
                   (if lse.lse_female_sound <> "" then begin
-                    " [ " ^ lse.lse_female_sound ^ " ] ";
+                    " [" ^ lse.lse_female_sound ^ "]";
                   end else "")
                 end else "" )
             in
@@ -809,168 +809,182 @@ let untraify untraify_d untraify_tra =
 
 let traify_file traify traify_num traify_comment traify_old_tra =
   (match traify with
-    Some(file) -> begin
+  | Some(file) -> begin
       try
         let name,ext = split (String.uppercase file) in
 
         let buf = ref (load_file file) in
 
-        let base = handle_out_boringness file [ "d"; "tra"; "tp2"; "baf"; "tpa"; "tpp"; "tph"] in
-        if !debug_ocaml then log_and_print "I'm trying to save to %s.%s and %s.tra\n\n" base (String.lowercase ext) base ;
+        let base = handle_out_boringness file
+            ["d"; "tra"; "tp2"; "baf"; "tpa"; "tpp"; "tph"] in
+        if !debug_ocaml then
+          log_and_print "I'm trying to save to %s.%s and %s.tra\n\n"
+            base (String.lowercase ext) base ;
         let transout_name = base ^ ".tra" in
         let dout_name = base ^ "." ^ ext in
 
-        let dout = open_for_writing dout_name true in
+        let counter = ref !traify_num in
+        let old_tra = ref None in
 
-        let traout = open_for_writing transout_name true in
-
-        let counter = traify_num in
-
-        (* replace the given string with the tra-value of the counter *)
-        let replace str comment =
-          let my_regexp = Str.regexp (Str.quote str) in
-          let replace_with = (Printf.sprintf "@%d" !counter) ^ comment in
+        let replace index my_regexp comment =
+          let replace_with = (Printf.sprintf "@%d" index) ^ comment in
           buf := Str.global_replace my_regexp replace_with !buf ;
         in
         let remove str =
           let my_regexp = Str.regexp (Str.quote str) in
           buf := Str.global_replace my_regexp "" !buf ;
         in
-        let fix_suckage comment =
-          let my_regexp = Str.regexp (Str.quote (
-                                      Printf.sprintf " /* @%d%s */" !counter comment)) in
+        let remove_but_substr regexp =
+          buf := Str.global_replace regexp "\\1" !buf ;
+        in
+        let fix_suckage index comment =
+          let my_regexp = Str.regexp (Str.quote
+                                        (Printf.sprintf " /* @%d%s */" index comment)) in
           let replace_with = Printf.sprintf "%s" comment in
           buf := Str.global_replace my_regexp replace_with !buf ;
         in
-        let add_refer comment =
-          let my_regexp = Str.regexp (Printf.sprintf "@%d\\([^0-9]\\)" !counter) in
-          let replace_with = Printf.sprintf "@%d%s\\1" !counter comment in
+        let add_refer index comment =
+          let my_regexp = Str.regexp (Printf.sprintf "@%d\\([^0-9]\\)" index) in
+          let replace_with = Printf.sprintf "@%d%s\\1" index comment in
           buf := Str.global_replace my_regexp replace_with !buf;
           let my_regexp = Str.regexp (Str.quote (comment ^ comment)) in
           let replace_with = comment in
           buf := Str.global_replace my_regexp replace_with !buf;
         in
+        let make_comment lse =
+          if traify_comment then
+            (Printf.sprintf " /* " ^ lse.lse_male ^ " */")
+          else ""
+        in
 
-        begin match traify_old_tra with
+        let sound_str sound =
+          if sound <> "" then
+            Printf.sprintf " [%s]" sound
+          else
+            ""
+        in
+        let make_male_tra_string index lse =
+          if lse.lse_male <> "" then begin
+            (Printf.sprintf "@%-4d = ~%s~" index lse.lse_male) ^
+            (sound_str lse.lse_male_sound)
+          end
+          else ""
+        in
+        let make_female_tra_string lse =
+          if lse.lse_female <> "" && lse.lse_female <> lse.lse_male then begin
+            (Printf.sprintf " ~%s~" lse.lse_female) ^
+            (sound_str lse.lse_female_sound)
+          end
+          else ""
+        in
+        let make_tra_string index lse =
+          (make_male_tra_string index lse) ^ (make_female_tra_string lse) ^ "\n"
+        in
+
+        let do_traification index lse =
+          let delimiters = ["~"; "%"; "\""] in
+          let replace2 index string sound comment =
+            if sound <> "" then
+              let sound = Str.quote ("[" ^ sound ^ "]") in
+              List.iter (fun delimiter ->
+                let string = Str.quote (delimiter ^ string ^ delimiter) in
+                let regexp = Str.regexp (string ^ "[ \t]+" ^ sound) in
+                replace index regexp comment) delimiters
+            else
+              List.iter (fun delimiter ->
+                let string = Str.quote (delimiter ^ string ^ delimiter) in
+                remove_but_substr (Str.regexp ("\\(" ^ string ^ "\\)[ \t]+" ^
+                                               (Str.quote "[]"))) ;
+                let regexp = Str.regexp (string) in
+                replace index regexp comment) delimiters
+          in
+          let replace_male index lse =
+            if lse.lse_male <> "" then begin
+              let comment_string = make_comment lse in
+              replace2 index lse.lse_male lse.lse_male_sound comment_string ;
+            end
+          in
+          let replace_female lse =
+            if (lse.lse_female <> "") &&
+              (lse.lse_female <> lse.lse_male) then begin
+                replace2 index lse.lse_female lse.lse_female_sound "" ;
+              end
+          in
+
+          ignore (replace_male index lse) ;
+          ignore (replace_female lse) ;
+          let tra_str = (make_tra_string index lse) in
+
+          (index, tra_str)
+        in
+
+        (match traify_old_tra with
         | None -> ()
         | Some(x) ->
             let max = ref !counter in
             let inchan = Case_ins.perv_open_in_bin x in
             let lexbuf = lex_init file inchan in
-            let tra_file = Stats.time "parsing.TRA files" (fun () -> Dparser.tra_file
-                Dlexer.initial lexbuf) () in
-            List.iter (fun (reference,ls) ->
-              counter := reference;
-              if !max <= reference then max := reference + 1;
-              match ls with
-              | Dlg.Local_String(lse) ->
-                  if lse.lse_male <> ""
-                  then begin
-                    let comment_string = (if traify_comment then
-                      (Printf.sprintf " /* " ^ lse.lse_male ^ " */") else "")
-                    in
-                    Printf.fprintf traout "@%-4d = ~%s~" !counter lse.lse_male ;
-                    replace ("~" ^ lse.lse_male ^ "~" ) comment_string;
-                    replace ("%" ^ lse.lse_male ^ "%" ) comment_string;
-                    replace ("\"" ^ lse.lse_male ^ "\"" ) comment_string;
-                    fix_suckage comment_string;
-                    if traify_comment then add_refer comment_string;
-                    if lse.lse_male_sound <> "" then begin
-                      Printf.fprintf traout " [%s]" lse.lse_male_sound ;
-                      remove ("[" ^ lse.lse_male_sound ^ "]")
-                    end ;
-                  end ;
-                  if (lse.lse_female <> "") && (lse.lse_female <> lse.lse_male) then begin
-                    Printf.fprintf traout " ~%s~" lse.lse_female ;
-                    remove ("~" ^ lse.lse_female ^ "~" );
-                    remove ("%" ^ lse.lse_female ^ "%" );
-                    remove ("\"" ^ lse.lse_female ^ "\"" );
-                    if lse.lse_female_sound <> "" then begin
-                      Printf.fprintf traout " [%s]" lse.lse_female_sound ;
-                      remove ("[" ^ lse.lse_female_sound ^ "]")
-                    end
-                  end ;
-                  Printf.fprintf traout "\n" ;
-                  ()
-              | _ -> failwith "traify1"
-                    ) tra_file;
-            counter := !max;
-            close_in inchan
-        end ;
+            let tra_file = Stats.time "parsing.TRA files" (fun () ->
+              Dparser.tra_file Dlexer.initial lexbuf) () in
+            let sorted = Dlg.sort_list_for_traify (List.map (fun (i, ts) ->
+              (i, (Dlg.lse_of_ts ts))) tra_file) in
+            let tra = List.fold_left (fun acc (reference, ls) ->
+              ignore (if !max <= reference then max := reference + 1) ;
+              let comment = make_comment ls in
+              ignore (fix_suckage reference comment) ;
+              ignore (if traify_comment then add_refer reference comment) ;
+              List.append acc [(do_traification reference ls)]) [] sorted in
+            counter := !max ;
+            old_tra := Some(tra) ;
+            close_in inchan) ;
 
         Dlg.local_string_ht := Some([]) ;
         let old_ok = !Dc.ok_to_resolve_strings_while_loading in
         Dc.ok_to_resolve_strings_while_loading := None ;
         Dc.doing_traify := true ;
 
-        Dlg.local_string_ht := Some([]) ;
         begin
           match ext with
-            "D" -> ignore (
+          | "D" ->
               let lexbuf = lex_init_from_string file !buf in
               ignore (Stats.time "parsing .D files"
-                        (fun () -> Dparser.d_file Dlexer.initial lexbuf) ()));
+                        (fun () -> Dparser.d_file Dlexer.initial lexbuf) ());
               pop_context ();
-          | "TP2" -> ignore
-                (Tparser.parse_tp2_file (String (file,!buf)))
+          | "TP2" -> ignore (Tparser.parse_tp2_file (String (file,!buf)))
           | "TPA"
-          | "TPH" -> ignore
-                (Tparser.parse_tpa_file (String (file,!buf)))
-          | "TPP" -> ignore
-                (Tparser.parse_tpp_file (String (file,!buf)))
+          | "TPH" -> ignore (Tparser.parse_tpa_file (String (file,!buf)))
+          | "TPP" -> ignore (Tparser.parse_tpp_file (String (file,!buf)))
           | "BAF" ->
-              (if (!Dlg.local_string_ht = None) then
-                Dlg.local_string_ht := Some([]) ) ;
-              ignore (
               let lexbuf = lex_init_from_string file !buf in
               ignore (Stats.time "parsing .D files"
-                        (fun () -> Bafparser.baf_file Baflexer.initial lexbuf) ()));
+                        (fun () ->
+                          Bafparser.baf_file Baflexer.initial lexbuf) ());
               pop_context ();
-          | _ -> log_and_print "ERROR: don't know how to --traify files with extension [%s]\n" ext ; failwith ext
+          | _ -> log_and_print
+                "ERROR: don't know how to --traify files with extension [%s]\n"
+                ext ; failwith ext
         end ;
         log_or_print "[%s] parsed for --traify\n" file ;
 
         Dc.ok_to_resolve_strings_while_loading := old_ok ;
         Dc.doing_traify := false;
 
-        (match !Dlg.local_string_ht with
-          Some(lst) ->
-            List.iter (fun ls ->
-              match ls with
-              | Dlg.Local_String(lse) ->
-                  if lse.lse_male <> "" then begin
-                    let comment_string = (if traify_comment then
-                      (Printf.sprintf " /* " ^ lse.lse_male ^ " */") else "")
-                    in
-                    Printf.fprintf traout "@%-4d = ~%s~" !counter lse.lse_male ;
-                    replace ("~" ^ lse.lse_male ^ "~" ) comment_string;
-                    replace ("%" ^ lse.lse_male ^ "%" ) comment_string;
-                    replace ("\"" ^ lse.lse_male ^ "\"" ) comment_string;
-                    if lse.lse_male_sound <> "" then begin
-                      Printf.fprintf traout " [%s]" lse.lse_male_sound ;
-                      remove ("[" ^ lse.lse_male_sound ^ "]")
-                    end ;
-                  end ;
-                  if (lse.lse_female <> "") &&
-                    (lse.lse_female <> lse.lse_male) then begin
-                      Printf.fprintf traout " ~%s~" lse.lse_female ;
-                      remove ("~" ^ lse.lse_female ^ "~" );
-                      remove ("%" ^ lse.lse_female ^ "%" );
-                      remove ("\"" ^ lse.lse_female ^ "\"" );
-                      if lse.lse_female_sound <> "" then begin
-                        Printf.fprintf traout " [%s]" lse.lse_female_sound ;
-                        remove ("[" ^ lse.lse_female_sound ^ "]")
-                      end
-                    end ;
-                  Printf.fprintf traout "\n" ;
-                  incr counter ;
-                  ()
-              | _ -> failwith "traify1"
-                    ) (List.rev lst);
-        | None -> failwith "traify2");
+        let fodder = (Dlg.make_list_for_traify counter) in
+        let traified = (List.map (fun (index, ls) ->
+          do_traification index ls) fodder) in
+
+        let result = (List.fast_sort (fun (index1,str1) (index2,str2) ->
+          compare index1 index2) (match !old_tra with
+          | Some(l) -> List.append l traified
+          | None -> traified)) in
+
+        let traout = open_for_writing transout_name true in
+        ignore (List.iter (fun (index, str) ->
+          output_string traout str) result) ;
 
         Dlg.local_string_ht := None ;
 
+        let dout = open_for_writing dout_name true in
         Printf.fprintf dout "%s" !buf ;
 
         close_out traout ;
@@ -982,8 +996,7 @@ let traify_file traify traify_num traify_comment traify_old_tra =
           (printexc_to_string e) ;
         raise e
     end
-  | _ -> ()) ;
-;;
+  | None -> ())
 
 let compile_baf baf_list game =
   List.iter (fun str ->

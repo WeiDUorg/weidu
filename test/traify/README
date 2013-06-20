@@ -1,0 +1,14 @@
+This is a set of automated tests for --traify and --traify-old-tra.
+
+To run this, you need to move the files into a IE game directory and
+run run_tests.pl. test.tp2 and test.tra are used by the tests, so make
+sure they're not something you want to keep.
+
+Caveat programmer: I got lazy and resorted to MD5 checksums instead of
+attempting to parse the files, so if you want to extend the tests, you
+either need to be less lazy than I am now, or update the perl script
+with new sums.
+
+traifyold.test.tp2 is the traified traify.test.tp2 extended with
+untraified strings. traifyold.test.tra is the result of --traify on
+traify.test.tp2.
