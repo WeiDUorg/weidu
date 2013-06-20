@@ -1530,18 +1530,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  
 	  Dc.push_copy_trans_modder ();
 	  Dc.notChanged := true;
-	  begin 
-	    match !our_lang with
-	      Some(l) -> List.iter (fun path ->
-		let my_regexp = Str.regexp_string "%s" in
-		let tra_file = Str.global_replace 
-		    my_regexp l.lang_dir_name (Var.get_string path) in
-		handle_tra_filename tra_file ;
-				   ) tra_l 
-	    | _ -> List.iter (fun tra_file -> 
-		handle_tra_filename tra_file ;
-			     ) tra_l
-	  end ;
+
+	  resolve_tra_paths_and_load !our_lang tra_l;
+
 	  let handle_one_d_file d =
 	    (* handle AUTO_TRA "solarom/%s" *)
 	    begin try
@@ -1903,18 +1894,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             handle_tra_filename tra_file
           | _ -> ()
         ) tp.flags ;
-        begin
-          match !our_lang with
-            Some(l) -> List.iter (fun path ->
-              let my_regexp = Str.regexp_string "%s" in
-              let tra_file = Str.global_replace
-                  my_regexp l.lang_dir_name  (Var.get_string path) in
-              handle_tra_filename tra_file ;
-            ) tra_l 
-          | _ -> List.iter (fun tra_file -> 
-            handle_tra_filename tra_file ; 
-          ) tra_l 
-        end ;
+
+        resolve_tra_paths_and_load !our_lang tra_l;
+
         if !Dc.notChanged then Modder.handle_msg "SETUP_TRA" (Printf.sprintf "WARNING: EXTEND* %s with strings from setup.tra\n" src);
         let src_script =
           let src_buff = load_file src in
@@ -2055,6 +2037,81 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             my_unlink tmp;
           ) else failwith (Printf.sprintf "DECOMPRESS_BIFF: %s invalid file" s);
         ) sl;
+
+      | TP_AddJournal(existing,managed,title,ref_list,tra_list) ->
+          begin
+
+            (* Remember, we do nothing if it is not BGEE *)
+
+            let resolve_string ref =
+              match Dc.resolve_tlk_string game ref with
+                Dlg.TLK_Index i -> i
+              | _ -> failwith "ERROR: ADD_JOURNAL cannot resolve reference\n"
+            in
+            let isolate_title_and_resolve index =
+              let isolate_title string =
+                if Str.string_match (Str.regexp "\\(.+\\)$") string 0 then
+                  Str.matched_group 1 string
+                else
+                  failwith "ERROR: ADD_JOURNAL was unable to isolate a journal title and none was provided\n"
+              in
+
+              let male = Dc.pretty_print_no_quote
+                  game.Load.dialog
+                  index false false in
+              let female = Dc.pretty_print_no_quote
+                  (match game.Load.dialogf with
+                    Some dialogf -> dialogf
+                  | None -> game.Load.dialog)
+                  index true false in
+              let lse = Dlg.Local_String(
+                {lse_male = (isolate_title male);
+                  lse_male_sound = "";
+                  lse_female = (isolate_title female);
+                  lse_female_sound = "";}) in
+              resolve_string lse
+            in
+
+            let tra_list = List.map Arch.backslash_to_slash tra_list in
+
+            Dc.push_copy_trans_modder ();
+            Dc.notChanged := true;
+
+            resolve_tra_paths_and_load !our_lang tra_list;
+
+            if !Dc.notChanged then
+              Modder.handle_msg "SETUP_TRA"
+                (Printf.sprintf "WARNING: ADD_JOURNAL with strings from setup.tra\n");
+
+            let indices = List.map resolve_string ref_list in
+
+            let titled_indices = match title with
+              Some(t) ->
+                let title = resolve_string t in
+                List.map (fun index ->
+                  title,index) indices
+            | None ->
+                List.map (fun index ->
+                  let title = isolate_title_and_resolve index in
+                  title,index) indices
+            in
+
+            (* Sql module loads bgee.sql, reads it into a list of lines, parses the interesting part into a list of records, which is returned.
+               We mutate the list of records here, then pass it back to the Sql module, which transforms it back into a list of lines, which is
+               spliced into the list of lines representing the file, replacing the old section. The resulting list is written to disk. *)
+
+            (* load files with Load.load_resource *)
+
+            List.iter (fun x ->
+              match x with
+                title,entry ->
+                  log_and_print "Tile is %i; entry is %i\n" title entry)
+              titled_indices;
+
+            (*List.iter (fun i ->
+              log_and_print "Index %i was obtained\n" i;) indices;*)
+            Dc.pop_trans ();
+          end
       );
       if !clear_memory then begin
 	clear_memory := false;

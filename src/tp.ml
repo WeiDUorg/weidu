@@ -221,6 +221,7 @@ and tp_action =
   | TP_ActionToLower of tp_pe_string
   | TP_ActionToUpper of tp_pe_string
   | TP_ActionGetStrRef of tp_patchexp * tp_pe_string * bool * bool
+  | TP_AddJournal of bool * bool * (Dlg.tlk_string option) * (Dlg.tlk_string list) * (string list)
 
 (*
   and predicate =

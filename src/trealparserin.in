@@ -115,17 +115,30 @@ nonterm (Dlg.tlk_string) Lse {
           Dlg.local_string_ht := Some(result :: l )
         end
     | _ -> () ) ;
-    result ] 
-  -> e1:STRING_REF [ Dlg.TLK_Index(e1) ]
-  -> e1:TRANS_REF  [ Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.Int e1)) ]
-  -> LPAREN AT e1:STRING RPAREN [Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.String e1))]
+    result ]
   -> e1:FORCED_STRING_REF e2:Lse
 		[ let _ = Dc.set_string_while_loading e1 e2 in Dlg.TLK_Index(e1) ]
+  -> e1:Unambiguous_Reference [ e1 ]
 }
 
 nonterm (string) Sound_Opt {
 	-> [ "" ]
 	-> e1:SOUND [ e1 ]
+}
+
+nonterm (Dlg.tlk_string) Unambiguous_Reference {
+        -> e1:STRING_REF [ Dlg.TLK_Index(e1) ]
+        -> e1:TRANS_REF  [ Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.Int e1)) ]
+        -> LPAREN AT e1:STRING RPAREN [Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.String e1))]
+}
+
+nonterm (Dlg.tlk_string list) Reference_List_Rev {
+        -> { [] }
+        -> e2:Reference_List_Rev e1:Unambiguous_Reference [ e1 :: e2 ]
+}
+
+nonterm (Dlg.tlk_string list) Reference_List {
+        -> e2:Reference_List_Rev [ List.rev e2 ]
 }
 
 nonterm (Tp.tp_flag list) Tp_Flag_List_Rev {
@@ -514,7 +527,8 @@ nonterm(Tp.tp_action) Tp_Action {
 	-> ACTION_GET_STRREF_F   e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        true,false) ]
 	-> ACTION_GET_STRREF_S   e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        false,true) ]
 	-> ACTION_GET_STRREF_FS  e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        true,true) ]
-
+  -> ADD_JOURNAL e1:Optional_Journal_Existing e2:Optional_Journal_Managed e3:Optional_Journal_Title
+                 e4:Reference_List e5:Optional_Using [ Tp.TP_AddJournal(e1,e2,e3,e4,e5) ]
 }
 
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List_Rev {
@@ -945,6 +959,21 @@ nonterm (bool) Optional_Exact {
 nonterm (bool) Optional_Null_Terminated {
 	-> [ false ]
 	-> NULL [ true ]
+}
+
+nonterm (bool) Optional_Journal_Existing {
+        -> [ false ]
+        -> EXISTING [ true ]
+}
+
+nonterm (bool) Optional_Journal_Managed {
+        -> [ false ]
+        -> MANAGED [ true ]
+}
+
+nonterm (Dlg.tlk_string option) Optional_Journal_Title {
+        -> [ None ]
+        -> TITLE LPAREN e1:Lse RPAREN [ Some e1 ]
 }
 
 nonterm (Tp.tp_patch) Tp_Patch {

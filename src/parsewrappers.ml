@@ -136,6 +136,22 @@ let handle_tra_filename filename =
     Modder.handle_msg "SETUP_TRA" (Printf.sprintf "%s file not found. Skipping...\n" filename)
   end
 
+let resolve_tra_paths_and_load our_lang tra_l =
+(* Resolve %s in the tra path to the directory of the current language,
+   evaluate variables and handle_tra_filename *)
+  begin
+    match our_lang with
+      Some(l) -> List.iter (fun path ->
+	let my_regexp = Str.regexp_string "%s" in
+	let tra_file = Str.global_replace
+	    my_regexp l.Tp.lang_dir_name (Var.get_string path) in
+	handle_tra_filename tra_file ;
+	) tra_l
+    | _ -> List.iter (fun tra_file ->
+	handle_tra_filename tra_file ;
+	) tra_l
+  end
+
 let get_tra_list_filename filename =
   if file_exists filename || Hashtbl.mem inlined_files filename then begin
     let result =
