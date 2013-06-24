@@ -1658,13 +1658,9 @@ let main () =
     log_and_print "This is a non-stable version. Unless you're sure about what you're doing, consider downgrading.\n" ;
 
   (* see if AUTOUPDATE is in our base name *)
-  try
+  (try
     Autoupdate.self()
-  with _ -> () ;
-
-  (* Something around these parts apparently triggers a bug
-     in caml-mode's smart indentation that completely hoses
-     it and makes everything be indented to the same depth *)
+  with _ -> ()) ;
 
   Load.game_paths := Load.registry_game_paths () ;
 
