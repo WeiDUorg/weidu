@@ -2042,6 +2042,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           begin
 
             (* Remember, we do nothing if it is not BGEE *)
+            (* Maybe we should print something like "Processing N journal entries"? *)
 
             let resolve_string ref =
               match Dc.resolve_tlk_string game ref with
@@ -2085,7 +2086,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
             let indices = List.map resolve_string ref_list in
 
-            let titled_indices = match title with
+            let titled_indices = (match title with
               Some(t) ->
                 let title = resolve_string t in
                 List.map (fun index ->
@@ -2093,23 +2094,63 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             | None ->
                 List.map (fun index ->
                   let title = isolate_title_and_resolve index in
-                  title,index) indices
+                  title,index) indices) in
+
+            let quests,journals_quests = Sql.get_quests_data "ADD_JOURNAL" in
+            let highest_quest_id = ref (List.fold_left (fun acc record ->
+              max acc record.Sql.quest_id) 1 quests) in
+
+            let quest_id_table = Hashtbl.create
+                (if not existing then (List.length titled_indices)
+                else ((List.length quests) + (List.length titled_indices)))
             in
 
-            (* Sql module loads bgee.sql, reads it into a list of lines, parses the interesting part into a list of records, which is returned.
-               We mutate the list of records here, then pass it back to the Sql module, which transforms it back into a list of lines, which is
-               spliced into the list of lines representing the file, replacing the old section. The resulting list is written to disk. *)
+            if existing then
+              ignore (List.iter (fun record ->
+                Hashtbl.add quest_id_table record.Sql.quest_strref record.Sql.quest_id)
+                        quests) ;
 
-            (* load files with Load.load_resource *)
+            let get_quest_id strref =
+              if not (Hashtbl.mem quest_id_table strref) then
+                let id = !highest_quest_id + 1 in
+                Hashtbl.add quest_id_table strref id ;
+                highest_quest_id := id ;
+                id ;
+              else
+                Hashtbl.find quest_id_table strref ;
+            in
 
-            List.iter (fun x ->
-              match x with
-                title,entry ->
-                  log_and_print "Tile is %i; entry is %i\n" title entry)
-              titled_indices;
+            let new_quests = List.fold_left (fun acc (title,index) ->
+              if not (Hashtbl.mem quest_id_table title) then
+                List.append acc
+                  [(Sql.make_quests_record (get_quest_id title) "''" title 0 0 0)]
+              else
+                acc)
+                [] titled_indices in
 
-            (*List.iter (fun i ->
-              log_and_print "Index %i was obtained\n" i;) indices;*)
+            (* this can be optimised; only run the fold if Sql.have_quest_group? *)
+            let highest_quest_group = ref (List.fold_left (fun acc record ->
+              (match record.Sql.journal_quest_group with
+                None -> (-1)
+              | Some i -> max acc i))
+                                             0 journals_quests) in
+
+            (* if existing && managed, we should assign quest group ids to more journals *)
+
+            let new_journals = List.fold_left (fun acc (title,index) ->
+              if managed && !Sql.have_quest_group &&
+                (!highest_quest_group >= 0) (* idiot insurance? but is it insurance against idiots, or the other kind? *) then
+                List.append acc
+                  [(Sql.make_journals_record index (get_quest_id title) 0 (Some (!highest_quest_group + 1)))]
+              else
+                List.append acc
+                  [(Sql.make_journals_record index (get_quest_id title) 0 None)];)
+                [] titled_indices in
+
+            let quests = List.append new_quests quests in
+            let journals_quests = List.append new_journals journals_quests in
+            ignore (Sql.set_quests_data (quests,journals_quests)) ;
+
             Dc.pop_trans ();
           end
       );
