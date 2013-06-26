@@ -2042,7 +2042,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           begin
 
             (* Remember, we do nothing if it is not BGEE *)
-            (* Maybe we should print something like "Processing N journal entries"? *)
+
+            log_and_print "Processing quests and journals\n" ;
 
             let resolve_string ref =
               match Dc.resolve_tlk_string game ref with
@@ -2123,7 +2124,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let new_quests = List.fold_left (fun acc (title,index) ->
               if not (Hashtbl.mem quest_id_table title) then
                 List.append acc
-                  [(Sql.make_quests_record (get_quest_id title) "''" title 0 0 0)]
+                  [(Sql.make_quests_record (get_quest_id title) "" title 0 0 0)]
               else
                 acc)
                 [] titled_indices in
@@ -2135,21 +2136,47 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               | Some i -> max acc i))
                                              0 journals_quests) in
 
-            (* if existing && managed, we should assign quest group ids to more journals *)
-
             let new_journals = List.fold_left (fun acc (title,index) ->
-              if managed && !Sql.have_quest_group &&
-                (!highest_quest_group >= 0) (* idiot insurance? but is it insurance against idiots, or the other kind? *) then
+              if !Sql.have_quest_group then begin
                 List.append acc
-                  [(Sql.make_journals_record index (get_quest_id title) 0 (Some (!highest_quest_group + 1)))]
-              else
+                  [(Sql.make_journals_record index (get_quest_id title) 0
+                      (if managed then
+                        (Some (!highest_quest_group + 1))
+                      else
+                        (Some 0)))]
+              end
+              else begin
                 List.append acc
-                  [(Sql.make_journals_record index (get_quest_id title) 0 None)];)
+                  [(Sql.make_journals_record index (get_quest_id title) 0 None)] ;
+              end)
                 [] titled_indices in
+
+            (* if existing && managed, set a quest group for any existing journals that match the
+             * provided titles
+            *)
+            if !Sql.have_quest_group && existing && managed then
+              ignore (List.iter (fun (title,index) ->
+                List.iter (fun record ->
+                  (try
+                    if (Hashtbl.mem quest_id_table title) &&
+                      (Hashtbl.find quest_id_table title) = record.Sql.journal_quest_id &&
+                      (match record.Sql.journal_quest_group with
+                        Some 0 -> true
+                      | _ -> false) then
+                      record.Sql.journal_quest_group <- (Some (!highest_quest_group + 1))
+                  with Not_found -> ())) journals_quests)
+                        (match title,titled_indices with
+                          Some t, [] -> [(resolve_string t),0]
+                        | _,_ -> titled_indices)) ;
 
             let quests = List.append new_quests quests in
             let journals_quests = List.append new_journals journals_quests in
             ignore (Sql.set_quests_data (quests,journals_quests)) ;
+
+            (* potential points of contention:
+             * - existing adds to existing quests if present, otherwise it adds new quests (as normal)
+             * - managed applies the same quest group to all journals in the ADD_JOURNAL call, rather than grouping them by title
+            *)
 
             Dc.pop_trans ();
           end
