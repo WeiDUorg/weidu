@@ -773,7 +773,18 @@ The first string and sound file are used if the PC is male, the second
 string and sound file are used if the PC is female. This is useful mainly
 for international versions of Infinity Engine games. \\
 
-or & \t{\#integer} & The string with reference number \t{\#integer} from
+or & \t{!integer} \ttref{text} & \DEFINE{Forced String Reference}. As with
+\ttref{text} in general, but rather than being assigned a new,
+previously-unused \t{DIALOG.TLK} string entry (or merging with an existing
+one that has the same \ttref{text}), this \ttref{text} is written over
+\t{DIALOG.TLK} string entry \#\t{integer}. Do not use this without a real reason.
+\\
+or & \ttref{reference} & \\
+
+\\
+
+\DEFINE{reference} & & This is a subset of \ttref{text}. \\
+is & \t{\#integer} & The string with reference number \t{\#integer} from
 \t{DIALOG.}\ttref{TLK} should be used unchanged. \\
 
 or & \t{@integer} & The last definition of the translation string
@@ -781,13 +792,6 @@ or & \t{@integer} & The last definition of the translation string
 
 or & \t{( AT {\bf{"}}var{\bf{"}} )} & The last definition of the translation string
 (with value defined by a variable) given in any \ttref{TRA} file should be used.\\
-
-or & \t{!integer} \ttref{text} & \DEFINE{Forced String Reference}. As with
-\ttref{text} in general, but rather than being assigned a new,
-previously-unused \t{DIALOG.TLK} string entry (or merging with an existing
-one that has the same \ttref{text}), this \ttref{text} is written over
-\t{DIALOG.TLK} string entry \#\t{integer}. Do not use this without a real reason.
-\\
 
 \\
 
@@ -3432,6 +3436,40 @@ COPY ~MyMod/MYDART.ITM~ ~override/MYDART.ITM~
 	case, if there is the \verb+ON!DISABLE+ section, the patches declared
 	there will be applied to the older spell.
 	\\
+
+  or & \DEFINE{ADD!JOURNAL} \Ob \t{EXISTING} \Oe \Ob \t{MANAGED} \Oe \Ob
+       \t{TITLE} ( \ttref{text} ) \Oe \ttref{reference} \Slist \Ob \t{USING}
+       traFile \Slist \Oe &
+    If the game is not BGEE, this action does nothing.
+    If the game is BGEE, this action patches BGEE.SQL with the provided
+    quests and journal entries, so they will work with BGEE's journal system.
+
+    For each of the provided \ttref{reference}s, which are taken to be
+    journal entries, the first line of text, up to a newline character, is
+    taken to be the title of the journal entry. The title is added as a
+    separate string to the TLK, together with the complete journal entry.
+    BGEE.SQL is patched with the strrefs of the title and journal entry.
+    Each unique title is given a unique quest id and journal entries that
+    share titles end up sharing quest ids.
+
+    If \t{EXISTING} is specified, the strref of the title is matched against
+    the existing title strrefs. If a match is found, the journal entry is
+    added under the quest id of the existing quest. Otherwise it is added as
+    a new quest.
+
+    If \t{MANAGED} is specified, all provided journal entries are given a
+    unique, non-zero quest-group number. They share the same quest-group
+    number regardless of whether they share the same title. If \t{EXISTING}
+    is also specified, the quest-group numbers for all existing journal
+    entries that match the provided titles are assigned a quest-group
+    number, provided they do not already have one. This option does nothing
+    unless the game version supports quest groups.
+
+    If \t{TITLE} is specified, the provided \ttref{text} is used as the title
+    for all provided journal entries. The titles of each individual journal
+    entry remains unchanged, they are just all listed under the same title.
+    \\
+
   or & \DEFINE{STRING!SET} indexOrString newValue \Slist
     \Ob \t{USING} traFile \Oe &
     This command replaces each given string in the user's \ttref{TLK} file
