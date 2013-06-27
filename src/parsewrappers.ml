@@ -148,7 +148,7 @@ let resolve_tra_paths_and_load our_lang tra_l =
 	handle_tra_filename tra_file ;
 	) tra_l
     | _ -> List.iter (fun tra_file ->
-	handle_tra_filename tra_file ;
+	handle_tra_filename (Var.get_string tra_file) ;
 	) tra_l
   end
 
