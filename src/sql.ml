@@ -17,9 +17,14 @@ and bgee_journal = {
     journal_quest_id : int ;
     journal_state : int ;
     mutable journal_quest_group : int option ;
+    journal_date : string option ;
   }
 
-let have_quest_group = ref false
+(* script_version = 1: 3 columns
+ * script_version = 2: 4 columns, quest_group
+ * script_version = 3: 5 columns, quest_group && date
+*)
+let script_version = ref 1
 let cached_buffer = ref ""
 
 let load_bgee_sql for_what =
@@ -63,7 +68,7 @@ let extract_journals_quests_section for_what buff =
                   "%s was unable to match a journals_quests section in BGEE.SQL\n"
                   for_what) ;)
 
-let make_quests_record id name strref sc state chapter =
+let make_quests_record id name strref sc state chapter () =
   {quest_id = id;
     quest_name = name;
     quest_strref = strref;
@@ -71,14 +76,27 @@ let make_quests_record id name strref sc state chapter =
     quest_state = state;
     quest_chapter = chapter;}
 
-let make_journals_record journal_id quest_id state quest_group =
+let make_journals_record journal_id quest_id state ?(quest_group = None) ?(date = None) () =
   {journal_id = journal_id;
     journal_quest_id = quest_id;
     journal_state = state;
-    journal_quest_group = quest_group;}
+    journal_quest_group = (match !script_version with
+      1 -> None
+    | 2 | 3 -> quest_group
+    | _ -> failwith "Internal error: bad version for BGEE.SQL\n");
+    journal_date = (match !script_version with
+      1 | 2 -> None
+    | 3 -> date
+    | _ -> failwith "Internal error: bad version for BGEE.SQL\n");}
+
+let strip_comments buff =
+  Str.global_replace (Str.regexp "[ \t]*//.*") "" buff
+
+let compact_string buff =
+  Str.global_replace (Str.regexp "[ \t\r\n();]") "" buff
 
 let parse buff fmt receiver =
-  let buff = Str.global_replace (Str.regexp "[ \t\r\n();]") "" buff in
+  let buff = (compact_string (strip_comments buff)) in
   let chan = Scanf.Scanning.from_string buff in
   let get_record () =
     Scanf.bscanf chan fmt receiver
@@ -93,35 +111,23 @@ let parse buff fmt receiver =
 
 let parse_quests_section buff =
   parse buff "%i,'%s@',%i,%i,%i,%i,"
-    (fun a b c d e f -> {quest_id = a;
-                          quest_name = b;
-                          quest_strref = c;
-                          quest_show_children = d;
-                          quest_state = e;
-                          quest_chapter = f}) ;
-;;
+    (fun a b c d e f -> make_quests_record a b c d e f ())
 
 let parse_journals_quests_section buff =
   let tmp = (Str.split (Str.regexp ",")
-               (Str.global_replace (Str.regexp "[ \t\r\n();]") ""
-                  (List.hd
-                     (Str.split (Str.regexp "\n")
-                        (Str.global_replace (Str.regexp "\r\n?") "\n" buff))))) in
-  if (List.length tmp) = 3 then begin
-    have_quest_group := false ;
-    parse buff "%i,%i,%i," (fun a b c -> {journal_id = a;
-                                           journal_quest_id = b;
-                                           journal_state = c;
-                                           journal_quest_group = None})
-  end
-  else begin
-    have_quest_group := true ;
-    parse buff "%i,%i,%i,%i," (fun a b c d -> {journal_id = a;
-                                                journal_quest_id = b;
-                                                journal_state = c;
-                                                journal_quest_group = Some d})
-  end ;
-;;
+               (compact_string
+                  (strip_comments
+                     (List.hd
+                        (Str.split (Str.regexp "\n")
+                           (Str.global_replace (Str.regexp "\r\n?") "\n" buff)))))) in
+  (match (List.length tmp) with
+    3 -> script_version := 1 ; parse buff "%i,%i,%i,"
+        (fun a b c -> make_journals_record a b c ())
+  | 4 -> script_version := 2 ; parse buff "%i,%i,%i,%i,"
+        (fun a b c d -> make_journals_record a b c ~quest_group:(Some d) ())
+  | 5 -> script_version := 3 ; parse buff "%i,%i,%i,%i,'%s@',"
+        (fun a b c d e -> make_journals_record a b c ~quest_group:(Some d) ~date:(Some e) ())
+  | _ -> failwith "Cannot parse BGEE.SQL due to unrecognised format\n")
 
 let get_quests_data for_what =
   let buff = load_bgee_sql for_what in
@@ -134,45 +140,23 @@ let get_quests_data for_what =
 
 let sort_quests quests =
   (* first by id, then by strref *)
-  let sort_by_strref r1 r2 =
-    if r1.quest_strref = r2.quest_strref then
-      0
-    else if r1.quest_strref > r2.quest_strref then
-      1
-    else
-      (-1)
+  let cmp_by_strref r1 r2 =
+    compare r1.quest_strref r2.quest_strref
   in
-  let sort_by_id r1 r2 =
-    if r1.quest_id = r2.quest_id then
-      0
-    else if r1.quest_id > r2.quest_id then
-      1
-    else
-      (-1)
+  let cmp_by_id r1 r2 =
+    compare r1.quest_id r2.quest_id
   in
-  (List.stable_sort sort_by_id (List.sort sort_by_strref quests)) ;
-;;
+  (List.stable_sort cmp_by_id (List.sort cmp_by_strref quests))
 
 let sort_journals_quests journals =
   (* first by quest_id, then by journal_id *)
-  let sort_by_journal r1 r2 =
-    if r1.journal_id = r2.journal_id then
-      0
-    else if r1.journal_id > r2.journal_id then
-      1
-    else
-      (-1)
+  let cmp_by_journal r1 r2 =
+    compare r1.journal_id r2.journal_id
   in
-  let sort_by_quest r1 r2 =
-    if r1.journal_quest_id = r2.journal_quest_id then
-      0
-    else if r1.journal_quest_id > r2.journal_quest_id then
-      1
-    else
-      (-1)
+  let cmp_by_quest r1 r2 =
+    compare r1.journal_quest_id r2.journal_quest_id
   in
-  (List.stable_sort sort_by_quest (List.sort sort_by_journal journals)) ;
-;;
+  (List.stable_sort cmp_by_quest (List.sort cmp_by_journal journals))
 
 let quests_to_string quests =
   let open_statement = "INSERT INTO quests ROWS\n(\n" in
@@ -191,9 +175,12 @@ let journals_to_string journals =
     (acc ^ "\t" ^ (string_of_int r.journal_id) ^ "," ^ (string_of_int r.journal_quest_id)
      ^ "," ^ (string_of_int r.journal_state) ^
      (match r.journal_quest_group with
+       None -> ""
+     | Some g -> ("," ^ (string_of_int g) ^ ",\n")) ^
+     (match r.journal_date with
        None -> ",\n"
-     | Some g -> ("," ^ (string_of_int g) ^ ",\n")))
-      ) "" journals in
+     | Some s -> (",'" ^ s ^ "',\n"))
+       )) "" journals in
   (open_statement ^ body ^ close_statement)
 
 let swap_in_new buff quests journals =
