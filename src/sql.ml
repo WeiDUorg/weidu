@@ -32,7 +32,7 @@ let load_bgee_sql for_what =
                      (Load.the_game ()) true "bgee" "sql") in
   buff
 
-let body_match_string = "\\([ \t]*[0-9]+,.*[ \t\r\n]*\\)+"
+let body_match_string = "\\([ \t]*[0-9]+,.+[\r\n]+\\)+"
 
 let quests_match_string =
   (".*INSERT[ \t\r\n]+INTO[ \t\r\n]+quests[ \t\r\n]+ROWS[ \t\r\n]*([ \t\r\n]*" ^
@@ -50,23 +50,19 @@ let extract_quests_section for_what buff =
     let whole = Str.matched_string buff in
     ignore (Str.search_forward (Str.regexp body_match_string) whole 0) ;
     Str.matched_string whole ;
-  with
-    Not_found ->
-      failwith (Printf.sprintf
-                  "%s was unable to match a quests section in BGEE.SQL\n"
-                  for_what) ;)
+  with Not_found -> failwith
+      (Printf.sprintf "%s was unable to match a quests section in BGEE.SQL"
+         for_what) ;)
 
 let extract_journals_quests_section for_what buff =
   (try
     ignore (Str.search_forward (Str.regexp journals_match_string) buff 0) ;
-    let whole =Str.matched_string buff in
+    let whole = Str.matched_string buff in
     ignore (Str.search_forward (Str.regexp body_match_string) whole 0) ;
-    Str.matched_string whole ;
-  with
-    Not_found ->
-      failwith (Printf.sprintf
-                  "%s was unable to match a journals_quests section in BGEE.SQL\n"
-                  for_what) ;)
+    Str.matched_string whole
+  with Not_found -> failwith
+      (Printf.sprintf "%s was unable to match a journals_quests section in BGEE.SQL"
+         for_what) ;)
 
 let make_quests_record id name strref sc state chapter () =
   {quest_id = id;
@@ -83,11 +79,11 @@ let make_journals_record journal_id quest_id state ?(quest_group = None) ?(date 
     journal_quest_group = (match !script_version with
       1 -> None
     | 2 | 3 -> quest_group
-    | _ -> failwith "Internal error: bad version for BGEE.SQL\n");
+    | _ -> failwith "Internal error: bad version for BGEE.SQL");
     journal_date = (match !script_version with
       1 | 2 -> None
     | 3 -> date
-    | _ -> failwith "Internal error: bad version for BGEE.SQL\n");}
+    | _ -> failwith "Internal error: bad version for BGEE.SQL");}
 
 let strip_comments buff =
   Str.global_replace (Str.regexp "[ \t]*//.*") "" buff
@@ -127,7 +123,7 @@ let parse_journals_quests_section buff =
         (fun a b c d -> make_journals_record a b c ~quest_group:(Some d) ())
   | 5 -> script_version := 3 ; parse buff "%i,%i,%i,%i,'%s@',"
         (fun a b c d e -> make_journals_record a b c ~quest_group:(Some d) ~date:(Some e) ())
-  | _ -> failwith "Cannot parse BGEE.SQL due to unrecognised format\n")
+  | _ -> failwith "Cannot parse BGEE.SQL due to unrecognised format")
 
 let get_quests_data for_what =
   let buff = load_bgee_sql for_what in
@@ -176,7 +172,7 @@ let journals_to_string journals =
      ^ "," ^ (string_of_int r.journal_state) ^
      (match r.journal_quest_group with
        None -> ""
-     | Some g -> ("," ^ (string_of_int g) ^ ",\n")) ^
+     | Some g -> ("," ^ (string_of_int g))) ^
      (match r.journal_date with
        None -> ",\n"
      | Some s -> (",'" ^ s ^ "',\n"))
@@ -202,7 +198,7 @@ let set_quests_data (quests,journals_quests) =
         output_string chan new_buff ;
         close_out chan) () ;
     with e ->
-      failwith (Printf.sprintf "Unable to write to BGEE.SQL because: %s\n" (printexc_to_string e)))
+      failwith (Printf.sprintf "Unable to write to BGEE.SQL because: %s" (printexc_to_string e)))
   else
     log_only "BGEE.SQL was not saved because it did not change\n" ;
   ()
