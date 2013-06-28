@@ -40,6 +40,7 @@ Version 232:
   * Fail with a better error when doing out-of-bounds READ_2DA_ENTRY_FORMERs.
   * If ADD_PROJECTILE is used to add an already existing projectile, the
     returned IDS value will not be off by 1.
+  * ADD_JOURNAL added.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

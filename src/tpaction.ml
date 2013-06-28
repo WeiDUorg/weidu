@@ -1530,18 +1530,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  
 	  Dc.push_copy_trans_modder ();
 	  Dc.notChanged := true;
-	  begin 
-	    match !our_lang with
-	      Some(l) -> List.iter (fun path ->
-		let my_regexp = Str.regexp_string "%s" in
-		let tra_file = Str.global_replace 
-		    my_regexp l.lang_dir_name (Var.get_string path) in
-		handle_tra_filename tra_file ;
-				   ) tra_l 
-	    | _ -> List.iter (fun tra_file -> 
-		handle_tra_filename tra_file ;
-			     ) tra_l
-	  end ;
+
+	  resolve_tra_paths_and_load !our_lang tra_l;
+
 	  let handle_one_d_file d =
 	    (* handle AUTO_TRA "solarom/%s" *)
 	    begin try
@@ -1903,18 +1894,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             handle_tra_filename tra_file
           | _ -> ()
         ) tp.flags ;
-        begin
-          match !our_lang with
-            Some(l) -> List.iter (fun path ->
-              let my_regexp = Str.regexp_string "%s" in
-              let tra_file = Str.global_replace
-                  my_regexp l.lang_dir_name  (Var.get_string path) in
-              handle_tra_filename tra_file ;
-            ) tra_l 
-          | _ -> List.iter (fun tra_file -> 
-            handle_tra_filename tra_file ; 
-          ) tra_l 
-        end ;
+
+        resolve_tra_paths_and_load !our_lang tra_l;
+
         if !Dc.notChanged then Modder.handle_msg "SETUP_TRA" (Printf.sprintf "WARNING: EXTEND* %s with strings from setup.tra\n" src);
         let src_script =
           let src_buff = load_file src in
@@ -2055,6 +2037,146 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             my_unlink tmp;
           ) else failwith (Printf.sprintf "DECOMPRESS_BIFF: %s invalid file" s);
         ) sl;
+
+      | TP_AddJournal(existing,managed,title,ref_list,tra_list) ->
+          match !Load.game_type with
+            "bgee" -> begin
+
+              log_and_print "Processing quests and journals\n" ;
+
+              let resolve_string ref =
+                match Dc.resolve_tlk_string game ref with
+                  Dlg.TLK_Index i -> i
+                | _ -> failwith "ERROR: ADD_JOURNAL cannot resolve reference"
+              in
+              let isolate_title_and_resolve index =
+                let isolate_title string =
+                  if Str.string_match (Str.regexp "\\(.+\\)$") string 0 then
+                    Str.matched_group 1 string
+                  else
+                    failwith "ERROR: ADD_JOURNAL was unable to isolate a journal title and none was provided"
+                in
+
+                let male = Dc.pretty_print_no_quote
+                    game.Load.dialog
+                    index false false in
+                let female = Dc.pretty_print_no_quote
+                    (match game.Load.dialogf with
+                      Some dialogf -> dialogf
+                    | None -> game.Load.dialog)
+                    index true false in
+                let lse = Dlg.Local_String(
+                  {lse_male = (isolate_title male);
+                    lse_male_sound = "";
+                    lse_female = (isolate_title female);
+                    lse_female_sound = "";}) in
+                resolve_string lse
+              in
+
+              let tra_list = List.map Arch.backslash_to_slash tra_list in
+
+              Dc.push_copy_trans_modder ();
+              Dc.notChanged := true;
+
+              resolve_tra_paths_and_load !our_lang tra_list;
+
+              if !Dc.notChanged then
+                Modder.handle_msg "SETUP_TRA"
+                  (Printf.sprintf "WARNING: ADD_JOURNAL with strings from setup.tra\n");
+
+              let indices = List.map resolve_string ref_list in
+
+              let titled_indices = (match title with
+                Some(t) ->
+                  let title = resolve_string t in
+                  List.map (fun index ->
+                    title,index) indices
+              | None ->
+                  List.map (fun index ->
+                    let title = isolate_title_and_resolve index in
+                    title,index) indices) in
+
+              let quests,journals_quests = Sql.get_quests_data "ADD_JOURNAL" in
+              let highest_quest_id = ref (List.fold_left (fun acc record ->
+                max acc record.Sql.quest_id) 1 quests) in
+
+              let quest_id_table = Hashtbl.create
+                  (if not existing then (List.length titled_indices)
+                  else ((List.length quests) + (List.length titled_indices))) in
+
+              let journal_id_table = Hashtbl.create
+                  (if not existing then (List.length titled_indices)
+                  else ((List.length journals_quests) + (List.length titled_indices))) in
+
+              if existing then begin
+                ignore (List.iter (fun record ->
+                  Hashtbl.add quest_id_table record.Sql.quest_strref record.Sql.quest_id)
+                          quests) ;
+                ignore (List.iter (fun record ->
+                  Hashtbl.add journal_id_table (record.Sql.journal_id,record.Sql.journal_quest_id) 0)
+                          journals_quests) ;
+              end;
+
+              let get_quest_id strref =
+                if not (Hashtbl.mem quest_id_table strref) then
+                  let id = !highest_quest_id + 1 in
+                  Hashtbl.add quest_id_table strref id ;
+                  highest_quest_id := id ;
+                  id ;
+                else
+                  Hashtbl.find quest_id_table strref ;
+              in
+
+              let new_quests = List.fold_left (fun acc (title,index) ->
+                if not (Hashtbl.mem quest_id_table title) then
+                  List.append acc
+                    [(Sql.make_quests_record (get_quest_id title) "" title 0 0 0 ())]
+                else
+                  acc) [] titled_indices in
+
+              (* this can be optimised *)
+              let highest_quest_group = ref (List.fold_left (fun acc record ->
+                (match record.Sql.journal_quest_group with
+                  None -> (-1)
+                | Some i -> max acc i))
+                                             0 journals_quests) in
+
+              let new_journals = List.fold_left (fun acc (title,index) ->
+                let quest_id = get_quest_id title in
+                if not (Hashtbl.mem journal_id_table (index,quest_id)) then begin
+                  Hashtbl.add journal_id_table (index,quest_id) 0 ;
+                  List.append acc
+                    [(Sql.make_journals_record index quest_id 0
+                        ~quest_group:(if managed then
+                          (Some (!highest_quest_group + 1))
+                        else
+                          (Some 0)) ~date:(Some "") ())]
+                end
+                else
+                  acc) [] titled_indices in
+
+              if existing && managed then
+                ignore (List.iter (fun (title,index) ->
+                  List.iter (fun record ->
+                    (try
+                      if (Hashtbl.mem quest_id_table title) &&
+                        (Hashtbl.find quest_id_table title) = record.Sql.journal_quest_id &&
+                        (match record.Sql.journal_quest_group with
+                          Some 0 -> true
+                        | _ -> false) then
+                        record.Sql.journal_quest_group <- (Some (!highest_quest_group + 1))
+                    with Not_found -> ())) journals_quests)
+                          (match title,titled_indices with
+                            Some t, [] -> [(resolve_string t),0]
+                          | _,_ -> titled_indices)) ;
+
+              let quests = List.append new_quests quests in
+              let journals_quests = List.append new_journals journals_quests in
+              ignore (Sql.set_quests_data (quests,journals_quests)) ;
+
+              Dc.pop_trans ();
+            end
+          | _ -> ()
       );
       if !clear_memory then begin
 	clear_memory := false;
