@@ -42,6 +42,8 @@ Version 232:
     returned IDS value will not be off by 1.
   * ADD_JOURNAL added.
   * The variable MOD_FOLDER is set to the root of the backup directory.
+  * Add the function HANDLE_AUDIO, which can install .ogg audio on any supported
+    platform and game (including BG:EE).
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
