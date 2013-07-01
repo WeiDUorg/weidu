@@ -85,6 +85,8 @@ BEGIN
 END
 
 DEFINE_ACTION_FUNCTION HANDLE_AUDIO
+  INT_VAR
+    music = 0
   STR_VAR
     audio_path = EVAL "%MOD_FOLDER%/audio"
 BEGIN
@@ -115,8 +117,13 @@ BEGIN
       END
     END
   END ELSE BEGIN
+    ACTION_IF !music BEGIN
+      OUTER_SPRINT ext "wav"
+    END ELSE BEGIN
+      OUTER_SPRINT ext "acm"
+    END
     ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-      COPY_LARGE ~%BASH_FOR_FILESPEC%~ ~override/%BASH_FOR_RES%.wav~
+      COPY_LARGE ~%BASH_FOR_FILESPEC%~ ~override/%BASH_FOR_RES%.%ext%~
     END
   END
 END

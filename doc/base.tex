@@ -8483,6 +8483,7 @@ This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux
 
 If the audio files need to be decompressed, this function will use oggdec.exe on Windows, which is expected to be found in \verb+audio_path+. The most recent version of oggdec can be downloaded \ahref{\url{http://downloads.xiph.org/releases/vorbis/vorbis-tools-win32-bin.7z}}{here} (direct link). On OS\begin{rawhtml}&nbsp;\end{rawhtml}X, SoX will be used, which is also expected to be found in \verb+audio_path+. SoX compiled for OS\begin{rawhtml}&nbsp;\end{rawhtml}X can be downloaded \ahref{\url{http://sourceforge.net/projects/sox/files/sox/14.4.1/sox-14.4.1-macosx.zip/download}}{here}. On GNU/Linux, oggdec will be used, but it is expected to be found on the system path and the user should install it him/herself. If you provide installation instructions for GNU/Linux, just include something to the effect of ``install oggdec, which is usually part of the package vorbis-tools''.
 \begin{itemize}
+\item INT_VAR \verb+music+ if this variable is not 0 and the game is BG:EE, the audio files are given the extension .acm instead of .wav. This variable has no effect if the game is not BG:EE. By default its value is 0.
 \item STR_VAR \verb+audio_path+ to the path your .ogg files are kept in. By default this variable is \verb+~%MOD!FOLDER%/audio~+.
 \end{itemize}
 \\
