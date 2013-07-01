@@ -415,6 +415,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  let temp_lang = Var.get_string "%LANGUAGE%" in
 	  let temp_name = Var.get_string "%TP2_FILE_NAME%" in
 	  let temp_bname = Var.get_string "%TP2_BASE_NAME%" in
+          let temp_modf = Var.get_string "%MOD_FOLDER%" in
 	  let temp_num = Var.get_string "%COMPONENT_NUMBER%" in
           let temp_save = Var.get_string "%SAVE_DIRECTORY%" in
           let temp_mpsave = Var.get_string "%MPSAVE_DIRECTORY%" in
@@ -424,6 +425,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 	  Var.set_string "LANGUAGE" temp_lang ;
 	  Var.set_string "TP2_FILE_NAME" temp_name ;
           Var.set_string "TP2_BASE_NAME" temp_bname ;
+          Var.set_string "MOD_FOLDER" temp_modf ;
           Var.set_string "COMPONENT_NUMBER" temp_num ;
           Var.set_string "SAVE_DIRECTORY" temp_save ;
           Var.set_string "MPSAVE_DIRECTORY" temp_mpsave ;

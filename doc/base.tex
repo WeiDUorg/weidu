@@ -2743,7 +2743,14 @@ Here is the context-free grammar syntax for the \ttref{TP2} file format:
        email address for users to send bugs to if there are problems during
        the installation. The \DEFINE{TP2!AUTHOR} \ttref{variable} is set to
        the ``emailAddress'' value. The \DEFINE{TP2!FILE!NAME} \ttref{variable}
-	   is set to the name of the tp2 file.
+       is set to the name of the tp2 file. The \DEFINE{TP2!BASE!NAME}
+       \ttref{variable} is set to the name of the tp2, excluding any initial
+       ``setup-''. For ``setup-mymod.tp2'', \t{TP2!FILE!NAME} is set to
+       ``setup-mymod.tp2'', while \t{TP2!BASE!NAME} is set to ``mymod.tp2''.
+       The \DEFINE{MOD!FOLDER} \ttref{variable} is set to the root directory
+       of directoryName. If directoryName is
+       ``mymod/thisIsUnconventional/backup'', \t{MOD!FOLDER} is set to
+       ``mymod''.
        \ttref{TP2 Flag}s set global options.
        \ttref{Language}s are
        the various languages in which your mod is available. The
@@ -3088,7 +3095,8 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
       \ttref{DLG}s or \ttref{BCS}s they create or modify are placed in the
       \t{override} directory.  \\
   or & \DEFINE{CLEAR!MEMORY} & removes all variables from the memory, then
-      reloads the automatic ones (TP2!AUTHOR, TP2!FILE!NAME, LANGUAGE, WEIDU!ARCH,
+      reloads the automatic ones (TP2!AUTHOR, TP2!FILE!NAME, TP2!BASE!NAME,
+      MOD!FOLDER LANGUAGE, WEIDU!ARCH,
       WEIDU!OS, COMPONENT!NUMBER, all numeric constants such as NAME1, the soundsets, or
       SCRIPT!OVERRIDE). INTERACTIVE is automatically set when you call the
       next component. Don't use this feature without a real reason. \\

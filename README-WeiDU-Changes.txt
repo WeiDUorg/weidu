@@ -41,6 +41,7 @@ Version 232:
   * If ADD_PROJECTILE is used to add an already existing projectile, the
     returned IDS value will not be off by 1.
   * ADD_JOURNAL added.
+  * The variable MOD_FOLDER is set to the root of the backup directory.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

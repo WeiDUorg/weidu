@@ -319,3 +319,10 @@ let game_dependent_vars game_type =
         with _ -> (set_string save_dir ""; set_string mpsave_dir "")
       end
   | _ -> (set_string save_dir "./save"; set_string mpsave_dir "./mpsave")
+
+let get_tp2_base_name dir =
+  (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" dir)
+
+let get_mod_folder dir =
+  (String.sub dir 0 (String.index
+                       (Str.global_replace (Str.regexp "\\\\") "/" dir) '/'))

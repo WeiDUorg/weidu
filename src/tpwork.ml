@@ -118,7 +118,8 @@ let rec handle_tp
       in
       Var.set_string "TP2_AUTHOR" tp.author ;
       Var.set_string "TP2_FILE_NAME" tp.tp_filename;
-      Var.set_string "TP2_BASE_NAME" (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp.tp_filename) ;
+      Var.set_string "TP2_BASE_NAME" (Var.get_tp2_base_name tp.tp_filename) ;
+      Var.set_string "MOD_FOLDER" (Var.get_mod_folder tp.backup) ;
 
       lang_init () ;
 
