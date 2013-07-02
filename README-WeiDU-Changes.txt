@@ -44,6 +44,7 @@ Version 232:
   * The variable MOD_FOLDER is set to the root of the backup directory.
   * Add the function HANDLE_AUDIO, which can install .ogg audio on any supported
     platform and game (including BG:EE).
+  * Fix a bug in MOVE that could cause mod rollback to fail.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
