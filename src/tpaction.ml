@@ -190,18 +190,12 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                                                 copy_large_file_list = [ (src,dst) ];
                                                 copy_large_backup = do_backup;
 
-						(*copy_get_existing = false;
-						copy_use_regexp = false;
-						copy_use_glob = false;
-						copy_file_list = [ (src,dst) ];
-						copy_patch_list = [];
-						copy_constraint_list = [];
-						copy_backup = do_backup;
-						copy_at_end = false;
-						copy_save_inlined = false; *)
 					});
 				) else (
 					log_or_print "Moving %s to %s\n" src dst;
+                                  if not (file_exists src) then
+                                    log_and_print "ERROR: cannot locate %s\n" src ;
+				    Case_ins.unix_rename src dst;
 					if do_backup then ( match !move_list_chn with
 						| Some(chn) -> output_string chn (src ^ log_line_separator ^ dst ^ "\n") ; flush chn
 						| None -> ()
@@ -210,7 +204,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 						| Some(chn) -> output_string chn (src ^ "\n") ; output_string chn (dst ^ "\n") ; flush chn
 						| None -> ()
 					);
-					Case_ins.unix_rename src dst;
 				)
 			) else log_and_print "MOVE [%s] [%s]: source is a directory\n" src dst;
 	    in
