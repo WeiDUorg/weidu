@@ -313,7 +313,7 @@ let load_game () =
   let dialog_tlk, dialog_path = load_dialog gp !dialog_tlk_path in
   let dialogf_tlk, dialogf_path = load_dialogf gp !dialogf_tlk_path in
   let cd_paths = read_cd_paths gp in
-  if not (is_directory "override") then
+  if not (is_directory "override") && (file_exists "chitin.key") then
     Case_ins.unix_mkdir "override" 511 ;
   let result =
     {
