@@ -860,8 +860,7 @@ let traify_file traify traify_num traify_comment traify_old_tra =
         let sound_str sound =
           if sound <> "" then
             Printf.sprintf " [%s]" sound
-          else
-            ""
+          else ""
         in
         let make_male_tra_string index lse =
           if lse.lse_male <> "" then begin

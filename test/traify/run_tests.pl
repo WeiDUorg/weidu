@@ -30,6 +30,8 @@ sub check_sums {
     open(TRA, "<", $test_tra);
     my $test_tp2_sum = Digest::MD5->new->addfile(*TP2)->hexdigest;
     my $test_tra_sum = Digest::MD5->new->addfile(*TRA)->hexdigest;
+    close(TP2);
+    close(TRA);
     if (($test_tp2_sum ne $tp2_sum) || ($test_tra_sum ne $tra_sum)) {
         die "TEST FAILED: sums do not match\n"
     }
