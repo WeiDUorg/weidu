@@ -306,19 +306,22 @@ let _ =
   ()
 
 (* Bear CLEAR_MEMORY in mind if any more of these are added. *)
-let game_dependent_vars game_type =
-  let save_dir = "SAVE_DIRECTORY" in
-  let mpsave_dir = "MPSAVE_DIRECTORY" in
-  match String.lowercase game_type with
-  | "bgee" ->
-      begin
-        try
-          let bgee_user_dir = Arch.get_bgee_user_dir () in
-          set_string save_dir (bgee_user_dir ^ "/save");
-          set_string mpsave_dir (bgee_user_dir ^ "/mpsave");
-        with _ -> (set_string save_dir ""; set_string mpsave_dir "")
-      end
-  | _ -> (set_string save_dir "./save"; set_string mpsave_dir "./mpsave")
+let save_dir_var = "SAVE_DIRECTORY"
+let mpsave_dir_var = "MPSAVE_DIRECTORY"
+
+let bgee_game_vars () =
+  try
+    let bgee_user_dir = Arch.get_bgee_user_dir () in
+    set_string save_dir_var (bgee_user_dir ^ "/save") ;
+    set_string mpsave_dir_var (bgee_user_dir ^ "/mpsave") ;
+  with e ->
+    set_string save_dir_var "" ;
+    set_string mpsave_dir_var "" ;
+    raise e
+
+let default_game_vars () =
+  set_string save_dir_var "./save" ;
+  set_string mpsave_dir_var "./mpsave"
 
 let get_tp2_base_name dir =
   (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" dir)

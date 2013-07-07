@@ -19,12 +19,8 @@ let registry_game_paths () =
   List.map (fun str ->
     if str = "." then str else Case_ins.filename_dirname str
       ) str_list
-(*
- * game_type can be:
- * "bgee"    - BGEE
- * "generic" - everything that is a game but not one of the above
- *)
-let game_type = ref "generic"
+
+type game_type = BGEE | GENERIC
 
 let game_paths = ref []
 
@@ -81,6 +77,7 @@ type game = {
     mutable dialogf_mod  : bool ; (* changed? *)
     mutable key_mod      : bool ; (* changed? *)
     mutable script_style : script_style ;
+    game_type : game_type ;
   }
 
 let saved_game = ref (None : game option)
@@ -151,6 +148,7 @@ let load_null_game () =
      dialogf_mod = false ;
      key_mod = false ;
      script_style = BG2 ;
+     game_type = GENERIC ;
    } in
   create_dialog_search result ;
   result
@@ -230,35 +228,30 @@ let read_cd_paths gp =
     paths
 ;;
 
-let autodetect_script_style key =
-  begin
-    try
-      let _ = Key.find_resource key "SUBRACE" "IDS" in (Tlk.is_bg2 := false;IWD2)
-    with Not_found ->
-      begin
-        try
-          let _ = Key.find_resource key "BONES" "IDS" in (Tlk.is_bg2 := false;PST)
-        with Not_found ->
-          begin
-            try
-              let _ = Key.find_resource key "CLOWNRAN" "IDS" in (Tlk.is_bg2 := false;IWD1)
-            with Not_found ->
-              begin
-                try
-                  let _ = Key.find_resource key "FLYTHR01" "MVE" in(Tlk.is_bg2 := true; BG2)
-                with Not_found ->
-                  try
-                    let _ = Key.find_resource key "OH1000" "ARE" in
-                    (* Really BGEE, but I think we can mooch off the BG2 script style
-                       for now. is_bg2 is seemingly just for how strings are stored in
-                       the TLK, and BGEE stores them the BG2 way. *)
-                    (Tlk.is_bg2 := true; game_type := "bgee"; BG2)
-                  with Not_found -> (Tlk.is_bg2 := false;BG1)
-              end
-          end
-      end
-  end
-;;
+let autodetect_game_type key =
+  let starting_assumption = (GENERIC, BG1) in
+  let tests = ["SUBRACE", "IDS", GENERIC, IWD2;
+               "BONES", "IDS", GENERIC, PST;
+               "CLOWNRAN", "IDS", GENERIC, IWD1;
+               "FLYTHR01", "MVE", GENERIC, BG2;
+               "OH1000", "ARE", BGEE, BG2;] in
+  let (game_type, script_style) = List.fold_left
+      (fun acc (res, ext, game_type, script_style) ->
+        if Key.resource_exists key res ext then begin
+          (game_type, script_style)
+        end
+        else begin
+          acc
+        end) starting_assumption tests in
+  (* Tlk.is_bg2 should be refactored as well, but for now: *)
+  ignore (match script_style with
+  | BG2 -> Tlk.is_bg2 := true
+  | IWD2
+  | PST
+  | IWD1
+  | BG1
+  | NONE -> Tlk.is_bg2 := false) ;
+  (game_type, script_style)
 
 let pad_tlks result =
   (match result.dialogf with
@@ -315,6 +308,7 @@ let load_game () =
   let cd_paths = read_cd_paths gp in
   if not (is_directory "override") && (file_exists "chitin.key") then
     Case_ins.unix_mkdir "override" 511 ;
+  let game_type, script_style = autodetect_game_type key in
   let result =
     {
      key = key ;
@@ -332,9 +326,12 @@ let load_game () =
      dialog_mod = false ;
      dialogf_mod = false ;
      key_mod = false ;
-     script_style = autodetect_script_style key ;
+     script_style = script_style ;
+     game_type = game_type ;
    } in
-  Var.game_dependent_vars !game_type ;
+  ignore (match game_type with
+  | BGEE -> Var.bgee_game_vars ()
+  | GENERIC -> Var.default_game_vars ()) ;
   pad_tlks result ;
   create_dialog_search result ;
   result

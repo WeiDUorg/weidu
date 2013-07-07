@@ -207,6 +207,13 @@ let find_resource key name ext =
       Hashtbl.find key.resfind (String.uppercase name,String.uppercase ext)
     end
 
+let resource_exists key name ext =
+  try
+    ignore (find_resource key name ext) ;
+    true ;
+  with Not_found ->
+    false
+
 (*
   let rtype = key_of_ext true ext in 
   let name = String.uppercase name in 
