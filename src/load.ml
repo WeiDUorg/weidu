@@ -48,6 +48,19 @@ let ok_missing file =
 let add_override_path path = override_paths := !override_paths @ [path]
 let add_ids_path path = ids_paths := !ids_paths @ [path]
 
+type tlk = {
+    mutable contents : Tlk.tlk;
+    path : string;
+  }
+and tlk_pair = {
+    dialog : tlk;
+    dialogf : tlk option;
+    mutable dialog_mod : bool; (* changed? *)
+    mutable dialogf_mod : bool;
+  }
+(* there is also output_dialog, which may point to a non-existint file; how does the current code handle the case when output_dialog is input-dialog?
+ * if we just have something that returns the active tlk path, that will be fine for output_dialog *)
+
 let dialog_tlk_path = ref None
 let dialogf_tlk_path = ref None
 
@@ -60,24 +73,24 @@ type str_set_record = (int * Tlk.tlk_string * Tlk.tlk_string)
 type script_style = BG1 | BG2 | IWD1 | IWD2 | PST | NONE
 
 type game = {
-    mutable key          : Key.key ;
-    game_path    : string ;
-    cd_path_list : string list ;
-    mutable override_path_list : string list ;
-    mutable ids_path_list : string list ;
-    mutable loaded_biffs : (string, Biff.biff) Hashtbl.t ;
-    mutable dialog       : Tlk.tlk ;
-    mutable dialog_search : (string, int) Hashtbl.t ;
-    mutable dialogf      : Tlk.tlk option ;
-    mutable str_sets     : str_set_record list ;
+    mutable key : Key.key;
+    game_path : string;
+    cd_path_list : string list;
+    mutable override_path_list : string list;
+    mutable ids_path_list : string list;
+    mutable loaded_biffs : (string, Biff.biff) Hashtbl.t;
+    mutable dialog_search : (string, int) Hashtbl.t;
+    mutable str_sets : str_set_record list;
     (* most recent STRING_SET or forced strref is the head of the list *)
-    dialog_path  : string ;
-    dialogf_path : string ;
-    mutable dialog_mod   : bool ; (* changed? *)
-    mutable dialogf_mod  : bool ; (* changed? *)
-    mutable key_mod      : bool ; (* changed? *)
+(*    dialog_path : string ;
+ *   dialogf_path : string ;
+ *   mutable dialog_mod : bool ; (* changed? *)
+ *   mutable dialogf_mod : bool ; (* changed? *) *)
+    mutable key_mod : bool ; (* changed? *)
     mutable script_style : script_style ;
     game_type : game_type ;
+    dialogs : tlk_pair array;
+    mutable dialog_index : int;
   }
 
 let saved_game = ref (None : game option)
@@ -86,11 +99,21 @@ let the_game () = match !saved_game with
 | None -> parse_error "no game loaded"
 | Some(g) -> g
 
+let get_active_dialog () =
+  let g = the_game () in
+  (Array.get g.dialogs g.dialog_index).dialog.contents
+
+let get_active_dialogf () =
+  let g = the_game () in
+  (match (Array.get g.dialogs g.dialog_index).dialogf with
+  | Some(tlk) -> tlk.contents
+  | None -> get_active_dialog ()) (* bear this in mind when we get to output *)
+
 let create_dialog_search g =
   Array.iteri (fun i t -> Hashtbl.add g.dialog_search t.Tlk.text i)
-    g.dialog
+    (get_active_dialog ())
 
-let append_strings g lse_q =
+let append_strings g lse_q = (* fix this; uses old type *)
   Stats.time "add strings to TLK" (fun () ->
     let num_entries = Queue.length lse_q in
     let ma = Array.make num_entries Tlk.blank_tlk_string in
@@ -120,6 +143,96 @@ let append_strings g lse_q =
 
     g.dialog_mod <- true)
     ()
+
+(* ww: this looks for all case-variants of 'file', so 'CHITIN.KEY' and
+ * 'chitin.key' both match! *)
+let find_file_in_path path file =
+  try
+    begin
+      let h = Case_ins.unix_opendir path in
+      let regexp = Str.regexp_case_fold file in
+      let res = ref None in
+      (try
+        while true do
+          let f = Unix.readdir h in
+          if (Str.string_match regexp f 0) then
+            res := Some(f)
+        done
+      with e -> ()) ; Unix.closedir h ;
+      match !res with
+        Some(e) -> (path ^ "/" ^ e)
+      | None -> (path ^ "/" ^ file)
+    end
+  with _ -> path ^ "/" ^ file
+
+let load_dialog gp dialog_path =
+  let path = match dialog_path with
+  | Some(p) -> p
+  | None -> find_file_in_path gp "^dialog\.tlk$" in
+  if file_exists path then begin
+    (Tlk.load_tlk path),path
+  end else begin
+    log_and_print "\nERROR: Unable to find DIALOG.TLK in:\n\t%s\n" path ;
+    log_and_print "\nPlease run this program in your Infinity Engine game directory.\n" ;
+    failwith "Unable to find DIALOG.TLK"
+  end
+
+let load_dialogf gp dialogf_path =
+  let path = match dialogf_path with
+  | Some(p) -> p
+  | None -> find_file_in_path gp "^dialogf\.tlk$" in
+  if file_exists path then begin
+    let df = Tlk.load_tlk path in
+    Some(df), path
+  end else
+    None, ""
+
+let is_enhanced_edition () =
+  (match (the_game ()).game_type with
+  | BGEE -> true
+  | GENERIC -> false)
+
+let load_dialog_pair path =
+  let dialog, dialog_path = load_dialog path None in
+  let dialogf, dialogf_path = load_dialogf path None in
+  let d = {
+    contents = dialog;
+    path = dialog_path;
+  } in
+  let df = (match dialogf with
+    | Some(df) -> Some ({
+                        contents = df;
+                        path = dialogf_path
+                      })
+    | None -> None) in
+  {
+   dialog = d;
+   dialog_mod = false;
+   dialogf = df;
+   dialogf_mod = false;
+ }
+
+let load_default_dialogs game_path =
+  let tlk_pair = load_dialog_pair game_path in
+  [|tlk_pair|]
+
+let lang_dir_p dir =
+  (is_directory dir) &&
+  (file_exists (Arch.slash_to_backslash (dir ^ "/dialog.tlk")))
+
+let load_ee_dialogs game_path =
+  let lang_dirs = (List.filter lang_dir_p
+                     (Array.to_list (Case_ins.sys_readdir "lang"))) in
+  let languages = (List.map (fun lang ->
+    let path = Arch.slash_to_backslash ("lang/" ^ lang) in
+    load_dialog_path path) lang_dirs) in
+  Array.of_list languages
+
+let load_dialogs game_path =
+  if file_exists (Arch.slash_to_backslash "lang/en_us/dialog.tlk") then
+    load_ee_dialogs game_path
+  else
+    load_default_dialogs game_path
 
 exception FoundKey of Key.key * string
 
@@ -152,28 +265,6 @@ let load_null_game () =
    } in
   create_dialog_search result ;
   result
-
-(* ww: this looks for all case-variants of 'file', so 'CHITIN.KEY' and
- * 'chitin.key' both match! *)
-let find_file_in_path path file =
-  try
-    begin
-      let h = Case_ins.unix_opendir path in
-      let regexp = Str.regexp_case_fold file in
-      let res = ref None in
-      ( try
-        while true do
-          let f = Unix.readdir h in
-          if (Str.string_match regexp f 0) then
-            res := Some(f)
-        done
-      with e -> ()
-       ) ; Unix.closedir h ;
-      match !res with
-        Some(e) -> (path ^ "/" ^ e)
-      | None -> (path ^ "/" ^ file)
-    end
-  with _ -> path ^ "/" ^ file
 
 let find_key_file game_paths =
   try
@@ -253,7 +344,7 @@ let autodetect_game_type key =
   | NONE -> Tlk.is_bg2 := false) ;
   (game_type, script_style)
 
-let pad_tlks result =
+let pad_tlks result = (* fix this *)
   (match result.dialogf with
     Some(df) -> begin
       let dfl = Array.length df in
@@ -275,36 +366,11 @@ let pad_tlks result =
   | None -> ()) ;
 ;;
 
-let load_dialog gp dialog_path =
-  let path = match dialog_path with
-    Some(p) -> p
-  | None -> find_file_in_path gp "^dialog.tlk$"
-  in
-  if file_exists path then begin
-    (Tlk.load_tlk path ),path
-  end else begin
-    log_and_print "\nERROR: Unable to find DIALOG.TLK in:\n\t%s\n" path ;
-    log_and_print "\nPlease run this program in your Infinity Engine game directory.\n" ;
-    failwith "Unable to find DIALOG.TLK"
-  end
-;;
-
-let load_dialogf gp dialogf_path =
-  let path = match dialogf_path with
-    Some(p) -> p
-  | None -> find_file_in_path gp "^dialogf.tlk$"
-  in
-  if file_exists path then begin
-    let df = Tlk.load_tlk path in
-    Some(df), path
-  end else
-    None, "(none)"
-;;
-
 let load_game () =
   let key, gp = find_key_file !game_paths in
-  let dialog_tlk, dialog_path = load_dialog gp !dialog_tlk_path in
-  let dialogf_tlk, dialogf_path = load_dialogf gp !dialogf_tlk_path in
+(*  let dialog_tlk, dialog_path = load_dialog gp !dialog_tlk_path in *)
+(*  let dialogf_tlk, dialogf_path = load_dialogf gp !dialogf_tlk_path in *)
+  let dialogs = load_dialogs gp in
   let cd_paths = read_cd_paths gp in
   if not (is_directory "override") && (file_exists "chitin.key") then
     Case_ins.unix_mkdir "override" 511 ;
@@ -317,14 +383,14 @@ let load_game () =
      override_path_list = !override_paths @ [ (gp ^ "/override") ] ;
      ids_path_list = !ids_paths @ !override_paths @ [ (gp ^ "/override") ];
      loaded_biffs = Hashtbl.create 5 ;
-     dialog = dialog_tlk ;
-     dialog_search = Hashtbl.create ((Array.length dialog_tlk) * 2) ;
-     dialogf = dialogf_tlk ;
+(*     dialog = dialog_tlk ; *)
+     dialog_search = Hashtbl.create ((Array.length dialog_tlk) * 2) ; (* fix this *)
+(*     dialogf = dialogf_tlk ; *)
      str_sets = [] ; (* and keep it that way! :-) *)
-     dialog_path = dialog_path ;
-     dialogf_path = dialogf_path ;
-     dialog_mod = false ;
-     dialogf_mod = false ;
+(*     dialog_path = dialog_path ;
+ *    dialogf_path = dialogf_path ;
+ *    dialog_mod = false ;
+ *    dialogf_mod = false ; *)
      key_mod = false ;
      script_style = script_style ;
      game_type = game_type ;
