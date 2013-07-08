@@ -1285,6 +1285,19 @@ let merge_tlk tlk_merge game =
         ) tlk_merge ;
 ;;
 
+let attempt_to_load_lang_dir () =
+  let user_dir = Arch.get_bgee_user_dir () in
+  let conf = Arch.slash_to_backslash (user_dir ^ "/weidu.conf" in
+  if file_exists conf then begin
+    let buff = load_file conf in
+    let regexp = (Str.regexp_case_fold "lang_dir[ \t]+=[ \t]+\\([a-z_]+\\)") in
+    (try
+      ignore (Str.search_forward regexp buff 0) ;
+      Some (String.lowercase (Str.matched_group 1 buff))
+    with Not_found -> None)
+  end
+  else None
+
 let main () =
 
   let user_min = ref None in
@@ -1712,6 +1725,10 @@ let main () =
 
   if (!forced_script_style <> Load.NONE) then
     force_script_style game !forced_script_style Sys.argv.(0);
+
+  if Load.enhanced_edition_p () then (* todo: only do it unless we got something useful on the command line *)
+    Load.bgee_lang_dir game (attempt_to_load_lang_dir ()) ;
+
 
   Dc.cur_index := Array.length game.Load.dialog ;
   Load.saved_game := Some(game) ;

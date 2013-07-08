@@ -82,10 +82,6 @@ type game = {
     mutable dialog_search : (string, int) Hashtbl.t;
     mutable str_sets : str_set_record list;
     (* most recent STRING_SET or forced strref is the head of the list *)
-(*    dialog_path : string ;
- *   dialogf_path : string ;
- *   mutable dialog_mod : bool ; (* changed? *)
- *   mutable dialogf_mod : bool ; (* changed? *) *)
     mutable key_mod : bool ; (* changed? *)
     mutable script_style : script_style ;
     game_type : game_type ;
@@ -99,21 +95,22 @@ let the_game () = match !saved_game with
 | None -> parse_error "no game loaded"
 | Some(g) -> g
 
-let get_active_dialog () =
-  let g = the_game () in
+let get_active_dialog g =
   (Array.get g.dialogs g.dialog_index).dialog.contents
 
-let get_active_dialogf () =
-  let g = the_game () in
+let get_active_dialogf g =
   (match (Array.get g.dialogs g.dialog_index).dialogf with
   | Some(tlk) -> tlk.contents
   | None -> get_active_dialog ()) (* bear this in mind when we get to output *)
 
+let get_active_dialogs g =
+  (Array.get g.dialogs g.dialog_index)
+
 let create_dialog_search g =
   Array.iteri (fun i t -> Hashtbl.add g.dialog_search t.Tlk.text i)
-    (get_active_dialog ())
+    (get_active_dialog g)
 
-let append_strings g lse_q = (* fix this; uses old type *)
+let append_strings g lse_q =
   Stats.time "add strings to TLK" (fun () ->
     let num_entries = Queue.length lse_q in
     let ma = Array.make num_entries Tlk.blank_tlk_string in
@@ -132,16 +129,17 @@ let append_strings g lse_q = (* fix this; uses old type *)
     log_or_print "%d characters, %d entries added to DIALOG.TLK\n"
       !char_count num_entries ;
     Queue.clear lse_q ;
-    g.dialog <- Array.append g.dialog ma ;
+    let tlk_pair = get_active_dialogs g in
+    tlk_pair.dialog.contents <- Array.append tlk_pair.dialog.contents ma
     Hashtbl.clear g.dialog_search ;
     create_dialog_search g ;
 
-    (match g.dialogf with
-    | Some(a) -> g.dialogf <- Some(Array.append a fa) ;
-        g.dialogf_mod <- true
+    (match tlk_pair.dialogf with
+    | Some(a) -> tlk_pair.dialogf.contents <- Some(Array.append a.contents fa) ;
+        tlk_pair.dialogf_mod <- true
     | None -> ()) ;
 
-    g.dialog_mod <- true)
+    tlk_pair.dialog_mod <- true)
     ()
 
 (* ww: this looks for all case-variants of 'file', so 'CHITIN.KEY' and
@@ -187,7 +185,7 @@ let load_dialogf gp dialogf_path =
   end else
     None, ""
 
-let is_enhanced_edition () =
+let enhanced_edition_p () =
   (match (the_game ()).game_type with
   | BGEE -> true
   | GENERIC -> false)
@@ -200,11 +198,11 @@ let load_dialog_pair path =
     path = dialog_path;
   } in
   let df = (match dialogf with
-    | Some(df) -> Some ({
-                        contents = df;
-                        path = dialogf_path
-                      })
-    | None -> None) in
+  | Some(df) -> Some {
+      contents = df;
+      path = dialogf_path
+    }
+  | None -> None) in
   {
    dialog = d;
    dialog_mod = false;
@@ -225,7 +223,7 @@ let load_ee_dialogs game_path =
                      (Array.to_list (Case_ins.sys_readdir "lang"))) in
   let languages = (List.map (fun lang ->
     let path = Arch.slash_to_backslash ("lang/" ^ lang) in
-    load_dialog_path path) lang_dirs) in
+    load_dialog_pair path) lang_dirs) in
   Array.of_list languages
 
 let load_dialogs game_path =
@@ -237,12 +235,16 @@ let load_dialogs game_path =
 exception FoundKey of Key.key * string
 
 let load_null_game () =
-  let d,dp =
-    match !dialog_tlk_path with
-      Some(p) ->
-        (Tlk.load_tlk p),p
-    | None -> Tlk.null_tlk () , " -- NO DIALOG.TLK -- "
-  in
+  let dialogs =
+    (match !dialog_tlk_path with
+    | Some(p) -> [|load_tlk_pair p|]
+    | None -> [|{
+        dialog = {contents = (Tlk.null_tlk ()); path = " -- NO DIALOG.TLK -- ";};
+        dialog_mod = false;
+        dialogf = None;
+        dialogf_mod = false;
+      }|]) in
+  let dialog_index = 0 in
   let result =
     {
      key = Key.null_key () ;
@@ -251,17 +253,13 @@ let load_null_game () =
      override_path_list = !override_paths ;
      ids_path_list = !ids_paths ;
      loaded_biffs = Hashtbl.create 1 ;
-     dialog = d ;
-     dialog_search = Hashtbl.create (1 + ((Array.length d) * 2)) ;
-     dialogf = None ;
-     dialog_path = dp ;
+     dialog_search = Hashtbl.create (1 + (Array.length (Array.get dialogs dialog_index).dialog.contents * 2) ;
      str_sets = [] ;
-     dialogf_path = " -- NO DIALOGF.TLK -- " ;
-     dialog_mod = false ;
-     dialogf_mod = false ;
      key_mod = false ;
      script_style = BG2 ;
      game_type = GENERIC ;
+     dialogs = dialogs ;
+     dialog_index = dialog_index ;
    } in
   create_dialog_search result ;
   result
@@ -344,33 +342,33 @@ let autodetect_game_type key =
   | NONE -> Tlk.is_bg2 := false) ;
   (game_type, script_style)
 
-let pad_tlks result = (* fix this *)
-  (match result.dialogf with
+let pad_tlks game = (* todo: extend this to cover all tlk_pairs in dialogs *)
+  (match (get_active_dialogf game) with
     Some(df) -> begin
+      let d = get_active_dialog game in
+      let d_pair = get_active_dialogs game in
       let dfl = Array.length df in
-      let dl = Array.length result.dialog in
+      let dl = Array.length d in
       if (dfl > dl) then begin
         let uneven = Array.sub df dl (dfl - dl) in
         log_and_print "*** %s has %d too few entries, padding.\n"
-          result.dialog_path (dfl - dl) ;
-        result.dialog <- Array.append result.dialog uneven ;
-        result.dialog_mod <- true;
+          d_pair.dialog.path (dfl - dl) ;
+        d_pair.dialog.contents <- Array.append d uneven ;
+        d_pair.dialog_mod <- true;
       end else if (dfl < dl) then begin
-        let uneven = Array.sub result.dialog dfl (dl - dfl) in
+        let uneven = Array.sub d dfl (dl - dfl) in
         log_and_print "*** %s has %d too few entries, padding.\n"
-          result.dialogf_path (dl - dfl) ;
-        result.dialogf <- Some(Array.append df uneven) ;
-        result.dialogf_mod <- true;
+          d_pair.dialogf.path (dl - dfl) ;
+        d_pair.dialogf.contents <- Some(Array.append df uneven) ;
+        d_pair.dialogf_mod <- true;
       end
     end
-  | None -> ()) ;
-;;
+  | None -> ())
 
 let load_game () =
   let key, gp = find_key_file !game_paths in
-(*  let dialog_tlk, dialog_path = load_dialog gp !dialog_tlk_path in *)
-(*  let dialogf_tlk, dialogf_path = load_dialogf gp !dialogf_tlk_path in *)
   let dialogs = load_dialogs gp in
+  let dialog_index = 0 in
   let cd_paths = read_cd_paths gp in
   if not (is_directory "override") && (file_exists "chitin.key") then
     Case_ins.unix_mkdir "override" 511 ;
@@ -383,17 +381,13 @@ let load_game () =
      override_path_list = !override_paths @ [ (gp ^ "/override") ] ;
      ids_path_list = !ids_paths @ !override_paths @ [ (gp ^ "/override") ];
      loaded_biffs = Hashtbl.create 5 ;
-(*     dialog = dialog_tlk ; *)
-     dialog_search = Hashtbl.create ((Array.length dialog_tlk) * 2) ; (* fix this *)
-(*     dialogf = dialogf_tlk ; *)
+     dialog_search = Hashtbl.create ((Array.length (Array.get dialogs dialog_index).dialog.contents) * 2) ;
      str_sets = [] ; (* and keep it that way! :-) *)
-(*     dialog_path = dialog_path ;
- *    dialogf_path = dialogf_path ;
- *    dialog_mod = false ;
- *    dialogf_mod = false ; *)
      key_mod = false ;
      script_style = script_style ;
      game_type = game_type ;
+     dialogs = dialogs;
+     dialog_index = dialog_index;
    } in
   ignore (match game_type with
   | BGEE -> Var.bgee_game_vars ()
@@ -401,6 +395,39 @@ let load_game () =
   pad_tlks result ;
   create_dialog_search result ;
   result
+
+let have_bgee_lang_dir_p ref false
+
+let bgee_lang_dir game dir =
+  (match dir with
+  | Some d ->
+      let regexp = (Str.regexp_case_fold
+                      (Str.quote (Arch.slash_to_backslash ("lang/" ^ d)))) in
+      ignore (Array.iteri (fun index tlk_pair ->
+        if Str.string_match regexp tlk_pair.dialog.path 0 then begin
+          game.dialog_index <- index ;
+          have_bgee_lang_dir := true ;
+        end) game.dialogs) ;
+      if not !have_bgee_lang_dir_p then begin
+        log_and_print
+          "ERROR: None of the dialog paths were a match against %s\n" d ;
+        raise Not_found
+      end ;
+  | None -> have_bgee_lang_dir_p := false)
+
+let bgee_language_options game =
+  let options = Array.map (fun tlk_pair ->
+    let str1 = (Str.quote (Arch.slash_to_backslash "lang/" in
+    let str2 = (Str.quote (Arch.slash_to_backslash "/dialog.tlk" in
+    let regexp = (Str.regexp_case_fold (str1 ^ "\\([a-z_]+\\)" ^ str2)) in
+    if Str.string_match regexp tlk_pair.dialog.path 0 then
+      Str.matched_group 1 tlk_pair.dialog.path
+    else begin
+      log_and_print "ERROR: could not match a directory in %s\n"
+        tlk_pair.dialog.path ;
+      raise Not_found
+    end) game.dialogs in
+  options
 
 exception FoundRes of string * string
 exception Missing
@@ -585,7 +612,7 @@ let search_biff_contents game o tl sl =
               let name_id = int_of_str_off buff off in
               o (Printf.sprintf "%8s.%3s in [%s] matches [%s]\n"
                    r.res_name ( ext_of_key r.res_type ) biff.filename
-                   (Tlk.pretty_print game.dialog name_id))
+                   (Tlk.pretty_print (get_active_dialog game) name_id))
           | _ -> o (Printf.sprintf "%8s.%3s in [%s] matches\n"
                       r.res_name ( ext_of_key r.res_type ) biff.filename)
         end
@@ -606,7 +633,7 @@ let search_biff_contents_fun game o tl matches =
               let name_id = int_of_str_off buff off in
               o (Printf.sprintf "%8s.%3s in [%s] matches [%s]\n"
                    r.res_name ( ext_of_key r.res_type ) biff.filename
-                   (Tlk.pretty_print game.dialog name_id))
+                   (Tlk.pretty_print (get_active_dialog game) name_id))
           | _ -> o (Printf.sprintf "%8s.%3s in [%s] matches\n"
                       r.res_name ( ext_of_key r.res_type ) biff.filename)
         end
