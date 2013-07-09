@@ -622,6 +622,12 @@ let ask_about_groups tp groups module_defaults last_module_index using_quickmenu
         (Dc.single_string_of_tlk_string_safe
            (Load.the_game ()) this_grp) (get_trans (-1037))) !groups
 
+let set_mod_vars tp =
+  Var.set_string "TP2_AUTHOR" tp.author ;
+  Var.set_string "TP2_FILE_NAME" tp.tp_filename ;
+  Var.set_string "TP2_BASE_NAME" (Var.get_tp2_base_name tp.tp_filename) ;
+  Var.set_string "MOD_FOLDER" (Var.get_mod_folder tp.backup)
+
 
 
 (*************************************************************************
@@ -665,10 +671,7 @@ let rec handle_tp game this_tp2_filename tp =
 
   let our_lang, our_lang_index = choose_lang tp this_tp2_filename in
 
-  Var.set_string "TP2_AUTHOR" tp.author ;
-  Var.set_string "TP2_FILE_NAME" tp.tp_filename;
-  Var.set_string "TP2_BASE_NAME" (Var.get_tp2_base_name tp.tp_filename) ;
-  Var.set_string "MOD_FOLDER" (Var.get_mod_folder tp.backup) ;
+  ignore (set_mod_vars tp) ;
 
   ignore (lang_init !our_lang) ;
 
@@ -1399,12 +1402,7 @@ let rec handle_tp game this_tp2_filename tp =
             Dc.clear_state () ;
             Dc.push_trans ();
             init_default_strings () ;
-            Var.set_string "TP2_AUTHOR" tp2.author ;
-            Var.set_string "TP2_FILE_NAME" tp2.tp_filename;
-            Var.set_string "TP2_BASE_NAME" (Str.global_replace
-                                              (Str.regexp_case_fold
-                                                 ".*[-/]\\([^-/]*\\)\\.tp2$")
-                                              "\\1" tp2.tp_filename) ;
+            set_mod_vars tp ;
             (try
               let l = List.nth tp2.languages b in
               our_lang := Some(l) ;
@@ -1415,11 +1413,6 @@ let rec handle_tp game this_tp2_filename tp =
               (*  log_and_print "Re-Installing Using Language [%s]\n" l.lang_name ;*)
               log_and_print "%s [%s]\n" ((get_trans (-1012))) l.lang_name ;
               Var.set_string "LANGUAGE" l.lang_dir_name ;
-              Var.set_string "TP2_FILE_NAME" tp2.tp_filename ;
-              Var.set_string "TP2_BASE_NAME" (Str.global_replace
-                                                (Str.regexp_case_fold
-                                                   ".*[-/]\\([^-/]*\\)\\.tp2$")
-                                                "\\1" tp2.tp_filename) ;
             with _ ->
               our_lang := None ;
               our_lang_index := 0 ;
