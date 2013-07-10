@@ -961,7 +961,7 @@ let rec handle_tp game this_tp2_filename tp =
     !ask_all || List.exists (fun a -> a = Ask_Every_Component) tp.flags in
 
   let using_quickmenu = ref false in
-  let quickmenu, always =
+  let quickmenu, always = if has_quickmenu then begin
     let quickmenu = List.find (fun x ->
       match x with
       | Quick_Menu _ -> true
@@ -969,7 +969,8 @@ let rec handle_tp game this_tp2_filename tp =
     match quickmenu with
     | Quick_Menu (x, y) -> (x, y)
     | _ -> (try assert false with Assert_failure (s, l, c) ->
-        failwith (Printf.sprintf "Internal WeiDU failure: %s %d %d" s l c)) in
+        failwith (Printf.sprintf "Internal WeiDU failure: %s %d %d" s l c))
+  end else ([], []) in
 
    (* for big mods, ask about things in general first *)
    if not !always_yes && not !always_uninstall &&
