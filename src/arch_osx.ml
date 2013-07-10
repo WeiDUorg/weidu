@@ -83,7 +83,7 @@ let check_UAC () =
 
 external get_user_personal_dir : unit -> string = "get_user_home_dir"
 
-let get_bgee_user_dir () =
+let get_bgee_user_dir game_path =
   let personal = get_user_personal_dir () in
   personal ^
   "/Documents/Baldur's Gate - Enhanced Edition"

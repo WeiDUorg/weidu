@@ -89,9 +89,8 @@ let check_UAC () =
 
 (* external get_user_personal_dir : unit -> string = "get_user_home_dir" *)
 
-let get_bgee_user_dir () =
-  failwith "get_bgee_user_dir should not be called on this architecture"
-;;
+let get_bgee_user_dir game_path =
+  game_path
 
 let game_path_by_type name =
   failwith "--game-by-path not available on this architecture"

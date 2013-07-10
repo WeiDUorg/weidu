@@ -330,8 +330,8 @@ let load_game () =
      game_type = game_type ;
    } in
   ignore (match game_type with
-  | BGEE -> Var.bgee_game_vars ()
-  | GENERIC -> Var.default_game_vars ()) ;
+  | BGEE -> Var.bgee_game_vars result.game_path
+  | GENERIC -> Var.default_game_vars result.game_path) ;
   pad_tlks result ;
   create_dialog_search result ;
   result
