@@ -2782,15 +2782,17 @@ global option to your \ttref{TP2} file. \\
        The given file is displayed to the user after choosing the language, but
        before installing any component. If more than one file name is provided,
        they are checked for existence in the order they're provided, and the first available
-       one will be opened. If you wish to open multiple readme files, use multiple README
+       one will be opened. If you wish to open multiple readme files, use multiple \t{README}
        statements.
   \\
   or & \DEFSYN{UNINSTALL!ORDER} String \Slist &
 		Don't use without a real reason.
 
 		Specifies the order in which uninstallation operations are handled.
-		The operations are STRSET (uninstall STRSET and ALTER!TLK), MOVE
-		(uninstall MOVE), AT (perform AT!UNINSTALL and AT!INTERACTIVE!UNINSTALL) and
+		The operations are STRSET (uninstall \ttref{STRING!SET} and
+                \ttref{ALTER!TLK}), MOVE
+		(uninstall \ttref{MOVE}), AT (perform \ttref{AT!UNINSTALL} and
+                \ttref{AT!INTERACTIVE!UNINSTALL}) and
 		COPY (uninstall all various file operations).
 
 		If not specified, the order is MOVE - STRSET - COPY - AT.
@@ -2816,9 +2818,9 @@ global option to your \ttref{TP2} file. \\
        ``style'' include \t{BG} (the default), \t{IWD1}, \t{IWD2}, and \t{PST}.
        See \ahrefloc{sec-scripting-styles}{the Scripting Styles tutorial}. \\
   or & \DEFINE{NO!IF!EVAL!BUG} & this action solves a long-standing bug with
-    the IF!EVAL action. Since solving it is not directly possible without
+    the \t{IF!EVAL} action. Since solving it is not directly possible without
     damaging backwards compatibility, you have to use this action (preferably
-    in an ALWAYS statement) to solve the bug for yourself. IF!EVAL will not
+    in an \ttref{ALWAYS} statement) to solve the bug for yourself. \t{IF!EVAL} will not
     work with this action in the TP2 - use \ttref{PATCH!IF} and
     \ttref{BUT!ONLY!IF!IT!CHANGES} instead. \\
 
@@ -2828,7 +2830,7 @@ global option to your \ttref{TP2} file. \\
     instructions, and caveats. \\
 
   or & \DEFINE{AUTO!EVAL!STRINGS} &
-    If used, an EVALUATE!BUFFER is implied everywhere possible. In particular,
+    If used, an \ttref{EVALUATE!BUFFER} is implied everywhere possible. In particular,
     you can now "forget" about using it in FUNCTIONs and arrays. \\
 \\
 
@@ -2931,9 +2933,9 @@ global option to your \ttref{TP2} file. \\
       and cannot be uninstalled with WeiDU. \emph{Do not use this flag without
 	  a real reason.} \\
   or & \DEFINE{LABEL} \ttref{String} &
-      Defines this's module LABEL, or unique textual identifier. Any component
-	  can have zero or more LABEL. Will print a warning if two components in
-      the same tp2 share a LABEL. \emph{Do not alter a component's LABEL once
+      Defines this's module \t{LABEL}, or unique textual identifier. Any component
+	  can have zero or more \t{LABEL}. Will print a warning if two components in
+      the same tp2 share a \t{LABEL}. \emph{Do not alter a component's \t{LABEL} once
 	  you publish that mod}. \\
 \\
 
@@ -3042,7 +3044,7 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
 	   directory, toFile must be a directory; if fromFile doesn't exist, an error is
 	   raised.
 
-	   \verb+MOVE+ also supports the \ttref{directory-file-regexp} construct
+	   \t{MOVE} also supports the \ttref{directory-file-regexp} construct
 	   in place of fromFile; in this form, it must be wrapped in parenthesis,
 	   toFile must be a directory, and no error is raised if no file is matched. Examples:
 
@@ -3054,10 +3056,10 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
 \end{verbatim}
 
        Safety notes: when uninstalling, MOVE is restored first,
-       then all generic actions are restored, then AT!*!UNINSTALL is handled.
-       As such, do your AT!NOW, then do your COPY, then do your MOVEs
-       (exception: if you MOVE for biffing purposes, it is safe to call
-       MAKE!BIFF after MOVE. Do not use the --make-biff command-line argument).
+       then all generic actions are restored, then \t{AT!*!UNINSTALL} is handled.
+       As such, do your \ttref{AT!NOW}, then do your \ttref{COPY}, then do your \t{MOVE}s
+       (exception: if you \t{MOVE} for biffing purposes, it is safe to call
+       \ttref{MAKE!BIFF} after \t{MOVE}. Do not use the --make-biff command-line argument).
        \\
 
   or & \DEFINE{DELETE} \ttref{optNoBackup} file ... &
@@ -3075,14 +3077,14 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
 		Don't use without a real reason.
        \\
 
-  or & \DEFINE{COMPILE} \Ob EVALUATE!BUFFER \Oe sourceFile \Slist
+  or & \DEFINE{COMPILE} \Ob \t{EVALUATE!BUFFER} \Oe sourceFile \Slist
        \Ob \ttref{patch} \Slist \Oe \Ob \DEFINE{USING} traFile \Slist \Oe &
       This command compiles \ttref{D} and \ttref{BAF} source files. If
       sourceFile is a directory, all \ttref{D} and \ttref{BAF} files within
-      that directory are processed individually. If there is EVALUATE!BUFFER,
+      that directory are processed individually. If there is \ttref{EVALUATE!BUFFER},
       all \verb+%variables%+ in the files are substituted with their values.
 
-      After the special EVALUATE!BUFFER is executed, all other patches are executed.
+      After the special \ttref{EVALUATE!BUFFER} is executed, all other patches are executed.
 
 
       First, this loads all of the traFiles presented. If any of their
@@ -3095,18 +3097,18 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
       \ttref{DLG}s or \ttref{BCS}s they create or modify are placed in the
       \t{override} directory.  \\
   or & \DEFINE{CLEAR!MEMORY} & removes all variables from the memory, then
-      reloads the automatic ones (TP2!AUTHOR, TP2!FILE!NAME, TP2!BASE!NAME,
-      MOD!FOLDER LANGUAGE, WEIDU!ARCH,
-      WEIDU!OS, COMPONENT!NUMBER, all numeric constants such as NAME1, the soundsets, or
-      SCRIPT!OVERRIDE). INTERACTIVE is automatically set when you call the
+      reloads the automatic ones (\ttref{TP2!AUTHOR}, \ttref{TP2!FILE!NAME}, \ttref{TP2!BASE!NAME},
+      \ttref{MOD!FOLDER}, \ttref{LANGUAGE}, \ttref{WEIDU!ARCH},
+      \ttref{WEIDU!OS}, \ttref{COMPONENT!NUMBER}, all numeric constants such as \t{NAME1}, the soundsets, or
+      \t{SCRIPT!OVERRIDE}). \ttref{INTERACTIVE} is automatically set when you call the
       next component. Don't use this feature without a real reason. \\
   or & \DEFINE{CLEAR!ARRAYS} & removes the names and contents of all arrays
       from the memory (while still keeping their values). \\
   or & \DEFINE{CLEAR!CODES} & Removes all loaded functions and macros from the
       memory. \\
   or & \DEFINE{CLEAR!INLINED} & Removes all inlined files from the memory. \\
-  or & \DEFINE{CLEAR!EVERYTHING} & Runs CLEAR!MEMORY, CLEAR!ARRAY, CLEAR!CODES and
-      CLEAR!INLINED. \\
+  or & \DEFINE{CLEAR!EVERYTHING} & Runs \ttref{CLEAR!MEMORY}, \ttref{CLEAR!ARRAY}, \ttref{CLEAR!CODES} and
+      \ttref{CLEAR!INLINED}. \\
   or & \DEFINE{CLEAR!IDS!MAP} & force WeiDU to remove all loaded IDSes in memory
       (otherwise, if you compile a script, append to an IDS and compile another script, WeiDU
       will not handle the new IDS entry). \\
@@ -3116,7 +3118,7 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
     will not consider old values.
   \\
   or & \DEFINE{SILENT} & makes WeiDU skip all messages; it's reenabled once a component
-      is installed (or fails to), or a PRINT, PATCH!PRINT, VERBOSE or PATCH!VERBOSE is found. \\
+      is installed (or fails to), or a \ttref{PRINT}, \ttref{PATCH!PRINT}, \ttref{VERBOSE} or \ttref{PATCH!VERBOSE} is found. \\
   or & \DEFINE{VERBOSE} & undoes the latest SILENT command. \\
   or & \DEFINE{MKDIR} dirName \Slist &
       Instructs WeiDU to create all of the directories in the list. \\
@@ -3263,7 +3265,7 @@ P Q R 3
     file and run it from here.
     \end{itemize}
     Slashes and backslashes will be converted appropriately for the
-    underlying operating system. If \verb+EXACT+ is specified, \verb+/+
+    underlying operating system. If \t{EXACT} is specified, \verb+/+
     and \verb+\+ will instead be preserved as they are. The most common usage is:
 \begin{verbatim}
 AT_INTERACTIVE_EXIT ~VIEW mymod\README.txt~
@@ -3446,8 +3448,8 @@ COPY ~MyMod/MYDART.ITM~ ~override/MYDART.ITM~
 	\\
 
   or & \DEFINE{ADD!JOURNAL} \Ob \t{EXISTING} \Oe \Ob \t{MANAGED} \Oe \Ob
-       \t{TITLE} ( \ttref{text} ) \Oe \ttref{reference} \Slist \Ob \t{USING}
-       traFile \Slist \Oe &
+       \t{TITLE} \t{(} \ttref{text} \t{)} \Oe \ttref{reference} \Slist \Ob
+       \t{USING} traFile \Slist \Oe &
     If the game is not BGEE, this action does nothing.
     If the game is BGEE, this action patches BGEE.SQL with the provided
     quests and journal entries, so they will work with BGEE's journal system.
@@ -3552,8 +3554,8 @@ or & \DEFINE{OUTER!TEXT!SPRINT} \ttref{variable} stringWithVars &
   mod-installation time!) is assigned to the variable \t{variable}.
   This works somewhat like \t{sprintf()} but it not as cool. \\
 or & \DEFINE{OUTER!SPRINT} \ttref{variable} stringWithVars &
-  Like OUTER!TEXT!SPRINT, but stringWithVars can be an @reference, and will
-  break --traify. Use OUTER!TEXT!SPRINT instead. \\
+  Like \ttref{OUTER!TEXT!SPRINT}, but stringWithVars can be an @reference, and will
+  break --traify. Use \ttref{OUTER!TEXT!SPRINT} instead. \\
 or & \DEFINE{OUTER!SET} \ttref{variable} \t{=} \ttref{value} &
   Update \ttref{variable} so that it is equal to \ttref{value}. \\
 or & \ttref{OUTER!SET} \ttref{variable} \t{+=} \ttref{value} &
@@ -3783,8 +3785,8 @@ the directory / filename distinction must be enforced. \\
 
   \\
   or & \DEFINE{NOGLOB} & Never use local file system globbing. \\
-  or & & Use sane defaults: enable globbing with COPY!EXISTING!REGEXP, disable
-  it with COPY. \\
+  or & & Use sane defaults: enable globbing with \ttref{COPY!EXISTING!REGEXP}, disable
+  it with \ttref{COPY}. \\
 
 \\
 
@@ -3866,8 +3868,8 @@ or & \DEFINE{TEXT!SPRINT} \ttref{variable} stringWithVars &
   This works somewhat like \t{sprintf()} but it not as cool. Currently this
   is the only way to assign a string value to a variable. \\
 or & \DEFINE{SPRINT} \ttref{variable} stringWithVars &
-  Like TEXT!SPRINT, but stringWithVars can be an @reference, and will
-  break --traify. Use TEXT!SPRINT instead. \\
+  Like \ttref{TEXT!SPRINT}, but stringWithVars can be an @reference, and will
+  break --traify. Use \ttref{TEXT!SPRINT} instead. \\
 
 or & \DEFINE{SNPRINT} \ttref{value} \ttref{variable} stringWithVars &
   As \ttref{SPRINT}, but only the first \t{N} characters are stored in
@@ -4011,7 +4013,8 @@ or & \DEFINE{APPEND!FILE} filename &
 or & \DEFINE{APPEND!FILE!EVALUATE} filename &
   Just like \ttref{APPEND!FILE} except that \verb+%variables%+ in the contents of
   ``filename'' are evaluated before the appending. \\
-or & \DEFINE{REPLACE!BCS!BLOCK} oldFile newFile \Ob ON!MISMATCH \ttref{patch} \Slist END \Oe &
+or & \DEFINE{REPLACE!BCS!BLOCK} oldFile newFile \Ob  \t{ON!MISMATCH}
+     \ttref{patch} \Slist \t{END} \Oe &
   If the current file is a \ttref{BCS} file, the segment of it
   corresponding to oldFile is replaced with the contents of newFile.
   oldFile and newFile may be \ttref{BCS} or \ttref{BAF} files. If they
@@ -4019,8 +4022,8 @@ or & \DEFINE{REPLACE!BCS!BLOCK} oldFile newFile \Ob ON!MISMATCH \ttref{patch} \S
 
 
 
-  If the segment corresponding to oldFile is not found and the ON!MISMATCH section
-  is present, those patches are run; if oldFile is not found and ON!MISMATCH is not
+  If the segment corresponding to oldFile is not found and the \t{ON!MISMATCH} section
+  is present, those patches are run; if oldFile is not found and \t{ON!MISMATCH} is not
   present, a warning message is printed.
   \\
 or & \DEFINE{INSERT!BYTES} \ttref{offset} \ttref{value} &
@@ -4088,7 +4091,7 @@ or & \DEFINE{GET!OFFSET!ARRAY} \ttref{String} \t{seven \ttref{value}s} &
 7. Length between iterations.
 \end{verbatim}
 
-WeiDU comes with a number of pre-defined sets of values for GET!OFFSET!ARRAY. These sets are:
+WeiDU comes with a number of pre-defined sets of values for \t{GET!OFFSET!ARRAY}. These sets are:
 \begin{verbatim}
 ITM_V10_HEADERS (0x64 4 0x68 2 0 0 0x38)
 ITM_V10_GEN_EFFECTS (0x6a 4 0x70 2 0x6e 2 0x30)
@@ -4096,7 +4099,7 @@ WMP_AREAS (0x34 4 0x30 4 0 0 0xf0)
 WMP_LINKS (0x38 4 0x3c 4 0 0 0xd8)
 \end{verbatim}
 
-GET!OFFSET!ARRAY performs "Iterations" number of reads and sets the array \verb+$string(0)+, \verb+$string(1)+ etc to the result of these reads. A more detailed explanation can be had in the \ttref{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} tutorial.\\
+\t{GET!OFFSET!ARRAY} performs "Iterations" number of reads and sets the array \verb+$string(0)+, \verb+$string(1)+ etc to the result of these reads. A more detailed explanation can be had in the \ttref{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} tutorial.\\
 
 or & \DEFINE{GET!OFFSET!ARRAY2} \ttref{String} \t{eight \ttref{value}s} &
   The eight values are:
@@ -4111,13 +4114,13 @@ or & \DEFINE{GET!OFFSET!ARRAY2} \ttref{String} \t{eight \ttref{value}s} &
 8. Length between iterations
 \end{verbatim}
 
-WeiDU comes with a pre-defined set of values for GET!OFFSET!ARRAY2. This set is:
+WeiDU comes with a pre-defined set of values for \t{GET!OFFSET!ARRAY2}. This set is:
 \begin{verbatim}
 ITM_V10_HEAD_EFFECTS (0x6a 4 0x1e 2 0x20 2 0x30)
 \end{verbatim}
 As you can see, the value for Offset2 isn't included in the set, since it varies.
 
-"Offset2" corresponds to the result from \ttref{GET!OFFSET!ARRAY}. "Offset" is read from the start of the file. "Iterations" and "Index" are read from Offset2 + value. Apart from that GET!OFFSET!ARRAY2 functions like \ttref{GET!OFFSET!ARRAY}. A more detailed explanation can be had in the \ttref{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} tutorial.\\
+"Offset2" corresponds to the result from \ttref{GET!OFFSET!ARRAY}. "Offset" is read from the start of the file. "Iterations" and "Index" are read from Offset2 + value. Apart from that \t{GET!OFFSET!ARRAY2} functions like \ttref{GET!OFFSET!ARRAY}. A more detailed explanation can be had in the \ttref{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} tutorial.\\
 
 or & \DEFINE{DEFINE!ASSOCIATIVE!ARRAY} \t{\ttref{String} BEGIN key1 \Ob , key2 ... \Oe => result1} \Slist \t{END} &
   Sets the array \verb+$string+, indexed by the keys, to the corresponding results. The results can either be \ttref{String}s or \ttref{value}s.
@@ -4228,16 +4231,16 @@ or & \DEFINE{PATCH!IF} \ttref{value} \Ob \t{THEN} \Oe \t{BEGIN}
   convenient shorthand, you may omit the \t{BEGIN}-\t{END} in the \t{ELSE}
   branch if the \t{ELSE} branch contains exactly one \t{patch}.
   \\
-  or & \DEFINE{PATCH!MATCH}\Slist WITH \Ob \ttref{value} ...
-    \Ob WHEN \ttref{value} \Oe
-    BEGIN \ttref{patch} \Slist END \Oe
-    ... DEFAULT \ttref{patch} \Slist END &
+  or & \DEFINE{PATCH!MATCH}\Slist \t{WITH} \Ob \ttref{value} ...
+    \Ob \t{WHEN} \ttref{value} \Oe
+    \t{BEGIN} \ttref{patch} \Slist \t{END} \Oe
+    ... \t{DEFAULT} \ttref{patch} \Slist \t{END} &
     See the \ttref{MATCH and TRY} tutorial.
   \\
-  or & \DEFINE{PATCH!TRY} \ttref{patch}\Slist WITH \Ob \ttref{value} ...
-    \Ob WHEN \ttref{value} \Oe
-    BEGIN \ttref{patch} \Slist END \Oe
-    ... DEFAULT \ttref{patch} \Slist END &
+  or & \DEFINE{PATCH!TRY} \ttref{patch}\Slist \t{WITH} \Ob \ttref{value} ...
+    \Ob \t{WHEN} \ttref{value} \Oe
+    \t{BEGIN} \ttref{patch} \Slist \t{END} \Oe
+    ... \t{DEFAULT} \ttref{patch} \Slist \t{END} &
     See the \ttref{MATCH and TRY} tutorial.
   \\
   or & \DEFINE{PATCH!RERAISE} & See the \ttref{MATCH and TRY} tutorial.
@@ -4395,8 +4398,8 @@ or & \DEFINE{COMPILE!D!TO!DLG} &
   a single \ttref{DLG} file (via an obvious \ttref{BEGIN} action) is
   compiled to a \ttref{DLG}. Typically this is only used after a
   \ttref{DECOMPILE!DLG!TO!D}.  \\
-or & \DEFINE{DECOMPILE!AND!PATCH} BEGIN \ttref{patch} \Slist
-  \verb+END+ &
+or & \DEFINE{DECOMPILE!AND!PATCH} \t{BEGIN} \ttref{patch} \Slist
+  \t{END} &
   Acts like
 \begin{verbatim}
 DECOMPILE_BCS_TO_BAF // or DLG_TO_D
@@ -4413,7 +4416,7 @@ or & \DEFINE{REFACTOR!TRIGGER} \ttref{optcase} \ttref{optexact} String String &
   Works like \ttref{REPLACE!TEXTUALLY}, except that it only works on triggers
   (for both D and BAF files)
   and applies Boolean Algebra to ensure that the structure of the trigger is not
-  broken (like REPLACE!TEXTUALLY would do if you are substituting one trigger with
+  broken (like \ttref{REPLACE!TEXTUALLY} would do if you are substituting one trigger with
   several and the matching trigger is inside an OR() block and/or negated).
 
   Caveats:
@@ -4423,7 +4426,7 @@ or & \DEFINE{REFACTOR!TRIGGER} \ttref{optcase} \ttref{optexact} String String &
 	avoid calling this patch on script files that do not contain the trigger
 	you are looking for.
   \item the resulting file will have messed up whitespace, so remember that if
-    you plan on using REPLACE!TEXTUALLY later (the file will work correctly
+    you plan on using \ttref{REPLACE!TEXTUALLY} later (the file will work correctly
 	in-game). Applying another (empty) \ttref{DECOMPILE!AND!PATCH}
     will fix this issue.
   \item the searching regexp must match exactly against a single trigger
@@ -4824,7 +4827,7 @@ and \verb+tob+ will detect ToB-based Tutu games in addition to ToB and BGT games
 As such, a mod that requires Throne of Bhaal's engine enhancements could use
 \verb+REQUIRE_PREDICATE ENGINE_IS ~tob~+ . \\
 
-or & \DEFINE{IDS!OF!SYMBOL} (File \ttref{String}) &
+or & \DEFINE{IDS!OF!SYMBOL} \t{(} File \ttref{String} \t{)} &
 Will return the number associated with String in File.ids,
 or -1 if String is not associated in File.ids. \\
 
@@ -4836,7 +4839,7 @@ integer).  \\
 or & \DEFSYN{IS!AN!INT} \ttref{String} &
 Returns true if the variable String is set to an integer (there's a variable called either
 \verb+String+ or \verb+%String%+ with integer value).  \\
-or & \DEFINE{TRA!ENTRY!EXISTS} ( \ttref{String} \ttref{String} \Slist ) &
+or & \DEFINE{TRA!ENTRY!EXISTS} \t{(} \ttref{String} \ttref{String} \Slist \t{)} &
 	returns true if the variable String maps to a valid TRA entry.
 	If the \ttref{String} list is empty the tra entry is looked for into the loaded TRAs,
 	otherwise it's looked for into the listed TRA files.
@@ -4848,12 +4851,12 @@ or & \DEFINE{MOD!IS!INSTALLED} modTp2Name modComponent &
 Returns true if the modComponent of modTp2Name is installed. The syntax
 is the same as with \ttref {REQUIRE!COMPONENT}.  \\
 
-or & \DEFINE{INSTALL!ORDER} modTp2Name1 modComponent1 AFTER modTp2Name2 modComponent2 &
+or & \DEFINE{INSTALL!ORDER} modTp2Name1 modComponent1 \t{AFTER} modTp2Name2 modComponent2 &
 Returns true if the modComponent1 of modTp2Name1 is installed after the modComponent2
 of modTp2Name2 (and both components are installed). The syntax
 is the same as with \ttref {REQUIRE!COMPONENT}.  \\
 
-or & \DEFSYN{INSTALL!ORDER} modTp2Name1 modComponent1 BEFORE modTp2Name2 modComponent2 &
+or & \DEFSYN{INSTALL!ORDER} modTp2Name1 modComponent1 \t{BEFORE} modTp2Name2 modComponent2 &
 Returns true if the modComponent1 of modTp2Name1 is installed before the modComponent2
 of modTp2Name2 (and both components are installed). The syntax
 is the same as with \ttref {REQUIRE!COMPONENT}.  \\
@@ -4892,12 +4895,12 @@ or & \DEFSYN{STATE!WHICH!SAYS} \t{\ttref{value} IN \ttref{String}1 FROM \ttref{S
     solarom/russian/epilogue.tra
 \end{verbatim}
 \\
-or & \DEFINE{RESOLVE!STR!REF} ( \ttref{text} ) &
+or & \DEFINE{RESOLVE!STR!REF} \t{(} \ttref{text} \t{)} &
 Resolves the given text (adding it to the tlk), and returns its TLK index
 (so you can pass the result of this command to a function which then uses
 \ttref{WRITE!LONG} rather than \ttref{SAY}).
 \\
-or & \DEFINE{RANDOM} ( \ttref{value} \ttref{value} ) &
+or & \DEFINE{RANDOM} \t{(} \ttref{value} \ttref{value} \t{)} &
 A random-number generator. The first \ttref{value} is the lower bound, the
 second value is the upper bound. A random integer between the lower bound
 and the upper bound (inclusive) is returned. Thus \t{RANDOM(3 5)} can
@@ -4908,32 +4911,32 @@ or & \DEFINE{BUFFER!LENGTH} &
 Returns the length of the string currently being patched, or 0 if outside of
 a patch expression. \\
 
-or & \DEFINE{INDEX} ( \ttref{optcase}  \ttref{optexact} \ttref{string}1
-\ttref{string}2 \Ob \ttref{value} \Oe ) &
+or & \DEFINE{INDEX} \t{(} \ttref{optcase}  \ttref{optexact} \ttref{string}1
+\ttref{string}2 \Ob \ttref{value} \Oe \t{)} &
 Returns the index of the first regexp match of string1 inside string2, or
 -1 if not found. If provided, value specifies from what point of string2
 the searching should begin (instead of 0).
 \\
 
-or & \DEFINE{RINDEX} (  \ttref{optcase}  \ttref{optexact} \ttref{string}1
-\ttref{string}2 \Ob \ttref{value} \Oe ) &
+or & \DEFINE{RINDEX} \t{(}  \ttref{optcase}  \ttref{optexact} \ttref{string}1
+\ttref{string}2 \Ob \ttref{value} \Oe \t{)} &
 Returns the index of the last regexp match of string1 inside string2, or
 -1 if not found. If provided, value specifies from what point of string2
-the searching should begin (instead of STRING!LENGTH string2).
+the searching should begin (instead of \ttref{STRING!LENGTH} string2).
 \\
 
-or & \DEFINE{INDEX!BUFFER} (  \ttref{optcase}  \ttref{optexact} \ttref{string}
-\Ob \ttref{value} \Oe ) &
+or & \DEFINE{INDEX!BUFFER} \t{(}  \ttref{optcase}  \ttref{optexact} \ttref{string}
+\Ob \ttref{value} \Oe \t{)} &
 Returns the index of the first regexp match of string inside the current string, or
 -1 if not found. If provided, value specifies from what point of the string
-the searching should begin (instead of 0).
+the searching should begin (instead of 0\t).
 \\
 
-or & \DEFINE{RINDEX!BUFFER} (  \ttref{optcase}  \ttref{optexact} \ttref{string}
-\Ob \ttref{value} \Oe ) &
+or & \DEFINE{RINDEX!BUFFER} \t{(}  \ttref{optcase}  \ttref{optexact} \ttref{string}
+\Ob \ttref{value} \Oe \t{)} &
 Returns the index of the last regexp match of string inside the current string, or
 -1 if not found. If provided, value specifies from what point of the string
-the searching should begin (instead of BUFFER!LENGTH).
+the searching should begin (instead of \ttref{BUFFER!LENGTH}).
 \\
 
 
@@ -4944,7 +4947,7 @@ or & \DEFINE{FILE!CONTAINS} fileName \ttref{regexp} & Evaluates to 1 if
 the file \t{fileName} contains the regular expression \ttref{regexp}
 and 0 otherwise. Case is ignored. \\
 
-or & \DEFINE{FILE!CONTAINS!EVALUATED} ( fileName varsRegexp ) &
+or & \DEFINE{FILE!CONTAINS!EVALUATED} \t{(} fileName varsRegexp \t{)} &
   First, all WeiDU variables enclosed in \t{\%}s in \t{varsRegexp} and
   \t{fileName} are
   substituted. The expression is 1 if the resulting \ttref{regexp} occurs
@@ -5063,7 +5066,7 @@ works as well. \\
 \DEFINE{variable} & & A variable is a textual name that holds a
 \ttref{value}. Variables are usually set with \ttref{READ!BYTE},
 \ttref{SET} or \ttref{SPRINT}. \\
-is & string & You may name the variable whatever you like, but stay
+is & \ttref{String} & You may name the variable whatever you like, but stay
 away from the special characters used in \ttref{regexp}s. When you want to
 obtain the value of a variable, enclose it in \t{\%}s.
 
