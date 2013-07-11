@@ -581,7 +581,7 @@ All other keywords are symbolic. Notes:
 
 \\
 
-\DEFINE{dActionWhen} & defines when a D action (E.G. ADD!TRANS!ACTION) will
+\DEFINE{dActionWhen} & defines when a D action (E.G. \ttref{ADD!TRANS!ACTION}) will
 be processed or not. \\
 is & \DEFSYN{IF} String & The action is processed if the element being
 altered/replaced/added to contains a substring matching against the String
@@ -609,7 +609,7 @@ after the final state in the \ttref{CHAIN}. \\
 \DEFINE{state} & & In Infinity Engine games, this is the fundamental unit
 of dialogue. \\
 is & {\tt IF} \Ob \DEFINE{WEIGHT} \t{\#weightNumber} \Oe \DEFINE{stateTriggerString} \Ob {\tt THEN} \Oe
-  \Ob {\tt BEGIN} \Oe \DEFINE{stateLabel} \DEFINE{SAY} \ttref{sayText} \Ob =
+  \Ob {\tt BEGIN} \Oe \DEFINE{stateLabel} \DEFINE{SAY} \ttref{sayText} \Ob \t{=}
   \ttref{sayText} ... \Oe \ttref{transition} \Slist \t{END} &
   When you start conversing with a creature that uses a \ttref{DLG} file, the
   Infinity Engine searches through all of the \ttref{state}s in that file
@@ -729,7 +729,7 @@ is & \DEFINE{GOTO} \ttref{stateLabel} &
 or & \DEFINE{EXTERN} \Ob \t{IF!FILE!EXISTS} \Oe filename \ttref{stateLabel} &
   The dialogue continues at the state with label \ttref{stateLabel} in the
   file \t{filename.}\ttref{DLG}. The whole transition is not compiled if there's
-  IF!FILE!EXISTS and the file filename doesn't exist. \\
+  \t{IF!FILE!EXISTS} and the file filename doesn't exist. \\
 or & \DEFINE{EXIT} &
   The conversation ends. \\
 or & \t{+} \ttref{stateLabel} &
@@ -740,12 +740,12 @@ or & \t{+} \ttref{stateLabel} &
 \DEFINE{chainText} & & This is a rapid shorthand for chaining together many
 little bits of dialogue when the PC is not saying anything. \\
 is & \Ob \t{IF} \ttref{transTriggerString} \t{THEN} \Oe \ttref{sayText}
-      = \ttref{sayText} ... & \\
+      \t{=} \ttref{sayText} ... & \\
 followed by &
-      \Ob == \Ob \t{IF!FILE!EXISTS} \Oe fileName
+      \Ob \t{==} \Ob \t{IF!FILE!EXISTS} \Oe fileName
       \Ob \t{IF} \ttref{transTriggerString} \t{THEN} \Oe \ttref{sayText}
-      = \ttref{sayText} ... \Oe &
-      The == (that's two consecutive equal signs) marks the beginning of a
+      \t{=} \ttref{sayText} ... \Oe &
+      The \t{==} (that's two consecutive equal signs) marks the beginning of a
       new speaker (indicated by fileName).  If the
       \ttref{transTriggerString} is true or if it is not present, this new
       speaker says all of its \ttref{sayText} in order. If the \t{IF!FILE!EXISTS}
@@ -754,9 +754,9 @@ followed by &
       \\
 or followed by &
     \t{BRANCH} \ttref{transTriggerString} \t{BEGIN}
-      \Ob == \Ob \t{IF!FILE!EXISTS} \Oe fileName
+      \Ob \t{==} \Ob \t{IF!FILE!EXISTS} \Oe fileName
       \Ob \t{IF} \ttref{transTriggerString} \t{THEN} \Oe \ttref{sayText}
-      = \ttref{sayText} ... \Oe
+      \t{=} \ttref{sayText} ... \Oe
     \t{END} &
       As above, except that the first transTriggerString is appended to all
       existing dialogue units.\\
@@ -2934,7 +2934,7 @@ global option to your \ttref{TP2} file. \\
 	  a real reason.} \\
   or & \DEFINE{LABEL} \ttref{String} &
       Defines this's module \t{LABEL}, or unique textual identifier. Any component
-	  can have zero or more \t{LABEL}. Will print a warning if two components in
+	  can have zero or more \t{LABEL}s. Will print a warning if two components in
       the same tp2 share a \t{LABEL}. \emph{Do not alter a component's \t{LABEL} once
 	  you publish that mod}. \\
 \\
@@ -3119,7 +3119,7 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
   \\
   or & \DEFINE{SILENT} & makes WeiDU skip all messages; it's reenabled once a component
       is installed (or fails to), or a \ttref{PRINT}, \ttref{PATCH!PRINT}, \ttref{VERBOSE} or \ttref{PATCH!VERBOSE} is found. \\
-  or & \DEFINE{VERBOSE} & undoes the latest SILENT command. \\
+  or & \DEFINE{VERBOSE} & undoes the latest \ttref{SILENT} command. \\
   or & \DEFINE{MKDIR} dirName \Slist &
       Instructs WeiDU to create all of the directories in the list. \\
   or & \DEFINE{RANDOM!SEED} someInteger &
@@ -3494,10 +3494,10 @@ COPY ~MyMod/MYDART.ITM~ ~override/MYDART.ITM~
     traFile is given, that file is is read once before all of the
     replacements take place and its contents are forgotten after. \\
 
-  or & \DEFINE{STRING!SET!RANGE} \#min \#max \t{USING} traFile &
+  or & \DEFINE{STRING!SET!RANGE} \t{\#}min \t{\#}max \t{USING} traFile &
     For every integer i between min and max (inclusive) we do
     \t{STRING!SET i @i USING traFile} (except that this command should be
-    executed more rapidly). The command will fail if @i is not defined
+    executed more rapidly). The command will fail if \t{@}i is not defined
     (either by traFile or by some other tra file in scope) for some i
     between min and max.  \\
 
@@ -4528,11 +4528,11 @@ or & \DEFINE{SET!BG2!PROFICIENCY} String \ttref{value} &
 	String (relative to Stats.ids). After that, if value is different from zero, add an effect
 	to set said proficiency to value. \\
 
-or & \DEFSYN{ADD!CRE!ITEM} itmName \#charge1 \#charge2 \#charge3 flags slot \Ob
+or & \DEFSYN{ADD!CRE!ITEM} itmName \t{\#}charge1 \t{\#}charge2 \t{\#}charge3 flags slot \Ob
 \t{EQUIP} \Oe \Ob \t{TWOHANDED} \Oe &
   See the \ttref{ADD!CRE!ITEM} tutorial. \\
 
-or & \DEFINE{REPLACE!CRE!ITEM} itmName \#charge1 \#charge2 \#charge3 flags slot \Ob
+or & \DEFINE{REPLACE!CRE!ITEM} itmName \t{\#}charge1 \t{\#}charge2 \t{\#}charge3 flags slot \Ob
 \t{EQUIP} \Oe \Ob \t{TWOHANDED} \Oe &
   If there's an item in the slot position, replace it; otherwise, process \ttref{ADD!CRE!ITEM} \\
 
