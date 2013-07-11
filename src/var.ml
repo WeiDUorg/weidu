@@ -309,9 +309,9 @@ let _ =
 let save_dir_var = "SAVE_DIRECTORY"
 let mpsave_dir_var = "MPSAVE_DIRECTORY"
 
-let bgee_game_vars () =
+let bgee_game_vars game_path =
   try
-    let bgee_user_dir = Arch.get_bgee_user_dir () in
+    let bgee_user_dir = Arch.get_bgee_user_dir game_path in
     set_string save_dir_var (bgee_user_dir ^ "/save") ;
     set_string mpsave_dir_var (bgee_user_dir ^ "/mpsave") ;
   with e ->
@@ -319,7 +319,7 @@ let bgee_game_vars () =
     set_string mpsave_dir_var "" ;
     raise e
 
-let default_game_vars () =
+let default_game_vars game_path =
   set_string save_dir_var "./save" ;
   set_string mpsave_dir_var "./mpsave"
 

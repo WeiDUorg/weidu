@@ -550,3 +550,9 @@ let the_tp () = match !saved_tp with
 	is_auto_eval_string = false;
 }
 | Some x -> x
+
+let set_tp2_vars tp =
+  Var.set_string "TP2_AUTHOR" tp.author ;
+  Var.set_string "TP2_FILE_NAME" tp.tp_filename ;
+  Var.set_string "TP2_BASE_NAME" (Var.get_tp2_base_name tp.tp_filename) ;
+  Var.set_string "MOD_FOLDER" (Var.get_mod_folder tp.backup)
