@@ -316,11 +316,8 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 	in
 	let uninstall_at () =
           let m = get_nth_module result i true in
-          Var.set_string "TP2_AUTHOR" tp2.author ;
+          ignore (set_tp2_vars tp2) ;
           Var.set_string "LANGUAGE" lang_name ;
-          Var.set_string "TP2_FILE_NAME" tp2.tp_filename ;
-          Var.set_string "TP2_BASE_NAME" (Var.get_tp2_base_name tp2.tp_filename) ;
-          Var.set_string "MOD_FOLDER" (Var.get_mod_folder tp2.backup) ;
           Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
           handle_at_uninstall tp2 m true interactive game ;
 	in
@@ -365,11 +362,9 @@ let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
               let l = List.nth tp2.languages b in
               l.lang_dir_name ;
             with _ -> "" ) in 
-          Var.set_string "TP2_AUTHOR" tp2.author ;
+          ignore (set_tp2_vars tp2) ;
           Var.set_string "LANGUAGE" lang_name ;
-          Var.set_string "TP2_FILE_NAME" tp2.tp_filename ;
-          Var.set_string "TP2_BASE_NAME" (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp2.tp_filename) ;
-		  Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
+	  Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
           let m = get_nth_module tp2 c true in
           log_only "Running AT_INTERACTIVE_EXITs in ~%s~ %d %d %s\n"
             (String.uppercase a) b c

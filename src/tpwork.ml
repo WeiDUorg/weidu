@@ -622,12 +622,6 @@ let ask_about_groups tp groups module_defaults last_module_index using_quickmenu
         (Dc.single_string_of_tlk_string_safe
            (Load.the_game ()) this_grp) (get_trans (-1037))) !groups
 
-let set_mod_vars tp =
-  Var.set_string "TP2_AUTHOR" tp.author ;
-  Var.set_string "TP2_FILE_NAME" tp.tp_filename ;
-  Var.set_string "TP2_BASE_NAME" (Var.get_tp2_base_name tp.tp_filename) ;
-  Var.set_string "MOD_FOLDER" (Var.get_mod_folder tp.backup)
-
 
 
 (*************************************************************************
@@ -671,7 +665,7 @@ let rec handle_tp game this_tp2_filename tp =
 
   let our_lang, our_lang_index = choose_lang tp this_tp2_filename in
 
-  ignore (set_mod_vars tp) ;
+  ignore (set_tp2_vars tp) ;
 
   ignore (lang_init !our_lang) ;
 
@@ -1403,7 +1397,7 @@ let rec handle_tp game this_tp2_filename tp =
             Dc.clear_state () ;
             Dc.push_trans ();
             init_default_strings () ;
-            set_mod_vars tp ;
+            set_tp2_vars tp ;
             (try
               let l = List.nth tp2.languages b in
               our_lang := Some(l) ;
