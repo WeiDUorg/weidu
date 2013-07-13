@@ -398,7 +398,7 @@ let load_game () =
 
 let have_bgee_lang_dir_p ref false
 
-let bgee_lang_dir game dir =
+let set_bgee_lang_dir game dir =
   (match dir with
   | Some d ->
       let regexp = (Str.regexp_case_fold

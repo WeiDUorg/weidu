@@ -800,3 +800,27 @@ let split_log_line line =
 	let pieces = Str.split (Str.regexp log_line_separator) line in
 	if List.length pieces = 2 then pieces else
 		Str.split (Str.regexp " ") line
+
+let attempt_to_load_bgee_lang_dir () =
+  let user_dir = Arch.get_bgee_user_dir () in
+  let conf = Arch.slash_to_backslash (user_dir ^ "/weidu.conf") in
+  if file_exists conf then begin
+    let buff = load_file conf in
+    let regexp = (Str.regexp_case_fold "lang_dir[ \t]+=[ \t]+\\([a-z_]+\\)") in
+    (try
+      ignore (Str.search_forward regexp buff 0) ;
+      Some (String.lowercase (Str.matched_group 1 buff))
+    with Not_found -> None)
+  end
+  else None
+
+let write_bgee_lang_dir dir =
+  try
+    let user_dir = Arch.get_bgee_user_dir () in
+    let conf = Arch.slash_to_backslash (user_dir ^ "/weidu.conf") in
+    let chan = Case_ins.perv_open_out_bin conf in
+    ignore (output_string chan (String.lowercase
+                                  (Printf.sprintf "lang_dir = %s\n" dir))) ;
+    ignore (close_out chan)
+  with e ->
+    log_and_print "ERROR: unable to save weidu.conf because: %s\n" (printexc_to_string e)

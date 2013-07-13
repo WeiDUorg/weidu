@@ -622,6 +622,35 @@ let ask_about_groups tp groups module_defaults last_module_index using_quickmenu
         (Dc.single_string_of_tlk_string_safe
            (Load.the_game ()) this_grp) (get_trans (-1037))) !groups
 
+let ask_about_lang_dir () =
+  let languages = Load.bgee_language_options (Load.the_game ()) in
+  let pretty_ht = Hashtbl.create (Array.length languages) in
+  ignore (List.iter (fun (dirname, pretty) ->
+    Hashtbl.add pretty_ht dirname pretty)
+            [("cs_cz", (get_trans (-1040))); ("de_de", (get_trans (-1041)));
+             ("en_us", (get_trans (-1042))); ("es_es", (get_trans (-1043)));
+             ("fr_fr", (get_trans (-1044))); ("it_it", (get_trans (-1045)));
+             ("pl_pl", (get_trans (-1046))); ("pt_br", (get_trans (-1047)));
+             ("tr_tr", (get_trans (-1048)));])
+  let prettify dir =
+    if Hashtbl.mem pretty_ht dir then
+      Hashtbl.find pretty_ht dir
+    else dir
+  in
+  let answer = ref None in
+  while !answer = None do
+    log_and_print "%s" (get_trans (-1040)) ;
+    Array.iteri (fun i dir ->
+      log_and_print "%2d [%s]\n" i dir) (Array.map prettify languages) ;
+    try
+      let i = read_int () in
+      if i >= 0 && i < Array.length languages then begin
+        answer := Some (Array.get languages i) ;
+      end
+    with _ -> ()
+  done ;
+  value_of_option !answer
+
 
 
 (*************************************************************************
@@ -668,6 +697,12 @@ let rec handle_tp game this_tp2_filename tp =
   ignore (set_tp2_vars tp) ;
 
   ignore (lang_init !our_lang) ;
+
+  if Load.enhanced_edition_p () && not !Load.have_bgee_lang_dir_p then begin
+    let dir = ask_about_lang_dir () in
+    ignore (Load.set_bgee_lang_dir (Some dir)) ;
+    ignore (write_bgee_lang_dir dir) ;
+  end ;
 
   ignore (do_readme tp this_tp2_filename) ;
 
