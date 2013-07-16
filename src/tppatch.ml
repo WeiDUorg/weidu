@@ -78,10 +78,8 @@ let rec process_patch1 patch_filename game buff p =
         let name = Var.get_string (eval_pe_str name) in
         let value = Dc.pretty_print_no_quote
             (if female then begin
-               match game.Load.dialogf with
-               | None -> game.Load.dialog
-               | Some x -> x
-             end else game.Load.dialog)
+               (Load.get_active_dialogf_fallback game)
+             end else (Load.get_active_dialog game))
             which female sound in
         Var.set_string name value
     | TP_PatchReadStrRef(where,name,eo,female,sound) ->

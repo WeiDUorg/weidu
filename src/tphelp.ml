@@ -253,7 +253,7 @@ let init_default_strings () =
   add (-1038) "[A]sk about each component, [S]kip all, or choose a pre-defined selection:";
   add (-1039) "[A]sk about each component, [R]einstall the current configuration, [U]ninstall all, [S]kip all, or choose a pre-defined selection:";
 
-  add (-1040) "\nThis game is available in multiple languages. WeiDU will install mods to a single of those languages. Which language do you wish to install to? Your choice will be saved and reused in the future.\n"
+  add (-1040) "\nThis game is available in multiple languages. WeiDU will install mods to a single of those languages. Which language do you wish to install to? Your choice will be saved and reused in the future.\n" ;
   add (-1041) "Czech" ;
   add (-1042) "German" ;
   add (-1043) "English" ;

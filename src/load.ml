@@ -61,8 +61,8 @@ and tlk_pair = {
 (* there is also output_dialog, which may point to a non-existint file; how does the current code handle the case when output_dialog is input-dialog?
  * if we just have something that returns the active tlk path, that will be fine for output_dialog *)
 
-let dialog_tlk_path = ref None
-let dialogf_tlk_path = ref None
+let dialog_tlk_path : string option ref = ref None
+let dialogf_tlk_path : string option ref = ref None
 
 let set_dialog_tlk_path s = dialog_tlk_path := Some(s)
 let set_dialogf_tlk_path s = dialogf_tlk_path := Some(s)
@@ -98,10 +98,15 @@ let the_game () = match !saved_game with
 let get_active_dialog g =
   (Array.get g.dialogs g.dialog_index).dialog.contents
 
-let get_active_dialogf g =
+let get_active_dialogf_fallback g =
   (match (Array.get g.dialogs g.dialog_index).dialogf with
   | Some(tlk) -> tlk.contents
-  | None -> get_active_dialog ()) (* bear this in mind when we get to output *)
+  | None -> get_active_dialog g) (* bear this in mind when we get to output *)
+
+let get_active_dialogf_opt g =
+  match (Array.get g.dialogs g.dialog_index).dialogf with
+  | Some tlk -> Some (tlk.contents)
+  | None -> None
 
 let get_active_dialogs g =
   (Array.get g.dialogs g.dialog_index)
@@ -130,12 +135,13 @@ let append_strings g lse_q =
       !char_count num_entries ;
     Queue.clear lse_q ;
     let tlk_pair = get_active_dialogs g in
-    tlk_pair.dialog.contents <- Array.append tlk_pair.dialog.contents ma
+    tlk_pair.dialog.contents <- (Array.append tlk_pair.dialog.contents ma) ;
     Hashtbl.clear g.dialog_search ;
     create_dialog_search g ;
 
     (match tlk_pair.dialogf with
-    | Some(a) -> tlk_pair.dialogf.contents <- Some(Array.append a.contents fa) ;
+    | Some a ->
+        a.contents <- (Array.append a.contents fa) ;
         tlk_pair.dialogf_mod <- true
     | None -> ()) ;
 
@@ -166,7 +172,7 @@ let find_file_in_path path file =
 let load_dialog gp dialog_path =
   let path = match dialog_path with
   | Some(p) -> p
-  | None -> find_file_in_path gp "^dialog\.tlk$" in
+  | None -> find_file_in_path gp "^dialog\\.tlk$" in
   if file_exists path then begin
     (Tlk.load_tlk path),path
   end else begin
@@ -178,7 +184,7 @@ let load_dialog gp dialog_path =
 let load_dialogf gp dialogf_path =
   let path = match dialogf_path with
   | Some(p) -> p
-  | None -> find_file_in_path gp "^dialogf\.tlk$" in
+  | None -> find_file_in_path gp "^dialogf\\.tlk$" in
   if file_exists path then begin
     let df = Tlk.load_tlk path in
     Some(df), path
@@ -237,7 +243,7 @@ exception FoundKey of Key.key * string
 let load_null_game () =
   let dialogs =
     (match !dialog_tlk_path with
-    | Some(p) -> [|load_tlk_pair p|]
+    | Some(p) -> [|load_dialog_pair p|]
     | None -> [|{
         dialog = {contents = (Tlk.null_tlk ()); path = " -- NO DIALOG.TLK -- ";};
         dialog_mod = false;
@@ -253,7 +259,7 @@ let load_null_game () =
      override_path_list = !override_paths ;
      ids_path_list = !ids_paths ;
      loaded_biffs = Hashtbl.create 1 ;
-     dialog_search = Hashtbl.create (1 + (Array.length (Array.get dialogs dialog_index).dialog.contents * 2) ;
+     dialog_search = Hashtbl.create (1 + (Array.length (Array.get dialogs dialog_index).dialog.contents * 2)) ;
      str_sets = [] ;
      key_mod = false ;
      script_style = BG2 ;
@@ -343,7 +349,7 @@ let autodetect_game_type key =
   (game_type, script_style)
 
 let pad_tlks game = (* todo: extend this to cover all tlk_pairs in dialogs *)
-  (match (get_active_dialogf game) with
+  (match (get_active_dialogf_opt game) with
     Some(df) -> begin
       let d = get_active_dialog game in
       let d_pair = get_active_dialogs game in
@@ -357,9 +363,10 @@ let pad_tlks game = (* todo: extend this to cover all tlk_pairs in dialogs *)
         d_pair.dialog_mod <- true;
       end else if (dfl < dl) then begin
         let uneven = Array.sub d dfl (dl - dfl) in
+        let df_record = value_of_option d_pair.dialogf in
         log_and_print "*** %s has %d too few entries, padding.\n"
-          d_pair.dialogf.path (dl - dfl) ;
-        d_pair.dialogf.contents <- Some(Array.append df uneven) ;
+          df_record.path (dl - dfl) ;
+        df_record.contents <- (Array.append df uneven) ;
         d_pair.dialogf_mod <- true;
       end
     end
@@ -396,7 +403,7 @@ let load_game () =
   create_dialog_search result ;
   result
 
-let have_bgee_lang_dir_p ref false
+let have_bgee_lang_dir_p = ref false
 
 let set_bgee_lang_dir game dir =
   (match dir with
@@ -406,7 +413,7 @@ let set_bgee_lang_dir game dir =
       ignore (Array.iteri (fun index tlk_pair ->
         if Str.string_match regexp tlk_pair.dialog.path 0 then begin
           game.dialog_index <- index ;
-          have_bgee_lang_dir := true ;
+          have_bgee_lang_dir_p := true ;
         end) game.dialogs) ;
       if not !have_bgee_lang_dir_p then begin
         log_and_print
@@ -417,8 +424,8 @@ let set_bgee_lang_dir game dir =
 
 let bgee_language_options game =
   let options = Array.map (fun tlk_pair ->
-    let str1 = (Str.quote (Arch.slash_to_backslash "lang/" in
-    let str2 = (Str.quote (Arch.slash_to_backslash "/dialog.tlk" in
+    let str1 = (Str.quote (Arch.slash_to_backslash "lang/")) in
+    let str2 = (Str.quote (Arch.slash_to_backslash "/dialog.tlk")) in
     let regexp = (Str.regexp_case_fold (str1 ^ "\\([a-z_]+\\)" ^ str2)) in
     if Str.string_match regexp tlk_pair.dialog.path 0 then
       Str.matched_group 1 tlk_pair.dialog.path

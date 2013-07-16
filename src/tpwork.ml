@@ -631,7 +631,7 @@ let ask_about_lang_dir () =
              ("en_us", (get_trans (-1042))); ("es_es", (get_trans (-1043)));
              ("fr_fr", (get_trans (-1044))); ("it_it", (get_trans (-1045)));
              ("pl_pl", (get_trans (-1046))); ("pt_br", (get_trans (-1047)));
-             ("tr_tr", (get_trans (-1048)));])
+             ("tr_tr", (get_trans (-1048)));]) ;
   let prettify dir =
     if Hashtbl.mem pretty_ht dir then
       Hashtbl.find pretty_ht dir
@@ -700,8 +700,8 @@ let rec handle_tp game this_tp2_filename tp =
 
   if Load.enhanced_edition_p () && not !Load.have_bgee_lang_dir_p then begin
     let dir = ask_about_lang_dir () in
-    ignore (Load.set_bgee_lang_dir (Some dir)) ;
-    ignore (write_bgee_lang_dir dir) ;
+    ignore (Load.set_bgee_lang_dir game (Some dir)) ;
+    ignore (write_bgee_lang_dir game.Load.game_path dir) ;
   end ;
 
   ignore (do_readme tp this_tp2_filename) ;

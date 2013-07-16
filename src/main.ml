@@ -128,8 +128,8 @@ let forceify_file forceify game =
         let replace lse str =
           let my_regexp = Str.regexp (Str.quote str) in
           try
-            let num = Tlk.find_string_fast lse game.Load.dialog
-                game.Load.dialogf game.Load.dialog_search
+            let num = Tlk.find_string_fast lse (Load.get_active_dialog game)
+                (Load.get_active_dialogf_opt game) game.Load.dialog_search
             in
             let replace_with = Printf.sprintf "!%d %s" num str in
             buf := Str.global_replace my_regexp replace_with !buf ;
@@ -188,16 +188,16 @@ let make_tlk_from_file game make_tlk =
   List.iter (fun (i,lse) ->
     let male, female = Tlk.lse_to_tlk_string lse in
     new_tlk.(i) <- male) results ;
-
-  game.Load.dialog_mod <- true ;
-  game.Load.dialog <- new_tlk ;
+  let d_pair = Load.get_active_dialogs game in
+  d_pair.Load.dialog_mod <- true ;
+  d_pair.Load.dialog.Load.contents <- new_tlk ;
   end ;
 ;;
 
 let extract_tlk_to_file game user_min user_max strfind_list traify_num =
   begin
-    let tlk = game.Load.dialog in
-    let ftlk = game.Load.dialogf in
+    let tlk = (Load.get_active_dialog game) in
+    let ftlk = (Load.get_active_dialogf_opt game) in
     let my_min = match user_min with
       Some(i) -> i
     | None -> 0
@@ -299,7 +299,7 @@ let cmp_d_file dcmp_dest dcmp_src game =
       let d_dlg = Dlg.load_dlg imp_base buff in
 
       let new_buffer = Buffer.create (1024 * 32) in
-      Dlg.dlg_compare new_buffer s_dlg d_dlg game.Load.dialog game.Load.dialogf reprint_d_action ;
+      Dlg.dlg_compare new_buffer s_dlg d_dlg (Load.get_active_dialog game) (Load.get_active_dialogf_opt game) reprint_d_action ;
       print_theout "<<<<<<<< .../%s\n" s;
       output_buffer_theout new_buffer;
       print_theout ">>>>>>>>\nCOMPILE ~.../%s~\n" s;
@@ -533,8 +533,8 @@ let cmp_tra_file tcmp_src tcmp_dest game =
 ;;
 
 let display_string i game =
-  let male = Tlk.pretty_print game.Load.dialog i in
-  let female = Tlk.pretty_print_opt game.Load.dialogf i in
+  let male = Tlk.pretty_print (Load.get_active_dialog game) i in
+  let female = Tlk.pretty_print_opt (Load.get_active_dialogf_opt game) i in
   if (female = "" || male = female) then
     log_and_print "String #%d is %s\n" i male
   else
@@ -549,7 +549,7 @@ let display_string_by_number ds_list user_min user_max game =
     in
     let my_max = match user_max with
       Some(i) -> i
-    | None -> (Array.length game.Load.dialog) - 1
+    | None -> (Array.length (Load.get_active_dialog game)) - 1
     in
     for i = my_min to my_max do
       display_string i game
@@ -569,7 +569,7 @@ let display_string_by_content strfind_list game =
         with _ -> false) false reg_list
       in
       if matches_one then
-        log_and_print "String #%d is %s\n" i (Tlk.pretty_print game.Load.dialog i)) game.Load.dialog
+        log_and_print "String #%d is %s\n" i (Tlk.pretty_print (Load.get_active_dialog game) i)) (Load.get_active_dialog game)
   end ;
 ;;
 
@@ -738,11 +738,16 @@ let decompile_dlg dlg_list transitive two_pass use_trans d_headers d_toplevel ga
           Printf.fprintf out_chan "// argument : %s.%s\n" b e ;
           Printf.fprintf out_chan "// game     : %s\n" game.Load.game_path;
           Printf.fprintf out_chan "// source   : %s\n" final_path ;
-          Printf.fprintf out_chan "// dialog   : %s\n" game.Load.dialog_path ;
-          Printf.fprintf out_chan "// dialogF  : %s\n\n" game.Load.dialogf_path ;
+          Printf.fprintf out_chan "// dialog   : %s\n" (Load.get_active_dialogs game).Load.dialog.Load.path ;
+          Printf.fprintf out_chan "// dialogF  : %s\n\n"
+            (match (Load.get_active_dialogs game).Load.dialogf with
+            | None -> "(none)"
+            | Some tlk -> tlk.Load.path) ;
         end ;
         let new_buff = Buffer.create (1024 * 32) in
-        Dlg.emit_d dlg out_name game.Load.dialog game.Load.dialogf new_buff out_trans_chan None reprint_d_action transitive d_toplevel;
+        Dlg.emit_d dlg out_name (Load.get_active_dialog game)
+          (Load.get_active_dialogf_opt game) new_buff out_trans_chan None
+          reprint_d_action transitive d_toplevel;
         Buffer.output_buffer out_chan new_buff ;
         if not theout.append then close_out out_chan ;
       with e ->
@@ -1231,7 +1236,7 @@ let list_effs list_eff_list game =
       let eff_name = Eff_table.name_of_opcode op in
       if op = 139 then begin (* display string *)
         print_theout "\t%s %s #%d\n" eff_name
-          (Tlk.pretty_print game.Load.dialog eff.Load.arg1)
+          (Tlk.pretty_print (Load.get_active_dialog game) eff.Load.arg1)
           eff.Load.arg1
       end else if op = 101 then begin
         print_theout "\t%s (%s)\n" eff_name
@@ -1272,16 +1277,17 @@ let merge_tlk tlk_merge game =
   List.iter (fun str ->
     let name,ext = split (String.uppercase str) in
     let tlk = Tlk.load_tlk str in
+    let dialog = Load.get_active_dialog game in
     let max =
-      if Array.length tlk > Array.length game.Load.dialog then
-        Array.length game.Load.dialog
+      if Array.length tlk > Array.length dialog then
+        Array.length dialog
       else
         Array.length tlk
     in
     for i = 0 to max - 1 do
-      game.Load.dialog.(i) <- tlk.(i)
+      dialog.(i) <- tlk.(i)
     done ;
-    game.Load.dialog_mod <- true
+    (Load.get_active_dialogs game).Load.dialog_mod <- true
         ) tlk_merge ;
 ;;
 
@@ -1714,10 +1720,10 @@ let main () =
     force_script_style game !forced_script_style Sys.argv.(0);
 
   if Load.enhanced_edition_p () then (* todo: only do it unless we got something useful on the command line *)
-    Load.set_bgee_lang_dir game (attempt_to_load_bgee_lang_dir ()) ;
+    Load.set_bgee_lang_dir game (attempt_to_load_bgee_lang_dir game.Load.game_path) ;
 
 
-  Dc.cur_index := Array.length game.Load.dialog ;
+  Dc.cur_index := Array.length (Load.get_active_dialog game) ;
   Load.saved_game := Some(game) ;
 
   let automate_min = lazy(match !automate_min with
@@ -1963,19 +1969,23 @@ let main () =
     merge_tlk !tlk_merge game ;
 
 
+  let d_pair = (Load.get_active_dialogs game) in
   (* Emit DIALOG.TLK *)
-  (match !output_dialog, game.Load.dialog_mod with
+  (match !output_dialog, d_pair.Load.dialog_mod with
     Some(path), true ->
       let outchan = open_for_writing path true in
-      Tlk.save_tlk path game.Load.dialog outchan
+      Tlk.save_tlk path (Load.get_active_dialog game) outchan
   | _, _ -> ()) ;
 
   (* Emit DIALOGF.TLK *)
-  (match !output_dialogf, game.Load.dialogf, game.Load.dialogf_mod with
-    Some(path),Some(t),true ->
-      let outchan = open_for_writing path true in
-      Tlk.save_tlk path t outchan
-  | _, _, _ -> () ) ;
+  (match d_pair.Load.dialogf with
+  | Some tlk ->
+      (match !output_dialogf, d_pair.Load.dialogf, d_pair.Load.dialogf_mod with
+        Some(path),Some(t),true ->
+          let outchan = open_for_writing path true in
+          Tlk.save_tlk path t.Load.contents outchan
+      | _, _, _ -> () ) ;
+  | None -> ()) ;
 
   Hashtbl.iter (fun a x -> Unix.close x.Biff.fd) game.Load.loaded_biffs;
   Queue.iter my_unlink Load.cbifs_to_rem;

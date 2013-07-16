@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 (* Note added due to LGPL terms.
 
    This file was edited by Valerio Bigiani, AKA The Bigg, starting from
@@ -801,8 +804,8 @@ let split_log_line line =
 	if List.length pieces = 2 then pieces else
 		Str.split (Str.regexp " ") line
 
-let attempt_to_load_bgee_lang_dir () =
-  let user_dir = Arch.get_bgee_user_dir () in
+let attempt_to_load_bgee_lang_dir game_path =
+  let user_dir = Arch.get_bgee_user_dir game_path in
   let conf = Arch.slash_to_backslash (user_dir ^ "/weidu.conf") in
   if file_exists conf then begin
     let buff = load_file conf in
@@ -814,9 +817,9 @@ let attempt_to_load_bgee_lang_dir () =
   end
   else None
 
-let write_bgee_lang_dir dir =
+let write_bgee_lang_dir game_path dir =
   try
-    let user_dir = Arch.get_bgee_user_dir () in
+    let user_dir = Arch.get_bgee_user_dir game_path in
     let conf = Arch.slash_to_backslash (user_dir ^ "/weidu.conf") in
     let chan = Case_ins.perv_open_out_bin conf in
     ignore (output_string chan (String.lowercase

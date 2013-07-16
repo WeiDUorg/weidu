@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 (* Kit Extraction Code *)
 
 open BatteriesInit
@@ -160,8 +163,8 @@ let extract game o output_dir min_num =
 
           List.iter (fun str ->
             let i = int_of_string str in 
-            let male = Tlk.pretty_print game.Load.dialog i in 
-            let female = Tlk.pretty_print_opt game.Load.dialogf i in
+            let male = Tlk.pretty_print (Load.get_active_dialog game) i in 
+            let female = Tlk.pretty_print_opt (Load.get_active_dialogf_opt game) i in
             if (female = "" || male = female) then 
               o (Printf.sprintf "SAY %s\n" male)
             else 

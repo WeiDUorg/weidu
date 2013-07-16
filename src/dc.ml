@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 (* Note added due to LGPL terms.
 
    This file was edited by Valerio Bigiani, AKA The Bigg, starting from
@@ -203,8 +206,8 @@ let rec resolve_tlk_string_internal can_create warn_mess game ts =
       let index =
         Stats.time "find local string" (fun () ->
           try
-            Tlk.find_string_fast lse game.Load.dialog game.Load.dialogf
-              game.Load.dialog_search
+            Tlk.find_string_fast lse (Load.get_active_dialog game)
+              (Load.get_active_dialogf_opt game) game.Load.dialog_search
           with
             Not_found ->
               Stats.time "strings to add" (fun () ->
@@ -264,7 +267,7 @@ let rec single_string_of_tlk_string game ts =
   | Dlg.TLK_Index(idx) ->
 	  begin
 		  try
-			game.Load.dialog.(idx).Tlk.text
+			(Load.get_active_dialog game).(idx).Tlk.text
 		  with _ -> Printf.sprintf "<Invalid Strref %d>" idx
 	  end
 
@@ -284,7 +287,7 @@ let rec single_string_of_tlk_string_safe game ts =
   | Dlg.Trans_String(Dlg.String(s)) ->
 	single_string_of_tlk_string_safe game (Dlg.Trans_String(Dlg.Int(Int32.to_int(Var.get_int32_extended s))))
   | Dlg.TLK_Index(idx) -> 
-      Tlk.pretty_print game.Load.dialog idx 
+      Tlk.pretty_print (Load.get_active_dialog game) idx 
 
 let pretty_print_no_quote tlk i female sound =
   let alt = Array.length tlk in
@@ -307,14 +310,14 @@ let set_string (g : Load.game) (i :int) (ts : Dlg.tlk_string)
   let rec process ts = match ts with
     Dlg.TLK_Index(i) ->
       if (allow_strref) then begin
-        if (i < 0 || i >= Array.length g.Load.dialog + Queue.length !strings_to_add) then begin
+        if (i < 0 || i >= Array.length (Load.get_active_dialog g) + Queue.length !strings_to_add) then begin
           log_and_print "SET_STRING %d out of range 0 -- %d\n"
-            i (Array.length g.Load.dialog + Queue.length !strings_to_add) ;
+            i (Array.length (Load.get_active_dialog g) + Queue.length !strings_to_add) ;
         end ;
-        if (i < Array.length g.Load.dialog) then
-	  ((g.Load.dialog.(i)) ,
-	   (match g.Load.dialogf with
-	   | None -> g.Load.dialog.(i)
+        if (i < Array.length (Load.get_active_dialog g)) then
+	  (((Load.get_active_dialog g).(i)) ,
+	   (match Load.get_active_dialogf_opt g with
+	   | None -> (Load.get_active_dialog g).(i)
 	   | Some(t) -> t.(i)))
 	else (Tlk.lse_to_tlk_string (Hashtbl.find strings_added_ht i))
       end else failwith "SET_STRING does not allow #strrefs"
@@ -336,29 +339,30 @@ let set_string (g : Load.game) (i :int) (ts : Dlg.tlk_string)
   	   Tlk.sound_name = Var.get_string m.Tlk.sound_name} in
   let f = {f with Tlk.text = Var.get_string f.Tlk.text;
   	   Tlk.sound_name = Var.get_string f.Tlk.sound_name} in
-  if (i < 0 || i >= Array.length g.Load.dialog + Queue.length !strings_to_add) then begin
+  let dialog = Load.get_active_dialog g in
+  if (i < 0 || i >= Array.length dialog + Queue.length !strings_to_add) then begin
     log_and_print "SET_STRING %d out of range 0 -- %d\n"
-      i (Array.length g.Load.dialog + Queue.length !strings_to_add) ;
+      i (Array.length dialog + Queue.length !strings_to_add) ;
     failwith "SET_STRING out of range"
   end ;
   (*
     log_or_print "SET_STRING #%d to %s\n" i (Tlk.short_print m 18);
    *)
-  if (i < Array.length g.Load.dialog) then begin
-    (match g.Load.dialogf with
-      Some(a) -> g.Load.str_sets <- (i,g.Load.dialog.(i),a.(i)) ::
+  if (i < Array.length dialog) then begin
+    (match Load.get_active_dialogf_opt g with
+      Some(a) -> g.Load.str_sets <- (i,dialog.(i),a.(i)) ::
 	g.Load.str_sets ;
 	a.(i) <- f ;
-	g.Load.dialogf_mod <- true
-    | None -> g.Load.str_sets <- (i,g.Load.dialog.(i),g.Load.dialog.(i))
+	(Load.get_active_dialogs g).Load.dialogf_mod <- true
+    | None -> g.Load.str_sets <- (i,dialog.(i),dialog.(i))
 	:: g.Load.str_sets ;
     ) ;
-    g.Load.dialog.(i) <- m ;
+    dialog.(i) <- m ;
   end else begin
     let orig_lse = Hashtbl.find strings_added_ht i in
     let orig_tlk = Tlk.lse_to_tlk_string orig_lse in
     let new_lse = {lse_male = m.Tlk.text; lse_male_sound = m.Tlk.sound_name; lse_female = f.Tlk.text; lse_female_sound = f.Tlk.sound_name} in
-    (match g.Load.dialogf with
+    (match Load.get_active_dialogf_opt g with
       Some(a) -> g.Load.str_sets <- (i,fst orig_tlk, snd orig_tlk) ::
 	g.Load.str_sets ;
     | None -> g.Load.str_sets <- (i,fst orig_tlk, snd orig_tlk)
@@ -378,7 +382,7 @@ let set_string (g : Load.game) (i :int) (ts : Dlg.tlk_string)
     done;
     strings_to_add := newQueue;
   end;
-  g.Load.dialog_mod <- true ;
+  (Load.get_active_dialogs g).Load.dialog_mod <- true ;
   ()
 
 let set_string_while_loading forced_index ts =
@@ -392,7 +396,7 @@ let resolve_tlk_string_opt game tso = match tso with
 | None -> None
 
 let test_trans out game = 
-  let max = Array.length game.Load.dialog in
+  let max = Array.length (Load.get_active_dialog game) in
   Hashtbl.iter (fun id (tlk_string,_) ->
     let ref = match resolve_tlk_string game tlk_string with
       Dlg.TLK_Index(idx) -> idx

@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 open BatteriesInit
 open Util
 open Tp
@@ -15,19 +18,19 @@ open Tppe
      (try
        let record = Mymarshal.read_unsetstr filename in
        List.iter (fun (i,m,f) ->
-         if (i < 0 || i > Array.length game.Load.dialog) then begin
-           log_only "WARNING: Cannot uninstall STRING_SET #%d, out of range 0 -- %d\n" i (Array.length game.Load.dialog) 
+         if (i < 0 || i > Array.length (Load.get_active_dialog game)) then begin
+           log_only "WARNING: Cannot uninstall STRING_SET #%d, out of range 0 -- %d\n" i (Array.length (Load.get_active_dialog game)) 
          end else begin
            (*
              log_only "Un-SET_STRING #%d from %s back to %s\n"
              i
-             (Tlk.short_print game.Load.dialog.(i) 18)
+             (Tlk.short_print (Load.get_active_dialog game).(i) 18)
              (Tlk.short_print m 18) ;
             *)
-           game.Load.dialog.(i) <- m ;
-           game.Load.dialog_mod <- true; 
-           match game.Load.dialogf with
-           | Some(a) -> a.(i) <- f ; game.Load.dialogf_mod <- true; 
+           (Load.get_active_dialog game).(i) <- m ;
+           (Load.get_active_dialogs game).Load.dialog_mod <- true; 
+           match Load.get_active_dialogf_opt game with
+           | Some(a) -> a.(i) <- f ; (Load.get_active_dialogs game).Load.dialogf_mod <- true;
            | None -> ()
          end
 		 ) record

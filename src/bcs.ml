@@ -1042,7 +1042,7 @@ let print_script_text game how what comments strhandle =
       let contains_strref = List.exists formal_arg_is_strref ids.i_args in
       if contains_strref then begin
         bcs_printf "  // %s"
-          (Tlk.one_line_pretty_print game.Load.dialog (Int32.to_int a.a_4))
+          (Tlk.one_line_pretty_print (Load.get_active_dialog game) (Int32.to_int a.a_4))
       end ;
       match ids.i_name with
       | "GiveItemCreate"
@@ -1129,7 +1129,7 @@ let print_script_text game how what comments strhandle =
       let buff,path = Load.load_resource "printing BAF" game true r ext in
       Load.skip_next_load_error := false ;
       if String.length buff >= offset + 4 then
-        (Tlk.one_line_pretty_print game.Load.dialog
+        (Tlk.one_line_pretty_print (Load.get_active_dialog game)
            ((int_of_str_off buff offset )))
       else r
     with _ -> r

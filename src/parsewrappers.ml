@@ -77,7 +77,7 @@ let handle_dlg_buffer game filename buffer =
   Dlg.comments := false;
   Dlg.emit_text := false;
   let out_buff = Buffer.create (String.length buffer) in
-  Dlg.emit_d dlg filename game.Load.dialog game.Load.dialogf
+  Dlg.emit_d dlg filename (Load.get_active_dialog game) (Load.get_active_dialogf_opt game)
     out_buff None None (fun str _ -> str) false false ;
   Dlg.emit_from := emit_from;
   Dlg.comments := comments;
