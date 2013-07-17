@@ -251,14 +251,16 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
         String.blit new_string 0 buff where 4 ;
         buff
 
-    | TP_PatchReplaceBCSBlock(old_file, new_file, on_mismatch) -> begin
+    | TP_PatchReplaceBCSBlock(old_file, new_file, on_mismatch, eval, case_sensitive) -> begin
         let old_file = Var.get_string old_file in
         let new_file = Var.get_string new_file in
         let bcs_buff_of_baf_or_bcs file =
           let a,b = split (String.uppercase file) in
           if b = "BAF" then begin
             try
-              let script = parse_file true (File file) "parsing .baf files"
+              let contents = if eval then Var.get_string (load_file file)
+              else (load_file file) in
+              let script = parse_file true (String (file, contents)) "parsing .baf files"
                 (Bafparser.baf_file Baflexer.initial) in
               let buff = Buffer.create 1024 in
               Bcs.save_bcs game (Bcs.Save_BCS_Buffer(buff)) script ;
@@ -271,11 +273,19 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
             load_file file
           end
         in
+        let case_sensitive = (match case_sensitive with
+        | None -> true
+        | Some x -> x) in
         let old_file_buff = bcs_buff_of_baf_or_bcs old_file in
         let string_to_find = body_of_script old_file_buff in
         let new_file_buff = bcs_buff_of_baf_or_bcs new_file in
         let string_to_sub_in = body_of_script new_file_buff in
-        let my_regexp = Str.regexp_string string_to_find in
+        let my_regexp = if case_sensitive then begin
+          Str.regexp_string string_to_find
+        end
+        else begin
+          Str.regexp_string_case_fold string_to_find
+        end in
         try
           let _ = Str.search_forward my_regexp buff 0 in
           Str.global_replace my_regexp string_to_sub_in buff

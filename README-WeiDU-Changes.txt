@@ -49,6 +49,7 @@ Version 232:
     doesn't destroy your (D|TP*|BAF) or TRA files on syntax errors or the like.
     --traify-old-tra can be used on the output TRA of --traify to correctly
     merge new strings into an old traification.
+  * REPLACE_BCS_BLOCK takes EVAL and optcase.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

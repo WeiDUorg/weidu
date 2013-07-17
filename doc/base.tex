@@ -4013,14 +4013,15 @@ or & \DEFINE{APPEND!FILE} filename &
 or & \DEFINE{APPEND!FILE!EVALUATE} filename &
   Just like \ttref{APPEND!FILE} except that \verb+%variables%+ in the contents of
   ``filename'' are evaluated before the appending. \\
-or & \DEFINE{REPLACE!BCS!BLOCK} oldFile newFile \Ob  \t{ON!MISMATCH}
-     \ttref{patch} \Slist \t{END} \Oe &
+or & \DEFINE{REPLACE!BCS!BLOCK} \Ob \t{EVALUATE!BUFFER} \Oe \ttref{optcase}
+     oldFile newFile \Ob \t{ON!MISMATCH} \ttref{patch} \Slist \t{END} \Oe &
   If the current file is a \ttref{BCS} file, the segment of it
   corresponding to oldFile is replaced with the contents of newFile.
   oldFile and newFile may be \ttref{BCS} or \ttref{BAF} files. If they
   are \ttref{BAF} files they will not get the benefit of \ttref{AUTO!TRA}.
 
-
+  If \ttref{EVALUATE!BUFFER} is given, variables inside oldFile and newFile are
+  evaluated, but only they are \ttref{BAF} files.
 
   If the segment corresponding to oldFile is not found and the \t{ON!MISMATCH} section
   is present, those patches are run; if oldFile is not found and \t{ON!MISMATCH} is not

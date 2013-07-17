@@ -992,9 +992,9 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> REPLACE_EVALUATE e1:Optional_Case_Sensitive e2:STRING BEGIN e3:Tp_Patch_List END
 		e4:STRING
 			[ Tp.TP_PatchStringEvaluate(e1,e2,e3,e4) ]
-	-> REPLACE_BCS_BLOCK e1:STRING e2:STRING [ Tp.TP_PatchReplaceBCSBlock(e1,e2,None) ]
+	-> REPLACE_BCS_BLOCK e3:Optional_Evaluate e4:Optional_Case_Sensitive e1:STRING e2:STRING [ Tp.TP_PatchReplaceBCSBlock(e1,e2,None,e3,e4) ]
 	-> REPLACE_BCS_BLOCK_REGEXP e1:STRING e2:STRING [ Tp.TP_PatchReplaceBCSBlockRE(e1,e2,None) ]
-	-> REPLACE_BCS_BLOCK e1:STRING e2:STRING ON_MISMATCH e3:Tp_Patch_List END [ Tp.TP_PatchReplaceBCSBlock(e1,e2,Some e3) ]
+	-> REPLACE_BCS_BLOCK e4:Optional_Evaluate e5:Optional_Case_Sensitive e1:STRING e2:STRING ON_MISMATCH e3:Tp_Patch_List END [ Tp.TP_PatchReplaceBCSBlock(e1,e2,Some e3,e4,e5) ]
 	-> REPLACE_BCS_BLOCK_REGEXP e1:STRING e2:STRING ON_MISMATCH e3:Tp_Patch_List END [ Tp.TP_PatchReplaceBCSBlockRE(e1,e2, Some e3) ]
 	-> REPLACE_CRE_ITEM e1:STRING e2:String_Ref_Or_Pe e3:String_Ref_Or_Pe e4:String_Ref_Or_Pe
 		e5:STRING e6:STRING e7:Optional_Equip e8:Optional_2H
