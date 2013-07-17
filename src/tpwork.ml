@@ -627,16 +627,15 @@ let ask_about_lang_dir () =
   let pretty_ht = Hashtbl.create (Array.length languages) in
   ignore (List.iter (fun (dirname, pretty) ->
     Hashtbl.add pretty_ht dirname pretty)
-            [("cs_cz", (get_trans (-1040))); ("de_de", (get_trans (-1041)));
-             ("en_us", (get_trans (-1042))); ("es_es", (get_trans (-1043)));
-             ("fr_fr", (get_trans (-1044))); ("it_it", (get_trans (-1045)));
-             ("pl_pl", (get_trans (-1046))); ("pt_br", (get_trans (-1047)));
-             ("tr_tr", (get_trans (-1048)));]) ;
+            [("cs_cz", (get_trans (-1041))); ("de_de", (get_trans (-1042)));
+             ("en_us", (get_trans (-1043))); ("es_es", (get_trans (-1044)));
+             ("fr_fr", (get_trans (-1045))); ("it_it", (get_trans (-1046)));
+             ("pl_pl", (get_trans (-1047))); ("pt_br", (get_trans (-1048)));
+             ("tr_tr", (get_trans (-1049)));]) ;
   let prettify dir =
     if Hashtbl.mem pretty_ht dir then
       Hashtbl.find pretty_ht dir
-    else dir
-  in
+    else dir in
   let answer = ref None in
   while !answer = None do
     log_and_print "%s" (get_trans (-1040)) ;

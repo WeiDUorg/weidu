@@ -92,7 +92,7 @@ type game = {
 let saved_game = ref (None : game option)
 
 let the_game () = match !saved_game with
-| None -> parse_error "no game loaded"
+| None -> failwith "ERROR: no game loaded"
 | Some(g) -> g
 
 let get_active_dialog g =
@@ -221,12 +221,15 @@ let load_default_dialogs game_path =
   [|tlk_pair|]
 
 let lang_dir_p dir =
+  let dir = Arch.slash_to_backslash ("lang/" ^ dir) in
   (is_directory dir) &&
   (file_exists (Arch.slash_to_backslash (dir ^ "/dialog.tlk")))
 
 let load_ee_dialogs game_path =
-  let lang_dirs = (List.filter lang_dir_p
-                     (Array.to_list (Case_ins.sys_readdir "lang"))) in
+  let lang_dirs = (List.fast_sort compare
+                     (List.map String.lowercase
+                        (List.filter lang_dir_p
+                           (Array.to_list (Case_ins.sys_readdir "lang"))))) in
   let languages = (List.map (fun lang ->
     let path = Arch.slash_to_backslash ("lang/" ^ lang) in
     load_dialog_pair path) lang_dirs) in

@@ -378,12 +378,12 @@ let cmp_bcs_file bcmp_dest bcmp_src game =
   | _ -> ()) ;
 ;;
 
-let rcmp_file rcmp_src rcmp_dest =
+let rcmp_file game rcmp_src rcmp_dest =
   (match rcmp_src, rcmp_dest with
   | Some (s), Some(d) ->
       let load file =
         let a,b = split (Filename.basename file) in
-        let buff = try load_file file with e -> fst (Load.load_resource "--rcmp" (Load.the_game()) true a b) in
+        let buff = try load_file file with e -> fst (Load.load_resource "--rcmp" game true a b) in
         match String.uppercase b with
         | "DLG" -> buff
         | "BCS"
@@ -1015,9 +1015,9 @@ let compile_baf baf_list game =
         ) baf_list ;
 ;;
 
-let test_output_tlk tlk pause_at_end =
-  (match tlk with
-    Some(path) when file_exists path -> begin
+let test_output_tlk path pause_at_end =
+  (match path with
+  | Some path when file_exists path -> begin
       try Unix.access path [Unix.W_OK] ;
         log_or_print "[%s] claims to be writeable.\n" path ;
         if (Case_ins.unix_stat path).Unix.st_kind <> Unix.S_REG then
@@ -1412,13 +1412,17 @@ let main () =
 
   let argv0_base, argv0_ext = split (String.uppercase (Case_ins.filename_basename Sys.argv.(0))) in
 
-  let auto () = begin
+  let auto game = begin
     pause_at_end := true ;
     if not !no_game then begin
-      output_dialog := Some("dialog.tlk") ;
-      output_dialogf := Some("dialogf.tlk") ;
-      Load.set_dialog_tlk_path "dialog.tlk" ;
-      Load.set_dialogf_tlk_path "dialogf.tlk" ;
+      if !output_dialog = None then
+        output_dialog := Some (Load.get_active_dialogs game).Load.dialog.Load.path ;
+      if !output_dialogf = None then
+        output_dialogf := (match (Load.get_active_dialogs game).Load.dialogf with
+        | None -> None
+        | Some tlk -> Some tlk.Load.path) ;
+(*      Load.set_dialog_tlk_path "dialog.tlk" ;
+      Load.set_dialogf_tlk_path "dialogf.tlk" ; *)
     end;
     if is_directory "debugs" then
       init_log Version.version ("debugs/" ^ argv0_base ^ ".DEBUG")
@@ -1693,12 +1697,28 @@ let main () =
     exit return_value_success ;
   end ;
 
+  let game =
+    if !no_game then
+      Load.load_null_game ()
+    else
+      Load.load_game ()
+  in
+
+  Dc.cur_index := Array.length (Load.get_active_dialog game) ;
+  Load.saved_game := Some(game) ;
+
+  if (!forced_script_style <> Load.NONE) then
+    force_script_style game !forced_script_style Sys.argv.(0);
+
+  if Load.enhanced_edition_p () then (* todo: only do it unless we got something useful on the command line *)
+    Load.set_bgee_lang_dir game (attempt_to_load_bgee_lang_dir game.Load.game_path) ;
+
   (* see if SETUP is in our base name *)
   let setup_regexp = Str.regexp_case_fold "setup" in
   if not !no_auto_tp2 then begin
     try
       let _ = Str.search_forward setup_regexp argv0_base 0 in
-      auto () ;
+      auto game ;
     with _ ->
       if Array.length Sys.argv <= 1 then begin
         Myarg.usage argDescr usageMsg ;
@@ -1709,22 +1729,6 @@ let main () =
         else exit ( Sys.command (Sys.executable_name ^ " " ^ mystr))
       end ;
   end ;
-  let game =
-    if !no_game then
-      Load.load_null_game ()
-    else
-      Load.load_game ()
-  in
-
-  if (!forced_script_style <> Load.NONE) then
-    force_script_style game !forced_script_style Sys.argv.(0);
-
-  if Load.enhanced_edition_p () then (* todo: only do it unless we got something useful on the command line *)
-    Load.set_bgee_lang_dir game (attempt_to_load_bgee_lang_dir game.Load.game_path) ;
-
-
-  Dc.cur_index := Array.length (Load.get_active_dialog game) ;
-  Load.saved_game := Some(game) ;
 
   let automate_min = lazy(match !automate_min with
   | Some x -> x
@@ -1780,7 +1784,7 @@ let main () =
 
 
   if !rcmp_src <> None && !rcmp_dest <> None then
-    rcmp_file !rcmp_src !rcmp_dest ;
+    rcmp_file game !rcmp_src !rcmp_dest ;
 
 
   (* For debugging patch/diff: *)
@@ -1972,20 +1976,17 @@ let main () =
   let d_pair = (Load.get_active_dialogs game) in
   (* Emit DIALOG.TLK *)
   (match !output_dialog, d_pair.Load.dialog_mod with
-    Some(path), true ->
+  | Some path, true ->
       let outchan = open_for_writing path true in
       Tlk.save_tlk path (Load.get_active_dialog game) outchan
   | _, _ -> ()) ;
 
   (* Emit DIALOGF.TLK *)
-  (match d_pair.Load.dialogf with
-  | Some tlk ->
-      (match !output_dialogf, d_pair.Load.dialogf, d_pair.Load.dialogf_mod with
-        Some(path),Some(t),true ->
-          let outchan = open_for_writing path true in
-          Tlk.save_tlk path t.Load.contents outchan
-      | _, _, _ -> () ) ;
-  | None -> ()) ;
+  (match !output_dialogf, (Load.get_active_dialogf_opt game), d_pair.Load.dialogf_mod with
+  | Some path, Some tlk, true ->
+      let outchan = open_for_writing path true in
+      Tlk.save_tlk path tlk outchan
+  | _, _, _ -> ()) ;
 
   Hashtbl.iter (fun a x -> Unix.close x.Biff.fd) game.Load.loaded_biffs;
   Queue.iter my_unlink Load.cbifs_to_rem;
