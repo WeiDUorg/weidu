@@ -467,11 +467,11 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
       let str = string_of_pe buff game str in
       let rec walk al = match al with
         | (pe_l,pe,pl) :: tl -> if is_true (eval_pe buff game pe) &&
-            pe_l = [] || (List.exists (fun elt ->
+            (pe_l = [] || (List.exists (fun elt ->
               let elt = string_of_pe buff game elt in
               let elt = Str.regexp_case_fold elt in
               Str.string_match elt str 0 &&
-              Str.match_end () = String.length str) pe_l) then
+              Str.match_end () = String.length str) pe_l)) then
             List.fold_left (fun acc elt ->
               process_patch2 patch_filename game acc elt) buff pl
         else walk tl
