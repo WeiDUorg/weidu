@@ -51,6 +51,8 @@ Version 232:
     merge new strings into an old traification.
   * REPLACE_BCS_BLOCK takes EVAL and optcase.
   * WHEN conditions in *_MATCH and *_TRY work correctly.
+  * DECOMPRESS_BIFF is documented but works differently from before (old way
+    should still work but is deprecated). It also won't destroy BIFFV1 files.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

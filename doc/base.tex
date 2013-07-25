@@ -3719,6 +3719,17 @@ or & \DEFINE{ACTION!TO!LOWER} \ttref{variable} &
 or & \DEFINE{ACTION!GET!STRREF} \ttref{value} \ttref{variable} &
   The string reference value is looked up in \t{DIALOG.TLK} and the (male) string
   (without any quotes) is stored in the \ttref{variable}.  \\
+or & \DEFINE{DECOMPRESS!BIFF} file ... &
+  Decompresses one or more biff files from either \t{"BIF V1.0"} or \t{"BIFCV1.0"}
+  into \t{"BIFFV1  "}.
+  The biff file is looked for in /data and the CD paths specified in baldur.ini. You should
+  consequently \emph{not} specify the biff path, merely the name. All matching biff files
+  are decompressed, even ones that are duplicated between CD paths. The biff file is backed up
+  to another file in the same directory before it is decompressed. Since multiple games
+  can share the same biffs, this action is not uninstalled together with the mod.
+
+  Decompressing a biff file can be helpful in preventing crashes related to area files,
+  commonly \t{WAV} ambient sounds or \t{TIS} files. \emph{Do not use this action without a real reason.} \\
 
 \\
 
