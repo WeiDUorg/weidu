@@ -3728,6 +3728,8 @@ or & \DEFINE{DECOMPRESS!BIFF} file ... &
   to another file in the same directory before it is decompressed. Since multiple games
   can share the same biffs, this action is not uninstalled together with the mod.
 
+  WeiDU will raise a Failure exception if the biff is not found in any of the paths.
+
   Decompressing a biff file can be helpful in preventing crashes related to area files,
   commonly \t{WAV} ambient sounds or \t{TIS} files. \emph{Do not use this action without a real reason.} \\
 
