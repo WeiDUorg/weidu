@@ -89,32 +89,50 @@ DEFINE_ACTION_FUNCTION HANDLE_AUDIO
     music = 0
   STR_VAR
     audio_path = EVAL "%MOD_FOLDER%/audio"
+    oggdec_path = EVAL "%audio_path%"
+    sox_path = EVAL "%audio_path%"
 BEGIN
   ACTION_IF !GAME_IS bgee BEGIN
-    ACTION_IF "%WEIDU_OS%" STRING_EQUAL_CASE win32 BEGIN
-      ACTION_IF FILE_EXISTS ~%audio_path%/oggdec.exe~ BEGIN
-        ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-          AT_NOW ~%audio_path%/oggdec %BASH_FOR_FILESPEC%~
-          MOVE ~%audio_path%/%BASH_FOR_RES%.wav~ override
+    ACTION_MATCH "%WEIDU_OS%" WITH
+      win32
+      BEGIN
+        ACTION_IF FILE_EXISTS "%oggdec_path%/oggdec.exe" BEGIN
+          ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
+            AT_NOW ~%oggdec_path%/oggdec.exe %BASH_FOR_FILESPEC%~
+            MOVE ~%audio_path%/%BASH_FOR_RES%.wav~ override
+          END
+        END ELSE BEGIN
+          WARN ~WARNING: audio was not installed because oggdec.exe could not be found in %oggdec_path%~
         END
-      END ELSE BEGIN
-        WARN ~WARNING: audio was not installed because oggdec.exe could not be found in %audio_path%~
       END
-    END ELSE ACTION_IF "%WEIDU_OS%" STRING_EQUAL_CASE osx BEGIN
-      ACTION_IF FILE_EXISTS ~%audio_path%/sox~ BEGIN
-        AT_NOW ~chmod +x %audio_path%/sox~
-        ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-          AT_NOW ~%audio_path%/sox %BASH_FOR_FILESPEC% %audio_path%/%BASH_FOR_RES%.wav~
-          MOVE ~%audio_path%/%BASH_FOR_RES%.wav~ override
+
+      osx
+      BEGIN
+        ACTION_IF FILE_EXISTS ~%sox_path%/sox~ BEGIN
+          AT_NOW ~chmod +x %sox_path%/sox~
+          ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
+            AT_NOW ~%sox_path%/sox %BASH_FOR_FILESPEC% %audio_path%/%BASH_FOR_RES%.wav~
+            MOVE ~%audio_path%/%BASH_FOR_RES%.wav~ override
+          END
+        END ELSE BEGIN
+          WARN ~WARNING: audio was not installed because sox could not be found in %sox_path%~
         END
-      END ELSE BEGIN
-        WARN ~WARNING: audio was not installed because sox could not be found in %audio_path%~
       END
-    END ELSE ACTION_IF "%WEIDU_OS%" STRING_EQUAL_CASE unix BEGIN
-      ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-        AT_NOW ~oggdec %BASH_FOR_FILESPEC%~
-        MOVE ~%audio_path%/%BASH_FOR_RES%.wav~ override
+
+      unix
+      BEGIN
+        OUTER_SET installed = 1
+        ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
+          AT_NOW ~oggdec %BASH_FOR_FILESPEC%~
+          ACTION_IF FILE_EXISTS ~%audio_path%/%BASH_FOR_RES%.wav~ BEGIN
+            MOVE ~%audio_path%/%BASH_FOR_RES%.wav~ override
+          END ELSE OUTER_SET installed = 0
+        END
+        ACTION_IF !installed BEGIN
+          WARN "WARNING: audio was not installed because WAV files were not found. Are you sure you have oggdec installed?"
+        END
       END
+      DEFAULT
     END
   END ELSE BEGIN
     ACTION_IF !music BEGIN
