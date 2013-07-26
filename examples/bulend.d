@@ -41,7 +41,7 @@ END // We're done with APPEND, so don't forget to END it
 // Now all you have to do is compile it.
 // Put WeiDU.exe in your BG2 folder, as well as this file, and bulend.bat
 // In bulend.bat there's this command:
-// "weidu bulend.d --out override --tlkout ..\dialog.tlk"
+// "weidu bulend.d --out override
 // That tells WeiDU to compile bulend.d while putting files in override and
 // saving resulted dialog.tlk by replacing the original.  *Close
 // NearInfinity*, and run bulend.bat file.  You are now done, and your

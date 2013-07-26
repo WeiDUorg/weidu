@@ -1002,10 +1002,10 @@ will place their output there.  Does not affect \ttref{TP2} processing. \\
 \DEFINE{--append} \t{X} & Like \ttref{--out}, but if \t{X} is an existing
 file then the result will be appended to it instead of overwriting it. \\
 \DEFINE{--backup} \t{X} &	Backup files to directory {\tt X} before overwriting. Does not affect \ttref{TP2} processing. \\
-\DEFINE{--tlkout} \t{X} &	If any strings were added to or changed in the loaded \t{DIALOG.TLK}, emit \t{X} as an updated version that reflects those changes. Many operations (e.g., compiling \t{D} files, \ttref{--tlkmerge}, \ttref{STRING!SET}) can add to or modify \t{DIALOG.TLK}. \\
-\DEFINE{--ftlkout} \t{X} & If any strings were added to or changed in the
+\DEFINE{--tlkout} \t{X} &	Redirect the output dialog to X. If any strings were added to or changed in the loaded \t{DIALOG.TLK}, emit \t{X} as an updated version that reflects those changes. Many operations (e.g., compiling \t{D} files, \ttref{--tlkmerge}, \ttref{STRING!SET}) can add to or modify \t{DIALOG.TLK}. If this option is not provided, the output dialog is the same as the input dialog. \\
+\DEFINE{--ftlkout} \t{X} & Redirect the output dialogf to X. If any strings were added to or changed in the
 loaded \t{DIALOGF.TLK}, emit \t{X} as an updated version that reflects
-those changes. \\
+those changes. If this options is not provided, the output dialogf is the same as the input dialogf. \\
 \\
 \multicolumn{2}{c}{ \color{red} Dialogue Text File (\ttref{D}) Options} \\
 \DEFINE{--noheader} &	Do not emit \ttref{D} header comments. \\
@@ -1215,22 +1215,7 @@ instead of
   This loads and parses bodhi.d and then executed all instructions in it.
   This \t{bodhi.d} file just defines \t{BODHI.DLG}, which is created. If
   \t{bodhi.d} contains strings that do not occur in \t{DIALOG.}\ttref{TLK},
-  \t{BODHI.DLG} will be created with invalid string references.
-
-\item  Compiling a \ttref{D} file that includes new text
-
-  \CMD{ weidu bodhi.d --tlkout new-\t{DIALOG.}\ttref{TLK}}
-\begin{verbatim}
-        ...
-  [bodhi.d] parsed
-  [BODHI.DLG] saved       135 states, 259 trans, 16 strig, 66 ttrig, 54 actions
-  [new-DIALOG.TLK] created, 84459 string entries
-\end{verbatim}
-
-  This loads and parses \t{bodhi.d} and then executed all instructions in it.
-  This \t{bodhi.d} file just defines \t{BODHI.DLG}, which is created. If
-  there are any new strings a new version of \t{\t{DIALOG.}\ttref{TLK}} is written to
-  \t{new-\t{DIALOG.}\ttref{TLK}}.
+  these strings will be added as new string references.
 
 \item  Compiling multiple \ttref{D} files
 
@@ -1245,8 +1230,6 @@ instead of
 
   This creates \t{test/BODHI.DLG} and \t{test/PPWORKER.DLG} based on the
   instructions in \t{bodhi.d} and \t{ppworker.d}.
-  If these \ttref{D} files include new text, use \t{--tlkout} to make a new
-  \t{\t{DIALOG.}\ttref{TLK}}.
 
 \item  Compiling a \ttref{D} file that defines many \ttref{DLG} files
 
@@ -1272,8 +1255,7 @@ instead of
   \t{SOLAE3.DLG}, ..., \t{SOLAE6.DLG}. You could
   have put them all in the override directory with \t{--out override}. You
   may use the forward slash (/) or the backslash ($\backslash$) for
-  directories. Use \t{--tlkout} to make a new \t{\t{DIALOG.}\ttref{TLK}} if these
-  contain new text.
+  directories.
 
 \item  Compiling a \ttref{D} file that uses a \ttref{TRA} file
 
@@ -1295,7 +1277,7 @@ instead of
   specify a translation file or (if it ends in \ttref{TRA}) just throw it
   on the command line. If you include multiple \ttref{TRA} files, the last
   one to define a particular string index wins for that string. They need
-  not all cover the same set. Use \t{--tlkout} if there is new text involved.
+  not all cover the same set.
 
 \item  Displaying String References
 
@@ -8984,8 +8966,6 @@ PRINT "Government District Westside patched. New area number is: %areNum%"
 If you rename \t{WeiDU.EXE} to something of the form \t{Setup-MyMod.exe},
 it will behave as if the following arguments were present:
 \begin{itemize}
-\item \t{--tlkout \t{DIALOG.}\ttref{TLK}}
-\item \t{--ftlkout \t{DIALOGF.}\ttref{TLK}} (if \t{\t{DIALOGF.}\ttref{TLK}} is present)
 \item \t{--log Setup-MyMod.DEBUG}
 \item \t{Setup-MyMod.tp2}
 \item \t{MyMod.tp2}

@@ -5,7 +5,7 @@
  *
  * Try me out:
  *
- *   C:\> weidu mymod.tp --tlkout new.tlk
+ *   C:\> weidu mymod.tp2
  */
 
 /* First, set the backup directory. Any time we would overwrite a file for
