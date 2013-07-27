@@ -327,5 +327,10 @@ let get_tp2_base_name dir =
   (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" dir)
 
 let get_mod_folder dir =
-  (String.sub dir 0 (String.index
-                       (Str.global_replace (Str.regexp "\\\\") "/" dir) '/'))
+  (try
+    Some (String.sub dir 0
+            (String.index
+               (Str.global_replace
+                  (Str.regexp "\\\\") "/" dir) '/'))
+   with Not_found ->
+     None)
