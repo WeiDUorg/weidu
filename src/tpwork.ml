@@ -697,7 +697,7 @@ let rec handle_tp game this_tp2_filename tp =
 
   ignore (lang_init !our_lang) ;
 
-  if Load.enhanced_edition_p () && not !Load.have_bgee_lang_dir_p then begin
+  if Load.enhanced_edition_p game && not !Load.have_bgee_lang_dir_p then begin
     let dir = ask_about_lang_dir () in
     ignore (Load.set_bgee_lang_dir game (Some dir)) ;
     ignore (write_bgee_lang_dir game.Load.game_path dir) ;

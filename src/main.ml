@@ -83,6 +83,11 @@ type output_info = {
     end;
 ;;
 
+let check_bgee_lang_or_fail game =
+  if Load.enhanced_edition_p game && not !Load.have_bgee_lang_dir_p then
+    failwith "ERROR: this is a multi-language game, \
+      but you have not set which language to use. Use --use-lang"
+
 let force_script_style game forced_script_style exe_name =
   game.Load.script_style <- forced_script_style ;
   let s = match game.Load.script_style with
@@ -1410,6 +1415,8 @@ let main () =
 
   let no_auto_tp2 = ref false in
 
+  let ee_use_lang = ref None in
+
   let argv0_base, argv0_ext = split (String.uppercase (Case_ins.filename_basename Sys.argv.(0))) in
 
   let auto game = begin
@@ -1478,6 +1485,7 @@ let main () =
     "--search-ids", Myarg.String Load.add_ids_path, "X\tlook in X for input IDS files (cumulative)" ;
     "--tlkin", Myarg.String Load.set_dialog_tlk_path,"X\tuse X as DIALOG.TLK" ;
     "--ftlkin", Myarg.String Load.set_dialogf_tlk_path,"X\tuse X as DIALOGF.TLK";
+    "--use_lang", Myarg.String (fun s -> ee_use_lang := Some s), "X\ton games with multiple languages, use lang/X";
     "--tlkmerge", Myarg.String (fun s -> tlk_merge := !tlk_merge @ [s]),
     "X\tmerge X into loaded DIALOG.TLK" ;
     "--yes", Myarg.Set Tp.always_yes,"\tanswer all TP2 questions with 'Yes'";
@@ -1710,8 +1718,11 @@ let main () =
   if (!forced_script_style <> Load.NONE) then
     force_script_style game !forced_script_style Sys.argv.(0);
 
-  if Load.enhanced_edition_p () then (* todo: only do it unless we got something useful on the command line *)
-    Load.set_bgee_lang_dir game (attempt_to_load_bgee_lang_dir game.Load.game_path) ;
+  if Load.enhanced_edition_p game then
+    (match !ee_use_lang with
+    | None -> Load.set_bgee_lang_dir game (attempt_to_load_bgee_lang_dir game.Load.game_path)
+    | Some s -> Load.set_bgee_lang_dir game (Some s)
+          write_bgee_lang_dir game.Load.game_path s) ;
 
   (* see if SETUP is in our base name *)
   let setup_regexp = Str.regexp_case_fold "setup" in

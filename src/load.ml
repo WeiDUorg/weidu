@@ -191,8 +191,8 @@ let load_dialogf gp dialogf_path =
   end else
     None, ""
 
-let enhanced_edition_p () =
-  (match (the_game ()).game_type with
+let enhanced_edition_p game =
+  (match game.game_type with
   | BGEE -> true
   | GENERIC -> false)
 
@@ -246,7 +246,12 @@ exception FoundKey of Key.key * string
 let load_null_game () =
   let dialogs =
     (match !dialog_tlk_path with
-    | Some(p) -> [|load_dialog_pair p|]
+    | Some(p) -> [|{
+          dialog = {contents = (Tlk.load_tlk p); path = p};
+          dialog_mod = false;
+          dialogf = None;
+          dialogf_mod = false;
+        }|]
     | None -> [|{
         dialog = {contents = (Tlk.null_tlk ()); path = " -- NO DIALOG.TLK -- ";};
         dialog_mod = false;
@@ -351,7 +356,7 @@ let autodetect_game_type key =
   | NONE -> Tlk.is_bg2 := false) ;
   (game_type, script_style)
 
-let pad_tlks game = (* todo: extend this to cover all tlk_pairs in dialogs *)
+let pad_tlks game =
   (match (get_active_dialogf_opt game) with
     Some(df) -> begin
       let d = get_active_dialog game in
@@ -375,9 +380,26 @@ let pad_tlks game = (* todo: extend this to cover all tlk_pairs in dialogs *)
     end
   | None -> ())
 
+let have_bgee_lang_dir_p = ref false
+
 let load_game () =
   let key, gp = find_key_file !game_paths in
-  let dialogs = load_dialogs gp in
+  let dialogs = (match !dialog_tlk_path, !dialogf_tlk_path with
+  | None, None -> load_dialogs gp
+  | _, _ ->
+      let d, dpath = load_dialog gp !dialog_tlk_path in
+      let df, dfpath = load_dialogf gp !dialogf_tlk_path in
+      (* not checked unless BGEE
+       * if we got --tlkin, we know which tlk to use *)
+      have_bgee_lang_dir_p := true ;
+      [|{
+        dialog = {contents = d; path = dpath};
+        dialog_mod = false;
+        dialogf = (match df with
+        | None -> None
+        | Some df -> Some {contents = df; path = dfpath});
+        dialogf_mod = false;
+      }|]) in
   let dialog_index = 0 in
   let cd_paths = read_cd_paths gp in
   if not (is_directory "override") && (file_exists "chitin.key") then
@@ -405,8 +427,6 @@ let load_game () =
   pad_tlks result ;
   create_dialog_search result ;
   result
-
-let have_bgee_lang_dir_p = ref false
 
 let set_bgee_lang_dir game dir =
   (match dir with
