@@ -44,6 +44,8 @@ Version 232:
   * The variable MOD_FOLDER is set to the root of the backup directory.
   * Add the function HANDLE_AUDIO, which can install .ogg audio on any supported
     platform and game (including BG:EE).
+  * Add the function HANDLE_TILESETS, which can install TISpack-compressed
+    tilesets on any supported platform and game (that supports TIS V1).
   * Fix a bug in MOVE that could cause mod rollback to fail.
   * Traify distinguishes between sounded and unsounded strings. Traify also
     doesn't destroy your (D|TP*|BAF) or TRA files on syntax errors or the like.
