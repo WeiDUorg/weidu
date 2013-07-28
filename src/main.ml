@@ -83,10 +83,11 @@ type output_info = {
     end;
 ;;
 
-let check_bgee_lang_or_fail game =
+let if_bgee_check_lang_or_fail game =
   if Load.enhanced_edition_p game && not !Load.have_bgee_lang_dir_p then
     failwith "ERROR: this is a multi-language game, \
-      but you have not set which language to use. Use --use-lang"
+      but you have not set which language to use. \
+  Specify --use-lang at least once."
 
 let force_script_style game forced_script_style exe_name =
   game.Load.script_style <- forced_script_style ;
@@ -101,6 +102,7 @@ let force_script_style game forced_script_style exe_name =
 ;;
 
 let forceify_file forceify game =
+  if_bgee_check_lang_or_fail game ;
   (match forceify with
     Some(file) -> begin
       try
@@ -167,6 +169,7 @@ let forceify_file forceify game =
 ;;
 
 let make_tlk_from_file game make_tlk =
+  if_bgee_check_lang_or_fail game ;
   begin
   let results : (int * local_string_entry) list =
     List.fold_left (fun acc filename ->
@@ -200,6 +203,7 @@ let make_tlk_from_file game make_tlk =
 ;;
 
 let extract_tlk_to_file game user_min user_max strfind_list traify_num =
+  if_bgee_check_lang_or_fail game ;
   begin
     let tlk = (Load.get_active_dialog game) in
     let ftlk = (Load.get_active_dialogf_opt game) in
@@ -286,6 +290,7 @@ let cmp_binary_file cmp_dest cmp_src game =
 ;;
 
 let cmp_d_file dcmp_dest dcmp_src game =
+  if_bgee_check_lang_or_fail game ;
   (match dcmp_dest with
     Some(d) ->
       let buff,s = match dcmp_src with
@@ -547,6 +552,7 @@ let display_string i game =
 ;;
 
 let display_string_by_number ds_list user_min user_max game =
+  if_bgee_check_lang_or_fail game ;
   begin
     let my_min = match user_min with
       Some(i) -> i
@@ -563,6 +569,7 @@ let display_string_by_number ds_list user_min user_max game =
 ;;
 
 let display_string_by_content strfind_list game =
+  if_bgee_check_lang_or_fail game ;
   begin
     let reg_list = List.map Str.regexp_case_fold strfind_list in
     Array.iteri (fun i s ->
@@ -694,6 +701,7 @@ let remove_biff_from_key remove_biff game =
 ;;
 
 let append_strings strapp_list game =
+  if_bgee_check_lang_or_fail game ;
   let lse_strapp_list = List.map (fun s ->
     Dlg.Local_String( { lse_male = s; lse_female = s;
                         lse_male_sound = "" ; lse_female_sound = ""; })) strapp_list in
@@ -704,6 +712,7 @@ let append_strings strapp_list game =
 ;;
 
 let decompile_dlg dlg_list transitive two_pass use_trans d_headers d_toplevel game =
+  if_bgee_check_lang_or_fail game ;
   let loaded_dlgs = List.map (fun (b,e) ->
     try
       let buff, final_path = Load.load_resource "DLG decompile command" game true b e in
@@ -780,6 +789,7 @@ let make_trb_file trbify =
 ;;
 
 let untraify untraify_d untraify_tra =
+  if_bgee_check_lang_or_fail game ;
   ( match (untraify_d,untraify_tra) with
   | (Some(d),Some(tra)) ->
       let result = parse_file true (File tra) "parsing .tra files" (Dparser.tra_file Dlexer.initial) in
@@ -818,6 +828,7 @@ let untraify untraify_d untraify_tra =
 ;;
 
 let traify_file traify traify_num traify_comment traify_old_tra =
+  if_bgee_check_lang_or_fail game ;
   (match traify with
   | Some(file) -> begin
       try
@@ -1008,6 +1019,7 @@ let traify_file traify traify_num traify_comment traify_old_tra =
   | None -> ())
 
 let compile_baf baf_list game =
+  if_bgee_check_lang_or_fail game ;
   List.iter (fun str ->
     try
       let script = handle_baf_filename str in
@@ -1020,22 +1032,26 @@ let compile_baf baf_list game =
         ) baf_list ;
 ;;
 
-let test_output_tlk path pause_at_end =
-  (match path with
-  | Some path when file_exists path -> begin
-      try Unix.access path [Unix.W_OK] ;
-        log_or_print "[%s] claims to be writeable.\n" path ;
-        if (Case_ins.unix_stat path).Unix.st_kind <> Unix.S_REG then
-          failwith (path ^ " is a not a regular file") ;
-        log_or_print "[%s] claims to be a regular file.\n" path ;
-        ()
-      with e ->
-        log_and_print "\nERROR: The file [%s] cannot be written to. Perhaps it is in use by another process (close ShadowKeeper, all Infinity Engine games and editors, etc.). It may also be naturally read-only: use Windows Explorer and right-click on the file to pull up its properties. Make sure that the \"read-only\" box is NOT checked. Please fix this problem and try again.\n" path ;
-        pause_at_end := true ;
-        raise e
+let test_output_tlk game pause_at_end =
+  let test path =
+    (match path with
+    | Some path when file_exists path begin
+        (try Unix.access path [Unix.W_OK] ;
+          log_or_print "[%s] claims to be writeable.\n" path ;
+          if (Case_ins.unix_stat path).Unix.st_kind <> Unix.S_REG then
+            failwith (path ^ " is a not a regular file") ;
+          log_or_print "[%s] claims to be a regular file.\n" path ;
+          ()
+        with e ->
+          log_and_print "\nERROR: The file [%s] cannot be written to. Perhaps it is in use by another process (close ShadowKeeper, all Infinity Engine games and editors, etc.). It may also be naturally read-only: use Windows Explorer and right-click on the file to pull up its properties. Make sure that the \"read-only\" box is NOT checked. Please fix this problem and try again.\n" path ;
+          pause_at_end := true ;
+          raise e)
     end
-  | _ -> ()) ;
-;;
+    | None -> ()) in
+  List.iter test (List.fold_left (fun acc tlk_pair ->
+    List.append acc [Some (tlk_pair.Load.dialog.path); (match tlk_pair.Load.dialogf with
+    | None -> None
+    | Some df -> Some (df.Load.path));]) [] game.Load.dialogs))
 
 let do_tp2_files tp_list force_install_these_main force_uninstall_these_main pause_at_end game =
   pause_at_end := true ;
@@ -1254,6 +1270,7 @@ let list_effs list_eff_list game =
 ;;
 
 let decompile_bcs bcs_list game =
+  if_bgee_check_lang_or_fail game ;
   List.iter (fun str ->
     let b,e = split str in
     try
@@ -1279,6 +1296,7 @@ let decompile_bcs bcs_list game =
 ;;
 
 let merge_tlk tlk_merge game =
+  if_bgee_check_lang_or_fail game ;
   List.iter (fun str ->
     let name,ext = split (String.uppercase str) in
     let tlk = Tlk.load_tlk str in
@@ -1752,11 +1770,13 @@ let main () =
   end)
   in
   if !automate_list <> [] then begin
+    if_bgee_check_lang_or_fail game ;
     Automate.automate game !automate_list (Lazy.force automate_min) (output_string (Lazy.force theout.chan)) ;
   end;
 
   (match !automate_file with
-  | Some(x) -> Automate.automate_file game x (Lazy.force automate_min) (output_string (Lazy.force theout.chan));
+  | Some(x) -> if_bgee_check_lang_or_fail game ;
+      Automate.automate_file game x (Lazy.force automate_min) (output_string (Lazy.force theout.chan));
   | None -> ());
 
 
@@ -1933,7 +1953,7 @@ let main () =
 
   (* Check that we can write to the given TLK file *)
   if !output_dialog <> None then
-    test_output_tlk !output_dialog pause_at_end ; (* pause_at_end is intentionllay not derefenenced *)
+    test_output_tlk game pause_at_end ; (* pause_at_end is intentionllay not derefenenced *)
 
 
   if !tp_list <> [] then begin
