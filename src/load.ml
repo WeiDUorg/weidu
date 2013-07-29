@@ -75,7 +75,7 @@ type script_style = BG1 | BG2 | IWD1 | IWD2 | PST | NONE
 type game = {
     mutable key : Key.key;
     game_path : string;
-    cd_path_list : string list;
+    mutable cd_path_list : string list;
     mutable override_path_list : string list;
     mutable ids_path_list : string list;
     mutable loaded_biffs : (string, Biff.biff) Hashtbl.t;
@@ -428,11 +428,17 @@ let load_game () =
   create_dialog_search result ;
   result
 
+let set_additional_bgee_load_paths game dir =
+  let more = List.append (if dir <> "en_us" then ["/lang/" ^ dir] else [])
+      ["./lang/en_us"] in
+  game.cd_path_list <- (List.append game.cd_path_list more)
+
 let set_bgee_lang_dir game dir =
   (match dir with
   | Some d ->
       let regexp = (Str.regexp_case_fold
                       (Str.quote (Arch.slash_to_backslash ("lang/" ^ d)))) in
+      ignore (set_additional_bgee_load_paths game d) ;
       ignore (Array.iteri (fun index tlk_pair ->
         if Str.string_match regexp tlk_pair.dialog.path 0 then begin
           game.dialog_index <- index ;
