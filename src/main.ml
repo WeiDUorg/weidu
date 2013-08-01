@@ -788,7 +788,7 @@ let make_trb_file trbify =
   | _ -> ()) ;
 ;;
 
-let untraify untraify_d untraify_tra =
+let untraify game untraify_d untraify_tra =
   if_bgee_check_lang_or_fail game ;
   ( match (untraify_d,untraify_tra) with
   | (Some(d),Some(tra)) ->
@@ -827,7 +827,7 @@ let untraify untraify_d untraify_tra =
   | _ -> ()) ;
 ;;
 
-let traify_file traify traify_num traify_comment traify_old_tra =
+let traify_file game traify traify_num traify_comment traify_old_tra =
   if_bgee_check_lang_or_fail game ;
   (match traify with
   | Some(file) -> begin
@@ -1035,7 +1035,7 @@ let compile_baf baf_list game =
 let test_output_tlk game pause_at_end =
   let test path =
     (match path with
-    | Some path when file_exists path begin
+    | Some path when (file_exists path) -> begin
         (try Unix.access path [Unix.W_OK] ;
           log_or_print "[%s] claims to be writeable.\n" path ;
           if (Case_ins.unix_stat path).Unix.st_kind <> Unix.S_REG then
@@ -1047,11 +1047,11 @@ let test_output_tlk game pause_at_end =
           pause_at_end := true ;
           raise e)
     end
-    | None -> ()) in
-  List.iter test (List.fold_left (fun acc tlk_pair ->
-    List.append acc [Some (tlk_pair.Load.dialog.path); (match tlk_pair.Load.dialogf with
+    | _ -> ()) in
+  List.iter test (Array.fold_left (fun acc tlk_pair ->
+    List.append acc [Some (tlk_pair.Load.dialog.Load.path); (match tlk_pair.Load.dialogf with
     | None -> None
-    | Some df -> Some (df.Load.path));]) [] game.Load.dialogs))
+    | Some df -> Some (df.Load.path))]) [] game.Load.dialogs)
 
 let do_tp2_files tp_list force_install_these_main force_uninstall_these_main pause_at_end game =
   pause_at_end := true ;
@@ -1739,8 +1739,8 @@ let main () =
   if Load.enhanced_edition_p game then
     (match !ee_use_lang with
     | None -> Load.set_bgee_lang_dir game (attempt_to_load_bgee_lang_dir game.Load.game_path)
-    | Some s -> Load.set_bgee_lang_dir game (Some s)
-          write_bgee_lang_dir game.Load.game_path s) ;
+    | Some s -> Load.set_bgee_lang_dir game (Some s) ;
+        write_bgee_lang_dir game.Load.game_path s) ;
 
   (* see if SETUP is in our base name *)
   let setup_regexp = Str.regexp_case_fold "setup" in
@@ -1932,11 +1932,11 @@ let main () =
 
 
   if !untraify_d <> None && !untraify_tra <> None then
-    untraify !untraify_d !untraify_tra ;
+    untraify game !untraify_d !untraify_tra ;
 
 
   if !traify <> None then
-    traify_file !traify traify_num !traify_comment !traify_old_tra ; (* traify_num is intentionally not dereferenced *)
+    traify_file game !traify traify_num !traify_comment !traify_old_tra ; (* traify_num is intentionally not dereferenced *)
 
 
   if !baf_list <> [] then
