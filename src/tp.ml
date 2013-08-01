@@ -300,7 +300,7 @@ and tp_patch =
   | TP_PatchString of (bool option) * (bool option) * string * Dlg.tlk_string (* regexp + text *)
   | TP_PatchStringTextually of (bool option) * (bool option) * string * string * (tp_patchexp option) (* regexp + text *)
   | TP_PatchStringEvaluate of (bool option) * string * (tp_patch list) * string (* see below *)
-  | TP_PatchReplaceBCSBlock of string * string * tp_patch list option (* old + new *)
+  | TP_PatchReplaceBCSBlock of string * string * tp_patch list option * bool * (bool option) (* old + new *)
   | TP_PatchReplaceBCSBlockRE of string * string * tp_patch list option (* old + new *)
   | TP_PatchApplyBCSPatch of string (* patch *) * (string option) (* copyover *)
   | TP_PatchByte of tp_patchexp * tp_patchexp
@@ -555,4 +555,6 @@ let set_tp2_vars tp =
   Var.set_string "TP2_AUTHOR" tp.author ;
   Var.set_string "TP2_FILE_NAME" tp.tp_filename ;
   Var.set_string "TP2_BASE_NAME" (Var.get_tp2_base_name tp.tp_filename) ;
-  Var.set_string "MOD_FOLDER" (Var.get_mod_folder tp.backup)
+  (match Var.get_mod_folder tp.backup with
+  | Some s -> Var.set_string "MOD_FOLDER" s
+  | None -> ())

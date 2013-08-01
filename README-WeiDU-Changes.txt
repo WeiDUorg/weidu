@@ -44,11 +44,17 @@ Version 232:
   * The variable MOD_FOLDER is set to the root of the backup directory.
   * Add the function HANDLE_AUDIO, which can install .ogg audio on any supported
     platform and game (including BG:EE).
+  * Add the function HANDLE_TILESETS, which can install TISpack-compressed
+    tilesets on any supported platform and game (that supports TIS V1).
   * Fix a bug in MOVE that could cause mod rollback to fail.
   * Traify distinguishes between sounded and unsounded strings. Traify also
     doesn't destroy your (D|TP*|BAF) or TRA files on syntax errors or the like.
     --traify-old-tra can be used on the output TRA of --traify to correctly
     merge new strings into an old traification.
+  * REPLACE_BCS_BLOCK takes EVAL and optcase.
+  * WHEN conditions in *_MATCH and *_TRY work correctly.
+  * DECOMPRESS_BIFF is documented but works differently from before (old way
+    should still work but is deprecated). It also won't destroy BIFFV1 files.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

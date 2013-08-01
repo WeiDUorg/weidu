@@ -2018,41 +2018,70 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           Hashtbl.iter (fun name biff ->
             Unix.close biff.Biff.fd) game.Load.loaded_biffs;
           game.Load.loaded_biffs <- Hashtbl.create 5 ;
-          List.iter (fun s ->
+          let biff_path_list = List.flatten (List.map (fun s ->
             let s = String.lowercase s in
-            if not (file_exists s) then
-              failwith (Printf.sprintf "DECOMPRESS_BIFF: file not found %s" s);
-            if Filename.check_suffix s "cbf" then (
-              let bif = Case_ins.filename_chop_extension s ^ ".bif" in
-              close_out (open_for_writing bif true);
-              let sz = Cbif.cbf2bif (Case_ins.fix_name s) (Case_ins.fix_name bif) in
-              process_action tp (TP_Move
-                                   ([TP_File s,
-                                      (match !backup_dir with
-                                      | None -> ""
-                                      | Some(x) -> x) ^
-                                      "/" ^ Filename.basename s], true));
-              log_and_print "[%s] decompressed bif file %d bytes\n" s sz)
-            else if Filename.check_suffix s "bif" then (
-              let tmp = "tb#decompress_biff_temp_file.bif" in
-              copy_large_file s tmp "DECOMPRESS BIFF";
-              let out = open_for_writing s true in
-              let fd = Case_ins.unix_openfile tmp [Unix.O_RDONLY] 0 in
-              let buff = String.create 12 in
-              my_read 12 fd buff s;
-              let unc_len = int_of_str_off buff 8 in
-              let sofar = ref 0 in
-              while !sofar < unc_len do
-                let chunk = Biff.read_compressed_biff fd s !sofar
-                    (if unc_len - !sofar < 8192 then unc_len - !sofar else 8192) in
-                output_string out chunk;
-                sofar := !sofar + String.length chunk
-              done;
-              close_out out;
-              Unix.close fd;
-              my_unlink tmp;)
-            else
-              failwith (Printf.sprintf "DECOMPRESS_BIFF: %s invalid file" s);) sl;
+            if file_exists s then begin
+              log_and_print "WARNING: giving biffs as %s to DECOMPRESS_BIFF is deprecated\n" s ;
+              [s]
+            end else begin
+              let paths = List.filter file_exists
+                  (List.map (fun path ->
+                    let guess = (path ^ "/data/" ^ s) in
+                    ignore (log_only "Looking for biff %s at %s\n" s guess) ;
+                    guess)
+                     (List.append game.Load.cd_path_list [game.Load.game_path])) in (* adding game_path is redundant? *)
+              (match paths with
+              | [] -> failwith (Printf.sprintf "DECOMPRESS_BIFF: file not found %s" s);
+              | list -> list)
+            end) sl) in
+          let backup_filename biff suffix =
+            let backup_prefix = "fl#biffbackup" in
+            let basename = Case_ins.filename_basename biff in
+            let dirname = Case_ins.filename_dirname biff in
+            dirname ^ "/" ^ backup_prefix ^ suffix ^ "_" ^ basename in
+          let backup biff suffix =
+            let backup = backup_filename biff suffix in
+            if file_exists backup then begin
+              Unix.unlink backup end ;
+            ignore (Case_ins.unix_rename biff backup) ;
+            backup in
+          let backdown biff suffix =
+            let backup = backup_filename biff suffix in
+            if file_exists biff then
+              Unix.unlink biff ;
+            ignore (Case_ins.unix_rename backup biff) ;
+            biff in
+          let decompress biff =
+            let fd = Case_ins.unix_openfile biff [Unix.O_RDONLY] 0 in
+            let buff = String.create 8 in
+            ignore (Unix.read fd buff 0 8) ;
+            ignore (Unix.close fd) ;
+            (match buff with
+            | "BIFFV1  " -> ignore (log_and_print "[%s] already decompressed\n" biff) ; ()
+            | "BIFCV1.0" ->
+                let backed_up = backup biff "" in
+                (try
+                  let sz = Biff.bifc2biff (Case_ins.fix_name backed_up) (Case_ins.fix_name biff) in
+                  ignore (log_and_print "[%s] decompressed biff file: %d bytes\n" biff sz) ;
+                with e ->
+                  ignore (backdown biff "") ;
+                  ignore (log_and_print "ERROR: could not decompress biff %s [%s]\n" biff (printexc_to_string e)) ;
+                  raise e)
+            | "BIF V1.0" ->
+                let biff = backup biff "" in
+                (try
+                  let new_bif = (Case_ins.filename_chop_extension biff) ^ ".bif" in
+                  if file_exists new_bif then ignore (Unix.unlink new_bif) ;
+                  let sz =  Cbif.cbf2bif (Case_ins.fix_name biff) (Case_ins.fix_name new_bif) in
+                  ignore (log_and_print "[%s] decompressed biff file: %d bytes\n" biff sz) ;
+                with e ->
+                  ignore (backdown biff "") ;
+                  ignore (log_and_print "ERROR: could not decompress biff %s [%s]\n" biff (printexc_to_string e)) ;
+                  raise e)
+            | _ -> failwith (Printf.sprintf "%s is not a valid BIFF file (wrong sig)" biff)) in
+          let length = (List.length biff_path_list) in
+          ignore (log_and_print "Decompressing %i biff file%s\n" length (if length = 1 then "" else "s")) ;
+          ignore (List.iter decompress biff_path_list) ;
 
       | TP_AddJournal(existing,managed,title,ref_list,tra_list) ->
           match game.Load.game_type with

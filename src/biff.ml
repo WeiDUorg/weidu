@@ -499,3 +499,28 @@ let copy_file biff i oc is_tis =
     log_and_print "ERROR: BIFF [%s]: unable to extract-copy file %d\n" 
       biff.filename i ;
     raise e
+
+let bifc2biff source dest =
+  ignore (handle_readonly dest) ;
+  let out = Case_ins.perv_open_out_bin dest in
+  let fd = Case_ins.unix_openfile source [Unix.O_RDONLY] 0 in
+  let read len =
+    let buff = String.create len in
+    ignore (my_read len fd buff source) ;
+    buff in
+  let header = read 12 in
+  let uncompressed_size = int_of_str_off header 8 in
+  let processed_size = ref 0 in
+  while !processed_size < uncompressed_size do
+    let block_metadata = read 8 in
+    let block_decompressed_size = int_of_str_off block_metadata 0 in
+    let block_compressed_size = int_of_str_off block_metadata 4 in
+    let block_compressed_data = read block_compressed_size in
+    let block_data = Cbif.uncompress block_compressed_data 0
+        block_compressed_size block_decompressed_size in
+    ignore (output_string out block_data) ;
+    processed_size := !processed_size + block_decompressed_size ;
+  done ;
+  ignore (close_out out) ;
+  ignore (Unix.close fd) ;
+  !processed_size

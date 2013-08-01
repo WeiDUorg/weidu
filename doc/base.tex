@@ -3332,7 +3332,7 @@ unusabilities
 \end{verbatim}
     Currently, lower, mixed and help can only be numbers referring to a TLK
     string. Unusabilities requires to be both kit and class unusables, there
-    isn't a way to BAND or BOR them.
+    isn't a way to \ttref{BAND} or \ttref{BOR} them.
     \\
   or & \DEFINE{ADD!KIT} internalKitName manyComplexArguments &
     This command allows you to add new kits to the BGII.
@@ -3701,6 +3701,19 @@ or & \DEFINE{ACTION!TO!LOWER} \ttref{variable} &
 or & \DEFINE{ACTION!GET!STRREF} \ttref{value} \ttref{variable} &
   The string reference value is looked up in \t{DIALOG.TLK} and the (male) string
   (without any quotes) is stored in the \ttref{variable}.  \\
+or & \DEFINE{DECOMPRESS!BIFF} file ... &
+  Decompresses one or more biff files from either \t{"BIF V1.0"} or \t{"BIFCV1.0"}
+  into \t{"BIFFV1  "}.
+  The biff file is looked for in /data and the CD paths specified in baldur.ini. You should
+  consequently \emph{not} specify the biff path, merely the name. All matching biff files
+  are decompressed, even ones that are duplicated between CD paths. The biff file is backed up
+  to another file in the same directory before it is decompressed. Since multiple games
+  can share the same biffs, this action is not uninstalled together with the mod.
+
+  WeiDU will raise a Failure exception if the biff is not found in any of the paths.
+
+  Decompressing a biff file can be helpful in preventing crashes related to area files,
+  commonly \t{WAV} ambient sounds or \t{TIS} files. \emph{Do not use this action without a real reason.} \\
 
 \\
 
@@ -3995,14 +4008,15 @@ or & \DEFINE{APPEND!FILE} filename &
 or & \DEFINE{APPEND!FILE!EVALUATE} filename &
   Just like \ttref{APPEND!FILE} except that \verb+%variables%+ in the contents of
   ``filename'' are evaluated before the appending. \\
-or & \DEFINE{REPLACE!BCS!BLOCK} oldFile newFile \Ob  \t{ON!MISMATCH}
-     \ttref{patch} \Slist \t{END} \Oe &
+or & \DEFINE{REPLACE!BCS!BLOCK} \Ob \t{EVALUATE!BUFFER} \Oe \ttref{optcase}
+     oldFile newFile \Ob \t{ON!MISMATCH} \ttref{patch} \Slist \t{END} \Oe &
   If the current file is a \ttref{BCS} file, the segment of it
   corresponding to oldFile is replaced with the contents of newFile.
   oldFile and newFile may be \ttref{BCS} or \ttref{BAF} files. If they
   are \ttref{BAF} files they will not get the benefit of \ttref{AUTO!TRA}.
 
-
+  If \ttref{EVALUATE!BUFFER} is given, variables inside oldFile and newFile are
+  evaluated, but only they are \ttref{BAF} files.
 
   If the segment corresponding to oldFile is not found and the \t{ON!MISMATCH} section
   is present, those patches are run; if oldFile is not found and \t{ON!MISMATCH} is not
@@ -8464,12 +8478,31 @@ The function will fail with an error if the file being patched does not have a s
 
 % HeVeA forces me to use rawhtml of ~ here. \hspace{1 pc} may also be an option.
 
-This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games, including BG:EE. If the game is not BG:EE, the audio files are decompressed and the resulting .wav files are \ttref{MOVE}ed to the override. If the game is BG:EE, the .ogg files are copied into the override and renamed into .wav files.
+This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games, including BG:EE. If the game is not BG:EE, the audio files are decompressed and the resulting .wav files are \ttref{MOVE}d to the override. If the game is BG:EE, the .ogg files are copied into the override and renamed into .wav files.
 
-If the audio files need to be decompressed, this function will use oggdec.exe on Windows, which is expected to be found in \verb+audio_path+. The most recent version of oggdec can be downloaded \ahref{\url{http://downloads.xiph.org/releases/vorbis/vorbis-tools-win32-bin.7z}}{here} (direct link). On OS\begin{rawhtml}&nbsp;\end{rawhtml}X, SoX will be used, which is also expected to be found in \verb+audio_path+. SoX compiled for OS\begin{rawhtml}&nbsp;\end{rawhtml}X can be downloaded \ahref{\url{http://sourceforge.net/projects/sox/files/sox/14.4.1/sox-14.4.1-macosx.zip/download}}{here}. On GNU/Linux, oggdec will be used, but it is expected to be found on the system path and the user should install it him/herself. If you provide installation instructions for GNU/Linux, just include something to the effect of ``install oggdec, which is usually part of the package vorbis-tools''.
+If the audio files need to be decompressed, this function will use oggdec.exe on Windows, which is by default expected to be found in \verb+audio_path+. The most recent version of oggdec can be downloaded \ahref{\url{http://downloads.xiph.org/releases/vorbis/vorbis-tools-win32-bin.7z}}{here} (direct link). On OS\begin{rawhtml}&nbsp;\end{rawhtml}X, SoX will be used, which is by default also expected to be found in \verb+audio_path+. SoX compiled for OS\begin{rawhtml}&nbsp;\end{rawhtml}X can be downloaded \ahref{\url{http://sourceforge.net/projects/sox/files/sox/14.4.1/sox-14.4.1-macosx.zip/download}}{here}. On GNU/Linux, oggdec will be used, but it is expected to be found on the system path and the user should install it him/herself. If you provide installation instructions for GNU/Linux, just include something to the effect of ``install oggdec, which is usually part of the package vorbis-tools''.
+
+If the decompression utility cannot be found, the user is warned that the audio files were not installed.
+
 \begin{itemize}
 \item INT_VAR \verb+music+ if this variable is not 0 and the game is BG:EE, the audio files are given the extension .acm instead of .wav. This variable has no effect if the game is not BG:EE. By default its value is 0.
-\item STR_VAR \verb+audio_path+ to the path your .ogg files are kept in. By default this variable is \verb+~%MOD!FOLDER%/audio~+.
+\item STR_VAR \verb+audio_path+ to the path your .ogg files are stored in. By default this variable is \verb+~%MOD_FOLDER%/audio~+.
+\item STR_VAR \verb+oggdec_path+ to the path oggdec is located in. By default this variable is \verb+~%audio_path%~+.
+\item STR_VAR \verb+sox_path+ to the path SoX is located in. By default this variable is \verb+~%audio_path%~+.
+\end{itemize}
+\\
+
+\verb+HANDLE_TILESETS+: install TISpack-compressed tilesets in a safe and easy manner. This is an ACTION function.
+
+This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games that support the \t{\ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/tis_v1.htm}}{TIS V1}} file format. The program tisunpack, part of \ahref{\url{http://www.pocketplane.net/mambo/index.php?option=com_content&task=blogcategory&id=137&Itemid=96}}{TISpack}, is used to decompress the provided .tiz files and the resulting .tis files are \ttref{MOVE}d to the override.
+
+This function expects to find tisunpack for one or more of Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X or GNU/Linux in a common directory under the subdirectories \t{win32}, \t{osx}, and \t{unix}, respectively. For example, in \t{mymod/tiz/win32}, \t{mymod/tiz/osx} and \t{mymod/tiz/unix}, the common directory is \t{mymod/tiz} and \t{mymod/tiz/win32/tisunpack.exe} should be a valid file. For GNU/Linux, this function also supports tisunpack being located on the system path (something the user would take care of). If you choose to leave tisunpack to the user, you should mention this requirement in any installation instructions you provide.
+
+If tisunpack for the user's platform could not be found, the user is warned that the tilesets were not installed.
+
+\begin{itemize}
+\item STR_VAR \verb+tiz_path+ to the path your .tiz files are stored in. By default this variable is \verb+~%MOD_FOLDER%/tiz~+.
+\item STR_VAR \verb+tisunpack_path+ to the common directory where the subdirectories \t{win32}, \t{osx} and \t{unix} are located. By default this variable is \verb+~%tiz_path%~+.
 \end{itemize}
 \\
 

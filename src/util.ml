@@ -387,6 +387,16 @@ let my_rmdir dir =
 	dir (printexc_to_string e)
   end
 
+let handle_readonly filename =
+  if file_exists filename then (* if it already exists *)
+    begin (* handle read-only files! *)
+      try
+        Case_ins.unix_chmod filename 511 ; (* 511 = octal 0777 = a+rwx *)
+      with e -> ()
+          (* log_or_print "WARNING: chmod %s : %s\n" filename
+             (printexc_to_string e) *)
+    end
+
 let rec backup_if_extant filename =
   if Hashtbl.mem backup_ht
       (String.uppercase (slash_to_backslash filename)) then
