@@ -16,13 +16,16 @@ let rec pe_to_str pe = "(" ^ (match pe with
 | Pred_File_Size(s,i) -> Printf.sprintf "FILE_SIZE %s %d" (pe_str_str s) i
 | Pred_File_Contains(s,i) -> Printf.sprintf "FILE_CONTAINS %s %s"
       (pe_str_str s) (pe_str_str i)
-| Pred_File_Is_In_Compressed_Bif(a) -> Printf.sprintf "FILE_IS_IN_COMPRESSED_BIF %s" (pe_str_str a)
-| Pred_Biff_Is_Compressed(a) -> Printf.sprintf "BIFF_IS_COMPRESSED %s" (pe_str_str a)
+| Pred_File_Is_In_Compressed_Bif(a) ->
+    Printf.sprintf "FILE_IS_IN_COMPRESSED_BIF %s" (pe_str_str a)
+| Pred_Biff_Is_Compressed(a) ->
+    Printf.sprintf "BIFF_IS_COMPRESSED %s" (pe_str_str a)
 | PE_Int32(i) -> Int32.to_string i
 | PE_Int(i) -> string_of_int i
 | PE_String(s) -> (pe_str_str s)
 | PE_StringEqual(s1,s2,b,c) -> Printf.sprintf "%s %s%s %s"
-      (pe_str_str s1) (if c then "STRING_EQUAL" else "STRING_COMPARE") (if b then "_CASE" else "")
+      (pe_str_str s1) (if c then "STRING_EQUAL" else
+      "STRING_COMPARE") (if b then "_CASE" else "")
       (pe_str_str s2)
 | PE_StringRegexp(s1,s2,b) -> Printf.sprintf "%s %s %s"
       (pe_str_str s1) (if b then "STRING_MATCHES_REGEXP"
@@ -39,8 +42,10 @@ let rec pe_to_str pe = "(" ^ (match pe with
 | PE_Sub(e1,e2) -> Printf.sprintf "%s - %s" (pe_to_str e1) (pe_to_str e2)
 | PE_Mul(e1,e2) -> Printf.sprintf "%s * %s" (pe_to_str e1) (pe_to_str e2)
 | PE_Div(e1,e2) -> Printf.sprintf "%s / %s" (pe_to_str e1) (pe_to_str e2)
-| PE_Exp(e1,e2,Pred_True) -> Printf.sprintf "%s ** %s" (pe_to_str e1) (pe_to_str e2)
-| PE_Exp(e1,e2,e3) -> Printf.sprintf "%s ** (%s / %s)" (pe_to_str e1) (pe_to_str e2) (pe_to_str e3)
+| PE_Exp(e1,e2,Pred_True) -> Printf.sprintf "%s ** %s"
+      (pe_to_str e1) (pe_to_str e2)
+| PE_Exp(e1,e2,e3) -> Printf.sprintf "%s ** (%s / %s)"
+      (pe_to_str e1) (pe_to_str e2) (pe_to_str e3)
 | PE_Equal(e1,e2) -> Printf.sprintf "%s = %s" (pe_to_str e1) (pe_to_str e2)
 | PE_And(e1,e2) -> Printf.sprintf "%s AND %s" (pe_to_str e1) (pe_to_str e2)
 | PE_Or(e1,e2) -> Printf.sprintf "%s OR %s" (pe_to_str e1) (pe_to_str e2)
@@ -57,34 +62,57 @@ let rec pe_to_str pe = "(" ^ (match pe with
 | PE_BASR(e1,e2) -> Printf.sprintf "%s BASR %s" (pe_to_str e1) (pe_to_str e2)
 | PE_BNOT(e1) -> Printf.sprintf "BNOT %s" (pe_to_str e1)
 | PE_ABS(e1) -> Printf.sprintf "ABS %s" (pe_to_str e1)
-| PE_GameIs(e1,b1) -> if b1 then Printf.sprintf "GAME_IS ~%s~" e1 else Printf.sprintf "ENGINE_IS ~%s~" e1
-| PE_ModIsInstalled(e1,e2) -> Printf.sprintf "MOD_IS_INSTALLED ~%s~ %s" e1 (pe_to_str e2)
-| PE_IsInstalledAfter(e1,e2,e3,e4) -> Printf.sprintf "%s %s IS_INSTALLED_AFTER %s %s" (pe_str_str e1) (pe_to_str e2) (pe_str_str e3) (pe_to_str e4)
-| PE_IdOfLabel(e1,e2) -> Printf.sprintf "ID_OF_LABEL %s %s" (pe_str_str e1) (pe_str_str e2)
+| PE_GameIs(e1,b1) -> if b1 then
+    Printf.sprintf "GAME_IS ~%s~" e1 else Printf.sprintf "ENGINE_IS ~%s~" e1
+| PE_ModIsInstalled(e1,e2) ->
+    Printf.sprintf "MOD_IS_INSTALLED ~%s~ %s" e1 (pe_to_str e2)
+| PE_IsInstalledAfter(e1,e2,e3,e4) ->
+    Printf.sprintf "%s %s IS_INSTALLED_AFTER %s %s"
+      (pe_str_str e1) (pe_to_str e2) (pe_str_str e3) (pe_to_str e4)
+| PE_IdOfLabel(e1,e2) -> Printf.sprintf "ID_OF_LABEL %s %s"
+      (pe_str_str e1) (pe_str_str e2)
 | Pred_True -> Printf.sprintf "1"
 
-| PE_Random(e1,e2) -> Printf.sprintf "RANDOM(%s %s)" (pe_to_str e1) (pe_to_str e2)
+| PE_Random(e1,e2) -> Printf.sprintf "RANDOM(%s %s)"
+      (pe_to_str e1) (pe_to_str e2)
 | PE_Buffer_Length -> "BUFFER_LENGTH"
 | PE_String_Length(e1) -> Printf.sprintf "STRING_LENGTH %s" (pe_str_str e1)
-| PE_Index(e0,e1,e2,e3,e4,e5) -> Printf.sprintf "%sINDEX (%s %s %s%s%s)" (if e0 then "" else "R") (if e1 = Some true then "CASE_SENSITIVE" else "CASE_INSENSITIVE") (if e2 = Some true then "EXACT_MATCH" else "EVALUATE_REGEXP") (pe_str_str e3) (match e4 with None -> "" | Some x -> " " ^ pe_to_str x) (match e5 with None -> ""  | Some x -> " " ^ pe_str_str x)
+| PE_Index(e0,e1,e2,e3,e4,e5) -> Printf.sprintf "%sINDEX (%s %s %s%s%s)"
+      (if e0 then "" else "R")
+      (if e1 = Some true then "CASE_SENSITIVE" else "CASE_INSENSITIVE")
+      (if e2 = Some true then "EXACT_MATCH" else "EVALUATE_REGEXP")
+      (pe_str_str e3)
+      (match e4 with
+      | None -> ""
+      | Some x -> " " ^ pe_to_str x)
+      (match e5 with
+      | None -> ""
+      | Some x -> " " ^ pe_str_str x)
 
-| PE_FileContainsEvaluated(s1,s2) -> Printf.sprintf "FILE_CONTAINS_EVALUATED(%s %s)" (pe_str_str s1) (pe_str_str s2)
+| PE_FileContainsEvaluated(s1,s2) ->
+    Printf.sprintf "FILE_CONTAINS_EVALUATED(%s %s)"
+      (pe_str_str s1) (pe_str_str s2)
 
 | PE_If(e1,e2,e3) -> Printf.sprintf "%s ? %s : %s"
       (pe_to_str e1) (pe_to_str e2) (pe_to_str e3)
-      
+
 | PE_VariableIsSet(s) -> Printf.sprintf "VARIABLE_IS_SET %s" (pe_str_str s)
-| PE_TraEntryExists(a,b) -> Printf.sprintf "TRA_ENTRY_EXISTS (%s %s)" (pe_str_str a)
-	(if b <> [] then (List.fold_left (fun acc elt -> acc ^ " " ^ pe_str_str elt) (pe_str_str (List.hd b)) (List.tl b)) else "")
+| PE_TraEntryExists(a,b) ->
+    Printf.sprintf "TRA_ENTRY_EXISTS (%s %s)" (pe_str_str a)
+      (if b <> [] then (List.fold_left (fun acc elt ->
+        acc ^ " " ^ pe_str_str elt)
+                          (pe_str_str (List.hd b)) (List.tl b)) else "")
 | PE_IdsOfSymbol(a,b) -> Printf.sprintf "IDS_OF_SYMBOL (%s %s)" a b
-| PE_StateWhichSays(Some(x),None,y) -> Printf.sprintf "STATE_WHICH_SAYS __ FROM %s"  y
-| PE_StateWhichSays(None,Some(a,b),y) -> Printf.sprintf "STATE_WHICH_SAYS %s IN %s FROM %s" (pe_to_str a) b y
+| PE_StateWhichSays(Some(x),None,y) ->
+    Printf.sprintf "STATE_WHICH_SAYS __ FROM %s"  y
+| PE_StateWhichSays(None,Some(a,b),y) ->
+    Printf.sprintf "STATE_WHICH_SAYS %s IN %s FROM %s" (pe_to_str a) b y
 | PE_StateWhichSays(None,None,_)
 | PE_StateWhichSays(Some(_),Some(_),_) -> Printf.sprintf "INTERNAL ERROR"
 | PE_Resolve_Str_Ref(a) -> Printf.sprintf "RESOLVE_STR_REF (__)"
 | PE_IsSilent -> "IS_SILENT"
-| PE_IsAnInt(x) -> Printf.sprintf "IS_AN_INT %s" (pe_str_str x)    
-			     ) ^ ")"
+| PE_IsAnInt(x) -> Printf.sprintf "IS_AN_INT %s" (pe_str_str x)
+                             ) ^ ")"
 
 and pe_str_str s = match s with
 | PE_LiteralString(s) -> s
@@ -93,7 +121,8 @@ and pe_str_str s = match s with
 | PE_Lowercase(s) -> Printf.sprintf "LOWERCASE %s" (pe_str_str s)
 | PE_Uppercase(s) -> Printf.sprintf "UPPERCASE %s" (pe_str_str s)
 | PE_Dollars(s,a,r1,r2) -> let result = List.fold_left
-      (fun acc this -> acc ^ " " ^ (pe_str_str this)) ("$" ^ (pe_str_str s) ^ "(") a in
+      (fun acc this ->
+        acc ^ " " ^ (pe_str_str this)) ("$" ^ (pe_str_str s) ^ "(") a in
   Printf.sprintf "%s)" result
 
 
@@ -192,19 +221,23 @@ let action_to_str a = match a with
 (************************************************************************
  * Set some default strings that can be overwritten.
  ************************************************************************)
-let init_default_strings () = 
-  let add i s = 
+let init_default_strings () =
+  let add i s =
     Dc.add_trans_strings [i,(Dlg.Local_String({
-					      lse_male = s; 
-					      lse_male_sound = s;
-					      lse_female = s;
-					      lse_female_sound = s;
-					    }))]
-  in
+                                              lse_male = s;
+                                              lse_male_sound = s;
+                                              lse_female = s;
+                                              lse_female_sound = s;
+                                            }))] in
   add (-1000) "The %TP2_FILE_NAME% mod has" ;
-  add (-1001) "distinct optional components.\nTo save time, you can choose what to do with them at a high level rather\nthan being asked about each one.\n" ;
-  add (-1002) "What should be done with all components that are NOT YET installed?\n[I]nstall them, [S]kip them, [A]sk about each one? " ;
-  add (-1003) "What should be done with all components that are ALREADY installed?\n[R]e-install them, [U]ninstall them, [S]kip them, [A]sk about each one? " ;
+  add (-1001) "distinct optional components.\nTo save time, you can choose \
+    what to do with them at a high level rather\nthan being asked about \
+  each one.\n" ;
+  add (-1002) "What should be done with all components that are NOT YET \
+  installed?\n[I]nstall them, [S]kip them, [A]sk about each one? " ;
+  add (-1003) "What should be done with all components that are ALREADY \
+  installed?\n[R]e-install them, [U]ninstall them, [S]kip them, \
+  [A]sk about each one? " ;
 
   add (-1004) "PLEASE email the file" ;
   add (-1005) "to" ;
@@ -233,7 +266,8 @@ let init_default_strings () =
   add (-1023) ")" ;
   add (-1024) "SUCCESSFULLY REMOVED [" ;
 
-  add (-1025) "]?\n[R]e-install, [N]o Change, [U]ninstall, [Q]uit or choose one:" ;
+  add (-1025) "]?\n[R]e-install, [N]o Change, [U]ninstall, \
+  [Q]uit or choose one:" ;
   add (-1026) "]?\n[N]o, [Q]uit or choose one:" ;
   add (-1027) " (currently installed)";
 
@@ -246,70 +280,78 @@ let init_default_strings () =
   add (-1033) "INSTALLED WITH WARNINGS    ";
   add (-1034) "Would you like to display the readme? [Y]es [N]o";
   add (-1035) "Using Language";
-  
+
   add (-1036) "Skipping GROUP [";
   add (-1037) "] because it fails its requirements.";
-  
-  add (-1038) "[A]sk about each component, [S]kip all, or choose a pre-defined selection:";
-  add (-1039) "[A]sk about each component, [R]einstall the current configuration, [U]ninstall all, [S]kip all, or choose a pre-defined selection:";
+
+  add (-1038) "[A]sk about each component, [S]kip all, or choose a \
+  pre-defined selection:";
+  add (-1039) "[A]sk about each component, [R]einstall the current \
+  configuration, [U]ninstall all, [S]kip all, or choose a \
+  pre-defined selection:";
   ()
 
 let body_of_script buff =
-  if buff = "" then "" else 
-  try 
+  if buff = "" then "" else
+  try
     let first_nl = String.index buff '\n' in
     let last_nl = (String.rindex buff 'S') - 1 in
     if first_nl = last_nl then
-      "" 
-    else 
-      let length = (last_nl - first_nl) - 1 in 
-      String.sub buff (first_nl + 1) length 
-  with e -> 
+      ""
+    else
+      let length = (last_nl - first_nl) - 1 in
+      String.sub buff (first_nl + 1) length
+  with e ->
     log_and_print "ERROR: not a BCS script\n" ;
     failwith "not a BCS script"
 
 
-let find_table_row buff colId reg = 
-	let lines = Str.split many_newline_or_cr_regexp buff in
-	let rec walk lines i = match lines with
-	| line :: tl ->
-		let parts = Str.split many_whitespace_regexp line in
-		if List.length parts > colId then begin
-			if Str.string_match reg (List.nth parts colId) 0 then
-				Int32.of_int i
-			else walk tl (i+1)
-		end else walk tl (i+1)
-	| [] -> failwith ("find_table_row: couldn't find a match")
-	in walk lines 0
+let find_table_row buff colId reg =
+  let lines = Str.split many_newline_or_cr_regexp buff in
+  let rec walk lines i = match lines with
+  | line :: tl ->
+      let parts = Str.split many_whitespace_regexp line in
+      if List.length parts > colId then begin
+        if Str.string_match reg (List.nth parts colId) 0 then
+          Int32.of_int i
+        else walk tl (i+1)
+      end else walk tl (i+1)
+  | [] -> failwith ("find_table_row: couldn't find a match")
+  in walk lines 0
 
 let get_line_count file game =
-	let buff = if file_exists file then
-		load_file file 
-	else 
-		let a,b = split file in 
-		let buff,path = 
-			Load.load_resource "FILE_CONTAINS_EVALUATED" game true a b
-		in
-		buff
-	in
-	let lines = List.tl (Str.split many_newline_or_cr_regexp buff) in
-	let rec walk lines max' = match lines with
-	| hd :: tl -> let cur = List.length (Str.split many_whitespace_regexp hd) in
-		walk tl (max cur max')
-	| [] -> max'
-	in
-	let max' = walk lines 0 in
-	let rec count lines acc = match lines with
-	| hd :: tl -> count tl (acc + if List.length (Str.split many_whitespace_regexp hd) = max' then 1 else 0)
-	| [] -> acc
-	in
-	count lines 0
-	
+  let buff = if file_exists file then
+    load_file file
+  else
+    let a,b = split file in
+    let buff,path =
+      Load.load_resource "FILE_CONTAINS_EVALUATED" game true a b
+    in
+    buff
+  in
+  let lines = List.tl (Str.split many_newline_or_cr_regexp buff) in
+  let rec walk lines max' = match lines with
+  | hd :: tl -> let cur = List.length (Str.split many_whitespace_regexp hd) in
+    walk tl (max cur max')
+  | [] -> max'
+  in
+  let max' = walk lines 0 in
+  let rec count lines acc = match lines with
+  | hd :: tl ->
+      count tl (acc + if List.length
+          (Str.split many_whitespace_regexp hd) = max' then 1 else 0)
+  | [] -> acc
+  in
+  count lines 0
+
 let check_missing_eval for_what str =
   if Modder.enabled "MISSING_EVAL" then begin
     let check s =
       if Var.get_string s <> s then begin
-        Modder.handle_deb "MISSING_EVAL" (Printf.sprintf "\nWARNING: possible missing EVALUATE_BUFFER in\n[%s]\n" for_what);
+        Modder.handle_deb "MISSING_EVAL"
+          (Printf.sprintf
+             "\nWARNING: possible missing EVALUATE_BUFFER in\n[%s]\n"
+             for_what);
         true
       end else begin
         false
@@ -319,67 +361,75 @@ let check_missing_eval for_what str =
   end
 
 let version_greater i c =
-	let installed = Str.split (Str.regexp_string ".") (Str.global_replace many_whitespace_or_nl_regexp "" i) in
-	let cmp = Str.split (Str.regexp_string ".") c in
-	let rec compare installed cmp = match installed, cmp with
-	| [], [] -> true
-	| hd1 :: tl1, hd2 :: tl2 ->
-		log_and_print "compare %s %s\n" hd1 hd2;
-		if (int_of_string hd1) < (int_of_string hd2) then false
-		else if (int_of_string hd1) > (int_of_string hd2) then true
-		else compare tl1 tl2
-	| _ -> failwith (Printf.sprintf "version numbers have different lengths: [%s] vs [%s]" i c)
-	in
-	compare installed cmp
-;;
+  let installed =
+    Str.split (Str.regexp_string ".")
+      (Str.global_replace many_whitespace_or_nl_regexp "" i) in
+  let cmp = Str.split (Str.regexp_string ".") c in
+  let rec compare installed cmp = match installed, cmp with
+  | [], [] -> true
+  | hd1 :: tl1, hd2 :: tl2 ->
+      log_and_print "compare %s %s\n" hd1 hd2;
+      if (int_of_string hd1) < (int_of_string hd2) then false
+      else if (int_of_string hd1) > (int_of_string hd2) then true
+      else compare tl1 tl2
+  | _ -> failwith (Printf.sprintf
+                     "version numbers have different lengths: [%s] vs [%s]"
+                     i c) in
+  compare installed cmp
 
 let checks_passed = Hashtbl.create 5
-;;
 
 let check_enhanced_engine allow_tobhacks allow_tobex allow_gemrb =
-	if Hashtbl.mem checks_passed (allow_tobhacks, allow_tobex, allow_gemrb) then
-		Hashtbl.find checks_passed (allow_tobhacks, allow_tobex, allow_gemrb)
-	else begin
-		let any_ok = ref false in
-		let ans = if (match allow_gemrb with
-		| None -> false
-		| Some cmp_version ->
-			if file_exists "gemrb_version.txt" then begin
-				let gemrb_version = load_file "gemrb_version.txt" in
-				version_greater gemrb_version cmp_version
-			end else false
-		) then true else if
-		(match allow_tobex with
-		| None -> false
-		| Some cmp_version ->
-			if file_exists "tobex_ini/tobexver.txt" then begin
-				let tobex_version = int_of_string (load_file "tobex_ini/tobexver.txt") in
-				tobex_version >= cmp_version
-			end else false
-		) then true else
-		(match allow_tobhacks with
-		| None -> false
-		| Some signature ->
-			if file_exists "bgmain.exe" then begin
-				let all_match = ref true in
-				let count = Int32.to_int (Var.get_int32_extended (signature ^ "_count")) in
-				if count <= 0 then false else begin 
-					let bgmain_buff = load_file "bgmain.exe" in
-					for i = 1 to count do
-						let offset = Int32.to_int (Var.get_int32_extended (signature ^ "_address_" ^ string_of_int i)) in
-						let signature = Var.get_string_exact ("%" ^ signature ^ "_patch_bytes_" ^ string_of_int i ^ "%") in
-						let cmp = String.sub bgmain_buff offset (String.length signature) in
-						if (signature <> cmp) then begin
-							all_match := false;
-						end else begin
-						end
-					done;
-					!all_match
-				end
-			end else false
-		) in
-		if ans then
-			Hashtbl.add checks_passed (allow_tobhacks, allow_tobex, allow_gemrb) true;
-		ans
-	end
-;;
+  if Hashtbl.mem checks_passed (allow_tobhacks, allow_tobex, allow_gemrb) then
+    Hashtbl.find checks_passed (allow_tobhacks, allow_tobex, allow_gemrb)
+  else begin
+    let any_ok = ref false in
+    let ans = if (match allow_gemrb with
+    | None -> false
+    | Some cmp_version ->
+        if file_exists "gemrb_version.txt" then begin
+          let gemrb_version = load_file "gemrb_version.txt" in
+          version_greater gemrb_version cmp_version
+        end else false) then
+      true
+    else if
+      (match allow_tobex with
+      | None -> false
+      | Some cmp_version ->
+          if file_exists "tobex_ini/tobexver.txt" then begin
+            let tobex_version =
+              int_of_string (load_file "tobex_ini/tobexver.txt") in
+            tobex_version >= cmp_version
+          end else false) then
+      true
+    else
+      (match allow_tobhacks with
+      | None -> false
+      | Some signature ->
+          if file_exists "bgmain.exe" then begin
+            let all_match = ref true in
+            let count =
+              Int32.to_int (Var.get_int32_extended (signature ^ "_count")) in
+            if count <= 0 then false else begin
+              let bgmain_buff = load_file "bgmain.exe" in
+              for i = 1 to count do
+                let offset = Int32.to_int
+                    (Var.get_int32_extended
+                       (signature ^ "_address_" ^ string_of_int i)) in
+                let signature = Var.get_string_exact
+                    ("%" ^ signature ^ "_patch_bytes_" ^
+                     string_of_int i ^ "%") in
+                let cmp = String.sub bgmain_buff offset
+                    (String.length signature) in
+                if (signature <> cmp) then begin
+                  all_match := false;
+                end else begin
+                end
+              done;
+              !all_match
+            end
+          end else false) in
+    if ans then
+      Hashtbl.add checks_passed (allow_tobhacks, allow_tobex, allow_gemrb) true;
+    ans
+  end
