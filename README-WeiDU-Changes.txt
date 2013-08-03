@@ -55,6 +55,7 @@ Version 232:
   * WHEN conditions in *_MATCH and *_TRY work correctly.
   * DECOMPRESS_BIFF is documented but works differently from before (old way
     should still work but is deprecated). It also won't destroy BIFFV1 files.
+  * Fix a bug in PRETTY_PRINT_2DA.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead

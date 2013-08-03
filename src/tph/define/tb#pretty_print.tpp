@@ -7,4 +7,3 @@
 		SPACES somespace ~%MATCH1%~
 		END ~%MATCH1%~
 		SET_2DA_ENTRY tb#pretty_print_indent 0 0 ~%somespace%%tb#pretty_print_header%~
-
