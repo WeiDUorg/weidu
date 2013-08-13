@@ -13,27 +13,46 @@ open Tppe
  ************************************************************************)
 
 
- let uninstall_strset game filename = 
+ let uninstall_strset game filename tlkpath_filename = 
    if (file_exists filename) then begin
      (try
        let record = Mymarshal.read_unsetstr filename in
-       List.iter (fun (i,m,f) ->
-         if (i < 0 || i > Array.length (Load.get_active_dialog game)) then begin
-           log_only "WARNING: Cannot uninstall STRING_SET #%d, out of range 0 -- %d\n" i (Array.length (Load.get_active_dialog game)) 
-         end else begin
-           (*
-             log_only "Un-SET_STRING #%d from %s back to %s\n"
-             i
-             (Tlk.short_print (Load.get_active_dialog game).(i) 18)
-             (Tlk.short_print m 18) ;
-            *)
-           (Load.get_active_dialog game).(i) <- m ;
-           (Load.get_active_dialogs game).Load.dialog_mod <- true; 
-           match Load.get_active_dialogf_opt game with
-           | Some(a) -> a.(i) <- f ; (Load.get_active_dialogs game).Load.dialogf_mod <- true;
-           | None -> ()
-         end
-		 ) record
+       let dialog_path, dialogf_path = if file_exists tlkpath_filename then
+         Mymarshal.read_tlkpath tlkpath_filename
+       else begin
+         if Load.enhanced_edition_p game then begin
+           let dir = Tphelp.ask_about_lang_dir (Tphelp.get_trans (-1060)) in
+           ignore (Load.use_bgee_lang_dir game dir) ;
+         end ;
+
+         let tlk_pair = (Load.get_active_dialogs game) in
+         let dpath = tlk_pair.Load.dialog.Load.path in
+         let dfpath = (match tlk_pair.Load.dialogf with
+         | None -> None
+         | Some df -> Some df.Load.path) in
+         (dpath, dfpath)
+       end in
+       let tlk_pair = Load.get_dialogs_by_path game dialog_path dialogf_path in
+       (match tlk_pair with
+       | None -> log_and_print "WARNING: STRING_SETs will not be uninstalled from [%s]\n" dialog_path ;
+       | Some pair -> begin
+           List.iter (fun (i,m,f) ->
+             if (i < 0 || i > Array.length pair.Load.dialog.Load.contents) then begin
+               log_only "WARNING: Cannot uninstall STRING_SET #%d, out of range 0 -- %d\n" i (Array.length pair.Load.dialog.Load.contents)
+             end else begin
+               (*
+                 log_only "Un-SET_STRING #%d from %s back to %s\n"
+                 i
+                 (Tlk.short_print (Load.get_active_dialog game).(i) 18)
+                 (Tlk.short_print m 18) ;
+                *)
+               pair.Load.dialog.Load.contents.(i) <- m ;
+               pair.Load.dialog_mod <- true;
+               (match pair.Load.dialogf with
+               | Some df -> df.Load.contents.(i) <- f ; pair.Load.dialogf_mod <- true;
+               | None -> ())
+             end) record
+       end)
      with e ->
        log_and_print "WARNING: Unable to uninstall STRING_SET references from [%s]: %s\n" filename (printexc_to_string e);
        (try assert false with Assert_failure(file,line,col) -> set_errors file line));
@@ -51,6 +70,20 @@ let record_strset_uninstall_info game filename =
     with e ->
       log_and_print "WARNING: Unable to write STRING_SET uninstall info to [%s]: %s\n" filename (printexc_to_string e);(try assert false with Assert_failure(file,line,col) -> set_errors file line)
   end
+
+let record_tlk_path_info game filename =
+  (try
+    let tlk_pair = Load.get_active_dialogs game in
+    let d_path = tlk_pair.Load.dialog.Load.path in
+    let df_path = (match tlk_pair.Load.dialogf with
+    | None -> None
+    | Some df -> Some df.Load.path) in
+    Mymarshal.write_tlkpath filename d_path df_path
+  with e ->
+    log_and_print "WARNING: Unable to write tlk-path uninstall info to [%s]: %s\n"
+      filename (printexc_to_string e) ;
+    (try assert false with
+      Assert_failure (file, line, col) -> set_errors file line))
 
 (************************************************************************
  * Uninstall a TP2 component
@@ -231,6 +264,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
       let u_filename = (Printf.sprintf "%s/UNINSTALL.%d" d i) in
       let m_filename = (Printf.sprintf "%s/MAPPINGS.%d" d i) in
       let u_strset_filename = (Printf.sprintf "%s/UNSETSTR.%d" d i) in
+      let tlkpath_filename = Printf.sprintf "%s/TLKPATH.%d" d i in
       let move_filename = (Printf.sprintf "%s/MOVE.%d" d i) in
       let other_filename = (Printf.sprintf "%s/OTHER.%d" d i) in
       my_unlink other_filename;
@@ -256,7 +290,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 		  my_unlink move_filename;
 	  in
 	  let uninstall_strset () =
-		uninstall_strset game u_strset_filename ;
+		uninstall_strset game u_strset_filename tlkpath_filename ;
 	  in
 	  let uninstall_copy () =
       let file_list = ref [] in

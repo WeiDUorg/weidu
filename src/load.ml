@@ -101,7 +101,7 @@ let get_active_dialog g =
 let get_active_dialogf_fallback g =
   (match (Array.get g.dialogs g.dialog_index).dialogf with
   | Some(tlk) -> tlk.contents
-  | None -> get_active_dialog g) (* bear this in mind when we get to output *)
+  | None -> get_active_dialog g)
 
 let get_active_dialogf_opt g =
   match (Array.get g.dialogs g.dialog_index).dialogf with
@@ -110,6 +110,18 @@ let get_active_dialogf_opt g =
 
 let get_active_dialogs g =
   (Array.get g.dialogs g.dialog_index)
+
+let get_dialogs_by_path game dpath dfpath =
+  let tlk_pair : tlk_pair option = Array.fold_left (fun acc tlk_pair ->
+    if tlk_pair.dialog.path = dpath then
+      (match tlk_pair.dialogf with
+      | None when dfpath = None ->
+          Some tlk_pair
+      | Some df when Some df.path = dfpath ->
+          Some tlk_pair
+      | _ -> acc)
+    else acc) None game.dialogs in
+  tlk_pair
 
 let create_dialog_search g =
   Array.iteri (fun i t -> Hashtbl.add g.dialog_search t.Tlk.text i)
@@ -433,22 +445,27 @@ let set_additional_bgee_load_paths game dir =
       ["./lang/en_us"] in
   game.cd_path_list <- (List.append game.cd_path_list more)
 
+let use_bgee_lang_dir game dir =
+  let regexp = (Str.regexp_case_fold
+                  (Str.quote (Arch.slash_to_backslash ("lang/" ^ dir)))) in
+  let foundp = ref false in
+  ignore (set_additional_bgee_load_paths game dir) ;
+  ignore (Array.iteri (fun index tlk_pair ->
+    if Str.string_match regexp tlk_pair.dialog.path 0 then begin
+      game.dialog_index <- index ;
+      foundp := true ;
+    end) game.dialogs) ;
+  if not !foundp then begin
+    log_and_print
+      "ERROR: None of the dialog paths were a match against %s\n" dir ;
+    raise Not_found
+  end
+
 let set_bgee_lang_dir game dir =
   (match dir with
   | Some d ->
-      let regexp = (Str.regexp_case_fold
-                      (Str.quote (Arch.slash_to_backslash ("lang/" ^ d)))) in
-      ignore (set_additional_bgee_load_paths game d) ;
-      ignore (Array.iteri (fun index tlk_pair ->
-        if Str.string_match regexp tlk_pair.dialog.path 0 then begin
-          game.dialog_index <- index ;
-          have_bgee_lang_dir_p := true ;
-        end) game.dialogs) ;
-      if not !have_bgee_lang_dir_p then begin
-        log_and_print
-          "ERROR: None of the dialog paths were a match against %s\n" d ;
-        raise Not_found
-      end ;
+      ignore (use_bgee_lang_dir game d) ;
+      have_bgee_lang_dir_p := true ;
   | None -> have_bgee_lang_dir_p := false)
 
 let bgee_language_options game =

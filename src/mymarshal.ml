@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 open BatteriesInit
 open Util
 open Tlk
@@ -28,6 +31,18 @@ let write_unsetstr filename unsetstr =
   Printf.fprintf outchan "%!";
   close_out outchan
 ;;
+
+let read_tlkpath filename : string * string option =
+  parse_file true (File filename) "parsing tlk-path files"
+    (Dparser.tlk_path_file Dlexer.initial)
+
+let write_tlkpath filename dialog_path dialogf_path =
+  let out = Case_ins.perv_open_out filename in
+  ignore (output_string out ("~" ^ dialog_path ^ "~")) ;
+  (match dialogf_path with
+  | None -> ignore (output_string out "\n")
+  | Some p -> ignore (output_string out (" ~" ^ p ^ "~\n"))) ;
+  ignore (close_out out)
 
 let read_cli_vars filename : string list =
   try

@@ -153,7 +153,7 @@ let verify_action_list s =
   %left PLUS 
 
   /* Non-terminals informations */
-%start d_file tra_file log_file unsetstr_file args_file
+%start d_file tra_file log_file unsetstr_file args_file tlk_path_file
 
   %type <(string * int)> begin_prologue
   %type <(string * bool)> append_prologue
@@ -168,6 +168,7 @@ let verify_action_list s =
   %type <Dlg.transition> transition
   %type <Load.str_set_record list> unsetstr_file
   %type <string list> args_file
+  %type <string * (string option)> tlk_path_file
 
   %type <Dlg.weight> weight
 
@@ -831,9 +832,15 @@ action :
   unsetstr_file :   { [] }
   | STRING_REF STRING SOUND STRING_REF STRING_REF STRING_REF STRING SOUND STRING_REF STRING_REF STRING_REF unsetstr_file
     { ($1,{Tlk.text=$2;Tlk.sound_name=$3;Tlk.flags=$4;Tlk.volume=$5;Tlk.pitch=$6},{Tlk.text=$7;Tlk.sound_name=$8;Tlk.flags=$9;Tlk.volume=$10;Tlk.pitch=$11}) :: $12 }
-    
+    ;
+
   args_file : { [] }
   | STRING args_file { $1 :: $2 }
+    ;
+
+  tlk_path_file :
+  | STRING tlk_path_file { ($1, None) }
+  | STRING STRING tlk_path_file { ($1, Some($2)) }
   %%
 
 

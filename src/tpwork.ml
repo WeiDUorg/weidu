@@ -67,10 +67,6 @@ let comp_part_p m =
 let fails_requirements tp m =
   comp_flag_p tp m || not (module_groups_ok m) || comp_part_p m
 
-let get_trans i =
-  Dc.single_string_of_tlk_string (Load.the_game ())
-    (Dlg.Trans_String (Dlg.Int i))
-
 let choose_lang tp this_tp2_filename =
   match tp.languages with
   | [] -> (ref None, ref 0)
@@ -622,34 +618,6 @@ let ask_about_groups tp groups module_defaults last_module_index using_quickmenu
         (Dc.single_string_of_tlk_string_safe
            (Load.the_game ()) this_grp) (get_trans (-1037))) !groups
 
-let ask_about_lang_dir () =
-  let languages = Load.bgee_language_options (Load.the_game ()) in
-  let pretty_ht = Hashtbl.create (Array.length languages) in
-  ignore (List.iter (fun (dirname, pretty) ->
-    Hashtbl.add pretty_ht dirname pretty)
-            [("cs_cz", (get_trans (-1041))); ("de_de", (get_trans (-1042)));
-             ("en_us", (get_trans (-1043))); ("es_es", (get_trans (-1044)));
-             ("fr_fr", (get_trans (-1045))); ("it_it", (get_trans (-1046)));
-             ("pl_pl", (get_trans (-1047))); ("pt_br", (get_trans (-1048)));
-             ("tr_tr", (get_trans (-1049)));]) ;
-  let prettify dir =
-    if Hashtbl.mem pretty_ht dir then
-      Hashtbl.find pretty_ht dir
-    else dir in
-  let answer = ref None in
-  while !answer = None do
-    log_and_print "%s" (get_trans (-1040)) ;
-    Array.iteri (fun i dir ->
-      log_and_print "%2d [%s]\n" i dir) (Array.map prettify languages) ;
-    try
-      let i = read_int () in
-      if i >= 0 && i < Array.length languages then begin
-        answer := Some (Array.get languages i) ;
-      end
-    with _ -> ()
-  done ;
-  value_of_option !answer
-
 
 
 (*************************************************************************
@@ -698,7 +666,7 @@ let rec handle_tp game this_tp2_filename tp =
   ignore (lang_init !our_lang) ;
 
   if Load.enhanced_edition_p game && not !Load.have_bgee_lang_dir_p then begin
-    let dir = ask_about_lang_dir () in
+    let dir = ask_about_lang_dir (get_trans (-1040)) in
     ignore (Load.set_bgee_lang_dir game (Some dir)) ;
     ignore (write_bgee_lang_dir game.Load.game_path dir) ;
   end ;
@@ -802,6 +770,9 @@ let rec handle_tp game this_tp2_filename tp =
           let strset_backup_filename =
             Printf.sprintf "%s/%d/UNSETSTR.%d" tp.backup i i in
 
+          let tlkpath_backup_filename =
+            Printf.sprintf "%s/%d/TLKPATH.%d" tp.backup i i in
+
           let args_backup_filename =
             Printf.sprintf "%s/%d/ARGS.%d" tp.backup i i in
 
@@ -876,6 +847,7 @@ let rec handle_tp game this_tp2_filename tp =
               ((get_trans (-1017))) package_name ((get_trans (-1018))) ;
             Dc.clear_state () ;
             record_strset_uninstall_info game strset_backup_filename ;
+            record_tlk_path_info game tlkpath_backup_filename ;
             (match !backup_list_chn with
             | Some(chn) -> close_out chn ; backup_list_chn := None
             | None -> ()) ;
@@ -902,6 +874,7 @@ let rec handle_tp game this_tp2_filename tp =
           end );
           log_and_print "\n\n" ;
           record_strset_uninstall_info game strset_backup_filename ;
+          record_tlk_path_info game tlkpath_backup_filename ;
           let return_code = match !errors_this_component with
           | false -> -1019
           | true -> errors_this_component := false; -1033
