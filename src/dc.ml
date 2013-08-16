@@ -207,7 +207,7 @@ let rec resolve_tlk_string_internal can_create warn_mess game ts =
         Stats.time "find local string" (fun () ->
           try
             Tlk.find_string_fast lse (Load.get_active_dialog game)
-              (Load.get_active_dialogf_opt game) game.Load.dialog_search
+              (Load.get_active_dialogf_opt game) game.Load.dialog_search ;
           with
             Not_found ->
               Stats.time "strings to add" (fun () ->

@@ -839,8 +839,10 @@ action :
     ;
 
   tlk_path_file :
+    STRING STRING tlk_path_file { ($1, Some($2)) }
   | STRING tlk_path_file { ($1, None) }
-  | STRING STRING tlk_path_file { ($1, Some($2)) }
+  | { "dialog.tlk", None }
+    ;
   %%
 
 

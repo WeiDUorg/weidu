@@ -441,7 +441,7 @@ let load_game () =
   result
 
 let set_additional_bgee_load_paths game dir =
-  let more = List.append (if dir <> "en_us" then ["/lang/" ^ dir] else [])
+  let more = List.append (if dir <> "en_us" then ["./lang/" ^ dir] else [])
       ["./lang/en_us"] in
   game.cd_path_list <- (List.append game.cd_path_list more)
 
@@ -453,6 +453,8 @@ let use_bgee_lang_dir game dir =
   ignore (Array.iteri (fun index tlk_pair ->
     if Str.string_match regexp tlk_pair.dialog.path 0 then begin
       game.dialog_index <- index ;
+      Hashtbl.clear game.dialog_search ;
+      create_dialog_search game ;
       foundp := true ;
     end) game.dialogs) ;
   if not !foundp then begin

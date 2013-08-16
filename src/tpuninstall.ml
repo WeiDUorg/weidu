@@ -58,6 +58,7 @@ open Tppe
        (try assert false with Assert_failure(file,line,col) -> set_errors file line));
      my_unlink filename;
      my_unlink (filename ^ ".TEXT");
+     my_unlink (tlkpath_filename) ;
    end else log_only "[%s] SET_STRING uninstall info not found\n" filename
 
 let record_strset_uninstall_info game filename =

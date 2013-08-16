@@ -1439,16 +1439,6 @@ let main () =
 
   let auto game = begin
     pause_at_end := true ;
-    if not !no_game then begin
-      if !output_dialog = None then
-        output_dialog := Some (Load.get_active_dialogs game).Load.dialog.Load.path ;
-      if !output_dialogf = None then
-        output_dialogf := (match (Load.get_active_dialogs game).Load.dialogf with
-        | None -> None
-        | Some tlk -> Some tlk.Load.path) ;
-(*      Load.set_dialog_tlk_path "dialog.tlk" ;
-      Load.set_dialogf_tlk_path "dialogf.tlk" ; *)
-    end;
     if is_directory "debugs" then
       init_log Version.version ("debugs/" ^ argv0_base ^ ".DEBUG")
     else
@@ -1730,7 +1720,6 @@ let main () =
       Load.load_game ()
   in
 
-  Dc.cur_index := Array.length (Load.get_active_dialog game) ;
   Load.saved_game := Some(game) ;
 
   if (!forced_script_style <> Load.NONE) then
@@ -1741,6 +1730,18 @@ let main () =
     | None -> Load.set_bgee_lang_dir game (attempt_to_load_bgee_lang_dir game.Load.game_path)
     | Some s -> Load.set_bgee_lang_dir game (Some s) ;
         write_bgee_lang_dir game.Load.game_path s) ;
+
+  Dc.cur_index := Array.length (Load.get_active_dialog game) ;
+
+  if not !no_game then begin
+    if !output_dialog = None then begin
+      output_dialog := Some (Load.get_active_dialogs game).Load.dialog.Load.path ;
+    end ;
+    if !output_dialogf = None then
+      output_dialogf := (match (Load.get_active_dialogs game).Load.dialogf with
+      | None -> None
+      | Some tlk -> Some tlk.Load.path) ;
+  end ;
 
   (* see if SETUP is in our base name *)
   let setup_regexp = Str.regexp_case_fold "setup" in
@@ -1951,9 +1952,8 @@ let main () =
   emit_dlg_files game theout.dir ;
 
 
-  (* Check that we can write to the given TLK file *)
-  if !output_dialog <> None then
-    test_output_tlk game pause_at_end ; (* pause_at_end is intentionllay not derefenenced *)
+  (* Check that we can write to the given TLK file(s) *)
+  test_output_tlk game pause_at_end ; (* pause_at_end is intentionllay not derefenenced *)
 
 
   if !tp_list <> [] then begin
@@ -1987,12 +1987,8 @@ let main () =
 
   (* make sure we add all those strings! *)
   if not (Queue.is_empty !Dc.strings_to_add) then begin
-    if (!output_dialog = None && !output_dialogf = None) then begin
-      log_or_print "You did not specify '--tlkout dialog.tlk', so %d strings were not saved.\n" (Queue.length !Dc.strings_to_add);
-    end else begin
-      let dc_lse_strapp_list = !Dc.strings_to_add in
-      Load.append_strings game dc_lse_strapp_list
-    end
+    let dc_lse_strapp_list = !Dc.strings_to_add in
+    Load.append_strings game dc_lse_strapp_list
   end ;
 
   if not (game.Load.str_sets = []) then begin
@@ -2004,20 +2000,20 @@ let main () =
     merge_tlk !tlk_merge game ;
 
 
-  let d_pair = (Load.get_active_dialogs game) in
-  (* Emit DIALOG.TLK *)
-  (match !output_dialog, d_pair.Load.dialog_mod with
-  | Some path, true ->
-      let outchan = open_for_writing path true in
-      Tlk.save_tlk path (Load.get_active_dialog game) outchan
-  | _, _ -> ()) ;
+  (* Emit all changed dialogs *)
+  let save_tlk path contents =
+    let outchan = open_for_writing path true in
+    Tlk.save_tlk path contents outchan in
+  Array.iter (fun tlk_pair ->
+    if tlk_pair.Load.dialog_mod then begin
+      save_tlk tlk_pair.Load.dialog.Load.path tlk_pair.Load.dialog.Load.contents
+    end ;
+    if tlk_pair.Load.dialogf_mod then begin
+      (match tlk_pair.Load.dialogf with
+      | None -> ()
+      | Some df -> save_tlk df.Load.path df.Load.contents)
+    end) game.Load.dialogs ;
 
-  (* Emit DIALOGF.TLK *)
-  (match !output_dialogf, (Load.get_active_dialogf_opt game), d_pair.Load.dialogf_mod with
-  | Some path, Some tlk, true ->
-      let outchan = open_for_writing path true in
-      Tlk.save_tlk path tlk outchan
-  | _, _, _ -> ()) ;
 
   Hashtbl.iter (fun a x -> Unix.close x.Biff.fd) game.Load.loaded_biffs;
   Queue.iter my_unlink Load.cbifs_to_rem;
