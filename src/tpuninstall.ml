@@ -36,6 +36,7 @@ open Tppe
        (match tlk_pair with
        | None -> log_and_print "WARNING: STRING_SETs will not be uninstalled from [%s]\n" dialog_path ;
        | Some pair -> begin
+           ignore (Load.actually_load_tlk_pair game pair) ;
            List.iter (fun (i,m,f) ->
              if (i < 0 || i > Array.length pair.Load.dialog.Load.contents) then begin
                log_only "WARNING: Cannot uninstall STRING_SET #%d, out of range 0 -- %d\n" i (Array.length pair.Load.dialog.Load.contents)

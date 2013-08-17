@@ -57,6 +57,7 @@ and tlk_pair = {
     dialogf : tlk option;
     mutable dialog_mod : bool; (* changed? *)
     mutable dialogf_mod : bool;
+    mutable loaded : bool;
   }
 (* there is also output_dialog, which may point to a non-existint file; how does the current code handle the case when output_dialog is input-dialog?
  * if we just have something that returns the active tlk path, that will be fine for output_dialog *)
@@ -127,6 +128,30 @@ let create_dialog_search g =
   Array.iteri (fun i t -> Hashtbl.add g.dialog_search t.Tlk.text i)
     (get_active_dialog g)
 
+let pad_tlks game =
+  (match (get_active_dialogf_opt game) with
+    Some(df) -> begin
+      let d = get_active_dialog game in
+      let d_pair = get_active_dialogs game in
+      let dfl = Array.length df in
+      let dl = Array.length d in
+      if (dfl > dl) then begin
+        let uneven = Array.sub df dl (dfl - dl) in
+        log_and_print "*** %s has %d too few entries, padding.\n"
+          d_pair.dialog.path (dfl - dl) ;
+        d_pair.dialog.contents <- Array.append d uneven ;
+        d_pair.dialog_mod <- true;
+      end else if (dfl < dl) then begin
+        let uneven = Array.sub d dfl (dl - dfl) in
+        let df_record = value_of_option d_pair.dialogf in
+        log_and_print "*** %s has %d too few entries, padding.\n"
+          df_record.path (dl - dfl) ;
+        df_record.contents <- (Array.append df uneven) ;
+        d_pair.dialogf_mod <- true;
+      end
+    end
+  | None -> ())
+
 let append_strings g lse_q =
   Stats.time "add strings to TLK" (fun () ->
     let num_entries = Queue.length lse_q in
@@ -181,25 +206,27 @@ let find_file_in_path path file =
     end
   with _ -> path ^ "/" ^ file
 
-let load_dialog gp dialog_path =
+let fake_load_dialog gp dialog_path =
   let path = match dialog_path with
   | Some(p) -> p
   | None -> find_file_in_path gp "^dialog\\.tlk$" in
   if file_exists path then begin
-    (Tlk.load_tlk path),path
+    (* (Tlk.load_tlk path),path *)
+    ((Tlk.null_tlk ()), path)
   end else begin
     log_and_print "\nERROR: Unable to find DIALOG.TLK in:\n\t%s\n" path ;
     log_and_print "\nPlease run this program in your Infinity Engine game directory.\n" ;
     failwith "Unable to find DIALOG.TLK"
   end
 
-let load_dialogf gp dialogf_path =
+let fake_load_dialogf gp dialogf_path =
   let path = match dialogf_path with
   | Some(p) -> p
   | None -> find_file_in_path gp "^dialogf\\.tlk$" in
   if file_exists path then begin
-    let df = Tlk.load_tlk path in
-    Some(df), path
+    (* let df = Tlk.load_tlk path in
+     * Some(df), path *)
+    (Some (Tlk.null_tlk ()), path)
   end else
     None, ""
 
@@ -208,9 +235,9 @@ let enhanced_edition_p game =
   | BGEE -> true
   | GENERIC -> false)
 
-let load_dialog_pair path =
-  let dialog, dialog_path = load_dialog path None in
-  let dialogf, dialogf_path = load_dialogf path None in
+let load_dialog_pair path dpath dfpath =
+  let dialog, dialog_path = fake_load_dialog path dpath in
+  let dialogf, dialogf_path = fake_load_dialogf path dfpath in
   let d = {
     contents = dialog;
     path = dialog_path;
@@ -226,11 +253,19 @@ let load_dialog_pair path =
    dialog_mod = false;
    dialogf = df;
    dialogf_mod = false;
+   loaded = false;
  }
 
 let load_default_dialogs game_path =
-  let tlk_pair = load_dialog_pair game_path in
-  [|tlk_pair|]
+  let tlk_pair = load_dialog_pair game_path None None in
+  (match !dialog_tlk_path with
+  | None -> [|tlk_pair|]
+  | Some path ->
+      let tlkin = load_dialog_pair game_path
+          !dialog_tlk_path !dialogf_tlk_path in
+      (* to cut down on the work elsewhere, it is assumed that
+       * tlkin is always the last tlk pair *)
+      [|tlk_pair; tlkin|])
 
 let lang_dir_p dir =
   let dir = Arch.slash_to_backslash ("lang/" ^ dir) in
@@ -244,8 +279,15 @@ let load_ee_dialogs game_path =
                            (Array.to_list (Case_ins.sys_readdir "lang"))))) in
   let languages = (List.map (fun lang ->
     let path = Arch.slash_to_backslash ("lang/" ^ lang) in
-    load_dialog_pair path) lang_dirs) in
-  Array.of_list languages
+    load_dialog_pair path None None) lang_dirs) in
+  (match !dialog_tlk_path with
+  | None -> Array.of_list languages
+  | Some path ->
+      let tlkin = load_dialog_pair game_path
+          !dialog_tlk_path !dialogf_tlk_path in
+      (* to cut down on the work elsewhere, it is assumed that
+       * tlkin is always the last tlk pair *)
+      Array.of_list (List.append languages [tlkin]))
 
 let load_dialogs game_path =
   if file_exists (Arch.slash_to_backslash "lang/en_us/dialog.tlk") then
@@ -253,23 +295,39 @@ let load_dialogs game_path =
   else
     load_default_dialogs game_path
 
+let actually_load_tlk_pair game tlk_pair =
+  if not tlk_pair.loaded then begin
+    ignore (tlk_pair.dialog.contents <- Tlk.load_tlk tlk_pair.dialog.path) ;
+    ignore (match tlk_pair.dialogf with
+    | None -> ()
+    | Some df -> df.contents <- Tlk.load_tlk df.path) ;
+    ignore (tlk_pair.loaded <- true) ;
+    ignore (pad_tlks game) ;
+    ignore (Hashtbl.clear game.dialog_search) ;
+    ignore (create_dialog_search game) ;
+  end ;
+
+
 exception FoundKey of Key.key * string
 
 let load_null_game () =
   let dialogs =
     (match !dialog_tlk_path with
     | Some(p) -> [|{
-          dialog = {contents = (Tlk.load_tlk p); path = p};
-          dialog_mod = false;
-          dialogf = None;
-          dialogf_mod = false;
-        }|]
+                   dialog = {contents = (Tlk.load_tlk p); path = p};
+                   dialog_mod = false;
+                   dialogf = None;
+                   dialogf_mod = false;
+                   loaded = false;
+                 }|]
     | None -> [|{
-        dialog = {contents = (Tlk.null_tlk ()); path = " -- NO DIALOG.TLK -- ";};
-        dialog_mod = false;
-        dialogf = None;
-        dialogf_mod = false;
-      }|]) in
+                dialog = {contents = (Tlk.null_tlk ());
+                          path = " -- NO DIALOG.TLK -- ";};
+                dialog_mod = false;
+                dialogf = None;
+                dialogf_mod = false;
+                loaded = false;
+              }|]) in
   let dialog_index = 0 in
   let result =
     {
@@ -368,50 +426,11 @@ let autodetect_game_type key =
   | NONE -> Tlk.is_bg2 := false) ;
   (game_type, script_style)
 
-let pad_tlks game =
-  (match (get_active_dialogf_opt game) with
-    Some(df) -> begin
-      let d = get_active_dialog game in
-      let d_pair = get_active_dialogs game in
-      let dfl = Array.length df in
-      let dl = Array.length d in
-      if (dfl > dl) then begin
-        let uneven = Array.sub df dl (dfl - dl) in
-        log_and_print "*** %s has %d too few entries, padding.\n"
-          d_pair.dialog.path (dfl - dl) ;
-        d_pair.dialog.contents <- Array.append d uneven ;
-        d_pair.dialog_mod <- true;
-      end else if (dfl < dl) then begin
-        let uneven = Array.sub d dfl (dl - dfl) in
-        let df_record = value_of_option d_pair.dialogf in
-        log_and_print "*** %s has %d too few entries, padding.\n"
-          df_record.path (dl - dfl) ;
-        df_record.contents <- (Array.append df uneven) ;
-        d_pair.dialogf_mod <- true;
-      end
-    end
-  | None -> ())
-
 let have_bgee_lang_dir_p = ref false
 
 let load_game () =
   let key, gp = find_key_file !game_paths in
-  let dialogs = (match !dialog_tlk_path, !dialogf_tlk_path with
-  | None, None -> load_dialogs gp
-  | _, _ ->
-      let d, dpath = load_dialog gp !dialog_tlk_path in
-      let df, dfpath = load_dialogf gp !dialogf_tlk_path in
-      (* not checked unless BGEE
-       * if we got --tlkin, we know which tlk to use *)
-      have_bgee_lang_dir_p := true ;
-      [|{
-        dialog = {contents = d; path = dpath};
-        dialog_mod = false;
-        dialogf = (match df with
-        | None -> None
-        | Some df -> Some {contents = df; path = dfpath});
-        dialogf_mod = false;
-      }|]) in
+  let dialogs = load_dialogs gp in
   let dialog_index = 0 in
   let cd_paths = read_cd_paths gp in
   if not (is_directory "override") && (file_exists "chitin.key") then
@@ -425,7 +444,7 @@ let load_game () =
      override_path_list = !override_paths @ [ (gp ^ "/override") ] ;
      ids_path_list = !ids_paths @ !override_paths @ [ (gp ^ "/override") ];
      loaded_biffs = Hashtbl.create 5 ;
-     dialog_search = Hashtbl.create ((Array.length (Array.get dialogs dialog_index).dialog.contents) * 2) ;
+     dialog_search = Hashtbl.create 100000 ;
      str_sets = [] ; (* and keep it that way! :-) *)
      key_mod = false ;
      script_style = script_style ;
@@ -436,8 +455,6 @@ let load_game () =
   ignore (match game_type with
   | BGEE -> Var.bgee_game_vars result.game_path
   | GENERIC -> Var.default_game_vars result.game_path) ;
-  pad_tlks result ;
-  create_dialog_search result ;
   result
 
 let set_additional_bgee_load_paths game dir =
@@ -453,8 +470,7 @@ let use_bgee_lang_dir game dir =
   ignore (Array.iteri (fun index tlk_pair ->
     if Str.string_match regexp tlk_pair.dialog.path 0 then begin
       game.dialog_index <- index ;
-      Hashtbl.clear game.dialog_search ;
-      create_dialog_search game ;
+      ignore (actually_load_tlk_pair game tlk_pair) ;
       foundp := true ;
     end) game.dialogs) ;
   if not !foundp then begin
@@ -483,6 +499,14 @@ let bgee_language_options game =
       raise Not_found
     end) game.dialogs in
   options
+
+let deal_with_tlkin game =
+  (match !dialog_tlk_path, !dialogf_tlk_path with
+  | None, None -> ()
+  | _, _ ->
+      game.dialog_index <- ((Array.length game.dialogs) - 1);
+      ignore (actually_load_tlk_pair game (get_active_dialogs game)))
+
 
 exception FoundRes of string * string
 exception Missing

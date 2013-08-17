@@ -308,7 +308,7 @@ let init_default_strings () =
 
   add (-1060) "WeiDU does not know which language to uninstall this mod from. \
   Choose one. This choice will be used until WeiDU exits but will not be \
-  remebered." ;
+  remebered.\n" ;
   ()
 
 let get_trans i =
