@@ -48,8 +48,22 @@ let ok_missing file =
 let add_override_path path = override_paths := !override_paths @ [path]
 let add_ids_path path = ids_paths := !ids_paths @ [path]
 
-let dialog_tlk_path = ref None
-let dialogf_tlk_path = ref None
+type tlk = {
+    mutable contents : Tlk.tlk;
+    path : string;
+  }
+and tlk_pair = {
+    dialog : tlk;
+    dialogf : tlk option;
+    mutable dialog_mod : bool; (* changed? *)
+    mutable dialogf_mod : bool;
+    mutable loaded : bool;
+  }
+(* there is also output_dialog, which may point to a non-existint file; how does the current code handle the case when output_dialog is input-dialog?
+ * if we just have something that returns the active tlk path, that will be fine for output_dialog *)
+
+let dialog_tlk_path : string option ref = ref None
+let dialogf_tlk_path : string option ref = ref None
 
 let set_dialog_tlk_path s = dialog_tlk_path := Some(s)
 let set_dialogf_tlk_path s = dialogf_tlk_path := Some(s)
@@ -60,35 +74,83 @@ type str_set_record = (int * Tlk.tlk_string * Tlk.tlk_string)
 type script_style = BG1 | BG2 | IWD1 | IWD2 | PST | NONE
 
 type game = {
-    mutable key          : Key.key ;
-    game_path    : string ;
-    cd_path_list : string list ;
-    mutable override_path_list : string list ;
-    mutable ids_path_list : string list ;
-    mutable loaded_biffs : (string, Biff.biff) Hashtbl.t ;
-    mutable dialog       : Tlk.tlk ;
-    mutable dialog_search : (string, int) Hashtbl.t ;
-    mutable dialogf      : Tlk.tlk option ;
-    mutable str_sets     : str_set_record list ;
+    mutable key : Key.key;
+    game_path : string;
+    mutable cd_path_list : string list;
+    mutable override_path_list : string list;
+    mutable ids_path_list : string list;
+    mutable loaded_biffs : (string, Biff.biff) Hashtbl.t;
+    mutable dialog_search : (string, int) Hashtbl.t;
+    mutable str_sets : str_set_record list;
     (* most recent STRING_SET or forced strref is the head of the list *)
-    dialog_path  : string ;
-    dialogf_path : string ;
-    mutable dialog_mod   : bool ; (* changed? *)
-    mutable dialogf_mod  : bool ; (* changed? *)
-    mutable key_mod      : bool ; (* changed? *)
+    mutable key_mod : bool ; (* changed? *)
     mutable script_style : script_style ;
     game_type : game_type ;
+    dialogs : tlk_pair array;
+    mutable dialog_index : int;
   }
 
 let saved_game = ref (None : game option)
 
 let the_game () = match !saved_game with
-| None -> parse_error "no game loaded"
+| None -> failwith "ERROR: no game loaded"
 | Some(g) -> g
+
+let get_active_dialog g =
+  (Array.get g.dialogs g.dialog_index).dialog.contents
+
+let get_active_dialogf_fallback g =
+  (match (Array.get g.dialogs g.dialog_index).dialogf with
+  | Some(tlk) -> tlk.contents
+  | None -> get_active_dialog g)
+
+let get_active_dialogf_opt g =
+  match (Array.get g.dialogs g.dialog_index).dialogf with
+  | Some tlk -> Some (tlk.contents)
+  | None -> None
+
+let get_active_dialogs g =
+  (Array.get g.dialogs g.dialog_index)
+
+let get_dialogs_by_path game dpath dfpath =
+  let tlk_pair : tlk_pair option = Array.fold_left (fun acc tlk_pair ->
+    if tlk_pair.dialog.path = dpath then
+      (match tlk_pair.dialogf with
+      | None when dfpath = None ->
+          Some tlk_pair
+      | Some df when Some df.path = dfpath ->
+          Some tlk_pair
+      | _ -> acc)
+    else acc) None game.dialogs in
+  tlk_pair
 
 let create_dialog_search g =
   Array.iteri (fun i t -> Hashtbl.add g.dialog_search t.Tlk.text i)
-    g.dialog
+    (get_active_dialog g)
+
+let pad_tlks game =
+  (match (get_active_dialogf_opt game) with
+    Some(df) -> begin
+      let d = get_active_dialog game in
+      let d_pair = get_active_dialogs game in
+      let dfl = Array.length df in
+      let dl = Array.length d in
+      if (dfl > dl) then begin
+        let uneven = Array.sub df dl (dfl - dl) in
+        log_and_print "*** %s has %d too few entries, padding.\n"
+          d_pair.dialog.path (dfl - dl) ;
+        d_pair.dialog.contents <- Array.append d uneven ;
+        d_pair.dialog_mod <- true;
+      end else if (dfl < dl) then begin
+        let uneven = Array.sub d dfl (dl - dfl) in
+        let df_record = value_of_option d_pair.dialogf in
+        log_and_print "*** %s has %d too few entries, padding.\n"
+          df_record.path (dl - dfl) ;
+        df_record.contents <- (Array.append df uneven) ;
+        d_pair.dialogf_mod <- true;
+      end
+    end
+  | None -> ())
 
 let append_strings g lse_q =
   Stats.time "add strings to TLK" (fun () ->
@@ -109,49 +171,19 @@ let append_strings g lse_q =
     log_or_print "%d characters, %d entries added to DIALOG.TLK\n"
       !char_count num_entries ;
     Queue.clear lse_q ;
-    g.dialog <- Array.append g.dialog ma ;
+    let tlk_pair = get_active_dialogs g in
+    tlk_pair.dialog.contents <- (Array.append tlk_pair.dialog.contents ma) ;
     Hashtbl.clear g.dialog_search ;
     create_dialog_search g ;
 
-    (match g.dialogf with
-    | Some(a) -> g.dialogf <- Some(Array.append a fa) ;
-        g.dialogf_mod <- true
+    (match tlk_pair.dialogf with
+    | Some a ->
+        a.contents <- (Array.append a.contents fa) ;
+        tlk_pair.dialogf_mod <- true
     | None -> ()) ;
 
-    g.dialog_mod <- true)
+    tlk_pair.dialog_mod <- true)
     ()
-
-exception FoundKey of Key.key * string
-
-let load_null_game () =
-  let d,dp =
-    match !dialog_tlk_path with
-      Some(p) ->
-        (Tlk.load_tlk p),p
-    | None -> Tlk.null_tlk () , " -- NO DIALOG.TLK -- "
-  in
-  let result =
-    {
-     key = Key.null_key () ;
-     game_path = " -- NO GAME -- " ;
-     cd_path_list = [] ;
-     override_path_list = !override_paths ;
-     ids_path_list = !ids_paths ;
-     loaded_biffs = Hashtbl.create 1 ;
-     dialog = d ;
-     dialog_search = Hashtbl.create (1 + ((Array.length d) * 2)) ;
-     dialogf = None ;
-     dialog_path = dp ;
-     str_sets = [] ;
-     dialogf_path = " -- NO DIALOGF.TLK -- " ;
-     dialog_mod = false ;
-     dialogf_mod = false ;
-     key_mod = false ;
-     script_style = BG2 ;
-     game_type = GENERIC ;
-   } in
-  create_dialog_search result ;
-  result
 
 (* ww: this looks for all case-variants of 'file', so 'CHITIN.KEY' and
  * 'chitin.key' both match! *)
@@ -161,19 +193,160 @@ let find_file_in_path path file =
       let h = Case_ins.unix_opendir path in
       let regexp = Str.regexp_case_fold file in
       let res = ref None in
-      ( try
+      (try
         while true do
           let f = Unix.readdir h in
           if (Str.string_match regexp f 0) then
             res := Some(f)
         done
-      with e -> ()
-       ) ; Unix.closedir h ;
+      with e -> ()) ; Unix.closedir h ;
       match !res with
         Some(e) -> (path ^ "/" ^ e)
       | None -> (path ^ "/" ^ file)
     end
   with _ -> path ^ "/" ^ file
+
+let fake_load_dialog gp dialog_path =
+  let path = match dialog_path with
+  | Some(p) -> p
+  | None -> find_file_in_path gp "^dialog\\.tlk$" in
+  if file_exists path then begin
+    (* (Tlk.load_tlk path),path *)
+    ((Tlk.null_tlk ()), path)
+  end else begin
+    log_and_print "\nERROR: Unable to find DIALOG.TLK in:\n\t%s\n" path ;
+    log_and_print "\nPlease run this program in your Infinity Engine game directory.\n" ;
+    failwith "Unable to find DIALOG.TLK"
+  end
+
+let fake_load_dialogf gp dialogf_path =
+  let path = match dialogf_path with
+  | Some(p) -> p
+  | None -> find_file_in_path gp "^dialogf\\.tlk$" in
+  if file_exists path then begin
+    (* let df = Tlk.load_tlk path in
+     * Some(df), path *)
+    (Some (Tlk.null_tlk ()), path)
+  end else
+    None, ""
+
+let enhanced_edition_p game =
+  (match game.game_type with
+  | BGEE -> true
+  | GENERIC -> false)
+
+let load_dialog_pair path dpath dfpath =
+  let dialog, dialog_path = fake_load_dialog path dpath in
+  let dialogf, dialogf_path = fake_load_dialogf path dfpath in
+  let d = {
+    contents = dialog;
+    path = dialog_path;
+  } in
+  let df = (match dialogf with
+  | Some(df) -> Some {
+      contents = df;
+      path = dialogf_path
+    }
+  | None -> None) in
+  {
+   dialog = d;
+   dialog_mod = false;
+   dialogf = df;
+   dialogf_mod = false;
+   loaded = false;
+ }
+
+let load_default_dialogs game_path =
+  let tlk_pair = load_dialog_pair game_path None None in
+  (match !dialog_tlk_path with
+  | None -> [|tlk_pair|]
+  | Some path ->
+      let tlkin = load_dialog_pair game_path
+          !dialog_tlk_path !dialogf_tlk_path in
+      (* to cut down on the work elsewhere, it is assumed that
+       * tlkin is always the last tlk pair *)
+      [|tlk_pair; tlkin|])
+
+let lang_dir_p dir =
+  let dir = Arch.slash_to_backslash ("lang/" ^ dir) in
+  (is_directory dir) &&
+  (file_exists (Arch.slash_to_backslash (dir ^ "/dialog.tlk")))
+
+let load_ee_dialogs game_path =
+  let lang_dirs = (List.fast_sort compare
+                     (List.map String.lowercase
+                        (List.filter lang_dir_p
+                           (Array.to_list (Case_ins.sys_readdir "lang"))))) in
+  let languages = (List.map (fun lang ->
+    let path = Arch.slash_to_backslash ("lang/" ^ lang) in
+    load_dialog_pair path None None) lang_dirs) in
+  (match !dialog_tlk_path with
+  | None -> Array.of_list languages
+  | Some path ->
+      let tlkin = load_dialog_pair game_path
+          !dialog_tlk_path !dialogf_tlk_path in
+      (* to cut down on the work elsewhere, it is assumed that
+       * tlkin is always the last tlk pair *)
+      Array.of_list (List.append languages [tlkin]))
+
+let load_dialogs game_path =
+  if file_exists (Arch.slash_to_backslash "lang/en_us/dialog.tlk") then
+    load_ee_dialogs game_path
+  else
+    load_default_dialogs game_path
+
+let actually_load_tlk_pair game tlk_pair =
+  if not tlk_pair.loaded then begin
+    ignore (tlk_pair.dialog.contents <- Tlk.load_tlk tlk_pair.dialog.path) ;
+    ignore (match tlk_pair.dialogf with
+    | None -> ()
+    | Some df -> df.contents <- Tlk.load_tlk df.path) ;
+    ignore (tlk_pair.loaded <- true) ;
+    ignore (pad_tlks game) ;
+    ignore (Hashtbl.clear game.dialog_search) ;
+    ignore (create_dialog_search game) ;
+  end ;
+
+
+exception FoundKey of Key.key * string
+
+let load_null_game () =
+  let dialogs =
+    (match !dialog_tlk_path with
+    | Some(p) -> [|{
+                   dialog = {contents = (Tlk.load_tlk p); path = p};
+                   dialog_mod = false;
+                   dialogf = None;
+                   dialogf_mod = false;
+                   loaded = false;
+                 }|]
+    | None -> [|{
+                dialog = {contents = (Tlk.null_tlk ());
+                          path = " -- NO DIALOG.TLK -- ";};
+                dialog_mod = false;
+                dialogf = None;
+                dialogf_mod = false;
+                loaded = false;
+              }|]) in
+  let dialog_index = 0 in
+  let result =
+    {
+     key = Key.null_key () ;
+     game_path = " -- NO GAME -- " ;
+     cd_path_list = [] ;
+     override_path_list = !override_paths ;
+     ids_path_list = !ids_paths ;
+     loaded_biffs = Hashtbl.create 1 ;
+     dialog_search = Hashtbl.create (1 + (Array.length (Array.get dialogs dialog_index).dialog.contents * 2)) ;
+     str_sets = [] ;
+     key_mod = false ;
+     script_style = BG2 ;
+     game_type = GENERIC ;
+     dialogs = dialogs ;
+     dialog_index = dialog_index ;
+   } in
+  create_dialog_search result ;
+  result
 
 let find_key_file game_paths =
   try
@@ -253,58 +426,12 @@ let autodetect_game_type key =
   | NONE -> Tlk.is_bg2 := false) ;
   (game_type, script_style)
 
-let pad_tlks result =
-  (match result.dialogf with
-    Some(df) -> begin
-      let dfl = Array.length df in
-      let dl = Array.length result.dialog in
-      if (dfl > dl) then begin
-        let uneven = Array.sub df dl (dfl - dl) in
-        log_and_print "*** %s has %d too few entries, padding.\n"
-          result.dialog_path (dfl - dl) ;
-        result.dialog <- Array.append result.dialog uneven ;
-        result.dialog_mod <- true;
-      end else if (dfl < dl) then begin
-        let uneven = Array.sub result.dialog dfl (dl - dfl) in
-        log_and_print "*** %s has %d too few entries, padding.\n"
-          result.dialogf_path (dl - dfl) ;
-        result.dialogf <- Some(Array.append df uneven) ;
-        result.dialogf_mod <- true;
-      end
-    end
-  | None -> ()) ;
-;;
-
-let load_dialog gp dialog_path =
-  let path = match dialog_path with
-    Some(p) -> p
-  | None -> find_file_in_path gp "^dialog.tlk$"
-  in
-  if file_exists path then begin
-    (Tlk.load_tlk path ),path
-  end else begin
-    log_and_print "\nERROR: Unable to find DIALOG.TLK in:\n\t%s\n" path ;
-    log_and_print "\nPlease run this program in your Infinity Engine game directory.\n" ;
-    failwith "Unable to find DIALOG.TLK"
-  end
-;;
-
-let load_dialogf gp dialogf_path =
-  let path = match dialogf_path with
-    Some(p) -> p
-  | None -> find_file_in_path gp "^dialogf.tlk$"
-  in
-  if file_exists path then begin
-    let df = Tlk.load_tlk path in
-    Some(df), path
-  end else
-    None, "(none)"
-;;
+let have_bgee_lang_dir_p = ref false
 
 let load_game () =
   let key, gp = find_key_file !game_paths in
-  let dialog_tlk, dialog_path = load_dialog gp !dialog_tlk_path in
-  let dialogf_tlk, dialogf_path = load_dialogf gp !dialogf_tlk_path in
+  let dialogs = load_dialogs gp in
+  let dialog_index = 0 in
   let cd_paths = read_cd_paths gp in
   if not (is_directory "override") && (file_exists "chitin.key") then
     Case_ins.unix_mkdir "override" 511 ;
@@ -317,24 +444,69 @@ let load_game () =
      override_path_list = !override_paths @ [ (gp ^ "/override") ] ;
      ids_path_list = !ids_paths @ !override_paths @ [ (gp ^ "/override") ];
      loaded_biffs = Hashtbl.create 5 ;
-     dialog = dialog_tlk ;
-     dialog_search = Hashtbl.create ((Array.length dialog_tlk) * 2) ;
-     dialogf = dialogf_tlk ;
+     dialog_search = Hashtbl.create 100000 ;
      str_sets = [] ; (* and keep it that way! :-) *)
-     dialog_path = dialog_path ;
-     dialogf_path = dialogf_path ;
-     dialog_mod = false ;
-     dialogf_mod = false ;
      key_mod = false ;
      script_style = script_style ;
      game_type = game_type ;
+     dialogs = dialogs;
+     dialog_index = dialog_index;
    } in
   ignore (match game_type with
   | BGEE -> Var.bgee_game_vars result.game_path
   | GENERIC -> Var.default_game_vars result.game_path) ;
-  pad_tlks result ;
-  create_dialog_search result ;
   result
+
+let set_additional_bgee_load_paths game dir =
+  let more = List.append (if dir <> "en_us" then ["./lang/" ^ dir] else [])
+      ["./lang/en_us"] in
+  game.cd_path_list <- (List.append game.cd_path_list more)
+
+let use_bgee_lang_dir game dir =
+  let regexp = (Str.regexp_case_fold
+                  (Str.quote (Arch.slash_to_backslash ("lang/" ^ dir)))) in
+  let foundp = ref false in
+  ignore (set_additional_bgee_load_paths game dir) ;
+  ignore (Array.iteri (fun index tlk_pair ->
+    if Str.string_match regexp tlk_pair.dialog.path 0 then begin
+      game.dialog_index <- index ;
+      ignore (actually_load_tlk_pair game tlk_pair) ;
+      foundp := true ;
+    end) game.dialogs) ;
+  if not !foundp then begin
+    log_and_print
+      "ERROR: None of the dialog paths were a match against %s\n" dir ;
+    raise Not_found
+  end
+
+let set_bgee_lang_dir game dir =
+  (match dir with
+  | Some d ->
+      ignore (use_bgee_lang_dir game d) ;
+      have_bgee_lang_dir_p := true ;
+  | None -> have_bgee_lang_dir_p := false)
+
+let bgee_language_options game =
+  let options = Array.map (fun tlk_pair ->
+    let str1 = (Str.quote (Arch.slash_to_backslash "lang/")) in
+    let str2 = (Str.quote (Arch.slash_to_backslash "/dialog.tlk")) in
+    let regexp = (Str.regexp_case_fold (str1 ^ "\\([a-z_]+\\)" ^ str2)) in
+    if Str.string_match regexp tlk_pair.dialog.path 0 then
+      Str.matched_group 1 tlk_pair.dialog.path
+    else begin
+      log_and_print "ERROR: could not match a directory in %s\n"
+        tlk_pair.dialog.path ;
+      raise Not_found
+    end) game.dialogs in
+  options
+
+let deal_with_tlkin game =
+  (match !dialog_tlk_path, !dialogf_tlk_path with
+  | None, None -> ()
+  | _, _ ->
+      game.dialog_index <- ((Array.length game.dialogs) - 1);
+      ignore (actually_load_tlk_pair game (get_active_dialogs game)))
+
 
 exception FoundRes of string * string
 exception Missing
@@ -519,7 +691,7 @@ let search_biff_contents game o tl sl =
               let name_id = int_of_str_off buff off in
               o (Printf.sprintf "%8s.%3s in [%s] matches [%s]\n"
                    r.res_name ( ext_of_key r.res_type ) biff.filename
-                   (Tlk.pretty_print game.dialog name_id))
+                   (Tlk.pretty_print (get_active_dialog game) name_id))
           | _ -> o (Printf.sprintf "%8s.%3s in [%s] matches\n"
                       r.res_name ( ext_of_key r.res_type ) biff.filename)
         end
@@ -540,7 +712,7 @@ let search_biff_contents_fun game o tl matches =
               let name_id = int_of_str_off buff off in
               o (Printf.sprintf "%8s.%3s in [%s] matches [%s]\n"
                    r.res_name ( ext_of_key r.res_type ) biff.filename
-                   (Tlk.pretty_print game.dialog name_id))
+                   (Tlk.pretty_print (get_active_dialog game) name_id))
           | _ -> o (Printf.sprintf "%8s.%3s in [%s] matches\n"
                       r.res_name ( ext_of_key r.res_type ) biff.filename)
         end

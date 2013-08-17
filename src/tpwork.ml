@@ -67,10 +67,6 @@ let comp_part_p m =
 let fails_requirements tp m =
   comp_flag_p tp m || not (module_groups_ok m) || comp_part_p m
 
-let get_trans i =
-  Dc.single_string_of_tlk_string (Load.the_game ())
-    (Dlg.Trans_String (Dlg.Int i))
-
 let choose_lang tp this_tp2_filename =
   match tp.languages with
   | [] -> (ref None, ref 0)
@@ -669,6 +665,12 @@ let rec handle_tp game this_tp2_filename tp =
 
   ignore (lang_init !our_lang) ;
 
+  if Load.enhanced_edition_p game && not !Load.have_bgee_lang_dir_p then begin
+    let dir = ask_about_lang_dir (get_trans (-1040)) in
+    ignore (Load.set_bgee_lang_dir game (Some dir)) ;
+    ignore (write_bgee_lang_dir game.Load.game_path dir) ;
+  end ;
+
   ignore (do_readme tp this_tp2_filename) ;
 
 (**************************************************************************
@@ -768,6 +770,9 @@ let rec handle_tp game this_tp2_filename tp =
           let strset_backup_filename =
             Printf.sprintf "%s/%d/UNSETSTR.%d" tp.backup i i in
 
+          let tlkpath_backup_filename =
+            Printf.sprintf "%s/%d/TLKPATH.%d" tp.backup i i in
+
           let args_backup_filename =
             Printf.sprintf "%s/%d/ARGS.%d" tp.backup i i in
 
@@ -842,6 +847,7 @@ let rec handle_tp game this_tp2_filename tp =
               ((get_trans (-1017))) package_name ((get_trans (-1018))) ;
             Dc.clear_state () ;
             record_strset_uninstall_info game strset_backup_filename ;
+            record_tlk_path_info game tlkpath_backup_filename ;
             (match !backup_list_chn with
             | Some(chn) -> close_out chn ; backup_list_chn := None
             | None -> ()) ;
@@ -868,6 +874,7 @@ let rec handle_tp game this_tp2_filename tp =
           end );
           log_and_print "\n\n" ;
           record_strset_uninstall_info game strset_backup_filename ;
+          record_tlk_path_info game tlkpath_backup_filename ;
           let return_code = match !errors_this_component with
           | false -> -1019
           | true -> errors_this_component := false; -1033

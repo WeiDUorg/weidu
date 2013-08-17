@@ -1397,7 +1397,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Alter_TLK (pl) ->
           let b = get_pe_int "0" in
           let e = get_pe_int (string_of_int
-                                (Array.length game.Load.dialog +
+                                (Array.length (Load.get_active_dialog game) +
                                    (Queue.length !Dc.strings_to_add - 1))) in
           process_action tp (TP_Alter_TLK_Range(b,e,pl))
 
@@ -1415,16 +1415,16 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Alter_TLK_List(lst,pl) -> begin
           List.iter (fun x ->
             let i = Int32.to_int (eval_pe "" game x) in
-            let male = if (i < Array.length game.Load.dialog) then
-              game.Load.dialog.(i)
+            let male = if (i < Array.length (Load.get_active_dialog game)) then
+              (Load.get_active_dialog game).(i)
             else
               fst (Tlk.lse_to_tlk_string (Hashtbl.find Dc.strings_added_ht i)) in
             let newmale = List.fold_left (fun acc elt ->
               process_patch2 "dialog.tlk" game acc elt) male.Tlk.text pl in
             let soundmale = male.Tlk.sound_name in
-            let newfemale, soundfemale = match game.Load.dialogf with
+            let newfemale, soundfemale = match Load.get_active_dialogf_opt game with
               Some dialogf ->
-                let female = if (i < Array.length game.Load.dialog) then
+                let female = if (i < Array.length (Load.get_active_dialog game)) then
                   dialogf.(i)
                 else
                   snd (Tlk.lse_to_tlk_string (Hashtbl.find Dc.strings_added_ht i))
@@ -2103,12 +2103,10 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 in
 
                 let male = Dc.pretty_print_no_quote
-                    game.Load.dialog
+                    (Load.get_active_dialog game)
                     index false false in
                 let female = Dc.pretty_print_no_quote
-                    (match game.Load.dialogf with
-                      Some dialogf -> dialogf
-                    | None -> game.Load.dialog)
+                    (Load.get_active_dialogf_fallback game)
                     index true false in
                 let lse = Dlg.Local_String(
                   {lse_male = (isolate_title male);

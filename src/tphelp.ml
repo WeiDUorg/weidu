@@ -289,7 +289,31 @@ let init_default_strings () =
   add (-1039) "[A]sk about each component, [R]einstall the current \
   configuration, [U]ninstall all, [S]kip all, or choose a \
   pre-defined selection:";
+
+  add (-1040) "\nThis game is available in multiple languages. \
+  WeiDU will install mods to a single of those languages. Which \
+      language do you wish to install to? Your choice will be \
+  saved and reused in the future.\n" ;
+  add (-1041) "Czech" ;
+  add (-1042) "German" ;
+  add (-1043) "English" ;
+  add (-1044) "Spanish" ;
+  add (-1045) "French" ;
+  add (-1046) "Italian" ;
+  add (-1047) "Polish" ;
+  add (-1048) "Portuguese" ;
+  add (-1049) "Turkish" ;
+  (* might be a good idea to leave a few numbers here,
+   * in case there are additional translations made *)
+
+  add (-1060) "WeiDU does not know which language to uninstall this mod from. \
+  Choose one. This choice will be used until WeiDU exits but will not be \
+  remebered.\n" ;
   ()
+
+let get_trans i =
+  Dc.single_string_of_tlk_string (Load.the_game ())
+    (Dlg.Trans_String (Dlg.Int i))
 
 let body_of_script buff =
   if buff = "" then "" else
@@ -433,3 +457,31 @@ let check_enhanced_engine allow_tobhacks allow_tobex allow_gemrb =
       Hashtbl.add checks_passed (allow_tobhacks, allow_tobex, allow_gemrb) true;
     ans
   end
+
+let ask_about_lang_dir ask_text =
+  let languages = Load.bgee_language_options (Load.the_game ()) in
+  let pretty_ht = Hashtbl.create (Array.length languages) in
+  ignore (List.iter (fun (dirname, pretty) ->
+    Hashtbl.add pretty_ht dirname pretty)
+            [("cs_cz", (get_trans (-1041))); ("de_de", (get_trans (-1042)));
+             ("en_us", (get_trans (-1043))); ("es_es", (get_trans (-1044)));
+             ("fr_fr", (get_trans (-1045))); ("it_it", (get_trans (-1046)));
+             ("pl_pl", (get_trans (-1047))); ("pt_br", (get_trans (-1048)));
+             ("tr_tr", (get_trans (-1049)));]) ;
+  let prettify dir =
+    if Hashtbl.mem pretty_ht dir then
+      Hashtbl.find pretty_ht dir
+    else dir in
+  let answer = ref None in
+  while !answer = None do
+    log_and_print "%s" ask_text ;
+    Array.iteri (fun i dir ->
+      log_and_print "%2d [%s]\n" i dir) (Array.map prettify languages) ;
+    try
+      let i = read_int () in
+      if i >= 0 && i < Array.length languages then begin
+        answer := Some (Array.get languages i) ;
+      end
+    with _ -> ()
+  done ;
+  value_of_option !answer

@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
+
 (* automatically make a TP2 file section for all files in the given
  * directory *)
 open BatteriesInit
@@ -7,9 +10,9 @@ let process file game min o =
   let consider buff off off_name =
     let i = int_of_str_off buff off in 
     if (i > min) && (i > 0) && 
-      (i <= Array.length game.Load.dialog) then begin
-	let male = Tlk.pretty_print game.Load.dialog i in
-	let female = Tlk.pretty_print_opt game.Load.dialogf i in
+      (i <= Array.length (Load.get_active_dialog game)) then begin
+	let male = Tlk.pretty_print (Load.get_active_dialog game) i in
+	let female = Tlk.pretty_print_opt (Load.get_active_dialogf_opt game) i in
 	o (Printf.sprintf "  SAY %s %s %s\n" 
              off_name  male female)
       end

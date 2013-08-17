@@ -1,3 +1,5 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 232. *)
 
 open BatteriesInit
 
@@ -34,7 +36,7 @@ let main () =
       let we = Str.string_before we (String.rindex we '.') in
       we ^ s ^ ".exe"
     with _ -> we in
-    Buffer.add_string buff (Printf.sprintf "%s --tlkout dialog.tlk --ftlkout dialogf.tlk --log %s "
+    Buffer.add_string buff (Printf.sprintf "%s --log %s "
                               weidu_executable debug_where);
     let x = Sys.argv.(1) in
     Buffer.add_string buff (Printf.sprintf " %s.tp2 setup-%s.tp2 %s/%s.tp2 %s/setup-%s.tp2 "

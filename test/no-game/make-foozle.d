@@ -1,4 +1,4 @@
-// weidu --nogame make-foozle.d --tlkout dialog.tlk
+// weidu --nogame make-foozle.d
 // weidu --nogame FOOZLE.DLG dialog.tlk 
 // cat FOOZLE.D 
 

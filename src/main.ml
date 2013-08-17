@@ -83,6 +83,12 @@ type output_info = {
     end;
 ;;
 
+let if_bgee_check_lang_or_fail game =
+  if Load.enhanced_edition_p game && not !Load.have_bgee_lang_dir_p then
+    failwith "ERROR: this is a multi-language game, \
+      but you have not set which language to use. \
+  Specify --use-lang at least once."
+
 let force_script_style game forced_script_style exe_name =
   game.Load.script_style <- forced_script_style ;
   let s = match game.Load.script_style with
@@ -96,6 +102,7 @@ let force_script_style game forced_script_style exe_name =
 ;;
 
 let forceify_file forceify game =
+  if_bgee_check_lang_or_fail game ;
   (match forceify with
     Some(file) -> begin
       try
@@ -128,8 +135,8 @@ let forceify_file forceify game =
         let replace lse str =
           let my_regexp = Str.regexp (Str.quote str) in
           try
-            let num = Tlk.find_string_fast lse game.Load.dialog
-                game.Load.dialogf game.Load.dialog_search
+            let num = Tlk.find_string_fast lse (Load.get_active_dialog game)
+                (Load.get_active_dialogf_opt game) game.Load.dialog_search
             in
             let replace_with = Printf.sprintf "!%d %s" num str in
             buf := Str.global_replace my_regexp replace_with !buf ;
@@ -162,6 +169,7 @@ let forceify_file forceify game =
 ;;
 
 let make_tlk_from_file game make_tlk =
+  if_bgee_check_lang_or_fail game ;
   begin
   let results : (int * local_string_entry) list =
     List.fold_left (fun acc filename ->
@@ -188,16 +196,17 @@ let make_tlk_from_file game make_tlk =
   List.iter (fun (i,lse) ->
     let male, female = Tlk.lse_to_tlk_string lse in
     new_tlk.(i) <- male) results ;
-
-  game.Load.dialog_mod <- true ;
-  game.Load.dialog <- new_tlk ;
+  let d_pair = Load.get_active_dialogs game in
+  d_pair.Load.dialog_mod <- true ;
+  d_pair.Load.dialog.Load.contents <- new_tlk ;
   end ;
 ;;
 
 let extract_tlk_to_file game user_min user_max strfind_list traify_num =
+  if_bgee_check_lang_or_fail game ;
   begin
-    let tlk = game.Load.dialog in
-    let ftlk = game.Load.dialogf in
+    let tlk = (Load.get_active_dialog game) in
+    let ftlk = (Load.get_active_dialogf_opt game) in
     let my_min = match user_min with
       Some(i) -> i
     | None -> 0
@@ -281,6 +290,7 @@ let cmp_binary_file cmp_dest cmp_src game =
 ;;
 
 let cmp_d_file dcmp_dest dcmp_src game =
+  if_bgee_check_lang_or_fail game ;
   (match dcmp_dest with
     Some(d) ->
       let buff,s = match dcmp_src with
@@ -299,7 +309,7 @@ let cmp_d_file dcmp_dest dcmp_src game =
       let d_dlg = Dlg.load_dlg imp_base buff in
 
       let new_buffer = Buffer.create (1024 * 32) in
-      Dlg.dlg_compare new_buffer s_dlg d_dlg game.Load.dialog game.Load.dialogf reprint_d_action ;
+      Dlg.dlg_compare new_buffer s_dlg d_dlg (Load.get_active_dialog game) (Load.get_active_dialogf_opt game) reprint_d_action ;
       print_theout "<<<<<<<< .../%s\n" s;
       output_buffer_theout new_buffer;
       print_theout ">>>>>>>>\nCOMPILE ~.../%s~\n" s;
@@ -378,12 +388,12 @@ let cmp_bcs_file bcmp_dest bcmp_src game =
   | _ -> ()) ;
 ;;
 
-let rcmp_file rcmp_src rcmp_dest =
+let rcmp_file game rcmp_src rcmp_dest =
   (match rcmp_src, rcmp_dest with
   | Some (s), Some(d) ->
       let load file =
         let a,b = split (Filename.basename file) in
-        let buff = try load_file file with e -> fst (Load.load_resource "--rcmp" (Load.the_game()) true a b) in
+        let buff = try load_file file with e -> fst (Load.load_resource "--rcmp" game true a b) in
         match String.uppercase b with
         | "DLG" -> buff
         | "BCS"
@@ -533,8 +543,8 @@ let cmp_tra_file tcmp_src tcmp_dest game =
 ;;
 
 let display_string i game =
-  let male = Tlk.pretty_print game.Load.dialog i in
-  let female = Tlk.pretty_print_opt game.Load.dialogf i in
+  let male = Tlk.pretty_print (Load.get_active_dialog game) i in
+  let female = Tlk.pretty_print_opt (Load.get_active_dialogf_opt game) i in
   if (female = "" || male = female) then
     log_and_print "String #%d is %s\n" i male
   else
@@ -542,6 +552,7 @@ let display_string i game =
 ;;
 
 let display_string_by_number ds_list user_min user_max game =
+  if_bgee_check_lang_or_fail game ;
   begin
     let my_min = match user_min with
       Some(i) -> i
@@ -549,7 +560,7 @@ let display_string_by_number ds_list user_min user_max game =
     in
     let my_max = match user_max with
       Some(i) -> i
-    | None -> (Array.length game.Load.dialog) - 1
+    | None -> (Array.length (Load.get_active_dialog game)) - 1
     in
     for i = my_min to my_max do
       display_string i game
@@ -558,6 +569,7 @@ let display_string_by_number ds_list user_min user_max game =
 ;;
 
 let display_string_by_content strfind_list game =
+  if_bgee_check_lang_or_fail game ;
   begin
     let reg_list = List.map Str.regexp_case_fold strfind_list in
     Array.iteri (fun i s ->
@@ -569,7 +581,7 @@ let display_string_by_content strfind_list game =
         with _ -> false) false reg_list
       in
       if matches_one then
-        log_and_print "String #%d is %s\n" i (Tlk.pretty_print game.Load.dialog i)) game.Load.dialog
+        log_and_print "String #%d is %s\n" i (Tlk.pretty_print (Load.get_active_dialog game) i)) (Load.get_active_dialog game)
   end ;
 ;;
 
@@ -689,6 +701,7 @@ let remove_biff_from_key remove_biff game =
 ;;
 
 let append_strings strapp_list game =
+  if_bgee_check_lang_or_fail game ;
   let lse_strapp_list = List.map (fun s ->
     Dlg.Local_String( { lse_male = s; lse_female = s;
                         lse_male_sound = "" ; lse_female_sound = ""; })) strapp_list in
@@ -699,6 +712,7 @@ let append_strings strapp_list game =
 ;;
 
 let decompile_dlg dlg_list transitive two_pass use_trans d_headers d_toplevel game =
+  if_bgee_check_lang_or_fail game ;
   let loaded_dlgs = List.map (fun (b,e) ->
     try
       let buff, final_path = Load.load_resource "DLG decompile command" game true b e in
@@ -738,11 +752,16 @@ let decompile_dlg dlg_list transitive two_pass use_trans d_headers d_toplevel ga
           Printf.fprintf out_chan "// argument : %s.%s\n" b e ;
           Printf.fprintf out_chan "// game     : %s\n" game.Load.game_path;
           Printf.fprintf out_chan "// source   : %s\n" final_path ;
-          Printf.fprintf out_chan "// dialog   : %s\n" game.Load.dialog_path ;
-          Printf.fprintf out_chan "// dialogF  : %s\n\n" game.Load.dialogf_path ;
+          Printf.fprintf out_chan "// dialog   : %s\n" (Load.get_active_dialogs game).Load.dialog.Load.path ;
+          Printf.fprintf out_chan "// dialogF  : %s\n\n"
+            (match (Load.get_active_dialogs game).Load.dialogf with
+            | None -> "(none)"
+            | Some tlk -> tlk.Load.path) ;
         end ;
         let new_buff = Buffer.create (1024 * 32) in
-        Dlg.emit_d dlg out_name game.Load.dialog game.Load.dialogf new_buff out_trans_chan None reprint_d_action transitive d_toplevel;
+        Dlg.emit_d dlg out_name (Load.get_active_dialog game)
+          (Load.get_active_dialogf_opt game) new_buff out_trans_chan None
+          reprint_d_action transitive d_toplevel;
         Buffer.output_buffer out_chan new_buff ;
         if not theout.append then close_out out_chan ;
       with e ->
@@ -769,7 +788,8 @@ let make_trb_file trbify =
   | _ -> ()) ;
 ;;
 
-let untraify untraify_d untraify_tra =
+let untraify game untraify_d untraify_tra =
+  if_bgee_check_lang_or_fail game ;
   ( match (untraify_d,untraify_tra) with
   | (Some(d),Some(tra)) ->
       let result = parse_file true (File tra) "parsing .tra files" (Dparser.tra_file Dlexer.initial) in
@@ -807,7 +827,8 @@ let untraify untraify_d untraify_tra =
   | _ -> ()) ;
 ;;
 
-let traify_file traify traify_num traify_comment traify_old_tra =
+let traify_file game traify traify_num traify_comment traify_old_tra =
+  if_bgee_check_lang_or_fail game ;
   (match traify with
   | Some(file) -> begin
       try
@@ -998,6 +1019,7 @@ let traify_file traify traify_num traify_comment traify_old_tra =
   | None -> ())
 
 let compile_baf baf_list game =
+  if_bgee_check_lang_or_fail game ;
   List.iter (fun str ->
     try
       let script = handle_baf_filename str in
@@ -1010,22 +1032,26 @@ let compile_baf baf_list game =
         ) baf_list ;
 ;;
 
-let test_output_tlk tlk pause_at_end =
-  (match tlk with
-    Some(path) when file_exists path -> begin
-      try Unix.access path [Unix.W_OK] ;
-        log_or_print "[%s] claims to be writeable.\n" path ;
-        if (Case_ins.unix_stat path).Unix.st_kind <> Unix.S_REG then
-          failwith (path ^ " is a not a regular file") ;
-        log_or_print "[%s] claims to be a regular file.\n" path ;
-        ()
-      with e ->
-        log_and_print "\nERROR: The file [%s] cannot be written to. Perhaps it is in use by another process (close ShadowKeeper, all Infinity Engine games and editors, etc.). It may also be naturally read-only: use Windows Explorer and right-click on the file to pull up its properties. Make sure that the \"read-only\" box is NOT checked. Please fix this problem and try again.\n" path ;
-        pause_at_end := true ;
-        raise e
+let test_output_tlk game pause_at_end =
+  let test path =
+    (match path with
+    | Some path when (file_exists path) -> begin
+        (try Unix.access path [Unix.W_OK] ;
+          log_or_print "[%s] claims to be writeable.\n" path ;
+          if (Case_ins.unix_stat path).Unix.st_kind <> Unix.S_REG then
+            failwith (path ^ " is a not a regular file") ;
+          log_or_print "[%s] claims to be a regular file.\n" path ;
+          ()
+        with e ->
+          log_and_print "\nERROR: The file [%s] cannot be written to. Perhaps it is in use by another process (close ShadowKeeper, all Infinity Engine games and editors, etc.). It may also be naturally read-only: use Windows Explorer and right-click on the file to pull up its properties. Make sure that the \"read-only\" box is NOT checked. Please fix this problem and try again.\n" path ;
+          pause_at_end := true ;
+          raise e)
     end
-  | _ -> ()) ;
-;;
+    | _ -> ()) in
+  List.iter test (Array.fold_left (fun acc tlk_pair ->
+    List.append acc [Some (tlk_pair.Load.dialog.Load.path); (match tlk_pair.Load.dialogf with
+    | None -> None
+    | Some df -> Some (df.Load.path))]) [] game.Load.dialogs)
 
 let do_tp2_files tp_list force_install_these_main force_uninstall_these_main pause_at_end game =
   pause_at_end := true ;
@@ -1231,7 +1257,7 @@ let list_effs list_eff_list game =
       let eff_name = Eff_table.name_of_opcode op in
       if op = 139 then begin (* display string *)
         print_theout "\t%s %s #%d\n" eff_name
-          (Tlk.pretty_print game.Load.dialog eff.Load.arg1)
+          (Tlk.pretty_print (Load.get_active_dialog game) eff.Load.arg1)
           eff.Load.arg1
       end else if op = 101 then begin
         print_theout "\t%s (%s)\n" eff_name
@@ -1244,6 +1270,7 @@ let list_effs list_eff_list game =
 ;;
 
 let decompile_bcs bcs_list game =
+  if_bgee_check_lang_or_fail game ;
   List.iter (fun str ->
     let b,e = split str in
     try
@@ -1269,19 +1296,21 @@ let decompile_bcs bcs_list game =
 ;;
 
 let merge_tlk tlk_merge game =
+  if_bgee_check_lang_or_fail game ;
   List.iter (fun str ->
     let name,ext = split (String.uppercase str) in
     let tlk = Tlk.load_tlk str in
+    let dialog = Load.get_active_dialog game in
     let max =
-      if Array.length tlk > Array.length game.Load.dialog then
-        Array.length game.Load.dialog
+      if Array.length tlk > Array.length dialog then
+        Array.length dialog
       else
         Array.length tlk
     in
     for i = 0 to max - 1 do
-      game.Load.dialog.(i) <- tlk.(i)
+      dialog.(i) <- tlk.(i)
     done ;
-    game.Load.dialog_mod <- true
+    (Load.get_active_dialogs game).Load.dialog_mod <- true
         ) tlk_merge ;
 ;;
 
@@ -1404,16 +1433,12 @@ let main () =
 
   let no_auto_tp2 = ref false in
 
+  let ee_use_lang = ref None in
+
   let argv0_base, argv0_ext = split (String.uppercase (Case_ins.filename_basename Sys.argv.(0))) in
 
-  let auto () = begin
+  let auto game = begin
     pause_at_end := true ;
-    if not !no_game then begin
-      output_dialog := Some("dialog.tlk") ;
-      output_dialogf := Some("dialogf.tlk") ;
-      Load.set_dialog_tlk_path "dialog.tlk" ;
-      Load.set_dialogf_tlk_path "dialogf.tlk" ;
-    end;
     if is_directory "debugs" then
       init_log Version.version ("debugs/" ^ argv0_base ^ ".DEBUG")
     else
@@ -1468,6 +1493,7 @@ let main () =
     "--search-ids", Myarg.String Load.add_ids_path, "X\tlook in X for input IDS files (cumulative)" ;
     "--tlkin", Myarg.String Load.set_dialog_tlk_path,"X\tuse X as DIALOG.TLK" ;
     "--ftlkin", Myarg.String Load.set_dialogf_tlk_path,"X\tuse X as DIALOGF.TLK";
+    "--use-lang", Myarg.String (fun s -> ee_use_lang := Some s), "X\ton games with multiple languages, use files in lang/X/";
     "--tlkmerge", Myarg.String (fun s -> tlk_merge := !tlk_merge @ [s]),
     "X\tmerge X into loaded DIALOG.TLK" ;
     "--yes", Myarg.Set Tp.always_yes,"\tanswer all TP2 questions with 'Yes'";
@@ -1687,12 +1713,49 @@ let main () =
     exit return_value_success ;
   end ;
 
+  let game =
+    if !no_game then
+      Load.load_null_game ()
+    else
+      Load.load_game ()
+  in
+
+  Load.saved_game := Some(game) ;
+
+  if (!forced_script_style <> Load.NONE) then
+    force_script_style game !forced_script_style Sys.argv.(0);
+
+  if Load.enhanced_edition_p game then begin
+    (match !ee_use_lang with
+    | None -> Load.set_bgee_lang_dir game
+              (attempt_to_load_bgee_lang_dir game.Load.game_path)
+    | Some s -> Load.set_bgee_lang_dir game (Some s) ;
+        write_bgee_lang_dir game.Load.game_path s) ;
+  end
+  else begin
+    ignore (Load.actually_load_tlk_pair game (Load.get_active_dialogs game)) ;
+  end ;
+
+  ignore (Load.deal_with_tlkin game) ;
+
+  Dc.cur_index := Array.length (Load.get_active_dialog game) ;
+
+  if not !no_game then begin
+    if !output_dialog = None then begin
+      output_dialog := Some (Load.get_active_dialogs game).Load.dialog.Load.path ;
+    end ;
+    if !output_dialogf = None then
+      output_dialogf := (match (Load.get_active_dialogs game).Load.dialogf with
+      | None -> None
+      | Some tlk -> Some tlk.Load.path) ;
+  end ;
+
   (* see if SETUP is in our base name *)
   let setup_regexp = Str.regexp_case_fold "setup" in
   if not !no_auto_tp2 then begin
     try
       let _ = Str.search_forward setup_regexp argv0_base 0 in
-      auto () ;
+      auto game ;
     with _ ->
       if Array.length Sys.argv <= 1 then begin
         Myarg.usage argDescr usageMsg ;
@@ -1703,18 +1766,6 @@ let main () =
         else exit ( Sys.command (Sys.executable_name ^ " " ^ mystr))
       end ;
   end ;
-  let game =
-    if !no_game then
-      Load.load_null_game ()
-    else
-      Load.load_game ()
-  in
-
-  if (!forced_script_style <> Load.NONE) then
-    force_script_style game !forced_script_style Sys.argv.(0);
-
-  Dc.cur_index := Array.length game.Load.dialog ;
-  Load.saved_game := Some(game) ;
 
   let automate_min = lazy(match !automate_min with
   | Some x -> x
@@ -1727,11 +1778,13 @@ let main () =
   end)
   in
   if !automate_list <> [] then begin
+    if_bgee_check_lang_or_fail game ;
     Automate.automate game !automate_list (Lazy.force automate_min) (output_string (Lazy.force theout.chan)) ;
   end;
 
   (match !automate_file with
-  | Some(x) -> Automate.automate_file game x (Lazy.force automate_min) (output_string (Lazy.force theout.chan));
+  | Some(x) -> if_bgee_check_lang_or_fail game ;
+      Automate.automate_file game x (Lazy.force automate_min) (output_string (Lazy.force theout.chan));
   | None -> ());
 
 
@@ -1770,7 +1823,7 @@ let main () =
 
 
   if !rcmp_src <> None && !rcmp_dest <> None then
-    rcmp_file !rcmp_src !rcmp_dest ;
+    rcmp_file game !rcmp_src !rcmp_dest ;
 
 
   (* For debugging patch/diff: *)
@@ -1887,11 +1940,11 @@ let main () =
 
 
   if !untraify_d <> None && !untraify_tra <> None then
-    untraify !untraify_d !untraify_tra ;
+    untraify game !untraify_d !untraify_tra ;
 
 
   if !traify <> None then
-    traify_file !traify traify_num !traify_comment !traify_old_tra ; (* traify_num is intentionally not dereferenced *)
+    traify_file game !traify traify_num !traify_comment !traify_old_tra ; (* traify_num is intentionally not dereferenced *)
 
 
   if !baf_list <> [] then
@@ -1906,9 +1959,8 @@ let main () =
   emit_dlg_files game theout.dir ;
 
 
-  (* Check that we can write to the given TLK file *)
-  if !output_dialog <> None then
-    test_output_tlk !output_dialog pause_at_end ; (* pause_at_end is intentionllay not derefenenced *)
+  (* Check that we can write to the given TLK file(s) *)
+  test_output_tlk game pause_at_end ; (* pause_at_end is intentionllay not derefenenced *)
 
 
   if !tp_list <> [] then begin
@@ -1942,12 +1994,8 @@ let main () =
 
   (* make sure we add all those strings! *)
   if not (Queue.is_empty !Dc.strings_to_add) then begin
-    if (!output_dialog = None && !output_dialogf = None) then begin
-      log_or_print "You did not specify '--tlkout dialog.tlk', so %d strings were not saved.\n" (Queue.length !Dc.strings_to_add);
-    end else begin
-      let dc_lse_strapp_list = !Dc.strings_to_add in
-      Load.append_strings game dc_lse_strapp_list
-    end
+    let dc_lse_strapp_list = !Dc.strings_to_add in
+    Load.append_strings game dc_lse_strapp_list
   end ;
 
   if not (game.Load.str_sets = []) then begin
@@ -1959,19 +2007,20 @@ let main () =
     merge_tlk !tlk_merge game ;
 
 
-  (* Emit DIALOG.TLK *)
-  (match !output_dialog, game.Load.dialog_mod with
-    Some(path), true ->
-      let outchan = open_for_writing path true in
-      Tlk.save_tlk path game.Load.dialog outchan
-  | _, _ -> ()) ;
+  (* Emit all changed dialogs *)
+  let save_tlk path contents =
+    let outchan = open_for_writing path true in
+    Tlk.save_tlk path contents outchan in
+  Array.iter (fun tlk_pair ->
+    if tlk_pair.Load.dialog_mod then begin
+      save_tlk tlk_pair.Load.dialog.Load.path tlk_pair.Load.dialog.Load.contents
+    end ;
+    if tlk_pair.Load.dialogf_mod then begin
+      (match tlk_pair.Load.dialogf with
+      | None -> ()
+      | Some df -> save_tlk df.Load.path df.Load.contents)
+    end) game.Load.dialogs ;
 
-  (* Emit DIALOGF.TLK *)
-  (match !output_dialogf, game.Load.dialogf, game.Load.dialogf_mod with
-    Some(path),Some(t),true ->
-      let outchan = open_for_writing path true in
-      Tlk.save_tlk path t outchan
-  | _, _, _ -> () ) ;
 
   Hashtbl.iter (fun a x -> Unix.close x.Biff.fd) game.Load.loaded_biffs;
   Queue.iter my_unlink Load.cbifs_to_rem;
