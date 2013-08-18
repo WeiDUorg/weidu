@@ -127,12 +127,24 @@ let get_active_dialogs g =
 
 let get_dialogs_by_path game dpath dfpath =
   let tlk_pair : tlk_pair option = Array.fold_left (fun acc tlk_pair ->
-    if tlk_pair.dialog.path = dpath then
+    let path_sep_regexp = (Str.regexp "[\\\\/]+") in
+    let dpath_regexp = (Str.regexp_case_fold
+                          (Str.global_replace path_sep_regexp
+                             "[\\\\/]+" dpath)) in
+    if Str.string_match dpath_regexp tlk_pair.dialog.path 0 then
       (match tlk_pair.dialogf with
       | None when dfpath = None ->
           Some tlk_pair
-      | Some df when Some df.path = dfpath ->
-          Some tlk_pair
+      | Some df ->
+          (match dfpath with
+          | None -> acc
+          | Some path ->
+              let dfpath_regexp = (Str.regexp_case_fold
+                                     (Str.global_replace path_sep_regexp
+                                        "[\\\\/]+" path)) in
+              if Str.string_match dfpath_regexp df.path 0 then
+                Some tlk_pair
+              else acc)
       | _ -> acc)
     else acc) None game.dialogs in
   tlk_pair
