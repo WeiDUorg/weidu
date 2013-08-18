@@ -99,15 +99,28 @@ let the_game () = match !saved_game with
 let get_active_dialog g =
   (Array.get g.dialogs g.dialog_index).dialog.contents
 
+let get_active_dialog_path g =
+  (Array.get g.dialogs g.dialog_index).dialog.path
+
 let get_active_dialogf_fallback g =
   (match (Array.get g.dialogs g.dialog_index).dialogf with
   | Some(tlk) -> tlk.contents
   | None -> get_active_dialog g)
 
+let get_active_dialogf_path_fallback g =
+  (match (Array.get g.dialogs g.dialog_index).dialogf with
+  | Some tlk -> tlk.path
+  | None -> get_active_dialog_path g)
+
 let get_active_dialogf_opt g =
   match (Array.get g.dialogs g.dialog_index).dialogf with
   | Some tlk -> Some (tlk.contents)
   | None -> None
+
+let get_active_dialogf_path_opt g =
+  (match (Array.get g.dialogs g.dialog_index).dialogf with
+  | Some tlk -> Some tlk.path
+  | None -> None)
 
 let get_active_dialogs g =
   (Array.get g.dialogs g.dialog_index)

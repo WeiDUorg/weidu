@@ -1740,6 +1740,7 @@ let main () =
 
   Dc.cur_index := Array.length (Load.get_active_dialog game) ;
 
+(*
   if not !no_game then begin
     if !output_dialog = None then begin
       output_dialog := Some (Load.get_active_dialogs game).Load.dialog.Load.path ;
@@ -1749,6 +1750,7 @@ let main () =
       | None -> None
       | Some tlk -> Some tlk.Load.path) ;
   end ;
+*)
 
   (* see if SETUP is in our base name *)
   let setup_regexp = Str.regexp_case_fold "setup" in
@@ -2011,16 +2013,33 @@ let main () =
   let save_tlk path contents =
     let outchan = open_for_writing path true in
     Tlk.save_tlk path contents outchan in
-  Array.iter (fun tlk_pair ->
-    if tlk_pair.Load.dialog_mod then begin
-      save_tlk tlk_pair.Load.dialog.Load.path tlk_pair.Load.dialog.Load.contents
-    end ;
-    if tlk_pair.Load.dialogf_mod then begin
-      (match tlk_pair.Load.dialogf with
-      | None -> ()
-      | Some df -> save_tlk df.Load.path df.Load.contents)
+  (* Emit all but the acitve dialogs *)
+  Array.iteri (fun index tlk_pair ->
+    if not (index = game.Load.dialog_index) then begin
+      if tlk_pair.Load.dialog_mod then begin
+        save_tlk tlk_pair.Load.dialog.Load.path
+          tlk_pair.Load.dialog.Load.contents
+      end ;
+      if tlk_pair.Load.dialogf_mod then begin
+        (match tlk_pair.Load.dialogf with
+        | None -> ()
+        | Some df -> save_tlk df.Load.path df.Load.contents)
+      end
     end) game.Load.dialogs ;
-
+  (* Emit the active dialogs to their original paths or to --tlkout *)
+  let tlk_pair = Load.get_active_dialogs game in
+  if tlk_pair.Load.dialog_mod then begin
+    (match !output_dialog with
+    | None -> save_tlk tlk_pair.Load.dialog.Load.path
+          tlk_pair.Load.dialog.Load.contents
+    | Some dpath -> save_tlk dpath tlk_pair.Load.dialog.Load.contents) ;
+  end ;
+  if tlk_pair.Load.dialogf_mod then begin
+    (match !output_dialogf, tlk_pair.Load.dialogf with
+    | None, Some df -> save_tlk df.Load.path df.Load.contents
+    | Some dfpath, Some df -> save_tlk dfpath df.Load.contents
+    | _, _ -> ()) ;
+  end ;
 
   Hashtbl.iter (fun a x -> Unix.close x.Biff.fd) game.Load.loaded_biffs;
   Queue.iter my_unlink Load.cbifs_to_rem;
