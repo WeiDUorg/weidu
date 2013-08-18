@@ -476,8 +476,10 @@ let set_additional_bgee_load_paths game dir =
   game.cd_path_list <- (List.append game.cd_path_list more)
 
 let use_bgee_lang_dir game dir =
+  let str1 = Str.quote "lang" in
+  let str2 = Str.quote dir in
   let regexp = (Str.regexp_case_fold
-                  (Str.quote (Arch.slash_to_backslash ("lang/" ^ dir)))) in
+                  (str1 ^ "[\\\\/]+" ^ dir)) in
   let foundp = ref false in
   ignore (set_additional_bgee_load_paths game dir) ;
   ignore (Array.iteri (fun index tlk_pair ->
@@ -501,9 +503,9 @@ let set_bgee_lang_dir game dir =
 
 let bgee_language_options game =
   let options = Array.map (fun tlk_pair ->
-    let str1 = (Str.quote (Arch.slash_to_backslash "lang/")) in
-    let str2 = (Str.quote (Arch.slash_to_backslash "/dialog.tlk")) in
-    let regexp = (Str.regexp_case_fold (str1 ^ "\\([a-z_]+\\)" ^ str2)) in
+    let str1 = (Str.quote "lang") in
+    let str2 = (Str.quote "dialog.tlk") in
+    let regexp = (Str.regexp_case_fold (str1 ^ "[\\\\/]+" ^ "\\([a-z_]+\\)" ^ "[\\\\/]+" ^ str2)) in
     if Str.string_match regexp tlk_pair.dialog.path 0 then
       Str.matched_group 1 tlk_pair.dialog.path
     else begin
