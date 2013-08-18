@@ -56,6 +56,18 @@ Version 232:
   * DECOMPRESS_BIFF is documented but works differently from before (old way
     should still work but is deprecated). It also won't destroy BIFFV1 files.
   * Fix a bug in PRETTY_PRINT_2DA.
+  * New underlying system for handling TLKs.
+    * BGEE compatibility.
+    * --tlkout is no longer a necessary or implied argument.
+    * New command line option: --use-lang; use for setting which lang dir
+      to use on BGEE games.
+    * For complicated reasons, WeiDU can no longer uninstall STRING_SETs from
+      TLKs other than the standard ones (so don't use --tlkout on strange TLKs).
+    * For similarly complicated reasons, WeiDU can no longer uninstall
+      STRING_SETs from dialogf.tlk that does not form a pair with dialog.tlk
+      (so don't use --ftlkout on strange TLKs).
+  * On BGEE, biffs in lang/ are loaded.
+
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
