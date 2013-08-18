@@ -4,7 +4,7 @@ open Util
 open Load
 
 (* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
-   starting from 18 December 2012 and WeiDU 232. *)
+   starting from 18 December 2012 and WeiDU 231.06. *)
 
 (* Note added due to LGPL terms.
 

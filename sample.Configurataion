@@ -1,7 +1,7 @@
 # -*- mode: makefile-mode -*-
 
 # This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
-# starting from 18 December 2012 and WeiDU 232.
+# starting from 18 December 2012 and WeiDU 231.06.
 
 # Autodetection:
 # We try to auto-detect X86/Windows/Cygwin, X86/Linux and OSX10.4.

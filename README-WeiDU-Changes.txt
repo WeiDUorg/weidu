@@ -19,6 +19,7 @@ Version 232:
   * If a directory named debugs exists, put debug files there, not in ./.
   * Do not fail if reading a bif file > 16 MB that puts the file entries after
     the file contents (instead of before). Thanks Blaze for coding this.
+  * Wisp starts meddling.
   * GAME_IS and ENGINE_IS recognise BGEE.
   * Handle BGEE's new file types.
   * Updated the standard library of macros and functions to account for BGEE.
