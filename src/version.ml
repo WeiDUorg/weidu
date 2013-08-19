@@ -1,5 +1,5 @@
 (* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
-   starting from 18 December 2012 and WeiDU 232. *)
+   starting from 18 December 2012 and WeiDU 231.06. *)
 
 (* Note added due to LGPL terms.
 
@@ -10,7 +10,7 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 open BatteriesInit
-let version = "23110"
+let version = "23111"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
