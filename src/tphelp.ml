@@ -290,10 +290,14 @@ let init_default_strings () =
   configuration, [U]ninstall all, [S]kip all, or choose a \
   pre-defined selection:";
 
-  add (-1040) "\nThis game is available in multiple languages. \
-  WeiDU will install mods to a single of those languages. Which \
-      language do you wish to install to? Your choice will be \
-  saved and reused in the future.\n" ;
+  add (-1040) "\nThis game is available in multiple languages. WeiDU will \
+  install mods to a single of those languages. Mods will be available for \
+  that language and that language alone. If you switch to another \
+  language, you need to reinstall your mods.\n\nChoose which language \
+  you wish to install this mod to. Your choice will be saved and \
+  reused in the future. This choice is saved to the file weidu.conf, \
+  located among your other user files.\n" ;
+
   add (-1041) "Czech" ;
   add (-1042) "German" ;
   add (-1043) "English" ;
@@ -306,9 +310,11 @@ let init_default_strings () =
   (* might be a good idea to leave a few numbers here,
    * in case there are additional translations made *)
 
-  add (-1060) "WeiDU does not know which language to uninstall this mod from. \
-  Choose one. This choice will be used until WeiDU exits but will not be \
-  remebered.\n" ;
+  add (-1060) "\nThis game is available in multiple languages, but \
+  WeiDU does not know which language to uninstall this mod from.\n\n\
+  Choose which language this mod should be uninstalled from. This \
+  should be the same as the language you installed the mod to. Your \
+  choice will be used until WeiDU exits but will not be remembered.\n" ;
   ()
 
 let get_trans i =
