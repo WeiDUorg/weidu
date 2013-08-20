@@ -8,7 +8,6 @@ Version 232:
   * In LAUNCH_*_FUNCTION, RET num is shorthand for RET num = num.
   * Fixes to this and that in the macros.
   * REPLACE_ACTION_TEXT evaluates variables.
-  * REPLACE_ACTION_TEXT warns if you're using invalid actions.
   * REPLACE_TRIGGER_TEXT evaluates IF and UNLESS also in state triggers, not
     only in trans triggers.
   * Can properly backup COPY actions on files that contains spaces in their

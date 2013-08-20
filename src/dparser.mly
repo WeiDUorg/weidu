@@ -356,7 +356,7 @@ interject_copy_trans_prologue :
     { current_unit := Some(String.uppercase $4); (String.uppercase $4,true,$5,$6,true,true,$2) }
     ;
 
-action : 
+  action : 
     begin_prologue state_list { let name,flags = $1 in Dc.Create(
     { Dlg.name = name ;
       Dlg.state = Array.of_list $2 ;
@@ -403,11 +403,11 @@ action :
 | REPLACE_TRANS_ACTION STRING BEGIN string_list END BEGIN int_list END STRING STRING when_list
     { current_unit := Some(String.uppercase $2);
       current_unit := None ; 
-      Dc.Replace_Trans_Action(String.uppercase $2,$4,$7,$9,verify_action_list $10,$11) }
+      Dc.Replace_Trans_Action(String.uppercase $2,$4,$7,$9,$10,$11) }
 | REPLACE_TRANS_TRIGGER STRING BEGIN string_list END BEGIN int_list END STRING STRING when_list
     { current_unit := Some(String.uppercase $2);
       current_unit := None ;
-      Dc.Replace_Trans_Trigger(String.uppercase $2,$4,$7,$9,verify_action_list $10,$11) }
+      Dc.Replace_Trans_Trigger(String.uppercase $2,$4,$7,$9,$10,$11) }
 | SET_WEIGHT STRING STRING STRING_REF
     { Dc.Set_Weight($2,$3,$4) }
 | chain3_prologue chain3_list compound_chain3_list chain3_epilogue
