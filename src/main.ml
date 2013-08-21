@@ -1416,6 +1416,7 @@ let main () =
 
   let output_dialog = ref None in
   let output_dialogf = ref None in
+  let test_output_tlk_p = ref false in
 
   let traify = ref None in
   let traify_old_tra = ref None in
@@ -1494,7 +1495,7 @@ let main () =
     "--tlkin", Myarg.String Load.set_dialog_tlk_path,"X\tuse X as DIALOG.TLK" ;
     "--ftlkin", Myarg.String Load.set_dialogf_tlk_path,"X\tuse X as DIALOGF.TLK";
     "--use-lang", Myarg.String (fun s -> ee_use_lang := Some s), "X\ton games with multiple languages, use files in lang/X/";
-    "--tlkmerge", Myarg.String (fun s -> tlk_merge := !tlk_merge @ [s]),
+    "--tlkmerge", Myarg.String (fun s -> tlk_merge := !tlk_merge @ [s]; test_output_tlk_p := true),
     "X\tmerge X into loaded DIALOG.TLK" ;
     "--yes", Myarg.Set Tp.always_yes,"\tanswer all TP2 questions with 'Yes'";
     "--uninstall", Myarg.Set Tp.always_uninstall,"\tanswer all TP2 questions with 'Uninstall'" ;
@@ -1513,7 +1514,7 @@ let main () =
     "--force-uninstall-list", Myarg.List (Myarg.Int (fun d -> force_uninstall_these_main := d :: !force_uninstall_these_main;
       Tp.specified_specific_components := true)), "\tX Y... uninstalls component number X, Y... (cumulative)" ;
     "--quick-menu", Myarg.Int (fun d -> Tp.chosen_quick_menu := Some d), "\tX installs the quick menu selection X";
-    "--process-script", Myarg.String (fun s -> process_script := s; Tp.skip_at_view := true; Tp.quick_log := true), "\tX process installation script X";
+    "--process-script", Myarg.String (fun s -> process_script := s; Tp.skip_at_view := true; Tp.quick_log := true; test_output_tlk_p := true), "\tX process installation script X";
     "--skip-at-view", Myarg.Set Tp.skip_at_view, "\tkills AT_* ~VIEW this~";
     "--quick-log", Myarg.Set Tp.quick_log, "\tDoesn't print the name of components in weidu.log (much faster)";
     "--safe-exit", Myarg.Set Tpstate.safe_exit, "\tPrints weidu.log after starting the installation of every component";
@@ -1558,8 +1559,8 @@ let main () =
     ^ "\n\nGeneral Output Options:\n" ;
 
     "--backup", Myarg.String (fun s -> backup_dir := Some(s)), "X\tbackup files to directory X before overwriting" ;
-    "--tlkout", Myarg.String (fun s -> output_dialog := Some(s)), "X\temit X as new DIALOG.TLK" ;
-    "--ftlkout", Myarg.String (fun s -> output_dialogf := Some(s)), "X\temit X as new DIALOGF.TLK\n\nD Options:\n" ;
+    "--tlkout", Myarg.String (fun s -> output_dialog := Some(s) ; test_output_tlk_p := true), "X\temit X as new DIALOG.TLK" ;
+    "--ftlkout", Myarg.String (fun s -> output_dialogf := Some(s) ; test_output_tlk_p := true), "X\temit X as new DIALOGF.TLK\n\nD Options:\n" ;
 
     "--transin", Myarg.String (fun s -> trans_list := !trans_list @ [s]), "X\tuse translation file X (cumulative)" ;
     "--testtrans", Myarg.Set test_trans, "\ttest all translations files" ;
@@ -1586,10 +1587,10 @@ let main () =
     "--trans", Myarg.Set use_trans, "\temit coupled .D and .TRA files\n\nTLK String Options:\n" ;
 
     "--traify-tlk", Myarg.Set extract_tlk, "\temit a .TRA file for the given .TLK file (see --out, --min, --traify#)" ;
-    "--make-tlk", Myarg.String (fun s -> make_tlk := s :: !make_tlk), "X\tmake a .TLK file from .TRA file X (cumulative, see --tlkout)" ;
+    "--make-tlk", Myarg.String (fun s -> make_tlk := s :: !make_tlk ; test_output_tlk_p := true), "X\tmake a .TLK file from .TRA file X (cumulative, see --tlkout)" ;
     "--string", Myarg.Int (fun i -> ds_list := i :: !ds_list), "X\tdisplay string reference #X (cumulative)" ;
     "--strfind", Myarg.String (fun s -> strfind_list := s :: !strfind_list), "X\tdisplay strings that contain X (cumulative, regexp allowed)" ;
-    "--strapp", Myarg.String (fun s -> strapp_list := s :: !strapp_list), "X\tappend string X to DIALOG.TLK (cumulative)\n\nBIFF Options:\n" ;
+    "--strapp", Myarg.String (fun s -> strapp_list := s :: !strapp_list ; test_output_tlk_p := true), "X\tappend string X to DIALOG.TLK (cumulative)\n\nBIFF Options:\n" ;
     "--exit", Myarg.Set exit_now, "\tprint version number and exit";
     "--no-exit-pause", Myarg.Set no_exit_pause, "\tDon't ask to press enter to exit";
     "--list-biffs", Myarg.Set list_biff, "\tenumerate all BIFF files in CHITIN.KEY" ;
@@ -1659,18 +1660,18 @@ let main () =
   let handleArg str = begin
     let base,ext = split (String.uppercase str) in
     match ext with
-    | "D" -> d_list := str :: !d_list
+    | "D" -> test_output_tlk_p := true ; d_list := str :: !d_list
     | "DLG" -> dlg_list := (base,ext) :: !dlg_list
-    | "TLK" -> Load.set_dialog_tlk_path str
+    | "TLK" -> test_output_tlk_p := true ; Load.set_dialog_tlk_path str
     | "TP"
-    | "TP2" -> tp_list := !tp_list @ [str]
+    | "TP2" -> test_output_tlk_p := true ; tp_list := !tp_list @ [str]
     | "TRA"
     | "TRB" -> trans_list := !trans_list @ [str]
     | "ITM"
     | "EFF"
     | "SPL" -> list_eff_list := !list_eff_list @ [str]
     | "BCS" | "BS" -> bcs_list := !bcs_list @ [str]
-    | "BAF" -> baf_list := !baf_list @ [str]
+    | "BAF" -> test_output_tlk_p := true ; baf_list := !baf_list @ [str]
     | "" ->
         begin
           let do_state state_num =
@@ -1767,7 +1768,8 @@ let main () =
         if mystr = "" then exit return_value_error_argument
         else exit ( Sys.command (Sys.executable_name ^ " " ^ mystr))
       end ;
-  end ;
+  end else
+    test_output_tlk_p := false ;
 
   let automate_min = lazy(match !automate_min with
   | Some x -> x
@@ -1962,7 +1964,9 @@ let main () =
 
 
   (* Check that we can write to the given TLK file(s) *)
-  test_output_tlk game pause_at_end ; (* pause_at_end is intentionllay not derefenenced *)
+  if !test_output_tlk_p then begin
+    test_output_tlk game pause_at_end ; (* pause_at_end is intentionllay not derefenenced *)
+  end ;
 
 
   if !tp_list <> [] then begin
