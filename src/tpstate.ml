@@ -156,12 +156,12 @@ let installed_after tp21 i1 tp22 i2 =
  * Determine what has been installed.
  ************************************************************************)
 let str_of_str_opt sopt = match sopt with
-| Some(str) -> "~" ^ str ^ "~"
+| Some(str) -> " ~" ^ str ^ "~"
 | None -> ""
 
 let print_log () =
   List.iter (fun (n,i1,i2,sopt,st) ->
-    log_or_print "%s %2d %2d %s %s\n" n i1 i2 (match st with
+    log_or_print "%s %2d %2d %s%s\n" n i1 i2 (match st with
     | Installed -> "Installed"
     | Temporarily_Uninstalled -> "Temporarily_Uninstalled"
     | Permanently_Uninstalled -> "Permanently_Uninstalled")
