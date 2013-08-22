@@ -321,7 +321,7 @@ let load_dialogs game_path =
     load_default_dialogs game_path
 
 let actually_load_tlk_pair game tlk_pair =
-  if not tlk_pair.loaded then begin
+  if not tlk_pair.loaded && (file_exists tlk_pair.dialog.path) then begin
     ignore (tlk_pair.dialog.contents <- Tlk.load_tlk tlk_pair.dialog.path) ;
     ignore (match tlk_pair.dialogf with
     | None -> ()
