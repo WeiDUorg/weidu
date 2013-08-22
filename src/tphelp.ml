@@ -291,12 +291,14 @@ let init_default_strings () =
   pre-defined selection:";
 
   add (-1040) "\nThis game is available in multiple languages. WeiDU will \
-  install mods to a single of those languages. Mods will be available for \
-  that language and that language alone. If you switch to another \
-  language, you need to reinstall your mods.\n\nChoose which language \
-  you wish to install this mod to. Your choice will be saved and \
-  reused in the future. This choice is saved to the file weidu.conf, \
-  located among your other user files.\n" ;
+  install mods to a single one of those game languages. Mods will be \
+  available for that language and that language alone. This choice is \
+  different from the choice of which language you wish to install the mod \
+  in and you can install multiple mod languages to the same game language. \
+  If you switch to another language, you need to reinstall your mods.\
+  \n\nPlease choose the game language to which you wish to install this mod. \
+  Your choice will be saved and reused in the future. This choice is saved \
+  to the file weidu.conf, located in the directory:\n" ;
 
   add (-1041) "Czech" ;
   add (-1042) "German" ;
@@ -311,10 +313,10 @@ let init_default_strings () =
    * in case there are additional translations made *)
 
   add (-1060) "\nThis game is available in multiple languages, but \
-  WeiDU does not know which language to uninstall this mod from.\n\n\
-  Choose which language this mod should be uninstalled from. This \
-  should be the same as the language you installed the mod to. Your \
-  choice will be used until WeiDU exits but will not be remembered.\n" ;
+  WeiDU does not know which game language was used when this mod was \
+  installed.\n\nPlease indicate which game language was used when you \
+  installed this mod. Your choice will be used until WeiDU exits but \
+  will not be remembered.\n" ;
   ()
 
 let get_trans i =
@@ -464,7 +466,7 @@ let check_enhanced_engine allow_tobhacks allow_tobex allow_gemrb =
     ans
   end
 
-let ask_about_lang_dir ask_text =
+let ask_about_lang_dir ask_text: string =
   let languages = Load.bgee_language_options (Load.the_game ()) in
   let pretty_ht = Hashtbl.create (Array.length languages) in
   ignore (List.iter (fun (dirname, pretty) ->
