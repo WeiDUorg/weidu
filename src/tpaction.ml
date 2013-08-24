@@ -2096,8 +2096,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               in
               let isolate_title_and_resolve index =
                 let isolate_title string =
-                  if Str.string_match (Str.regexp "\\(.+\\)$") string 0 then
-                    Str.matched_group 1 string
+                  if Str.string_match (Str.regexp "\\(.+\\)$") string 0 then begin
+                    let title = Str.matched_group 1 string in
+                    let trim = (Str.regexp "[ \t\\.]+$") in
+                    Str.global_replace trim "" title
+                  end
                   else
                     failwith "ERROR: ADD_JOURNAL was unable to isolate a journal title and none was provided"
                 in
@@ -2161,11 +2164,12 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               end;
 
               let get_quest_id strref =
-                if not (Hashtbl.mem quest_id_table strref) then
+                if not (Hashtbl.mem quest_id_table strref) then begin
                   let id = !highest_quest_id + 1 in
                   Hashtbl.add quest_id_table strref id ;
                   highest_quest_id := id ;
                   id ;
+                end
                 else
                   Hashtbl.find quest_id_table strref ;
               in
