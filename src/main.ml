@@ -1438,7 +1438,7 @@ let main () =
 
   let argv0_base, argv0_ext = split (String.uppercase (Case_ins.filename_basename Sys.argv.(0))) in
 
-  let auto game = begin
+  let auto () = begin
     pause_at_end := true ;
     if is_directory "debugs" then
       init_log Version.version ("debugs/" ^ argv0_base ^ ".DEBUG")
@@ -1714,6 +1714,25 @@ let main () =
     exit return_value_success ;
   end ;
 
+  (* see if SETUP is in our base name *)
+  let setup_regexp = Str.regexp_case_fold "setup" in
+  if not !no_auto_tp2 then begin
+    (try
+      let _ = Str.search_forward setup_regexp argv0_base 0 in
+      auto () ;
+    with _ ->
+      if Array.length Sys.argv <= 1 then begin
+        Myarg.usage argDescr usageMsg ;
+        flush_all () ;
+        log_and_print "\nEnter arguments: " ;
+        let mystr = read_line () in
+        if mystr = "" then exit return_value_error_argument
+        else exit ( Sys.command (Sys.executable_name ^ " " ^ mystr))
+      end) ;
+    Load.validate_cwd () ;
+  end else
+    test_output_tlk_p := false ;
+
   let game =
     if !no_game then
       Load.load_null_game ()
@@ -1741,35 +1760,6 @@ let main () =
 
   Dc.cur_index := Array.length (Load.get_active_dialog game) ;
 
-(*
-  if not !no_game then begin
-    if !output_dialog = None then begin
-      output_dialog := Some (Load.get_active_dialogs game).Load.dialog.Load.path ;
-    end ;
-    if !output_dialogf = None then
-      output_dialogf := (match (Load.get_active_dialogs game).Load.dialogf with
-      | None -> None
-      | Some tlk -> Some tlk.Load.path) ;
-  end ;
-*)
-
-  (* see if SETUP is in our base name *)
-  let setup_regexp = Str.regexp_case_fold "setup" in
-  if not !no_auto_tp2 then begin
-    try
-      let _ = Str.search_forward setup_regexp argv0_base 0 in
-      auto game ;
-    with _ ->
-      if Array.length Sys.argv <= 1 then begin
-        Myarg.usage argDescr usageMsg ;
-        flush_all () ;
-        log_and_print "\nEnter arguments: " ;
-        let mystr = read_line () in
-        if mystr = "" then exit return_value_error_argument
-        else exit ( Sys.command (Sys.executable_name ^ " " ^ mystr))
-      end ;
-  end else
-    test_output_tlk_p := false ;
 
   let automate_min = lazy(match !automate_min with
   | Some x -> x

@@ -534,6 +534,11 @@ let deal_with_tlkin game =
       game.dialog_index <- ((Array.length game.dialogs) - 1);
       ignore (actually_load_tlk_pair game (get_active_dialogs game)))
 
+let validate_cwd () =
+  if not (file_exists "chitin.key") then begin
+    log_and_print "\nPlease run this program in your Infinity Engine game directory.\n" ;
+    failwith "Not a game directory"
+  end
 
 exception FoundRes of string * string
 exception Missing
