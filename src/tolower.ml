@@ -114,6 +114,7 @@ let get_wine_cfg () =
         close_in baldurini
     end) (Sys.readdir ".");
   close_out linuxini
+;;
 
 (*
  * Ask the user which functions to run
