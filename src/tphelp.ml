@@ -317,6 +317,8 @@ let init_default_strings () =
   installed.\n\nPlease indicate which game language was used when you \
   installed this mod. Your choice will be used until WeiDU exits but \
   will not be remembered.\n" ;
+  add (-1061) "\nUsing" ;
+  add (-1062) " and " ;
   ()
 
 let get_trans i =
