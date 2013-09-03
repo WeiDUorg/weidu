@@ -2177,7 +2177,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               let new_quests = List.fold_left (fun acc (title,index) ->
                 if not (Hashtbl.mem quest_id_table title) then
                   List.append acc
-                    [(Sql.make_quests_record (get_quest_id title) "" title 0 0 0 ())]
+                    [(Sql.make_quests_record (get_quest_id title) "" title 0 0 0
+                        ~quest_MC1:(Some (-1)) ())]
                 else
                   acc) [] titled_indices in
 
@@ -2197,7 +2198,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                         ~quest_group:(if managed then
                           (Some (!highest_quest_group + 1))
                         else
-                          (Some 0)) ~date:(Some "") ())]
+                          (Some 0)) ~date:(Some "") ~journal_MC1:(Some (-1)) ())]
                 end
                 else
                   acc) [] titled_indices in
