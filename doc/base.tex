@@ -3722,6 +3722,39 @@ or & \DEFINE{DECOMPRESS!BIFF} file ... &
   Decompressing a biff file can be helpful in preventing crashes related to area files,
   commonly \t{WAV} ambient sounds or \t{TIS} files. \emph{Do not use this action without a real reason.} \\
 
+or & \DEFINE{DEFINE!ACTION!MACRO} \ttref{String} \t{BEGIN}
+     \ttref{TP2 Action} \Slist \t{END} &
+  Define an action macro. Refer to the \ttref{macros} section for
+  additional information. \\
+or & \DEFINE{DEFINE!PATCH!MACRO} \ttref{String} \t{BEGIN}
+     \ttref{patch} \Slist \t{END} &
+  Define a patch macro. Refer to the \ttref{macros} section for
+  additional information. \\
+or & \DEFINE{DEFINE!ACTION!FUNCTION} \ttref{String}
+     \Ob \t{INT!VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
+     \Ob \t{STR!VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe
+     \Ob \t{RET} \ttref{variable} ... \Oe \t{BEGIN} \ttref{TP2 Action} \Slist
+     \t{END} &
+  Define an action function. Refer to the \ttref{Functions} section for
+  additional information. \\
+or & \DEFINE{DEFINE!PATCH!FUNCTION} \ttref{String}
+     \Ob \t{INT!VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
+     \Ob \t{STR!VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe
+     \Ob \t{RET} \ttref{variable} ... \Oe \t{BEGIN} \ttref{patch} \Slist
+     \t{END} &
+  Define a patch function. Refer to the \ttref{Functions} section for
+  additional information. \\
+or & \DEFINE{LAUNCH!ACTION!MACRO} \ttref{String} &
+  Launch an action macro. Refer to the \ttref{macros} section for
+  additional information. \\
+or & \DEFINE{LAUNCH!ACTION!FUNCTION} \ttref{String}
+     \Ob \t{INT!VAR} \ttref{variable} \Ob \t{=} \ttref{value} \Oe ... \Oe
+     \Ob \t{STR!VAR} \ttref{variable} \Ob \t{=} \Ob \ttref{EVALUATE!BUFFER}
+     \Oe \ttref{String} \Oe ... \Oe
+     \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
+     \t{END} &
+  Launch an action function. Refer to the \ttref{Functions} section for
+  additional information. \\
 \\
 
 \DEFINE{optNoBackup} & &
@@ -4648,6 +4681,19 @@ or & \DEFINE{COMPRESS!INTO!VAR} start length level varName &
 	Compress (ZLIB) the \verb/start...start+length-1/ portion of the current
 	file (level is 0 to 9; 0 means don't compress, 1 is fastest compression, 9 is best
 	compression). The result is stored into varName.
+\\
+or & \DEFINE{LAUNCH!PATCH!MACRO} \ttref{String} &
+        Launch a patch macro. Refer to the \ttref{macros} section for
+        additional information.
+\\
+or & \DEFINE{LAUNCH!PATCH!FUNCTION} \ttref{String}
+     \Ob \t{INT!VAR} \ttref{variable} \Ob \t{=} \ttref{value} \Oe ... \Oe
+     \Ob \t{STR!VAR} \ttref{variable} \Ob \t{=} \Ob \ttref{EVALUATE!BUFFER}
+     \Oe \ttref{String} \Oe ... \Oe
+     \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
+     \t{END} &
+        Launch a patch function. Refer to the \ttref{Functions} section for
+        additional information.
 \\
 \\
 
@@ -6852,7 +6898,7 @@ part is to proactively avoid possible overlappings with
 problems to not occur accidentally).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{DEFINE,LAUNCH,LOCAL and everything else about personal macros (Last Update: v188)}
+\subsection{DEFINE,LAUNCH,LOCAL and everything else about personal \DEFINE{macros} (Last Update: v188)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Macros were originally intended as a way to repeat a certain tp2 block
