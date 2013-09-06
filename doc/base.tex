@@ -7804,6 +7804,141 @@ development of your mod using --yes and the like.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{\DEFINE{HANDLE!AUDIO and HANDLE!TILESETS}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ttref{HANDLE!AUDIO} and \ttref{HANDLE!TILESETS} are convenience
+functions for the common tasks of installing mod-supplied audio and
+tilesets. All IE games are supported and the specifics for each game
+is handled automatically. The functions are designed to take care of
+as many as the platform-specific details as possible, including the
+differences between Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X and
+GNU/Linux.
+
+There is one exception to this, however. At present, to use
+\verb+HANDLE_AUDIO+ you need to include oggdec.exe for Windows and SoX
+for OS\begin{rawhtml}&nbsp;\end{rawhtml}X in your mod. To use
+\verb+HANDLE_TILESETS+ you need to include tisunpack for Windows and
+OS\begin{rawhtml}&nbsp;\end{rawhtml}X. In both cases it is recommended
+that GNU/Linux users install oggdec and tisunpack themselves. Most
+modern GNU/Linux distributions come with oggdec already installed. A
+copy of tisunpack compiled for GNU/Linux is distributed together with
+the Linux version of WeiDU. If you want to facilitate the installation
+of your mod on GNU/Linux, you should state that your mod depends on
+oggdec or tisunpack, as appropriate.
+
+\ttref{HANDLE!AUDIO} expects your audio to be in the Ogg Vorbis format.
+If you have WAV or WAVC files, you do not need \verb+HANDLE_AUDIO+,
+you can simply copy them to the override.
+
+With no configuration, \verb+HANDLE_AUDIO+ expects your audio,
+oggdec.exe and SoX to be located in \verb+mymod/audio+. Using
+\verb+HANDLE_AUDIO+ is then as simple as a single line of TP2:
+\begin{verbatim}
+LAF HANDLE_AUDIO END
+\end{verbatim}
+
+\verb+LAF+ is an alias for \ttref{LAUNCH!ACTION!FUNCTION}.
+\verb+HANDLE_AUDIO+ is a completely independent function, and does not
+have no be placed before or after anything else in your TP2 file. It
+is equivalent to a TP2 action and you obviously need to place it in
+the right component, but that is it.
+
+\verb+HANDLE_AUDIO+ can also be configured to use audio in a different
+directory, through the string variable \verb+audio_path+. The value of
+this variable is the directory in which \verb+HANDLE_AUDIO+ should
+look for audio, oggdec.exe and SoX. So, for instance, if you keep your
+sounds in \verb+mymod/sound+ you would configure \verb+HANDLE_AUDIO+
+like so:
+\begin{verbatim}
+LAF HANDLE_AUDIO STR_VAR audio_path = ~mymod/sound~ END
+\end{verbatim}
+If you want \verb+HANDLE_AUDIO+ to look for oggdec.exe or SoX in
+another directory than \verb+audio_path+, you can use the
+\verb+oggdec_path+ and \verb+sox_path+ variables.  For example, if you
+have your voice-overs in \verb+mymod/audio/vo+, your music in
+\verb+mymod/audio/music+, and oggdec.exe and SoX in \verb+mymod/audio+
+you could install it like so:
+\begin{verbatim}
+LAF HANDLE_AUDIO
+  STR_VAR
+    audio_path = ~mymod/audio/vo~
+    oggdec_path = ~mymod/audio~
+    sox_path = ~mymod/audio~
+END
+LAF HANDLE_AUDIO
+  INT_VAR
+    music = 1
+  STR_VAR
+    audio_path = ~mymod/audio/music~
+    oggdec_path = ~mymod/audio~
+    sox_path = ~mymod/audio~
+END
+\end{verbatim}
+The integer variable \verb+music+ simply tells \verb+HANDLE_AUDIO+
+that you want the audio handled as music. This only makes a difference
+on BGEE.
+
+The function \ttref{HANDLE!TILESETS} follow the same design as
+\verb+HANDLE_AUDIO+. \verb+HANDLE_TILESETS+ decompresses and installs
+TIZ files rather than OGG files and uses tisunpack rather than
+oggdec/SoX.
+
+With no configuration, \verb+HANDLE_TILESETS+ expects your TIZ files
+to be located in \verb+mymod/tiz+. Additionally, it expects tisunpack
+for Windows to be located in \verb+mymod/tiz/win32+ and tisunpack for
+OS\begin{rawhtml}&nbsp;\end{rawhtml}X to be located in
+\verb+mymod/tiz/osx+. You install you tilesets like so:
+\begin{verbatim}
+LAF HANDLE_TILESETS END
+\end{verbatim}
+The string variables \verb+tiz_path+ and \verb+tisunpack_path+ allow
+you to configure \verb+HANDLE_TILESETS+ to look for TIZ files or
+tisunpack in other directories. Note that you do not specify the
+individual directories for tisunpack for Windows or tisunpack for OS
+X. Instead you specify the parent directory and WeiDU will then use
+the value of the variable \ttref{WEIDU!OS} to find the right version
+of tisunpack. For example, if you keep your TIZ files in
+\verb+mymod/tilesets+ and tisunpack for Windows in
+\verb+mymod/bin/win32+ and tisunpack for
+OS\begin{rawhtml}&nbsp;\end{rawhtml}X in \verb+mymod/bin/osx+ you
+could install your tilesets like so:
+\begin{verbatim}
+LAF HANDLE_TILESETS
+  STR_VAR
+    tiz_path = ~mymod/tilesets~
+    tizunpack_path = ~mymod/bin~
+END
+\end{verbatim}
+
+To conclude this tutorial, here is a fictional (but valid) example of
+a TP2 file of a mod where \verb+HANDLE_AUDIO+ and
+\verb+HANDLE_TILESETS+ are used:
+\begin{verbatim}
+BACKUP ~fl#xmpl/backup~
+AUTHOR ~Wisp~
+
+BEGIN ~E. G. McExample NPC~
+
+COPY ~fl#xmpl/copy~ override
+
+COMPILE ~fl#xmpl/compile~
+
+LAF HANDLE_AUDIO END
+
+LAF HANDLE_TILESETS END
+
+COPY ~fl#xmpl/character/fl#xmpl.cre~ override
+  SAY NAME1 ~E. G. McExample~
+  SAY NAME2 ~E. G. McExample~
+  // Other SAYs
+
+// End of File
+\end{verbatim}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\DEFINE{Code dumps}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This section contains code snippets that serve to document functionality
@@ -8481,11 +8616,11 @@ The function will fail with an error if the file being patched does not have a s
 \end{itemize}
 \\
 
-\verb+HANDLE_AUDIO+: install Ogg--Vorbis compressed audio files in a safe and easy manner. This is an ACTION function.
+\DEFINE{\verb+HANDLE_AUDIO+}: install Ogg--Vorbis compressed audio files in a safe and easy manner. This is an ACTION function.
 
 % HeVeA forces me to use rawhtml of ~ here. \hspace{1 pc} may also be an option.
 
-This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games, including BG:EE. If the game is not BG:EE, the audio files are decompressed and the resulting .wav files are \ttref{MOVE}d to the override. If the game is BG:EE, the .ogg files are copied into the override and renamed into .wav files.
+This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games, including BG:EE. If the game is not BG:EE, the audio files are decompressed and the resulting .wav files are \ttref{MOVE}d to the override. If the game is BG:EE, the .ogg files are copied into the override and renamed into .wav files. Refer to the \ttref{HANDLE!AUDIO and HANDLE!TILESETS} tutorial for usage examples and a more practical explanation.
 
 If the audio files need to be decompressed, this function will use oggdec.exe on Windows, which is by default expected to be found in \verb+audio_path+. The most recent version of oggdec can be downloaded \ahref{\url{http://downloads.xiph.org/releases/vorbis/vorbis-tools-win32-bin.7z}}{here} (direct link). On OS\begin{rawhtml}&nbsp;\end{rawhtml}X, SoX will be used, which is by default also expected to be found in \verb+audio_path+. SoX compiled for OS\begin{rawhtml}&nbsp;\end{rawhtml}X can be downloaded \ahref{\url{http://sourceforge.net/projects/sox/files/sox/14.4.1/sox-14.4.1-macosx.zip/download}}{here}. On GNU/Linux, oggdec will be used, but it is expected to be found on the system path and the user should install it him/herself. If you provide installation instructions for GNU/Linux, just include something to the effect of ``install oggdec, which is usually part of the package vorbis-tools''.
 
@@ -8499,9 +8634,9 @@ If the decompression utility cannot be found, the user is warned that the audio 
 \end{itemize}
 \\
 
-\verb+HANDLE_TILESETS+: install TISpack-compressed tilesets in a safe and easy manner. This is an ACTION function.
+\DEFINE{\verb+HANDLE_TILESETS+}: install TISpack-compressed tilesets in a safe and easy manner. This is an ACTION function.
 
-This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games that support the \t{\ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/tis_v1.htm}}{TIS V1}} file format. The program tisunpack, part of \ahref{\url{http://www.pocketplane.net/mambo/index.php?option=com_content&task=blogcategory&id=137&Itemid=96}}{TISpack}, is used to decompress the provided .tiz files and the resulting .tis files are \ttref{MOVE}d to the override.
+This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games that support the \t{\ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/tis_v1.htm}}{TIS V1}} file format. The program tisunpack, part of \ahref{\url{http://www.pocketplane.net/mambo/index.php?option=com_content&task=blogcategory&id=137&Itemid=96}}{TISpack}, is used to decompress the provided .tiz files and the resulting .tis files are \ttref{MOVE}d to the override. Refer to the \ttref{HANDLE!AUDIO and HANDLE!TILESETS} tutorial for usage examples and a more practical explanation.
 
 This function expects to find tisunpack for one or more of Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X or GNU/Linux in a common directory under the subdirectories \t{win32}, \t{osx}, and \t{unix}, respectively. For example, in \t{mymod/tiz/win32}, \t{mymod/tiz/osx} and \t{mymod/tiz/unix}, the common directory is \t{mymod/tiz} and \t{mymod/tiz/win32/tisunpack.exe} should be a valid file. For GNU/Linux, this function also supports tisunpack being located on the system path (something the user would take care of). If you choose to leave tisunpack to the user, you should mention this requirement in any installation instructions you provide.
 
