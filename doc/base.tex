@@ -3746,7 +3746,8 @@ or & \DEFINE{DEFINE!PATCH!FUNCTION} \ttref{String}
   additional information. \\
 or & \DEFINE{LAUNCH!ACTION!MACRO} \ttref{String} &
   Launch an action macro. Refer to the \ttref{macros} section for
-  additional information. \\
+  additional information. You may use \DEFINE{LAM} as a synonym for
+  \ttref{LAUNCH!ACTION!MACRO}.\\
 or & \DEFINE{LAUNCH!ACTION!FUNCTION} \ttref{String}
      \Ob \t{INT!VAR} \ttref{variable} \Ob \t{=} \ttref{value} \Oe ... \Oe
      \Ob \t{STR!VAR} \ttref{variable} \Ob \t{=} \Ob \ttref{EVALUATE!BUFFER}
@@ -3754,7 +3755,8 @@ or & \DEFINE{LAUNCH!ACTION!FUNCTION} \ttref{String}
      \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
      \t{END} &
   Launch an action function. Refer to the \ttref{Functions} section for
-  additional information. \\
+  additional information. You may use \DEFINE{LAF} as a synonym for
+  \ttref{LAUNCH!ACTION!FUNCTION}.\\
 \\
 
 \DEFINE{optNoBackup} & &
@@ -3988,7 +3990,8 @@ EXTEND_TOP ~sola.bcs~ ~.../mymod-inlined/script.baf~
   Those two actions extend the top of \t{sola.bcs} with the script
   block \t{IF See("Anomen") THEN RESPONSE \#100 Kill("Anomen") END}.
   You can also use \ttref{EVALUATE!BUFFER} in \ttref{COMPILE} actions
-  or before strings in \ttref{value}s.
+  or before strings in \ttref{value}s. You may use \DEFINE{EVAL} as
+  a synonym for \t{EVALUATE!BUFFER}.
   \\
 
 or & \DEFINE{APPLY!BCS!PATCH} patchFile &
@@ -4020,16 +4023,18 @@ or & \DEFINE{WRITE!ASCII} \ttref{offset} ascString
   the terminating \t{NUL} is not written. \\
 or & \DEFINE{WRITE!ASCII!LIST} \ttref{offset} ascString \Slist &
   The given ASCII strings are written at offset, offset + 8, offset + 16...
-  Automatically evaluates variables. \\
+  Automatically evaluates variables. You may use \DEFINE{WRITE!ASCIIL}
+  as a synonym for \ttref{WRITE!ASCII!LIST}.\\
 or & \DEFINE{WRITE!ASCII!TERMINATE} \ttref{offset} ascString &
   The ASCII ascString is written to the file starting at offset.
   The terminating \t{NUL} \emph{is} written. You may use
-  \t{WRITE!ASCIIT} as a synonym. \\
+  \DEFINE{WRITE!ASCIIT} as a synonym for \ttref{WRITE!ASCII!TERMINATE}. \\
 or & \DEFINE{WRITE!EVALUATED!ASCII} \ttref{offset} ascString
     \Ob \t{\#requiredSize} \Oe &
   The ASCII ascString is evaluated (so \t{\%variable\%} is replaced by its
   value) and written to the file starting at offset (as in
-  \ttref{WRITE!ASCII}). You may use \t{WRITE!ASCIIE} as a synonym. \\
+  \ttref{WRITE!ASCII}). You may use \DEFINE{WRITE!ASCIIE} as a synonym
+  for \ttref{WRITE!EVALUATED!ASCII}. \\
 or & \DEFINE{WRITE!FILE} \ttref{offset} filename &
   The entire contents of ``filename'' (which may contain variables) are
   loaded and copied over the current file starting at offset
@@ -4058,9 +4063,12 @@ or & \DEFINE{REPLACE!BCS!BLOCK} \Ob \t{EVALUATE!BUFFER} \Oe \ttref{optcase}
   If \ttref{EVALUATE!BUFFER} is given, variables inside oldFile and newFile are
   evaluated, but only they are \ttref{BAF} files.
 
-  If the segment corresponding to oldFile is not found and the \t{ON!MISMATCH} section
-  is present, those patches are run; if oldFile is not found and \t{ON!MISMATCH} is not
-  present, a warning message is printed.
+  If the segment corresponding to oldFile is not found and the
+  \t{ON!MISMATCH} section is present, those patches are run; if
+  oldFile is not found and \t{ON!MISMATCH} is not present, a warning
+  message is printed.
+
+  You may use \DEFINE{R!B!B} as a synonym for \ttref{REPLACE!BCS!BLOCK}.
   \\
 or & \DEFINE{INSERT!BYTES} \ttref{offset} \ttref{value} &
   The first argument is the offset, the second argument is the count.
@@ -4166,7 +4174,9 @@ DEFINE_ASSOCIATIVE_ARRAY mix_with_blue BEGIN
   red => purple
   yellow => green
 END
-\end{verbatim}\\
+\end{verbatim}
+You may use \DEFINE{PATCH!DEFINE!ASSOCIATIVE!ARRAY} as a synonym for \ttref{DEFINE!ASSOCIATIVE!ARRAY}.
+\\
 
 or & \DEFINE{GET!STRREF} \ttref{value} \ttref{variable} &
   The string reference value is looked up in \t{DIALOG.TLK} and the (male) string
@@ -4648,7 +4658,7 @@ or & \DEFSYN{INNER!ACTION} \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
 or & \DEFINE{DECOMPRESS!REPLACE!FILE} start length uncompressedlength &
 	Decompress (ZLIB) the \verb/start...start+length-1/ portion of the current
 	file (requires to specify the uncompressed length as well). The result overwrites
-	the current file. It's a synonym for
+	the current file. It's equivalent to
 	\verb+DECOMPRESS!INTO!FILE start length uncompressedlength 0 BUFFER!LENGTH+
 \\
 or & \DEFINE{DECOMPRESS!INTO!FILE} start length uncompressedlength overwritefrom
@@ -4667,7 +4677,7 @@ or & \DEFINE{COMPRESS!REPLACE!FILE} start length level &
 	Compress (ZLIB) the \verb/start...start+length-1/ portion of the current
 	file (level is 0 to 9; 0 means don't compress, 1 is fastest compression, 9 is best
 	compression). The result overwrites
-	the current file. It's a synonym for
+	the current file. It's equivalent to
 	\verb+DECOMPRESS!INTO!FILE start length uncompressedlength 0 BUFFER!LENGTH+
 \\
 or & \DEFINE{COMPRESS!INTO!FILE} start length level overwritefrom
@@ -4684,7 +4694,8 @@ or & \DEFINE{COMPRESS!INTO!VAR} start length level varName &
 \\
 or & \DEFINE{LAUNCH!PATCH!MACRO} \ttref{String} &
         Launch a patch macro. Refer to the \ttref{macros} section for
-        additional information.
+        additional information. You may use \DEFINE{LPM} as a synonym
+        for \ttref {LAUNCH!PATCH!MACRO}.
 \\
 or & \DEFINE{LAUNCH!PATCH!FUNCTION} \ttref{String}
      \Ob \t{INT!VAR} \ttref{variable} \Ob \t{=} \ttref{value} \Oe ... \Oe
@@ -4693,7 +4704,8 @@ or & \DEFINE{LAUNCH!PATCH!FUNCTION} \ttref{String}
      \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
      \t{END} &
         Launch a patch function. Refer to the \ttref{Functions} section for
-        additional information.
+        additional information. You may use \DEFINE{LPF} as a synonym
+        for \ttref{LAUNCH!PATCH!FUNCTION}.
 \\
 \\
 
@@ -4702,14 +4714,16 @@ or & \DEFINE{LAUNCH!PATCH!FUNCTION} \ttref{String}
   \ttref{COPY} or \ttref{COPY!EXISTING} contains multiple files, each one
   is checked against the \ttref{when} clauses separately.  \\
 is & \DEFINE{IF!SIZE!IS} fileSize & True if the input file size is
-fileSize. \\
+fileSize. You may use \DEFINE{I!S!I} as a synonym for \ttref{IF!SIZE!IS}. \\
 or & \DEFINE{IF} \ttref{regexp} & True if the input file contains
 \ttref{regexp}. \\
 or & \DEFINE{UNLESS} \ttref{regexp} & False if the input file contains
 \ttref{regexp}.  \\
 or & \DEFINE{BUT!ONLY!IF!IT!CHANGES} & True only if the file is actually
 changed by patching actions. Unlike all other \ttref{when} clauses, this
-one is evaluated just before the result would be written out to the disk.  \\
+one is evaluated just before the result would be written out to the disk.
+You may use \DEFINE{BUT!ONLY} as a synonym for \ttref{BUT!ONLY!IF!IT!CHANGES}.
+\\
 
 \\
 
