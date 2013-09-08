@@ -815,8 +815,7 @@ let split_log_line line =
 		Str.split (Str.regexp " ") line
 
 let attempt_to_load_bgee_lang_dir game_path =
-  let user_dir = Arch.get_bgee_user_dir game_path in
-  let conf = Arch.slash_to_backslash (user_dir ^ "/weidu.conf") in
+  let conf = Arch.slash_to_backslash (game_path ^ "/weidu.conf") in
   if file_exists conf then begin
     let buff = load_file conf in
     let regexp = (Str.regexp_case_fold "lang_dir[ \t]+=[ \t]+\\([a-z_]+\\)") in
@@ -829,8 +828,7 @@ let attempt_to_load_bgee_lang_dir game_path =
 
 let write_bgee_lang_dir game_path dir =
   try
-    let user_dir = Arch.get_bgee_user_dir game_path in
-    let conf = Arch.slash_to_backslash (user_dir ^ "/weidu.conf") in
+    let conf = Arch.slash_to_backslash (game_path ^ "/weidu.conf") in
     let chan = Case_ins.perv_open_out_bin conf in
     ignore (output_string chan (String.lowercase
                                   (Printf.sprintf "lang_dir = %s\n" dir))) ;

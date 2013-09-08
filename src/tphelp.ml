@@ -298,7 +298,7 @@ let init_default_strings () =
   If you switch to another language, you need to reinstall your mods.\
   \n\nPlease choose the game language to which you wish to install this mod. \
   Your choice will be saved and reused in the future. This choice is saved \
-  to the file weidu.conf, located in the directory:\n" ;
+  to the file weidu.conf, located in your game directory.\n" ;
 
   add (-1041) "Czech" ;
   add (-1042) "German" ;
