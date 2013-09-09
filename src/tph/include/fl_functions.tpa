@@ -190,3 +190,36 @@ BEGIN
     WARN ~WARNING: tilesets were not installed because %tisunpack% was not found in %tisunpack_path%/%WEIDU_OS%~
   END
 END
+
+DEFINE_PATCH_FUNCTION DELETE_WORLDMAP_LINKS
+  STR_VAR
+    from_area = ""
+    to_area = ""
+BEGIN
+  READ_LONG 0x34 ao
+  READ_LONG 0x38 lo
+  links = 0
+  FOR (i = 0; i < LONG_AT 0x30; ++i) BEGIN
+    lao = ao + 0xf0 * i
+    READ_ASCII lao source_name
+    PATCH_FOR_EACH node IN 0 3 2 1 BEGIN
+      io = lao + 0x50 + 0x8 * node
+      no = lao + 0x54 + 0x8 * node
+      WRITE_LONG io links
+      READ_LONG no number
+      PATCH_IF "%source_name%" STRING_EQUAL_CASE "%from_area%" BEGIN
+        FOR (j = 0; j < number; ++j) BEGIN
+          llo = lo + 0xd8 * (links + j)
+          READ_ASCII ao + 0xf0 * (LONG_AT llo) target_name
+          PATCH_IF "%target_name%" STRING_EQUAL_CASE "%to_area%" BEGIN
+            DELETE_BYTES llo 0xd8
+            --number
+          END
+        END
+      END
+      WRITE_LONG no number
+      links += number
+    END
+  END
+  WRITE_LONG 0x3c links
+END

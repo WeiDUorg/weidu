@@ -8708,6 +8708,16 @@ If tisunpack for the user's platform could not be found, the user is warned that
 \end{itemize}
 \\
 
+\DEFINE{\verb+DELETE_WORLDMAP_LINKS+}: delete all links from one worldmap area to another. This is a PATCH function.
+
+This function will delete all links from one specified area to another. Links will be deleted from all four directional nodes (north, east, south, west). Links connecting the areas in the opposite direction will not be deleted.
+
+\begin{itemize}
+\item STR_VAR \verb+from_area+ to the area from which the links that are to be deleted originate.
+\item STR_VAR \verb+to_area+ to the area to which the links that are to be deleted lead.
+\end{itemize}
+\\
+
 \subsection{\DEFINE{fj_are_structure}}
 Adds a structure to an area file. All variables are zero or blank by default unless otherwise indicated. Fields designated by an asterisk are typically required; all others are optional.
 This is a PATCH function.
