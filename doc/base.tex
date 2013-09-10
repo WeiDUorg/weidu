@@ -8718,6 +8718,26 @@ This function will delete all links from one specified area to another. Links wi
 \end{itemize}
 \\
 
+\DEFINE{\verb+ADD_WORLDMAP_LINKS+}: add links from one worldmap area to another. This is a PATCH function.
+
+This function add links from one specified area to another. Links can be added from all four directional nodes (north, east, south, west) or from a specific node. If a link already exists, its metadata (distance scale, random encounters, etc.) will be overwritten. Links connecting the areas in the opposite direction will not be added. If either of the areas do not exist in the worldmap, a warning is printed and no link are added.
+
+\begin{itemize}
+\item INT_VAR \verb+distance_scale+ to the distance scale between the two areas.
+\item INT_VAR \verb+default_entry+ to the default entry location. Legal values for this variable are 1 (northern side), 2 (eastern), 3 (southern) and 4 (western). The default value is 1.
+\item INT_VAR \verb+encounter_probability+ to the probability of a random encounter occurring.
+\item STR_VAR \verb+from_area+ to the area from which the links should originate.
+\item STR_VAR \verb+from_node+ to the directional node from which the links should originate. Legal values for this variable are ``north'', ``n'', ``east'', ``e'', ``south'', ``s'', ``west'' and ``w''. Values are not case sensitive. Links are added to all four nodes by default.
+\item STR_VAR \verb+to_area+ to the area to which the links should lead.
+\item STR_VAR \verb+entry+ to the entry point in \verb+to_area+.
+\item STR_VAR \verb+random_area1+ to the first random-encounter area.
+\item STR_VAR \verb+random_area2+ to the second random-encounter area.
+\item STR_VAR \verb+random_area3+ to the third random-encounter area.
+\item STR_VAR \verb+random_area4+ to the fourth random-encounter area.
+\item STR_VAR \verb+random_area5+ to the fifth random-encounter area.
+\end{itemize}
+\\
+
 \subsection{\DEFINE{fj_are_structure}}
 Adds a structure to an area file. All variables are zero or blank by default unless otherwise indicated. Fields designated by an asterisk are typically required; all others are optional.
 This is a PATCH function.

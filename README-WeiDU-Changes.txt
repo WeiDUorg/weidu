@@ -67,7 +67,7 @@ Version 232:
       STRING_SETs from dialogf.tlk that does not form a pair with dialog.tlk
       (so don't use --ftlkout on strange TLKs).
   * On BGEE, biffs in lang/ are loaded.
-  * Add the function DELETE_WORLDMAP_LINKS.
+  * Add the functions DELETE_WORLDMAP_LINKS and ADD_WORLDMAP_LINKS.
 
 
 Version 231:
