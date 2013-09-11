@@ -8710,10 +8710,11 @@ If tisunpack for the user's platform could not be found, the user is warned that
 
 \DEFINE{\verb+DELETE_WORLDMAP_LINKS+}: delete all links from one worldmap area to another. This is a PATCH function.
 
-This function will delete all links from one specified area to another. Links will be deleted from all four directional nodes (north, east, south, west). Links connecting the areas in the opposite direction will not be deleted.
+This function will delete links from one specified area to another. Links can be deleted from all four directional nodes (north, east, south, west) or from a specific node. Links connecting the areas in the opposite direction will not be deleted.
 
 \begin{itemize}
 \item STR_VAR \verb+from_area+ to the area from which the links that are to be deleted originate.
+\item STR_VAR \verb+from_node+ to the directional node from which the links that are to be deleted originate. Legal values for this variable are ``north'', ``n'', ``east'', ``e'', ``south'', ``s'', ``west'', ``w''. Values are not case sensitive. Links are deleted from all four nodes by default.
 \item STR_VAR \verb+to_area+ to the area to which the links that are to be deleted lead.
 \end{itemize}
 \\
