@@ -91,6 +91,13 @@ let if_bgee_check_lang_or_fail game =
 
 let force_script_style game forced_script_style exe_name =
   game.Load.script_style <- forced_script_style ;
+  ignore (match game.Load.script_style with
+  | Load.BG2 -> Tlk.is_bg2 := true
+  | Load.PST
+  | Load.BG1
+  | Load.IWD1
+  | Load.IWD2
+  | Load.NONE -> Tlk.is_bg2 := false) ;
   let s = match game.Load.script_style with
   | Load.PST -> "PST"
   | Load.BG1 -> "BG1"
@@ -1547,12 +1554,12 @@ let main () =
     "--script-style", Myarg.String (fun s ->
       let n = match String.uppercase s with
       | "BG"
-      | "BG2" -> (Tlk.is_bg2 := true;Load.BG2)
-      | "BG1" -> (Tlk.is_bg2 := false;Load.BG1)
-      | "PST" -> (Tlk.is_bg2 := false;Load.PST)
+      | "BG2" -> Load.BG2
+      | "BG1" -> Load.BG1
+      | "PST" -> Load.PST
       | "IWD"
-      | "IWD1" -> (Tlk.is_bg2 := false;Load.IWD1)
-      | "IWD2" -> (Tlk.is_bg2 := false;Load.IWD2)
+      | "IWD1" -> Load.IWD1
+      | "IWD2" -> Load.IWD2
       | _ -> parse_error "unknown SCRIPT_STYLE"
       in forced_script_style := n),"X\tuse BCS/BAF style X (BG, PST, IWD1, IWD2)"
 

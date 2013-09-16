@@ -68,7 +68,9 @@ Version 232:
       (so don't use --ftlkout on strange TLKs).
   * On BGEE, biffs in lang/ are loaded.
   * Add the functions DELETE_WORLDMAP_LINKS and ADD_WORLDMAP_LINKS.
-
+  * Under some circumstances, strings would not be added in the BG2
+    format, despite --script-style, if the game was autodetected as
+    something other than BG2.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
