@@ -421,6 +421,7 @@ let rec eval_pe buff game p =
       let tolm = f "ar9715.are"   in
       let ttsc = f "fw2003.are"   in
       let bgee = f "oh1000.are"   in
+      let bg2ee = f "oh6000.are"  in
       let res = List.exists (fun this ->
         match String.uppercase this with
         | "BG2"
@@ -443,6 +444,7 @@ let rec eval_pe buff game p =
         | "IWD_IN_BG2"
         | "IWDINBG2"   -> bg2 && iwdinbg2
         | "BGEE"       -> bgee
+        | "BG2EE"      -> bg2ee
         | _ -> failwith (Printf.sprintf "No rule to identify %s" (String.uppercase this))
       ) game_list in
       if res then 1l else 0l;

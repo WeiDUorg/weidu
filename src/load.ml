@@ -432,7 +432,8 @@ let autodetect_game_type key =
                "BONES", "IDS", GENERIC, PST;
                "CLOWNRAN", "IDS", GENERIC, IWD1;
                "FLYTHR01", "MVE", GENERIC, BG2;
-               "OH1000", "ARE", BGEE, BG2;] in
+               "OH1000", "ARE", BGEE, BG2;
+               "OH6000", "ARE", BGEE, BG2;] in
   let (game_type, script_style) = List.fold_left
       (fun acc (res, ext, game_type, script_style) ->
         if Key.resource_exists key res ext then begin

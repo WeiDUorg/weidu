@@ -92,7 +92,7 @@ DEFINE_ACTION_FUNCTION HANDLE_AUDIO
     oggdec_path = EVAL "%audio_path%"
     sox_path = EVAL "%audio_path%"
 BEGIN
-  ACTION_IF !GAME_IS bgee BEGIN
+  ACTION_IF !GAME_IS ~bgee bg2ee~ BEGIN
     ACTION_MATCH "%WEIDU_OS%" WITH
       win32
       BEGIN

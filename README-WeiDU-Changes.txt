@@ -19,13 +19,14 @@ Version 232:
   * Do not fail if reading a bif file > 16 MB that puts the file entries after
     the file contents (instead of before). Thanks Blaze for coding this.
   * Wisp starts meddling.
-  * GAME_IS and ENGINE_IS recognise BGEE.
+  * GAME_IS and ENGINE_IS recognise BGEE and BG2EE.
   * Handle BGEE's new file types.
-  * Updated the standard library of macros and functions to account for BGEE.
+  * Updated the standard library of macros and functions to account for BGEE
+    and BG2EE.
   * While loading game resources, create an override directory if none exists.
   * Correct inaccuracies in the documentation of the ADD_AREA_ITEM macro. The
     ADD_AREA_ITEM function defaults to container_to_add_to = 1 instead of 0.
-  * Use BG2's TLK format and scripting style for BGEE.
+  * Use BG2's TLK format and scripting style for BGEE and BG2EE.
   * We no longer distribute WeiGUI.
   * The variable "%SAVE_DIRECTORY%" evaluates to the location of the current
     game's saves. Also "%MPSAVE_DIRECTORY%" for multiplayer saves. Compatible
