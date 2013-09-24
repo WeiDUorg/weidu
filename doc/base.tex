@@ -3222,8 +3222,8 @@ P Q R 3
 
     See the \ttref{MATCH and TRY} tutorial for additional information.
   \\
-  or & \DEFINE{ACTION!TRY} \ttref{TP2 Action} \Slist \t{WITH} \Ob \ttref{value} ...
-    \Ob \t{WHEN} \ttref{value} \Oe
+  or & \DEFINE{ACTION!TRY} \ttref{TP2 Action} \Slist \t{WITH} \Ob guard\ttref{value} ...
+    \Ob \t{WHEN} condition\ttref{value} \Oe
     \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} \Oe ...
     \t{DEFAULT} \ttref{TP2 Action} \Slist \t{END} &
     If evaluating the action list results in an error, the error is matched, as per \ttref{ACTION!MATCH}.
@@ -9619,6 +9619,7 @@ Wisp would like to extend further thanks to the following people:
 \begin{itemize}
 \item CamDawg (sends documentation and tp2 functions)
 \item Nifft (sends compiles)
+\item Antonio Favata, a.k.a. alnair (sends compiles)
 \end{itemize}
 and also The Bigg, for having developed and maintained BiggDU for many years and, while doing so, having significantly improved upon its workings and functionality.
 
