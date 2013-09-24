@@ -6082,12 +6082,12 @@ So what have we done? Let's list the steps involved:
 \item We open a \t{WHILE} loop based upon the number of abilities.
 \item Within the \t{WHILE} loop, we read in the ability type.
 \item Next we defined a new variable to indicate that we had not yet patched any melee type abilities.
-\item We opened  \ttref{PATCH!IF} statement.
+\item We opened a \ttref{PATCH!IF} statement.
 \item We patched melee abilities to do 2D6 damage.
 \item We closed this \ttref{PATCH!IF} loop.
 \item We repeated steps 6-9 to give the ranged abilities 1D12 damage.
 \item We closed our main \t{WHILE} loop by reducing the number of abilities by 1 and indicating that it should stop if the number of abilities reached 0.
-\item We used an \ttref{IF!EVAL} statement to ensure the patch is only applied to axes.
+\item We used a \ttref{PATCH!IF} statement to ensure the patch is only applied to axes.
 \end{enumerate}
 
 That's the end of this tutorial.
