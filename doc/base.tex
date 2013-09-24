@@ -3210,19 +3210,30 @@ P Q R 3
     If \ttref{value} evaluates to true (non-zero), the \ttref{TP2 Action}s
     in the \t{THEN}-branch are executed. Otherwise, if an \t{ELSE}-branch
     is present, its commands are executed. Otherwise nothing happens. \\
-  or & \DEFINE{ACTION!MATCH} \ttref{value} \t{WITH} \Ob \ttref{value} ...
-    \Ob \t{WHEN} \ttref{value} \Oe
+  or & \DEFINE{ACTION!MATCH} \ttref{value} \t{WITH} \Ob guard\ttref{value} ...
+    \Ob \t{WHEN} condition\ttref{value} \Oe
     \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} \Oe ...
     \t{DEFAULT} \ttref{TP2 Action} \Slist \t{END} &
-    See the \ttref{MATCH and TRY} tutorial.
+    The value is case-insensitively matched against the guard
+    values. If value matches one of the guard values, the associated
+    action list is executed. If there is a condition, it additionally
+    needs to evaluate to true for the values to match. If none
+    of the values match, the \t{DEFAULT} action list is executed.
+
+    See the \ttref{MATCH and TRY} tutorial for additional information.
   \\
   or & \DEFINE{ACTION!TRY} \ttref{TP2 Action} \Slist \t{WITH} \Ob \ttref{value} ...
     \Ob \t{WHEN} \ttref{value} \Oe
     \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} \Oe ...
     \t{DEFAULT} \ttref{TP2 Action} \Slist \t{END} &
-    See the \ttref{MATCH and TRY} tutorial.
+    If evaluating the action list results in an error, the error is matched, as per \ttref{ACTION!MATCH}.
+
+    See the \ttref{MATCH and TRY} tutorial for additional information.
   \\
-  or & \DEFINE{ACTION!RERAISE} & See the \ttref{MATCH and TRY} tutorial.
+  or & \DEFINE{ACTION!RERAISE} &
+     When used inside an \ttref{ACTION!TRY}, the matched error is re-raised.
+
+     See the \ttref{MATCH and TRY} tutorial for additional information.
   \\
   or & \DEFINE{AT!EXIT} commandToRun \Ob \t{EXACT} \Oe &
     Whenever this \ttref{component} attempts to be installed, commandToRun
@@ -4277,19 +4288,30 @@ or & \DEFINE{PATCH!IF} \ttref{value} \Ob \t{THEN} \Oe \t{BEGIN}
   convenient shorthand, you may omit the \t{BEGIN}-\t{END} in the \t{ELSE}
   branch if the \t{ELSE} branch contains exactly one \t{patch}.
   \\
-  or & \DEFINE{PATCH!MATCH}\Slist \t{WITH} \Ob \ttref{value} ...
-    \Ob \t{WHEN} \ttref{value} \Oe
+  or & \DEFINE{PATCH!MATCH} \ttref{value} \t{WITH} \Ob guard\ttref{value} ...
+    \Ob \t{WHEN} condition\ttref{value} \Oe
     \t{BEGIN} \ttref{patch} \Slist \t{END} \Oe
     ... \t{DEFAULT} \ttref{patch} \Slist \t{END} &
-    See the \ttref{MATCH and TRY} tutorial.
+    The value is case-insensitively matched against the guard
+    values. If value matches one of the guard values, the associated
+    patch list is executed. If there is a condition, it additionally
+    needs to evaluate to true for the values to match. If none
+    of the values match, the \t{DEFAULT} patch list is executed.
+
+    See the \ttref{MATCH and TRY} tutorial for additional information.
   \\
-  or & \DEFINE{PATCH!TRY} \ttref{patch}\Slist \t{WITH} \Ob \ttref{value} ...
-    \Ob \t{WHEN} \ttref{value} \Oe
+  or & \DEFINE{PATCH!TRY} \ttref{patch} \Slist \t{WITH} \Ob pattern\ttref{value} ...
+    \Ob \t{WHEN} guard\ttref{value} \Oe
     \t{BEGIN} \ttref{patch} \Slist \t{END} \Oe
     ... \t{DEFAULT} \ttref{patch} \Slist \t{END} &
-    See the \ttref{MATCH and TRY} tutorial.
+    If evaluating the patch list results in an error, the error is matched, as per \ttref{PATCH!MATCH}.
+
+    See the \ttref{MATCH and TRY} tutorial for additional information.
   \\
-  or & \DEFINE{PATCH!RERAISE} & See the \ttref{MATCH and TRY} tutorial.
+  or & \DEFINE{PATCH!RERAISE} &
+     When used inside a \ttref{PATCH!TRY}, the matched error is re-raised.
+
+     See the \ttref{MATCH and TRY} tutorial for additional information.
   \\
 or & \DEFINE{PATCH!INCLUDE} \t{\ttref{String}} \Slist &
     loads the file string as if it were a list of tp2 patches and executes it (as if
