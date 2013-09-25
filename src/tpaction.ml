@@ -2031,7 +2031,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                     guess)
                      (List.append game.Load.cd_path_list [game.Load.game_path])) in (* adding game_path is redundant? *)
               (match paths with
-              | [] -> failwith (Printf.sprintf "DECOMPRESS_BIFF: file not found %s" s);
+              | [] -> failwith (Printf.sprintf "DECOMPRESS_BIFF could not find biff %s" s) ;
               | list -> list)
             end) sl) in
           let backup_filename biff suffix =
