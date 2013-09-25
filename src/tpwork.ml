@@ -1411,7 +1411,7 @@ let rec handle_tp game this_tp2_filename tp =
             Dc.clear_state () ;
             Dc.push_trans ();
             init_default_strings () ;
-            set_tp2_vars tp ;
+            set_tp2_vars tp2 ;
             (try
               let l = List.nth tp2.languages b in
               our_lang := Some(l) ;
