@@ -858,12 +858,12 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           List.iter (fun f -> f ()) !worklist
 
       | TP_Add_Music(m) -> begin
-          let music_base_name = Case_ins.filename_basename m.music_file in
+          let music_base_name = Var.get_string (Case_ins.filename_basename m.music_file) in
           if is_true (eval_pe "" game
                         (PE_FileContainsEvaluated
                            (PE_LiteralString "SONGLIST.2DA",
                             PE_LiteralString
-                              ("[ %tab%%wnl%]" ^ music_base_name ^ "[ %tab%%wnl%]"))))
+                              ("[ %TAB%%LNL%%WNL%]" ^ music_base_name ^ "[ %TAB%%LNL%%WNL%]"))))
           then begin
             let buff,path =
               Load.load_resource "ADD_MUSIC" game true "SONGLIST" "2DA" in
@@ -873,7 +873,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             log_and_print "\n\nMUS [%s] already present! Skipping!\n\n"
               music_base_name
           end else begin
-            log_and_print "Adding %s Music ...\n" m.music_name;
+            log_and_print "Adding %s Music ...\n" (Var.get_string m.music_name) ;
             let music_base_name_lower = Case_ins.filename_basename m.music_file in
             let this_music_number = get_next_line_number "SONGLIST.2DA" in
             if this_music_number > 100 then begin
@@ -900,7 +900,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let action_list = [ a1 ; a2 ] in
             List.iter (process_action tp) action_list ;
             Var.set_int32 (m.music_name) (Int32.of_int this_music_number) ;
-            log_and_print "Added %s Music\n" m.music_name;
+            log_and_print "Added %s Music\n" (Var.get_string m.music_name) ;
           end
       end
 
