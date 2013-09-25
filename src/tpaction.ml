@@ -980,7 +980,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                         (PE_FileContainsEvaluated
                            (PE_LiteralString "PROJECTL.IDS",
                             PE_LiteralString
-                              ("[ %tab%%wnl%]" ^ this_pro_name ^ "[ %tab%%wnl%]"))))
+                              ("[ %TAB%%LNL%%WNL%]" ^ this_pro_name ^ "[ %TAB%%LNL%%WNL%]"))))
           then begin
             Var.set_int32 (this_pro_name) (Int32.add
                                              (Bcs.int_of_sym game "PROJECTL" this_pro_name)
@@ -1167,7 +1167,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                         (PE_FileContainsEvaluated
                            (PE_LiteralString "kitlist.2da",
                             PE_LiteralString
-                              ("[ %tab%%wnl%]" ^ k.kit_name ^ "[ %tab%%wnl%]"))))
+                              ("[ %TAB%%LNL%%WNL%]" ^ k.kit_name ^ "[ %TAB%%LNL%%WNL%]"))))
           then begin
             Var.set_int32 (k.kit_name) (Int32.sub (Bcs.int_of_sym game "KIT" k.kit_name) 0x4000l) ;
             log_and_print "\n\nKit [%s] already present! Skipping!\n\n"
