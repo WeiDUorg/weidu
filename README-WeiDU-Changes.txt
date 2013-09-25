@@ -72,6 +72,9 @@ Version 232:
   * Under some circumstances, strings would not be added in the BG2
     format, despite --script-style, if the game was autodetected as
     something other than BG2.
+  * ADD_MUSIC works with more than 100 musics on BGEE/BG2EE.
+  * Fix a malformed music-already-exists check in ADD_MUSIC and some instances
+    where variables were not being evaluated.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
