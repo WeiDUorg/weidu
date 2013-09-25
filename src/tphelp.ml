@@ -413,18 +413,23 @@ let version_greater i c =
 
 let checks_passed = Hashtbl.create 5
 
-let check_enhanced_engine allow_tobhacks allow_tobex allow_gemrb =
-  if Hashtbl.mem checks_passed (allow_tobhacks, allow_tobex, allow_gemrb) then
-    Hashtbl.find checks_passed (allow_tobhacks, allow_tobex, allow_gemrb)
+let check_enhanced_engine game allow_tobhacks allow_tobex allow_gemrb allow_bgee =
+  if Hashtbl.mem checks_passed (allow_tobhacks, allow_tobex, allow_gemrb, allow_bgee) then
+    Hashtbl.find checks_passed (allow_tobhacks, allow_tobex, allow_gemrb, allow_bgee)
   else begin
     let any_ok = ref false in
-    let ans = if (match allow_gemrb with
+    let ans = if (match allow_bgee with
     | None -> false
-    | Some cmp_version ->
-        if file_exists "gemrb_version.txt" then begin
-          let gemrb_version = load_file "gemrb_version.txt" in
-          version_greater gemrb_version cmp_version
-        end else false) then
+    | Some bool -> (Load.enhanced_edition_p game) && bool) then
+      true
+    else if
+      (match allow_gemrb with
+      | None -> false
+      | Some cmp_version ->
+          if file_exists "gemrb_version.txt" then begin
+            let gemrb_version = load_file "gemrb_version.txt" in
+            version_greater gemrb_version cmp_version
+          end else false) then
       true
     else if
       (match allow_tobex with
@@ -464,7 +469,7 @@ let check_enhanced_engine allow_tobhacks allow_tobex allow_gemrb =
             end
           end else false) in
     if ans then
-      Hashtbl.add checks_passed (allow_tobhacks, allow_tobex, allow_gemrb) true;
+      Hashtbl.add checks_passed (allow_tobhacks, allow_tobex, allow_gemrb, allow_bgee) true;
     ans
   end
 

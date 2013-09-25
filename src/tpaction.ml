@@ -877,7 +877,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let music_base_name_lower = Case_ins.filename_basename m.music_file in
             let this_music_number = get_next_line_number "SONGLIST.2DA" in
             if this_music_number > 100 then begin
-              if not (check_enhanced_engine (Some "tb#music") (Some 20) (Some "0.6.6")) then begin
+              if not (check_enhanced_engine game (Some "tb#music") (Some 20) (Some "0.6.6") (Some true)) then begin
                 failwith "The game requires tob_hacks, ToBEx or GemRB to support more than 100 musics."
               end
             end;
@@ -1216,7 +1216,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                         "Ask Ascension64 to further increase the limit in ToBEx");
             end;
             if this_kit_number > 0x100 then begin
-              if not (check_enhanced_engine (None) (Some 20) (Some "0.6.6")) then begin
+              if not (check_enhanced_engine game (None) (Some 20) (Some "0.6.6") None) then begin
                 failwith "The game requires ToBEx or GemRB to support more than 256 kits."
               end
             end;
