@@ -576,8 +576,11 @@ let get_ids_map game ids_filename =
       Idslexer2.initial
     else Idslexer.initial
     in
-    let result = Stats.time "parsing .ids files" (fun () ->
-      Idsparser.ids_file lexer lexbuf) () in
+    let result = (try
+      Stats.time "parsing .ids files" (fun () ->
+        Idsparser.ids_file lexer lexbuf) ()
+    with e -> log_and_print "WARNING: error parsing %s.IDS: %s\n"
+        ids_filename (printexc_to_string e) ; raise e) in
     pop_context () ; 
     log_or_print_modder "[%s.IDS] parsed\n" ids_filename ;
     let ids_map = make_ids_map result in 
