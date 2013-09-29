@@ -290,15 +290,9 @@ let init_default_strings () =
   configuration, [U]ninstall all, [S]kip all, or choose a \
   pre-defined selection:";
 
-  add (-1040) "\nThis game is available in multiple languages. WeiDU will \
-  install mods to a single one of those game languages. Mods will be \
-  available for that language and that language alone. This choice is \
-  different from the choice of which language you wish to install the mod \
-  in and you can install multiple mod languages to the same game language. \
-  If you switch to another language, you need to reinstall your mods.\
-  \n\nPlease choose the game language to which you wish to install this mod. \
-  Your choice will be saved and reused in the future. This choice is saved \
-  to the file weidu.conf, located in your game directory.\n" ;
+  add (-1040) "\nPlease choose the language in which you wish to play \
+  the game.\nIf you later wish to play the game in a different language \
+  you will need to edit the file weidu.conf and reinstall your mods.\n" ;
 
   add (-1041) "Czech" ;
   add (-1042) "German" ;
