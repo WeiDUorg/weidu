@@ -76,6 +76,7 @@ Version 232:
   * Fix a malformed music-already-exists check in ADD_MUSIC and some instances
     where variables were not being evaluated.
   * Fix malformed already-exists checks in ADD_KIT and ADD_PROJECTILE.
+  * WEIDU_ARCH can also be "amd64", on both OS X and GNU/Linux.
 
 Version 231:
   * Fixed a bug that caused DISABLE_FROM_KEY to delete random files instead
