@@ -1,3 +1,6 @@
+// This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+// starting from 18 December 2012 and WeiDU 231.06.
+
 // Note added due to LGPL terms.
 // 
 // This file was edited by Valerio Bigiani, AKA The Bigg, starting from
@@ -65,3 +68,18 @@
   
 @-1038= "[A]sk about each component, [S]kip all, or choose a pre-defined selection:";
 @-1039= "[A]sk about each component, [R]einstall the current configuration, [U]ninstall all, [S]kip all, or choose a pre-defined selection:";
+
+@-1040= "\nPlease choose the language in which you wish to play the game.\nIf you later wish to play the game in a different language you will need to edit the file weidu.conf and reinstall your mods.\n"
+@-1041= "Czech"
+@-1042= "German"
+@-1043= "English"
+@-1044= "Spanish"
+@-1045= "French"
+@-1046= "Italian"
+@-1047= "Polish"
+@-1048= "Portuguese"
+@-1049= "Turkish"
+
+@-1060= "\nThis game is available in multiple languages, but WeiDU does not know which game language was used when this mod was installed.\n\nPlease indicate which game language was used when you installed this mod. Your choice will be used until WeiDU exits but will not be remembered.\n"
+@-1061= "\nUsing"
+@-1062= " and "
