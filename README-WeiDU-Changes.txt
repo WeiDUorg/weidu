@@ -1,3 +1,6 @@
+Version 233:
+  * HANDLE_AUDIO and HANDLE_TILESETS (mostly) handle special characters.
+
 Version 232:
   * Fixed blah blah blah for the benefit of non-English speaking people.
   * Fixed a stack overflow when using COPY_EXISTING_REGEXP and you have more
