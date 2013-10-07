@@ -6532,7 +6532,8 @@ HELMET.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\DEFINE{Prompt Customization}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-This tutorial was thoughtfully provided by Rastor.
+This tutorial was thoughtfully provided by Rastor, and edited by Wisp to
+clarify the role of \t{prompts.tra}.
 
 A customized installer can make your mod look more unique to your end user,
 giving a feel that ``This isn't your basic, cookie-cutter mod.''  WeiDU
@@ -6553,14 +6554,11 @@ In the WeiDU download package (from http://www.weidu.org), you will find a
 file in the \t{examples} folder called \DEFINE{prompts.tra}.  This is the
 file that you modify to customize your installer. Go look at it now.
 
-Upon loading, WeiDU always looks to see if a \t{prompts.tra} file exists in
-the folder that corresponds to the language that the user selects.  If so,
-then weidu automatically loads the file and uses it to display your strings
-instead of the ones that are normally coded into it.  In order to change
-what the setup-mymod.exe file displays to the user, you need to edit this
-file and then place it into the relevant language folder.  Your translators
-should then translate this into whatever language and include it in that
-language folder.
+WeiDU defines a number of default tra references, which are displayed
+at different points during the installation. The tra-reference numbers
+and default text are reproduced in the \t{prompts.tra} file. By
+editing or translating this text, and loading the resulting tra
+strings as any other, the text displayed by WeiDU can be changed.
 
 {\bf An Example}.
 Let us assume for a minute that you want the question asking if users want
