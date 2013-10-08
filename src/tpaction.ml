@@ -858,23 +858,24 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           List.iter (fun f -> f ()) !worklist
 
       | TP_Add_Music(m) -> begin
-          let music_base_name = Var.get_string (Case_ins.filename_basename m.music_file) in
+          let mus_file = Var.get_string m.music_file in
+          let mus_base_file = Case_ins.filename_basename mus_file in
+          let mus_name = Var.get_string m.music_name in
           if is_true (eval_pe "" game
                         (PE_FileContainsEvaluated
                            (PE_LiteralString "SONGLIST.2DA",
                             PE_LiteralString
-                              ("[ %TAB%%LNL%%WNL%]" ^ music_base_name ^ "[ %TAB%%LNL%%WNL%]"))))
+                              ("[ %TAB%%LNL%%WNL%]" ^ mus_base_file ^ "[ %TAB%%LNL%%WNL%]"))))
           then begin
             let buff,path =
               Load.load_resource "ADD_MUSIC" game true "SONGLIST" "2DA" in
-            let number = find_table_row buff 2 (Str.regexp_case_fold ("^" ^ music_base_name ^ "$")) in
+            let number = find_table_row buff 2 (Str.regexp_case_fold ("^" ^ mus_base_file ^ "$")) in
             let number = Int32.sub number 3l in
-            Var.set_int32 (music_base_name) number ;
+            Var.set_int32 mus_name number ;
             log_and_print "\n\nMUS [%s] already present! Skipping!\n\n"
-              music_base_name
+              mus_base_file
           end else begin
-            log_and_print "Adding %s Music ...\n" (Var.get_string m.music_name) ;
-            let music_base_name_lower = Case_ins.filename_basename m.music_file in
+            log_and_print "Adding %s Music ...\n" mus_name ;
             let this_music_number = get_next_line_number "SONGLIST.2DA" in
             if this_music_number > 100 then begin
               if not (check_enhanced_engine game (Some "tb#music") (Some 20) (Some "0.6.6") (Some true)) then begin
@@ -882,16 +883,16 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               end
             end;
             let str_to_append = Printf.sprintf "%d %s %s"
-                this_music_number m.music_name music_base_name in
+                this_music_number mus_name mus_base_file in
 
             let a1 = TP_Append("SONGLIST.2DA",str_to_append,[],true,false,0) in
 
-            let dest_music_file = "music/" ^ music_base_name_lower in
+            let dest_music_file = "music/" ^ mus_base_file in
             let a2 = TP_Copy(
               {copy_get_existing = false;
                 copy_use_regexp = false;
                 copy_use_glob = false;
-                copy_file_list = [(m.music_file,dest_music_file)] ;
+                copy_file_list = [(mus_file,dest_music_file)] ;
                 copy_patch_list = [] ;
                 copy_constraint_list = [] ;
                 copy_backup = true;
@@ -899,8 +900,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 copy_save_inlined = false;} ) in
             let action_list = [ a1 ; a2 ] in
             List.iter (process_action tp) action_list ;
-            Var.set_int32 (m.music_name) (Int32.of_int this_music_number) ;
-            log_and_print "Added %s Music\n" (Var.get_string m.music_name) ;
+            Var.set_int32 mus_name (Int32.of_int this_music_number) ;
+            log_and_print "Added %s Music\n" mus_name ;
           end
       end
 
