@@ -1,0 +1,46 @@
+OUTER_SET tests = 0
+OUTER_SET passed = 0
+OUTER_SET warnings = 0
+
+DEFINE_ACTION_FUNCTION handle_results
+  INT_VAR
+    success = 0
+  STR_VAR
+    message = ""
+  RET
+    warnings
+    passed
+BEGIN
+  ACTION_IF !success AND stop_on_errors BEGIN
+    FAIL "%message%"
+  END ELSE ACTION_IF !success BEGIN
+    WARN "%message%"
+    OUTER_SET ++warnings
+  END ELSE ACTION_IF success BEGIN
+    OUTER_SET ++passed
+  END
+END
+
+DEFINE_ACTION_MACRO run_tests BEGIN
+  LAF run RET success message END
+  LAF handle_results
+    INT_VAR
+      success
+    STR_VAR
+      message
+    RET
+      warnings
+      passed
+  END
+  OUTER_SET ++tests
+END
+
+
+INCLUDE ~%MOD_FOLDER%/lib/tests/fun_eval.tpa~
+LAM run_tests
+
+INCLUDE ~%MOD_FOLDER%/lib/tests/add_music.tpa~
+LAM run_tests
+
+
+PRINT "%passed% out of %tests% tests passed with %warnings% warnings"

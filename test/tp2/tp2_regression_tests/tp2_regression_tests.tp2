@@ -1,0 +1,15 @@
+BACKUP "tp2_regression_tests/backup"
+AUTHOR Wisp
+
+VERSION "we want the new parser"
+
+BEGIN ~TP2 regression tests~
+
+/*
+ * Whether to keep the installation from failing on failed tests.
+ */
+OUTER_SET stop_on_errors = 1
+
+
+
+INCLUDE ~tp2_regression_tests/lib/main.tpa~

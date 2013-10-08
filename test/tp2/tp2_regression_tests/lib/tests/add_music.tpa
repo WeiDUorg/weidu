@@ -1,0 +1,50 @@
+/*
+ * Test the workings of ADD_MUSIC
+ */
+DEFINE_ACTION_FUNCTION test_add_music BEGIN
+  OUTER_SPRINT mus1_base_name fl#test1.mus
+  OUTER_SPRINT mus2_base_name fl#test2.mus
+  OUTER_SPRINT mus1 "%MOD_FOLDER%/resources/mus/%mus1_base_name%"
+  OUTER_SPRINT mus2 "%MOD_FOLDER%/resources/mus/%mus2_base_name%"
+
+  ADD_MUSIC test1 "%mus1%"
+  ADD_MUSIC test2 "%mus1%"
+  ADD_MUSIC test3 "%mus2%"
+
+  ACTION_IF !VARIABLE_IS_SET test1 BEGIN
+    FAIL "test_add_music failed on unset variable %test1%"
+  END
+  ACTION_IF !VARIABLE_IS_SET test3 BEGIN
+    FAIL "test_add_music failed on unset variable %test3%"
+  END
+  ACTION_IF test1 != test2 BEGIN
+    FAIL "test_add_music failed on equality"
+  END
+  ACTION_IF test1 = test3 BEGIN
+    FAIL "test_add_music failed on inequality"
+  END
+  ACTION_FOR_EACH file IN "%mus1_base_name%" "%mus2_base_name%" BEGIN
+    ACTION_IF !FILE_CONTAINS_EVALUATED (songlist.2da "%file%") BEGIN
+      FAIL "test_add_music failed on not present in songlist.2da: %file%"
+    END
+    ACTION_IF !FILE_EXISTS "music/%file%" BEGIN
+      FAIL "test_add_music failed on non-existent file: %file%"
+    END
+  END
+END
+
+DEFINE_ACTION_FUNCTION run
+  RET
+    success
+    message
+BEGIN
+  OUTER_SPRINT message "test_add_music"
+  ACTION_TRY
+    LAF test_add_music END
+    OUTER_SET success = 1
+  WITH
+    DEFAULT
+      OUTER_SET success = 0
+      OUTER_SPRINT message "WARNING: tests failed in test_add_music: %ERROR_MESSAGE%"
+  END
+END

@@ -22,3 +22,6 @@ quitch/*.TP2
 
 traify/*
         Tests for --traify and --traify-old-tra.
+
+tp2/tp2_regression_tests/*
+        A collection of tests for TP2 functionality. Install as a WeiDU mod.
