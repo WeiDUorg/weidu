@@ -3361,8 +3361,21 @@ unusabilities
 	to remove this engine limitation.
     \\
   or & \DEFINE{ADD!MUSIC} internalMusicName newMUSFile &
-    No documentation yet!
-    \\
+
+     \t{newMUSFile} is copied to the \t{music} directory and added to
+     \t{songlist.2da} under the name \t{internalMusicName}. The
+     variable \t{\%internalMusicName\%} is set to the number of this
+     new entry in \t{songlist.2da}. If \t{newMUSFile} already exists,
+     the variable \t{\%internalMusicName\%} is set to the existing
+     entry in \t{songlist.2da} and all other operations are
+     skipped. Variables are evaluated.
+
+     Some versions of the Infinity Engine cannot handle more than 100
+     entries in \t{songlist.2da}. \t{ADD!MUSIC} will fail under
+     those circumstances unless the appropriate versions of ToB Hacks
+     or ToBEx are installed or the game is GemRB or BGEE.
+     \\
+
   or & \DEFINE{ADD!SCHOOL} schoolName removalString &
 	Creates a new (guaranteed-unique) spell school (as per mschool.2da),
 	associate removalString (can be a tra reference) to its removal,

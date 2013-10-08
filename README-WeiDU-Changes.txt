@@ -1,6 +1,7 @@
 Version 233:
   * HANDLE_AUDIO and HANDLE_TILESETS (mostly) handle special characters.
   * ADD_MUSIC does not set the wrong variable if the MUS already exists.
+  * Document ADD_MUSIC.
 
 Version 232:
   * Fixed blah blah blah for the benefit of non-English speaking people.
