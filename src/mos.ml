@@ -47,16 +47,17 @@ let mos_of_str buff =
   for i = 0 to ySizeB - 1 do
     for j = 0 to xSizeB - 1 do
       for k = 0 to 255 do
-	let r = byte_of_str_off buff (!pal_off) in
-	incr pal_off;
-	let g = byte_of_str_off buff (!pal_off) in
-	incr pal_off;
-	let b = byte_of_str_off buff (!pal_off) in
-	incr pal_off;
-	let q = byte_of_str_off buff (!pal_off) in
-	incr pal_off;
-	palette.(k) <- if (k,r,g,b,q) = (0,0,255,0,0) then Trans else Pixel(r,g,b,q);
+        let r = byte_of_str_off buff (!pal_off) in
+        incr pal_off;
+        let g = byte_of_str_off buff (!pal_off) in
+        incr pal_off;
+        let b = byte_of_str_off buff (!pal_off) in
+        incr pal_off;
+        let q = byte_of_str_off buff (!pal_off) in
+        incr pal_off;
+        palette.(k) <- if (k,r,g,b,q) = (0,0,255,0,0) then Trans else Pixel(r,g,b,q);
       done;
+      let off_val = ref (int_of_str_off buff !off_off) in
       off_off := !off_off + 4;
       let xMax = ref bSize in
       let yMax = ref bSize in
@@ -64,8 +65,8 @@ let mos_of_str buff =
       yMax := min !yMax (ySizeP - i * 64);
       for l = 0 to !yMax - 1 do
 	for m = 0 to !xMax - 1 do
-	  mos.(j * bSize + m).(i * bSize + l) <- palette.(byte_of_str_off buff !img_off);
-	  incr img_off
+	  mos.(j * bSize + m).(i * bSize + l) <- palette.(byte_of_str_off buff (!img_off + !off_val));
+	  incr off_val
 	done;
       done;
     done;
