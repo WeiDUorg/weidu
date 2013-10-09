@@ -1,0 +1,50 @@
+/*
+ * DECOMPRESS_BIFF is a tricky one to test in this framework, because
+ * a lot of factors are set by the underlying system or the game (and
+ * are thus not very portable).
+ */
+
+DEFINE_ACTION_FUNCTION test_decomp_biff BEGIN
+  DECOMPRESS_BIFF area090a.bif
+  DECOMPRESS_BIFF area090a.bif // Is now a BIFFV1; should be skipped
+  OUTER_SET fail = 1
+  ACTION_TRY
+    DECOMPRESS_BIFF obviously.fake.bif
+  WITH
+    DEFAULT
+      OUTER_SET fail = 0
+  END
+  ACTION_IF fail BEGIN
+    FAIL "DECOMPRESS_BIFF did not fail on obviously.fake.bif"
+  END
+END
+
+//Tests:
+
+//Decompress something in $GAME/data/ (should work)
+
+//Decompress a BIF V1 (e.g., PST; another form of compressed biff; should work)
+
+//baldur.ini has CD paths with and without terminal separators (terminal separators should be added as needed)
+
+//Decompress $GAME/cd3/data/area090a.bif (deprecated but should still work)
+
+//baldur.ini contains multiple CD paths pointing to the same directory (e.g., GOG BG2; redundant paths should be filtered)
+
+//A compressed backup of the decompressed biff should exist in the same directory
+
+DEFINE_ACTION_FUNCTION run
+  RET
+    success
+    message
+BEGIN
+  OUTER_SPRINT message "test_decomp_biff"
+  ACTION_TRY
+    LAF test_decomp_biff END
+    OUTER_SET success = 1
+  WITH
+    DEFAULT
+      OUTER_SET success = 0
+      OUTER_SPRINT message = "WARNING: tests failed in test_decomp_biff: %ERROR_MESSAGE%"
+  END
+END

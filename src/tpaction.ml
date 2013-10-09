@@ -2019,22 +2019,29 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           Hashtbl.iter (fun name biff ->
             Unix.close biff.Biff.fd) game.Load.loaded_biffs;
           game.Load.loaded_biffs <- Hashtbl.create 5 ;
-          let biff_path_list = List.flatten (List.map (fun s ->
-            let s = String.lowercase s in
-            if file_exists s then begin
-              log_and_print "WARNING: giving biffs as %s to DECOMPRESS_BIFF is deprecated\n" s ;
-              [s]
-            end else begin
-              let paths = List.filter file_exists
-                  (List.map (fun path ->
-                    let guess = (path ^ "/data/" ^ s) in
-                    ignore (log_only "Looking for biff %s at %s\n" s guess) ;
-                    guess)
-                     (List.append game.Load.cd_path_list [game.Load.game_path])) in (* adding game_path is redundant? *)
-              (match paths with
-              | [] -> failwith (Printf.sprintf "DECOMPRESS_BIFF could not find biff %s" s) ;
-              | list -> list)
-            end) sl) in
+          let ensure_terminal_separator path =
+            if Str.string_match (Str.regexp ".*[\\\\/]$") path 0 then
+                path
+            else path ^ "/" in
+          let biff_path_list = List.sort_unique compare
+              (List.flatten (List.map (fun s ->
+                let s = String.lowercase s in
+                if file_exists s then begin
+                  log_and_print "WARNING: giving biffs as %s to \
+                    DECOMPRESS_BIFF is deprecated\n" s ;
+                  [s]
+                end else begin
+                  let paths = List.filter file_exists
+                      (List.map (fun path ->
+                        let guess = (ensure_terminal_separator path) ^
+                          "data/" ^ s in
+                        ignore (log_only "Looking for biff %s at %s\n" s guess) ;
+                        guess) game.Load.cd_path_list) in
+                  (match paths with
+                  | [] -> failwith (Printf.sprintf "DECOMPRESS_BIFF could not \
+                                      find biff %s" s) ;
+                  | list -> list)
+                end) sl)) in
           let backup_filename biff suffix =
             let backup_prefix = "fl#biffbackup" in
             let basename = Case_ins.filename_basename biff in
