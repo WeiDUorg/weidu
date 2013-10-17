@@ -109,9 +109,9 @@ BEGIN
       osx
       BEGIN
         ACTION_IF FILE_EXISTS ~%sox_path%/sox~ BEGIN
-          AT_NOW ~chmod +x "%sox_path%/sox"~
+          AT_NOW ~chmod +x '%sox_path%/sox'~
           ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-            AT_NOW ~"%sox_path%/sox" "%BASH_FOR_FILESPEC%" "%audio_path%/%BASH_FOR_RES%.wav"~
+            AT_NOW ~'%sox_path%/sox' '%BASH_FOR_FILESPEC%' '%audio_path%/%BASH_FOR_RES%.wav'~
             MOVE ~%audio_path%/%BASH_FOR_RES%.wav~ override
           END
         END ELSE BEGIN
@@ -123,7 +123,7 @@ BEGIN
       BEGIN
         OUTER_SET installed = 1
         ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-          AT_NOW ~oggdec "%BASH_FOR_FILESPEC%"~
+          AT_NOW ~oggdec '%BASH_FOR_FILESPEC%'~
           ACTION_IF FILE_EXISTS ~%audio_path%/%BASH_FOR_RES%.wav~ BEGIN
             MOVE ~%audio_path%/%BASH_FOR_RES%.wav~ override
           END ELSE OUTER_SET installed = 0
@@ -155,21 +155,23 @@ BEGIN
     win32
     BEGIN
       OUTER_SPRINT tisunpack "tisunpack.exe"
+      OUTER_SPRINT quote ~"~
     END
 
     osx unix
     BEGIN
       OUTER_SPRINT tisunpack "tisunpack"
       ACTION_IF FILE_EXISTS ~%tisunpack_path%/%WEIDU_OS%/%tisunpack%~ BEGIN
-        AT_NOW ~chmod +x "%tisunpack_path%/%WEIDU_OS%/%tisunpack%"~
+        AT_NOW ~chmod +x '%tisunpack_path%/%WEIDU_OS%/%tisunpack%'~
       END
+      OUTER_SPRINT quote ~'~
     END
     DEFAULT
   END
   ACTION_IF FILE_EXISTS ~%tisunpack_path%/%WEIDU_OS%/%tisunpack%~ BEGIN
     ACTION_BASH_FOR ~%tiz_path%~ ~.+\.tiz$~ BEGIN
       ACTION_IF !FILE_EXISTS ~%tiz_path%/%BASH_FOR_RES%.tis~ BEGIN
-        AT_NOW ~%tisunpack_path%/%WEIDU_OS%/%tisunpack% -s -f -o "%tiz_path%/%BASH_FOR_RES%.tis" "%BASH_FOR_FILESPEC%"~
+        AT_NOW ~%tisunpack_path%/%WEIDU_OS%/%tisunpack% -s -f -o %quote%%tiz_path%/%BASH_FOR_RES%.tis%quote% %quote%%BASH_FOR_FILESPEC%%quote%~
       END
       MOVE ~%tiz_path%/%BASH_FOR_RES%.tis~ override
     END
@@ -177,7 +179,7 @@ BEGIN
     OUTER_SET installed = 1
     ACTION_BASH_FOR ~%tiz_path%~ ~.+\.tiz$~ BEGIN
       ACTION_IF !FILE_EXISTS ~%tiz_path%/%BASH_FOR_RES%.tis~ BEGIN
-        AT_NOW ~tisunpack -s -f -o "%tiz_path%/%BASH_FOR_RES%.tis" "%BASH_FOR_FILESPEC%"~
+        AT_NOW ~tisunpack -s -f -o '%tiz_path%/%BASH_FOR_RES%.tis' '%BASH_FOR_FILESPEC%'~
       END
       ACTION_IF FILE_EXISTS ~%tiz_path%/%BASH_FOR_RES%.tis~ BEGIN
         MOVE ~%tiz_path%/%BASH_FOR_RES%.tis~ override
