@@ -10,7 +10,7 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 open BatteriesInit
-let version = "23201"
+let version = "23300"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
@@ -238,4 +238,5 @@ let version = "23201"
 (* 229 let comment = "Braaaains for Paaaper" *)
 (* 230 let comment = "Unpaid overtime sux" *)
 (* 231 let comment = "Magic tricks using Hashtables" *)
-let comment = "22 months of wretchedness"
+(* let comment = "22 months of wretchedness" *)
+let comment = "Two and a half weeks of wretchedness"
