@@ -8754,10 +8754,10 @@ This function will delete links from one specified area to another. Links can be
 
 \DEFINE{\verb+ADD_WORLDMAP_LINKS+}: add links from one worldmap area to another. This is a PATCH function.
 
-This function add links from one specified area to another. Links can be added from all four directional nodes (north, east, south, west) or from a specific node. If a link already exists, its metadata (distance scale, random encounters, etc.) will be overwritten. Links connecting the areas in the opposite direction will not be added. If either of the areas do not exist in the worldmap, a warning is printed and no link are added.
+This function add links from one specified area to another. Links can be added from all four directional nodes (north, east, south, west) or from a specific node. If a link already exists, its metadata (distance scale, random encounters, etc.) will be overwritten. Links connecting the areas in the opposite direction will not be added. If either of the areas do not exist in the worldmap, a warning is printed and no links are added.
 
 \begin{itemize}
-\item INT_VAR \verb+distance_scale+ to the distance scale between the two areas.
+\item INT_VAR \verb+distance_scale+ to the distance scale between the two areas. \verb+distance_scale+ * 4 equals the travel time between the areas (in hours).
 \item INT_VAR \verb+default_entry+ to the default entry location. Legal values for this variable are 1 (northern side), 2 (eastern), 4 (southern) and 8 (western). The default value is 1.
 \item INT_VAR \verb+encounter_probability+ to the probability of a random encounter occurring.
 \item STR_VAR \verb+from_area+ to the area from which the links should originate.
