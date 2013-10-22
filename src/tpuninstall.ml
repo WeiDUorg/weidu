@@ -152,7 +152,11 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
           let keybuff = load_file keyname in
           game.Load.key <- Key.load_key keyname keybuff ;
           Hashtbl.iter (fun name biff ->
-            Unix.close biff.Biff.fd
+            (try
+              Unix.close biff.Biff.fd ;
+            with e ->
+              log_and_print "ERROR: unistallation failed to close %s while reloading the key file\n" name ;
+              raise e)
           ) game.Load.loaded_biffs;
           game.Load.loaded_biffs <- Hashtbl.create 5 ;
       | TP_Include(string_list) ->
@@ -252,7 +256,11 @@ let check_post_hooks game tp2 i interactive override_filename =
       let keybuff = load_file keyname in
       game.Load.key <- Key.load_key keyname keybuff ;
       Hashtbl.iter (fun name biff ->
-        Unix.close biff.Biff.fd
+        (try
+          Unix.close biff.Biff.fd ;
+        with e ->
+          log_and_print "ERROR: uninstallation failed to close %s during post_hooks\n" name ;
+          raise e)
       ) game.Load.loaded_biffs;
       game.Load.loaded_biffs <- Hashtbl.create 5 ;
   end

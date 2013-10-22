@@ -263,7 +263,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           let keybuff = load_file "chitin.key" in
           game.Load.key <- Key.load_key "chitin.key" keybuff ;
           Hashtbl.iter (fun name biff ->
-            Unix.close biff.Biff.fd) game.Load.loaded_biffs;
+            (try
+              Unix.close biff.Biff.fd
+            with e ->
+              log_and_print "ERROR: DISABLE_FROM_KEY failed to close %s\n" name ;
+              raise e)) game.Load.loaded_biffs;
           game.Load.loaded_biffs <- Hashtbl.create 5 ;
 
       | TP_Require_File(file,error_msg) ->
@@ -334,7 +338,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             if !debug_ocaml then log_and_print "MAKE_BIFF: Loaded the key file\n";
             game.Load.key <- Key.load_key "chitin.key" keybuff ;
             Hashtbl.iter (fun name biff ->
-              Unix.close biff.Biff.fd) game.Load.loaded_biffs;
+              (try
+                Unix.close biff.Biff.fd
+              with e ->
+                log_and_print "ERROR: MAKE_BIFF failed to close %s\n" name ;
+                raise e)) game.Load.loaded_biffs;
             game.Load.loaded_biffs <- Hashtbl.create 5 ;
             if !debug_ocaml then log_and_print "Unmarshaled the key\n";
           end
@@ -2017,7 +2025,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_DecompressBiff(sl) ->
           let sl = List.map Var.get_string (List.map eval_pe_str sl) in
           Hashtbl.iter (fun name biff ->
-            Unix.close biff.Biff.fd) game.Load.loaded_biffs;
+            (try
+              Unix.close biff.Biff.fd
+            with e ->
+              log_and_print "ERROR: DECOMPRESS_BIFF failed to close %s\n" name ;
+              raise e)) game.Load.loaded_biffs;
           game.Load.loaded_biffs <- Hashtbl.create 5 ;
           let ensure_terminal_separator path =
             if Str.string_match (Str.regexp ".*[\\\\/]$") path 0 then

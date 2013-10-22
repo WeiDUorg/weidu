@@ -468,8 +468,12 @@ and copy_large_file name out reason =
           my_write chunk_size out_fd chunk out ;
           sofar := !sofar + chunk_size ;
         done ;
-        Unix.close in_fd ;
-        Unix.close out_fd ;
+        (try
+          Unix.close in_fd ;
+          Unix.close out_fd ;
+        with e ->
+          log_and_print "ERROR: copy_large_file failed to close %s or %s\n" name out ;
+          raise e) ;
         log_only "%s copied to %s, %d bytes\n" name out size ;
       end
 			       ) ()
@@ -499,7 +503,11 @@ let load_file name =
 	let buff = String.make size '\000' in
 	let fd = Case_ins.unix_openfile name [Unix.O_RDONLY] 0 in
 	my_read size fd buff name ;
-	Unix.close fd ;
+        (try
+	  Unix.close fd ;
+        with e ->
+          log_and_print "ERROR: load_file failed to close %s\n" name ;
+          raise e) ;
 	log_only "[%s] loaded, %d bytes\n" name size ;
 	buff) ();
     end

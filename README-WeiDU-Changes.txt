@@ -1,5 +1,6 @@
 Version 234:
   * New strings are correctly added during the first run on BGEE.
+  * More detailed error message for a particular class of error.
 
 Version 233:
   * HANDLE_AUDIO and HANDLE_TILESETS (mostly) handle special characters.

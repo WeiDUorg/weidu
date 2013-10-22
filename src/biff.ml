@@ -95,7 +95,11 @@ let save_biff key filename components =
       let in_fd = Case_ins.unix_openfile f [Unix.O_RDONLY] 0 in
       let istis = String.create 8 in
       my_read 8 in_fd istis f ;
-      Unix.close in_fd ;
+      (try
+        Unix.close in_fd ;
+      with e ->
+        log_and_print "ERROR: save_biff failed to close %s during tiles 1\n" f ;
+        raise e) ;
       let s = (if istis = "TIS V1  " then s - 24 else s) in
       let off = offset_tiles + (i * 20) in
       let tis_loc = (i + 1) lsl 14 in
@@ -128,14 +132,22 @@ let save_biff key filename components =
       log_only "[%s] incorporating [%s]\n" filename f ;
       let in_fd = Case_ins.unix_openfile f [Unix.O_RDONLY] 0 in
       copy_over in_fd f s ;
-      Unix.close in_fd ;
+      (try
+        Unix.close in_fd ;
+      with e ->
+        log_and_print "ERROR: save_biff failed to close %s during files\n" f ;
+        raise e)
 		) files ;
     Array.iteri (fun i (s,f,a,b,t) ->
       log_only "[%s] incorporating [%s]\n" filename f ;
       let in_fd = Case_ins.unix_openfile f [Unix.O_RDONLY] 0 in
       let istis = String.create 8 in
       my_read 8 in_fd istis f ;
-      Unix.close in_fd ;
+      (try
+        Unix.close in_fd ;
+      with e ->
+        log_and_print "ERROR: save_biff failed to close %s during tiles 2\n" f ;
+        raise e) ;
       let in_fd = Case_ins.unix_openfile f [Unix.O_RDONLY] 0 in
       if istis = "TIS V1  " then begin
         let istis = String.create 24 in
@@ -145,10 +157,17 @@ let save_biff key filename components =
       end else
         copy_over in_fd f s ;
       ;
-      Unix.close in_fd ;
+      (try
+        Unix.close in_fd ;
+      with e ->
+        log_and_print "ERROR: save_biff failed to close %s during tiles 3\n" f ;
+        raise e)
 		) tiles ;
-
-    Unix.close out_fd ;
+    (try
+      Unix.close out_fd ;
+    with e ->
+      log_and_print "ERROR: save_biff failed to close output file %s\n" filename ;
+      raise e) ;
     if true then
       begin
 	try
