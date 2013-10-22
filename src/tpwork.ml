@@ -671,6 +671,8 @@ let rec handle_tp game this_tp2_filename tp =
       ignore (Load.set_bgee_lang_dir game (Some dir)) ;
       ignore (write_bgee_lang_dir game.Load.game_path dir) ;
     end ;
+    (* todo: fix this mess *)
+    Dc.cur_index := Array.length (Load.get_active_dialog game) ;
     log_and_print "%s %s%s\n" (get_trans (-1061))
       (Load.get_active_dialog_path game)
       (match Load.get_active_dialogf_path_opt game with

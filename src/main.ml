@@ -1765,6 +1765,7 @@ let main () =
 
   ignore (Load.deal_with_tlkin game) ;
 
+  (* todo: fix this mess *)
   Dc.cur_index := Array.length (Load.get_active_dialog game) ;
 
 
