@@ -154,9 +154,9 @@ let save_biff key filename components =
         (* have it skip the first 24 bytes *)
         my_read 24 in_fd istis f ;
         copy_over in_fd f (s - 24) ;
-      end else
+      end else begin
         copy_over in_fd f s ;
-      ;
+      end ;
       (try
         Unix.close in_fd ;
       with e ->
