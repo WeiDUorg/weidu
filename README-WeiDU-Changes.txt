@@ -1,3 +1,7 @@
+Version 235:
+  * Fix an elusive, semi-random bug during biffing. Thanks to tuxr for
+    tracking this problem down.
+
 Version 234:
   * New strings are correctly added during the first run on BGEE.
   * More detailed error message for a particular class of error.
