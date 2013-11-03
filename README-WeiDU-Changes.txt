@@ -1,6 +1,8 @@
 Version 235:
   * Fix an elusive, semi-random bug during biffing. Thanks to tuxr for
     tracking this problem down.
+  * Translatable strings are provided for the BGEE languages Japanese,
+    Korean and Simplified Chinese.
 
 Version 234:
   * New strings are correctly added during the first run on BGEE.
