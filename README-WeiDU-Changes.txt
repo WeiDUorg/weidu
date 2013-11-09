@@ -3,6 +3,7 @@ Version 235:
     tracking this problem down.
   * Translatable strings are provided for the BGEE languages Japanese,
     Korean and Simplified Chinese.
+  * Fix a regression concerning --nogame.
 
 Version 234:
   * New strings are correctly added during the first run on BGEE.

@@ -1447,6 +1447,8 @@ let main () =
 
   let auto () = begin
     pause_at_end := true ;
+    if not !no_game then
+      Load.validate_cwd () ;
     if is_directory "debugs" then
       init_log Version.version ("debugs/" ^ argv0_base ^ ".DEBUG")
     else
@@ -1727,7 +1729,7 @@ let main () =
     (try
       let _ = Str.search_forward setup_regexp argv0_base 0 in
       auto () ;
-    with _ ->
+    with Not_found ->
       if Array.length Sys.argv <= 1 then begin
         Myarg.usage argDescr usageMsg ;
         flush_all () ;
@@ -1736,7 +1738,6 @@ let main () =
         if mystr = "" then exit return_value_error_argument
         else exit ( Sys.command (Sys.executable_name ^ " " ^ mystr))
       end) ;
-    Load.validate_cwd () ;
   end else
     test_output_tlk_p := false ;
 

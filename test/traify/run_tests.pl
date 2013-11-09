@@ -26,8 +26,8 @@ sub clear {
 
 sub check_sums {
     my($tp2_sum, $tra_sum) = @_;
-    open(TP2, "<", $test_tp2);
-    open(TRA, "<", $test_tra);
+    open(TP2, "<", $test_tp2) or die "No $test_tp2 exists\n";
+    open(TRA, "<", $test_tra) or die "No $test_tra exists\n";
     my $test_tp2_sum = Digest::MD5->new->addfile(*TP2)->hexdigest;
     my $test_tra_sum = Digest::MD5->new->addfile(*TRA)->hexdigest;
     close(TP2);
@@ -48,6 +48,14 @@ sub test_traify {
     &check_sums($traify_tp2_sum, $traify_tra_sum);
 }
 
+sub test_traify_nogame {
+    &clear();
+    copy($traify_test_tp2, $test_tp2);
+    system("weidu", "--nogame", "--traify", $test_tp2);
+    print "Checking sums for --nogame --traify\n";
+    &check_sums($traify_tp2_sum, $traify_tra_sum);
+}
+
 sub test_traifyold {
     &clear();
     copy($traifyold_test_tp2, $test_tp2);
@@ -58,6 +66,7 @@ sub test_traifyold {
 }
 
 &test_traify();
+&test_traify_nogame();
 &test_traifyold();
 &clear();
 print "Tests SUCCESSFUL\n";
