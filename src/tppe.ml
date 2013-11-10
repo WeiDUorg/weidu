@@ -426,7 +426,7 @@ let rec eval_pe buff game p =
         match String.uppercase this with
         | "BG2"
         | "SOA"        -> bg2 && not tutu && not tob && not ca && not iwdinbg2
-        | "TOB"        -> bg2 && not tutu &&     tob && not ca && not iwdinbg2
+        | "TOB"        -> bg2 && not tutu &&     tob && not ca && not iwdinbg2 && not bg2ee
         | "IWD2"       -> iwd2
         | "PST"        -> pst
         | "BG1"        -> bg1 && not tosc && not bg2

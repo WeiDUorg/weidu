@@ -4,6 +4,7 @@ Version 235:
   * Translatable strings are provided for the BGEE languages Japanese,
     Korean and Simplified Chinese.
   * Fix a regression concerning --nogame.
+  * BGII: EE does not detect as ToB, for purposes of (GAME|ENGINE)_IS.
 
 Version 234:
   * New strings are correctly added during the first run on BGEE.
