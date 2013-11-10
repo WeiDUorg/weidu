@@ -4,6 +4,8 @@ Version 235:
   * Translatable strings are provided for the BGEE languages Japanese,
     Korean and Simplified Chinese.
   * Fix a regression concerning --nogame.
+  * Improve ADD_KIT documentation.
+  * SAVE_DIRECTORY and MPSAVE_DIRECTORY variables work properly on BG2EE.
   * BGII: EE does not detect as ToB, for purposes of (GAME|ENGINE)_IS.
   * Add the variable %USER_DIRECTORY%.
 
