@@ -110,6 +110,10 @@ let get_bgee_user_dir game_path =
   let personal = get_user_personal_dir () in
   personal ^ "/Baldur's Gate - Enhanced Edition"
 
+let get_bg2ee_user_dir game_path =
+  let personal = get_user_personal_dir () in
+  personal ^ "/Baldur's Gate II - Enhanced Edition"
+
 let game_path_by_type name =
   match String.lowercase name with
   | "bg2"  -> registry_path ()

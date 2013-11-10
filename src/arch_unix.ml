@@ -92,6 +92,9 @@ let check_UAC () =
 let get_bgee_user_dir game_path =
   game_path
 
+let get_bg2ee_user_dir game_path =
+  game_path
+
 let game_path_by_type name =
   failwith "--game-by-path not available on this architecture"
 
