@@ -310,14 +310,23 @@ let set_savedir_var path =
   set_string "SAVE_DIRECTORY" (path ^ "/save") ;
   set_string "MPSAVE_DIRECTORY" (path ^ "/mpsave")
 
+let set_userdir_var path =
+  set_string "USER_DIRECTORY" path
+
 let bgee_game_vars game_path =
-  ignore (set_savedir_var (Arch.get_bgee_user_dir game_path))
+  let user_dir = Arch.get_bgee_user_dir game_path in
+  ignore (set_savedir_var user_dir) ;
+  ignore (set_userdir_var user_dir)
 
 let bg2ee_game_vars game_path =
-  ignore (set_savedir_var (Arch.get_bg2ee_user_dir game_path))
+  let user_dir = Arch.get_bg2ee_user_dir game_path in
+  ignore (set_savedir_var user_dir) ;
+  ignore (set_userdir_var user_dir)
 
 let default_game_vars game_path =
-  ignore (set_savedir_var ".")
+  ignore (set_savedir_var ".") ;
+  ignore (set_userdir_var ".")
+
 
 let get_tp2_base_name dir =
   (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" dir)

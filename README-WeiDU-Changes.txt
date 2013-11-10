@@ -5,6 +5,7 @@ Version 235:
     Korean and Simplified Chinese.
   * Fix a regression concerning --nogame.
   * BGII: EE does not detect as ToB, for purposes of (GAME|ENGINE)_IS.
+  * Add the variable %USER_DIRECTORY%.
 
 Version 234:
   * New strings are correctly added during the first run on BGEE.
