@@ -3370,22 +3370,28 @@ unusabilities
 
     Most arguments to \ttref{ADD!KIT} are strings to be appended verbatim to
     \t{2DA} files, detailed as follows:
-    \begin{tabular}{l l}
-      \textbf{Argument} & \textbf{\t{2DA} file} \\
-      \t{String1} & \t{clasweap} \\
-      \t{String2} & \t{weapprof} \\
-      \t{String3} & \t{abclasrq} \\
-      \t{String4} & \t{abclsmod} \\
-      \t{String5} & \t{abdcdsrq} \\
-      \t{String6} & \t{abdcscrq} \\
-      \t{String7} & \t{alignmnt} \\
-      \t{String8} & \t{dualclas} \\
-      \t{String10} & \t{kittable} \\
-      \t{String12} & \t{luabbr} \\
-      \t{String13} & \t{25stweap} \\
+    \begin{tabular}{l l l}
+      \textbf{Argument} & \textbf{\t{2DA} file} & \textbf{Verbatim} \\
+      \t{String1} & \t{clasweap} & Yes \\
+      \t{String2} & \t{weapprof} & Yes \\
+      \t{String3} & \t{abclasrq} & Yes \\
+      \t{String4} & \t{abclsmod} & Yes \\
+      \t{String5} & \t{abdcdsrq} & Yes \\
+      \t{String6} & \t{abdcscrq} & Yes \\
+      \t{String7} & \t{alignmnt} & Yes \\
+      \t{String8} & \t{dualclas} & Yes \\
+      \t{String12} & \t{luabbr} & No \\
+      \t{String13} & \t{25stweap} & No \\
     \end{tabular}
+    Strings that are appended verbatim need to include the kit name at
+    the very start of the string. Strings that are not appended verbatim
+    should not include the kit name, as it is added automatically.
 
     \t{String9} is the path to the CLAB-style \t{2DA} file of your kit.
+
+    \t{String10} is a list of which class and race combinations the kit
+    should be available for, as per \t{kittable.2da}.
+
     \t{String11} is the unusability information and parent class used in
     \t{kitlist.2da}.
 
