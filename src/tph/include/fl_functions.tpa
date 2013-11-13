@@ -1,3 +1,6 @@
+<<<<<<<< .../fl#inlined/null.file
+>>>>>>>>
+
 DEFINE_PATCH_FUNCTION ADD_CRE_SCRIPT
   INT_VAR
     offset_start = SCRIPT_OVERRIDE
@@ -98,8 +101,10 @@ BEGIN
       BEGIN
         ACTION_IF FILE_EXISTS "%oggdec_path%/oggdec.exe" BEGIN
           ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
+            OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
+            COPY ~.../fl#inlined/null.file~ ~%wavfile%~
             AT_NOW ~%oggdec_path%/oggdec.exe "%BASH_FOR_FILESPEC%"~
-            MOVE ~%audio_path%/%BASH_FOR_RES%.wav~ override
+            MOVE ~%wavfile%~ override
           END
         END ELSE BEGIN
           WARN ~WARNING: audio was not installed because oggdec.exe could not be found in %oggdec_path%~
@@ -111,8 +116,10 @@ BEGIN
         ACTION_IF FILE_EXISTS ~%sox_path%/sox~ BEGIN
           AT_NOW ~chmod +x '%sox_path%/sox'~
           ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-            AT_NOW ~'%sox_path%/sox' '%BASH_FOR_FILESPEC%' '%audio_path%/%BASH_FOR_RES%.wav'~
-            MOVE ~%audio_path%/%BASH_FOR_RES%.wav~ override
+            OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
+            COPY ~.../fl#inlined/null.file~ ~%wavfile%~
+            AT_NOW ~'%sox_path%/sox' '%BASH_FOR_FILESPEC%' '%wavfile%'~
+            MOVE ~%wavfile%~ override
           END
         END ELSE BEGIN
           WARN ~WARNING: audio was not installed because sox could not be found in %sox_path%~
@@ -123,9 +130,13 @@ BEGIN
       BEGIN
         OUTER_SET installed = 1
         ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
+          OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
+          COPY ~.../fl#inlined/null.file~ ~%wavfile%~
           AT_NOW ~oggdec '%BASH_FOR_FILESPEC%'~
-          ACTION_IF FILE_EXISTS ~%audio_path%/%BASH_FOR_RES%.wav~ BEGIN
-            MOVE ~%audio_path%/%BASH_FOR_RES%.wav~ override
+          ACTION_IF FILE_EXISTS ~%wavfile%~ &&
+                    !FILE_SIZE ~%wavfile%~ 0
+          BEGIN
+            MOVE ~%wavfile%~ override
           END ELSE OUTER_SET installed = 0
         END
         ACTION_IF !installed BEGIN
@@ -170,19 +181,21 @@ BEGIN
   END
   ACTION_IF FILE_EXISTS ~%tisunpack_path%/%WEIDU_OS%/%tisunpack%~ BEGIN
     ACTION_BASH_FOR ~%tiz_path%~ ~.+\.tiz$~ BEGIN
-      ACTION_IF !FILE_EXISTS ~%tiz_path%/%BASH_FOR_RES%.tis~ BEGIN
-        AT_NOW ~%tisunpack_path%/%WEIDU_OS%/%tisunpack% -s -f -o %quote%%tiz_path%/%BASH_FOR_RES%.tis%quote% %quote%%BASH_FOR_FILESPEC%%quote%~
-      END
-      MOVE ~%tiz_path%/%BASH_FOR_RES%.tis~ override
+      OUTER_SPRINT tisfile ~%tiz_path%/%BASH_FOR_RES%.tis~
+      COPY ~.../fl#inlined/null.file~ ~%tisfile%~
+      AT_NOW ~%tisunpack_path%/%WEIDU_OS%/%tisunpack% -s -f -o %quote%%tisfile%%quote% %quote%%BASH_FOR_FILESPEC%%quote%~
+      MOVE ~%tisfile%~ override
     END
   END ELSE ACTION_IF "%WEIDU_OS%" STRING_EQUAL_CASE "unix" BEGIN // Support tisunpack being located on the system path
     OUTER_SET installed = 1
     ACTION_BASH_FOR ~%tiz_path%~ ~.+\.tiz$~ BEGIN
-      ACTION_IF !FILE_EXISTS ~%tiz_path%/%BASH_FOR_RES%.tis~ BEGIN
-        AT_NOW ~tisunpack -s -f -o '%tiz_path%/%BASH_FOR_RES%.tis' '%BASH_FOR_FILESPEC%'~
-      END
-      ACTION_IF FILE_EXISTS ~%tiz_path%/%BASH_FOR_RES%.tis~ BEGIN
-        MOVE ~%tiz_path%/%BASH_FOR_RES%.tis~ override
+      OUTER_SPRINT tisfile ~%tiz_path%/%BASH_FOR_RES%.tis~
+      COPY ~.../fl#inlined/null.file~ ~%tisfile%~
+      AT_NOW ~tisunpack -s -f -o '%tisfile%' '%BASH_FOR_FILESPEC%'~
+      ACTION_IF FILE_EXISTS ~%tisfile%~ &&
+                !FILE_SIZE ~%tisfile%~ 0
+      BEGIN
+        MOVE ~%tisfile%~ override
       END ELSE OUTER_SET installed = 0
     END
     ACTION_IF !installed BEGIN
