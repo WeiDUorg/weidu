@@ -1,3 +1,9 @@
+Version 236:
+  * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
+    upon uninstallation.
+  * Fix regressions in fj_are_structure and FJ_CRE_REINDEX affecting
+    BGII: EE.
+
 Version 235:
   * Fix an elusive, semi-random bug during biffing. Thanks to tuxr for
     tracking this problem down.
