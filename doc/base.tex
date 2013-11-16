@@ -4958,14 +4958,14 @@ contains the second \ttref{regexp}. Thus \t{"AR1005" STRING!CONTAINS!REGEXP
 or & \DEFINE{GAME!IS} \ttref{String} & Returns true if the IE game variant
 is one of the entries in String, otherwise it returns false. String is a list of
 whitespace-separated entries, chosen from (case doesn't matter)
-\verb+bg2=soa, tob, iwd2, pst, bg1, totsc, iwd=iwd1, how, tolm=totlm, tutu, tutu_totsc, bgt, ca, iwd_in_bg2, bgee+.
+\verb+bg2=soa, tob, iwd2, pst, bg1, totsc, iwd=iwd1, how, tolm=totlm, tutu, tutu_totsc, bgt, ca, iwd_in_bg2, bgee, bg2ee+.
 In the list, \verb+bg2=soa+ means that \verb+bg2+ and \verb+soa+ are synonyms,
 and you can use whichever one you like. Please note that the items in the list are
 defined to be mutually exclusive (except \verb+tob+ will detect both plain ToB
 and ToB with BGT installed, for legacy purposes), so \verb+bg2+ will detect a
 SoA-only game, without either ToB or Tutu installed. As such, a mod which is
-usable with any flavor of BG2 and any flavor of Tutu would contain
-\verb+REQUIRE_PREDICATE GAME_IS ~bg2 tob tutu tutu_totsc~+ . \\
+usable with any flavor of BG2 and any flavor of Tutu or BG: EE would contain
+\verb+REQUIRE_PREDICATE GAME_IS ~bg2 tob tutu tutu_totsc bgee bg2ee~+ . \\
 
 or & \DEFINE{ENGINE!IS} \ttref{String} & Functions like \ttref{GAME!IS}
 except \verb+bg2=soa+ will detect SoA-based Tutu games in addition to SoA games,
