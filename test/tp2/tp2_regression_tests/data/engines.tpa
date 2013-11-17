@@ -1,0 +1,13 @@
+ACTION_DEFINE_ARRAY engines BEGIN
+  soa
+  tob
+  bg1
+  totsc
+  iwd1
+  how
+  totlm
+  pst
+  iwd2
+  bgee
+  bg2ee
+END

@@ -1,0 +1,18 @@
+ACTION_DEFINE_ARRAY games BEGIN
+  soa
+  tob
+  iwd2
+  pst
+  bg1
+  totsc
+  iwd1
+  how
+  totlm
+  tutu
+  tutu_totsc
+  bgt
+  ca
+  iwd-in-bg2
+  bgee
+  bg2ee
+END

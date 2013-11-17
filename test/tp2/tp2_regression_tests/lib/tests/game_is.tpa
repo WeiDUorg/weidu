@@ -1,0 +1,53 @@
+
+DEFINE_ACTION_FUNCTION test_game_is BEGIN
+  INCLUDE ~%MOD_FOLDER%/data/games.tpa~
+  ACTION_PHP_EACH games AS i => game BEGIN
+    OUTER_SET EVAL "%game%" = GAME_IS ~%game%~
+  END
+
+  OUTER_SPRINT tp2 ""
+  OUTER_SET this_ran = 0
+  ACTION_PHP_EACH games AS i1 => game1 BEGIN
+    ACTION_PHP_EACH games AS i2 => game2 BEGIN
+      ACTION_IF NOT "%game1%" STRING_EQUAL_CASE "%game2%" AND
+                NOT ("%game2%" STRING_EQUAL_CASE "tob" AND
+                     "%game1%" STRING_EQUAL_CASE "bgt")
+      BEGIN
+        OUTER_SPRINT tp2
+          ~%tp2%ACTION_IF %game1% AND %game2% BEGIN FAIL "%game2% and %game1% are both true" END%LNL%~
+      END
+      ACTION_IF "%game2%" STRING_EQUAL_CASE "tob" AND
+                "%game1%" STRING_EQUAL_CASE "bgt"
+      BEGIN
+        OUTER_SPRINT tp2
+          ~%tp2%ACTION_IF %game1% AND !%game2% BEGIN FAIL "tob should be true for bgt" END%LNL%~
+      END
+    END
+  END
+  OUTER_SPRINT tp2 ~%tp2%OUTER_SET this_ran = 1%LNL%~
+  COPY - ".../fl#inlined/null.file" ".../fl-inlined/regression/game_is.tpa"
+    INSERT_BYTES 0 STRING_LENGTH "%tp2%"
+    WRITE_ASCIIE 0 "%tp2%"
+
+  ACTION_REINCLUDE ".../fl-inlined/regression/game_is.tpa"
+
+  ACTION_IF !this_ran BEGIN
+    FAIL ~test_game_is failed to rut its tests~
+  END
+END
+
+DEFINE_ACTION_FUNCTION run
+  RET
+    success
+    message
+BEGIN
+  OUTER_SPRINT message "test_game_is"
+  ACTION_TRY
+    LAF test_game_is END
+    OUTER_SET success = 1
+  WITH
+    DEFAULT
+      OUTER_SET success = 0
+      OUTER_SPRINT message "WARNING: tests failed in test_game_is: %ERROR_MESSAGE%"
+  END
+END

@@ -1,0 +1,24 @@
+DEFINE_ACTION_FUNCTION get_runtime_info
+  RET
+    game
+    engine
+BEGIN
+  INCLUDE ~%MOD_FOLDER%/data/games.tpa~
+  ACTION_PHP_EACH games AS i => g BEGIN
+    ACTION_IF GAME_IS ~%g%~ BEGIN
+      OUTER_SPRINT game "%g%"
+    END
+  END
+  INCLUDE ~%MOD_FOLDER%/data/engines.tpa~
+  ACTION_PHP_EACH engines AS i => e BEGIN
+    ACTION_IF ENGINE_IS ~%e%~ BEGIN
+      OUTER_SPRINT engine "%e%"
+    END
+  END
+  ACTION_IF !VARIABLE_IS_SET game BEGIN
+    OUTER_SPRINT game "unknown"
+  END
+  ACTION_IF !VARIABLE_IS_SET engine BEGIN
+    OUTER_SPRINT engine "unknown"
+  END
+END

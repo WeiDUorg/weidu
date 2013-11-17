@@ -42,5 +42,11 @@ LAM run_tests
 INCLUDE ~%MOD_FOLDER%/lib/tests/add_music.tpa~
 LAM run_tests
 
+INCLUDE ~%MOD_FOLDER%/lib/tests/game_is.tpa~
+LAM run_tests
 
+
+INCLUDE ~%MOD_FOLDER%/lib/get_runtime_info.tpa~
+LAF get_runtime_info RET game engine END
+PRINT "Game was detected as %game% and Engine was detected as %engine%"
 PRINT "%passed% out of %tests% tests passed with %warnings% warnings"
