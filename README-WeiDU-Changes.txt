@@ -3,7 +3,8 @@ Version 236:
     upon uninstallation.
   * Fix regressions in fj_are_structure and FJ_CRE_REINDEX affecting
     BGII: EE.
-  * Do not fail on uninstalling files copied from a location like C:\.
+  * WeiDU does not fail on uninstalling files copied from paths
+    containing a colon (e.g., C:\something\or\other).
   * sc#addWmpAre does not make backups of save files (because save
     files are not safely uninstallable).
   * Support SetGlobalRandom().
@@ -21,7 +22,7 @@ Version 235:
 
 Version 234:
   * New strings are correctly added during the first run on BGEE.
-  * More detailed error message for a particular class of error.
+  * More detailed error message for a particular class of errors.
 
 Version 233:
   * HANDLE_AUDIO and HANDLE_TILESETS (mostly) handle special characters.
