@@ -421,7 +421,7 @@ let rec backup_if_extant filename =
     match !backup_dir with
     | Some(dir) when file_exists filename -> (
 	let name = filename in
-	let out = dir ^ "/" ^ (Str.global_replace (Str.regexp "[\\/]") "." filename) in
+	let out = dir ^ "/" ^ (Str.global_replace (Str.regexp "[\\/:]") "." filename) in
 	let out1 = dir ^ "/" ^ Case_ins.filename_basename filename in
 	let where = ref "" in
 	try
