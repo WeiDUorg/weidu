@@ -649,6 +649,7 @@ let is_concat_string ss ids =
   | _, 30l (*SetGlobal(S:Name.,S:Area.,I:Value.)*)
   | _, 115l (*SetGlobalTimer(S:Name.,S:Area.,I:Time.GTimes)*)
   | _, 109l (*IncrementGlobal(S:Name.,S:Area.,I:Value.)*)
+  | Load.BG2, 364l (*SetGlobalRandom(S:Variable.,S:Area.,I:Count.,I:Size.)*)
   | Load.BG1, 246l (*CreateCreatureAtLocation(S:GLOBAL.,S:Area.,S:ResRef.)*)
   | Load.BG2, 246l (*CreateCreatureAtLocation(S:GLOBAL.,S:Area.,S:ResRef.)*)
   | _, 256l (*CreateItemGlobal(S:Global.,S:Area.,S:ResRef.)*)

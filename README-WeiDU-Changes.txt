@@ -6,6 +6,7 @@ Version 236:
   * Do not fail on uninstalling files copied from a location like C:\.
   * sc#addWmpAre does not make backups of save files (because save
     files are not safely uninstallable).
+  * Support SetGlobalRandom().
 
 Version 235:
   * Fix an elusive, semi-random bug during biffing. Thanks to tuxr for
