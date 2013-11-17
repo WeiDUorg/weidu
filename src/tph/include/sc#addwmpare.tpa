@@ -104,7 +104,7 @@ END
 DEFINE_ACTION_FUNCTION sc#savepatch BEGIN
    ACTION_PHP_EACH save AS from => to BEGIN
       ACTION_IF ( FILE_EXISTS ~%to%/%worldmap%.wmp~ == 1 ) BEGIN
-        COPY ~%to%/%worldmap%.wmp~ ~%to%/%worldmap%.wmp~
+        COPY + ~%to%/%worldmap%.wmp~ ~%to%/%worldmap%.wmp~
           // read offsets
           READ_LONG 0x30 "area_num"
           READ_LONG 0x34 "area_off"

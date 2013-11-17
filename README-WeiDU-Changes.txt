@@ -3,6 +3,9 @@ Version 236:
     upon uninstallation.
   * Fix regressions in fj_are_structure and FJ_CRE_REINDEX affecting
     BGII: EE.
+  * Do not fail on uninstalling files copied from a location like C:\.
+  * sc#addWmpAre does not make backups of save files (because save
+    files are not safely uninstallable).
 
 Version 235:
   * Fix an elusive, semi-random bug during biffing. Thanks to tuxr for
