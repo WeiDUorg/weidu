@@ -196,7 +196,7 @@ windows_zip : weidu weinstall tolower clean #weigui
 	upx --best tolower.exe || echo "No EXE Compression"
 	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU/*.exe WeiDU/COPYING WeiDU/README* WeiDU/*.dll WeiDU/examples WeiDU/*.manifest)
 src_zip : clean
-	(cd .. ; zip -9r WeiDU-Src-$(VER).zip weidu/* -x weidu/*.exe -x weidu/*.dll; )
+	(cd .. ; zip -9r WeiDU-Src-$(VER).zip weidu/* -x weidu/*.exe -x weidu/*.dll -x */.DS_Store; )
 build : weidu
 	rm iwg2* weimorph* || true
 	cp weid*$(EXE) ../WeiDU-Linux/weidu || true
@@ -239,7 +239,7 @@ osx_zip : weidu weinstall #weigui
 	cp -r examples ../WeiDU-Mac
 	#sed -e's/version_plist=.*/version_plist=\"${VERBIG}\"/g'  '../WeiDU-Mac/WeiDU Installer.command' > t
 	#mv t ../WeiDU-Mac/WeiDU\ Installer.command
-	(cd .. ; zip -9r WeiDU-Mac-$(VER).zip WeiDU-Mac )
+	(cd .. ; zip -9r WeiDU-Mac-$(VER).zip WeiDU-Mac -x */.DS_Store )
 endif
 
 IWD2_DIR = "/cygdrive/c/Program Files/Black Isle/Icewind Dale II/"
