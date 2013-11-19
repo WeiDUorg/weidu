@@ -1503,7 +1503,7 @@ let main () =
     "--search-ids", Myarg.String Load.add_ids_path, "X\tlook in X for input IDS files (cumulative)" ;
     "--tlkin", Myarg.String Load.set_dialog_tlk_path,"X\tuse X as DIALOG.TLK" ;
     "--ftlkin", Myarg.String Load.set_dialogf_tlk_path,"X\tuse X as DIALOGF.TLK";
-    "--use-lang", Myarg.String (fun s -> ee_use_lang := Some s), "X\ton games with multiple languages, use files in lang/X/";
+    "--use-lang", Myarg.String (fun s -> ee_use_lang := Some (String.lowercase s)), "X\ton games with multiple languages, use files in lang/X/";
     "--tlkmerge", Myarg.String (fun s -> tlk_merge := !tlk_merge @ [s]; test_output_tlk_p := true),
     "X\tmerge X into loaded DIALOG.TLK" ;
     "--yes", Myarg.Set Tp.always_yes,"\tanswer all TP2 questions with 'Yes'";

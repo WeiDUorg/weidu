@@ -494,7 +494,7 @@ let use_bgee_lang_dir game dir =
   let str1 = Str.quote "lang" in
   let str2 = Str.quote dir in
   let regexp = (Str.regexp_case_fold
-                  (str1 ^ "[\\\\/]+" ^ dir)) in
+                  (str1 ^ "[\\\\/]+" ^ str2)) in
   let foundp = ref false in
   ignore (set_additional_bgee_load_paths game dir) ;
   ignore (Array.iteri (fun index tlk_pair ->

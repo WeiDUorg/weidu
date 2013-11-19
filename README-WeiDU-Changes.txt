@@ -1,3 +1,6 @@
+Version 237:
+  * The argument to --use-lang is lower-cased.
+
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
     upon uninstallation.
