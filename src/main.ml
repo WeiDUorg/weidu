@@ -1601,6 +1601,7 @@ let main () =
     "--strfind", Myarg.String (fun s -> strfind_list := s :: !strfind_list), "X\tdisplay strings that contain X (cumulative, regexp allowed)" ;
     "--strapp", Myarg.String (fun s -> strapp_list := s :: !strapp_list ; test_output_tlk_p := true), "X\tappend string X to DIALOG.TLK (cumulative)\n\nBIFF Options:\n" ;
     "--exit", Myarg.Set exit_now, "\tprint version number and exit";
+    "--version", Myarg.Set exit_now, "\tprint version number and exit";
     "--no-exit-pause", Myarg.Set no_exit_pause, "\tDon't ask to press enter to exit";
     "--list-biffs", Myarg.Set list_biff, "\tenumerate all BIFF files in CHITIN.KEY" ;
     "--list-files", Myarg.Set list_files, "\tenumerate all resource files in CHITIN.KEY";
