@@ -18,7 +18,7 @@ let unix_rmdir s = Unix.rmdir s;;
 
 let sys_readdir s = Sys.readdir s;;
 
-let weidu_executable = "WeiDU.exe" ;;
+let weidu_executable = "weidu.exe" ;;
 
 let filename_basename = Filename.basename;;
 let filename_check_suffix = Filename.check_suffix;;

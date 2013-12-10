@@ -22,7 +22,7 @@ let unix_rmdir s = Unix.rmdir (backslash_to_slash s);;
 
 let sys_readdir s = Sys.readdir (backslash_to_slash s);;
 
-let weidu_executable = "WeiDU" ;;
+let weidu_executable = "weidu" ;;
 
 let filename_basename s = Filename.basename (backslash_to_slash s) ;;
 let filename_check_suffix s = Filename.check_suffix (backslash_to_slash s) ;;
