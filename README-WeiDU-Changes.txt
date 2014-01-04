@@ -1,6 +1,7 @@
 Version 237:
   * The argument to --use-lang is lower-cased.
   * Add --version option.
+  * setup-foo-bar(.exe) does not fail to find its TP2 file.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files

@@ -1480,7 +1480,8 @@ let main () =
       in
       let chunk_list = Str.split (Str.regexp "[-]") argv0_base in
       let chunk = match chunk_list with
-      | a :: b :: _ -> b
+      | a :: b :: [] -> b
+      | a :: b -> (String.concat "-" b)
       | _ -> ""
       in
       try_it
