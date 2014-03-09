@@ -688,8 +688,8 @@ DEFINE_PATCH_FUNCTION ALTER_SPELL_EFFECT
     check_headers  = 1      // check effects on headers; 0 for no, 1 for yes
     header         = 0      // add to this header; 0 for all headers
     header_type    = "-1"   // -1 to check all headers, otherwise use type specified
-    opcode         = "-1"   // opcode at 0x00 to match, use -1 for all
-    opcode_new     = "-1"   // if opcode matches, change to this value
+    match_opcode   = "-1"   // opcode at 0x00 to match, use -1 for all
+    new_opcode     = "-1"   // if opcode matches, change to this value
     target         = "-1"   // change target at 0x02; negative values mean no change
     timing         = "-1"   // change timing at 0x0c; negative values mean no change
     power          = "-1"   // change power level at 0x03; negative values mean no change
@@ -714,8 +714,8 @@ BEGIN
       check_headers
       header
       header_type
-      opcode
-      opcode_new
+      match_opcode
+      new_opcode
       target
       timing
       power

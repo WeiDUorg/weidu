@@ -3,6 +3,7 @@ Version 237:
   * Add --version option.
   * setup-foo-bar(.exe) does not fail to find its TP2 file.
   * Support the EEs' file type 0x405 (GLSL).
+  * Fix misnamed variables in ALTER_SPELL_EFFECT.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
