@@ -641,6 +641,7 @@ BEGIN
       dicenumber
       secondary_type
       damage_bonus
+      damage_type
       charges
       drained
       projectile

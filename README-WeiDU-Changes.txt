@@ -5,6 +5,7 @@ Version 237:
   * Support the EEs' file type 0x405 (GLSL).
   * Fix misnamed variables in ALTER_SPELL_EFFECT.
   * sc#addWmpAre initialises inclSv to a default value.
+  * Fix a bug that incapacitated ALTER_ITEM_HEADER's damage_type variable.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
