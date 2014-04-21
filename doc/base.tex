@@ -3192,22 +3192,22 @@ P Q R 3
 	  assumed to be at the beginning of newText. A cell containing exactly
 	  \verb+$+ is printed as empty. \\
 
-  or & \DEFSYN{EXTEND!TOP} existingBCS newFile \ttref{patch} \Slist &
+  or & \DEFSYN{EXTEND!TOP} existingBCS newFile \ttref{patch} \Slist \Ob \t{USING} traName \Slist \Oe &
     Loads existingFile (which may be \ttref{BAF} or \ttref{BCS}), prepends
     all of newBCS to the top of it, applies all of the \ttref{patch}es, and
     then copies it to the \t{override} folder. User variables in
     the filenames existingFile and newFile are replaced by their values.
     Use \ttref{EVALUATE!BUFFER} if you want to evaluate variables inside
     the body of newFile before parsing it. \\
-  or & \DEFSYN{EXTEND!BOTTOM} existingBCS newFile \ttref{patch} \Slist &
+  or & \DEFSYN{EXTEND!BOTTOM} existingBCS newFile \ttref{patch} \Slist \Ob \t{USING} traName \Slist \Oe &
     As \ttref{EXTEND!TOP}, but the newFile file is put at the bottom of the
     existingBCS file. User variables in the filenames existingFile and
     newFile are replaced by their values. \\
-  or & \DEFINE{EXTEND!TOP!REGEXP} existingBCSregexp newFile \ttref{patch} \Slist &
-    As \ttref{EXTEND!TOP}, but the newFile file is put at the bottom of the
+  or & \DEFINE{EXTEND!TOP!REGEXP} existingBCSregexp newFile \ttref{patch} \Slist \Ob \t{USING} traName \Slist \Oe &
+    As \ttref{EXTEND!TOP}, but the newFile file is put at the top of the
     every \ttref{BCS} file that matches the \ttref{regexp}
     existingBCSregexp. \\
-  or & \DEFINE{EXTEND!BOTTOM!REGEXP} existingBCSregexp newFile \ttref{patch} \Slist &
+  or & \DEFINE{EXTEND!BOTTOM!REGEXP} existingBCSregexp newFile \ttref{patch} \Slist \Ob \t{USING} traName \Slist \Oe &
     See \ttref{EXTEND!TOP!REGEXP}.  \\
   or & \DEFINE{ACTION!IF} \ttref{value} \t{THEN BEGIN}
     \ttref{TP2 Action} \Slist \t{END}
