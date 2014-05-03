@@ -53,19 +53,8 @@ let handle_tp2_filename filename =
 
 let get_tra_list_filename filename =
   if file_exists filename || Hashtbl.mem inlined_files filename then begin
-    let result =
-      (match split (String.uppercase filename) with
-      | _, "TRB" ->
-	  let inchan = Case_ins.perv_open_in_bin filename in
-	  let result = Stats.time "parsing .trb files"
-              Marshal.from_channel inchan in
-	  close_in inchan ;
-	  result
-      | _, _ ->
-	  let result = parse_file true (File filename) "parsing .tra files"
-              (Dparser.tra_file Dlexer.initial) in
-	  result)
-    in
+    let result = parse_file true (File filename) "parsing .tra files"
+        (Dparser.tra_file Dlexer.initial) in
     result
   end else []
 ;;

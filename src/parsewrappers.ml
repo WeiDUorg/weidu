@@ -115,22 +115,8 @@ let handle_tpp_filename filename =
 
 let handle_tra_filename filename =
   if file_exists filename || Hashtbl.mem inlined_files filename then begin
-    let result =
-      (match split (String.uppercase filename) with
-      | _, "TRB" -> begin try
-	  let inchan = Case_ins.perv_open_in_bin filename in
- 	  let result = Stats.time "parsing .trb files"
-	      Marshal.from_channel inchan in
-	  close_in inchan ;
-	  result
-      with e -> log_and_print "TRB trouble: %s\n\n" (printexc_to_string e);
-	raise e
-      end
-      | _, _ ->
-	  let result = parse_file true (File filename) "parsing .tra files"
-	      (Dparser.tra_file Dlexer.initial) in
-	  result)
-    in
+    let result = parse_file true (File filename) "parsing .tra files"
+	(Dparser.tra_file Dlexer.initial) in
     log_or_print "[%s] has %d translation strings\n" filename
       (List.length result);
     Dc.notChanged := false;
@@ -157,20 +143,9 @@ let resolve_tra_paths_and_load our_lang tra_l =
 
 let get_tra_list_filename filename =
   if file_exists filename || Hashtbl.mem inlined_files filename then begin
-    let result =
-      (match split (String.uppercase filename) with
-      | _, "TRB" ->
-	  let inchan = Case_ins.perv_open_in_bin filename in
-	  let result = Stats.time "parsing .trb files"
-	      Marshal.from_channel inchan in
-	  close_in inchan ;
-	  result
-      | _, _ ->
-	  let result = parse_file true (File filename) "parsing .tra files"
-	      (Dparser.tra_file Dlexer.initial) in
-	  Dc.notChanged := false;
-	  result)
-    in
+    let result = parse_file true (File filename) "parsing .tra files"
+	(Dparser.tra_file Dlexer.initial) in
+    Dc.notChanged := false;
     log_or_print "[%s] has %d translation strings\n" filename
       (List.length result);
     result

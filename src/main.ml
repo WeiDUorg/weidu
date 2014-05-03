@@ -779,22 +779,6 @@ let decompile_dlg dlg_list transitive two_pass use_trans d_headers d_toplevel ga
   done ;
 ;;
 
-let make_trb_file trbify =
-  (match trbify with
-  | Some(filename) -> begin
-      let result = parse_file true (File filename) "parsing .tra files"
-          (Dparser.tra_file Dlexer.initial) in
-      log_or_print "[%s] has %d translation strings\n" filename
-        (List.length result);
-      let base = handle_out_boringness filename ["tra"; "trb"] in
-      if !debug_ocaml then log_and_print "I'm trying to save to %s.trb\n\n" base ;
-      let out = Case_ins.perv_open_out_bin (base ^ ".trb") in
-      Marshal.to_channel out result [] ;
-      close_out out
-  end
-  | _ -> ()) ;
-;;
-
 let untraify game untraify_d untraify_tra =
   if_bgee_check_lang_or_fail game ;
   ( match (untraify_d,untraify_tra) with
@@ -1428,7 +1412,6 @@ let main () =
   let traify = ref None in
   let traify_old_tra = ref None in
   let traify_comment = ref false in
-  let trbify = ref None in
   let traify_num = ref 0 in
 
   let untraify_d = ref None in
@@ -1588,7 +1571,6 @@ let main () =
     "--traify-old-tra", Myarg.String (fun s -> traify_old_tra := Some(s)), "X\tthe given .TRA file contains the initial strings to traify" ;
     "--traify#", Myarg.Int (fun d -> traify_num := d), "X\tstart --traify .TRA file at @X" ;
     "--traify-comment", Myarg.Set traify_comment, "\toutput @1 /* ~Hello~ */ rather than @1 when traifying" ;
-    "--trbify", Myarg.String (fun s -> trbify := Some(s)), "X\tconvert .TRA file X to a TRB (use with --out)" ;
     "--untraify-d", Myarg.String (fun s -> untraify_d := Some(s)), "X\tconvert .D file X to use hardcoded strings...";
     "--untraify-tra", Myarg.String (fun s -> untraify_tra := Some(s)), "X\t...from TRA file X";
     "--extract-kits", Myarg.Int (fun d -> extract_kits := d), "X\textract all kits starting with kit #X";
@@ -1676,8 +1658,7 @@ let main () =
     | "TLK" -> test_output_tlk_p := true ; Load.set_dialog_tlk_path str
     | "TP"
     | "TP2" -> test_output_tlk_p := true ; tp_list := !tp_list @ [str]
-    | "TRA"
-    | "TRB" -> trans_list := !trans_list @ [str]
+    | "TRA" -> trans_list := !trans_list @ [str]
     | "ITM"
     | "EFF"
     | "SPL" -> list_eff_list := !list_eff_list @ [str]
@@ -1938,11 +1919,6 @@ let main () =
   if !test_trans then begin
     Dc.test_trans output_theout game
   end ;
-
-
-  if !trbify <> None then
-    make_trb_file !trbify ;
-
 
   if !untraify_d <> None && !untraify_tra <> None then
     untraify game !untraify_d !untraify_tra ;
