@@ -51,10 +51,6 @@ CAMLFLAGS      += -I zlib -I xdiff
 
 PROJECT_EXECUTABLE = $(OBJDIR)/weidu$(EXE)
 PROJECT_MODULES    = $(WEIDU_MODULES)
-ifdef HAVE_MSVC
-PROJECT_CMODULES   = reg
-PROJECT_CLIBS      = C:\\Windows\\System32\\advapi32.dll
-endif
 ifdef HAVE_MINGW
 PROJECT_CMODULES   = reg
 PROJECT_CLIBS      = -ladvapi32
@@ -83,10 +79,6 @@ $(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
 PROJECT2_EXECUTABLE = $(OBJDIR)/weimorph$(EXE)
 PROJECT2_MODULES    = myarg $(WEIDU_BASE_MODULES) \
                         iwgconf iwgrule iwgparser iwglexer iwg2
-ifdef HAVE_MSVC
-PROJECT2_CMODULES   = reg
-PROJECT2_CLIBS      = advapi32.lib
-endif
 ifdef HAVE_MINGW
 PROJECT2_CMODULES   = reg
 PROJECT2_CLIBS      = -ladvapi32

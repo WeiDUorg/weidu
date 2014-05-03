@@ -39,10 +39,6 @@ CAMLFLAGS      += -I zlib -I xdiff -I +labltk
 
 PROJECT3_EXECUTABLE = $(OBJDIR)/weigui$(EXE)
 PROJECT3_MODULES    =  $(WEIDU_BASE_MODULES) weigui
-ifdef HAVE_MSVC
-PROJECT3_CMODULES   = reg
-PROJECT3_CLIBS      = advapi32.lib
-endif
 ifdef HAVE_MINGW
 PROJECT3_CMODULES   = reg
 PROJECT3_CLIBS      = -ladvapi32

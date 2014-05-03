@@ -64,5 +64,4 @@ $(OBJDIR)/mymarshal.cmx : $(OBJDIR)/dlexer.cmx
 $(OBJDIR)/util.cmx : $(OBJDIR)/arch.cmx
 
 # Include now the common set of rules for OCAML
-include Makefile.msvc
 include Makefile.ocaml
