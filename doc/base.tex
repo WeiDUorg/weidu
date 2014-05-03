@@ -4212,8 +4212,31 @@ or & \DEFINE{GET!OFFSET!ARRAY} \ttref{String} \t{seven \ttref{value}s} &
 
 WeiDU comes with a number of pre-defined sets of values for \t{GET!OFFSET!ARRAY}. These sets are:
 \begin{verbatim}
+ARE_V10_ACTORS (0x54 4 0x58 2 0 0 0x110)
+ARE_V10_REGIONS (0x5c 4 0x5a 2 0 0 0xc4)
+ARE_V10_SPAWN_POINTS (0x60 4 0x64 4 0 0 0xc8)
+ARE_V10_ENTRANCES (0x68 4 0x6c 4 0 0 0x68)
+ARE_V10_CONTAINERS (0x70 4 0x74 2 0 0 0xc0)
+ARE_V10_AMBIENTS (0x84 4 0x82 2 0 0 0xd4)
+ARE_V10_DOORS (0xa8 4 0xa4 4 0 0 0xc8)
+ARE_V10_ANIMATIONS (0xb0 4 0xac 4 0 0 0x4c)
+
+CRE_V10_KNOWN_SPELLS (0x2a0 4 0x2a4 4 0 0 0xc)
+CRE_V10_SPELL_MEM_INFO (0x2a8 4 0x2ac 4 0 0 0x10)
+CRE_V10_EFFECTS (0x2c4 4 0x2c8 4 0 0 0x108)
+CRE_V10_ITEMS (0x2bc 4 0x2c0 4 0 0 0x14)
+
 ITM_V10_HEADERS (0x64 4 0x68 2 0 0 0x38)
 ITM_V10_GEN_EFFECTS (0x6a 4 0x70 2 0x6e 2 0x30)
+
+SPL_V10_HEADERS (0x64 4 0x68 2 0 0 0x28)
+SPL_V10_GEN_EFFECTS (0x6a 4 0x70 2 0x6e 2 0x30)
+
+STO_V10_ITEMS_PURCHASED (0x2c 4 0x30 4 0 0 0x4)
+STO_V10_ITEMS_SOLD (0x34 4 0x38 4 0 0 0x1c)
+STO_V10_DRINKS (0x4c 4 0x50 4 0 0 0x14)
+STO_V10_CURES (0x70 4 0x74 4 0 0 0xc)
+
 WMP_AREAS (0x34 4 0x30 4 0 0 0xf0)
 WMP_LINKS (0x38 4 0x3c 4 0 0 0xd8)
 \end{verbatim}
@@ -4233,11 +4256,24 @@ or & \DEFINE{GET!OFFSET!ARRAY2} \ttref{String} \t{eight \ttref{value}s} &
 8. Length between iterations
 \end{verbatim}
 
-WeiDU comes with a pre-defined set of values for \t{GET!OFFSET!ARRAY2}. This set is:
+WeiDU comes with a number of pre-defined sets of values for \t{GET!OFFSET!ARRAY2}. These sets are:
 \begin{verbatim}
+ARE_V10_ITEMS (0x78 4 0x44 4 0x40 4 0x14)
+ARE_V10_REGION_VERTICES (0x7c 4 0x2a 2 0x2c 4 0x4)
+ARE_V10_CONTAINER_VERTICES (0x7c 4 0x54 2 0x50 4 0x4)
+
+CRE_V10_SPELL_MEM (0x2b0 4 0xc 4 0x8 4 0xc)
+
 ITM_V10_HEAD_EFFECTS (0x6a 4 0x1e 2 0x20 2 0x30)
+
+SPL_V10_HEAD_EFFECTS (0x6a 4 0x1e 2 0x20 2 0x30)
+
+WMP_NORTH_LINKS (0x38 4 0x50 4 0x54 4 0xd8)
+WMP_WEST_LINKS (0x38 4 0x58 4 0x5c 4 0xd8)
+WMP_SOUTH_LINKS (0x38 4 0x60 4 0x64 4 0xd8)
+WMP_EAST_LINKS (0x38 4 0x68 4 0x6c 4 0xd8)
 \end{verbatim}
-As you can see, the value for Offset2 isn't included in the set, since it varies.
+As you can see, the value for Offset2 isn't included in the sets, since it varies.
 
 "Offset2" corresponds to the result from \ttref{GET!OFFSET!ARRAY}. "Offset" is read from the start of the file. "Iterations" and "Index" are read from Offset2 + value. Apart from that \t{GET!OFFSET!ARRAY2} functions like \ttref{GET!OFFSET!ARRAY}. A more detailed explanation can be had in the \ttref{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} tutorial.\\
 
