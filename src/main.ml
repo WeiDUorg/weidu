@@ -1318,11 +1318,6 @@ let main () =
   let list_comp_lang = ref 0 in
   let save_comp_name = ref false in
 
-  let make_an_itemlist = ref false in
-  let make_an_xplist = ref false in
-  let do_cre_analysis = ref false in
-  let do_itmsort = ref false in
-
   let dcmp_src = ref None in
   let dcmp_dest = ref None in
 

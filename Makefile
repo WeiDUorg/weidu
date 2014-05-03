@@ -138,12 +138,6 @@ doc: doc/base.tex
 	cat README.html | sed -e "s/&ndash;/--/g" -e's/&#X2013;/--/g' > README-WeiDU.html
 	rm README.html
 
-ifdef ITEMLIST
-zip :
-	echo cannot make zip -- itemlist included
-linux_zip :
-  echo cannot make zip -- itemlist included
-else
 windows_zip : weidu weinstall tolower clean #weigui
 	rm iwg2* weimorph* || true
 	mv weid*.exe weidu.exe
@@ -204,6 +198,5 @@ osx_zip : weidu weinstall #weigui
 	#sed -e's/version_plist=.*/version_plist=\"${VERBIG}\"/g'  '../WeiDU-Mac/WeiDU Installer.command' > t
 	#mv t ../WeiDU-Mac/WeiDU\ Installer.command
 	(cd .. ; zip -9r WeiDU-Mac-$(VER).zip WeiDU-Mac -x */.DS_Store )
-endif
 
 FORCE:
