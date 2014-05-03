@@ -8,6 +8,7 @@ Version 237:
   * Fix a bug that incapacitated ALTER_ITEM_HEADER's damage_type variable.
   * Add more keywords to GET_OFFSET_ARRAY and GET_OFFSET_ARRAY2.
   * TRB files are no longer supported.
+  * Cut WeiMorph.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
