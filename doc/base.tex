@@ -367,18 +367,22 @@ All other keywords are symbolic. Notes:
   Behaves like \ttref{CHAIN} except that all of the \ttref{chainText} is
   additionally guarded by the \ttref{transition} predicate {\tt Global("globalVariable","GLOBAL",0)} and accompanied by the action {\tt SetGlobal("globalVariable","GLOBAL",1)}. If you pick {\tt globalVariable } to be unique, this will ensure that the \ttref{chainText} is only ever seen once per game. This is useful for making interjections. \\
 
-  or & \DEFSYN{INTERJECT!COPY!TRANS} entryFilename entryLabel {\tt
-  globalVariable} \ttref{chainText} \Slist &
-  This behaves just like \ttref{INTERJECT} except that the exitFilename and
-  exitLabel are not present. Instead, whenever the dialogue would pass out
-  of the \ttref{chainText} it follows a copy of the \ttref{transition}s
-  that were at the \ttref{state} with \ttref{stateLabel} originally. This
-  is convenient for making quick interjections from NPCs that do not actually
-  change the true flow of the conversation. See the \ttref{transition}
-  \ttref{COPY!TRANS} and the \ttref{INTERJECT!COPY!TRANS} tutorial
-  for more information about this idea.  \\
+  or & \DEFSYN{INTERJECT!COPY!TRANS} \Ob \t{SAFE} \Oe entryFilename
+  entryLabel {\tt globalVariable} \ttref{chainText} \Slist &
+  This behaves just like \ttref{INTERJECT} except that the
+  exitFilename and exitLabel are not present. Instead, whenever the
+  dialogue would pass out of the \ttref{chainText} it follows a copy
+  of the \ttref{transition}s that were at the \ttref{state} with
+  \ttref{stateLabel} originally. This is convenient for making quick
+  interjections from NPCs that do not actually change the true flow of
+  the conversation. See the \ttref{transition} \ttref{COPY!TRANS} and
+  the \ttref{INTERJECT!COPY!TRANS} tutorial for more information about
+  this idea. If \t{SAFE} is specified, \ttref{INTERJECT!COPY!TRANS}
+  will not warn about potentially unsafe uses (use this if you know it
+  is safe).
+  \\
 
-  or & \DEFSYN{INTERJECT!COPY!TRANS2} entryFilename entryLabel {\tt
+  or & \DEFSYN{INTERJECT!COPY!TRANS2} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
   globalVariable} \ttref{chainText} \Slist &
   This works just like \ttref{INTERJECT!COPY!TRANS}, except that any
   actions taken in the transitions of the state specified by entryFilename
@@ -387,14 +391,14 @@ All other keywords are symbolic. Notes:
   speaker). See the \ttref{INTERJECT!COPY!TRANS2} tutorial.
   \\
 
-  or & \DEFINE{INTERJECT!COPY!TRANS3} entryFilename entryLabel {\tt
+  or & \DEFINE{INTERJECT!COPY!TRANS3} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
   globalVariable} \ttref{chainText} \Slist &
   This works just like \ttref{INTERJECT!COPY!TRANS}, except that all
   states in chainText get a link in the entry state, rather than only the
   first one. Expecting documentation.
   \\
 
-  or & \DEFINE{INTERJECT!COPY!TRANS4} entryFilename entryLabel {\tt
+  or & \DEFINE{INTERJECT!COPY!TRANS4} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
   globalVariable} \ttref{chainText} \Slist &
   This is either \ttref{INTERJECT!COPY!TRANS3} with \ttref{INTERJECT!COPY!TRANS2}-style
   action handling, or \ttref{INTERJECT!COPY!TRANS2} with the extended
@@ -596,10 +600,10 @@ regexp. \\
 end of the \ttref{CHAIN}. \\
 is & {\tt END} filename stateNumber & Transfer to the given state in the given dialogue file. \\
 or & {\tt EXTERN} filename stateNumber & Transfer to the given state in the given dialogue file. \\
-or & {\tt COPY!TRANS} filename stateNumber & At the end of the
+or & {\tt COPY!TRANS} \Ob \t{SAFE} \Oe filename stateNumber & At the end of the
 \ttref{CHAIN} text, copy all transitions from the given state in the
-given file. This is useful for interjections (see \ttref{INTERJECT}).  \\
-or & {\tt COPY!TRANS!LATE} filename stateNumber & Same as above, but only copy after all the other \ttref{D Action}s have been applied. \\
+given file. This is useful for interjections (see \ttref{INTERJECT}). If \t{SAFE} is specified, \ttref{CHAIN} will not warn about potentially unsafe uses of \t{COPY!TRANS} (use this if you know it is safe). \\
+or & {\tt COPY!TRANS!LATE} \Ob \t{SAFE} \Oe filename stateNumber & Same as above, but only copy after all the other \ttref{D Action}s have been applied. \\
 or & {\tt EXIT} & At the end of the \ttref{CHAIN} text, exit the dialogue.\\
 or & {\tt END} \ttref{transition} \Slist & Execute the given \ttref{transition}s
 after the final state in the \ttref{CHAIN}. \\
@@ -684,7 +688,7 @@ or & \t{+} \Ob \ttref{transTriggerString} \Oe \t{+} \ttref{replyText}
   (which is by far the most common case) allows you to save yourself
   some time and typing. It behaves like the full form above.  \\
 
-or & \DEFINE{COPY!TRANS} filename \ttref{stateLabel} &
+or & \DEFINE{COPY!TRANS} \Ob \t{SAFE} \Oe filename \ttref{stateLabel} &
     This instructs WeiDU to copy all of the \ttref{transition}s from the
     \ttref{state} with the given \ttref{stateLabel} in \t{filename.}\ttref{DLG}. This
     copying takes place before all other \ttref{D Action}s. For example,
@@ -693,8 +697,9 @@ or & \DEFINE{COPY!TRANS} filename \ttref{stateLabel} &
 <pre width="40"><font color="#3159D1">IF</font> <font color="#868626">~Before()~</font> <font color="#3159D1">THEN</font> <font color="#3159D1">GOTO</font> my_state
 <font color="#3159D1">COPY_TRANS</font> PLAYER1 <font color="#0000FF">33</font>
 <font color="#3159D1">IF</font> <font color="#868626">~After()~</font> <font color="#3159D1">THEN</font> <font color="#3159D1">EXTERN</font> SOLA <font color="#0000FF">55</font></pre>
-\end{rawhtml} \\
-or & \DEFINE{COPY!TRANS!LATE} filename \ttref{stateLabel} &
+\end{rawhtml}
+    If \t{SAFE} is specified, \ttref{COPY!TRANS} will not warn about potentially unsafe uses (use this if you know it is safe). \\
+or & \DEFINE{COPY!TRANS!LATE} \Ob \t{SAFE} \Oe filename \ttref{stateLabel} &
     Same as \ttref{COPY!TRANS}, but is invoked after all other \ttref{D Action}s. \\
 
 \\
