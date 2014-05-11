@@ -216,6 +216,7 @@ let action_to_str a = match a with
 | TP_ActionGetStrRef _ -> "ACTION_GET_STRREF"
 | TP_Delete _ -> "DELETE"
 | TP_AddJournal _ -> "ADD_JOURNAL"
+| TP_Create _ -> "CREATE"
 
 
 (************************************************************************

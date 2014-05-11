@@ -12,6 +12,7 @@ Version 237:
   * Document SAFE.
   * Correct documentation of LOAD_TRA.
   * Clarify documentation of RINDEX.
+  * Add CREATE TP2 action.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files

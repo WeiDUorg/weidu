@@ -536,6 +536,7 @@ nonterm(Tp.tp_action) Tp_Action {
 	-> ACTION_GET_STRREF_FS  e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        true,true) ]
   -> ADD_JOURNAL e1:Optional_Journal_Existing e2:Optional_Journal_Managed e3:Optional_Journal_Title
                  e4:Reference_List e5:Optional_Using [ Tp.TP_AddJournal(e1,e2,e3,e4,e5) ]
+  -> CREATE e1:STRING e2:Optional_File_Version e3:STRING e4:Tp_Patch_List [ Tp.TP_Create(e1, e2, e3, e4) ]
 }
 
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List_Rev {
@@ -1041,6 +1042,11 @@ nonterm (bool) Optional_Journal_Managed {
 nonterm (Dlg.tlk_string option) Optional_Journal_Title {
         -> [ None ]
         -> TITLE LPAREN e1:Lse RPAREN [ Some e1 ]
+}
+
+nonterm (string option) Optional_File_Version {
+        -> [ None ]
+        -> VERSION e1:STRING [ Some e1 ]
 }
 
 nonterm (Tp.tp_patch) Tp_Patch {

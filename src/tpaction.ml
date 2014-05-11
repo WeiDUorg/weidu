@@ -2106,7 +2106,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           ignore (List.iter decompress biff_path_list) ;
 
       | TP_AddJournal(existing,managed,title,ref_list,tra_list) ->
-          match game.Load.game_type with
+          (match game.Load.game_type with
           | Load.BGEE
           | Load.BG2EE -> begin
 
@@ -2247,7 +2247,25 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
               Dc.pop_trans ();
             end
-          | Load.GENERIC -> ());
+          | Load.GENERIC -> ())
+
+      | TP_Create(filetype, version, resref, patch_list) ->
+          begin
+            let filetype = Var.get_string filetype in
+            let resref = Var.get_string resref in
+            let version = (match version with
+            | None -> ""
+            | Some s -> Var.get_string s) in
+
+            Var.set_string "FL#CREATE#TYPE" (eval_pe_str (PE_LiteralString filetype));
+            Var.set_string "FL#CREATE#RESREF" (eval_pe_str (PE_LiteralString resref));
+            Var.set_string "FL#CREATE#VERSION" (eval_pe_str (PE_LiteralString version));
+
+            process_action tp (TP_Define_Patch_Macro ("FL#CREATE#PATCH_LIST", [], patch_list));
+            process_action tp (TP_Include ["fl#create.tpa"]);
+            process_action tp (TP_Launch_Action_Macro("FL#CREATE"));
+          end
+      );
       if !clear_memory then begin
         clear_memory := false;
         process_action tp TP_ClearMemory;

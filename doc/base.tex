@@ -3072,6 +3072,22 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
 		Don't use without a real reason.
        \\
 
+  or & \DEFINE{CREATE} type \Ob \t{VERSION} version \Oe resref \Ob \ttref{patch} \Slist \Oe &
+
+      Creates a new file of the specified type with the resource
+      reference resref and a correct file extension for the file
+      type. If there are any patches, they are applied to contents of
+      the new file. Any existing file with the same name will be
+      backed up, as normal. The file will be created structurally
+      correct but will contain no non-zero data aside from the
+      structural details. The file version will be native to the
+      current game, but can be overridden with the \t{VERSION} option,
+      which takes a string specifying the desired
+      version. \ttref{CREATE} supports the file types \t{ARE},
+      \t{CRE}, \t{EFF}, \t{ITM}, \t{SPL} and \t{STO} and all their
+      known file versions (aside from EFF V1.0, which is never found
+      as a file).  \\
+
   or & \DEFINE{COMPILE} \Ob \t{EVALUATE!BUFFER} \Oe sourceFile \Slist
        \Ob \ttref{patch} \Slist \Oe \Ob \DEFINE{USING} traFile \Slist \Oe &
       This command compiles \ttref{D} and \ttref{BAF} source files. If
