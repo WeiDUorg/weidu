@@ -728,79 +728,38 @@ END
 //required: container_to_add_to (starting from 1), ~item_to_add~
 //optional: charges1 charges2 charges3 flags
 DEFINE_PATCH_MACRO ~ADD_AREA_ITEM~ BEGIN
-  PATCH_IF (BUFFER_LENGTH > 0x11b) BEGIN
-    //reading necessary offsets
-    READ_LONG 0x70 ___#cont_off
-    READ_SHORT 0x74 ___#cont_num
-    READ_LONG 0x78 ___#itm_off
-    READ_SHORT 0x76 ___#itm_num
-
-    PATCH_IF (___#cont_num >= container_to_add_to) BEGIN
-      READ_LONG (___#cont_off + (container_to_add_to - 1) * 0xc0 + 0x40) ___#1item_index //first item index
-
-      INSERT_BYTES (___#itm_off + (___#1item_index * 0x14)) 0x14 //adding the item at the top
-      WRITE_EVALUATED_ASCII (___#itm_off + (___#1item_index * 0x14)) ~%item_to_add%~ #8
-
-      //charges:
-      WRITE_SHORT (___#itm_off + (___#1item_index * 0x14 + 0xa)) charges1
-      WRITE_SHORT (___#itm_off + (___#1item_index * 0x14 + 0xc)) charges2
-      WRITE_SHORT (___#itm_off + (___#1item_index * 0x14 + 0xe)) charges3
-
-      //flags
-      SET ___#flags_to_set = 0
-      PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~identified~ = 0) BEGIN
-        SET ___#flags_to_set= (___#flags_to_set BOR 0b00000001)
-      END
-      PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~unstealable~ = 0) BEGIN
-        SET ___#flags_to_set = (___#flags_to_set BOR 0b00000010)
-      END
-      PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~stolen~ = 0) BEGIN
-      SET ___#flags_to_set = (___#flags_to_set BOR 0b00000100)
-      END
-      PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~undroppable~ = 0) BEGIN
-      SET ___#flags_to_set = (___#flags_to_set BOR 0b00001000)
-      END
-      WRITE_LONG (___#itm_off + (___#1item_index * 0x14 + 0x10)) ___#flags_to_set
-
-      //correct ___#cont_off on the fly if need
-      PATCH_IF ( (___#cont_off > ___#itm_off) OR ((___#cont_off = ___#itm_off) AND (___#itm_num = 0)) ) BEGIN //a collision with equal offsets
-        SET ___#cont_off = (___#cont_off + 0x14)
-        WRITE_LONG 0x70 ___#cont_off
-      END
-
-      //correcting number ot items in container
-      READ_LONG (___#cont_off + (container_to_add_to - 1) * 0xc0 + 0x44) ___#cont_items_num
-      WRITE_LONG (___#cont_off + (container_to_add_to - 1) * 0xc0 + 0x44) (___#cont_items_num + 1) //increase number of items by 1
-
-      //adjusting items indexes in other containers
-      SET ___#index1 = container_to_add_to //starting from next(!) to specified
-      WHILE (___#index1 < ___#cont_num) BEGIN //searching through containers
-        READ_LONG (___#cont_off + ___#index1 * 0xc0 + 0x40) ___#1item_index //first item ___#index1
-        WRITE_LONG (___#cont_off + ___#index1 * 0xc0 + 0x40) (___#1item_index + 1) //increase first item ___#index1 by 1
-        SET ___#index1 = (___#index1 + 1)
-      END
-
-      //correcting offsets (0x70 already fixed, 0x78 - items offset). This form because area blocks order vary
-      PATCH_FOR_EACH ___#offset IN 0x54 0x5c 0x60 0x68 0x7c 0x84 0x88 0xa0 0xa8 0xb0 0xb8 0xbc 0xc0 0xc4 0xcc BEGIN
-        READ_LONG ___#offset ___#current_off
-        PATCH_IF ( (___#current_off > ___#itm_off) OR ((___#current_off = ___#itm_off) AND (___#itm_num = 0)) ) BEGIN //a collision with equal offsets
-          WRITE_LONG ___#offset (___#current_off + 0x14)
-        END
-      END
-      //correct items number
-      WRITE_SHORT 0x76 (___#itm_num + 1)
-    END //end of adding
-
-    ELSE BEGIN
-    PATCH_PRINT ~WARNING: there's no container number %container_to_add_to% in area %SOURCE_RES%. Item is not added.~
-    END
-
+  LOCAL_SET FL#ADD_AREA_ITEM#FLAGS = 0
+  charges1 = VARIABLE_IS_SET charges1 AND IS_AN_INT charges1 ? charges1 : 0
+  charges2 = VARIABLE_IS_SET charges2 AND IS_AN_INT charges2 ? charges2 : 0
+  charges3 = VARIABLE_IS_SET charges3 AND IS_AN_INT charges3 ? charges3 : 0
+  PATCH_IF VARIABLE_IS_SET flags AND "%flags%" STRING_CONTAINS_REGEXP "identified" = 0 BEGIN
+    FL#ADD_AREA_ITEM#FLAGS |= BIT0
+  END
+  PATCH_IF VARIABLE_IS_SET flags AND "%flags%" STRING_CONTAINS_REGEXP "unstealable" = 0 BEGIN
+    FL#ADD_AREA_ITEM#FLAGS |= BIT1
+  END
+  PATCH_IF VARIABLE_IS_SET flags AND "%flags%" STRING_CONTAINS_REGEXP "stolen" = 0 BEGIN
+    FL#ADD_AREA_ITEM#FLAGS |= BIT2
+  END
+  PATCH_IF VARIABLE_IS_SET flags AND "%flags%" STRING_CONTAINS_REGEXP "undroppable" = 0 BEGIN
+    FL#ADD_AREA_ITEM#FLAGS |= BIT3
+  END
+  LPF fj_are_structure
+    INT_VAR
+      fj_con_itm_idx = container_to_add_to - 1
+      fj_charge0 = charges1
+      fj_charge1 = charges2
+      fj_charge2 = charges3
+      fj_flags = FL#ADD_AREA_ITEM#FLAGS
+    STR_VAR
+      fj_structure_type = ~itm~
+      fj_name = EVAL ~%item_to_add%~
   END
   //setting optional vars back to default
   SET charges1 = 0
   SET charges2 = 0
   SET charges3 = 0
-  SPRINT flags ~%___#nil%~
+  SPRINT flags ~~
 END
 
 //deletes an item from a store. ~item_to_delete~ required
@@ -1152,279 +1111,34 @@ DEFINE_PATCH_MACRO ~ADD_AREA_REGION_TRIGGER~ BEGIN
 END
 
 DEFINE_PATCH_MACRO ~ADD_AREA_REGION~ BEGIN
-  PATCH_IF (BUFFER_LENGTH > 0xd4) BEGIN
-    //read values for existing regions
-    READ_LONG 0x5c info_off
-    READ_SHORT 0x5a info_num
-    READ_SHORT 0x80 vertex_num //need this value to assign index value for new vertexes in the new region
-  //set size values for 1 new section of each
-    SET ab_RT_Size = 0xc4
-  //set read size values for region trigger and vertex writes
-    SET ab_SoW_Name = 8 //Name
-    SET ab_SoW_Type = 2 //Type
-    SET ab_SoW_BbLX = 2 //Bounding Box - low x value
-    SET ab_SoW_BbLY = 2 //Bounding Box - low y value
-    SET ab_SoW_BbHX = 2 //Bounding Box - High x value
-    SET ab_SoW_BbHY = 2 //Bounding Box - High y value
-    SET ab_SoW_VxPr = 2 //Number of Vertex Pairs for current region
-    SET ab_SoW_VxId = 4 //Index into all Vertex Pairs for current region
-    SET ab_SoW_CuId = 4 //Cursor Index - points to a graphic in cursors.bam
-    SET ab_SoW_Dest = 8 //Destination Area
-    SET ab_SoW_EntN = 8 //Entrance Name
-    SET ab_SoW_Fbit = 4 //Flag bits written as 0b00000 (a combination of up to thirty-two 0s and 1s are allowed)
-    SET ab_SoW_Itxt = 4 //Info text
-    SET ab_SoW_TDtD = 2 //Trap Detection Difficulty
-    SET ab_SoW_TRmD = 2 //Trap Removal Difficulty
-    SET ab_SoW_TSet = 2 //Trap is set
-    SET ab_SoW_TDet = 2 //Trap is detected
-    SET ab_SoW_LPoX = 2 //Launch Point X
-    SET ab_SoW_LPoY = 2 //Launch Point Y
-    SET ab_SoW_KeyI = 8 //Key Item
-    SET ab_SoW_Rbcs = 8 //Region Script file
-    SET ab_SoW_ALPX = 2 //Alternate Launch Point X
-    SET ab_SoW_ALPY = 2 //Alternate Launch Point Y
-    SET ab_SoW_Dial = 8 //Dialog file (used only in PST)
-  //Set location into region for each value that can be written
-    SET ab_LoF_Name = 0x0 //Name
-    SET ab_LoF_Type = 0x20 //Type
-    SET ab_LoF_BbLX = 0x22 //Bounding Box - low x value
-    SET ab_LoF_BbLY = 0x24 //Bounding Box - low y value
-    SET ab_LoF_BbHX = 0x26 //Bounding Box - High x value
-    SET ab_LoF_BbHY = 0x28 //Bounding Box - High y value
-    SET ab_LoF_VxPr = 0x2a //Number of Vertex Pairs for current region
-    SET ab_LoF_VxId = 0x2c //Index into all Vertex Pairs for current region
-    SET ab_LoF_CuId = 0x34 //Cursor Index - points to a graphic in cursors.bam
-    SET ab_LoF_Dest = 0x38 //Destination Area
-    SET ab_LoF_EntN = 0x40 //Entrance Name
-    SET ab_LoF_Fbit = 0x60 //Flag bits written as 0b00000 (a combination of up to thirty-two 0s and 1s are allowed)
-    SET ab_LoF_Itxt = 0x64 //Info text
-    SET ab_LoF_TDtD = 0x68 //Trap Detection Difficulty
-    SET ab_LoF_TRmD = 0x6a //Trap Removal Difficulty
-    SET ab_LoF_TSet = 0x6c //Trap is set
-    SET ab_LoF_TDet = 0x6e //Trap is detected
-    SET ab_LoF_LPoX = 0x70 //Launch Point X
-    SET ab_LoF_LPoY = 0x72 //Launch Point Y
-    SET ab_LoF_KeyI = 0x74 //Key Item
-    SET ab_LoF_Rbcs = 0x7c //Region Script file
-    SET ab_LoF_ALPX = 0x84 //Alternate Launch Point X
-    SET ab_LoF_ALPY = 0x86 //Alternate Launch Point Y
-    SET ab_LoF_Dial = 0xbc //Dialog file (used only in PST)
-  //Set location to add new region trigger - it is at the end of existing region triggers
-    SET ab_RT_NLoc = (%info_off% + (%ab_RT_Size% * %info_num%))
-    SET new_bytes = %ab_RT_Size% //because I'm lazy and don't want to change the pre-existing variable name
-  //update number of region triggers by one and insert one section worth of space
-    WRITE_SHORT 0x5a (%info_num% + 1)
-    INSERT_BYTES %ab_RT_NLoc% %ab_RT_Size%
-  //assign index for new vertex points
-    WRITE_LONG (%ab_RT_NLoc% + %ab_LoF_VxId%) %vertex_num%
-  //Pass through a patch for each to locate those fields to be written that are of specific lengths
-    PATCH_FOR_EACH s1 IN ~Name~ ~Type~ ~BbLX~ ~BbLY~ ~BbHX~ ~BbHY~ ~VxPr~ ~VxId~ ~CuId~ ~Dest~ ~EntN~ ~Fbit~ ~Itxt~ ~TDtD~ ~TRmD~ ~TSet~ ~TDet~ ~LPoX~ ~LPoY~ ~KeyI~ ~Rbcs~ ~ALPX~ ~ALPY~ ~Dial~ BEGIN
-  //Deal with those fields that are 2 bytes
-     PATCH_IF ($ab_SoW("%s1%") = 2) BEGIN
-  //But only do those whose user assigned variables are set
-      PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") ) BEGIN
-       SET ab_Loc_of_field = $ab_LoF("%s1%")
-       WRITE_SHORT (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%")
-      END
-     END
-  //Deal with those fields that are 4 bytes
-     PATCH_IF ($ab_SoW("%s1%") = 4) BEGIN
-  //But only do those whose user assigned variables are set
-      PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") )
-           AND !(~%s1%~ STRING_EQUAL_CASE ~fbit~) BEGIN
-       SET ab_Loc_of_field = $ab_LoF("%s1%")
-       WRITE_LONG (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%")
-      END
-      PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") )
-           AND (~%s1%~ STRING_EQUAL_CASE ~fbit~) BEGIN
-       SET ab_Loc_of_field = $ab_LoF("%s1%")
-       READ_LONG (%ab_RT_NLoc% + %ab_Loc_of_field%) ~flag_bits~
-       WRITE_LONG (%ab_RT_NLoc% + %ab_Loc_of_field%) (%flag_bits% BOR $ab_RT("%s1%"))
-      END
-     END
-  //Deal with those fields that are 8 bytes
-     PATCH_IF ($ab_SoW("%s1%") = 8) BEGIN
-  //But only do those whose user assigned variables are set
-      PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") )
-           AND ( (~%s1%~ STRING_EQUAL_CASE ~Name~)
-              OR (~%s1%~ STRING_EQUAL_CASE ~EntN~) ) BEGIN
-        SET ab_Loc_of_field = $ab_LoF("%s1%")
-        WRITE_EVALUATED_ASCII (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%") #32
-       END
-       PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") )
-            AND ( (~%s1%~ STRING_EQUAL_CASE ~Dest~)
-               OR (~%s1%~ STRING_EQUAL_CASE ~KeyI~)
-               OR (~%s1%~ STRING_EQUAL_CASE ~Rbcs~)
-               OR (~%s1%~ STRING_EQUAL_CASE ~Dial~) ) BEGIN
-        SET ab_Loc_of_field = $ab_LoF("%s1%")
-        WRITE_EVALUATED_ASCII (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%") #8
-       END
-
-     END
-    END
-  //check other offsets and update as needed
-    READ_LONG 0x54 actor_off
-    PATCH_IF (%actor_off% >= %info_off%) BEGIN
-     WRITE_LONG 0x54 (%actor_off% + %new_bytes%) //actor_off
-    END
-    READ_LONG 0x60 spawn_off
-    PATCH_IF (%spawn_off% >= %info_off%) BEGIN
-     WRITE_LONG 0x60 (%spawn_off% + %new_bytes%) //spawn_off
-    END
-    READ_LONG 0x68 entrance_off
-    PATCH_IF (%entrance_off% >= %info_off%) BEGIN
-     WRITE_LONG 0x68 (%entrance_off% + %new_bytes%) //entrance_off
-    END
-    READ_LONG 0x70 container_off
-    PATCH_IF (%container_off% >= %info_off%) BEGIN
-     WRITE_LONG 0x70 (%container_off% + %new_bytes%) //container_off
-    END
-    READ_LONG 0x78 item_off
-    PATCH_IF (%item_off% >= %info_off%) BEGIN
-     WRITE_LONG 0x78 (%item_off% + %new_bytes%) //item_off
-    END
-    READ_LONG 0x7c vertex_off
-    PATCH_IF (%vertex_off% >= %info_off%) BEGIN
-     WRITE_LONG 0x7c (%vertex_off% + %new_bytes%) //vertex_off
-    END
-    READ_LONG 0x84 ambient_off
-    PATCH_IF (%ambient_off% >= %info_off%) BEGIN
-     WRITE_LONG 0x84 (%ambient_off% + %new_bytes%) //ambient_off
-    END
-    READ_LONG 0x88 variable_off
-    PATCH_IF (%variable_off% >= %info_off%) BEGIN
-     WRITE_LONG 0x88 (%variable_off% + %new_bytes%) //variable_off
-    END
-    READ_LONG 0xa8 door_off
-    PATCH_IF (%door_off% >= %info_off%) BEGIN
-     WRITE_LONG 0xa8 (%door_off% + %new_bytes%) //door_off
-    END
-    READ_LONG 0xa0 explored_off
-    PATCH_IF (%explored_off% >= %info_off%) BEGIN
-     WRITE_LONG 0xa0 (%explored_off% + %new_bytes%) //explored_off
-    END
-    READ_LONG 0xb0 anim_off
-    PATCH_IF (%anim_off% >= %info_off%) BEGIN
-     WRITE_LONG 0xb0 (%anim_off% + %new_bytes%) //anim_off
-    END
-    READ_LONG 0xb8 tiled_off
-    PATCH_IF (%tiled_off% >= %info_off%) BEGIN
-     WRITE_LONG 0xb8 (%tiled_off% + %new_bytes%) //tiled_off
-    END
-    READ_LONG 0xbc song_off
-    PATCH_IF (%song_off% >= %info_off%) BEGIN
-     WRITE_LONG 0xbc (%song_off% + %new_bytes%) //song_off
-    END
-    READ_LONG 0xc0 rest_off
-    PATCH_IF (%rest_off% >= %info_off%) BEGIN
-     WRITE_LONG 0xc0 (%rest_off% + %new_bytes%) //rest_off
-    END
-    PATCH_IF !(GAME_IS ~pst~) BEGIN
-     READ_LONG 0xc4 automap_off
-     PATCH_IF (%automap_off% >= %info_off%) BEGIN
-      WRITE_LONG 0xc4 (%automap_off% + %new_bytes%) //automap_off
-     END
-     READ_LONG 0xcc pro_traps_off
-     PATCH_IF (%pro_traps_off% >= %info_off%) BEGIN
-      WRITE_LONG 0xcc (%pro_traps_off% + %new_bytes%) //automap_off
-     END
-    END
-    PATCH_IF (GAME_IS ~pst~) BEGIN
-     READ_LONG 0xc8 automap_off
-     PATCH_IF (%automap_off% >= %info_off%) BEGIN
-      WRITE_LONG 0xc8 (%automap_off% + %new_bytes%) //automap_off
-     END
-    END
-  //read values needed for Vertex section
-    READ_LONG 0x7c vertex_off
-    READ_SHORT 0x80 vertex_num
-  //update number of All Vertex Pairs by new amount
-    WRITE_SHORT 0x80 (%vertex_num% + %ab_RT_VxPr%)
-    SET new_bytes = (0x4 * %ab_RT_VxPr%)
-  //Insert space for all of the new vertex pairs
-    SET ab_Vx_NLoc = (%vertex_off% + (0x4 * %vertex_num%))
-    INSERT_BYTES %ab_Vx_NLoc% %new_bytes%
-  //vertex points for new trigger
-    FOR (index=0;index<(%ab_RT_VxPr%);index+=1) BEGIN
-     PATCH_IF (VARIABLE_IS_SET $ab_RT_Vx_X("%index%") ) BEGIN
-      WRITE_SHORT (%ab_Vx_NLoc% +( %index%*4) +0) $ab_RT_Vx_X("%index%")
-     END
-     PATCH_IF (VARIABLE_IS_SET $ab_RT_Vx_Y("%index%") ) BEGIN
-      WRITE_SHORT (%ab_Vx_NLoc% +( %index%*4) +2) $ab_RT_Vx_Y("%index%")
-     END
-    END
-  //check other offsets and update as needed
-    READ_LONG 0x54 actor_off
-    PATCH_IF (%actor_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0x54 (%actor_off% + %new_bytes%) //actor_off
-    END
-    READ_LONG 0x60 spawn_off
-    PATCH_IF (%spawn_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0x60 (%spawn_off% + %new_bytes%) //spawn_off
-    END
-    READ_LONG 0x68 entrance_off
-    PATCH_IF (%entrance_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0x68 (%entrance_off% + %new_bytes%) //entrance_off
-    END
-    READ_LONG 0x70 container_off
-    PATCH_IF (%container_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0x70 (%container_off% + %new_bytes%) //container_off
-    END
-    READ_LONG 0x78 item_off
-    PATCH_IF (%item_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0x78 (%item_off% + %new_bytes%) //item_off
-    END
-    READ_LONG 0x5c info_off
-    PATCH_IF (%info_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0x5c (%info_off% + %new_bytes%) //info_off
-    END
-    READ_LONG 0x84 ambient_off
-    PATCH_IF (%ambient_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0x84 (%ambient_off% + %new_bytes%) //ambient_off
-    END
-    READ_LONG 0x88 variable_off
-    PATCH_IF (%variable_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0x88 (%variable_off% + %new_bytes%) //variable_off
-    END
-    READ_LONG 0xa8 door_off
-    PATCH_IF (%door_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0xa8 (%door_off% + %new_bytes%) //door_off
-    END
-    READ_LONG 0xa0 explored_off
-    PATCH_IF (%explored_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0xa0 (%explored_off% + %new_bytes%) //explored_off
-    END
-    READ_LONG 0xb0 anim_off
-    PATCH_IF (%anim_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0xb0 (%anim_off% + %new_bytes%) //anim_off
-    END
-    READ_LONG 0xb8 tiled_off
-    PATCH_IF (%tiled_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0xb8 (%tiled_off% + %new_bytes%) //tiled_off
-    END
-    READ_LONG 0xbc song_off
-    PATCH_IF (%song_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0xbc (%song_off% + %new_bytes%) //song_off
-    END
-    READ_LONG 0xc0 rest_off
-    PATCH_IF (%rest_off% >= %vertex_off%) BEGIN
-     WRITE_LONG 0xc0 (%rest_off% + %new_bytes%) //rest_off
-    END
-    PATCH_IF !(GAME_IS ~pst~) BEGIN
-     READ_LONG 0xc4 automap_off
-     PATCH_IF (%automap_off% >= %vertex_off%) BEGIN
-      WRITE_LONG 0xc4 (%automap_off% + %new_bytes%) //automap_off
-     END
-     READ_LONG 0xcc pro_traps_off
-     PATCH_IF (%pro_traps_off% >= %vertex_off%) BEGIN
-      WRITE_LONG 0xcc (%pro_traps_off% + %new_bytes%) //automap_off
-     END
-    END
-    PATCH_IF (GAME_IS ~pst~) BEGIN
-     READ_LONG 0xc8 automap_off
-     PATCH_IF (%automap_off% >= %vertex_off%) BEGIN
-      WRITE_LONG 0xc8 (%automap_off% + %new_bytes%) //automap_off
-     END
-    END
-   END
+  FOR (i = 0; i < ab_RT_VxPr; ++i) BEGIN
+    SET EVAL "fj_vertex_%i%" = EVAL "ab_RT_Vx_X_%i%" + (EVAL "ab_RT_Vx_Y_%i%" << 16)
+  END
+  LPF fj_are_structure
+    INT_VAR
+      fj_type = ab_RT_Type
+      fj_box_left = ab_RT_BbLX
+      fj_box_top = ab_RT_BbLY
+      fj_box_right = ab_RT_BbHX
+      fj_box_bottom = ab_RT_BbHY
+      fj_cursor_idx = ab_RT_CuId
+      fj_flags = ab_RT_Fbit
+      fj_info_point_strref = ab_RT_Itxt
+      fj_trap_detect = ab_RT_TDtD
+      fj_trap_remove = ab_RT_TRmD
+      fj_trap_active = ab_RT_TSet
+      fj_trap_status = ab_RT_TDet
+      fj_loc_x = ab_RT_LPoX
+      fj_loc_y = ab_RT_LPoY
+      fj_alt_x = ab_RT_ALPX
+      fj_alt_y = ab_RT_ALPY
+    STR_VAR
+      fj_structure_type = region
+      fj_name = EVAL ~%ab_RT_Name%~
+      fj_destination_area = EVAL ~%ab_RT_Dest%~
+      fj_destination_name = EVAL ~%ab_RT_EntN%~
+      fj_key_resref = EVAL ~%ab_RT_KeyI%~
+      fj_reg_script = EVAL ~%ab_RT_Rbcs%~
+      fj_dialog = EVAL ~%ab_RT_Dial%~
+  END
 END
