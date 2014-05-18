@@ -21,7 +21,7 @@ BEGIN
   END ELSE BEGIN
     FAIL ~TB#ADD_SPELL_GET_CODE internal failure: invalid code (%tb#scode%)~
   END
-  
+
   ACTION_IF tb#rest < 10 BEGIN
     OUTER_SPRINT tb#filecode ~%tb#memo%00%tb#rest%~
   END ELSE ACTION_IF tb#rest < 100 BEGIN
@@ -93,13 +93,13 @@ END
 DEFINE_ACTION_MACRO ~TB#ADD_SPELL~ BEGIN
   // check if spell has entry in spell.ids
   OUTER_SET tb#code = IDS_OF_SYMBOL (~spell~ ~%tb#identifier%~)
-  
+
   // check if spell has entry in add_spell.ids
   OUTER_SET tb#code2 = (0 - 1)
   ACTION_IF (FILE_EXISTS_IN_GAME ~add_spell.ids~) BEGIN
     OUTER_SET tb#code2 = IDS_OF_SYMBOL (~add_spell~ ~%tb#identifier%~)
   END
-  
+
   LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_CHECK_MATCH~ INT_VAR tb#scode = tb#code RET tb#doesmatch = tb#doesmatch END
   ACTION_IF (tb#doesmatch) BEGIN // entry in spell.ids matches level and type
     OUTER_SET tb#newcode = tb#code
@@ -147,7 +147,7 @@ DEFINE_ACTION_MACRO ~TB#ADD_SPELL~ BEGIN
       LAUNCH_ACTION_FUNCTION ~TB#ADD_SPELL_FIND_SLOT~ RET tb#newcode = tb#code END
     END
   END
-  
+
   ACTION_IF (tb#newcode < 0) BEGIN
     PRINT ~Couldn't add %tb#identifier% to spell.ids as no slots remain~
   END
@@ -162,12 +162,12 @@ DEFINE_ACTION_MACRO ~TB#ADD_SPELL~ BEGIN
       COPY ~%tb#source_file%~ ~override/sp%tb#filecode%.spl~
         LAUNCH_PATCH_MACRO TB#ADD_SPELL_PL
     END
-    
+
     // update spell.ids
     ACTION_IF (tb#code != tb#newcode) BEGIN
       APPEND ~spell.ids~ ~%tb#newcode% %tb#identifier%~
     END
-    
+
     // update add_spell.ids
     ACTION_IF (tb#code2 != tb#newcode) BEGIN
       ACTION_IF (NOT FILE_EXISTS_IN_GAME ~add_spell.ids~) BEGIN

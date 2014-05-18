@@ -916,7 +916,7 @@ PHP_EACH struct AS key => value BEGIN
       END
       PATCH_IF( fj_con_itm_idx == num && fj_structure_type == 0x78 )BEGIN
         READ_LONG LONG_AT 0x70 + 0xc0 * num + 0x44 cnt
-        PATCH_IF fj_debug BEGIN PATCH_PRINT ~Adding new item to container %num%.~ END 
+        PATCH_IF fj_debug BEGIN PATCH_PRINT ~Adding new item to container %num%.~ END
         WRITE_LONG LONG_AT 0x70 + 0xc0 * num + 0x44 THIS + 0x01
         WRITE_SHORT  0x76 THIS + 0x01
         INSERT_BYTES fj_position key_3
@@ -1177,9 +1177,9 @@ PATCH_IF is_id2 BEGIN
   SET fj_return_offset += 0x10
   GET_OFFSET_ARRAY fj_id_actor 0x64 0x04 0x58 0x02 0 0 0x110
   PHP_EACH fj_id_actor AS key => value BEGIN
-    PATCH_IF( 
+    PATCH_IF(
       LONG_AT( value + 0x88 ) > 0x00 &&
-      LONG_AT( value + 0x28 ) & 0x01 == 0x00 
+      LONG_AT( value + 0x28 ) & 0x01 == 0x00
     )BEGIN
       WRITE_LONG value + 0x88 THIS + 0x10
     END

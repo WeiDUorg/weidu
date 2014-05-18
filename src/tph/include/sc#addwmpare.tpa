@@ -201,7 +201,7 @@ DEFINE_PATCH_FUNCTION sc#toNewAre BEGIN
         SET tb#sort_cnt += 1
       END
       CLEAR_ARRAY links
-      
+
       // tb# define the swapping condition & what to swap
       INNER_ACTION BEGIN
         DEFINE_PATCH_MACRO ~tb#sort_swap~ BEGIN
@@ -218,14 +218,14 @@ DEFINE_PATCH_FUNCTION sc#toNewAre BEGIN
           END
         END
       END
-      
+
       // tb# sort the array. Move from Bubble sort to Quick Sort if you want
       FOR (tb#sort_i = 0; tb#sort_i < tb#sort_cnt; tb#sort_i+=1) BEGIN
         FOR (tb#sort_j = 0; tb#sort_j < tb#sort_cnt; tb#sort_j +=1) BEGIN
           LAUNCH_PATCH_MACRO ~tb#sort_swap~
         END
       END
-      
+
       // tb# merge the helping arrays into the main one
       FOR (tb#sort_i = 0; tb#sort_i < tb#sort_cnt; tb#sort_i +=1) BEGIN
         SPRINT $links($tb#sort_index(~%tb#sort_i%~)) $tb#sort_value(~%tb#sort_i%~)
@@ -234,20 +234,20 @@ DEFINE_PATCH_FUNCTION sc#toNewAre BEGIN
       // tb# clean up
       CLEAR_ARRAY tb#sort_index
       CLEAR_ARRAY tb#sort_value
-      
+
       // write new # of links
       WRITE_SHORT ( "%loc%" + 0x50 + 0x4 ) ( "%#nlink%" + 1 )
       WRITE_SHORT ( "%loc%" + 0x50 + 0x08 + 0x4 ) ( "%#wlink%" + 1 )
       WRITE_SHORT ( "%loc%" + 0x50 + 0x10 + 0x4 ) ( "%#slink%" + 1 )
       WRITE_SHORT ( "%loc%" + 0x50 + 0x18 + 0x4 ) ( "%#elink%" + 1 )
-      
+
       // and also the total number to the worldmap
       READ_LONG  0x3c "link_num"
       WRITE_LONG 0x3c ( "%link_num%" + 4 )
-      
+
       // go through each link direction, update index and insert new
       PHP_EACH links AS n => link BEGIN
-        
+
         // update link index
         SPRINT off ~%link%_l~
         SPRINT off EVALUATE_BUFFER ~%%off%%~
@@ -261,26 +261,26 @@ DEFINE_PATCH_FUNCTION sc#toNewAre BEGIN
         WRITE_LONG            ( "%link_off%" + ( 0xd8 * ( "%plink%" + "%n_0%" ) ) + 0x24 ) ~%tTime%~  // travel time
         WRITE_LONG            ( "%link_off%" + ( 0xd8 * ( "%plink%" + "%n_0%" ) ) + 0x28 ) 0x01       // unknown
       END
-      
+
       // re-read to check the new offsets
       READ_SHORT ( "%loc%" + 0x50 )        "nlink"
       READ_SHORT ( "%loc%" + 0x50 + 0x08 ) "wlink"
       READ_SHORT ( "%loc%" + 0x50 + 0x10 ) "slink"
       READ_SHORT ( "%loc%" + 0x50 + 0x18 ) "elink"
-      
+
       // check which one of them is the largest
       PATCH_IF ( ( "%nlink%" > "%wlink%" ) AND ( "%nlink%" > "%slink%" ) AND ( "%nlink%" > "%elink%" ) ) BEGIN
         SET "llink" = "%nlink%"
       END
-      
+
       PATCH_IF ( ( "%wlink%" > "%nlink%" ) AND ( "%wlink%" > "%slink%" ) AND ( "%wlink%" > "%elink%" ) ) BEGIN
         SET "llink" = "%wlink%"
       END
-      
+
       PATCH_IF ( ( "%slink%" > "%wlink%" ) AND ( "%slink%" > "%nlink%" ) AND ( "%slink%" > "%elink%" ) ) BEGIN
         SET "llink" = "%slink%"
       END
-      
+
       PATCH_IF ( ( "%elink%" > "%wlink%" ) AND ( "%elink%" > "%slink%" ) AND ( "%elink%" > "%nlink%" ) ) BEGIN
         SET "llink" = "%elink%"
       END
@@ -298,7 +298,7 @@ DEFINE_PATCH_FUNCTION sc#toNewAre BEGIN
           PATCH_IF ( ( "%nlink2%" + 0x04 ) >= "%llink%" ) BEGIN
             WRITE_SHORT ( "%loc2%" + 0x50 ) ( "%nlink2%" + 0x04 )
           END
-          
+
           PATCH_IF ( ( "%wlink2%" + 0x04 ) >= "%llink%" ) BEGIN
             WRITE_SHORT ( "%loc2%" + 0x50 + 0x08 ) ( "%wlink2%" + 0x04 )
           END

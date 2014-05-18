@@ -9,7 +9,7 @@ DEFINE_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid BEGIN
   PATCH_IF ~%SOURCE_RES%~ STRING_EQUAL_CASE charbase BEGIN
     valid = 0
   END ELSE BEGIN
-    PATCH_IF BUFFER_LENGTH	 < 0x2d4 BEGIN
+    PATCH_IF BUFFER_LENGTH < 0x2d4 BEGIN
       valid = 0
       PATCH_IF do_message THEN BEGIN
         PATCH_PRINT ~%SOURCE_FILE% %m1%: %m2%.~ //is corrupt: below minimum length
@@ -46,8 +46,8 @@ DEFINE_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid BEGIN
       END
     END
   END
-  
-  PATCH_IF valid THEN BEGIN 
+
+  PATCH_IF valid THEN BEGIN
     LAUNCH_PATCH_FUNCTION ~FJ_CRE_REINDEX~ END
   END
 END
@@ -112,7 +112,7 @@ DEFINE_PATCH_FUNCTION ~FJ_CRE_REINDEX~ BEGIN
     READ_ASCII iso is ELSE fail (0x50)
     READ_ASCII ilo il ELSE fail (0x14 * ilc)
     READ_ASCII elo el ELSE fail (elc * (0x30 + ((fv & 0x1) = 0x1 ? 0xd8 : 0)))
-    DELETE_BYTES 0x2d4 BUFFER_LENGTH	 - 0x2d4
+    DELETE_BYTES 0x2d4 BUFFER_LENGTH - 0x2d4
     off_0 = 0x2d4
     WRITE_LONG 0x2a0 off_0
     PATCH_IF ~%ks%~ STR_CMP fail BEGIN
@@ -206,7 +206,7 @@ DEFINE_PATCH_FUNCTION ~FJ_CRE_REINDEX~ BEGIN
         WRITE_SHORT off_0 + i_0 0xffff
       END
     END
-    SOURCE_SIZE	 = off_0 + 0x50
+    SOURCE_SIZE = off_0 + 0x50
   END
 END
 
@@ -226,7 +226,7 @@ DEFINE_PATCH_FUNCTION ~FJ_CRE_EFF_V2~ BEGIN
       SPRINT rfx ~~
       INNER_PATCH ~%fx%~ BEGIN
         FOR (i1 = 0; i1 < fc; i1 += 1) BEGIN
-          SOURCE_SIZE	 += 0xd8
+          SOURCE_SIZE += 0xd8
           READ_SHORT ((i1 * 0x30) + 0x00) pc //Opcode
           READ_BYTE  ((i1 * 0x30) + 0x02) tg //Target
           READ_BYTE  ((i1 * 0x30) + 0x03) pw //Power
@@ -337,7 +337,7 @@ DEFINE_PATCH_FUNCTION ~T-CRE_EFF_V1~ BEGIN
       WRITE_ASCIIE fs ~%rfx%~
       END
       WRITE_LONG 0x2c8 nfc //Update effects count
-      SOURCE_SIZE	 -= sz
+      SOURCE_SIZE -= sz
     END
   END
 END
