@@ -185,6 +185,7 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   fj_destination_name  = ~~
   fj_key_resref        = ~~
   fj_reg_script        = ~~
+  fj_dialog            = ~~ // only for PST
 
   // spawns
   fj_cre_resref0       = ~~
@@ -622,6 +623,9 @@ PHP_EACH struct AS key => value BEGIN
       WRITE_ASCIIE fj_return_offset + 0x7c ~%fj_reg_script%~ #8
       WRITE_SHORT  fj_return_offset + 0x84 fj_alt_x
       WRITE_SHORT  fj_return_offset + 0x86 fj_alt_y
+      PATCH_IF is_pst BEGIN
+        WRITE_ASCIIE fj_return_offset + 0xbc ~%fj_dialog%~ #8
+      END
       PHP_EACH fj_vertex AS key1 => value1 BEGIN
         WRITE_SHORT fj_return_offset + 0x2a THIS + 0x01
       END
