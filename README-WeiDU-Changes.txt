@@ -14,6 +14,7 @@ Version 237:
   * Clarify documentation of RINDEX.
   * Add CREATE TP2 action.
   * ADD_AREA_ITEM and ADD_AREA_REGION are implemented through fj_are_structure.
+  * --traify can handle the syntax of male/female string pairs.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
