@@ -24,3 +24,16 @@ OUTER_SPRINT bar4 ~Foo4~ [BAR]
 /* Test strings that differ by text */
 OUTER_SPRINT foo5 ~Foo5~ [FOO5]
 OUTER_SPRINT bar5 ~Bar5~ [FOO5]
+
+/* Test male/female strings */
+OUTER_SPRINT mf ~Male~ ~Female~
+/* Test male/female with sounds */
+OUTER_SPRINT mf2 ~Male~ [MALE] ~Female~ [FEMALE]
+OUTER_SPRINT mf3 ~Male~ [MALE] ~Female~
+OUTER_SPRINT mf4 ~Male~ ~Female~ [FEMALE]
+OUTER_SPRINT mf5 ~Male~ [NEUTRAL] ~Female~ [NEUTRAL]
+OUTER_SPRINT mf6 ~Male~ [] ~Female~ []
+
+/* Test different delimiters */
+OUTER_SPRINT mf7 ~Male~ "Female"
+OUTER_SPRINT mf8 %Male% ~Female~

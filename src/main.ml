@@ -846,7 +846,9 @@ let traify_file game traify traify_num traify_comment traify_old_tra =
           let my_regexp = Str.regexp (Str.quote str) in
           buf := Str.global_replace my_regexp "" !buf ;
         in
-        let remove_but_substr regexp =
+        let remove_empty_sound string =
+          let regexp = Str.regexp ("\\(" ^ string ^ "\\)[ \t]+" ^
+                                   (Str.quote "[]")) in
           buf := Str.global_replace regexp "\\1" !buf ;
         in
         let fix_suckage index comment =
@@ -893,39 +895,73 @@ let traify_file game traify traify_num traify_comment traify_old_tra =
         in
 
         let do_traification index lse =
+          (* 'tis a thing of beauty *)
           let delimiters = ["~"; "%"; "\""] in
-          let replace2 index string sound comment =
-            if sound <> "" then
-              let sound = Str.quote ("[" ^ sound ^ "]") in
-              List.iter (fun delimiter ->
-                let string = Str.quote (delimiter ^ string ^ delimiter) in
-                let regexp = Str.regexp (string ^ "[ \t]+" ^ sound) in
-                replace index regexp comment) delimiters
-            else
-              List.iter (fun delimiter ->
-                let string = Str.quote (delimiter ^ string ^ delimiter) in
-                remove_but_substr (Str.regexp ("\\(" ^ string ^ "\\)[ \t]+" ^
-                                               (Str.quote "[]"))) ;
-                let regexp = Str.regexp (string) in
-                replace index regexp comment) delimiters
-          in
-          let replace_male index lse =
-            if lse.lse_male <> "" then begin
-              let comment_string = make_comment lse in
-              replace2 index lse.lse_male lse.lse_male_sound comment_string ;
-            end
-          in
-          let replace_female lse =
-            if (lse.lse_female <> "") &&
-              (lse.lse_female <> lse.lse_male) then begin
-                replace2 index lse.lse_female lse.lse_female_sound "" ;
+          let comment = make_comment lse in
+
+          begin match (lse.lse_male, lse.lse_male_sound, lse.lse_female, lse.lse_female_sound) with
+          | ("", "", "", "") -> ()
+          | (male, "", female, "") -> (* male = female unless there is a female string *)
+              begin
+                List.iter (fun md ->
+                  List.iter (fun fd ->
+                    let male = Str.quote (md ^ male ^ md) in
+                    let female = Str.quote (fd ^ female ^ fd) in
+                    ignore (remove_empty_sound male) ;
+                    ignore (remove_empty_sound female) ;
+                    let regexp = Str.regexp (male ^ "[ \t]+" ^ female) in
+                    ignore (replace index regexp comment) ;
+                    if female = male then begin
+                      let regexp = Str.regexp (male) in
+                      ignore (replace index regexp comment)
+                    end) delimiters) delimiters ;
+                ()
               end
-          in
+          | (male, male_sound, female, "") ->
+              begin
+                List.iter (fun md ->
+                  List.iter (fun fd ->
+                    let male = Str.quote (md ^ male ^ md) in
+                    let female = Str.quote (fd ^ female ^ fd) in
+                    let male_sound = Str.quote ("[" ^ male_sound ^ "]") in
+                    ignore (remove_empty_sound female) ;
+                    let regexp = Str.regexp (male ^ "[ \t]+" ^ male_sound ^ "[ \t]+" ^ female) in
+                    ignore (replace index regexp comment)) delimiters) delimiters ;
+                ()
+              end
 
-          ignore (replace_male index lse) ;
-          ignore (replace_female lse) ;
+          | (male, "", female, female_sound) ->
+              begin
+                List.iter (fun md ->
+                  List.iter (fun fd ->
+                    let male = Str.quote (md ^ male ^ md) in
+                    let female = Str.quote (fd ^ female ^ fd) in
+                    let female_sound = Str.quote ("[" ^ female_sound ^ "]") in
+                    ignore (remove_empty_sound male) ;
+                    let regexp = Str.regexp (male ^ "[ \t]+" ^ female ^ "[ \t]+" ^ female_sound) in
+                    ignore (replace index regexp comment)) delimiters) delimiters ;
+                ()
+              end
+
+          | (male, male_sound, female, female_sound) ->
+              begin
+                List.iter (fun md ->
+                  List.iter (fun fd ->
+                    let male = Str.quote (md ^ male ^ md) in
+                    let female = Str.quote (fd ^ female ^ fd) in
+                    let male_sound = Str.quote ("[" ^ male_sound ^ "]") in
+                    let female_sound = Str.quote ("[" ^ female_sound ^ "]") in
+                    let regexp = Str.regexp (male ^ "[ \t]+" ^ male_sound ^ "[ \t]+" ^ female ^ "[ \t]+" ^ female_sound) in
+                    ignore (replace index regexp comment) ;
+                    if female = male && female_sound = male_sound then begin
+                      let regexp = Str.regexp (male ^ "[ \t]+" ^ male_sound) in
+                      ignore (replace index regexp comment) ;
+                    end) delimiters) delimiters ;
+                ()
+              end
+          end ;
+
           let tra_str = (make_tra_string index lse) in
-
           (index, tra_str)
         in
 

@@ -9,10 +9,10 @@ use Digest::MD5;
 use File::Copy;
 
 # MD5 sums
-my $traify_tp2_sum = "c75666864afe89ffe1ba04cf01000b77";
-my $traify_tra_sum = "bd4e8fd674d38b3d950aa206501c4587";
-my $traifyold_tp2_sum = "20f526a5d3b96f54de092019e7399906";
-my $traifyold_tra_sum = "211075e16f93349f130015fb3322c518";
+my $traify_tp2_sum = "b9d17b468280c1b15d95a4ee091e033b";
+my $traify_tra_sum = "7eb0fdcc7f221e4f7437b7b14e692a46";
+my $traifyold_tp2_sum = "306a42fbe006e994ffb1183e9d47a3f7";
+my $traifyold_tra_sum = "9cc410491be667afda9a2d6e56f97f11";
 
 my $test_tp2 = "test.tp2";
 my $test_tra = "test.tra";

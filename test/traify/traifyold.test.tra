@@ -8,3 +8,8 @@
 @7    = ~Foo4~ [BAR]
 @8    = ~Foo5~ [FOO5]
 @9    = ~Bar5~ [FOO5]
+@10   = ~Male~ ~Female~
+@11   = ~Male~ [MALE] ~Female~ [FEMALE]
+@12   = ~Male~ [MALE] ~Female~
+@13   = ~Male~ ~Female~ [FEMALE]
+@14   = ~Male~ [NEUTRAL] ~Female~ [NEUTRAL]
