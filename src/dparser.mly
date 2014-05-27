@@ -409,7 +409,7 @@ interject_copy_trans_prologue :
       current_unit := None ;
       Dc.Replace_Trans_Trigger(String.uppercase $2,$4,$7,$9,$10,$11) }
 | SET_WEIGHT STRING STRING STRING_REF
-    { Dc.Set_Weight($2,$3,$4) }
+    { Dc.Set_Weight(String.uppercase $2,$3,$4) }
 | chain3_prologue chain3_list compound_chain3_list chain3_epilogue
     { let (entry_weight,entry_cond),file,state,ifexist = $1 in
     let first_part = List.map (fun (cond,says,action) ->

@@ -15,6 +15,7 @@ Version 237:
   * Add CREATE TP2 action.
   * ADD_AREA_ITEM and ADD_AREA_REGION are implemented through fj_are_structure.
   * --traify can handle the syntax of male/female string pairs.
+  * Fix case-mismatch bug in SET_WEIGHT.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
