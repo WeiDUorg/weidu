@@ -17,6 +17,7 @@ Version 237:
   * --traify can handle the syntax of male/female string pairs.
   * Fix case-mismatch bug in SET_WEIGHT.
   * Add GAME_INCLUDES TP2 value.
+  * Add STR_EQ as an alias for STRING_EQUAL_CASE.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
