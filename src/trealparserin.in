@@ -969,7 +969,7 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
 	-> ID_OF_LABEL e1:Patch_String_Right e2:Patch_String_Right [ Tp.PE_IdOfLabel(e1,e2) ]
 	-> GAME_IS e1:STRING [ Tp.PE_GameIs(e1,true) ]
 	-> ENGINE_IS e1:STRING [ Tp.PE_GameIs(e1,false) ]
-	-> GAME_INCLUDES e1: STRING [ Tp.PE_GameIncludes(e1) ]
+	-> GAME_INCLUDES e1:STRING [ Tp.PE_GameIncludes(e1) ]
 	-> VARIABLE_IS_SET e1:Patch_String_Name [ Tp.PE_VariableIsSet e1 ]
 	-> IDS_OF_SYMBOL LPAREN e1:STRING e2:STRING RPAREN [ Tp.PE_IdsOfSymbol(e1,e2) ]
 	-> STATE_WHICH_SAYS e1:Lse FROM e2:STRING
