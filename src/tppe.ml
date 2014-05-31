@@ -449,6 +449,35 @@ let rec eval_pe buff game p =
       ) game_list in
       if res then 1l else 0l;
   end
+
+  | PE_GameIncludes(game_set) -> begin
+      let bg1 = ["BG1"; "TOTSC"; "TUTU"; "TUTU_TOTSC"; "BGT"; "BGEE"] in
+      let totsc = ["TOTSC"; "TUTU_TOTSC"; "BGT"; "BGEE"] in
+      let soa = ["SOA"; "TOB"; "TOB"; "BG2EE"] in
+      let tob = ["TOB"; "BGT"; "BG2EE"] in
+      let pst = ["PST"] in
+      let iwd = ["IWD"; "HOW"; "TOTLM"; "IWD_IN_BG2"] in
+      let how = ["HOW"; "TOTLM"; "IWD_IN_BG2"] in
+      let totlm = ["TOTLM"; "IWD_IN_BG2"] in
+      let iwd2 = ["IWD2"] in
+      let ca = ["CA"] in
+      let list = (match String.uppercase game_set with
+      | "BG1" -> bg1
+      | "TOTSC" -> totsc
+      | "BG2"
+      | "SOA" -> soa
+      | "TOB" -> tob
+      | "PST" -> pst
+      | "IWD1"
+      | "IWD" -> iwd
+      | "HOW" -> how
+      | "TOTLM" -> totlm
+      | "IWD2" -> iwd2
+      | "CA" -> ca
+      | _ -> failwith (Printf.sprintf "GAME_INCLUDES has not rule for %s" (String.uppercase game_set))) in
+      eval_pe buff game (PE_GameIs((String.concat " " list), true)) ;
+  end
+
   | PE_IsAnInt(x) -> let old_eval_pe_warn = !eval_pe_warn in (eval_pe_warn := false ;
 		      try
 			let _ = (eval_pe buff game (PE_String(x))) in
