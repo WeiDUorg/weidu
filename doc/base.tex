@@ -5033,6 +5033,18 @@ and \verb+tob+ will detect ToB-based Tutu games in addition to ToB and BGT games
 As such, a mod that requires Throne of Bhaal's engine enhancements could use
 \verb+REQUIRE_PREDICATE ENGINE_IS ~tob~+ . \\
 
+or & \DEFINE{GAME!INCLUDES} \ttref{String} &
+
+Returns true if the IE game variant includes the game content
+specified by String. String is a single game chosen from
+\verb+bg1, totsc, bg2=soa, tob, pst, iwd=iwd1, how, totlm, iwd2, ca+. In
+the list, \verb+bg2=soa+ means that \verb+bg2+ and \verb+soa+ are
+synonyms, and you can use whichever one you like. Please note that
+unlike \ttref{GAME!IS} you only specify a single game, rather than a
+list of games. As an example, \verb+GAME_INCLUDES ~tob~+ will return
+true for any game which includes the ToB content, such as ToB itself,
+BGT or BG2EE. \\
+
 or & \DEFINE{IDS!OF!SYMBOL} \t{(} File \ttref{String} \t{)} &
 Will return the number associated with String in File.ids,
 or -1 if String is not associated in File.ids. \\

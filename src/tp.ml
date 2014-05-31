@@ -492,6 +492,7 @@ and tp_patchexp =
   | PE_IsInstalledAfter of tp_pe_string * tp_patchexp * tp_pe_string * tp_patchexp
   | PE_IdOfLabel of tp_pe_string * tp_pe_string
   | PE_GameIs of string * bool
+  | PE_GameIncludes of string
   | PE_VariableIsSet of tp_pe_string
   | PE_IdsOfSymbol of string * string
   | PE_StateWhichSays of (Dlg.tlk_string option) * ((tp_patchexp * string) option) * string
