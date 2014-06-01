@@ -1040,7 +1040,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
           with
             Not_found -> finished := true; -1 in
           if not !finished then begin
-            for j = 0 to 20 do
+            for j = 0 to 200 do
               let v = Printf.sprintf "MATCH%d" j in
               (* Var.remove_var v ;  *)
               (try let group = Str.matched_group j !work_buff in

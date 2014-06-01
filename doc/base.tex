@@ -4632,25 +4632,31 @@ or & \DEFINE{REFACTOR!D!TRIGGER} \ttref{optcase} \ttref{optexact} String String 
 \\
 or & \DEFINE{REPLACE!EVALUATE} \ttref{optcase} findRegexp \t{BEGIN}
   \ttref{patch} \Slist \t{END} replaceRegexp &
+
   For every instance of the \ttref{regexp} findRegexp found, the
-  \ttref{patch} list is evaluated (with the variable \t{MATCH}$i$ set to
-  the $i$th matched group in findRegexp), variable substitute is performed
-  on replaceRegexp, and then findRegexp is replaced by replaceRegexp. Any
-  writes done by the \ttref{patch} list (e.g., \ttref{SAY} or
-  \ttref{WRITE!ASCII}) are ignored: \ttref{SET} should be the main
-  component of the \ttref{patch} list. For example:
+  \ttref{patch} list is evaluated (with the variable \t{MATCH}$i$ set
+  to the $i$th matched group in findRegexp), variable substitution is
+  performed on replaceRegexp, and then findRegexp is replaced by
+  replaceRegexp. Note that \ttref{REPLACE!EVALUATE} defines up to 200
+  \t{MATCH}$i$ variables, but that \t{MATCH1} is normally the variable
+  matching the first group in findRegexp. Due to details of the
+  implementation, \t{MATCH0} normally evaluates to the string matched
+  by the whole of findRegexp. Any writes done by the \ttref{patch}
+  list (e.g., \ttref{SAY} or \ttref{WRITE!ASCII}) are ignored:
+  \ttref{SET} should be the main component of the \ttref{patch}
+  list. For example:
 \begin{verbatim}
 COPY ~nice.baf~ ~mean.baf~
   REPLACE_EVALUATE
     ~Give(\([0-9]+\),\([0-9]+\))~
     BEGIN
-      SET "RESULT" = ("%MATCH1%" + "%MATCH2%") / 2
+      SET result = (MATCH1 + MATCH2) / 2
     END
-    ~Take(%RESULT%)~
+    ~Take(%result%)~
 \end{verbatim}
-  This \ttref{COPY} \ttref{TP2 Action} would replace \t{Give(10,20)} with
-  \t{Take(15)}.
-   optcase allows you to decide if the matching is case-sensitive or not.  \\
+  This \ttref{COPY} \ttref{TP2 Action} would replace \t{Give(10,20)}
+  with \t{Take(15)}.  optcase allows you to decide if the matching is
+  case-sensitive or not.  \\
 
   or & \DEFSYN{ADD!GAM!NPC} npcCRE npcARE xCoord yCoord &
     See the \ttref{ADD!GAM!NPC} tutorial for more information about this

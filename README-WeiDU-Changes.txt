@@ -18,6 +18,7 @@ Version 237:
   * Fix case-mismatch bug in SET_WEIGHT.
   * Add GAME_INCLUDES TP2 value.
   * Add STR_EQ as an alias for STRING_EQUAL_CASE.
+  * REPLACE_EVALUATE defines up to and including MATCH200.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
