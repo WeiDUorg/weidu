@@ -20,6 +20,8 @@ Version 237:
   * Add STR_EQ as an alias for STRING_EQUAL_CASE.
   * REPLACE_EVALUATE defines up to and including MATCH200.
   * Fix variable-evaluation errors in ADD_ITEM_EFFECT.
+  * If HANDLE_TILESETS is unable to install the tilesets, the
+    installation fails.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
