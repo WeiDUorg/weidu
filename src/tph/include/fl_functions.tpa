@@ -206,6 +206,219 @@ BEGIN
   END
 END
 
+DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#WHICH#INFER
+  RET
+    charset
+BEGIN
+  ACTION_MATCH "%LANGUAGE%" WITH
+    ".*schinese.*"
+    BEGIN
+      OUTER_SPRINT charset "CP936"
+    END
+
+    /* Doubts remain about whether CP950 is the correct charset for
+     * Traditional Chinese, mainly due to the translation of the
+     * BG2 Fixpack, which does not appear to be perfectly represented
+     * by CP950.
+     * Possible other alternatives include something involving the
+     * Hong Kong Supplementary Character Set (HKSCS) or Windows'
+     * non-standard CP950+CP951 hack (which appears to be unavailable
+     * outside of Traditionally Chinese Windows).
+     * Cf. Wikipedia on Big5.
+     */
+    ".*tchinese.*"
+    BEGIN
+      OUTER_SPRINT charset "CP950"
+    END
+
+    ".*czech.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1250"
+    END
+
+    ".*english.*" ".*american.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    ".*french.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    ".*german.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    ".*italian.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    ".*japanese.*"
+    BEGIN
+      OUTER_SPRINT charset "CP932"
+    END
+
+    ".*korean.*"
+    BEGIN
+      OUTER_SPRINT charset "CP949"
+    END
+
+    ".*polish.*" ".*polski.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1250"
+    END
+
+    ".*russian.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1251"
+    END
+
+    ".*spanish.*" ".*castilian.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    DEFAULT
+      FAIL "ERROR: charset could not be inferred for language %LANGUAGE%"
+  END
+END
+
+DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#WHICH
+  INT_VAR
+    infer_charset = 0
+  STR_VAR
+    charset_table = ~~
+  RET
+    charset
+BEGIN
+  ACTION_IF infer_charset BEGIN
+    LAF fl#HANDLE_CHARSETS#WHICH#INFER RET charset END
+  END ELSE BEGIN
+    OUTER_SPRINT lang "%LANGUAGE%"
+    ACTION_TO_LOWER lang
+    ACTION_IF VARIABLE_IS_SET $charset_table("%lang%") BEGIN
+      OUTER_SPRINT charset $charset_table("%lang%")
+    END ELSE BEGIN
+      FAIL "ERROR: no tabulated charset could be found for language %lang%"
+    END
+  END
+END
+
+DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#CONVERT
+  STR_VAR
+    iconv = ~iconv~
+    quote = ~"~
+    path = ~~
+    file = ~~
+    from_charset = ~123fakecharset~
+    to_charset = ~UTF-8~
+BEGIN
+  /*
+   * iconv will happily be told to use an incorrect -f encoding and
+   * produce invalid output, so may as well provide the -c option.
+   */
+  OUTER_SPRINT c_option "-c"
+  OUTER_SPRINT infile ~%path%/%file%~
+  OUTER_SPRINT outfile ~%path%/fl#utf8_%file%~
+  ACTION_TRY
+    COPY "%infile%" "%outfile%"
+    /*
+     * The -o option does not appear to be supported by all implementations
+     */
+    AT_NOW ~%iconv% %c_option% -f %from_charset% -t %to_charset% %quote%%infile%%quote% > %quote%%outfile%%quote%~
+    COPY "%outfile%" "%infile%"
+  WITH
+    DEFAULT
+      PRINT "ERROR: unable to convert %infile% from %from_charset% into %to_charset%"
+      ACTION_RERAISE
+  END
+END
+
+DEFINE_ACTION_FUNCTION HANDLE_CHARSETS
+  INT_VAR
+    infer_charset = 0
+  STR_VAR
+    tra_path = ~~
+    iconv_path = EVAL ~%tra_path%/iconv~
+    charset_table = ~~
+    convert_array = ~~
+    noconvert_array = ~~
+    reload_array = ~~
+BEGIN
+  ACTION_IF ENGINE_IS ~bgee bg2ee~ AND !FILE_EXISTS ~%tra_path%/%LANGUAGE%/fl#utf8.mrk~ BEGIN
+    ACTION_MATCH ~%WEIDU_OS%~ WITH
+      win32
+      BEGIN
+        OUTER_SPRINT iconv ~%iconv_path%/iconv.exe~
+        OUTER_SPRINT quote ~"~
+      END
+
+      osx unix
+      BEGIN
+        OUTER_SPRINT iconv ~iconv~
+        OUTER_SPRINT quote ~'~
+      END
+
+      DEFAULT
+    END
+    LAF fl#HANDLE_CHARSETS#WHICH
+      INT_VAR
+        infer_charset
+      STR_VAR
+        charset_table
+      RET
+        from_charset = charset
+    END
+    ACTION_IF ("%WEIDU_OS%" STRING_EQUAL_CASE "win32" AND FILE_EXISTS "%iconv%") OR
+              ("%WEIDU_OS%" STRING_EQUAL_CASE "osx" OR "%WEIDU_OS%" STRING_EQUAL_CASE "unix")
+    BEGIN
+      ACTION_IF VARIABLE_IS_SET $EVAL "%convert_array%"(0) BEGIN
+        ACTION_PHP_EACH "%convert_array%" AS _ => filename BEGIN
+          LAF fl#HANDLE_CHARSETS#CONVERT
+            STR_VAR
+              iconv
+              quote
+              path = EVAL ~%tra_path%/%LANGUAGE%~
+              file = EVAL ~%filename%.tra~
+              from_charset
+          END
+        END
+      END ELSE BEGIN
+        ACTION_BASH_FOR ~%tra_path%/%LANGUAGE%~ ~.+\.tra$~ BEGIN
+          OUTER_SET convert = 1
+          /* This makes for a more consistent interface, albeit slightly
+           * messier code. noconvert_array is very likely to be short.
+           */
+          ACTION_PHP_EACH "%noconvert_array%" AS _ => filename BEGIN
+            ACTION_IF "%filename%" STRING_EQUAL_CASE "%BASH_FOR_RES%" BEGIN
+              OUTER_SET convert = 0
+            END
+          END
+          ACTION_IF convert BEGIN
+            LAF fl#HANDLE_CHARSETS#CONVERT
+              STR_VAR
+                iconv
+                quote
+                path = EVAL "%BASH_FOR_DIRECTORY%"
+                file = EVAL "%BASH_FOR_FILE%"
+                from_charset
+            END
+          END
+        END
+      END
+      ACTION_PHP_EACH "%reload_array%" AS _ => file BEGIN
+        LOAD_TRA ~%tra_path%/%LANGUAGE%/%file%.tra~
+      END
+      COPY_EXISTING sw1h01.itm ~%tra_path%/%LANGUAGE%/fl#utf8.mrk~
+    END ELSE BEGIN
+      FAIL "ERROR: charsets were not converted because iconv could not be found in %iconv_path%"
+    END
+  END
+END
+
 DEFINE_PATCH_FUNCTION fl#WORLDMAP_LINKS#PATCH_LINK
   INT_VAR
     link_offset = 0

@@ -22,6 +22,7 @@ Version 237:
   * Fix variable-evaluation errors in ADD_ITEM_EFFECT.
   * If HANDLE_TILESETS is unable to install the tilesets, the
     installation fails.
+  * Add HANDLE_CHARSETS.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
