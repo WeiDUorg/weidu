@@ -763,7 +763,7 @@ let rec best_ids_of_trigger game c =
 let rec best_ids_of_action game a = 
   let ids = every_ids_of_int game "ACTION" a.action_id in 
   if ids = [] then begin
-    log_and_print "ERROR: cannot resolve action 0x%lx\n" a.action_id ;
+    log_and_print "ERROR: cannot resolve action %ld\n" a.action_id ;
     raise Not_found
   end else begin
     let rec proc lst = match lst with

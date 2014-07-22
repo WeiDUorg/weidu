@@ -23,6 +23,8 @@ Version 237:
   * If HANDLE_TILESETS is unable to install the tilesets, the
     installation fails.
   * Add HANDLE_CHARSETS.
+  * Actions missing from action.ids are printed as decimal numbers
+    rather than hexadecimal ones.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
