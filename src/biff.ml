@@ -93,19 +93,20 @@ let save_biff key filename components =
 		) files ;
     Array.iteri (fun i (s,f,a,b,t) ->
       let in_fd = Case_ins.unix_openfile f [Unix.O_RDONLY] 0 in
-      let istis = String.create 8 in
-      my_read 8 in_fd istis f ;
+      let header = String.create 24 in
+      my_read 24 in_fd header f ;
       (try
         Unix.close in_fd ;
       with e ->
         log_and_print "ERROR: save_biff failed to close %s during tiles 1\n" f ;
         raise e) ;
+      let istis = String.sub header 0 8 in
       let s = (if istis = "TIS V1  " then s - 24 else s) in
       let off = offset_tiles + (i * 20) in
       let tis_loc = (i + 1) lsl 14 in
       write_int buff (off+0) tis_loc ; (* resource location *)
       write_int buff (off+4) !offset_data ;
-      let tile_size = 5120 in
+      let tile_size = int_of_str (String.sub header 12 4) in
       let num_tiles = (s/tile_size) in
       let tis_type = 1003 in
       write_int buff (off+8) num_tiles ;
