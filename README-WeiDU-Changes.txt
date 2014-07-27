@@ -25,6 +25,9 @@ Version 237:
   * Add HANDLE_CHARSETS.
   * Actions missing from action.ids are printed as decimal numbers
     rather than hexadecimal ones.
+  * Fix bug that prevented WeiDU from finding files in the EEs' lang/
+    directory if the main game directory was something other than
+    the directory WeiDU was running in.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files

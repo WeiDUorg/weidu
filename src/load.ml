@@ -486,8 +486,9 @@ let load_game () =
   result
 
 let set_additional_bgee_load_paths game dir =
-  let more = List.append (if dir <> "en_us" then ["./lang/" ^ dir] else [])
-      ["./lang/en_us"] in
+  let gp = game.game_path in
+  let more = List.append (if dir <> "en_us" then [gp ^ "/lang/" ^ dir] else [])
+      [gp ^ "/lang/en_us"] in
   game.cd_path_list <- (List.append game.cd_path_list more)
 
 let use_bgee_lang_dir game dir =
