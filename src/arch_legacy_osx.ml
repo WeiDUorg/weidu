@@ -44,7 +44,7 @@ external glob : string -> (string -> unit) -> unit = "myglob"
 
 let create_process_env = Unix.create_process_env
 
-let biff_path_separator = "\\\\" (* backslash_to_slash hopefully sorts this out *)
+let biff_path_separator = ":"
 
 (* On OSX, TOB baldur.ini has: 
    [Alias]
