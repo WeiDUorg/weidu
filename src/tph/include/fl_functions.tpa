@@ -241,17 +241,17 @@ BEGIN
       OUTER_SPRINT charset "CP1252"
     END
 
-    ".*french.*"
+    ".*french.*" ".*francais.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
 
-    ".*german.*"
+    ".*german.*" ".*deutsch.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
 
-    ".*italian.*"
+    ".*italian.*" ".*italiano.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
@@ -276,7 +276,7 @@ BEGIN
       OUTER_SPRINT charset "CP1251"
     END
 
-    ".*spanish.*" ".*castilian.*"
+    ".*spanish.*" ".*castilian.*" ".*espanol.*" ".*castellano.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
