@@ -8877,7 +8877,7 @@ Conversion is handled by the program \t{iconv}. The program is available as part
 In order to function, \verb+HANDLE_CHARSETS+ needs to know a few things. First, you need to specify where you keep your \t{TRA} files. You do this with the variable \verb+tra_path+. Second, \verb+HANDLE_CHARSETS+ needs to know where the Windows version of \t{iconv} is located. You do this with the variable \verb+iconv_path+. Third, \verb+HANDLE_CHARSETS+ needs to know which character set the \t{TRA} files are in. Note that they can only be converted into \t{UTF-8} and cannot already be in \t{UTF-8}. You provide this information with \verb+charset_table+ or tell \verb+HANDLE_CHARSETS+ to try to infer this by itself with \verb+infer_charsets+. Lastly, \verb+HANDLE_CHARSETS+ needs to know which \t{TRA} files to convert and whether any of them should be reloaded. You can do this with \verb+noconvert_array+, \verb+convert_array+ and \verb+reload_array+.
 
 \begin{itemize}
-\item INT_VAR \verb+infer_charsets+ to whether \verb+HANDLE_CHARSETS+ should try to infer which character set the \t{TRA} files are encoded in. It uses the contents of the \ttref{LANGUAGE} variable. If the contents of the variable can be recognised, \verb+HANDLE_CHARSETS+ will use the character set used by the localised version of BG2 for this language. If the contents of the variable cannot be recognised, or if the \t{TRA} files use a different character set than the expected one, \verb+HANDLE_CHARSETS+ will fail. Defaults to 0.
+\item INT_VAR \verb+infer_charsets+ to whether \verb+HANDLE_CHARSETS+ should try to infer which character set the \t{TRA} files are encoded in. It uses the contents of the \ttref{LANGUAGE} variable. If the contents of the variable can be recognised, \verb+HANDLE_CHARSETS+ will use the character set used by the localised version of BG2 for this language. If the contents of the variable cannot be recognised, or if the \t{TRA} files use a different character set than the expected one, \verb+HANDLE_CHARSETS+ will fail. Refer to the compatibility matrix below for additional information. Defaults to 0.
 \item STR_VAR \verb+tra_path+ to the path where your mod's language directories are located. \verb+%tra_path%/%LANGUAGE%+ should be a valid directory containing \t{TRA} files.
 \item STR_VAR \verb+iconv_path+ to the path where iconv.exe is located. Defaults to \verb+%tra_path%/iconv+.
 \item STR_VAR \verb+charset_table+ to the name of an associative array where the keys are the names of your language directories and the corresponding values are the character sets used by the respective language.
@@ -8885,6 +8885,26 @@ In order to function, \verb+HANDLE_CHARSETS+ needs to know a few things. First, 
 \item STR_VAR \verb+convert_array+ to the name of an array indexed by monotonically increasing integers starting from 0. The values should be the names of \t{TRA} files that should be converted into \t{UTF-8}. Only those \t{TRA} files in the language directory which are listed in \verb+convert_array+ will be converted. The .tra file extension is implied and should not be explicitly provided. If this variable is provided, \verb+noconvert_array+ will not be used.
 \item STR_VAR \verb+reload_array+ to the name of an array indexed by monotonically increasing integers starting from 0. The values should be the names of \t{TRA} files which should be reloaded after they have been converted. You should use this variable for reloading those \t{TRA} files loaded by \ttref{LANGUAGE} which should also be converted.
 \end{itemize}
+
+Compatibility matrix for \verb+infer_charsets+.
+\begin{tabular} {l c r}
+\hline
+Language & \verb+%LANGUAGE%+ contains & Inferred character set \\
+\hline
+Simplified Chinese & schinese & CP936 \\
+Traditional Chinese & tchinese & CP950 \\
+Czech & czech & CP1250 \\
+English & english, american & CP1252 \\
+French & french, francais & CP1252 \\
+German & german, deutsch & CP1252 \\
+Italian & italian, italiano & CP1252 \\
+Japanese & japanese & CP932 \\
+Korean & korean & CP949 \\
+Polish & polish, polski & CP1250 \\
+Russian & russian & CP1251 \\
+Spanish & spanish, castilian, espanol, castellano & CP1252 \\
+\hline
+\end{tabular}
 \\
 
 \DEFINE{\verb+DELETE_WORLDMAP_LINKS+}: delete all links from one worldmap area to another. This is a PATCH function.
