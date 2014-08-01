@@ -799,3 +799,249 @@ BEGIN
   END
 
 END
+
+DEFINE_PATCH_FUNCTION CLONE_EFFECT
+
+  // defines what we're going to check
+  INT_VAR check_globals       = 1
+          check_headers       = 1
+          header              = "-1"
+          header_type         = "-1"
+          multi_match         = 999
+          verbose             = 0
+
+  // variables for finding the effect to match
+          match_opcode        = "-1"
+          match_target        = "-1"
+          match_power         = "-1"
+          match_parameter1    = "-1"
+          match_parameter2    = "-1"
+          match_timing        = "-1"
+          match_resist_dispel = "-1"
+          match_duration      = "-1"
+          match_duration_high = "-1"
+          match_probability1  = "-1"
+          match_probability2  = "-1"
+          match_dicenumber    = "-1"
+          match_dicesize      = "-1"
+          match_savingthrow   = "-1"
+          match_savebonus     = "-11"
+          match_special       = "-1"
+
+  // variables for the new effect
+          opcode              = "-1"
+          target              = "-1"
+          power               = "-1"
+          parameter1          = "-1"
+          parameter2          = "-1"
+          timing              = "-1"
+          resist_dispel       = "-1"
+          duration            = "-1"
+          duration_high       = "-1"
+          probability1        = "-1"
+          probability2        = "-1"
+          dicenumber          = "-1"
+          dicesize            = "-1"
+          savingthrow         = "-1"
+          savebonus           = "-11"
+          special             = "-1"
+
+  // same for match and new STR_VAR
+  STR_VAR match_resource      = "SAME"
+          resource            = "SAME"
+          insert              = "above"
+
+BEGIN
+
+  // set variables and offsets based on the file type
+  SET new_fx = 0
+  READ_ASCII 0 sig ELSE "fail_whale" (4)
+  PATCH_MATCH "%sig%" WITH
+    "SPL "
+    BEGIN
+      READ_LONG   0x6a fx_off   ELSE 0
+      SET counter_offset = 0x70
+      SET abil_length    = 0x28
+      SET fx_type        = 0
+      SET min_size       = 0x72
+      PATCH_IF (check_headers = 0) BEGIN
+        SET abil_num = 0
+      END ELSE BEGIN
+        READ_LONG   0x64 abil_off ELSE 0
+        READ_SHORT  0x68 abil_num ELSE 0
+      END
+    END
+
+    "ITM "
+    BEGIN
+      READ_LONG   0x6a fx_off   ELSE 0
+      SET counter_offset = 0x70
+      SET abil_length    = 0x38
+      SET fx_type        = 0
+      SET min_size       = 0x72
+      PATCH_IF (check_headers = 0) BEGIN
+        SET abil_num = 0
+      END ELSE BEGIN
+        READ_LONG   0x64 abil_off ELSE 0
+        READ_SHORT  0x68 abil_num ELSE 0
+      END
+    END
+
+    "CRE "
+    BEGIN
+      SET abil_off = 0 // basically prevents the ability effect loop
+      SET abil_num = 0
+      READ_LONG  0x2c4 fx_off ELSE 0
+      SET counter_offset = 0x2c8
+      SET abil_length = 0
+      READ_BYTE 0x33 fx_type ELSE 2
+      SET min_size = 0x2d4
+      SET check_globals = 1
+    END
+
+    "fail_whale"
+    BEGIN
+      PATCH_WARN "WARNING: CLONE_EFFECT does not think %SOURCE_FILE% appears to be a valid file"
+    END
+
+    DEFAULT
+      SET min_size = "-1" // kill macro as the file type is not recognized
+      PATCH_WARN "WARNING: CLONE_EFFECT does not support file type %sig%"
+  END
+
+  PATCH_IF (BUFFER_LENGTH >= min_size) BEGIN // sanity check
+    FOR (index = (0 - check_globals) ; index < abil_num ; ++index) BEGIN // we start at -1 for global effects
+      PATCH_IF (index < 0) BEGIN // if loop through globals needed
+        SET abil_fx_idx = 0  // start with effect 0 since we're in the global loop
+        SET abil_type = "-1" // basically, ignore header type checks for global loop
+      END ELSE BEGIN // otherwise normal ability
+        READ_SHORT  (abil_off +        (abil_length * index)) abil_type
+        SET counter_offset = (abil_off + 0x1e + (abil_length * index))
+        WRITE_SHORT (abil_off + 0x20 + (abil_length * index)) (THIS + new_fx) // update index with previously added effects
+        READ_SHORT  (abil_off + 0x20 + (abil_length * index)) abil_fx_idx
+      END
+      READ_SHORT counter_offset counter // fx_num on global loop, otherwise abil_fx_num
+      PATCH_IF (((abil_type = header_type) OR (abil_type < 0) OR (header_type < 0)) AND // only look on the right header types, if specified...
+                ((header = index) OR (header < 0))) BEGIN                               // and only on the right # header, if specified
+        SET last = 0                              // and only on the right # header, if specified
+        SET local_multi = multi_match
+        FOR (index2 = 0 ; index2 < (counter - last) ; ++index2) BEGIN
+
+          // read the variables from the current effect
+          READ_SHORT (fx_off        + (0x08 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_opcode
+          READ_BYTE  (fx_off + 0x02 + (0x0a * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_target
+          READ_BYTE  (fx_off + 0x03 + (0x0d * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_power
+          READ_LONG  (fx_off + 0x04 + (0x10 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_parameter1
+          READ_LONG  (fx_off + 0x08 + (0x10 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_parameter2
+          READ_BYTE  (fx_off + 0x0c + (0x10 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_timing
+          READ_BYTE  (fx_off + 0x0d + (0x47 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_resist_dispel
+          READ_LONG  (fx_off + 0x0e + (0x12 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_duration
+          READ_BYTE  (fx_off + 0x12 + (0x12 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_probability1
+          READ_BYTE  (fx_off + 0x13 + (0x13 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_probability2
+          READ_ASCII (fx_off + 0x14 + (0x14 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_resource
+          READ_LONG  (fx_off + 0x1c + (0x14 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_dicenumber
+          READ_LONG  (fx_off + 0x20 + (0x14 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_dicesize
+          READ_LONG  (fx_off + 0x24 + (0x14 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_savingthrow
+          READ_LONG  (fx_off + 0x28 + (0x14 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_savebonus
+          READ_LONG  (fx_off + 0x2c + (0x14 * fx_type) + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) o_special
+
+          // match ALL these variables, if specified
+          PATCH_IF (((match_opcode        = o_opcode)        OR (match_opcode < 0))        AND
+                    ((match_target        = o_target)        OR (match_target < 0))        AND
+                    ((match_power         = o_power)         OR (match_power < 0))         AND
+                    ((match_parameter1    = o_parameter1)    OR (match_parameter1 < 0))    AND
+                    ((match_parameter2    = o_parameter2)    OR (match_parameter2 < 0))    AND
+                    ((match_timing        = o_timing)        OR (match_timing < 0))        AND
+                    ((match_resist_dispel = o_resist_dispel) OR (match_resist_dispel < 0)) AND
+                    ((match_duration      = o_duration)      OR (match_duration < 0))      AND
+                    ((match_probability1  = o_probability1)  OR (match_probability1 < 0))  AND
+                    ((match_probability2  = o_probability2)  OR (match_probability2 < 0))  AND
+                    ((match_dicenumber    = o_dicenumber)    OR (match_dicenumber < 0))    AND
+                    ((match_dicesize      = o_dicesize)      OR (match_dicesize < 0))      AND
+                    ((match_savingthrow   = o_savingthrow)   OR (match_savingthrow < 0))   AND
+                    ((match_savebonus     = o_savebonus)     OR (match_savebonus < "-10")) AND
+                    ((match_special       = o_special)       OR (match_special < 0))       AND
+                    (("%match_resource%" STRING_COMPARE_CASE "%o_resource%" = 0) OR ("%match_resource%" STRING_COMPARE_CASE "SAME" = 0)))
+          BEGIN
+
+            // now that we've got a match, read-and-clone it:
+            READ_ASCII   (fx_off        + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type)))) clone (0x30 + (0xd8 * fx_type))
+            PATCH_IF ("%insert%" STRING_COMPARE_CASE "below" = 0) BEGIN
+              SET base = (fx_off        + ((abil_fx_idx + index2 + 1) * (0x30 + (0xd8 * fx_type))))
+            END ELSE
+            PATCH_IF ("%insert%" STRING_COMPARE_CASE "first" = 0) BEGIN
+              SET base = (fx_off        + (abil_fx_idx * (0x30 + (0xd8 * fx_type))))
+            END ELSE
+            PATCH_IF ("%insert%" STRING_COMPARE_CASE "last" = 0) BEGIN
+              SET base = (fx_off        + ((abil_fx_idx + counter) * (0x30 + (0xd8 * fx_type))))
+            END ELSE BEGIN
+              SET base = (fx_off        + ((abil_fx_idx + index2) * (0x30 + (0xd8 * fx_type))))
+            END
+            INSERT_BYTES base (0x30 + (0xd8 * fx_type))
+            WRITE_ASCIIE base "%clone%"
+
+            // overwrite the cloned effect with the new variables, if specified
+            PATCH_IF (opcode >= 0)        BEGIN WRITE_SHORT (base        + (0x08 * fx_type)) opcode        END
+            PATCH_IF (target >= 0)        BEGIN WRITE_BYTE  (base + 0x02 + (0x0a * fx_type)) target        END
+            PATCH_IF (power >= 0)         BEGIN WRITE_BYTE  (base + 0x03 + (0x0d * fx_type)) power         END
+            PATCH_IF (parameter1 >= 0)    BEGIN WRITE_LONG  (base + 0x04 + (0x10 * fx_type)) parameter1    END
+            PATCH_IF (parameter2 >= 0)    BEGIN WRITE_LONG  (base + 0x08 + (0x10 * fx_type)) parameter2    END
+            PATCH_IF (timing >= 0)        BEGIN WRITE_BYTE  (base + 0x0c + (0x10 * fx_type)) timing        END
+            PATCH_IF (resist_dispel >= 0) BEGIN WRITE_BYTE  (base + 0x0d + (0x47 * fx_type)) resist_dispel END
+            PATCH_IF (duration >= 0)      BEGIN WRITE_LONG  (base + 0x0e + (0x12 * fx_type)) duration      END
+            PATCH_IF (probability1 >= 0)  BEGIN WRITE_BYTE  (base + 0x12 + (0x12 * fx_type)) probability1  END
+            PATCH_IF (probability2 >= 0)  BEGIN WRITE_BYTE  (base + 0x13 + (0x13 * fx_type)) probability2  END
+            PATCH_IF (dicenumber >= 0)    BEGIN WRITE_LONG  (base + 0x1c + (0x14 * fx_type)) dicenumber    END
+            PATCH_IF (dicesize >= 0)      BEGIN WRITE_LONG  (base + 0x20 + (0x14 * fx_type)) dicesize      END
+            PATCH_IF (savingthrow >= 0)   BEGIN WRITE_LONG  (base + 0x24 + (0x14 * fx_type)) savingthrow   END
+            PATCH_IF (savebonus >= "-10") BEGIN WRITE_LONG  (base + 0x28 + (0x14 * fx_type)) savebonus     END
+            PATCH_IF (special >= 0)       BEGIN WRITE_LONG  (base + 0x2c + (0x14 * fx_type)) special       END
+            PATCH_IF ("%resource%" STRING_COMPARE_CASE "SAME" != 0) BEGIN
+              WRITE_ASCIIE (base + 0x14 + (0x14 * fx_type)) "%resource%" #8
+            END
+
+            // update the tracking vars
+            SET new_fx += 1
+            SET counter += 1
+            PATCH_IF (local_multi < 2) BEGIN  // kill loop if we only want one match
+              SET index2 = counter
+            END ELSE BEGIN // otherwise bump vars and keep going
+              SET local_multi  -= 1
+              PATCH_IF ("%insert%" STRING_COMPARE_CASE "last" = 0) BEGIN
+                SET last += 1
+              END ELSE BEGIN
+                SET index2 += 1
+              END
+            END
+
+          END // end patch_if for a matched effect
+        END // end of the for loop through effects
+      END // end patch_if for matched/specified headers
+      WRITE_SHORT counter_offset counter // fx_num on global loop, otherwise abil_fx_num
+    END // end loop through effects on ability
+  END // end ability loop
+
+  // now adjust offsets for creature files
+  PATCH_IF (("%sig%" STRING_EQUAL "CRE ") AND (new_fx > 0)) BEGIN // fix offsets for cre files if fx inserted
+    SET inserted = ((0x30 + (0xd8 * fx_type)) * new_fx)
+    PATCH_FOR_EACH offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
+      READ_LONG offset off
+      PATCH_IF (fx_off < off) BEGIN
+        WRITE_LONG offset (off + inserted)
+      END
+    END
+  END
+
+  PATCH_IF (new_fx = 0) BEGIN
+    PATCH_WARN "WARNING: no effects added to %SOURCE_FILE%"
+  END ELSE PATCH_IF (verbose) BEGIN
+    READ_LONG 0x0c strref
+    PATCH_IF ((strref > 0) AND (strref < 200000)) BEGIN
+      READ_STRREF 0x0c name
+    END ELSE BEGIN
+      READ_STRREF 0x08 name
+    END
+    PATCH_PRINT "              ~%SOURCE_FILE%~   ~override~ // %name%, %new_fx% effect(s) added"
+  END
+
+END

@@ -31,6 +31,7 @@ Version 237:
   * Tile size is not hardcoded to 5120 while biffing tile sets.
   * Biff path separator is (back)slash on x86 and x86_64 OS X and
     colon on PPC OS X.
+  * Add CLONE_EFFECT function.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
