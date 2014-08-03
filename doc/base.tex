@@ -8819,7 +8819,7 @@ This function will delete one or more ability headers, along with all of their a
 The first batch of variables are meta-variables which will help determine the scope of the function:
 
 \begin{itemize}
-\item INT_VAR \verb+check_globals+ to whether the function should loop through global effects on items (also known as equipping effects) and spells if set to 1 (default is 1). Creature effects are all global effects, so this variable will always be considered to be one when this function is run on a creature.
+\item INT_VAR \verb+check_globals+ to whether the function should loop through global effects on items (also known as equipping effects) and spells (default is 1). Creature effects are all global effects, so this variable will always be considered to be one when this function is run on a creature.
 \item INT_VAR \verb+check_headers+ to whether the function should loop through effects on extended headers on items and spells if set to 1 (default is 1). Creatures have no extended headers, so this variable is ignored when used on creatures.
 \item INT_VAR \verb+header+ to whether the function should target effects on one specific header, counting the first header as zero. A negative value will match all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
 \item INT_VAR \verb+header_type+ to whether the function should only clone effects on extended headers of the specified type (1 - melee, 2 - ranged, etc.). Negative values will look at effects on all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
@@ -8868,6 +8868,99 @@ Once a matching effect is found, a new effect is created (STR_VAR \verb+insert+ 
 \item INT_VAR \verb+savebonus+ to the new effect's saving-throw bonus/penalty. This variable can take negative values down to -10 while still writing to the corresponding field.
 \item INT_VAR \verb+special+ to the new effect's special field. The special field is used by many EE effects.
 \item STR_VAR \verb+resource+ to the new effect's resource reference.
+\end{itemize}
+\\
+
+\verb+DELETE_EFFECT+: This is a patch function for creature, item, or spell files that will match an existing effect and then delete it. Numerous variables are available for matching the specified effect.
+
+The first batch of variables are meta-variables which will help determine the scope of the function:
+
+\begin{itemize}
+\item INT_VAR \verb+check_globals+ to whether the function should loop through global effects on items (also known as equipping effects) and spells (default is 1). Creature effects are all global effects, so this variable will always be considered to be one when this function is run on a creature.
+\item INT_VAR \verb+check_headers+ to whether the function should loop through effects on extended headers on items and spells (default is 1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+header+ to whether the function should target effects on one specific header, counting the first header as zero. A negative value will match all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+header_type+ to whether the function should only delete effects on extended headers of the specified type (1 - melee, 2 - ranged, etc.). Negative values will look at effects on all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+multi_match+ to the number of effects to delete in the active stack. If you just want to match the first effect and have the function stop, use 1. Otherwise the function will continue matching until the number of deleted effects matches this value. The function will always make at least one change (e.g. 0 or negative values are treated as 1). (default is 999).
+\item INT_VAR \verb+verbose+ to whether the function should provide some rudimentary information on how many effects were deleted (default is 0).
+\end{itemize}
+
+The next batch of variables sets the function boundaries on matching an effect to delete. Any variables not specified will not be used to determine a match. The function will only determine an effect is a match only if ALL of the variables specified are matched.
+
+\begin{itemize}
+\item INT_VAR \verb+match_opcode+ to the opcode of effects to be matched (default -1).
+\item INT_VAR \verb+match_target+ to the target of effects to be matched (default -1).
+\item INT_VAR \verb+match_power+ to the power of effects to be matched (default -1).
+\item INT_VAR \verb+match_parameter1+ to parameter1 of effects to be matched (default -1).
+\item INT_VAR \verb+match_parameter2+ to parameter2 of effects to be matched (default -1).
+\item INT_VAR \verb+match_timing+ to the timing of effects to be matched (default -1).
+\item INT_VAR \verb+match_resist_dispel+ to the resist/dispel setting of effects to be matched (default -1).
+\item INT_VAR \verb+match_duration+ to the duration of effects to be matched (default -1).
+\item INT_VAR \verb+match_probability1+ to probability1 (the upper bound) of effects to be matched (default -1).
+\item INT_VAR \verb+match_probability2+ to probability2 (the lower bound) of effects to be matched (default -1).
+\item INT_VAR \verb+match_dicenumber+ to the number of dice of effects to be matched (default -1). This field is instead used for maximum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+match_dicesize+ to the size of dice of effects to be matched (default -1). This field is used instead for minimum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+match_savingthrow+ to the saving throw type of effects to be matched (default -1).
+\item INT_VAR \verb+match_savebonus+ to the saving throw bonus effects to be matched (default -11). Since saving throws can range into negative values, this variable can match all the way down to -10.
+\item INT_VAR \verb+match_special+  to the special field of effects to be matched (default -1). The special field is used by some EE effects.
+\item STR_VAR \verb+match_resource+ to the resource of effects to be matched (default "SAME").
+\end{itemize}
+
+Once a matching effect is found it is deleted. The function will continue to delete effects from the stack until the number of effects deleted matches the \verb+multi_match+ variable.\\
+\\
+
+\verb+ALTER_EFFECT+: This is a patch function for creature, item, or spell files that will match an existing effect and alter it based on the defined variables. Numerous variables are available for matching the specified effect and for specifying new values.
+
+The first batch of variables are meta-variables which will help determine the scope of the function:
+
+\begin{itemize}
+\item INT_VAR \verb+check_globals+ to whether the function should loop through global effects on items (also known as equipping effects) and spells (default is 1). Creature effects are all global effects, so this variable will always be considered to be one when this function is run on a creature.
+\item INT_VAR \verb+check_headers+ to whether the function should loop through effects on extended headers on items and spells (default is 1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+header+ to whether the function should target effects on one specific header, counting the first header as zero. A negative value will match all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+header_type+ to whether the function should only alter effects on extended headers of the specified type (1 - melee, 2 - ranged, etc.). Negative values will look at effects on all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+multi_match+ to the number of effects to alter in the active stack. If you just want to match the first effect and have the function stop, use 1. Otherwise the function will continue matching until the number of altered effects matches this value. The function will always make at least one change (e.g. 0 or negative values are treated as 1). (default is 999).
+\item INT_VAR \verb+verbose+ to whether the function should provide some rudimentary information on how many effects were added (default is 0).
+\end{itemize}
+
+The next batch of variables sets the function boundaries on matching an effect to alter. Any variables not specified will not be used to determine a match. The function will only determine an effect is a match only if ALL of the variables specified are matched.
+
+\begin{itemize}
+\item INT_VAR \verb+match_opcode+ to the opcode of effects to be matched (default is 1).
+\item INT_VAR \verb+match_target+ to the target of effects to be matched (default is 1).
+\item INT_VAR \verb+match_power+ to the power of effects to be matched (default is 1).
+\item INT_VAR \verb+match_parameter1+ to parameter1 of effects to be matched (default is 1).
+\item INT_VAR \verb+match_parameter2+ to parameter2 of effects to be matched (default is 1).
+\item INT_VAR \verb+match_timing+ to the timing of effects to be matched (default is 1).
+\item INT_VAR \verb+match_resist_dispel+ to the resist/dispel setting of effects to be matched (default is 1).
+\item INT_VAR \verb+match_duration+ to the duration of effects to be matched (default is 1).
+\item INT_VAR \verb+match_probability1+ to probability1 (the upper bound) of effects to be matched (default is 1).
+\item INT_VAR \verb+match_probability2+ to probability2 (the lower bound) of effects to be matched (default is 1).
+\item INT_VAR \verb+match_dicenumber+ to the number of dice of effects to be matched (default is 1). This field is instead used for maximum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+match_dicesize+ to the size of dice of effects to be matched (default is 1). This field is used instead for minimum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+match_savingthrow+ to the saving throw type of effects to be matched (default is 1).
+\item INT_VAR \verb+match_savebonus+ to the saving trow bonus effects to be matched (default is 11). Since saving throws can range into negative values, this variable can match all the way down to10.
+\item INT_VAR \verb+match_special+ to the special field of effects to be matched (default is 1). The special field is used by some EE effects.
+\item STR_VAR \verb+match_resource+ to the resource of effects to be matched (default is "SAME").
+\end{itemize}
+
+Once a matching effect is found, the next series of variables allows the function to change the fields to these new values in the matched effect. Any variables not set in this batch will keep their existing values.
+
+\begin{itemize}
+\item INT_VAR \verb+opcode+ to the value the of the altered effect's opcode.
+\item INT_VAR \verb+target+ to the altered effect's target.
+\item INT_VAR \verb+power+ to the altered effect's power.
+\item INT_VAR \verb+parameter1+ to the altered effect's parameter1.
+\item INT_VAR \verb+parameter2+ to the altered effect's parameter2.
+\item INT_VAR \verb+timing+ to the altered effect's timing mode.
+\item INT_VAR \verb+resist_dispel+ to the altered effect's resist/dispel setting.
+\item INT_VAR \verb+duration+ to the altered effect's duration.
+\item INT_VAR \verb+probability1+ to the altered effect's probability1 (the upper bound).
+\item INT_VAR \verb+probability2+ to the altered effect's probability2 (the lower bound).
+\item INT_VAR \verb+dicenumber+ to the altered effect's number of dice. This field is instead used for maximum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+dicesize+ to the altered effect's size of dice. This field is also instead for minimum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+savingthrow+ to the altered effect's saving-throw type.
+\item INT_VAR \verb+savebonus+ to the altered effect's saving-throw bonus/penalty. This variable can take negative values down to -10 while still writing to the corresponding field.
+\item INT_VAR \verb+special+ to the new effect's special field. The special field is used by many EE effects.
+\item STR_VAR \verb+resource+ to the altered effect's resource reference.
 \end{itemize}
 \\
 
