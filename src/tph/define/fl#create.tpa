@@ -565,7 +565,7 @@ BEGIN
   WRITE_ASCII 0x000 "CRE V1.0"
   WRITE_LONG  0x008 "-1"
   WRITE_LONG  0x00c "-1"
-  WRITE_BYTE  0x033 ENGINE_IS ~soa tob bgee bg2ee~ ? 1 : 0
+  WRITE_BYTE  0x033 ENGINE_IS ~bg1 totsc pst iwd how totlm iwd2~ ? 0 : 1
   FOR (off = 0xa4; off < 0x234; off += 0x4) BEGIN
     WRITE_LONG off "-1"
   END
