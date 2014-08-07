@@ -309,6 +309,11 @@ BEGIN
       OUTER_SPRINT version "V9.1"
     END
 
+    ""
+    BEGIN
+      OUTER_SPRINT version "V1.0"
+    END
+
     DEFAULT
   END
 END
@@ -340,6 +345,11 @@ BEGIN
       OUTER_SPRINT version "V9.0"
     END
 
+    ""
+    BEGIN
+      OUTER_SPRINT version "V1.0"
+    END
+
     DEFAULT
   END
 END
@@ -366,6 +376,11 @@ BEGIN
       OUTER_SPRINT version "V2.0"
     END
 
+    ""
+    BEGIN
+      OUTER_SPRINT version "V1.0"
+    END
+
     DEFAULT
   END
 END
@@ -385,6 +400,11 @@ BEGIN
     "" WHEN ENGINE_IS ~iwd2~
     BEGIN
       OUTER_SPRINT version "V2.0"
+    END
+
+    ""
+    BEGIN
+      OUTER_SPRINT version "V1.0"
     END
 
     DEFAULT
@@ -411,6 +431,11 @@ BEGIN
     "" WHEN ENGINE_IS ~how totlm iwd2~
     BEGIN
       OUTER_SPRINT version "V9.0"
+    END
+
+    ""
+    BEGIN
+      OUTER_SPRINT version "V1.0"
     END
 
     DEFAULT

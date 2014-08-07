@@ -3081,9 +3081,9 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
       backed up, as normal. The file will be created structurally
       correct but will contain no non-zero data aside from the
       structural details. The file version will be native to the
-      current game, but can be overridden with the \t{VERSION} option,
-      which takes a string specifying the desired
-      version. \ttref{CREATE} supports the file types \t{ARE},
+      current game, or default to \t{"V1.0"}, but can be overridden
+      with the \t{VERSION} option, which takes a string specifying the
+      desired version. \ttref{CREATE} supports the file types \t{ARE},
       \t{CRE}, \t{EFF}, \t{ITM}, \t{SPL} and \t{STO} and all their
       known file versions (aside from EFF V1.0, which is never found
       as a file).  \\
