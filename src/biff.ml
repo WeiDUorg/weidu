@@ -100,13 +100,14 @@ let save_biff key filename components =
       with e ->
         log_and_print "ERROR: save_biff failed to close %s during tiles 1\n" f ;
         raise e) ;
+      let tisv1 = "TIS V1  " in
       let istis = String.sub header 0 8 in
-      let s = (if istis = "TIS V1  " then s - 24 else s) in
+      let s = (if istis = tisv1 then s - 24 else s) in
       let off = offset_tiles + (i * 20) in
       let tis_loc = (i + 1) lsl 14 in
       write_int buff (off+0) tis_loc ; (* resource location *)
       write_int buff (off+4) !offset_data ;
-      let tile_size = int_of_str (String.sub header 12 4) in
+      let tile_size = (if istis = tisv1 then int_of_str (String.sub header 12 4) else 5120) in
       let num_tiles = (s/tile_size) in
       let tis_type = 1003 in
       write_int buff (off+8) num_tiles ;
