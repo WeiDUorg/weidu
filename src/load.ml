@@ -299,12 +299,13 @@ let lang_dir_p dir =
   (file_exists (Arch.slash_to_backslash (dir ^ "/dialog.tlk")))
 
 let load_ee_dialogs game_path =
+  let lang_path = game_path ^ "/lang" in
   let lang_dirs = (List.fast_sort compare
                      (List.map String.lowercase
                         (List.filter lang_dir_p
-                           (Array.to_list (Case_ins.sys_readdir "lang"))))) in
+                           (Array.to_list (Case_ins.sys_readdir lang_path))))) in
   let languages = (List.map (fun lang ->
-    let path = Arch.slash_to_backslash ("lang/" ^ lang) in
+    let path = Arch.slash_to_backslash (lang_path ^ "/" ^ lang) in
     load_dialog_pair path None None) lang_dirs) in
   (match !dialog_tlk_path with
   | None -> Array.of_list languages
@@ -316,7 +317,7 @@ let load_ee_dialogs game_path =
       Array.of_list (List.append languages [tlkin]))
 
 let load_dialogs game_path =
-  if file_exists (Arch.slash_to_backslash "lang/en_us/dialog.tlk") then
+  if file_exists (Arch.slash_to_backslash (game_path ^ "/lang/en_us/dialog.tlk")) then
     load_ee_dialogs game_path
   else
     load_default_dialogs game_path
@@ -495,7 +496,7 @@ let use_bgee_lang_dir game dir =
   let str1 = Str.quote "lang" in
   let str2 = Str.quote dir in
   let regexp = (Str.regexp_case_fold
-                  (str1 ^ "[\\\\/]+" ^ str2)) in
+                  (".*" ^ str1 ^ "[\\\\/]+" ^ str2)) in
   let foundp = ref false in
   ignore (set_additional_bgee_load_paths game dir) ;
   ignore (Array.iteri (fun index tlk_pair ->

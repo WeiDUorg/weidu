@@ -32,6 +32,8 @@ Version 237:
   * Biff path separator is (back)slash on x86 and x86_64 OS X and
     colon on PPC OS X.
   * Add (CLONE|DELETE|ALTER)_EFFECT functions. Thanks, CamDawg.
+  * Fix bug where the wrong TLKs were loaded if --game pointed to an
+    EE-type game.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
