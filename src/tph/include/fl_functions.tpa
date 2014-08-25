@@ -299,8 +299,8 @@ BEGIN
   END ELSE BEGIN
     OUTER_SPRINT lang "%LANGUAGE%"
     ACTION_TO_LOWER lang
-    ACTION_IF VARIABLE_IS_SET $charset_table("%lang%") BEGIN
-      OUTER_SPRINT charset $charset_table("%lang%")
+    ACTION_IF VARIABLE_IS_SET $EVAL "%charset_table%"("%lang%") BEGIN
+      OUTER_SPRINT charset $EVAL "%charset_table%"("%lang%")
     END ELSE BEGIN
       FAIL "ERROR: no tabulated charset could be found for language %lang%"
     END
