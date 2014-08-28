@@ -95,7 +95,7 @@ DEFINE_ACTION_FUNCTION HANDLE_AUDIO
     oggdec_path = EVAL "%audio_path%"
     sox_path = EVAL "%audio_path%"
 BEGIN
-  ACTION_IF !GAME_IS ~bgee bg2ee~ BEGIN
+  ACTION_IF !FILE_EXISTS_IN_GAME monkfist.2da BEGIN
     ACTION_MATCH "%WEIDU_OS%" WITH
       win32
       BEGIN
@@ -348,7 +348,7 @@ DEFINE_ACTION_FUNCTION HANDLE_CHARSETS
     noconvert_array = ~~
     reload_array = ~~
 BEGIN
-  ACTION_IF ENGINE_IS ~bgee bg2ee~ AND !FILE_EXISTS ~%tra_path%/%LANGUAGE%/fl#utf8.mrk~ BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME monkfist.2da AND !FILE_EXISTS ~%tra_path%/%LANGUAGE%/fl#utf8.mrk~ BEGIN
     ACTION_MATCH ~%WEIDU_OS%~ WITH
       win32
       BEGIN
