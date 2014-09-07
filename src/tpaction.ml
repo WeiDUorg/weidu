@@ -1951,13 +1951,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               raise e
             end) ; in
         List.iter (fun dest ->
-          let eight,three = split (String.uppercase dest) in
+          let base,ext = split (String.uppercase dest) in
           let dest_script =
             let old_a_m = !Load.allow_missing in
             Load.allow_missing := dest :: old_a_m ;
             let dest_buff, dest_path =
               try
-                Load.load_resource "EXTEND_TOP/EXTEND_BOTTOM" game true eight three
+                Load.load_resource "EXTEND_TOP/EXTEND_BOTTOM" game true base ext
               with _ ->
                 begin
                   log_only "[%s] not found, treating as empty.\n" dest ;

@@ -323,6 +323,11 @@ let bg2ee_game_vars game_path =
   ignore (set_savedir_var user_dir) ;
   ignore (set_userdir_var user_dir)
 
+let iwdee_game_vars game_path =
+  let user_dir = Arch.get_iwdee_user_dir game_path in
+  ignore (set_savedir_var user_dir) ;
+  ignore (set_userdir_var user_dir)
+
 let default_game_vars game_path =
   ignore (set_savedir_var ".") ;
   ignore (set_userdir_var ".")

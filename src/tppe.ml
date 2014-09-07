@@ -422,6 +422,7 @@ let rec eval_pe buff game p =
       let ttsc = f "fw2003.are"   in
       let bgee = f "oh1000.are"   in
       let bg2ee = f "oh6000.are"  in
+      let iwdee = f "howparty.2da" in
       let res = List.exists (fun this ->
         match String.uppercase this with
         | "BG2"
@@ -445,6 +446,7 @@ let rec eval_pe buff game p =
         | "IWDINBG2"   -> bg2 && iwdinbg2
         | "BGEE"       -> bgee
         | "BG2EE"      -> bg2ee
+        | "IWDEE"      -> iwdee
         | _ -> failwith (Printf.sprintf "No rule to identify %s" (String.uppercase this))
       ) game_list in
       if res then 1l else 0l;
@@ -456,9 +458,9 @@ let rec eval_pe buff game p =
       let soa = ["SOA"; "TOB"; "TOB"; "BG2EE"] in
       let tob = ["TOB"; "BGT"; "BG2EE"] in
       let pst = ["PST"] in
-      let iwd = ["IWD"; "HOW"; "TOTLM"; "IWD_IN_BG2"] in
-      let how = ["HOW"; "TOTLM"; "IWD_IN_BG2"] in
-      let totlm = ["TOTLM"; "IWD_IN_BG2"] in
+      let iwd = ["IWD"; "HOW"; "TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
+      let how = ["HOW"; "TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
+      let totlm = ["TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
       let iwd2 = ["IWD2"] in
       let ca = ["CA"] in
       let list = (match String.uppercase game_set with

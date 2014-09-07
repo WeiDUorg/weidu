@@ -35,6 +35,7 @@ Version 237:
   * Fix bug where the wrong TLKs were loaded if --game pointed to an
     EE-type game.
   * Make BG(2): EE checks more general.
+  * Preliminary/speculative compatibility with IWD: EE.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files

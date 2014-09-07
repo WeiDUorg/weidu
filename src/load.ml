@@ -20,7 +20,7 @@ let registry_game_paths () =
     if str = "." then str else Case_ins.filename_dirname str
       ) str_list
 
-type game_type = BGEE | BG2EE | GENERIC
+type game_type = BGEE | BG2EE | IWDEE | GENERIC
 
 let game_paths = ref []
 
@@ -258,7 +258,8 @@ let fake_load_dialogf gp dialogf_path =
 let enhanced_edition_p game =
   (match game.game_type with
   | BGEE
-  | BG2EE -> true
+  | BG2EE
+  | IWDEE -> true
   | GENERIC -> false)
 
 let load_dialog_pair path dpath dfpath =
@@ -435,7 +436,8 @@ let autodetect_game_type key =
                "CLOWNRAN", "IDS", GENERIC, IWD1;
                "FLYTHR01", "MVE", GENERIC, BG2;
                "OH1000", "ARE", BGEE, BG2;
-               "OH6000", "ARE", BG2EE, BG2;] in
+               "OH6000", "ARE", BG2EE, BG2;
+               "HOWPARTY", "2DA", IWDEE, BG2;] in
   let (game_type, script_style) = List.fold_left
       (fun acc (res, ext, game_type, script_style) ->
         if Key.resource_exists key res ext then begin
@@ -483,6 +485,7 @@ let load_game () =
   ignore (match game_type with
   | BGEE -> Var.bgee_game_vars result.game_path
   | BG2EE -> Var.bg2ee_game_vars result.game_path
+  | IWDEE -> Var.iwdee_game_vars result.game_path
   | GENERIC -> Var.default_game_vars result.game_path) ;
   result
 
