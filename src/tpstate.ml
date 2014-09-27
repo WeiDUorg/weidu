@@ -171,6 +171,18 @@ let decompile_var s =
   match s with
   | Must_Get_Var x -> Var.get_string x
 
+let subcomp_str game the_comp =
+  let subcomp_group the_comp =
+    let rec walk lst = match lst with
+    | TPM_SubComponents(ts,a,b) :: tl -> Some(ts)
+    | hd :: tl -> walk tl
+    | [] -> None
+    in walk the_comp.mod_flags
+  in
+  (match subcomp_group the_comp with
+  | None    -> ""
+  | Some(x) -> "" ^ (Dc.single_string_of_tlk_string_safe game x) ^ " -> ")
+
 let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filename log tp2_ht tra_ht vocal intro =
   let out = Buffer.create 10000 in
   if vocal then (log_or_print "Saving This Log:\n" ; print_log ());
@@ -212,17 +224,7 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
             with _ -> ()) ;
             let m = get_nth_module tp2 c true in
             let comp_str = Dc.single_string_of_tlk_string_safe game m.mod_name in
-            let subcomp_group the_comp =
-              let rec walk lst = match lst with
-              | TPM_SubComponents(ts,a,b) :: tl -> Some(ts)
-              | hd :: tl -> walk tl
-              | [] -> None
-              in walk the_comp.mod_flags
-            in
-            let subcomp_str =
-              (match subcomp_group m with
-              | None    -> ""
-              | Some(x) -> "" ^ (Dc.single_string_of_tlk_string_safe game x) ^ " -> ") in
+            let subcomp_str = subcomp_str game m in
             let rec get_version lst = match lst with
             | Version(lse) :: _ -> ": " ^ Dc.single_string_of_tlk_string_safe game lse
             |   _ :: tl -> get_version tl
