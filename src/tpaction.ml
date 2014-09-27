@@ -2108,7 +2108,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_AddJournal(existing,managed,title,ref_list,tra_list) ->
           (match game.Load.game_type with
           | Load.BGEE
-          | Load.BG2EE -> begin
+          | Load.BG2EE
+          | Load.IWDEE -> begin
 
               log_and_print "Processing quests and journals\n" ;
 
