@@ -36,6 +36,7 @@ Version 237:
     EE-type game.
   * Make BG(2): EE checks more general.
   * Preliminary/speculative compatibility with IWD: EE.
+  * Documentation of GAME_IS does not state TOLM is a synonym for TOTLM.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
