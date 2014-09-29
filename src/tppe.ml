@@ -444,8 +444,8 @@ let rec eval_pe buff game p =
         | "IWD-IN-BG2"
         | "IWD_IN_BG2"
         | "IWDINBG2"   -> bg2 && iwdinbg2
-        | "BGEE"       -> bgee
         | "BG2EE"      -> bg2ee
+        | "BGEE"       -> bgee
         | "IWDEE"      -> iwdee
         | _ -> failwith (Printf.sprintf "No rule to identify %s" (String.uppercase this))
       ) game_list in

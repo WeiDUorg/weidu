@@ -39,6 +39,7 @@ Version 237:
   * Documentation of GAME_IS does not state TOLM is a synonym for TOTLM.
   * WeiDU prints the subcomponent group name in addition to the
     component name where applicable.
+  * In ambiguous engine checks, WeiDU prefers BGII: EE over BG: EE.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
