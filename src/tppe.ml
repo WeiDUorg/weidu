@@ -478,7 +478,7 @@ let rec eval_pe buff game p =
       | "TOTLM" -> totlm
       | "IWD2" -> iwd2
       | "CA" -> ca
-      | _ -> failwith (Printf.sprintf "GAME_INCLUDES has not rule for %s" (String.uppercase game_set))) in
+      | _ -> failwith (Printf.sprintf "GAME_INCLUDES has no rule for %s" (String.uppercase game_set))) in
       eval_pe buff game (PE_GameIs((String.concat " " list), true)) ;
   end
 
