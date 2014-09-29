@@ -410,6 +410,7 @@ let rec eval_pe buff game p =
       let  bgt     = if game_or_engine then f "ar7200.are" else false in
       let   ca     = if game_or_engine then f "tc1300.are" else false in
       let iwdinbg2 = if game_or_engine then f "ar9201.are" else false in
+      let eet = if game_or_engine then f "eet.flag" else false in
       let  bg2 = f "ar0083.are"   in
       let  tob = f "ar6111.are"   in
       let iwd2 = f "ar6050.are"   in
@@ -444,19 +445,20 @@ let rec eval_pe buff game p =
         | "IWD-IN-BG2"
         | "IWD_IN_BG2"
         | "IWDINBG2"   -> bg2 && iwdinbg2
-        | "BG2EE"      -> bg2ee
-        | "BGEE"       -> bgee
+        | "BG2EE"      -> bg2ee && not eet
+        | "BGEE"       -> bgee && not eet
         | "IWDEE"      -> iwdee
+        | "EET"        -> eet
         | _ -> failwith (Printf.sprintf "No rule to identify %s" (String.uppercase this))
       ) game_list in
       if res then 1l else 0l;
   end
 
   | PE_GameIncludes(game_set) -> begin
-      let bg1 = ["BG1"; "TOTSC"; "TUTU"; "TUTU_TOTSC"; "BGT"; "BGEE"] in
-      let totsc = ["TOTSC"; "TUTU_TOTSC"; "BGT"; "BGEE"] in
-      let soa = ["SOA"; "TOB"; "TOB"; "BG2EE"] in
-      let tob = ["TOB"; "BGT"; "BG2EE"] in
+      let bg1 = ["BG1"; "TOTSC"; "TUTU"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"] in
+      let totsc = ["TOTSC"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"] in
+      let soa = ["SOA"; "TOB"; "TOB"; "BG2EE"; "EET"] in
+      let tob = ["TOB"; "BGT"; "BG2EE"; "EET"] in
       let pst = ["PST"] in
       let iwd = ["IWD"; "HOW"; "TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
       let how = ["HOW"; "TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
