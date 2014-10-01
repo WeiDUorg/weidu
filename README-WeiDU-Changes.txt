@@ -40,6 +40,7 @@ Version 237:
   * WeiDU prints the subcomponent group name in addition to the
     component name where applicable.
   * In ambiguous engine checks, WeiDU prefers BGII: EE over BG: EE.
+  * Support SetGlobalTimerRandom().
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
