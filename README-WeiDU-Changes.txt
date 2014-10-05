@@ -42,6 +42,7 @@ Version 237:
   * In ambiguous engine checks, WeiDU prefers BGII: EE over BG: EE.
   * Add EET to GAME_IS.
   * Support SetGlobalTimerRandom().
+  * Document WeiDU's script-handling abilities.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files

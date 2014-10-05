@@ -832,6 +832,93 @@ Thus \t{"hello" \^{ } "World"} is the same as \t{"helloWorld"}.
 \end{tabular}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Scripts}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The Infinity Engine uses scripts in a bytecode format, known as
+\t{BCS}. Bytecode is not human-friendly, and the textual format
+\t{BAF} was derived from \t{BCS}. WeiDU includes a \t{BAF} compiler
+for turning \t{BAF} scripts into \t{BCS} scripts and a decompiler for
+the reverse transformation. The \t{BCS} format will not be documented
+here, but the format is described by the
+\ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/bcs.htm}}{IESDP}.
+
+The \t{BAF} format accepted by WeiDU's compiler is documented here in an extended context-free grammar notation.
+
+Syntactical keywords are given in a \t{UPPERCASE COURIER}.
+Other keywords are symbolic, with the exception of \t{TriggerOverride} which is not symbolic and not written in uppercase. Notes:
+\begin{itemize}
+\item foo \Slist means zero or more copies of foo.
+\item \Ob foo \Oe means an optional foo or zero or one copies of foo.
+\item foo bar ... means one or more copies of foo bar.
+\end{itemize}
+
+\begin{tabular}{cp{10in}|p{10in}}
+\DEFINE{BAF File} & &
+
+  A \ttref{BAF File} is a text file that contains zero or more script
+  blocks. \ttref{BAF File}s are compiled into \t{BCS} files, either by
+  the \ttref{COMPILE} \t{TP2} action or on the command line. \\
+
+is & \ttref{script block} \Slist & \\
+
+\\
+
+\DEFINE{script block} & & \\
+
+is & \t{IF} \ttref{script trigger} ... \t{THEN} \ttref{script response} ... \t{END} & \\
+
+\\
+
+\DEFINE{script trigger} & & \\
+
+is & \Ob !\Oe\ttref{Infinity Engine trigger} &
+
+  What constitutes an \DEFINE{Infinity Engine trigger} (trigger)
+  varies between different versions of the Infinity Engine and will
+  not be documented here. Refer to the right section of the
+  \ahref{\url{http://iesdp.gibberlings3.net/scripting/triggers/index.htm}}{IESDP}.
+  A preceding exclamation mark negates the trigger. \\
+
+or & \t{TriggerOverride}(\ttref{Infinity Engine object},\Ob !\Oe\ttref{Infinity Engine trigger}) &
+
+  \t{TriggerOverride}() is a form of syntactical sugar enabled by
+  WeiDU. It does not constitute a trigger of itself, does not exist in
+  \t{BCS} form and it is only available on versions of the Infinity
+  Engine which implement the \t{NextObjectTrigger}()
+  trigger. \t{TriggerOverride}() is compiled into
+  \t{NextObjectTrigger}() and \t{NextObjectTrigger}() is decompiled
+  into \t{TriggerOverride}(). Use of \t{TriggerOverride}() is
+  semantically identical to use of \t{NextObjectTrigger}() but may be
+  a syntactically preferable short-hand. An exclamation mark before
+  the trigger negates it.
+
+  What constitutes an \DEFINE{Infinity Engine object} varies between
+  different versions of the Infinity Engine and will not be documented
+  here. \\
+
+\\
+
+\DEFINE{script response} & & \\
+
+is & \t{RESPONSE} \t{#}weight \ttref{Infinity Engine action} ... &
+
+  weight is a non-negative integer that gives the evaluation
+  probability of the response block relative to any other response
+  blocks in the same \ttref{script block}. What constitutes an
+  \DEFINE{Infinity Engine action} (action) varies between different
+  versions of the Infinity Engine and will not be documented
+  here. Refer to the right section of the
+  \ahref{\url{http://iesdp.gibberlings3.net/scripting/actions/index.htm}}{IESDP}.
+  Any time an Infinity Engine String Reference (strref) is expected by
+  an action, you can use \ttref{text}. When the script is compiled,
+  WeiDU will add the text as a string and insert the corresponding
+  strref in its stead. \\
+
+\end{tabular}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Command Line Options}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -9976,7 +10063,6 @@ all those from IEGMC, the Dragon's Hoard Download Centre, and the SHS Download C
 
 Currently undocumented:
 \begin{itemize}
-\item We might want to mention somewhere that we compile BAF files.
 \item {\tt IF!EVAL}.
 \item {\tt REPLACE!BCS!BLOCK!REGEXP}.
 \item Fred's BCS diff stuff.
