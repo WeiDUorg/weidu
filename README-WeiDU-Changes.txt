@@ -44,7 +44,6 @@ Version 237:
   * Support SetGlobalTimerRandom().
   * Document WeiDU's script-handling abilities.
   * Check validity of EE TLKs against the right directory.
-  * Document the case requirements of HANDLE_CHARSETS's charset_table.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
