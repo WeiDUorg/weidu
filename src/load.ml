@@ -497,7 +497,7 @@ let use_bgee_lang_dir game dir =
   let str1 = Str.quote "lang" in
   let str2 = Str.quote dir in
   let regexp = (Str.regexp_case_fold
-                  (game.game_path ^ "[\\\\/]+" ^ str1 ^ "[\\\\/]+" ^ str2)) in
+                  ((Str.quote game.game_path) ^ "[\\\\/]+" ^ str1 ^ "[\\\\/]+" ^ str2)) in
   let foundp = ref false in
   ignore (set_additional_bgee_load_paths game dir) ;
   ignore (Array.iteri (fun index tlk_pair ->
@@ -523,8 +523,8 @@ let bgee_language_options game =
   let options = Array.map (fun tlk_pair ->
     let str1 = (Str.quote "lang") in
     let str2 = (Str.quote "dialog.tlk") in
-    let regexp = (Str.regexp_case_fold (game.game_path ^ "[\\\\/]+" ^
-                                        str1 ^ "[\\\\/]+" ^
+    let regexp = (Str.regexp_case_fold ((Str.quote game.game_path) ^
+                                        "[\\\\/]+" ^ str1 ^ "[\\\\/]+" ^
                                         "\\([a-z_]+\\)" ^
                                         "[\\\\/]+" ^ str2)) in
     if Str.string_match regexp tlk_pair.dialog.path 0 then
