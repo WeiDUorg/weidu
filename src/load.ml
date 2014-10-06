@@ -523,7 +523,7 @@ let bgee_language_options game =
   let options = Array.map (fun tlk_pair ->
     let str1 = (Str.quote "lang") in
     let str2 = (Str.quote "dialog.tlk") in
-    let regexp = (Str.regexp_case_fold ("[.\\\\/]*" ^ str1 ^ "[\\\\/]+" ^ "\\([a-z_]+\\)" ^ "[\\\\/]+" ^ str2)) in
+    let regexp = (Str.regexp_case_fold (str1 ^ "[\\\\/]+" ^ "\\([a-z_]+\\)" ^ "[\\\\/]+" ^ str2)) in
     if Str.string_match regexp tlk_pair.dialog.path 0 then
       Str.matched_group 1 tlk_pair.dialog.path
     else begin
