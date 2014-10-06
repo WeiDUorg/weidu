@@ -294,16 +294,14 @@ let load_default_dialogs game_path =
        * tlkin is always the last tlk pair *)
       [|tlk_pair; tlkin|])
 
-let lang_dir_p dir =
-  let dir = Arch.slash_to_backslash ("lang/" ^ dir) in
-  (is_directory dir) &&
-  (file_exists (Arch.slash_to_backslash (dir ^ "/dialog.tlk")))
-
 let load_ee_dialogs game_path =
   let lang_path = game_path ^ "/lang" in
   let lang_dirs = (List.fast_sort compare
                      (List.map String.lowercase
-                        (List.filter lang_dir_p
+                        (List.filter (fun dir ->
+                          let dir = Arch.slash_to_backslash (lang_path ^ "/" ^ dir) in
+                          (is_directory dir) &&
+                          (file_exists (Arch.slash_to_backslash (dir ^ "/dialog.tlk"))))
                            (Array.to_list (Case_ins.sys_readdir lang_path))))) in
   let languages = (List.map (fun lang ->
     let path = Arch.slash_to_backslash (lang_path ^ "/" ^ lang) in

@@ -43,6 +43,7 @@ Version 237:
   * Add EET to GAME_IS.
   * Support SetGlobalTimerRandom().
   * Document WeiDU's script-handling abilities.
+  * Check validity of EE TLKs against the right directory.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
