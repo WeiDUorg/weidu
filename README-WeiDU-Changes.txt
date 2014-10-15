@@ -44,6 +44,8 @@ Version 237:
   * Support SetGlobalTimerRandom().
   * Document WeiDU's script-handling abilities.
   * Check validity of EE TLKs against the right directory.
+  * Translatable strings are provided for the BGEE languages Russian
+    and Ukrainian.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
