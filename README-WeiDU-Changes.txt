@@ -47,6 +47,8 @@ Version 237:
   * Translatable strings are provided for the BGEE languages Russian
     and Ukrainian.
   * Document MOVE's behaviour when toFile already exists.
+  * If WeiDU fails to restore a MOVEd file during uninstallation, a
+    warning is printed and the uninstallation continues.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files

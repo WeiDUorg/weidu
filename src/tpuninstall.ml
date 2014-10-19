@@ -293,7 +293,11 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
           | _ -> ()
         end with _ -> ());
         List.iter (fun (a,b) ->
-          Case_ins.unix_rename b a
+          (try
+            Case_ins.unix_rename b a ;
+          with e ->
+            log_and_print "WARNING: unable to restore [%s]: %s\n"
+	      a (printexc_to_string e))
                   ) !lst;
         my_unlink move_filename;
       in
