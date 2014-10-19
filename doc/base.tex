@@ -1623,63 +1623,6 @@ String {\tt @1} in your \ttref{TRA} file will become string reference {\tt
 multiple times: the last \ttref{TRA} file to define a translation string
 determine that string reference.
 
-\item Creating a \ttref{BIFF} File
-
-This tutorial was thoughtfully provided by Japheth.
-
-Using \DEFSYN{--make-biff} is dead easy.  Here's a quick and dirty example:
-
-Assuming WeiDU is in your BGII directory, grab a bunch of files from your
-override folder and stick them into a folder inside your BGII directory.
-We'll call the folder \t{mybiff} for this example.
-
-Once the files are inside the folder, this is all you would have to do to
-make WeiDU create a biff of the files:
-
-  \CMD{ weidu --make-biff mybiff }
-\begin{verbatim}
-  [c:\src\weidu\weidu.exe] WeiDU version 122
-  [./chitin.key] 182 BIFFs, 41793 resources
-  [./dialog.tlk] 82479 string entries
-  [data\mybiff.bif] will contain 20 resources totalling 211096 bytes
-  [data\mybiff.bif] incorporating [mybiff/udsola02.cre]
-          ...
-  [data\mybiff.bif] incorporating [mybiff/sola10.cre]
-  KEY saved (183 biffs, 41813 resources)
-\end{verbatim}
-
-WeiDU will add the files into the \ttref{BIFF} \t{mybiff.bif} and stick
-that file in your \t{data} directory.  It will also update the
-\t{CHITIN.}\ttref{KEY}.
-
-Before using this feature, make sure you backup your
-\t{CHITIN.}\ttref{KEY}.
-
-\item Removing a \ttref{BIFF} File
-
-You can use \DEFSYN{--remove-biff} to remove a \ttref{BIFF} file from
-\t{CHITIN.}\ttref{KEY} and destructively replace it with a new, smaller
-\t{CHITIN.}\ttref{KEY}.
-Before using this feature, make sure you backup your
-\t{CHITIN.}\ttref{KEY}.
-Do not use this feature. Use MAKE!BIFF instead.
-
-  \CMD{ weidu --make-biff mybiff data$\backslash$25ArMisc.bif }
-\begin{verbatim}
-  [c:\src\weidu\weidu.exe] WeiDU version 157
-  [./chitin.key] 182 BIFFs, 41793 resources
-  [./dialog.tlk] 83772 string entries
-  Removing references to 16 resources in [data\25ArMisc.bif]
-  KEY saved (181 biffs, 41777 resources)
-\end{verbatim}
-
-Note that the specified \ttref{BIFF} is not deleted from your computer's
-file system, it is merely removed from \t{CHITIN.}\ttref{KEY}. When
-specifying the \ttref{BIFF} case does not matter but the folder separator,
-usually ``$\backslash$'' or ``\t{:}'', does. Use \t{--list-biffs} to get
-the official list of possible \ttref{BIFF}s to remove. Do not use this
-feature.
-
 \item Viewing Banter Offline with \DEFSYN{--transitive}
 
 \CMD{ weidu --nocom --text --transitive banomen.dlg }
