@@ -3124,7 +3124,7 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
 
 	   If fromFile is a file, toFile can be a file or a directory; if fromFile is a
 	   directory, toFile must be a directory; if fromFile doesn't exist, an error is
-	   raised.
+	   raised. If toFile already exists, \t{MOVE} is equivalent to \ttref{COPY!LARGE}.
 
 	   \t{MOVE} also supports the \ttref{directory-file-regexp} construct
 	   in place of fromFile; in this form, it must be wrapped in parenthesis,

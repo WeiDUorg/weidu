@@ -46,6 +46,7 @@ Version 237:
   * Check validity of EE TLKs against the right directory.
   * Translatable strings are provided for the BGEE languages Russian
     and Ukrainian.
+  * Document MOVE's behaviour when toFile already exists.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
