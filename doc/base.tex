@@ -782,7 +782,7 @@ or & \t{!integer} \ttref{text} & \DEFINE{Forced String Reference}. As with
 \ttref{text} in general, but rather than being assigned a new,
 previously-unused \t{DIALOG.TLK} string entry (or merging with an existing
 one that has the same \ttref{text}), this \ttref{text} is written over
-\t{DIALOG.TLK} string entry \#\t{integer}. Do not use this without a real reason.
+\t{DIALOG.TLK} string entry \#\t{integer}. \emph{Do not use this without a real reason.}
 \\
 or & \ttref{reference} & \\
 
@@ -1081,9 +1081,9 @@ the default \t{override} directory. \\
 \DEFINE{--use-lang} \t{X} & On multi-language games (e.g., BGEE), use the files
 in lang/X/ instead of asking which lang/X/ to use. This answer is saved
 and --use-lang can override a previously saved answer.\\
-\DEFINE{--tlkin} \t{X}	& Semi-deprecated. Don't use this. Use {\tt X} as {\tt DIALOG.}\ttref{TLK} (instead
+\DEFINE{--tlkin} \t{X}	& Semi-deprecated. \emph{Do not use this.} Use {\tt X} as {\tt DIALOG.}\ttref{TLK} (instead
 of looking for \t{DIALOG.TLK} in the game directory). \\
-\DEFINE{--ftlkin} \t{X} & Semi-deprecated. Don't use this. Use {\tt X} as {\tt DIALOGF.}\ttref{TLK} (instead
+\DEFINE{--ftlkin} \t{X} & Semi-deprecated. \emph{Do not use this.} Use {\tt X} as {\tt DIALOGF.}\ttref{TLK} (instead
 of looking for \t{DIALOGF.TLK} in the game directory). \\
 \tt{FILE.}\ttref{TLK} & Equivalent to \ttref{--tlkin} \t{X}. \\
 \DEFINE{--tlkmerge} \t{X}	& Merge strings from {\tt X} over the strings from any other loaded {\tt \t{DIALOG.}\ttref{TLK}.} \\
@@ -1099,8 +1099,8 @@ will place their output there.  Does not affect \ttref{TP2} processing. \\
 \DEFINE{--append} \t{X} & Like \ttref{--out}, but if \t{X} is an existing
 file then the result will be appended to it instead of overwriting it. \\
 \DEFINE{--backup} \t{X} &	Backup files to directory {\tt X} before overwriting. Does not affect \ttref{TP2} processing. \\
-\DEFINE{--tlkout} \t{X} & Semi-deprecated. Don't use this. Redirect the output dialog to X. If any strings were added to or changed in the loaded \t{DIALOG.TLK}, emit \t{X} as an updated version that reflects those changes. Many operations (e.g., compiling \t{D} files, \ttref{--tlkmerge}, \ttref{STRING!SET}) can add to or modify \t{DIALOG.TLK}. If this option is not provided, the output dialog is the same as the input dialog. \\
-\DEFINE{--ftlkout} \t{X} & Semi-deprecated. Don't use this. Redirect the output dialogf to X. If any strings were added to or changed in the
+\DEFINE{--tlkout} \t{X} & Semi-deprecated. \emph{Do not use this.} Redirect the output dialog to X. If any strings were added to or changed in the loaded \t{DIALOG.TLK}, emit \t{X} as an updated version that reflects those changes. Many operations (e.g., compiling \t{D} files, \ttref{--tlkmerge}, \ttref{STRING!SET}) can add to or modify \t{DIALOG.TLK}. If this option is not provided, the output dialog is the same as the input dialog. \\
+\DEFINE{--ftlkout} \t{X} & Semi-deprecated. \emph{Do not use this.} Redirect the output dialogf to X. If any strings were added to or changed in the
 loaded \t{DIALOGF.TLK}, emit \t{X} as an updated version that reflects
 those changes. If this options is not provided, the output dialogf is the same as the input dialogf. \\
 \DEFINE{--version} & Print version number and exit. \\
@@ -2811,7 +2811,7 @@ global option to your \ttref{TP2} file. \\
        statements.
   \\
   or & \DEFSYN{UNINSTALL!ORDER} String \Slist &
-		Don't use without a real reason.
+		\emph{Do not use this without a real reason.}
 
 		Specifies the order in which uninstallation operations are handled.
 		The operations are STRSET (uninstall \ttref{STRING!SET} and
@@ -3060,7 +3060,7 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
 
   or & \DEFINE{MOVE} \ttref{optNoBackup} fromFile toFile ... \verb+(+ \ttref{directory-file-regexp} \verb+)+ toFile ... &
        If optNoBackup is specified, in addition to the usual effects, fromFile may be moved to toFile even if
-       one or both contain spaces in their names. Don't use this feature without a real reason.
+       one or both contain spaces in their names. \emph{Do not use this feature without a real reason.}
 
        You may specify as many fromFile--toFile pairs as you like. Each
        fromFile is moved to its associated toFile.
@@ -3084,20 +3084,20 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
        then all generic actions are restored, then \t{AT!*!UNINSTALL} is handled.
        As such, do your \ttref{AT!NOW}, then do your \ttref{COPY}, then do your \t{MOVE}s
        (exception: if you \t{MOVE} for biffing purposes, it is safe to call
-       \ttref{MAKE!BIFF} after \t{MOVE}. Do not use the --make-biff command-line argument).
+       \ttref{MAKE!BIFF} after \t{MOVE}. \emph{Do not use the --make-biff command-line argument}).
        \\
 
   or & \DEFINE{DELETE} \ttref{optNoBackup} file ... &
         Removes one or more files from the file system.
 
-        Don't use without a real reason.
+        \emph{Do not use without a real reason.}
        \\
 
   or & \DEFINE{DISABLE!FROM!KEY} file ... &
 		Removes one or more files from the chitin.key, while leaving the
 		containing bif file itself untouched.
 
-		Don't use without a real reason.
+		\emph{Do not use without a real reason.}
        \\
 
   or & \DEFINE{CREATE} type \Ob \t{VERSION} version \Oe resref \Ob \ttref{patch} \Slist \Oe &
@@ -3140,7 +3140,7 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
       \ttref{MOD!FOLDER}, \ttref{LANGUAGE}, \ttref{WEIDU!ARCH},
       \ttref{WEIDU!OS}, \ttref{COMPONENT!NUMBER}, all numeric constants such as \t{NAME1}, the soundsets, or
       \t{SCRIPT!OVERRIDE}). \ttref{INTERACTIVE} is automatically set when you call the
-      next component. Don't use this feature without a real reason. \\
+      next component. \emph{Do not use this feature without a real reason.} \\
   or & \DEFINE{CLEAR!ARRAYS} & removes the names and contents of all arrays
       from the memory (while still keeping their values). \\
   or & \DEFINE{CLEAR!CODES} & Removes all loaded functions and macros from the
@@ -4092,7 +4092,7 @@ EXTEND_TOP ~sola.bcs~ ~.../mymod-inlined/script.baf~
 \end{verbatim}
 	\t{$myvar$} will be substituted with Anomen, but \t{\%myvar\%} will be not.
 
-	Do not use this without a real reason.
+	\emph{Do not use this without a real reason.}
 \\
 or & \DEFINE{EVALUATE!BUFFER} &
   Any WeiDU variables (like \t{\%myvar\%}) inside the current file (which
@@ -6786,7 +6786,7 @@ and \t{Compiling dialogues} (and the similar) text.
 \subsection{\DEFINE{INNER!ACTION}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Normally I would start off with \emph{don't use this feature}, but since
+Normally I would start off with \emph{do not use this feature}, but since
 this \ttref{patch} can basically only be used to do really obscure things,
 you're probably already a master if you're considering it.
 
