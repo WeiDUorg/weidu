@@ -337,6 +337,54 @@ BEGIN
   END
 END
 
+DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#RECURSE
+  STR_VAR
+    path = ""
+    type = ""
+    function = ""
+BEGIN
+  ACTION_BASH_FOR "%path%" ".+\.%type%$" BEGIN
+    LAF "%function%"
+      STR_VAR
+        file = EVAL "%BASH_FOR_FILE%"
+        path = EVAL "%BASH_FOR_DIRECTORY%"
+    END
+  END
+  ACTION_CLEAR_ARRAY dir_array
+  GET_DIRECTORY_ARRAY dir_array "%path%" ".+"
+  ACTION_PHP_EACH EVAL dir_array AS _ => path BEGIN
+    ACTION_IF "%path%" STRING_MATCHES_REGEXP ".*\.$" BEGIN
+      LAF fl#HANDLE_CHARSETS#RECURSE STR_VAR path type function END
+    END
+  END
+END
+
+DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#RECURSE#TERMINAL
+  STR_VAR
+    file = ""
+    path = ""
+BEGIN
+  OUTER_SET convert = 1
+  /* This makes for a more consistent interface, albeit slightly
+   * messier code. noconvert_array is very likely to be short.
+   */
+  ACTION_PHP_EACH "%noconvert_array%" AS _ => noconvert_file BEGIN
+    ACTION_IF "%noconvert_file%" STRING_EQUAL_CASE "%file%" BEGIN
+      OUTER_SET convert = 0
+    END
+  END
+  ACTION_IF convert BEGIN
+    LAF fl#HANDLE_CHARSETS#CONVERT
+      STR_VAR
+        iconv // from the calling environment (curse the lack of closures)
+        quote // from the calling environment
+        path
+        file
+        from_charset // from the calling environment
+    END
+  END
+END
+
 DEFINE_ACTION_FUNCTION HANDLE_CHARSETS
   INT_VAR
     infer_charset = 0
@@ -387,26 +435,11 @@ BEGIN
           END
         END
       END ELSE BEGIN
-        ACTION_BASH_FOR ~%tra_path%/%LANGUAGE%~ ~.+\.tra$~ BEGIN
-          OUTER_SET convert = 1
-          /* This makes for a more consistent interface, albeit slightly
-           * messier code. noconvert_array is very likely to be short.
-           */
-          ACTION_PHP_EACH "%noconvert_array%" AS _ => filename BEGIN
-            ACTION_IF "%filename%" STRING_EQUAL_CASE "%BASH_FOR_RES%" BEGIN
-              OUTER_SET convert = 0
-            END
-          END
-          ACTION_IF convert BEGIN
-            LAF fl#HANDLE_CHARSETS#CONVERT
-              STR_VAR
-                iconv
-                quote
-                path = EVAL "%BASH_FOR_DIRECTORY%"
-                file = EVAL "%BASH_FOR_FILE%"
-                from_charset
-            END
-          END
+        LAF fl#HANDLE_CHARSETS#RECURSE
+          STR_VAR
+            path = EVAL "%tra_path%"
+            type = "tra"
+            function = "fl#HANDLE_CHARSETS#RECURSE#TERMINAL"
         END
       END
       ACTION_PHP_EACH "%reload_array%" AS _ => file BEGIN
