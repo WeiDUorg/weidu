@@ -11,7 +11,6 @@ Version 237:
   * Cut WeiMorph.
   * Document SAFE.
   * Correct documentation of LOAD_TRA.
-  * Clarify documentation of RINDEX.
   * Add CREATE TP2 action.
   * ADD_AREA_ITEM and ADD_AREA_REGION are implemented through fj_are_structure.
   * --traify can handle the syntax of male/female string pairs.
