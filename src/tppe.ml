@@ -436,7 +436,7 @@ let rec eval_pe buff game p =
         | "IWD"
         | "IWD1"       -> iwd1 && not how && not tolm && not bg2
         | "HOW"        -> iwd1 &&     how && not tolm && not bg2
-        | "TOTLM"      -> iwd1 &&     how &&     tolm && not bg2
+        | "TOTLM"      -> iwd1 &&     how &&     tolm && not bg2 && not iwdee
         | "TUTU"       -> tutu && not ttsc
         | "TUTU_TOTSC"
         | "TUTU+TOTSC" -> tutu &&     ttsc
