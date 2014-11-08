@@ -383,7 +383,7 @@ PHP_EACH struct AS key => value BEGIN
         PATCH_IF fj_debug BEGIN PATCH_PRINT ~Reading container %num%.~ END
 
         // load container vertices
-        GET_OFFSET_ARRAY array 0x7c 0x04 (off + 0x54) 0x04 (off + 0x50) 0x04 0x04
+        GET_OFFSET_ARRAY array 0x7c 0x04 (off + 0x54) 0x02 (off + 0x50) 0x04 0x04
         PATCH_IF( fj_debug && LONG_AT 0x54 )BEGIN PATCH_PRINT ~  Associating vertices.~ END
         PHP_EACH array AS num1 => off1 BEGIN
           READ_LONG off1 $EVAL ~are_container_%num%_vertex~(~%num1%~)

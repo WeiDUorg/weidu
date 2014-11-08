@@ -48,6 +48,8 @@ Version 237:
   * Document MOVE's behaviour when toFile already exists.
   * If WeiDU fails to restore a MOVEd file during uninstallation, a
     warning is printed and the uninstallation continues.
+  * Fix a bug in fj_are_structure that could lead to problems, including
+    installation failures.
 
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
