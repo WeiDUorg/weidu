@@ -1114,6 +1114,11 @@ DEFINE_PATCH_MACRO ~ADD_AREA_REGION~ BEGIN
   FOR (i = 0; i < ab_RT_VxPr; ++i) BEGIN
     SET EVAL "fj_vertex_%i%" = EVAL "ab_RT_Vx_X_%i%" + (EVAL "ab_RT_Vx_Y_%i%" << 16)
   END
+  /*
+   * ab_RT_Itxt was not actually used in the old code, so there are instances of
+   * the macro's use where it is not initialised.
+   */
+  ab_RT_Itxt = !VARIABLE_IS_SET ab_RT_Itxt OR !IS_AN_INT ab_RT_Itxt ? "-1" : ab_RT_Itxt
   LPF fj_are_structure
     INT_VAR
       fj_type = ab_RT_Type
