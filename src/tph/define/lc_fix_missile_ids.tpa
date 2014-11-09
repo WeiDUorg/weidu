@@ -1,9 +1,9 @@
 //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-//\\									  //\\
+//\\                                                    //\\
 //\\   Update Missile, Projectile, and Fireball Macro   //\\
 //\\   Written by Robert Rath (aka Galactygon)          //\\
-//\\									  //\\
+//\\                                                    //\\
 //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 
@@ -29,210 +29,210 @@
 // "append_projectl_size" and "append_missile_size" to 0.
 
 ACTION_IF ( FILE_EXISTS_IN_GAME "MISSILE.IDS" AND
-		FILE_EXISTS_IN_GAME "PROJECTL.IDS" AND
-		FILE_EXISTS_IN_GAME "FIREBALL.IDS") BEGIN
+            FILE_EXISTS_IN_GAME "PROJECTL.IDS" AND
+            FILE_EXISTS_IN_GAME "FIREBALL.IDS" ) BEGIN
 
-	OUTER_SET fully_updated_projectl = 0
-	OUTER_SET fully_updated_missile = 0
+  OUTER_SET fully_updated_projectl = 0
+  OUTER_SET fully_updated_missile = 0
 
-	ACTION_IF ( !VARIABLE_IS_SET append_projectl_size AND ENGINE_IS TOB ) BEGIN
+  ACTION_IF ( !VARIABLE_IS_SET append_projectl_size AND ENGINE_IS TOB ) BEGIN
 
-		OUTER_SET $append_projectl("0" "0") = 264
-		OUTER_SPRINT $append_projectl("0" "1") "STRMVENG"
-		OUTER_SET $append_projectl("1" "0") = 266
-		OUTER_SPRINT $append_projectl("1" "1") "TRAPSPIK"
-		OUTER_SET $append_projectl("2" "0") = 267
-		OUTER_SPRINT $append_projectl("2" "1") "TRAPTIME"
-		OUTER_SET $append_projectl("3" "0") = 268
-		OUTER_SPRINT $append_projectl("3" "1") "TRAPBOOM"
-		OUTER_SET $append_projectl("4" "0") = 269
-		OUTER_SPRINT $append_projectl("4" "1") "SPDRBRTH"
-		OUTER_SET $append_projectl("5" "0") = 270
-		OUTER_SPRINT $append_projectl("5" "1") "SPENBLD"
-		OUTER_SET $append_projectl("6" "0") = 271
-		OUTER_SPRINT $append_projectl("6" "1") "DRAGGREE"
-		OUTER_SET $append_projectl("7" "0") = 272
-		OUTER_SPRINT $append_projectl("7" "1") "GREEHIT"
-		OUTER_SET append_projectl_size = 8
+    OUTER_SET $append_projectl("0" "0") = 264
+    OUTER_SPRINT $append_projectl("0" "1") "STRMVENG"
+    OUTER_SET $append_projectl("1" "0") = 266
+    OUTER_SPRINT $append_projectl("1" "1") "TRAPSPIK"
+    OUTER_SET $append_projectl("2" "0") = 267
+    OUTER_SPRINT $append_projectl("2" "1") "TRAPTIME"
+    OUTER_SET $append_projectl("3" "0") = 268
+    OUTER_SPRINT $append_projectl("3" "1") "TRAPBOOM"
+    OUTER_SET $append_projectl("4" "0") = 269
+    OUTER_SPRINT $append_projectl("4" "1") "SPDRBRTH"
+    OUTER_SET $append_projectl("5" "0") = 270
+    OUTER_SPRINT $append_projectl("5" "1") "SPENBLD"
+    OUTER_SET $append_projectl("6" "0") = 271
+    OUTER_SPRINT $append_projectl("6" "1") "DRAGGREE"
+    OUTER_SET $append_projectl("7" "0") = 272
+    OUTER_SPRINT $append_projectl("7" "1") "GREEHIT"
+    OUTER_SET append_projectl_size = 8
 
-	END
+  END
 
-	ACTION_IF ( !VARIABLE_IS_SET append_missile_size AND ENGINE_IS TOB ) BEGIN
+  ACTION_IF ( !VARIABLE_IS_SET append_missile_size AND ENGINE_IS TOB ) BEGIN
 
-		OUTER_SET $append_missile("0" "0") = 265
-		OUTER_SPRINT $append_missile("0" "1") "Storm of Vengeance"
-		OUTER_SET $append_missile("1" "0") = 266
-		OUTER_SPRINT $append_missile("1" "1") "Comet"
-		OUTER_SET $append_missile("2" "0") = 267
-		OUTER_SPRINT $append_missile("2" "1") "Spike Trap"
-		OUTER_SET $append_missile("3" "0") = 268
-		OUTER_SPRINT $append_missile("3" "1") "Time Trap"
-		OUTER_SET $append_missile("4" "0") = 269
-		OUTER_SPRINT $append_missile("4" "1") "Exploding Trap"
-		OUTER_SET $append_missile("5" "0") = 270
-		OUTER_SPRINT $append_missile("5" "1") "Dragon's Breath"
-		OUTER_SET $append_missile("6" "0") = 271
-		OUTER_SPRINT $append_missile("6" "1") "Energy Blades"
-		OUTER_SET $append_missile("7" "0") = 272
-		OUTER_SPRINT $append_missile("7" "1") "Green Dragon Breath"
-		OUTER_SET $append_missile("8" "0") = 273
-		OUTER_SPRINT $append_missile("8" "1") "Green Dragon HIT"
-		OUTER_SET append_missile_size = 9
+    OUTER_SET $append_missile("0" "0") = 265
+    OUTER_SPRINT $append_missile("0" "1") "Storm of Vengeance"
+    OUTER_SET $append_missile("1" "0") = 266
+    OUTER_SPRINT $append_missile("1" "1") "Comet"
+    OUTER_SET $append_missile("2" "0") = 267
+    OUTER_SPRINT $append_missile("2" "1") "Spike Trap"
+    OUTER_SET $append_missile("3" "0") = 268
+    OUTER_SPRINT $append_missile("3" "1") "Time Trap"
+    OUTER_SET $append_missile("4" "0") = 269
+    OUTER_SPRINT $append_missile("4" "1") "Exploding Trap"
+    OUTER_SET $append_missile("5" "0") = 270
+    OUTER_SPRINT $append_missile("5" "1") "Dragon's Breath"
+    OUTER_SET $append_missile("6" "0") = 271
+    OUTER_SPRINT $append_missile("6" "1") "Energy Blades"
+    OUTER_SET $append_missile("7" "0") = 272
+    OUTER_SPRINT $append_missile("7" "1") "Green Dragon Breath"
+    OUTER_SET $append_missile("8" "0") = 273
+    OUTER_SPRINT $append_missile("8" "1") "Green Dragon HIT"
+    OUTER_SET append_missile_size = 9
 
-	END
+  END
 
-	ACTION_IF ( !VARIABLE_IS_SET updated_missile_and_projectl AND ENGINE_IS TOB AND !FILE_EXISTS_IN_GAME "TOB_MISSILE_PROJECTL.xxx" ) BEGIN
+  ACTION_IF ( !VARIABLE_IS_SET updated_missile_and_projectl AND ENGINE_IS TOB AND !FILE_EXISTS_IN_GAME "TOB_MISSILE_PROJECTL.xxx" ) BEGIN
 
-		ACTION_IF (VARIABLE_IS_SET append_missile_size) BEGIN
-			OUTER_SET append_missile_size_minusone = append_missile_size - 1
-			ACTION_IF (append_missile_size > 0 AND VARIABLE_IS_SET $append_missile("%append_missile_size_minusone%" "1")) BEGIN
-				COPY_EXISTING ~MISSILE.ids~ ~override~
-					SET previous_entry = 0
-					SET next_entry = 0
-					COUNT_2DA_ROWS 0 missile_rowcount
-					FOR (row = 1; row < missile_rowcount; row += 1) BEGIN
-						SET rowminusone = row - 1
-						READ_2DA_ENTRY rowminusone 0 0 "previous_entry"
-						READ_2DA_ENTRY row 0 0 "next_entry"
-						FOR (appendloops = append_missile_size; appendloops > 0; appendloops -= 1) BEGIN
-							SET appendloops -= 1
-							PATCH_IF ( IS_AN_INT previous_entry AND IS_AN_INT next_entry ) BEGIN
-								PATCH_IF ( previous_entry != 0 AND next_entry != 0 ) BEGIN
-									PATCH_IF (previous_entry < $append_missile("%appendloops%" "0") AND next_entry > $append_missile("%appendloops%" "0")) BEGIN
-										SET append_col1 = $append_missile("%appendloops%" "0")
-										SPRINT append_col2 $append_missile("%appendloops%" "1")
-										INSERT_2DA_ROW row 1 "%append_col1% %append_col2%"
-										SET missile_rowcount += 1
-									END
-								END
-							END
-							SET appendloops += 1
-						END
-					END
-				BUT_ONLY_IF_IT_CHANGES
-			END
-		END
+    ACTION_IF (VARIABLE_IS_SET append_missile_size) BEGIN
+      OUTER_SET append_missile_size_minusone = append_missile_size - 1
+      ACTION_IF (append_missile_size > 0 AND VARIABLE_IS_SET $append_missile("%append_missile_size_minusone%" "1")) BEGIN
+        COPY_EXISTING ~MISSILE.ids~ ~override~
+          SET previous_entry = 0
+          SET next_entry = 0
+          COUNT_2DA_ROWS 0 missile_rowcount
+          FOR (row = 1; row < missile_rowcount; row += 1) BEGIN
+            SET rowminusone = row - 1
+            READ_2DA_ENTRY rowminusone 0 0 "previous_entry"
+            READ_2DA_ENTRY row 0 0 "next_entry"
+            FOR (appendloops = append_missile_size; appendloops > 0; appendloops -= 1) BEGIN
+              SET appendloops -= 1
+              PATCH_IF ( IS_AN_INT previous_entry AND IS_AN_INT next_entry ) BEGIN
+                PATCH_IF ( previous_entry != 0 AND next_entry != 0 ) BEGIN
+                  PATCH_IF (previous_entry < $append_missile("%appendloops%" "0") AND next_entry > $append_missile("%appendloops%" "0")) BEGIN
+                    SET append_col1 = $append_missile("%appendloops%" "0")
+                    SPRINT append_col2 $append_missile("%appendloops%" "1")
+                    INSERT_2DA_ROW row 1 "%append_col1% %append_col2%"
+                    SET missile_rowcount += 1
+                  END
+                END
+              END
+              SET appendloops += 1
+            END
+          END
+        BUT_ONLY_IF_IT_CHANGES
+      END
+    END
 
-		ACTION_IF (VARIABLE_IS_SET append_projectl_size) BEGIN
-			OUTER_SET append_projectl_size_minusone = append_projectl_size - 1
-			ACTION_IF (append_projectl_size > 0 AND VARIABLE_IS_SET $append_missile("%append_projectl_size_minusone%" "1")) BEGIN
-				COPY_EXISTING ~PROJECTL.ids~ ~override~
-					SET previous_entry = 0
-					SET next_entry = 0
-					COUNT_2DA_ROWS 0 projectl_rowcount
-					FOR (row = 1; row < projectl_rowcount; row += 1) BEGIN
-						SET rowminusone = row - 1
-						READ_2DA_ENTRY rowminusone 0 0 "previous_entry"
-						READ_2DA_ENTRY row 0 0 "next_entry"
-						FOR (appendloops = append_projectl_size; appendloops > 0; appendloops -= 1) BEGIN
-							SET appendloops -= 1
-							PATCH_IF ( IS_AN_INT previous_entry AND IS_AN_INT next_entry ) BEGIN
-								PATCH_IF ( previous_entry != 0 AND next_entry != 0 ) BEGIN
-									PATCH_IF (previous_entry < $append_projectl("%appendloops%" "0") AND next_entry > $append_projectl("%appendloops%" "0")) BEGIN
-										SET append_col1 = $append_projectl("%appendloops%" "0")
-										SPRINT append_col2 $append_projectl("%appendloops%" "1")
-										INSERT_2DA_ROW row 1 "%append_col1% %append_col2%"
-										SET missile_rowcount += 1
-									END
-								END
-							END
-							SET appendloops += 1
-						END
-					END
-				BUT_ONLY_IF_IT_CHANGES
-			END
-		END
-		OUTER_FOR (appendloops = 0; appendloops < append_projectl_size; appendloops += 1) BEGIN
-			OUTER_SET append_col1 = $append_projectl("%appendloops%" "0")
-			OUTER_SPRINT append_col2 $append_projectl("%appendloops%" "1")
-			APPEND ~PROJECTL.IDS~ ~%append_col1% %append_col2%~
-				UNLESS ~%append_col1%~
-		END
+    ACTION_IF (VARIABLE_IS_SET append_projectl_size) BEGIN
+      OUTER_SET append_projectl_size_minusone = append_projectl_size - 1
+      ACTION_IF (append_projectl_size > 0 AND VARIABLE_IS_SET $append_missile("%append_projectl_size_minusone%" "1")) BEGIN
+        COPY_EXISTING ~PROJECTL.ids~ ~override~
+          SET previous_entry = 0
+          SET next_entry = 0
+          COUNT_2DA_ROWS 0 projectl_rowcount
+          FOR (row = 1; row < projectl_rowcount; row += 1) BEGIN
+            SET rowminusone = row - 1
+            READ_2DA_ENTRY rowminusone 0 0 "previous_entry"
+            READ_2DA_ENTRY row 0 0 "next_entry"
+            FOR (appendloops = append_projectl_size; appendloops > 0; appendloops -= 1) BEGIN
+              SET appendloops -= 1
+              PATCH_IF ( IS_AN_INT previous_entry AND IS_AN_INT next_entry ) BEGIN
+                PATCH_IF ( previous_entry != 0 AND next_entry != 0 ) BEGIN
+                  PATCH_IF (previous_entry < $append_projectl("%appendloops%" "0") AND next_entry > $append_projectl("%appendloops%" "0")) BEGIN
+                    SET append_col1 = $append_projectl("%appendloops%" "0")
+                    SPRINT append_col2 $append_projectl("%appendloops%" "1")
+                    INSERT_2DA_ROW row 1 "%append_col1% %append_col2%"
+                    SET missile_rowcount += 1
+                  END
+                END
+              END
+              SET appendloops += 1
+            END
+          END
+        BUT_ONLY_IF_IT_CHANGES
+      END
+    END
+    OUTER_FOR (appendloops = 0; appendloops < append_projectl_size; appendloops += 1) BEGIN
+      OUTER_SET append_col1 = $append_projectl("%appendloops%" "0")
+      OUTER_SPRINT append_col2 $append_projectl("%appendloops%" "1")
+      APPEND ~PROJECTL.IDS~ ~%append_col1% %append_col2%~
+      UNLESS ~%append_col1%~
+    END
 
-		OUTER_FOR (appendloops = 0; appendloops < append_missile_size; appendloops += 1) BEGIN
-			OUTER_SET append_col1 = $append_missile("%appendloops%" "0")
-			OUTER_SPRINT append_col2 $append_missile("%appendloops%" "1")
-			APPEND ~MISSILE.IDS~ ~%append_col1% %append_col2%~
-				UNLESS ~%append_col1%~
-		END
+    OUTER_FOR (appendloops = 0; appendloops < append_missile_size; appendloops += 1) BEGIN
+      OUTER_SET append_col1 = $append_missile("%appendloops%" "0")
+      OUTER_SPRINT append_col2 $append_missile("%appendloops%" "1")
+      APPEND ~MISSILE.IDS~ ~%append_col1% %append_col2%~
+      UNLESS ~%append_col1%~
+    END
 
-		SILENT
+    SILENT
 
-		ACTION_IF (append_projectl_size > 0) BEGIN
-			COPY_EXISTING ~PROJECTL.IDS~ ~override~
-				COUNT_2DA_ROWS 2 projectl_rowcount
-				FOR (row = 0; row < projectl_rowcount; row += 1) BEGIN
-					READ_2DA_ENTRY row 0 2 "projectl_value"
-					PATCH_IF ( VARIABLE_IS_SET projectl_value ) BEGIN
-						PATCH_IF ( IS_AN_INT projectl_value ) BEGIN
-							READ_2DA_ENTRY row 1 2 "projectl_identifier"
-							FOR (checkloops = 0; checkloops < append_projectl_size AND fully_updated_projectl < append_projectl_size; checkloops += 1) BEGIN
-								PATCH_IF ( projectl_value = $append_projectl("%checkloops%" "0") AND "%projectl_identifier%" STRING_COMPARE_CASE $append_projectl("%checkloops%" "1") = 0 ) BEGIN
-									SET fully_updated_projectl += 1
-								END
-							END
-						END
-					END
-				END
-			BUT_ONLY_IF_IT_CHANGES
-		END
+    ACTION_IF (append_projectl_size > 0) BEGIN
+      COPY_EXISTING ~PROJECTL.IDS~ ~override~
+        COUNT_2DA_ROWS 2 projectl_rowcount
+        FOR (row = 0; row < projectl_rowcount; row += 1) BEGIN
+          READ_2DA_ENTRY row 0 2 "projectl_value"
+          PATCH_IF ( VARIABLE_IS_SET projectl_value ) BEGIN
+            PATCH_IF ( IS_AN_INT projectl_value ) BEGIN
+              READ_2DA_ENTRY row 1 2 "projectl_identifier"
+              FOR (checkloops = 0; checkloops < append_projectl_size AND fully_updated_projectl < append_projectl_size; checkloops += 1) BEGIN
+                PATCH_IF ( projectl_value = $append_projectl("%checkloops%" "0") AND "%projectl_identifier%" STRING_COMPARE_CASE $append_projectl("%checkloops%" "1") = 0 ) BEGIN
+                  SET fully_updated_projectl += 1
+                END
+              END
+            END
+          END
+        END
+      BUT_ONLY_IF_IT_CHANGES
+    END
 
-		ACTION_IF (append_missile_size > 0) BEGIN
-			COPY_EXISTING ~MISSILE.IDS~ ~override~
-				COUNT_2DA_ROWS 2 missile_rowcount
-				FOR (row = 0; row < missile_rowcount; row += 1) BEGIN
-					READ_2DA_ENTRY row 0 2 "missile_value"
-					PATCH_IF ( VARIABLE_IS_SET missile_value ) BEGIN
-						PATCH_IF ( IS_AN_INT missile_value ) BEGIN
-							READ_2DA_ENTRY row 1 2 "missile_identifier"
-							FOR (checkloops = 0; checkloops < append_missile_size AND fully_updated_missile < append_missile_size; checkloops += 1) BEGIN
-								PATCH_IF ( missile_value = $append_missile("%checkloops%" "0") AND $append_missile("%checkloops%" "1") STRING_MATCHES_REGEXP "%missile_identifier%.*" = 0 ) BEGIN
-									SET fully_updated_missile += 1
-								END
-							END
-						END
-					END
-				END
-			BUT_ONLY_IF_IT_CHANGES
-		END
+    ACTION_IF (append_missile_size > 0) BEGIN
+      COPY_EXISTING ~MISSILE.IDS~ ~override~
+        COUNT_2DA_ROWS 2 missile_rowcount
+        FOR (row = 0; row < missile_rowcount; row += 1) BEGIN
+          READ_2DA_ENTRY row 0 2 "missile_value"
+          PATCH_IF ( VARIABLE_IS_SET missile_value ) BEGIN
+            PATCH_IF ( IS_AN_INT missile_value ) BEGIN
+              READ_2DA_ENTRY row 1 2 "missile_identifier"
+              FOR (checkloops = 0; checkloops < append_missile_size AND fully_updated_missile < append_missile_size; checkloops += 1) BEGIN
+                PATCH_IF ( missile_value = $append_missile("%checkloops%" "0") AND $append_missile("%checkloops%" "1") STRING_MATCHES_REGEXP "%missile_identifier%.*" = 0 ) BEGIN
+                  SET fully_updated_missile += 1
+                END
+              END
+            END
+          END
+        END
+      BUT_ONLY_IF_IT_CHANGES
+    END
 
-		ACTION_IF ( fully_updated_missile = append_missile_size AND fully_updated_projectl = append_projectl_size ) BEGIN
-			COPY_EXISTING ~SW1H01.itm~ ~override/TOB_MISSILE_PROJECTL.xxx~
-		END
+    ACTION_IF ( fully_updated_missile = append_missile_size AND fully_updated_projectl = append_projectl_size ) BEGIN
+      COPY_EXISTING ~SW1H01.itm~ ~override/TOB_MISSILE_PROJECTL.xxx~
+    END
 
-		VERBOSE
+    VERBOSE
 
-		APPEND ~FIREBALL.IDS~ ~18 DRAGONACID~
-				UNLESS ~18~
-		APPEND ~FIREBALL.IDS~ ~17 DRAGONPURPLEFIRE~
-				UNLESS ~17~
+    APPEND ~FIREBALL.IDS~ ~18 DRAGONACID~
+    UNLESS ~18~
+    APPEND ~FIREBALL.IDS~ ~17 DRAGONPURPLEFIRE~
+    UNLESS ~17~
 
-		OUTER_SET updated_missile_and_projectl = 0
+    OUTER_SET updated_missile_and_projectl = 0
 
-	END
+  END
 
-	SILENT
+  SILENT
 
-	COPY_EXISTING ~MISSILE.ids~ ~override~
-		COUNT_2DA_ROWS 1 missile_rowcount
-		SET missile_rowcount -= 1
-		READ_2DA_ENTRY missile_rowcount 0 0 last_missile_entry
-	BUT_ONLY_IF_IT_CHANGES
-	COPY_EXISTING ~PROJECTL.ids~ ~override~
-		COUNT_2DA_ROWS 1 projectl_rowcount
-		SET projectl_rowcount -= 1
-		READ_2DA_ENTRY projectl_rowcount 0 0 last_projectl_entry
-	BUT_ONLY_IF_IT_CHANGES
+  COPY_EXISTING ~MISSILE.ids~ ~override~
+    COUNT_2DA_ROWS 1 missile_rowcount
+    SET missile_rowcount -= 1
+    READ_2DA_ENTRY missile_rowcount 0 0 last_missile_entry
+  BUT_ONLY_IF_IT_CHANGES
+  COPY_EXISTING ~PROJECTL.ids~ ~override~
+    COUNT_2DA_ROWS 1 projectl_rowcount
+    SET projectl_rowcount -= 1
+    READ_2DA_ENTRY projectl_rowcount 0 0 last_projectl_entry
+  BUT_ONLY_IF_IT_CHANGES
 
-	VERBOSE
+  VERBOSE
 
-	OUTER_WHILE ( last_projectl_entry < last_missile_entry - 1) BEGIN
-		OUTER_SET last_projectl_entry = last_projectl_entry + 1
-		APPEND ~PROJECTL.IDS~ ~%last_projectl_entry% ~
-	END
-	OUTER_WHILE ( last_projectl_entry > last_missile_entry - 1) BEGIN
-		OUTER_SET last_missile_entry = last_missile_entry + 1
-		APPEND ~MISSILE.IDS~ ~%last_missile_entry% Unnamed~
-	END
+  OUTER_WHILE ( last_projectl_entry < last_missile_entry - 1) BEGIN
+    OUTER_SET last_projectl_entry = last_projectl_entry + 1
+    APPEND ~PROJECTL.IDS~ ~%last_projectl_entry% ~
+  END
+  OUTER_WHILE ( last_projectl_entry > last_missile_entry - 1) BEGIN
+    OUTER_SET last_missile_entry = last_missile_entry + 1
+    APPEND ~MISSILE.IDS~ ~%last_missile_entry% Unnamed~
+  END
 
 END

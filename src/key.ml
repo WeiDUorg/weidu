@@ -83,6 +83,7 @@ let _ =
   assoc "GUI" 0x402 ;
   assoc "SQL" 0x403 ;
   assoc "PVRZ" 0x404 ;
+  assoc "GLSL" 0x405 ;
   ()
 
 let ext_of_key key =

@@ -17,7 +17,7 @@ DEFINE_PATCH_FUNCTION ~BASE36~
     PATCH_IF value < 0 || value >= 36 * 36 * 36 * 36 THEN BEGIN
       PATCH_FAIL ~BASE36 called on %value% (out of bounds 0 <= x < 36 **4)~
     END
-  
+
     INNER_PATCH_SAVE base36 ~0000~ BEGIN
       FOR (i = 3; i >= 0; --i) BEGIN
         digit = value - (value / 36) * 36
@@ -36,7 +36,7 @@ DEFINE_PATCH_FUNCTION ~GET_UNIQUE_FILE_NAME~
     PATCH_IF ~%extension%~ STRING_EQUAL_CASE ~~ THEN BEGIN
       PATCH_FAIL ~GET_UNIQUE_FILE_NAME requires to define the extension variable.~
     END
-    
+
     INNER_ACTION BEGIN
       ACTION_IF ! FILE_EXISTS_IN_GAME ~get_unique_filename_%extension%.ids~ THEN BEGIN
         <<<<<<<< empty
@@ -44,7 +44,7 @@ DEFINE_PATCH_FUNCTION ~GET_UNIQUE_FILE_NAME~
         COPY + empty ~override/get_unique_filename_%extension%.ids~
       END
     END
-    
+
     value = IDS_OF_SYMBOL (~get_unique_filename_%extension%~ ~%base%~)
     PATCH_IF value = 0 - 1 THEN BEGIN
       found = 0
@@ -53,7 +53,7 @@ DEFINE_PATCH_FUNCTION ~GET_UNIQUE_FILE_NAME~
         LPF ~BASE36~ INT_VAR value = value RET maybe = base36 END
         LOOKUP_IDS_SYMBOL_OF_INT exists ~get_unique_filename_%extension%~ value
         PATCH_IF IS_AN_INT exists
-          && !FILE_EXISTS_IN_GAME ~__%maybe%.%extension%~ THEN BEGIN 
+          && !FILE_EXISTS_IN_GAME ~__%maybe%.%extension%~ THEN BEGIN
           found = 1
         END
       END
@@ -63,6 +63,6 @@ DEFINE_PATCH_FUNCTION ~GET_UNIQUE_FILE_NAME~
     END ELSE BEGIN
       LPF ~BASE36~ INT_VAR value = value RET maybe = base36 END
     END
-    
+
     SPRINT filename ~__%maybe%~
 END

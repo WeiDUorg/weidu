@@ -45,15 +45,18 @@ else
 			export ARCHOS    = x86_LINUX
 			export OCAMLDIR  = /usr/local/bin
 			export OBJEXT    = o
-	        	export ARCH_FILE = arch_osx
 			export CASE_FILE = case_ins_mac
 			export GLOB      = glob_unix
 			# Very simplistic arch test
-			# Does not account for x86 Macs
 			ifeq "$(shell uname -m)" "x86_64"
 				export WEIDU_ARCH = amd64
+				export ARCH_FILE = arch_osx
+			else ifeq "$(shell uname -m)" "i386"
+				export WEIDU_ARCH = x86
+				export ARCH_FILE = arch_osx
 			else
-				export WEIDU_ARCH = mac
+				export WEIDU_ARCH = mac # PPC
+				export ARCH_FILE = arch_legacy_osx
 			endif
 			export WEIDU_OS = osx
 			export USEOPT = .opt

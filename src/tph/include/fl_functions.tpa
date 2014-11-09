@@ -95,7 +95,7 @@ DEFINE_ACTION_FUNCTION HANDLE_AUDIO
     oggdec_path = EVAL "%audio_path%"
     sox_path = EVAL "%audio_path%"
 BEGIN
-  ACTION_IF !GAME_IS ~bgee bg2ee~ BEGIN
+  ACTION_IF !FILE_EXISTS_IN_GAME monkfist.2da BEGIN
     ACTION_MATCH "%WEIDU_OS%" WITH
       win32
       BEGIN
@@ -199,10 +199,256 @@ BEGIN
       END ELSE OUTER_SET installed = 0
     END
     ACTION_IF !installed BEGIN
-      WARN ~WARNING: tilesets were not installed because TIS files were not found. Are you sure you have tisunpack installed?~
+      FAIL ~ERROR: tilesets were not installed because TIS files were not found. Are you sure you have tisunpack installed?~
     END
   END ELSE BEGIN
-    WARN ~WARNING: tilesets were not installed because %tisunpack% was not found in %tisunpack_path%/%WEIDU_OS%~
+    FAIL ~ERROR: tilesets were not installed because %tisunpack% was not found in %tisunpack_path%/%WEIDU_OS%~
+  END
+END
+
+DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#WHICH#INFER
+  RET
+    charset
+BEGIN
+  ACTION_MATCH "%LANGUAGE%" WITH
+    ".*schinese.*"
+    BEGIN
+      OUTER_SPRINT charset "CP936"
+    END
+
+    /* Doubts remain about whether CP950 is the correct charset for
+     * Traditional Chinese, mainly due to the translation of the
+     * BG2 Fixpack, which does not appear to be perfectly represented
+     * by CP950.
+     * Possible other alternatives include something involving the
+     * Hong Kong Supplementary Character Set (HKSCS) or Windows'
+     * non-standard CP950+CP951 hack (which appears to be unavailable
+     * outside of Traditionally Chinese Windows).
+     * Cf. Wikipedia on Big5.
+     */
+    ".*tchinese.*"
+    BEGIN
+      OUTER_SPRINT charset "CP950"
+    END
+
+    ".*czech.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1250"
+    END
+
+    ".*english.*" ".*american.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    ".*french.*" ".*francais.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    ".*german.*" ".*deutsch.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    ".*italian.*" ".*italiano.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    ".*japanese.*"
+    BEGIN
+      OUTER_SPRINT charset "CP932"
+    END
+
+    ".*korean.*"
+    BEGIN
+      OUTER_SPRINT charset "CP949"
+    END
+
+    ".*polish.*" ".*polski.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1250"
+    END
+
+    ".*russian.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1251"
+    END
+
+    ".*spanish.*" ".*castilian.*" ".*espanol.*" ".*castellano.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    DEFAULT
+      FAIL "ERROR: charset could not be inferred for language %LANGUAGE%"
+  END
+END
+
+DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#WHICH
+  INT_VAR
+    infer_charset = 0
+  STR_VAR
+    charset_table = ~~
+  RET
+    charset
+BEGIN
+  ACTION_IF infer_charset BEGIN
+    LAF fl#HANDLE_CHARSETS#WHICH#INFER RET charset END
+  END ELSE BEGIN
+    OUTER_SPRINT lang "%LANGUAGE%"
+    ACTION_TO_LOWER lang
+    ACTION_IF VARIABLE_IS_SET $EVAL "%charset_table%"("%lang%") BEGIN
+      OUTER_SPRINT charset $EVAL "%charset_table%"("%lang%")
+    END ELSE BEGIN
+      FAIL "ERROR: no tabulated charset could be found for language %lang%"
+    END
+  END
+END
+
+DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#CONVERT
+  STR_VAR
+    iconv = ~iconv~
+    quote = ~"~
+    path = ~~
+    file = ~~
+    from_charset = ~123fakecharset~
+    to_charset = ~UTF-8~
+BEGIN
+  /*
+   * iconv will happily be told to use an incorrect -f encoding and
+   * produce invalid output, so may as well provide the -c option.
+   */
+  OUTER_SPRINT c_option "-c"
+  OUTER_SPRINT infile ~%path%/%file%~
+  OUTER_SPRINT outfile ~%path%/fl#utf8_%file%~
+  ACTION_TRY
+    COPY "%infile%" "%outfile%"
+    /*
+     * The -o option does not appear to be supported by all implementations
+     */
+    AT_NOW ~%iconv% %c_option% -f %from_charset% -t %to_charset% %quote%%infile%%quote% > %quote%%outfile%%quote%~
+    COPY "%outfile%" "%infile%"
+  WITH
+    DEFAULT
+      PRINT "ERROR: unable to convert %infile% from %from_charset% into %to_charset%"
+      ACTION_RERAISE
+  END
+END
+
+DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#RECURSE
+  STR_VAR
+    path = ""
+    type = ""
+    function = ""
+BEGIN
+  ACTION_BASH_FOR "%path%" ".+\.%type%$" BEGIN
+    LAF "%function%"
+      STR_VAR
+        file = EVAL "%BASH_FOR_FILE%"
+        path = EVAL "%BASH_FOR_DIRECTORY%"
+    END
+  END
+  ACTION_CLEAR_ARRAY dir_array
+  GET_DIRECTORY_ARRAY dir_array "%path%" ".+"
+  ACTION_PHP_EACH EVAL dir_array AS _ => path BEGIN
+    ACTION_IF "%path%" STRING_MATCHES_REGEXP ".*\.$" BEGIN
+      LAF fl#HANDLE_CHARSETS#RECURSE STR_VAR path type function END
+    END
+  END
+END
+
+DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#RECURSE#TERMINAL
+  STR_VAR
+    file = ""
+    path = ""
+BEGIN
+  OUTER_SET convert = 1
+  /* This makes for a more consistent interface, albeit slightly
+   * messier code. noconvert_array is very likely to be short.
+   */
+  ACTION_PHP_EACH "%noconvert_array%" AS _ => noconvert_file BEGIN
+    ACTION_IF "%noconvert_file%" STRING_EQUAL_CASE "%file%" BEGIN
+      OUTER_SET convert = 0
+    END
+  END
+  ACTION_IF convert BEGIN
+    LAF fl#HANDLE_CHARSETS#CONVERT
+      STR_VAR
+        iconv // from the calling environment (curse the lack of closures)
+        quote // from the calling environment
+        path
+        file
+        from_charset // from the calling environment
+    END
+  END
+END
+
+DEFINE_ACTION_FUNCTION HANDLE_CHARSETS
+  INT_VAR
+    infer_charset = 0
+  STR_VAR
+    tra_path = ~~
+    iconv_path = EVAL ~%tra_path%/iconv~
+    charset_table = ~~
+    convert_array = ~~
+    noconvert_array = ~~
+    reload_array = ~~
+BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME monkfist.2da AND !FILE_EXISTS ~%tra_path%/%LANGUAGE%/fl#utf8.mrk~ BEGIN
+    ACTION_MATCH ~%WEIDU_OS%~ WITH
+      win32
+      BEGIN
+        OUTER_SPRINT iconv ~%iconv_path%/iconv.exe~
+        OUTER_SPRINT quote ~"~
+      END
+
+      osx unix
+      BEGIN
+        OUTER_SPRINT iconv ~iconv~
+        OUTER_SPRINT quote ~'~
+      END
+
+      DEFAULT
+    END
+    LAF fl#HANDLE_CHARSETS#WHICH
+      INT_VAR
+        infer_charset
+      STR_VAR
+        charset_table
+      RET
+        from_charset = charset
+    END
+    ACTION_IF ("%WEIDU_OS%" STRING_EQUAL_CASE "win32" AND FILE_EXISTS "%iconv%") OR
+              ("%WEIDU_OS%" STRING_EQUAL_CASE "osx" OR "%WEIDU_OS%" STRING_EQUAL_CASE "unix")
+    BEGIN
+      ACTION_IF VARIABLE_IS_SET $EVAL "%convert_array%"(0) BEGIN
+        ACTION_PHP_EACH "%convert_array%" AS _ => filename BEGIN
+          LAF fl#HANDLE_CHARSETS#CONVERT
+            STR_VAR
+              iconv
+              quote
+              path = EVAL ~%tra_path%/%LANGUAGE%~
+              file = EVAL ~%filename%.tra~
+              from_charset
+          END
+        END
+      END ELSE BEGIN
+        LAF fl#HANDLE_CHARSETS#RECURSE
+          STR_VAR
+            path = EVAL "%tra_path%"
+            type = "tra"
+            function = "fl#HANDLE_CHARSETS#RECURSE#TERMINAL"
+        END
+      END
+      ACTION_PHP_EACH "%reload_array%" AS _ => file BEGIN
+        LOAD_TRA ~%tra_path%/%LANGUAGE%/%file%.tra~
+      END
+      COPY_EXISTING sw1h01.itm ~%tra_path%/%LANGUAGE%/fl#utf8.mrk~
+    END ELSE BEGIN
+      FAIL "ERROR: charsets were not converted because iconv could not be found in %iconv_path%"
+    END
   END
 END
 

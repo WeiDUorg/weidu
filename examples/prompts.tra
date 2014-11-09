@@ -82,6 +82,8 @@
 @-1050= "Japanese"
 @-1051= "Korean"
 @-1052= "Simplified Chinese"
+@-1053= "Russian"
+@-1054= "Ukrainian"
 
 @-1060= "\nThis game is available in multiple languages, but WeiDU does not know which game language was used when this mod was installed.\n\nPlease indicate which game language was used when you installed this mod. Your choice will be used until WeiDU exits but will not be remembered.\n"
 @-1061= "\nUsing"

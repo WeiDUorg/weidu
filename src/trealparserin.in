@@ -14,6 +14,13 @@ let rec left_to_right p =
   | Tp.PE_Dollars (s,sl,true,false) -> Tp.PE_Dollars(left_to_right s, List.map left_to_right sl, false, true)
   | Tp.PE_Dollars (s,sl,a,b) -> Tp.PE_Dollars(left_to_right s, List.map left_to_right sl, a, b)
 
+let seven_patch_exp v1 v2 v3 v4 v5 v6 v7 =
+  let g x = Tp.get_pe_int (string_of_int x) in
+  g v1, g v2, g v3, g v4, g v5, g v6, g v7
+
+let eight_patch_exp e1 v1 v2 v3 v4 v5 v6 v7 =
+  let g x = Tp.get_pe_int (string_of_int x) in
+  e1, g v1, g v2, g v3, g v4, g v5, g v6, g v7
 }
 
 
@@ -529,6 +536,7 @@ nonterm(Tp.tp_action) Tp_Action {
 	-> ACTION_GET_STRREF_FS  e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        true,true) ]
   -> ADD_JOURNAL e1:Optional_Journal_Existing e2:Optional_Journal_Managed e3:Optional_Journal_Title
                  e4:Reference_List e5:Optional_Using [ Tp.TP_AddJournal(e1,e2,e3,e4,e5) ]
+  -> CREATE e1:STRING e2:Optional_File_Version e3:STRING e4:Tp_Patch_List [ Tp.TP_Create(e1, e2, e3, e4) ]
 }
 
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List_Rev {
@@ -788,32 +796,92 @@ nonterm(Tp.tp_pe_tlk_string) Dlg_Or_Patch_String_Right {
 }
 
 nonterm(Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp *
-        Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp)
+	Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp)
 		Seven_Patch_Exp {
 	-> e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp e5:Patch_Exp e6:Patch_Exp e7:Patch_Exp
 		[ e1,e2,e3,e4,e5,e6,e7 ]
+
+	-> ARE_V10_ACTORS
+		[ seven_patch_exp 0x54 4 0x58 2 0 0 0x110 ]
+	-> ARE_V10_REGIONS
+		[ seven_patch_exp 0x5c 4 0x5a 2 0 0 0xc4 ]
+	-> ARE_V10_SPAWN_POINTS
+		[ seven_patch_exp 0x60 4 0x64 4 0 0 0xc8 ]
+	-> ARE_V10_ENTRANCES
+		[ seven_patch_exp 0x68 4 0x6c 4 0 0 0x68 ]
+	-> ARE_V10_CONTAINERS
+		[ seven_patch_exp 0x70 4 0x74 2 0 0 0xc0 ]
+	-> ARE_V10_AMBIENTS
+		[ seven_patch_exp 0x84 4 0x82 2 0 0 0xd4 ]
+	-> ARE_V10_DOORS
+		[ seven_patch_exp 0xa8 4 0xa4 4 0 0 0xc8 ]
+	-> ARE_V10_ANIMATIONS
+		[ seven_patch_exp 0xb0 4 0xac 4 0 0 0x4c ]
+
+	-> CRE_V10_KNOWN_SPELLS
+		[ seven_patch_exp 0x2a0 4 0x2a4 4 0 0 0xc ]
+	-> CRE_V10_SPELL_MEM_INFO
+		[ seven_patch_exp 0x2a8 4 0x2ac 4 0 0 0x10 ]
+	-> CRE_V10_EFFECTS
+		[ seven_patch_exp 0x2c4 4 0x2c8 4 0 0 0x108 ]
+	-> CRE_V10_ITEMS
+		[ seven_patch_exp 0x2bc 4 0x2c0 4 0 0 0x14 ]
+
 	-> ITM_V10_HEADERS
-		[ let g x = Tp.get_pe_int (string_of_int x) in
-	g 0x64, g 4, g 0x68, g 2, g 0, g 0, g 0x38 ]
+		[ seven_patch_exp 0x64 4 0x68 2 0 0 0x38 ]
 	-> ITM_V10_GEN_EFFECTS
-		[ let g x = Tp.get_pe_int (string_of_int x) in
-	g 0x6a, g 4, g 0x70, g 2, g 0x6e, g 2, g 0x30 ]
+		[ seven_patch_exp 0x6a 4 0x70 2 0x6e 2 0x30 ]
+
+	-> SPL_V10_HEADERS
+		[ seven_patch_exp 0x64 4 0x68 2 0 0 0x28 ]
+	-> SPL_V10_GEN_EFFECTS
+		[ seven_patch_exp 0x6a 4 0x70 2 0x6e 2 0x30 ]
+
+	-> STO_V10_ITEMS_PURCHASED
+		[ seven_patch_exp 0x2c 4 0x30 4 0 0 0x4 ]
+	-> STO_V10_ITEMS_SOLD
+		[ seven_patch_exp 0x34 4 0x38 4 0 0 0x1c ]
+	-> STO_V10_DRINKS
+		[ seven_patch_exp 0x4c 4 0x50 4 0 0 0x14 ]
+	-> STO_V10_CURES
+		[ seven_patch_exp 0x70 4 0x74 4 0 0 0xc ]
+
 	-> WMP_AREAS
-		[ let g x = Tp.get_pe_int (string_of_int x) in
-	g 0x34, g 4, g 0x30, g 4, g 0, g 0, g 0xf0 ]
+		[ seven_patch_exp 0x34 4 0x30 4 0 0 0xf0 ]
 	-> WMP_LINKS
-		[ let g x = Tp.get_pe_int (string_of_int x) in
-        g 0x38, g 4, g 0x3c, g 4, g 0, g 0, g 0xd8 ]
+		[ seven_patch_exp 0x38 4 0x3c 4 0 0 0xd8 ]
 }
 
 nonterm(Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp *
-        Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp)
+	Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp)
 		Eight_Patch_Exp {
 	-> e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp e5:Patch_Exp e6:Patch_Exp e7:Patch_Exp e8:Patch_Exp
 		[ e1,e2,e3,e4,e5,e6,e7,e8 ]
+
+	-> e1:Patch_Exp ARE_V10_ITEMS
+		[ eight_patch_exp e1 0x78 4 0x44 4 0x40 4 0x14 ]
+	-> e1:Patch_Exp ARE_V10_REGION_VERTICES
+		[ eight_patch_exp e1 0x7c 4 0x2a 2 0x2c 4 0x4 ]
+	-> e1:Patch_Exp ARE_V10_CONTAINER_VERTICES
+		[ eight_patch_exp e1 0x7c 4 0x54 2 0x50 4 0x4 ]
+
+	-> e1:Patch_Exp CRE_V10_SPELL_MEM
+		[ eight_patch_exp e1 0x2b0 4 0xc 4 0x8 4 0xc ]
+
 	-> e1:Patch_Exp ITM_V10_HEAD_EFFECTS
-		[ let g x = Tp.get_pe_int (string_of_int x) in
-	e1, g 0x6a, g 4, g 0x1e, g 2, g 0x20, g 2, g 0x30 ]
+		[ eight_patch_exp e1 0x6a 4 0x1e 2 0x20 2 0x30 ]
+
+	-> e1:Patch_Exp SPL_V10_HEAD_EFFECTS
+		[ eight_patch_exp e1 0x6a 4 0x1e 2 0x20 2 0x30 ]
+
+	-> e1:Patch_Exp WMP_NORTH_LINKS
+		[ eight_patch_exp e1 0x38 4 0x50 4 0x54 4 0xd8 ]
+	-> e1:Patch_Exp WMP_WEST_LINKS
+		[ eight_patch_exp e1 0x38 4 0x58 4 0x5c 4 0xd8 ]
+	-> e1:Patch_Exp WMP_SOUTH_LINKS
+		[ eight_patch_exp e1 0x38 4 0x60 4 0x64 4 0xd8 ]
+	-> e1:Patch_Exp WMP_EAST_LINKS
+		[ eight_patch_exp e1 0x38 4 0x68 4 0x6c 4 0xd8 ]
 }
 
 nonterm (Tp.tp_patchexp) Patch_Exp_Safe {
@@ -901,6 +969,7 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
 	-> ID_OF_LABEL e1:Patch_String_Right e2:Patch_String_Right [ Tp.PE_IdOfLabel(e1,e2) ]
 	-> GAME_IS e1:STRING [ Tp.PE_GameIs(e1,true) ]
 	-> ENGINE_IS e1:STRING [ Tp.PE_GameIs(e1,false) ]
+	-> GAME_INCLUDES e1:STRING [ Tp.PE_GameIncludes(e1) ]
 	-> VARIABLE_IS_SET e1:Patch_String_Name [ Tp.PE_VariableIsSet e1 ]
 	-> IDS_OF_SYMBOL LPAREN e1:STRING e2:STRING RPAREN [ Tp.PE_IdsOfSymbol(e1,e2) ]
 	-> STATE_WHICH_SAYS e1:Lse FROM e2:STRING
@@ -974,6 +1043,11 @@ nonterm (bool) Optional_Journal_Managed {
 nonterm (Dlg.tlk_string option) Optional_Journal_Title {
         -> [ None ]
         -> TITLE LPAREN e1:Lse RPAREN [ Some e1 ]
+}
+
+nonterm (string option) Optional_File_Version {
+        -> [ None ]
+        -> VERSION e1:STRING [ Some e1 ]
 }
 
 nonterm (Tp.tp_patch) Tp_Patch {

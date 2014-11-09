@@ -5,7 +5,7 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   INT_VAR
 
   // these are internal variables, not to be used as input
-  is_bg2               = ENGINE_IS ~soa tob bgee bg2ee~
+  is_bg2               = ENGINE_IS ~soa tob~ OR FILE_EXISTS_IN_GAME monkfist.2da
   is_pst               = ENGINE_IS pst
   is_id2               = ENGINE_IS iwd2
   fj_position          = 0x11c
@@ -185,6 +185,7 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   fj_destination_name  = ~~
   fj_key_resref        = ~~
   fj_reg_script        = ~~
+  fj_dialog            = ~~ // only for PST
 
   // spawns
   fj_cre_resref0       = ~~
@@ -382,7 +383,7 @@ PHP_EACH struct AS key => value BEGIN
         PATCH_IF fj_debug BEGIN PATCH_PRINT ~Reading container %num%.~ END
 
         // load container vertices
-        GET_OFFSET_ARRAY array 0x7c 0x04 (off + 0x54) 0x04 (off + 0x50) 0x04 0x04
+        GET_OFFSET_ARRAY array 0x7c 0x04 (off + 0x54) 0x02 (off + 0x50) 0x04 0x04
         PATCH_IF( fj_debug && LONG_AT 0x54 )BEGIN PATCH_PRINT ~  Associating vertices.~ END
         PHP_EACH array AS num1 => off1 BEGIN
           READ_LONG off1 $EVAL ~are_container_%num%_vertex~(~%num1%~)
@@ -622,6 +623,9 @@ PHP_EACH struct AS key => value BEGIN
       WRITE_ASCIIE fj_return_offset + 0x7c ~%fj_reg_script%~ #8
       WRITE_SHORT  fj_return_offset + 0x84 fj_alt_x
       WRITE_SHORT  fj_return_offset + 0x86 fj_alt_y
+      PATCH_IF is_pst BEGIN
+        WRITE_ASCIIE fj_return_offset + 0xbc ~%fj_dialog%~ #8
+      END
       PHP_EACH fj_vertex AS key1 => value1 BEGIN
         WRITE_SHORT fj_return_offset + 0x2a THIS + 0x01
       END
@@ -916,7 +920,7 @@ PHP_EACH struct AS key => value BEGIN
       END
       PATCH_IF( fj_con_itm_idx == num && fj_structure_type == 0x78 )BEGIN
         READ_LONG LONG_AT 0x70 + 0xc0 * num + 0x44 cnt
-        PATCH_IF fj_debug BEGIN PATCH_PRINT ~Adding new item to container %num%.~ END 
+        PATCH_IF fj_debug BEGIN PATCH_PRINT ~Adding new item to container %num%.~ END
         WRITE_LONG LONG_AT 0x70 + 0xc0 * num + 0x44 THIS + 0x01
         WRITE_SHORT  0x76 THIS + 0x01
         INSERT_BYTES fj_position key_3
@@ -1177,9 +1181,9 @@ PATCH_IF is_id2 BEGIN
   SET fj_return_offset += 0x10
   GET_OFFSET_ARRAY fj_id_actor 0x64 0x04 0x58 0x02 0 0 0x110
   PHP_EACH fj_id_actor AS key => value BEGIN
-    PATCH_IF( 
+    PATCH_IF(
       LONG_AT( value + 0x88 ) > 0x00 &&
-      LONG_AT( value + 0x28 ) & 0x01 == 0x00 
+      LONG_AT( value + 0x28 ) & 0x01 == 0x00
     )BEGIN
       WRITE_LONG value + 0x88 THIS + 0x10
     END

@@ -1,31 +1,42 @@
 BACKUP "test/backup"
 AUTHOR me
 
-BEGIN ~test~
+BEGIN @0
 
 /* Test unsounded before sounded */
-OUTER_SPRINT foo ~Foo~
-OUTER_SPRINT bar ~Foo~ [FOO]
+OUTER_SPRINT foo @1
 /* Test if we can traify duplicates */
-OUTER_SPRINT fooo ~Foo~
-/* Test if we can traify different delimiters */
-OUTER_SPRINT barr "Foo" [FOO]
-OUTER_SPRINT baar %Foo%
+OUTER_SPRINT fooo @1
+OUTER_SPRINT bar @2
+OUTER_SPRINT barr @2
 
 /* Test sounded before unsounded */
-OUTER_SPRINT foo2 ~Foo2~ [FOO]
-OUTER_SPRINT bar2 ~Foo2~
+OUTER_SPRINT foo2 @3
+OUTER_SPRINT bar2 @4
 
 /* Test empty sound syntax */
-OUTER_SPRINT foo3 ~Foo3~ []
+OUTER_SPRINT foo3 @5
 
 /* Test strings that differ by sound */
-OUTER_SPRINT foo4 ~Foo4~ [FOO]
-OUTER_SPRINT bar4 ~Foo4~ [BAR]
+OUTER_SPRINT foo4 @6
+OUTER_SPRINT bar4 @7
 
 /* Test strings that differ by text */
-OUTER_SPRINT foo5 ~Foo5~ [FOO5]
-OUTER_SPRINT bar5 ~Bar5~ [FOO5]
+OUTER_SPRINT foo5 @8
+OUTER_SPRINT bar5 @9
+
+/* Test male/female strings */
+OUTER_SPRINT mf @10
+/* Test male/female with sounds */
+OUTER_SPRINT mf2 @11
+OUTER_SPRINT mf3 @12
+OUTER_SPRINT mf4 @13
+OUTER_SPRINT mf5 @14
+OUTER_SPRINT mf6 @10
+
+/* Test different delimiters */
+OUTER_SPRINT mf7 @10
+OUTER_SPRINT mf8 @10
 
 /* Test --traify-old-tra */
 OUTER_SPRINT test "test"

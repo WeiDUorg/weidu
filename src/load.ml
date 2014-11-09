@@ -20,7 +20,7 @@ let registry_game_paths () =
     if str = "." then str else Case_ins.filename_dirname str
       ) str_list
 
-type game_type = BGEE | BG2EE | GENERIC
+type game_type = BGEE | BG2EE | IWDEE | GENERIC
 
 let game_paths = ref []
 
@@ -258,7 +258,8 @@ let fake_load_dialogf gp dialogf_path =
 let enhanced_edition_p game =
   (match game.game_type with
   | BGEE
-  | BG2EE -> true
+  | BG2EE
+  | IWDEE -> true
   | GENERIC -> false)
 
 let load_dialog_pair path dpath dfpath =
@@ -293,18 +294,17 @@ let load_default_dialogs game_path =
        * tlkin is always the last tlk pair *)
       [|tlk_pair; tlkin|])
 
-let lang_dir_p dir =
-  let dir = Arch.slash_to_backslash ("lang/" ^ dir) in
-  (is_directory dir) &&
-  (file_exists (Arch.slash_to_backslash (dir ^ "/dialog.tlk")))
-
 let load_ee_dialogs game_path =
+  let lang_path = game_path ^ "/lang" in
   let lang_dirs = (List.fast_sort compare
                      (List.map String.lowercase
-                        (List.filter lang_dir_p
-                           (Array.to_list (Case_ins.sys_readdir "lang"))))) in
+                        (List.filter (fun dir ->
+                          let dir = Arch.slash_to_backslash (lang_path ^ "/" ^ dir) in
+                          (is_directory dir) &&
+                          (file_exists (Arch.slash_to_backslash (dir ^ "/dialog.tlk"))))
+                           (Array.to_list (Case_ins.sys_readdir lang_path))))) in
   let languages = (List.map (fun lang ->
-    let path = Arch.slash_to_backslash ("lang/" ^ lang) in
+    let path = Arch.slash_to_backslash (lang_path ^ "/" ^ lang) in
     load_dialog_pair path None None) lang_dirs) in
   (match !dialog_tlk_path with
   | None -> Array.of_list languages
@@ -316,7 +316,7 @@ let load_ee_dialogs game_path =
       Array.of_list (List.append languages [tlkin]))
 
 let load_dialogs game_path =
-  if file_exists (Arch.slash_to_backslash "lang/en_us/dialog.tlk") then
+  if file_exists (Arch.slash_to_backslash (game_path ^ "/lang/en_us/dialog.tlk")) then
     load_ee_dialogs game_path
   else
     load_default_dialogs game_path
@@ -434,7 +434,8 @@ let autodetect_game_type key =
                "CLOWNRAN", "IDS", GENERIC, IWD1;
                "FLYTHR01", "MVE", GENERIC, BG2;
                "OH1000", "ARE", BGEE, BG2;
-               "OH6000", "ARE", BG2EE, BG2;] in
+               "OH6000", "ARE", BG2EE, BG2;
+               "HOWPARTY", "2DA", IWDEE, BG2;] in
   let (game_type, script_style) = List.fold_left
       (fun acc (res, ext, game_type, script_style) ->
         if Key.resource_exists key res ext then begin
@@ -482,19 +483,21 @@ let load_game () =
   ignore (match game_type with
   | BGEE -> Var.bgee_game_vars result.game_path
   | BG2EE -> Var.bg2ee_game_vars result.game_path
+  | IWDEE -> Var.iwdee_game_vars result.game_path
   | GENERIC -> Var.default_game_vars result.game_path) ;
   result
 
 let set_additional_bgee_load_paths game dir =
-  let more = List.append (if dir <> "en_us" then ["./lang/" ^ dir] else [])
-      ["./lang/en_us"] in
+  let gp = game.game_path in
+  let more = List.append (if dir <> "en_us" then [gp ^ "/lang/" ^ dir] else [])
+      [gp ^ "/lang/en_us"] in
   game.cd_path_list <- (List.append game.cd_path_list more)
 
 let use_bgee_lang_dir game dir =
   let str1 = Str.quote "lang" in
   let str2 = Str.quote dir in
   let regexp = (Str.regexp_case_fold
-                  (str1 ^ "[\\\\/]+" ^ dir)) in
+                  ((Str.quote game.game_path) ^ "[\\\\/]+" ^ str1 ^ "[\\\\/]+" ^ str2)) in
   let foundp = ref false in
   ignore (set_additional_bgee_load_paths game dir) ;
   ignore (Array.iteri (fun index tlk_pair ->
@@ -520,7 +523,10 @@ let bgee_language_options game =
   let options = Array.map (fun tlk_pair ->
     let str1 = (Str.quote "lang") in
     let str2 = (Str.quote "dialog.tlk") in
-    let regexp = (Str.regexp_case_fold (str1 ^ "[\\\\/]+" ^ "\\([a-z_]+\\)" ^ "[\\\\/]+" ^ str2)) in
+    let regexp = (Str.regexp_case_fold ((Str.quote game.game_path) ^
+                                        "[\\\\/]+" ^ str1 ^ "[\\\\/]+" ^
+                                        "\\([a-z_]+\\)" ^
+                                        "[\\\\/]+" ^ str2)) in
     if Str.string_match regexp tlk_pair.dialog.path 0 then
       Str.matched_group 1 tlk_pair.dialog.path
     else begin

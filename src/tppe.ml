@@ -410,6 +410,7 @@ let rec eval_pe buff game p =
       let  bgt     = if game_or_engine then f "ar7200.are" else false in
       let   ca     = if game_or_engine then f "tc1300.are" else false in
       let iwdinbg2 = if game_or_engine then f "ar9201.are" else false in
+      let eet = if game_or_engine then f "eet.flag" else false in
       let  bg2 = f "ar0083.are"   in
       let  tob = f "ar6111.are"   in
       let iwd2 = f "ar6050.are"   in
@@ -422,6 +423,7 @@ let rec eval_pe buff game p =
       let ttsc = f "fw2003.are"   in
       let bgee = f "oh1000.are"   in
       let bg2ee = f "oh6000.are"  in
+      let iwdee = f "howparty.2da" in
       let res = List.exists (fun this ->
         match String.uppercase this with
         | "BG2"
@@ -434,7 +436,7 @@ let rec eval_pe buff game p =
         | "IWD"
         | "IWD1"       -> iwd1 && not how && not tolm && not bg2
         | "HOW"        -> iwd1 &&     how && not tolm && not bg2
-        | "TOTLM"      -> iwd1 &&     how &&     tolm && not bg2
+        | "TOTLM"      -> iwd1 &&     how &&     tolm && not bg2 && not iwdee
         | "TUTU"       -> tutu && not ttsc
         | "TUTU_TOTSC"
         | "TUTU+TOTSC" -> tutu &&     ttsc
@@ -443,12 +445,43 @@ let rec eval_pe buff game p =
         | "IWD-IN-BG2"
         | "IWD_IN_BG2"
         | "IWDINBG2"   -> bg2 && iwdinbg2
-        | "BGEE"       -> bgee
-        | "BG2EE"      -> bg2ee
+        | "BG2EE"      -> bg2ee && not eet
+        | "BGEE"       -> bgee && not eet
+        | "IWDEE"      -> iwdee
+        | "EET"        -> eet
         | _ -> failwith (Printf.sprintf "No rule to identify %s" (String.uppercase this))
       ) game_list in
       if res then 1l else 0l;
   end
+
+  | PE_GameIncludes(game_set) -> begin
+      let bg1 = ["BG1"; "TOTSC"; "TUTU"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"] in
+      let totsc = ["TOTSC"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"] in
+      let soa = ["SOA"; "TOB"; "BGT"; "BG2EE"; "EET"] in
+      let tob = ["TOB"; "BGT"; "BG2EE"; "EET"] in
+      let pst = ["PST"] in
+      let iwd = ["IWD"; "HOW"; "TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
+      let how = ["HOW"; "TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
+      let totlm = ["TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
+      let iwd2 = ["IWD2"] in
+      let ca = ["CA"] in
+      let list = (match String.uppercase game_set with
+      | "BG1" -> bg1
+      | "TOTSC" -> totsc
+      | "BG2"
+      | "SOA" -> soa
+      | "TOB" -> tob
+      | "PST" -> pst
+      | "IWD1"
+      | "IWD" -> iwd
+      | "HOW" -> how
+      | "TOTLM" -> totlm
+      | "IWD2" -> iwd2
+      | "CA" -> ca
+      | _ -> failwith (Printf.sprintf "GAME_INCLUDES has no rule for %s" (String.uppercase game_set))) in
+      eval_pe buff game (PE_GameIs((String.concat " " list), true)) ;
+  end
+
   | PE_IsAnInt(x) -> let old_eval_pe_warn = !eval_pe_warn in (eval_pe_warn := false ;
 		      try
 			let _ = (eval_pe buff game (PE_String(x))) in

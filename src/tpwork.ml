@@ -729,7 +729,7 @@ let rec handle_tp game this_tp2_filename tp =
         log_and_print "\n%s [%s]\n"
           (* "\nSkipping [%s]\n" *)
           ((get_trans (-1020)))
-          package_name ;
+          ((Tpstate.subcomp_str game m) ^ package_name) ;
         finished := true
 
     | _ when not (safe_to_handle tp.tp_filename i) -> ()
@@ -746,13 +746,13 @@ let rec handle_tp game this_tp2_filename tp =
     | "I" | "Y" | "R" -> begin
         if can_uninstall then begin
           log_and_print "\n%s%s%s\n"
-            ((get_trans (-1013))) package_name
+            ((get_trans (-1013))) ((Tpstate.subcomp_str game m) ^ package_name)
             ((get_trans (-1014))) ;
           (if not (uninstall game handle_tp2_filename this_tp2_filename i !interactive) then
             failwith "uninstallation error");
           log_and_print
             "\n%s [%s]\n\n"
-            ((get_trans (-1015))) package_name ;
+            ((get_trans (-1015))) ((Tpstate.subcomp_str game m) ^ package_name) ;
         end ;
         let subcomp_fails = ref false in
         let found = ref false in
@@ -772,7 +772,7 @@ let rec handle_tp game this_tp2_filename tp =
         if fails_requirements tp m || !subcomp_fails then begin
           finished := true;
           log_and_print "%s [%s%s\n"
-            (get_trans (-1020)) package_name (get_trans (-1037));
+            (get_trans (-1020)) ((Tpstate.subcomp_str game m) ^ package_name) (get_trans (-1037));
         end else begin
           set_backup_dir tp.backup i ;
 
@@ -795,7 +795,7 @@ let rec handle_tp game this_tp2_filename tp =
           log_and_print "\n%s [%s]%s\n"
             (* "\nInstalling [%s]\n"  *)
             ((get_trans (-1016)))
-            package_name (version_msg tp);
+            ((Tpstate.subcomp_str game m) ^ package_name) (version_msg tp);
           (try
             Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
             Var.set_int32 "INTERACTIVE"
@@ -848,12 +848,12 @@ let rec handle_tp game this_tp2_filename tp =
             append_to_strings_to_print_at_exit
               (*  "\nNOT INSTALLED: ERRORS [%s]\n"  *)
               (get_trans (-1032))
-              package_name;
+              ((Tpstate.subcomp_str game m) ^ package_name) ;
             (* add this successful install to the log! *)
             return_value := return_value_error_tp2_component_install ;
             log_and_print "\n%s%s%s\n"
               (*  "\nERROR Installing [%s], rolling back to previous state\n" *)
-              ((get_trans (-1017))) package_name ((get_trans (-1018))) ;
+              ((get_trans (-1017))) ((Tpstate.subcomp_str game m) ^ package_name) ((get_trans (-1018))) ;
             Dc.clear_state () ;
             record_strset_uninstall_info game strset_backup_filename ;
             record_tlk_path_info game tlkpath_backup_filename ;
@@ -891,7 +891,7 @@ let rec handle_tp game this_tp2_filename tp =
           append_to_strings_to_print_at_exit
             (*  "\nSUCCESSFULLY INSTALLED [%s]\n"  *)
             (get_trans return_code)
-            package_name;
+            ((Tpstate.subcomp_str game m) ^ package_name) ;
           (* add this successful install to the log! *)
           begin
             if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] then
@@ -904,13 +904,13 @@ let rec handle_tp game this_tp2_filename tp =
     end
     | "U" when not can_uninstall ->
         log_and_print "\nYou can't uninstall the non-installed component [%s] (component #%d)\n"
-          package_name i ;
+          ((Tpstate.subcomp_str game m) ^ package_name) i ;
         finished := false ;
     | "U" ->
         log_and_print "\n%s%s%s%d%s\n"
           (* "\nRemoving [%s] (component #%d)\n" *)
           ((get_trans (-1021)))
-          package_name
+          ((Tpstate.subcomp_str game m) ^ package_name)
           ((get_trans (-1022)))
           i
           ((get_trans (-1023))) ;
@@ -919,7 +919,7 @@ let rec handle_tp game this_tp2_filename tp =
         log_and_print "\n\n%s%s%s%d%s\n"
           (* "\n\nSUCCESSFULLY REMOVED [%s] (component #%d)\n\n" *)
           ((get_trans (-1024)))
-          package_name
+          ((Tpstate.subcomp_str game m) ^ package_name)
           ((get_trans (-1022)))
           i
           ((get_trans (-1023))) ;
@@ -1072,7 +1072,7 @@ let rec handle_tp game this_tp2_filename tp =
                 let package_name = Dc.single_string_of_tlk_string_safe
                     (Load.the_game ()) m.mod_name in
                 log_and_print "Uninstalling the component %s because its predicate is no longer true.\n"
-                  package_name ;
+                  ((Tpstate.subcomp_str game m) ^ package_name) ;
                 handle_letter tp "U" can_uninstall temp_uninst package_name m finished i ;
             | Some(ts) when ts = subcomp ->
                 is_forced := !is_forced || (subcomp_forced m);
@@ -1208,10 +1208,10 @@ let rec handle_tp game this_tp2_filename tp =
       let temp_uninst = temporarily_uninstalled this_tp2_filename !current in
       if can_uninstall then
         (* log_and_print "\nInstall Component [%s]\n[R]e-Install, [N]o Change or [U]ninstall or [Q]uit? "  package_name *)
-        log_and_print "\n%s%s%s" (get_trans (-1006)) package_name (get_trans (-1007))
+        log_and_print "\n%s%s%s" (get_trans (-1006)) ((Tpstate.subcomp_str game m) ^ package_name) (get_trans (-1007))
       else
         (* log_and_print "\nInstall Component [%s]\n[Y]es or [N]o or [Q]uit? "  package_name ; *)
-        log_and_print "\n%s%s%s" (get_trans (-1006)) package_name (get_trans (-1008)) ;
+        log_and_print "\n%s%s%s" (get_trans (-1006)) ((Tpstate.subcomp_str game m) ^ package_name) (get_trans (-1008)) ;
       if not (safe_to_handle tp.tp_filename !current) then
         log_and_print "\nBecause of --safe-exit, only [N] and [Q] are acceptable. ";
       begin
@@ -1249,7 +1249,7 @@ let rec handle_tp game this_tp2_filename tp =
             def := (if is_forbid_file then TP_Ask else TP_Uninstall)
           else begin
             let warn = Dc.single_string_of_tlk_string_safe game warn in
-            log_and_print "\n%s: [%s]\n\t%s\n" msg package_name warn ;
+            log_and_print "\n%s: [%s]\n\t%s\n" msg ((Tpstate.subcomp_str game m) ^ package_name) warn ;
             def := TP_Skip
           end
         end
@@ -1261,7 +1261,7 @@ let rec handle_tp game this_tp2_filename tp =
             if can_uninstall then begin
               let warn = Dc.single_string_of_tlk_string game warn in
               log_and_print "\nNOTE: [%s] is deprecated. Uninstalling!\n\t%s\n"
-                package_name warn ;
+                ((Tpstate.subcomp_str game m) ^ package_name) warn ;
               def := TP_Uninstall ;
             end else begin
               def := TP_Skip ;
@@ -1323,7 +1323,7 @@ let rec handle_tp game this_tp2_filename tp =
       let finished = ref false in
       let handle_error = handle_error_generic always_yes
           specified_specific_components finished
-          package_name in
+          ((Tpstate.subcomp_str game m) ^ package_name) in
       Dc.clear_state () ;
       match !def with
       | TP_Install ->
@@ -1374,7 +1374,7 @@ let rec handle_tp game this_tp2_filename tp =
           in process m.mod_flags ;
           let package_name = Dc.single_string_of_tlk_string_safe game m.mod_name in
           let handle_error = handle_error_generic (ref false) (ref false) (ref true)
-              package_name in
+              ((Tpstate.subcomp_str game m) ^ package_name) in
           try
             let _ = Str.search_forward reg package_name 0 in
             ask_about_module current m package_name handle_error

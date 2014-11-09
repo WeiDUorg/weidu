@@ -1,1440 +1,1149 @@
-		OUTER_PATCH ___#qwerty BEGIN
-		  WRITE_BYTE 0 0
-		  READ_ASCII 0 ___#nil (1)
-		END
+OUTER_PATCH ___#qwerty BEGIN
+  WRITE_BYTE 0 0
+  READ_ASCII 0 ___#nil (1)
+END
 
 
-		//copies all effects from an item and store them in spell. new_itm_spl required (which should already lie in override folder. .spl is NOT implied)
-		DEFINE_PATCH_MACRO ~ITEM_EFFECT_TO_SPELL~ BEGIN
-		  PATCH_IF (BUFFER_LENGTH	 > 0x71) BEGIN
-		    READ_LONG   0x64 ___#abil_off
-		    READ_SHORT  0x68 ___#abil_num
-		    READ_LONG   0x6a ___#fx_off
-		    SET ___#index1 = ___#abil_num
-		    WHILE (___#index1 > 0) BEGIN
-		    SET ___#index1 = (___#index1 - 1)
-		      READ_BYTE   (___#abil_off +        (___#index1 * 0x38)) ___#type
-		      READ_SHORT  (___#abil_off + 0x1e + (___#index1 * 0x38)) ___#abil_fx_num
-		      READ_SHORT  (___#abil_off + 0x20 + (___#index1 * 0x38)) ___#abil_1fx_index
-          
-          ___#have_type = VARIABLE_IS_SET type && IS_AN_INT type
-          ___#type_match = (!___#have_type && ___#type = 3) || (___#have_type && (___#type = type || type = 99))
-          ___#have_header = VARIABLE_IS_SET header && IS_AN_INT header
-          ___#header_match = !___#have_header || (___#have_header && (___#index1 = header || header = 99))
+//copies all effects from an item and store them in spell. new_itm_spl required (which should already lie in override folder. .spl is NOT implied)
+DEFINE_PATCH_MACRO ~ITEM_EFFECT_TO_SPELL~ BEGIN
+  PATCH_IF (BUFFER_LENGTH > 0x71) BEGIN
+    READ_LONG   0x64 ___#abil_off
+    READ_SHORT  0x68 ___#abil_num
+    READ_LONG   0x6a ___#fx_off
+    SET ___#index1 = ___#abil_num
+    WHILE (___#index1 > 0) BEGIN
+      SET ___#index1 = (___#index1 - 1)
+      READ_BYTE   (___#abil_off +        (___#index1 * 0x38)) ___#type
+      READ_SHORT  (___#abil_off + 0x1e + (___#index1 * 0x38)) ___#abil_fx_num
+      READ_SHORT  (___#abil_off + 0x20 + (___#index1 * 0x38)) ___#abil_1fx_index
 
-		      PATCH_IF ((!___#have_type && ___#have_header) || ___#type_match) AND ((___#have_type && !___#have_header) || ___#header_match) BEGIN //ability is correct or unspecified and header matches
+      ___#have_type = VARIABLE_IS_SET type && IS_AN_INT type
+      ___#type_match = (!___#have_type && ___#type = 3) || (___#have_type && (___#type = type || type = 99))
+      ___#have_header = VARIABLE_IS_SET header && IS_AN_INT header
+      ___#header_match = !___#have_header || (___#have_header && (___#index1 = header || header = 99))
 
-		        FOR (___#index2 = 0 ; ___#index2 < ___#abil_fx_num ; ___#index2 = ___#index2 + 1) BEGIN
-		          READ_ASCII (___#fx_off + (___#abil_1fx_index + ___#index2) * 0x30) ___#effect (0x30)
+      PATCH_IF ((!___#have_type && ___#have_header) || ___#type_match) AND ((___#have_type && !___#have_header) || ___#header_match) BEGIN //ability is correct or unspecified and header matches
 
-		          INNER_ACTION BEGIN
-		            COPY_EXISTING ~%new_itm_spl%~ ~override/%new_itm_spl%~
-		                READ_LONG   0x64 ___#abil_off2
-		                READ_SHORT  0x68 ___#abil_num2
-		                READ_LONG   0x6a ___#fx_off2
-		                READ_SHORT  (___#abil_off2 + 0x1e + (0 * 0x28)) ___#abil_fx_num2
-		                INSERT_BYTES (___#fx_off2 + ___#abil_fx_num2 * 0x30) 0x30
-		                WRITE_EVALUATED_ASCII (___#fx_off2 + ___#abil_fx_num2 * 0x30) ~%___#effect%~ #48 //copy effect
-		                WRITE_SHORT  (___#abil_off2 + 0x1e + (0 * 0x28)) (___#abil_fx_num2 + 1)
-		                //no offsets to correct
-		          END
-		
-		       END
-		     END
-		    END
-		  END
-		END
-		
-		
-		//need parameters: opcode_to_delete
-		DEFINE_PATCH_MACRO ~DELETE_SPELL_EFFECT~ BEGIN
-		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN
-		    READ_LONG  0x64 ___#abil_off
-		    READ_SHORT 0x68 ___#abil_num
-		    READ_LONG  0x6a ___#fx_off
-		
-		    FOR (___#index1 = 0 ; ___#index1 < ___#abil_num ; ___#index1 = ___#index1 + 1) BEGIN //cycling through extended headers
-		      READ_SHORT (___#abil_off + 0x1e + (0x28 * ___#index1)) ___#abil_fx_num
-		      READ_SHORT (___#abil_off + 0x20 + (0x28 * ___#index1)) ___#abil_fx_idx
-		
-		      FOR (___#index2 = ___#abil_fx_idx ; ___#index2 < (___#abil_fx_idx + ___#abil_fx_num) ; ___#index2 = ___#index2 + 1) BEGIN //cycling through ability's effects
-		        READ_SHORT (___#fx_off + 0x30 * ___#index2) ___#opcode
-		        PATCH_IF ( (___#opcode = opcode_to_delete) OR (opcode_to_delete = (0 - 1)) ) BEGIN //matched or we should delete all
-		
-		          DELETE_BYTES (___#fx_off + 0x30 * ___#index2) 0x30
-		          SET ___#abil_fx_num = ___#abil_fx_num - 1 //for stopping cycle properly
-		          WRITE_SHORT (___#abil_off + 0x1e + (0x28 * ___#index1)) ___#abil_fx_num //correct number of effects in ability
-		
-		          //correcting 1st effect ___#index1es
-		          FOR (___#index3 = 0 ; ___#index3 < ___#abil_num ; ___#index3 = ___#index3 + 1) BEGIN //cycling through abilities again
-		            READ_SHORT (___#abil_off + ___#index3 * 0x28 + 0x20) ___#1effect_index
-		            PATCH_IF (___#1effect_index > ___#index2) BEGIN //if next abilility
-		              WRITE_SHORT (___#abil_off + ___#index3 * 0x28 + 0x20) (___#1effect_index - 1) //decrease 1 effect ___#index1 by 1
-		            END
-		          END
-		          //no offsets to correct
-		          SET ___#index2 = ___#index2 - 1 //step back to not miss an effect
-		        END
-		      END
-		
-		    END
-		  END
-		END
-		
-		
-		
-		//deletes the extended effect with the specified opcode from the item. need parameters: opcode_to_delete
-		DEFINE_PATCH_MACRO ~DELETE_ITEM_EFFECT~ BEGIN
-		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN
-		    READ_LONG  0x64 ___#abil_off
-		    READ_SHORT 0x68 ___#abil_num
-		    READ_LONG  0x6a ___#fx_off
-		
-		    FOR (___#index1 = 0 ; ___#index1 < ___#abil_num ; ___#index1 = ___#index1 + 1) BEGIN //cycling through extended headers
-		//      READ_BYTE  (___#abil_off +        (___#index1 * 0x38)) ___#type
-		//      PATCH_IF (___#type = 3) BEGIN //if magical ability
-		        READ_SHORT (___#abil_off + 0x1e + (0x38 * ___#index1)) ___#abil_fx_num
-		        READ_SHORT (___#abil_off + 0x20 + (0x38 * ___#index1)) ___#abil_fx_idx
-		        FOR (___#index2 = ___#abil_fx_idx ; ___#index2 < (___#abil_fx_idx + ___#abil_fx_num) ; ___#index2 = ___#index2 + 1) BEGIN //cycling through ability's effects
-		          READ_SHORT (___#fx_off + 0x30 * ___#index2) ___#opcode
-		          PATCH_IF ( (___#opcode = opcode_to_delete) OR (opcode_to_delete = (0 - 1)) ) BEGIN //match of delete all
-		            DELETE_BYTES (___#fx_off + 0x30 * ___#index2) 0x30
-		            SET ___#abil_fx_num = ___#abil_fx_num - 1 //for stopping cycle properly
-		            WRITE_SHORT (___#abil_off + 0x1e + (0x38 * ___#index1)) ___#abil_fx_num //correct number of effects in ability
-		
-		            //correcting 1st effect ___#index1es
-		            FOR (___#index3 = 0 ; ___#index3 < ___#abil_num ; ___#index3 = ___#index3 + 1) BEGIN //cycling through abilities again
-		              READ_SHORT (___#abil_off + ___#index3 * 0x38 + 0x20) ___#1effect_index
-		              PATCH_IF (___#1effect_index > ___#index2) BEGIN //if next abilility
-		                WRITE_SHORT (___#abil_off + ___#index3 * 0x38 + 0x20) (___#1effect_index - 1) //decrease 1 effect ___#index1 by 1
-		              END
-		            END
-		            //no offsets to correct
-		            SET ___#index2 = ___#index2 - 1 //step back to not miss an effect
-		          END
-		        END
-		
-		//      END
-		    END
-		
-		  END
-		END
-		
-		
-		
-		
-		//deletes the equipping effect the with specified opcode from the item. need parameters: opcode_to_delete
-		DEFINE_PATCH_MACRO ~DELETE_ITEM_EQEFFECT~ BEGIN
-		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN
-		    READ_LONG 0x64 ___#abil_off
-		    READ_SHORT 0x68 ___#abil_num
-		    READ_LONG 0x6a ___#fx_off
-		    READ_SHORT 0x6e ___#eqfx_off
-		    READ_SHORT 0x70 ___#eqfx_num
-		    FOR (___#index1 = 0 ; ___#index1 < ___#eqfx_num ; ___#index1 = ___#index1 + 1) BEGIN //cycle though global effects
-		      READ_SHORT  (___#fx_off + (___#index1 + ___#eqfx_off) * 0x30) ___#opcode
-		      PATCH_IF ( (___#opcode = opcode_to_delete) OR (opcode_to_delete = (0 - 1)) ) BEGIN
-		
-		        DELETE_BYTES (___#fx_off + (___#index1 + ___#eqfx_off) * 0x30) 0x30
-		        SET ___#eqfx_num = (___#eqfx_num - 1)
-		        WRITE_SHORT 0x70 ___#eqfx_num
-		
-		        //correcting 1st effect indexes
-		        FOR (___#index2 = 0 ; ___#index2 < ___#abil_num ; ___#index2 = ___#index2 + 1) BEGIN
-		          READ_SHORT (___#abil_off + ___#index2 * 0x38 + 0x20) ___#1effect_index
-		          PATCH_IF (___#1effect_index > ___#index1) BEGIN //if abilility after current effect
-		            WRITE_SHORT (___#abil_off + ___#index2 * 0x38 + 0x20) (___#1effect_index - 1) //decrease 1 effect ___#index1 by 1
-		          END
-		        END
-		        //no offsets to correct
-		        SET ___#index1 = (___#index1 - 1)
-		      END
-		    END //end of searching
-		  END
-		END
-		
-		
-		
-		
-		
-		//adds an extended effect to a specified spell
-		//essential parameters:
-		//opcode
-		//target
-		//timing
-		
-		//optional parameters:
-		//resist_dispel (magic resitance/dispel type)
-		//power
-		//parameter1
-		//parameter2
-		//duration 
-		//probability1 (default 100)
-		//probability2 (default 0)
-		//resource (ascii string 8 chars)
-		//dicenumber
-		//dicesize
-		//savingthrow
-		//savebonus
-		//header (default all)
-		//insert_point (last by default)
-		
-		DEFINE_PATCH_MACRO ~ADD_SPELL_EFFECT~ BEGIN
-		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN
-		    READ_LONG  0x64 ___#abil_off
-		    READ_SHORT 0x68 ___#abil_num
-		    READ_LONG  0x6a ___#fx_off
+        FOR (___#index2 = 0 ; ___#index2 < ___#abil_fx_num ; ___#index2 = ___#index2 + 1) BEGIN
+          READ_ASCII (___#fx_off + (___#abil_1fx_index + ___#index2) * 0x30) ___#effect (0x30)
 
-		    FOR (___#index1 = 0 ; ___#index1 < ___#abil_num ; ___#index1 = ___#index1 + 1) BEGIN
-
-		      PATCH_IF (___#index1 = (header - 1)) OR (header = 0) BEGIN //header=1 means ___#index1=0
-		        READ_SHORT  (___#abil_off + 0x1e + (0x28 * ___#index1)) ___#abil_fx_num
-		        READ_SHORT  (___#abil_off + 0x20 + (0x28 * ___#index1)) ___#abil_fx_idx
-            
-            ___#insert_point = !VARIABLE_IS_SET insert_point OR !IS_AN_INT insert_point OR insert_point < 0 OR insert_point > ___#abil_fx_num ? ___#abil_fx_num : insert_point
-            
-		        INSERT_BYTES (___#fx_off +        (0x30 * (___#insert_point + ___#abil_fx_idx))) 0x30
-
-		        WRITE_SHORT  (___#fx_off +        (0x30 * (___#insert_point + ___#abil_fx_idx))) opcode
-		        WRITE_BYTE   (___#fx_off + 0x02 + (0x30 * (___#insert_point + ___#abil_fx_idx))) target
-		        WRITE_BYTE   (___#fx_off + 0x03 + (0x30 * (___#insert_point + ___#abil_fx_idx))) power
-		        WRITE_LONG   (___#fx_off + 0x04 + (0x30 * (___#insert_point + ___#abil_fx_idx))) parameter1
-		        WRITE_LONG   (___#fx_off + 0x08 + (0x30 * (___#insert_point + ___#abil_fx_idx))) parameter2
-		        WRITE_BYTE   (___#fx_off + 0x0c + (0x30 * (___#insert_point + ___#abil_fx_idx))) timing
-		        WRITE_BYTE   (___#fx_off + 0x0d + (0x30 * (___#insert_point + ___#abil_fx_idx))) resist_dispel
-		        WRITE_LONG   (___#fx_off + 0x0e + (0x30 * (___#insert_point + ___#abil_fx_idx))) duration
-		        WRITE_BYTE   (___#fx_off + 0x12 + (0x30 * (___#insert_point + ___#abil_fx_idx))) probability1
-		        WRITE_BYTE   (___#fx_off + 0x13 + (0x30 * (___#insert_point + ___#abil_fx_idx))) probability2
-		        WRITE_EVALUATED_ASCII (___#fx_off + 0x14 + (0x30 * (___#insert_point + ___#abil_fx_idx))) ~%resource%~ #8
-		        WRITE_LONG   (___#fx_off + 0x1c + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicenumber
-		        WRITE_LONG   (___#fx_off + 0x20 + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicesize
-		        WRITE_LONG   (___#fx_off + 0x24 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savingthrow
-		        WRITE_LONG   (___#fx_off + 0x28 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savebonus
-
-		        //correcting effects number
-		        WRITE_SHORT (___#abil_off + 0x1e + (0x28 * ___#index1)) (___#abil_fx_num + 1)
-
-		        //correcting 1st effect indexes
-		        FOR (___#index2 = 0 ; ___#index2 < ___#abil_num ; ___#index2 = ___#index2 + 1) BEGIN
-		          READ_SHORT (___#abil_off + ___#index2 * 0x28 + 0x20) ___#1effect_index
-		          PATCH_IF (___#1effect_index > ___#abil_fx_idx) //if abilility after current effect
-		                OR ((___#1effect_index = ___#abil_fx_idx)
-		                  AND (___#abil_fx_num = 0)
-		                  AND (___#index2 != ___#index1)) BEGIN
-		            WRITE_SHORT (___#abil_off + ___#index2 * 0x28 + 0x20) (___#1effect_index + 1) //increase 1 effect ___#index1 by 1
-		          END
-		        END
-		        //no offsets to correct
-		      END
-		    END
-		    //reset vars
-		    SET opcode = 0
-		    SET target = 0
-		    SET timing = 0
-		    SET resist_dispel = 0
-		    SET power = 0
-		    SET header = 0
-		    SET parameter1 = 0
-		    SET parameter2 = 0
-		    SET probability1 = 100
-		    SET probability2 = 0
-		    SET duration = 0
-		    SPRINT resource ~%___#nil%~
-		    SET dicenumber = 0
-		    SET dicesize = 0
-		    SET savingthrow = 0
-		    SET savebonus = 0
-
-		  END
-		END
-		
-		
-		
-		
-		
-		
-		
-		
-		//adds an equip effect to a specified item
-		//esessential parameters:
-		//___#opcode
-		//target
-		//timing
-		
-		//optional parameters:
-		//resist_dispel (magic resitance/dispel type)
-		//power
-		//parameter1
-		//parameter2
-		//duration
-		//probability1 (default 100)
-		//probability2 (default 0)
-		//resource (ascii string 8 chars max)
-		//dicenumber
-		//dicesize
-		//savingthrow
-		//savebonus
-		
-		DEFINE_PATCH_MACRO ~ADD_ITEM_EQEFFECT~ BEGIN
-		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN
-                    PATCH_IF (~%SOURCE_EXT%~ STRING_EQUAL_CASE ~spl~ = 1) BEGIN
-                      ___#hdr_size = 0x28
-                    END ELSE BEGIN
-                      ___#hdr_size = 0x38
-                    END
-		    READ_LONG 0x64 ___#abil_off
-		    READ_SHORT 0x68 ___#abil_num
-		    READ_LONG 0x6a ___#fx_off
-		    READ_SHORT 0x6e ___#eqfx_index
-		    READ_SHORT 0x70 ___#eqfx_num
-		    
-		    INSERT_BYTES (___#fx_off + ___#eqfx_index) 0x30
-
-		    WRITE_SHORT  (___#fx_off + ___#eqfx_index) opcode
-		    WRITE_BYTE  (___#fx_off + ___#eqfx_index + 0x02) target
-
-		    WRITE_BYTE  (___#fx_off + ___#eqfx_index + 0x03) power
-		    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x04) parameter1
-		    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x08) parameter2
-		    WRITE_BYTE   (___#fx_off + ___#eqfx_index + 0x0c) timing
-		    WRITE_BYTE   (___#fx_off + ___#eqfx_index + 0x0d) resist_dispel
-		    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x0e) duration
-		    WRITE_BYTE   (___#fx_off + ___#eqfx_index + 0x12) probability1
-		    WRITE_BYTE   (___#fx_off + ___#eqfx_index + 0x13) probability2
-		    WRITE_EVALUATED_ASCII (___#fx_off + ___#eqfx_index + 0x14) ~%resource%~ #8
-		    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x1c) dicenumber
-		    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x20) dicesize
-		    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x24) savingthrow
-		    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x28) savebonus
-
-		    //correcting global effects number
-		    WRITE_SHORT 0x70 (___#eqfx_num + 1)
-
-		    //correcting 1st effect ___#index1es
-		    FOR (___#index2 = 0 ; ___#index2 < ___#abil_num ; ___#index2 = ___#index2 + 1) BEGIN
-		      READ_SHORT (___#abil_off + ___#index2 * ___#hdr_size + 0x20) ___#1effect_index
-		      PATCH_IF (___#1effect_index > ___#eqfx_index) //if abilility after eq effects
-		            OR ((___#1effect_index = ___#eqfx_index) AND (___#eqfx_num = 0)) BEGIN
-		        WRITE_SHORT (___#abil_off + ___#index2 * ___#hdr_size + 0x20) (___#1effect_index + 1) //increase 1 effect ___#index1 by 1
-		      END
-		    END
-		    //no offsets to correct
-		  //reset vars
-		  SET opcode = 0
-		  SET target = 0
-		  SET timing = 0
-		  SET resist_dispel = 0
-		  SET power = 0
-		  SET parameter1 = 0
-		  SET parameter2 = 0
-		  SET duration = 0
-		    SET probability1 = 100
-		    SET probability2 = 0
-		  SPRINT resource ~%___#nil%~
-		  SET dicenumber = 0
-		  SET dicesize = 0
-		  SET savingthrow = 0
-		  SET savebonus = 0
-
-		  END
-		END
-		
-		DEFINE_PATCH_MACRO ~ADD_SPELL_CFEFFECT~ BEGIN
-		  LAUNCH_PATCH_MACRO ~ADD_ITEM_EQEFFECT~
-		END
-
-
-
-		//adds the effect to the item. Need parameters: ___#opcode target use_level fail_strref timing mr_bypass duration probability ~%resource%~
-		DEFINE_PATCH_MACRO ~ADD_ITEM_EFFECT~ BEGIN
-		  PATCH_IF (BUFFER_LENGTH	 > 0x71) THEN BEGIN // protects against invalid files
-		    READ_LONG   0x64 ___#abil_off //ability offset
-		    READ_SHORT  0x68 ___#abil_num //number of abilities
-		    READ_LONG   0x6a ___#fx_off //effects offset
-		    FOR (___#index1 = 0 ; ___#index1 < ___#abil_num ; ___#index1 = ___#index1 + 1) BEGIN // looks for magical ability header
-		      READ_BYTE  (___#abil_off +        (___#index1 * 0x38)) ___#type //ability type
-		      PATCH_IF ((!(VARIABLE_IS_SET ~%type%~ AND IS_AN_INT ~%type%~) && ___#type = 3) OR (VARIABLE_IS_SET ~%type%~ AND IS_AN_INT ~%type%~ AND ((___#type = type) OR type = 99))) AND ((___#index1 = (header - 1)) OR (header = 0)) BEGIN //ability is correct or unspecified and header matches
-		        READ_SHORT  (___#abil_off + 0x1e + (0x38 * ___#index1)) ___#abil_fx_num
-		        READ_SHORT  (___#abil_off + 0x20 + (0x38 * ___#index1)) ___#abil_fx_idx
-		
-		        ___#insert_point = !VARIABLE_IS_SET insert_point OR !IS_AN_INT insert_point OR insert_point < 0 OR insert_point > ___#abil_fx_num ? ___#abil_fx_num : insert_point
-		        
-		        INSERT_BYTES (___#fx_off +        (0x30 * (___#insert_point + ___#abil_fx_idx))) 0x30
-		
-		        WRITE_SHORT  (___#fx_off +        (0x30 * (___#insert_point + ___#abil_fx_idx))) opcode
-		        WRITE_BYTE   (___#fx_off + 0x02 + (0x30 * (___#insert_point + ___#abil_fx_idx))) target
-		        WRITE_BYTE   (___#fx_off + 0x03 + (0x30 * (___#insert_point + ___#abil_fx_idx))) power
-		        WRITE_LONG   (___#fx_off + 0x04 + (0x30 * (___#insert_point + ___#abil_fx_idx))) parameter1
-		        WRITE_LONG   (___#fx_off + 0x08 + (0x30 * (___#insert_point + ___#abil_fx_idx))) parameter2
-		        WRITE_BYTE   (___#fx_off + 0x0c + (0x30 * (___#insert_point + ___#abil_fx_idx))) timing
-		        WRITE_BYTE   (___#fx_off + 0x0d + (0x30 * (___#insert_point + ___#abil_fx_idx))) resist_dispel
-		        WRITE_LONG   (___#fx_off + 0x0e + (0x30 * (___#insert_point + ___#abil_fx_idx))) duration
-		        WRITE_BYTE   (___#fx_off + 0x12 + (0x30 * (___#insert_point + ___#abil_fx_idx))) probability1
-		        WRITE_BYTE   (___#fx_off + 0x13 + (0x30 * (___#insert_point + ___#abil_fx_idx))) probability2
-		        WRITE_EVALUATED_ASCII (___#fx_off + 0x14 + (0x30 * (___#insert_point + ___#abil_fx_idx))) ~%resource%~ #8
-		        WRITE_LONG   (___#fx_off + 0x1c + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicenumber
-		        WRITE_LONG   (___#fx_off + 0x20 + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicesize
-		        WRITE_LONG   (___#fx_off + 0x24 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savingthrow
-		        WRITE_LONG   (___#fx_off + 0x28 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savebonus
-		
-		        //correcting effects number
-		        WRITE_SHORT (___#abil_off + 0x1e + (0x38 * ___#index1)) (___#abil_fx_num + 1)
-		
-		        //correcting 1st effect ___#index1es
-		        FOR (___#index2 = 0 ; ___#index2 < ___#abil_num ; ___#index2 = ___#index2 + 1) BEGIN
-		          READ_SHORT (___#abil_off + ___#index2 * 0x38 + 0x20) ___#1effect_index
-		          PATCH_IF (___#1effect_index > ___#abil_fx_idx) //if next abilility
-		                OR ((___#1effect_index = ___#abil_fx_idx)
-		                  AND (___#abil_fx_num = 0)
-		                  AND (___#index2 != ___#index1)) BEGIN
-		            WRITE_SHORT (___#abil_off + ___#index2 * 0x38 + 0x20) (___#1effect_index + 1) //increase 1 effect ___#index1 by 1
-		          END
-		        END
-		        //no offsets to correct
-		      END
-		    END //end of cycle
-		
-		  //reset vars
-		  SET opcode = 0
-		  SET target = 0
-		  SET timing = 0
-		  SET resist_dispel = 0
-		  SET power = 0
-		  SET parameter1 = 0
-		  SET parameter2 = 0
-		  SET duration = 0
-	    SET probability1 = 100
-	    SET probability2 = 0
-		  SPRINT resource ~%___#nil%~
-		  SET dicenumber = 0
-		  SET dicesize = 0
-		  SET savingthrow = 0
-		  SET savebonus = 0
-		
-		  END
-		END
-		
-		
-		
-		
-		
-		//add an effect to a creature.
-		//essential parameters:
-		//opcode
-		//target
-		//timing
-		
-		//optional parameters:
-		//resist_dispel (magic resitance/dispel type)
-		//power
-		//parameter1
-		//parameter2
-		//duration
-		//probability1 (default 100)
-		//probability2 (default 0)
-		//resource (ascii string 8 chars)
-		//dicenumber
-		//dicesize
-		//savingthrow
-		//savebonus
-		//school
-		//lowestafflvl
-		//highestafflvl
-		//parameter3
-		//parameter4
-		//vvcresource (ascii string 8 chars)
-		//resource2 (ascii string 8 chars)
-		//casterx
-		//castery
-		//targetx
-		//targety
-		//effsource (ascii string 8 chars)
-		//effvar (ascii string 32 chars)
-		//casterlvl
-		//sectype
-		
-		DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT~ BEGIN
-      LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
-		  PATCH_IF (valid) BEGIN
-			READ_ASCII 0 __#signature
-			READ_BYTE 0x33 __#effVersion
-			PATCH_IF ~%__#signature%~ STRING_COMPARE_CASE ~CRE V1.0~ THEN BEGIN
-				INNER_ACTION BEGIN
-					FAIL ~%__#signature% not supported in ADD_CRE_EFFECT~
-				END
-			END
-			PATCH_IF __#effVersion = 1 BEGIN
-				LAUNCH_PATCH_MACRO ~ADD_CRE_EFFECT_BG2~
-			END ELSE PATCH_IF __#effVersion = 0 BEGIN
-				LAUNCH_PATCH_MACRO ~ADD_CRE_EFFECT_BG1~
-			END
-		  END
-		END
-		
-		DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT_BG1~ BEGIN
-      LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
-		  PATCH_IF (valid) BEGIN
-			READ_ASCII 0 __#signature
-			READ_BYTE 0x33 __#effVersion
-			PATCH_IF ~%__#signature%~ STRING_COMPARE_CASE ~CRE V1.0~ THEN BEGIN
-				INNER_ACTION BEGIN
-					FAIL ~%__#signature% not supported in ADD_CRE_EFFECT_BG1~
-				END
-			END
-			PATCH_IF __#effVersion != 0 BEGIN
-				INNER_ACTION BEGIN
-					FAIL ~ADD_CRE_EFFECT_BG1 and EFF version is %__#effVersion%~
-				END
-			END
-			
-			
-			READ_LONG 0x2c4 ___#fx_off
-			READ_LONG 0x2c8 ___#fx_num
-			
-			INSERT_BYTES ___#fx_off 0x30
-			
-			WRITE_SHORT (___#fx_off) opcode
-			WRITE_BYTE (___#fx_off + 0x2) target
-			WRITE_BYTE (___#fx_off + 0x3) power
-			WRITE_LONG (___#fx_off + 0x4) parameter1
-			WRITE_LONG (___#fx_off + 0x8) parameter2
-			WRITE_BYTE (___#fx_off + 0xc) timing
-			WRITE_BYTE (___#fx_off + 0xd) resist_dispel
-			WRITE_LONG (___#fx_off + 0xe) duration
-			WRITE_BYTE (___#fx_off + 0x12) probability1
-			WRITE_BYTE (___#fx_off + 0x13) probability2
-			WRITE_EVALUATED_ASCII (___#fx_off + 0x14) ~%resource%~ #8
-			WRITE_LONG (___#fx_off + 0x1c) dicenumber
-			WRITE_LONG (___#fx_off + 0x20) dicesize
-			WRITE_LONG (___#fx_off + 0x24) savingthrow
-			WRITE_LONG (___#fx_off + 0x28) savebonus
-			
-			//correcting effects number
-			WRITE_LONG 0x2c8 (___#fx_num + 1)
-			
-      //correcting offsets
-      PATCH_FOR_EACH ___#offset IN 0x2b8 0x2bc BEGIN //item num and islot
-        READ_LONG ___#offset ___#current_off
-        WRITE_LONG ___#offset (___#current_off + 0x30)
-      END      
-
-			//reset vars
-			SET opcode = 0
-			SET target = 0
-			SET power = 0
-			SET parameter1 = 0
-			SET parameter2 = 0
-			SET timing = 0
-			SET resist_dispel = 0
-			SET duration = 0
-			SET probability1 = 100
-			SET probability2 = 0
-			SPRINT resource ~%___#nil%~
-			SET dicenumber = 0
-			SET dicesize = 0
-			SET savingthrow = 0
-			SET savebonus = 0
-		  END
-		END
-		
-		DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT_BG2~ BEGIN
-      LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
-		  PATCH_IF (valid) BEGIN
-			READ_ASCII 0 __#signature
-			READ_BYTE 0x33 __#effVersion
-			PATCH_IF ~%__#signature%~ STRING_COMPARE_CASE ~CRE V1.0~ THEN BEGIN
-				INNER_ACTION BEGIN
-					FAIL ~%__#signature% not supported in ADD_CRE_EFFECT_BG2~
-				END
-			END
-			PATCH_IF __#effVersion != 1 BEGIN
-				INNER_ACTION BEGIN
-					FAIL ~ADD_CRE_EFFECT_BG2 and EFF version is %__#effVersion%~
-				END
-			END
-
-                        PATCH_IF !VARIABLE_IS_SET restype BEGIN
-                          SET restype = 0
-                        END
-                        PATCH_IF !VARIABLE_IS_SET sourceslot BEGIN
-                          SET sourceslot = "-1"
-                        END
-
-		    READ_LONG 0x2c4 ___#fx_off
-		    READ_LONG 0x2c8 ___#fx_num
-		
-		    INSERT_BYTES ___#fx_off 0x108
-		
-		//    WRITE_ASCII ___#fx_off ~EFF ~ #4
-		//    WRITE_ASCII (___#fx_off + 4) ~V2.0~ #4
-		
-		    WRITE_LONG (___#fx_off + 0x8) opcode
-		    WRITE_LONG (___#fx_off + 0xc) target
-		    WRITE_LONG (___#fx_off + 0x10) power
-		    WRITE_LONG (___#fx_off + 0x14) parameter1
-		    WRITE_LONG (___#fx_off + 0x18) parameter2
-		    WRITE_BYTE (___#fx_off + 0x1c) timing
-		    WRITE_LONG (___#fx_off + 0x20) duration
-		    WRITE_SHORT (___#fx_off + 0x24) probability1
-		    WRITE_SHORT (___#fx_off + 0x26) probability2
-		    WRITE_EVALUATED_ASCII (___#fx_off + 0x28) ~%resource%~ #8
-		    WRITE_LONG (___#fx_off + 0x30) dicenumber
-		    WRITE_LONG (___#fx_off + 0x34) dicesize
-		    WRITE_LONG (___#fx_off + 0x38) savingthrow
-		    WRITE_LONG (___#fx_off + 0x3c) savebonus
-		    WRITE_LONG (___#fx_off + 0x44) school
-		    WRITE_LONG (___#fx_off + 0x4c) lowestafflvl
-		    WRITE_LONG (___#fx_off + 0x50) highestafflvl
-		    WRITE_LONG (___#fx_off + 0x54) resist_dispel
-		    WRITE_LONG (___#fx_off + 0x58) parameter3
-		    WRITE_LONG (___#fx_off + 0x5c) parameter4
-		    WRITE_EVALUATED_ASCII (___#fx_off + 0x68) ~%vvcresource%~ #8
-		    WRITE_EVALUATED_ASCII (___#fx_off + 0x70) ~%resource2%~ #8
-		    WRITE_LONG (___#fx_off + 0x78) casterx
-		    WRITE_LONG (___#fx_off + 0x7c) castery
-		    WRITE_LONG (___#fx_off + 0x80) targetx
-		    WRITE_LONG (___#fx_off + 0x84) targety
-                    WRITE_LONG  ___#fx_off + 0x88  restype
-                    WRITE_EVALUATED_ASCII (___#fx_off + 0x8c) ~%effsource%~ #8
-                    WRITE_LONG  ___#fx_off + 0x9c  sourceslot
-                    WRITE_EVALUATED_ASCII (___#fx_off + 0xa0) ~%effvar%~ #32
-		    WRITE_LONG (___#fx_off + 0xc0) casterlvl
-		    WRITE_LONG (___#fx_off + 0xc8) sectype
-		
-		    //correcting effects number
-		    WRITE_LONG 0x2c8 (___#fx_num + 1)   
-		
-		    //correcting offsets
-		    PATCH_FOR_EACH ___#offset IN 0x2b8 0x2bc BEGIN //item num and islot
-		      READ_LONG ___#offset ___#current_off
-		      WRITE_LONG ___#offset (___#current_off + 0x108)
-		    END
-
-        //reset vars
-		  SET opcode = 0
-		  SET target = 0
-		  SET timing = 0
-		  SET power = 0
-		  SET parameter1 = 0
-		  SET parameter2 = 0
-		  SET timing = 0
-		  SET resist_dispel = 0
-		  SET duration = 0
-		  SET probability1 = 100
-		  SET probability2 = 0
-		  SPRINT resource ~%___#nil%~
-		  SET dicenumber = 0
-		  SET dicesize = 0
-		  SET savingthrow = 0
-		  SET savebonus = 0
-		  SET school = 0
-		  SET lowestafflvl = 0
-		  SET highestafflvl = 0
-		  SET parameter3 = 0
-		  SET parameter4 = 0
-		  SPRINT vvcresource ~%___#nil%~
-		  SPRINT resource2 ~%___#nil%~
-		  SET casterx = 0 - 1
-		  SET castery = 0 - 1
-		  SET targetx = 0 - 1
-		  SET targety = 0 - 1
-                  SET restype = 0
-                  SPRINT effsource ~%___#nil%~
-                  SET sourceslot = "-1"
-                  SPRINT effvar ~%___#nil%~
-		  SET casterlvl = 0
-		  SET sectype = 0
-		  END
-		END
-		
-		//deletes all effects with spec. opcode from a creature.
-		//essential parameters:
-		//opcode_to_delete
-		DEFINE_PATCH_MACRO ~DELETE_CRE_EFFECT~ BEGIN
-      LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
-		  PATCH_IF (valid) BEGIN
-		
-		    READ_BYTE 0x33  ___#fx_flag
-		    READ_LONG 0x2c4 ___#fx_off
-		    READ_LONG 0x2c8 ___#fx_num
-		    SET ___#delta = 0
-		    FOR (___#index1 = 0; ___#index1 < ___#fx_num; ___#index1 = ___#index1 + 1) BEGIN
-                      PATCH_IF ___#fx_flag = 0 BEGIN
-                        READ_SHORT (___#fx_off + ___#index1 * 0x30) ___#opcode
-                      END ELSE BEGIN
-                        READ_LONG (___#fx_off + ___#index1 * 0x108 + 8) ___#opcode
-                      END
-		      PATCH_IF ((___#opcode = opcode_to_delete) OR (opcode_to_delete = (0 - 1))) BEGIN
-		        DELETE_BYTES (___#fx_off + ___#index1 * (___#fx_flag = 1 ? 0x108 : 0x30)) ___#fx_flag = 1 ? 0x108 : 0x30
-		        SET ___#delta = ___#delta + 1 //track deleted number
-		        SET ___#fx_num = ___#fx_num - 1 //decrease effects number to stop cycle properly
-		        SET ___#index1 = ___#index1 - 1 //step back to not miss an effect
-		      END
-		    END
-		    //correcting offsets and number
-		    PATCH_IF (___#delta > 0) BEGIN
-		      WRITE_LONG 0x2c8 ___#fx_num //corrected earlier
-		      PATCH_FOR_EACH ___#offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
-		        READ_LONG ___#offset ___#current_off
-		        PATCH_IF ___#current_off > ___#fx_off BEGIN
-		          WRITE_LONG ___#offset (___#current_off - ___#delta * (___#fx_flag = 1 ? 0x108 : 0x30))
-		        END
-		      END
-		    END
-		
-		  END
-		END
-		
-		
-		
-		
-		
-		//deletes all instances of ~item_to_delete~ at current creature
-		DEFINE_PATCH_MACRO ~DELETE_CRE_ITEM~ BEGIN
-      LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
-		  PATCH_IF (valid) BEGIN
-		    READ_LONG 0x2bc ___#itm_off
-		    READ_LONG 0x2c0 ___#itm_num
-		    READ_LONG 0x2b8 ___#islot_off
-		    SET ___#delta = 0
-		    FOR (___#cur_itm = 0; ___#cur_itm < ___#itm_num; ___#cur_itm = (___#cur_itm + 1)) BEGIN
-		    READ_ASCII (___#itm_off + (___#cur_itm * 0x14)) ~item~
-		      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%item_to_delete%~ = 0) THEN BEGIN
-		
-		        DELETE_BYTES (___#itm_off + (___#cur_itm * 0x14)) 0x14
-		        SET ___#itm_num = ___#itm_num - 1
-		
-		        //correct offsets
-		        PATCH_FOR_EACH ___#offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
-		          READ_LONG ___#offset ___#current_off
-		          PATCH_IF ___#current_off > ___#itm_off BEGIN
-		            WRITE_LONG ___#offset (___#current_off - 0x14)
-		          END
-		        END
-		
-		        FOR (___#cur_slot = 0; ___#cur_slot < 37; ___#cur_slot = ___#cur_slot + 1) BEGIN
-		          READ_LONG 0x2b8 ___#islot_off
-		          READ_SHORT  (___#islot_off + ___#cur_slot * 2) ___#itm_index
-		          PATCH_IF (___#itm_index = ___#cur_itm) BEGIN //if slot with deleted item
-		            WRITE_SHORT  (___#islot_off + ___#cur_slot * 2) 0xffff //nullify reference
-		          END
-		          PATCH_IF ((___#itm_index > ___#cur_itm) AND NOT (___#itm_index = 0xffff)) BEGIN //if next slot and not empty
-		            WRITE_SHORT  (___#islot_off + ___#cur_slot * 2) (___#itm_index - 1) //shift items back
-		          END
-		        END
-		
-		        SET ___#cur_itm = ___#cur_itm - 1 //step back to not miss an item
-		      END
-		    END
-		    //correcting number
-		    WRITE_LONG  0x02c0 ___#itm_num
-		    //no offsets to correct
-		
-		  END
-		END
-		
-		
-		//adds an item in an area. 
-		//required: container_to_add_to (starting from 1), ~item_to_add~
-		//optional: charges1 charges2 charges3 flags
-		DEFINE_PATCH_MACRO ~ADD_AREA_ITEM~ BEGIN
-		  PATCH_IF (BUFFER_LENGTH	 > 0x11b) BEGIN
-		    //reading necessary offsets
-		    READ_LONG 0x70 ___#cont_off
-		    READ_SHORT 0x74 ___#cont_num
-		    READ_LONG 0x78 ___#itm_off
-		    READ_SHORT 0x76 ___#itm_num
-		
-		    PATCH_IF (___#cont_num >= container_to_add_to) BEGIN
-		      READ_LONG (___#cont_off + (container_to_add_to - 1) * 0xc0 + 0x40) ___#1item_index //first item index
-		
-		      INSERT_BYTES (___#itm_off + (___#1item_index * 0x14)) 0x14 //adding the item at the top
-		      WRITE_EVALUATED_ASCII (___#itm_off + (___#1item_index * 0x14)) ~%item_to_add%~ #8
-		
-		      //charges:
-		      WRITE_SHORT (___#itm_off + (___#1item_index * 0x14 + 0xa)) charges1
-		      WRITE_SHORT (___#itm_off + (___#1item_index * 0x14 + 0xc)) charges2
-		      WRITE_SHORT (___#itm_off + (___#1item_index * 0x14 + 0xe)) charges3
-		
-		      //flags
-		      SET ___#flags_to_set = 0
-		      PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~identified~ = 0) BEGIN
-		        SET ___#flags_to_set= (___#flags_to_set BOR 0b00000001)
-		      END
-		      PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~unstealable~ = 0) BEGIN
-		        SET ___#flags_to_set = (___#flags_to_set BOR 0b00000010)
-		      END
-		      PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~stolen~ = 0) BEGIN
-		      SET ___#flags_to_set = (___#flags_to_set BOR 0b00000100)
-		      END
-		      PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~undroppable~ = 0) BEGIN
-		      SET ___#flags_to_set = (___#flags_to_set BOR 0b00001000)
-		      END
-		      WRITE_LONG (___#itm_off + (___#1item_index * 0x14 + 0x10)) ___#flags_to_set
-		
-		      //correct ___#cont_off on the fly if need
-		      PATCH_IF ( (___#cont_off > ___#itm_off) OR ((___#cont_off = ___#itm_off) AND (___#itm_num = 0)) ) BEGIN //a collision with equal offsets
-		        SET ___#cont_off = (___#cont_off + 0x14)
-		        WRITE_LONG 0x70 ___#cont_off
-		      END
-		
-		      //correcting number ot items in container
-		      READ_LONG (___#cont_off + (container_to_add_to - 1) * 0xc0 + 0x44) ___#cont_items_num
-		      WRITE_LONG (___#cont_off + (container_to_add_to - 1) * 0xc0 + 0x44) (___#cont_items_num + 1) //increase number of items by 1
-		
-		      //adjusting items indexes in other containers
-		      SET ___#index1 = container_to_add_to //starting from next(!) to specified
-		      WHILE (___#index1 < ___#cont_num) BEGIN //searching through containers
-		        READ_LONG (___#cont_off + ___#index1 * 0xc0 + 0x40) ___#1item_index //first item ___#index1
-		        WRITE_LONG (___#cont_off + ___#index1 * 0xc0 + 0x40) (___#1item_index + 1) //increase first item ___#index1 by 1
-		        SET ___#index1 = (___#index1 + 1)
-		      END
-		
-		      //correcting offsets (0x70 already fixed, 0x78 - items offset). This form because area blocks order vary
-		      PATCH_FOR_EACH ___#offset IN 0x54 0x5c 0x60 0x68 0x7c 0x84 0x88 0xa0 0xa8 0xb0 0xb8 0xbc 0xc0 0xc4 0xcc BEGIN
-		        READ_LONG ___#offset ___#current_off
-		        PATCH_IF ( (___#current_off > ___#itm_off) OR ((___#current_off = ___#itm_off) AND (___#itm_num = 0)) ) BEGIN //a collision with equal offsets
-		          WRITE_LONG ___#offset (___#current_off + 0x14)
-		        END
-		      END
-		      //correct items number
-		      WRITE_SHORT 0x76 (___#itm_num + 1)
-		    END //end of adding
-		
-		    ELSE BEGIN
-		    PATCH_PRINT ~WARNING: there's no container number %container_to_add_to% in area %SOURCE_RES%. Item is not added.~
-		    END
-		
-		  END
-		  //setting optional vars back to default
-		  SET charges1 = 0
-		  SET charges2 = 0
-		  SET charges3 = 0
-		  SPRINT flags ~%___#nil%~
-		END
-		
-		//deletes an item from a store. ~item_to_delete~ required
-		DEFINE_PATCH_MACRO ~DELETE_STORE_ITEM~ BEGIN
-		  PATCH_IF (BUFFER_LENGTH	 > 0x9a) BEGIN
-		    READ_LONG 0x34 ___#4sale_off
-		    READ_LONG 0x38 ___#4sale_num
-		    READ_LONG 0x2c ___#items_purchased_off
-		    READ_LONG 0x70 ___#cures_off
-		    SET ___#index1 = 0
-		    SET ___#delta = 0
-		
-		    WHILE (___#index1 < ___#4sale_num) BEGIN //searching through items
-		      READ_ASCII (___#4sale_off + (___#index1 * 0x1c)) ~item~
-		      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%item_to_delete%~ = 0) BEGIN
-		        DELETE_BYTES (___#4sale_off + (___#index1 * 0x1c)) 0x1c
-		        SET ___#delta = (___#delta + 1)
-		        SET ___#index1 = (___#index1 - 1) //step back
-		        SET ___#4sale_num = (___#4sale_num - 1)
-
-		      END
-		      SET ___#index1 = (___#index1 + 1)
-		    END
-		
-		    //correct number
-		    WRITE_LONG 0x38 ___#4sale_num
-		
-		    //correcting offsets
-		    PATCH_FOR_EACH ___#offset IN 0x2c 0x70 BEGIN
-		      READ_LONG ___#offset ___#current_off
-		      PATCH_IF (___#current_off > ___#4sale_off) BEGIN
-		        WRITE_LONG ___#offset (___#current_off - ___#delta * 0x1c)
-		      END
-		    END
-		
-		  END
-		END
-		
-		
-		//deletes an item from the current area. ~item_to_delete~
-		DEFINE_PATCH_MACRO ~DELETE_AREA_ITEM~ BEGIN
-		  PATCH_IF (BUFFER_LENGTH	 > 0x11b) BEGIN
-		    //reading necessary offsets
-		    READ_LONG 0x70 ___#cont_off
-		    READ_SHORT 0x74 ___#cont_num
-		    READ_LONG 0x78 ___#itm_off
-		    READ_SHORT 0x76 ___#itm_num
-		    SET ___#delta = 0
-		
-		    FOR (___#index1 = 0; ___#index1 < ___#cont_num; ___#index1 = (___#index1 + 1)) BEGIN //searching through containers
-		      READ_LONG (___#cont_off + ___#index1 * 0xc0 + 0x44) ___#cont_items_num  //number ot items in container
-		      READ_LONG (___#cont_off + ___#index1 * 0xc0 + 0x40) ___#cont_item_index //first item ___#index1
-		
-		      FOR (___#index2 = ___#cont_item_index ; ___#index2 < (___#cont_item_index + ___#cont_items_num) ; ___#index2 = ___#index2 + 1) BEGIN //cycling through container's items
-		        READ_ASCII (___#itm_off + (___#index2 * 0x14)) ~item~
-		
-		        PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%item_to_delete%~ = 0) BEGIN
-		          DELETE_BYTES (___#itm_off + (___#index2 * 0x14)) 0x14
-		          SET ___#itm_num = (___#itm_num - 1) //for terminating the cycle properly
-		          SET ___#delta = (___#delta + 1) //for final adjusting offsets
-		
-		          //correct ___#cont_off on the fly if need
-		          PATCH_IF (___#cont_off > ___#itm_off) BEGIN
-		            SET ___#cont_off = (___#cont_off - 0x14)
-		            WRITE_LONG 0x70 ___#cont_off
-		          END
-		
-		          //correct number of items in container
-		          SET ___#cont_items_num = (___#cont_items_num - 1)
-		          WRITE_LONG (___#cont_off + ___#index1 * 0xc0 + 0x44) ___#cont_items_num
-		
-		          //adjusting 1 item indexes
-		          FOR (___#index3 = 0; ___#index3 < ___#cont_num; ___#index3 = ___#index3 + 1 ) BEGIN //searching through containers
-		            READ_LONG (___#cont_off + ___#index3 * 0xc0 + 0x40) ___#1item_index //first item ___#index1
-		            PATCH_IF (___#1item_index > ___#index2) BEGIN //if one of next containers 
-		              WRITE_LONG (___#cont_off + ___#index3 * 0xc0 + 0x40) (___#1item_index - 1) //decrease first item ___#index1 by 1
-		            END
-		          END
-		
-		          SET ___#index2 = (___#index2 - 1) //step back to not miss items
-		        END
-		
-		      END
-		
-		    END
-		    
-		    //correcting offsets (0x70 is already fixed, 0x78 - items offset)
-		    PATCH_FOR_EACH ___#offset IN 0x54 0x5c 0x60 0x68 0x7c 0x84 0x88 0xa0 0xa8 0xb0 0xb8 0xbc 0xc0 0xc4 0xcc BEGIN
-		      READ_LONG ___#offset ___#current_off
-		      PATCH_IF (___#current_off > ___#itm_off) BEGIN
-		        WRITE_LONG ___#offset (___#current_off - ___#delta * 0x14)
-		      END
-		    END
-		
-		    //correcting total items number
-		    WRITE_SHORT 0x76 ___#itm_num
-		
-		  END
-		END
-		
-		//replace item in .sto. variables ~old_item~ ~new_item~ required number_in_stock
-		DEFINE_PATCH_MACRO ~REPLACE_STORE_ITEM~ BEGIN
-		  PATCH_IF (BUFFER_LENGTH	 > 0x9a) BEGIN
-		    READ_LONG 0x34 ___#4sale_off
-		    READ_LONG 0x38 ___#4sale_num
-		
-		    WHILE (___#4sale_num > 0) BEGIN
-		      SET ___#4sale_num = (___#4sale_num - 1)
-		      READ_ASCII (___#4sale_off + (___#4sale_num * 0x1c)) ~item~
-		      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%old_item%~ = 0) BEGIN
-		        WRITE_EVALUATED_ASCII (___#4sale_off + (___#4sale_num * 0x1c)) ~%new_item%~ #8 // replace item
-		
-		        //charges:
-		        WRITE_SHORT (___#4sale_off + (___#4sale_num * 0x1c + 0xa)) charges1
-		        WRITE_SHORT (___#4sale_off + (___#4sale_num * 0x1c + 0xc)) charges2
-		        WRITE_SHORT (___#4sale_off + (___#4sale_num * 0x1c + 0xe)) charges3
-		
-		        //flags
-		        SET ___#flags_to_set = 0
-		        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~identified~ = 0) BEGIN
-		          SET ___#flags_to_set = (___#flags_to_set BOR 0b00000001)
-		        END
-		        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~unstealable~ = 0) BEGIN
-		          SET ___#flags_to_set = (___#flags_to_set BOR 0b00000010)
-		        END
-		        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~stolen~ = 0) BEGIN
-		          SET ___#flags_to_set = (___#flags_to_set BOR 0b00000100)
-		        END
-		        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~undroppable~ = 0) BEGIN
-		          SET ___#flags_to_set = (___#flags_to_set BOR 0b00001000)
-		        END
-		        WRITE_LONG (___#4sale_off + ___#4sale_num * 0x1c + 0x10) ___#flags_to_set
-		
-		        WRITE_BYTE (___#4sale_off + 0x14 + 0x1c * ___#4sale_num) number_in_stock
-		
-		        WRITE_BYTE (___#4sale_off + 0x18 + 0x1c * ___#4sale_num) 0 // Set infinite flag to zero
-		
-		      END
-		    END
-		
-		  END
-		
-		  SET number_in_stock = 1
-		  SET charges1 = 0
-		  SET charges2 = 0
-		  SET charges3 = 0
-		  SPRINT flags ~%___#nil%~
-		END
-		
-		
-		
-		//replaces item in an area with another item. Variables ~old_item~, ~new_item~ required
-		DEFINE_PATCH_MACRO ~REPLACE_AREA_ITEM~ BEGIN
-		  PATCH_IF (BUFFER_LENGTH	 > 0x11b) BEGIN
-		    READ_SHORT 0x76 ___#itm_num
-		    READ_LONG  0x78 ___#itm_off
-		    WHILE (___#itm_num > 0) BEGIN
-		      SET ___#itm_num = (___#itm_num - 1)
-		      READ_ASCII (___#itm_off + (___#itm_num * 0x14)) ~item~
-		      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%old_item%~ = 0) BEGIN
-		        WRITE_EVALUATED_ASCII (___#itm_off + (___#itm_num * 0x14)) ~%new_item%~ #8
-		
-		        //charges:
-		        WRITE_SHORT (___#itm_off + ___#itm_num * 0x14 + 0xa) charges1
-		        WRITE_SHORT (___#itm_off + ___#itm_num * 0x14 + 0xc) charges2
-		        WRITE_SHORT (___#itm_off + ___#itm_num * 0x14 + 0xe) charges3
-		
-		        //flags
-		        SET ___#flags_to_set = 0
-		        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~identified~ = 0) BEGIN
-		          SET ___#flags_to_set = (___#flags_to_set BOR 0b00000001)
-		        END
-		        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~unstealable~ = 0) BEGIN
-		          SET ___#flags_to_set = (___#flags_to_set BOR 0b00000010)
-		        END
-		        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~stolen~ = 0) BEGIN
-		          SET ___#flags_to_set = (___#flags_to_set BOR 0b00000100)
-		        END
-		        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~undroppable~ = 0) BEGIN
-		          SET ___#flags_to_set = (___#flags_to_set BOR 0b00001000)
-		        END
-		        WRITE_LONG (___#itm_off + ___#itm_num * 0x14 + 0x10) ___#flags_to_set
-		
-		      END
-		    END
-		  END
-		  SET charges1 = 0
-		  SET charges2 = 0
-		  SET charges3 = 0
-		  SPRINT flags ~%___#nil%~
-		END
-		
-		
-		
-		//adds flags to an item possessed by a specified creature. variables ~item_to_change~, ~flags~ required
-		DEFINE_PATCH_MACRO ~ADD_CRE_ITEM_FLAGS~ BEGIN
-      LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
-		  PATCH_IF (valid) BEGIN
-		    READ_LONG  0x2bc ___#itm_off
-		    READ_LONG  0x2c0 ___#itm_num
-		
-		    SET ___#flags_to_add = 0
-		
-		    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~identified~ = 0) BEGIN
-		      SET ___#flags_to_add = (___#flags_to_add BOR 0b00000001)
-		    END
-		    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~unstealable~ = 0) BEGIN
-		      SET ___#flags_to_add = (___#flags_to_add BOR 0b00000010)
-		    END
-		    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~stolen~ = 0) BEGIN
-		      SET ___#flags_to_add = (___#flags_to_add BOR 0b00000100)
-		    END
-		    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~undroppable~ = 0) BEGIN
-		      SET ___#flags_to_add = (___#flags_to_add BOR 0b00001000)
-		    END
-		
-		    WHILE (___#itm_num > 0) BEGIN
-		      SET ___#itm_num = (___#itm_num - 1)
-		      READ_ASCII (___#itm_off + (0x14 * ___#itm_num)) ~item~
-		      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%item_to_change%~ = 0) BEGIN
-		        READ_BYTE   (___#itm_off + 0x10 + 0x14 * ___#itm_num) ___#current_flags
-		        WRITE_BYTE  (___#itm_off + 0x10 + 0x14 * ___#itm_num) (___#current_flags BOR ___#flags_to_add) // adds specified flags
-		      END
-		    END
-		
-		  END
-		END
-		
-		
-		
-		//removes flags from an item possessed by a specified creature. variables ~item_to_change~, ~___#flags_to_remove~ required
-		DEFINE_PATCH_MACRO ~REMOVE_CRE_ITEM_FLAGS~ BEGIN
-      LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
-		  PATCH_IF (valid) BEGIN
-		    READ_LONG  0x2bc ___#itm_off
-		    READ_LONG  0x2c0 ___#itm_num
-		
-		    //flags
-		    SET ___#flags_to_remove = 0b11111111
-		
-		    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~identified~ = 0) BEGIN
-		      SET ___#flags_to_remove = (___#flags_to_remove BAND 0b11111110)
-		    END
-		    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~unstealable~ = 0) BEGIN
-		      SET ___#flags_to_remove = (___#flags_to_remove BAND 0b11111101)
-		    END
-		    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~stolen~ = 0) BEGIN
-		      SET ___#flags_to_remove = (___#flags_to_remove BAND 0b11111011)
-		    END
-		    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~undroppable~ = 0) BEGIN
-		      SET ___#flags_to_remove = (___#flags_to_remove BAND 0b11110111)
-		    END
-		
-		    WHILE (___#itm_num > 0) BEGIN
-		      SET ___#itm_num = (___#itm_num - 1)
-		      READ_ASCII (___#itm_off + (0x14 * ___#itm_num)) ~item~
-		      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%item_to_change%~ = 0) BEGIN
-		        READ_BYTE   (___#itm_off + 0x10 + (0x14 * ___#itm_num)) ___#current_flags
-		        WRITE_BYTE  (___#itm_off + 0x10 + (0x14 * ___#itm_num)) (___#current_flags BAND ___#flags_to_remove) // removes specified flags
-		      END
-		    END
-		
-		  END
-		END
-		
-		
-		
-		//sets flags to an item possessed by a specified creature. variables ~item_to_change~, ~flags~ required
-		DEFINE_PATCH_MACRO ~SET_CRE_ITEM_FLAGS~ BEGIN
-      LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
-		  PATCH_IF (valid) BEGIN
-		    READ_LONG  0x2bc ___#itm_off
-		    READ_LONG  0x2c0 ___#itm_num
-		
-		    //flags
-		    SET ___#flags_to_set = 0b00000000
-		    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~identified~ = 0) BEGIN
-		      SET ___#flags_to_set = (___#flags_to_set BOR 0b00000001)
-		    END
-		    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~unstealable~ = 0) BEGIN
-		      SET ___#flags_to_set = (___#flags_to_set BOR 0b00000010)
-		    END
-		    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~stolen~ = 0) BEGIN
-		      SET ___#flags_to_set = (___#flags_to_set BOR 0b00000100)
-		    END
-		    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~undroppable~ = 0) BEGIN
-		      SET ___#flags_to_set = (___#flags_to_set BOR 0b00001000)
-		    END
-		
-		    WHILE (___#itm_num > 0) BEGIN
-		      SET ___#itm_num = (___#itm_num - 1)
-		      READ_ASCII (___#itm_off + (0x14 * ___#itm_num)) ~item~
-		      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%item_to_change%~ = 0) BEGIN
-		        WRITE_BYTE  (___#itm_off + 0x10 + (0x14 * ___#itm_num)) ___#flags_to_set // set flags
-		      END
-		    END
-		
-		  END
-		END
-		
-		
-		
-		//input: npc (.cre), soundset (string)
-		//output: soundset_0-99 (100-int array of strrefs)
-		DEFINE_ACTION_MACRO ~READ_SOUNDSET~ BEGIN
-		COPY_EXISTING ~%npc%~ ~override~
-		PATCH_IF (BUFFER_LENGTH	 > 0x2d3) BEGIN
-		  FOR (___#index1 = 0; ___#index1 < 100; ___#index1 = ___#index1 + 1) BEGIN
-		    SET EVALUATE_BUFFER ~%soundset%_%___#index1%~ = (0 - 1)
-		  END
-		  FOR (___#index1 = 0; ___#index1 < 100; ___#index1 = ___#index1 + 1) BEGIN
-		    READ_LONG (0xa4 + ___#index1 * 4) ___#strref
-		    PATCH_IF NOT (___#strref = (0 - 1)) BEGIN
-		      SET EVALUATE_BUFFER ~%soundset%_%___#index1%~ = ___#strref
-		    END
-		  END
-		END
-		BUT_ONLY_IF_IT_CHANGES
-		END
-		
-		
-		
-		//npc (.cre), overwrite (0 or 1), soundset (100-int array of strrefs)
-		DEFINE_ACTION_MACRO ~WRITE_SOUNDSET~ BEGIN
-		COPY_EXISTING_REGEXP ~^%npc%$~ ~override~
-		PATCH_IF (BUFFER_LENGTH	 > 0x2d3) BEGIN
-		  FOR (___#index1 = 0; ___#index1 < 100; ___#index1 = ___#index1 + 1) BEGIN
-		    READ_LONG (0xa4 + ___#index1 * 4) ___#strref
-		    SET ___#new_strref = EVALUATE_BUFFER ~%soundset%_%___#index1%~
-		    //soft writing
-		    PATCH_IF ((overwrite = 0) AND (___#strref = (0 - 1))) BEGIN
-		      WRITE_LONG (0xa4 + ___#index1 * 4) ___#new_strref
-		    END
-		    //forced writing
-		    PATCH_IF ((overwrite = 1) AND NOT (___#new_strref = (0 - 1))) BEGIN
-		      WRITE_LONG (0xa4 + ___#index1 * 4) ___#new_strref
-		    END
-		    //overwrite regardless of anything
-		    PATCH_IF (overwrite = 2) BEGIN
-		      WRITE_LONG (0xa4 + ___#index1 * 4) ___#new_strref
-		    END
-		  END
-		END
-		BUT_ONLY_IF_IT_CHANGES
-		END
-
-	DEFINE_PATCH_MACRO ~ADD_AREA_REGION_TRIGGER~ BEGIN
-		LAUNCH_PATCH_MACRO ~ADD_AREA_REGION~
-	END
-    
-    DEFINE_PATCH_MACRO ~ADD_AREA_REGION~ BEGIN
-       PATCH_IF (BUFFER_LENGTH > 0xd4) BEGIN
-      //read values for existing regions
-        READ_LONG 0x5c info_off
-        READ_SHORT 0x5a info_num
-        READ_SHORT 0x80 vertex_num //need this value to assign index value for new vertexes in the new region
-      //set size values for 1 new section of each
-        SET ab_RT_Size = 0xc4
-      //set read size values for region trigger and vertex writes
-        SET ab_SoW_Name = 8 //Name
-        SET ab_SoW_Type = 2 //Type
-        SET ab_SoW_BbLX = 2 //Bounding Box - low x value
-        SET ab_SoW_BbLY = 2 //Bounding Box - low y value
-        SET ab_SoW_BbHX = 2 //Bounding Box - High x value
-        SET ab_SoW_BbHY = 2 //Bounding Box - High y value
-        SET ab_SoW_VxPr = 2 //Number of Vertex Pairs for current region
-        SET ab_SoW_VxId = 4 //Index into all Vertex Pairs for current region
-        SET ab_SoW_CuId = 4 //Cursor Index - points to a graphic in cursors.bam
-        SET ab_SoW_Dest = 8 //Destination Area
-        SET ab_SoW_EntN = 8 //Entrance Name
-        SET ab_SoW_Fbit = 4 //Flag bits written as 0b00000 (a combination of up to thirty-two 0s and 1s are allowed)
-        SET ab_SoW_Itxt = 4 //Info text
-        SET ab_SoW_TDtD = 2 //Trap Detection Difficulty
-        SET ab_SoW_TRmD = 2 //Trap Removal Difficulty
-        SET ab_SoW_TSet = 2 //Trap is set
-        SET ab_SoW_TDet = 2 //Trap is detected
-        SET ab_SoW_LPoX = 2 //Launch Point X
-        SET ab_SoW_LPoY = 2 //Launch Point Y
-        SET ab_SoW_KeyI = 8 //Key Item
-        SET ab_SoW_Rbcs = 8 //Region Script file
-        SET ab_SoW_ALPX = 2 //Alternate Launch Point X
-        SET ab_SoW_ALPY = 2 //Alternate Launch Point Y
-        SET ab_SoW_Dial = 8 //Dialog file (used only in PST)
-      //Set location into region for each value that can be written
-        SET ab_LoF_Name = 0x0 //Name
-        SET ab_LoF_Type = 0x20 //Type
-        SET ab_LoF_BbLX = 0x22 //Bounding Box - low x value
-        SET ab_LoF_BbLY = 0x24 //Bounding Box - low y value
-        SET ab_LoF_BbHX = 0x26 //Bounding Box - High x value
-        SET ab_LoF_BbHY = 0x28 //Bounding Box - High y value
-        SET ab_LoF_VxPr = 0x2a //Number of Vertex Pairs for current region
-        SET ab_LoF_VxId = 0x2c //Index into all Vertex Pairs for current region
-        SET ab_LoF_CuId = 0x34 //Cursor Index - points to a graphic in cursors.bam
-        SET ab_LoF_Dest = 0x38 //Destination Area
-        SET ab_LoF_EntN = 0x40 //Entrance Name
-        SET ab_LoF_Fbit = 0x60 //Flag bits written as 0b00000 (a combination of up to thirty-two 0s and 1s are allowed)
-        SET ab_LoF_Itxt = 0x64 //Info text
-        SET ab_LoF_TDtD = 0x68 //Trap Detection Difficulty
-        SET ab_LoF_TRmD = 0x6a //Trap Removal Difficulty
-        SET ab_LoF_TSet = 0x6c //Trap is set
-        SET ab_LoF_TDet = 0x6e //Trap is detected
-        SET ab_LoF_LPoX = 0x70 //Launch Point X
-        SET ab_LoF_LPoY = 0x72 //Launch Point Y
-        SET ab_LoF_KeyI = 0x74 //Key Item
-        SET ab_LoF_Rbcs = 0x7c //Region Script file
-        SET ab_LoF_ALPX = 0x84 //Alternate Launch Point X
-        SET ab_LoF_ALPY = 0x86 //Alternate Launch Point Y
-        SET ab_LoF_Dial = 0xbc //Dialog file (used only in PST)
-      //Set location to add new region trigger - it is at the end of existing region triggers
-        SET ab_RT_NLoc = (%info_off% + (%ab_RT_Size% * %info_num%))
-        SET new_bytes = %ab_RT_Size% //because I'm lazy and don't want to change the pre-existing variable name
-      //update number of region triggers by one and insert one section worth of space
-        WRITE_SHORT 0x5a (%info_num% + 1)
-        INSERT_BYTES %ab_RT_NLoc% %ab_RT_Size%
-      //assign index for new vertex points
-        WRITE_LONG (%ab_RT_NLoc% + %ab_LoF_VxId%) %vertex_num%
-      //Pass through a patch for each to locate those fields to be written that are of specific lengths
-        PATCH_FOR_EACH s1 IN ~Name~ ~Type~ ~BbLX~ ~BbLY~ ~BbHX~ ~BbHY~ ~VxPr~ ~VxId~ ~CuId~ ~Dest~ ~EntN~ ~Fbit~ ~Itxt~ ~TDtD~ ~TRmD~ ~TSet~ ~TDet~ ~LPoX~ ~LPoY~ ~KeyI~ ~Rbcs~ ~ALPX~ ~ALPY~ ~Dial~ BEGIN
-      //Deal with those fields that are 2 bytes
-         PATCH_IF ($ab_SoW("%s1%") = 2) BEGIN
-      //But only do those whose user assigned variables are set
-          PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") ) BEGIN
-           SET ab_Loc_of_field = $ab_LoF("%s1%")
-           WRITE_SHORT (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%")
+          INNER_ACTION BEGIN
+            COPY_EXISTING ~%new_itm_spl%~ ~override/%new_itm_spl%~
+              READ_LONG   0x64 ___#abil_off2
+              READ_SHORT  0x68 ___#abil_num2
+              READ_LONG   0x6a ___#fx_off2
+              READ_SHORT  (___#abil_off2 + 0x1e + (0 * 0x28)) ___#abil_fx_num2
+              INSERT_BYTES (___#fx_off2 + ___#abil_fx_num2 * 0x30) 0x30
+              WRITE_EVALUATED_ASCII (___#fx_off2 + ___#abil_fx_num2 * 0x30) ~%___#effect%~ #48 //copy effect
+              WRITE_SHORT  (___#abil_off2 + 0x1e + (0 * 0x28)) (___#abil_fx_num2 + 1)
+          //no offsets to correct
           END
-         END
-      //Deal with those fields that are 4 bytes
-         PATCH_IF ($ab_SoW("%s1%") = 4) BEGIN
-      //But only do those whose user assigned variables are set
-          PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") )
-               AND !(~%s1%~ STRING_EQUAL_CASE ~fbit~) BEGIN
-           SET ab_Loc_of_field = $ab_LoF("%s1%")
-           WRITE_LONG (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%")
-          END
-          PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") )
-               AND (~%s1%~ STRING_EQUAL_CASE ~fbit~) BEGIN
-           SET ab_Loc_of_field = $ab_LoF("%s1%")
-           READ_LONG (%ab_RT_NLoc% + %ab_Loc_of_field%) ~flag_bits~
-           WRITE_LONG (%ab_RT_NLoc% + %ab_Loc_of_field%) (%flag_bits% BOR $ab_RT("%s1%"))
-          END
-         END
-      //Deal with those fields that are 8 bytes
-         PATCH_IF ($ab_SoW("%s1%") = 8) BEGIN
-      //But only do those whose user assigned variables are set
-          PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") )
-               AND ( (~%s1%~ STRING_EQUAL_CASE ~Name~)
-                  OR (~%s1%~ STRING_EQUAL_CASE ~EntN~) ) BEGIN
-            SET ab_Loc_of_field = $ab_LoF("%s1%")
-            WRITE_EVALUATED_ASCII (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%") #32
-           END
-           PATCH_IF (VARIABLE_IS_SET $ab_RT("%s1%") )
-                AND ( (~%s1%~ STRING_EQUAL_CASE ~Dest~)
-                   OR (~%s1%~ STRING_EQUAL_CASE ~KeyI~)
-                   OR (~%s1%~ STRING_EQUAL_CASE ~Rbcs~)
-                   OR (~%s1%~ STRING_EQUAL_CASE ~Dial~) ) BEGIN
-            SET ab_Loc_of_field = $ab_LoF("%s1%")
-            WRITE_EVALUATED_ASCII (%ab_RT_NLoc% + %ab_Loc_of_field%) $ab_RT("%s1%") #8
-           END
-          
-         END
+
         END
-      //check other offsets and update as needed
-        READ_LONG 0x54 actor_off
-        PATCH_IF (%actor_off% >= %info_off%) BEGIN
-         WRITE_LONG 0x54 (%actor_off% + %new_bytes%) //actor_off
-        END
-        READ_LONG 0x60 spawn_off
-        PATCH_IF (%spawn_off% >= %info_off%) BEGIN
-         WRITE_LONG 0x60 (%spawn_off% + %new_bytes%) //spawn_off
-        END
-        READ_LONG 0x68 entrance_off
-        PATCH_IF (%entrance_off% >= %info_off%) BEGIN
-         WRITE_LONG 0x68 (%entrance_off% + %new_bytes%) //entrance_off
-        END
-        READ_LONG 0x70 container_off
-        PATCH_IF (%container_off% >= %info_off%) BEGIN
-         WRITE_LONG 0x70 (%container_off% + %new_bytes%) //container_off
-        END
-        READ_LONG 0x78 item_off
-        PATCH_IF (%item_off% >= %info_off%) BEGIN
-         WRITE_LONG 0x78 (%item_off% + %new_bytes%) //item_off
-        END
-        READ_LONG 0x7c vertex_off
-        PATCH_IF (%vertex_off% >= %info_off%) BEGIN
-         WRITE_LONG 0x7c (%vertex_off% + %new_bytes%) //vertex_off
-        END
-        READ_LONG 0x84 ambient_off
-        PATCH_IF (%ambient_off% >= %info_off%) BEGIN
-         WRITE_LONG 0x84 (%ambient_off% + %new_bytes%) //ambient_off
-        END
-        READ_LONG 0x88 variable_off
-        PATCH_IF (%variable_off% >= %info_off%) BEGIN
-         WRITE_LONG 0x88 (%variable_off% + %new_bytes%) //variable_off
-        END
-        READ_LONG 0xa8 door_off
-        PATCH_IF (%door_off% >= %info_off%) BEGIN
-         WRITE_LONG 0xa8 (%door_off% + %new_bytes%) //door_off
-        END
-        READ_LONG 0xa0 explored_off
-        PATCH_IF (%explored_off% >= %info_off%) BEGIN
-         WRITE_LONG 0xa0 (%explored_off% + %new_bytes%) //explored_off
-        END
-        READ_LONG 0xb0 anim_off
-        PATCH_IF (%anim_off% >= %info_off%) BEGIN
-         WRITE_LONG 0xb0 (%anim_off% + %new_bytes%) //anim_off
-        END
-        READ_LONG 0xb8 tiled_off
-        PATCH_IF (%tiled_off% >= %info_off%) BEGIN
-         WRITE_LONG 0xb8 (%tiled_off% + %new_bytes%) //tiled_off
-        END
-        READ_LONG 0xbc song_off
-        PATCH_IF (%song_off% >= %info_off%) BEGIN
-         WRITE_LONG 0xbc (%song_off% + %new_bytes%) //song_off
-        END
-        READ_LONG 0xc0 rest_off
-        PATCH_IF (%rest_off% >= %info_off%) BEGIN
-         WRITE_LONG 0xc0 (%rest_off% + %new_bytes%) //rest_off
-        END
-        PATCH_IF !(GAME_IS ~pst~) BEGIN
-         READ_LONG 0xc4 automap_off
-         PATCH_IF (%automap_off% >= %info_off%) BEGIN
-          WRITE_LONG 0xc4 (%automap_off% + %new_bytes%) //automap_off
-         END
-         READ_LONG 0xcc pro_traps_off
-         PATCH_IF (%pro_traps_off% >= %info_off%) BEGIN
-          WRITE_LONG 0xcc (%pro_traps_off% + %new_bytes%) //automap_off
-         END
-        END
-        PATCH_IF (GAME_IS ~pst~) BEGIN
-         READ_LONG 0xc8 automap_off
-         PATCH_IF (%automap_off% >= %info_off%) BEGIN
-          WRITE_LONG 0xc8 (%automap_off% + %new_bytes%) //automap_off
-         END
-        END
-      //read values needed for Vertex section
-        READ_LONG 0x7c vertex_off
-        READ_SHORT 0x80 vertex_num
-      //update number of All Vertex Pairs by new amount
-        WRITE_SHORT 0x80 (%vertex_num% + %ab_RT_VxPr%)
-        SET new_bytes = (0x4 * %ab_RT_VxPr%)
-      //Insert space for all of the new vertex pairs
-        SET ab_Vx_NLoc = (%vertex_off% + (0x4 * %vertex_num%))
-        INSERT_BYTES %ab_Vx_NLoc% %new_bytes%
-      //vertex points for new trigger
-        FOR (index=0;index<(%ab_RT_VxPr%);index+=1) BEGIN
-         PATCH_IF (VARIABLE_IS_SET $ab_RT_Vx_X("%index%") ) BEGIN
-          WRITE_SHORT (%ab_Vx_NLoc% +( %index%*4) +0) $ab_RT_Vx_X("%index%")
-         END
-         PATCH_IF (VARIABLE_IS_SET $ab_RT_Vx_Y("%index%") ) BEGIN
-          WRITE_SHORT (%ab_Vx_NLoc% +( %index%*4) +2) $ab_RT_Vx_Y("%index%")
-         END
-        END
-      //check other offsets and update as needed
-        READ_LONG 0x54 actor_off
-        PATCH_IF (%actor_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0x54 (%actor_off% + %new_bytes%) //actor_off
-        END
-        READ_LONG 0x60 spawn_off
-        PATCH_IF (%spawn_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0x60 (%spawn_off% + %new_bytes%) //spawn_off
-        END
-        READ_LONG 0x68 entrance_off
-        PATCH_IF (%entrance_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0x68 (%entrance_off% + %new_bytes%) //entrance_off
-        END
-        READ_LONG 0x70 container_off
-        PATCH_IF (%container_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0x70 (%container_off% + %new_bytes%) //container_off
-        END
-        READ_LONG 0x78 item_off
-        PATCH_IF (%item_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0x78 (%item_off% + %new_bytes%) //item_off
-        END
-        READ_LONG 0x5c info_off
-        PATCH_IF (%info_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0x5c (%info_off% + %new_bytes%) //info_off
-        END
-        READ_LONG 0x84 ambient_off
-        PATCH_IF (%ambient_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0x84 (%ambient_off% + %new_bytes%) //ambient_off
-        END
-        READ_LONG 0x88 variable_off
-        PATCH_IF (%variable_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0x88 (%variable_off% + %new_bytes%) //variable_off
-        END
-        READ_LONG 0xa8 door_off
-        PATCH_IF (%door_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0xa8 (%door_off% + %new_bytes%) //door_off
-        END
-        READ_LONG 0xa0 explored_off
-        PATCH_IF (%explored_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0xa0 (%explored_off% + %new_bytes%) //explored_off
-        END
-        READ_LONG 0xb0 anim_off
-        PATCH_IF (%anim_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0xb0 (%anim_off% + %new_bytes%) //anim_off
-        END
-        READ_LONG 0xb8 tiled_off
-        PATCH_IF (%tiled_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0xb8 (%tiled_off% + %new_bytes%) //tiled_off
-        END
-        READ_LONG 0xbc song_off
-        PATCH_IF (%song_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0xbc (%song_off% + %new_bytes%) //song_off
-        END
-        READ_LONG 0xc0 rest_off
-        PATCH_IF (%rest_off% >= %vertex_off%) BEGIN
-         WRITE_LONG 0xc0 (%rest_off% + %new_bytes%) //rest_off
-        END
-        PATCH_IF !(GAME_IS ~pst~) BEGIN
-         READ_LONG 0xc4 automap_off
-         PATCH_IF (%automap_off% >= %vertex_off%) BEGIN
-          WRITE_LONG 0xc4 (%automap_off% + %new_bytes%) //automap_off
-         END
-         READ_LONG 0xcc pro_traps_off
-         PATCH_IF (%pro_traps_off% >= %vertex_off%) BEGIN
-          WRITE_LONG 0xcc (%pro_traps_off% + %new_bytes%) //automap_off
-         END
-        END
-        PATCH_IF (GAME_IS ~pst~) BEGIN
-         READ_LONG 0xc8 automap_off
-         PATCH_IF (%automap_off% >= %vertex_off%) BEGIN
-          WRITE_LONG 0xc8 (%automap_off% + %new_bytes%) //automap_off
-         END
-        END
-       END
+      END
     END
+  END
+END
+
+
+//need parameters: opcode_to_delete
+DEFINE_PATCH_MACRO ~DELETE_SPELL_EFFECT~ BEGIN
+  PATCH_IF (BUFFER_LENGTH > 0x71) THEN BEGIN
+    READ_LONG  0x64 ___#abil_off
+    READ_SHORT 0x68 ___#abil_num
+    READ_LONG  0x6a ___#fx_off
+
+    FOR (___#index1 = 0 ; ___#index1 < ___#abil_num ; ___#index1 = ___#index1 + 1) BEGIN //cycling through extended headers
+      READ_SHORT (___#abil_off + 0x1e + (0x28 * ___#index1)) ___#abil_fx_num
+      READ_SHORT (___#abil_off + 0x20 + (0x28 * ___#index1)) ___#abil_fx_idx
+
+      FOR (___#index2 = ___#abil_fx_idx ; ___#index2 < (___#abil_fx_idx + ___#abil_fx_num) ; ___#index2 = ___#index2 + 1) BEGIN //cycling through ability's effects
+        READ_SHORT (___#fx_off + 0x30 * ___#index2) ___#opcode
+        PATCH_IF ( (___#opcode = opcode_to_delete) OR (opcode_to_delete = (0 - 1)) ) BEGIN //matched or we should delete all
+
+          DELETE_BYTES (___#fx_off + 0x30 * ___#index2) 0x30
+          SET ___#abil_fx_num = ___#abil_fx_num - 1 //for stopping cycle properly
+          WRITE_SHORT (___#abil_off + 0x1e + (0x28 * ___#index1)) ___#abil_fx_num //correct number of effects in ability
+
+          //correcting 1st effect ___#index1es
+          FOR (___#index3 = 0 ; ___#index3 < ___#abil_num ; ___#index3 = ___#index3 + 1) BEGIN //cycling through abilities again
+            READ_SHORT (___#abil_off + ___#index3 * 0x28 + 0x20) ___#1effect_index
+            PATCH_IF (___#1effect_index > ___#index2) BEGIN //if next abilility
+              WRITE_SHORT (___#abil_off + ___#index3 * 0x28 + 0x20) (___#1effect_index - 1) //decrease 1 effect ___#index1 by 1
+            END
+          END
+          //no offsets to correct
+          SET ___#index2 = ___#index2 - 1 //step back to not miss an effect
+        END
+      END
+
+    END
+  END
+END
+
+
+
+//deletes the extended effect with the specified opcode from the item. need parameters: opcode_to_delete
+DEFINE_PATCH_MACRO ~DELETE_ITEM_EFFECT~ BEGIN
+  PATCH_IF (BUFFER_LENGTH > 0x71) THEN BEGIN
+    READ_LONG  0x64 ___#abil_off
+    READ_SHORT 0x68 ___#abil_num
+    READ_LONG  0x6a ___#fx_off
+
+    FOR (___#index1 = 0 ; ___#index1 < ___#abil_num ; ___#index1 = ___#index1 + 1) BEGIN //cycling through extended headers
+//      READ_BYTE  (___#abil_off +        (___#index1 * 0x38)) ___#type
+//      PATCH_IF (___#type = 3) BEGIN //if magical ability
+        READ_SHORT (___#abil_off + 0x1e + (0x38 * ___#index1)) ___#abil_fx_num
+        READ_SHORT (___#abil_off + 0x20 + (0x38 * ___#index1)) ___#abil_fx_idx
+        FOR (___#index2 = ___#abil_fx_idx ; ___#index2 < (___#abil_fx_idx + ___#abil_fx_num) ; ___#index2 = ___#index2 + 1) BEGIN //cycling through ability's effects
+          READ_SHORT (___#fx_off + 0x30 * ___#index2) ___#opcode
+          PATCH_IF ( (___#opcode = opcode_to_delete) OR (opcode_to_delete = (0 - 1)) ) BEGIN //match of delete all
+            DELETE_BYTES (___#fx_off + 0x30 * ___#index2) 0x30
+            SET ___#abil_fx_num = ___#abil_fx_num - 1 //for stopping cycle properly
+            WRITE_SHORT (___#abil_off + 0x1e + (0x38 * ___#index1)) ___#abil_fx_num //correct number of effects in ability
+
+            //correcting 1st effect ___#index1es
+            FOR (___#index3 = 0 ; ___#index3 < ___#abil_num ; ___#index3 = ___#index3 + 1) BEGIN //cycling through abilities again
+              READ_SHORT (___#abil_off + ___#index3 * 0x38 + 0x20) ___#1effect_index
+              PATCH_IF (___#1effect_index > ___#index2) BEGIN //if next abilility
+                WRITE_SHORT (___#abil_off + ___#index3 * 0x38 + 0x20) (___#1effect_index - 1) //decrease 1 effect ___#index1 by 1
+              END
+            END
+            //no offsets to correct
+            SET ___#index2 = ___#index2 - 1 //step back to not miss an effect
+          END
+        END
+
+//      END
+    END
+
+  END
+END
+
+
+//deletes the equipping effect the with specified opcode from the item. need parameters: opcode_to_delete
+DEFINE_PATCH_MACRO ~DELETE_ITEM_EQEFFECT~ BEGIN
+  PATCH_IF (BUFFER_LENGTH > 0x71) THEN BEGIN
+    READ_LONG 0x64 ___#abil_off
+    READ_SHORT 0x68 ___#abil_num
+    READ_LONG 0x6a ___#fx_off
+    READ_SHORT 0x6e ___#eqfx_off
+    READ_SHORT 0x70 ___#eqfx_num
+    FOR (___#index1 = 0 ; ___#index1 < ___#eqfx_num ; ___#index1 = ___#index1 + 1) BEGIN //cycle though global effects
+      READ_SHORT  (___#fx_off + (___#index1 + ___#eqfx_off) * 0x30) ___#opcode
+      PATCH_IF ( (___#opcode = opcode_to_delete) OR (opcode_to_delete = (0 - 1)) ) BEGIN
+
+        DELETE_BYTES (___#fx_off + (___#index1 + ___#eqfx_off) * 0x30) 0x30
+        SET ___#eqfx_num = (___#eqfx_num - 1)
+        WRITE_SHORT 0x70 ___#eqfx_num
+
+        //correcting 1st effect indexes
+        FOR (___#index2 = 0 ; ___#index2 < ___#abil_num ; ___#index2 = ___#index2 + 1) BEGIN
+          READ_SHORT (___#abil_off + ___#index2 * 0x38 + 0x20) ___#1effect_index
+          PATCH_IF (___#1effect_index > ___#index1) BEGIN //if abilility after current effect
+            WRITE_SHORT (___#abil_off + ___#index2 * 0x38 + 0x20) (___#1effect_index - 1) //decrease 1 effect ___#index1 by 1
+          END
+        END
+        //no offsets to correct
+        SET ___#index1 = (___#index1 - 1)
+      END
+    END //end of searching
+  END
+END
+
+
+
+//adds an extended effect to a specified spell
+//essential parameters:
+//opcode
+//target
+//timing
+
+//optional parameters:
+//resist_dispel (magic resitance/dispel type)
+//power
+//parameter1
+//parameter2
+//duration
+//probability1 (default 100)
+//probability2 (default 0)
+//resource (ascii string 8 chars)
+//dicenumber
+//dicesize
+//savingthrow
+//savebonus
+//header (default all)
+//insert_point (last by default)
+
+DEFINE_PATCH_MACRO ~ADD_SPELL_EFFECT~ BEGIN
+  PATCH_IF (BUFFER_LENGTH > 0x71) THEN BEGIN
+    READ_LONG  0x64 ___#abil_off
+    READ_SHORT 0x68 ___#abil_num
+    READ_LONG  0x6a ___#fx_off
+
+    FOR (___#index1 = 0 ; ___#index1 < ___#abil_num ; ___#index1 = ___#index1 + 1) BEGIN
+
+      PATCH_IF (___#index1 = (header - 1)) OR (header = 0) BEGIN //header=1 means ___#index1=0
+        READ_SHORT  (___#abil_off + 0x1e + (0x28 * ___#index1)) ___#abil_fx_num
+        READ_SHORT  (___#abil_off + 0x20 + (0x28 * ___#index1)) ___#abil_fx_idx
+
+        ___#insert_point = !VARIABLE_IS_SET insert_point OR !IS_AN_INT insert_point OR insert_point < 0 OR insert_point > ___#abil_fx_num ? ___#abil_fx_num : insert_point
+
+        INSERT_BYTES (___#fx_off +        (0x30 * (___#insert_point + ___#abil_fx_idx))) 0x30
+
+        WRITE_SHORT  (___#fx_off +        (0x30 * (___#insert_point + ___#abil_fx_idx))) opcode
+        WRITE_BYTE   (___#fx_off + 0x02 + (0x30 * (___#insert_point + ___#abil_fx_idx))) target
+        WRITE_BYTE   (___#fx_off + 0x03 + (0x30 * (___#insert_point + ___#abil_fx_idx))) power
+        WRITE_LONG   (___#fx_off + 0x04 + (0x30 * (___#insert_point + ___#abil_fx_idx))) parameter1
+        WRITE_LONG   (___#fx_off + 0x08 + (0x30 * (___#insert_point + ___#abil_fx_idx))) parameter2
+        WRITE_BYTE   (___#fx_off + 0x0c + (0x30 * (___#insert_point + ___#abil_fx_idx))) timing
+        WRITE_BYTE   (___#fx_off + 0x0d + (0x30 * (___#insert_point + ___#abil_fx_idx))) resist_dispel
+        WRITE_LONG   (___#fx_off + 0x0e + (0x30 * (___#insert_point + ___#abil_fx_idx))) duration
+        WRITE_BYTE   (___#fx_off + 0x12 + (0x30 * (___#insert_point + ___#abil_fx_idx))) probability1
+        WRITE_BYTE   (___#fx_off + 0x13 + (0x30 * (___#insert_point + ___#abil_fx_idx))) probability2
+        WRITE_EVALUATED_ASCII (___#fx_off + 0x14 + (0x30 * (___#insert_point + ___#abil_fx_idx))) ~%resource%~ #8
+        WRITE_LONG   (___#fx_off + 0x1c + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicenumber
+        WRITE_LONG   (___#fx_off + 0x20 + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicesize
+        WRITE_LONG   (___#fx_off + 0x24 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savingthrow
+        WRITE_LONG   (___#fx_off + 0x28 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savebonus
+
+        //correcting effects number
+        WRITE_SHORT (___#abil_off + 0x1e + (0x28 * ___#index1)) (___#abil_fx_num + 1)
+
+        //correcting 1st effect indexes
+        FOR (___#index2 = 0 ; ___#index2 < ___#abil_num ; ___#index2 = ___#index2 + 1) BEGIN
+          READ_SHORT (___#abil_off + ___#index2 * 0x28 + 0x20) ___#1effect_index
+          PATCH_IF (___#1effect_index > ___#abil_fx_idx) //if abilility after current effect
+                OR ((___#1effect_index = ___#abil_fx_idx)
+                AND (___#abil_fx_num = 0)
+                AND (___#index2 != ___#index1)) BEGIN
+            WRITE_SHORT (___#abil_off + ___#index2 * 0x28 + 0x20) (___#1effect_index + 1) //increase 1 effect ___#index1 by 1
+          END
+        END
+        //no offsets to correct
+      END
+    END
+    //reset vars
+    SET opcode = 0
+    SET target = 0
+    SET timing = 0
+    SET resist_dispel = 0
+    SET power = 0
+    SET header = 0
+    SET parameter1 = 0
+    SET parameter2 = 0
+    SET probability1 = 100
+    SET probability2 = 0
+    SET duration = 0
+    SPRINT resource ~%___#nil%~
+    SET dicenumber = 0
+    SET dicesize = 0
+    SET savingthrow = 0
+    SET savebonus = 0
+
+  END
+END
+
+
+
+//adds an equip effect to a specified item
+//esessential parameters:
+//___#opcode
+//target
+//timing
+
+//optional parameters:
+//resist_dispel (magic resitance/dispel type)
+//power
+//parameter1
+//parameter2
+//duration
+//probability1 (default 100)
+//probability2 (default 0)
+//resource (ascii string 8 chars max)
+//dicenumber
+//dicesize
+//savingthrow
+//savebonus
+
+DEFINE_PATCH_MACRO ~ADD_ITEM_EQEFFECT~ BEGIN
+  PATCH_IF (BUFFER_LENGTH > 0x71) THEN BEGIN
+    PATCH_IF (~%SOURCE_EXT%~ STRING_EQUAL_CASE ~spl~ = 1) BEGIN
+      ___#hdr_size = 0x28
+    END ELSE BEGIN
+      ___#hdr_size = 0x38
+    END
+    READ_LONG 0x64 ___#abil_off
+    READ_SHORT 0x68 ___#abil_num
+    READ_LONG 0x6a ___#fx_off
+    READ_SHORT 0x6e ___#eqfx_index
+    READ_SHORT 0x70 ___#eqfx_num
+
+    INSERT_BYTES (___#fx_off + ___#eqfx_index) 0x30
+
+    WRITE_SHORT  (___#fx_off + ___#eqfx_index) opcode
+    WRITE_BYTE  (___#fx_off + ___#eqfx_index + 0x02) target
+
+    WRITE_BYTE  (___#fx_off + ___#eqfx_index + 0x03) power
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x04) parameter1
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x08) parameter2
+    WRITE_BYTE   (___#fx_off + ___#eqfx_index + 0x0c) timing
+    WRITE_BYTE   (___#fx_off + ___#eqfx_index + 0x0d) resist_dispel
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x0e) duration
+    WRITE_BYTE   (___#fx_off + ___#eqfx_index + 0x12) probability1
+    WRITE_BYTE   (___#fx_off + ___#eqfx_index + 0x13) probability2
+    WRITE_EVALUATED_ASCII (___#fx_off + ___#eqfx_index + 0x14) ~%resource%~ #8
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x1c) dicenumber
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x20) dicesize
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x24) savingthrow
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x28) savebonus
+
+    //correcting global effects number
+    WRITE_SHORT 0x70 (___#eqfx_num + 1)
+
+    //correcting 1st effect ___#index1es
+    FOR (___#index2 = 0 ; ___#index2 < ___#abil_num ; ___#index2 = ___#index2 + 1) BEGIN
+      READ_SHORT (___#abil_off + ___#index2 * ___#hdr_size + 0x20) ___#1effect_index
+      PATCH_IF (___#1effect_index > ___#eqfx_index) //if abilility after eq effects
+            OR ((___#1effect_index = ___#eqfx_index) AND (___#eqfx_num = 0)) BEGIN
+        WRITE_SHORT (___#abil_off + ___#index2 * ___#hdr_size + 0x20) (___#1effect_index + 1) //increase 1 effect ___#index1 by 1
+      END
+    END
+    //no offsets to correct
+  //reset vars
+  SET opcode = 0
+  SET target = 0
+  SET timing = 0
+  SET resist_dispel = 0
+  SET power = 0
+  SET parameter1 = 0
+  SET parameter2 = 0
+  SET duration = 0
+  SET probability1 = 100
+  SET probability2 = 0
+  SPRINT resource ~%___#nil%~
+  SET dicenumber = 0
+  SET dicesize = 0
+  SET savingthrow = 0
+  SET savebonus = 0
+
+  END
+END
+
+DEFINE_PATCH_MACRO ~ADD_SPELL_CFEFFECT~ BEGIN
+  LAUNCH_PATCH_MACRO ~ADD_ITEM_EQEFFECT~
+END
+
+
+
+//adds the effect to the item. Need parameters: ___#opcode target use_level fail_strref timing mr_bypass duration probability ~%resource%~
+DEFINE_PATCH_MACRO ~ADD_ITEM_EFFECT~ BEGIN
+  PATCH_IF (BUFFER_LENGTH > 0x71) THEN BEGIN // protects against invalid files
+    READ_LONG   0x64 ___#abil_off //ability offset
+    READ_SHORT  0x68 ___#abil_num //number of abilities
+    READ_LONG   0x6a ___#fx_off //effects offset
+    FOR (___#index1 = 0 ; ___#index1 < ___#abil_num ; ___#index1 = ___#index1 + 1) BEGIN // looks for magical ability header
+      READ_BYTE  (___#abil_off +        (___#index1 * 0x38)) ___#type //ability type
+      PATCH_IF ((!(VARIABLE_IS_SET type AND IS_AN_INT type) && ___#type = 3) OR (VARIABLE_IS_SET type AND IS_AN_INT type AND ((___#type = type) OR type = 99))) AND ((___#index1 = (header - 1)) OR (header = 0)) BEGIN //ability is correct or unspecified and header matches
+        READ_SHORT  (___#abil_off + 0x1e + (0x38 * ___#index1)) ___#abil_fx_num
+        READ_SHORT  (___#abil_off + 0x20 + (0x38 * ___#index1)) ___#abil_fx_idx
+
+        ___#insert_point = !VARIABLE_IS_SET insert_point OR !IS_AN_INT insert_point OR insert_point < 0 OR insert_point > ___#abil_fx_num ? ___#abil_fx_num : insert_point
+
+        INSERT_BYTES (___#fx_off +        (0x30 * (___#insert_point + ___#abil_fx_idx))) 0x30
+
+        WRITE_SHORT  (___#fx_off +        (0x30 * (___#insert_point + ___#abil_fx_idx))) opcode
+        WRITE_BYTE   (___#fx_off + 0x02 + (0x30 * (___#insert_point + ___#abil_fx_idx))) target
+        WRITE_BYTE   (___#fx_off + 0x03 + (0x30 * (___#insert_point + ___#abil_fx_idx))) power
+        WRITE_LONG   (___#fx_off + 0x04 + (0x30 * (___#insert_point + ___#abil_fx_idx))) parameter1
+        WRITE_LONG   (___#fx_off + 0x08 + (0x30 * (___#insert_point + ___#abil_fx_idx))) parameter2
+        WRITE_BYTE   (___#fx_off + 0x0c + (0x30 * (___#insert_point + ___#abil_fx_idx))) timing
+        WRITE_BYTE   (___#fx_off + 0x0d + (0x30 * (___#insert_point + ___#abil_fx_idx))) resist_dispel
+        WRITE_LONG   (___#fx_off + 0x0e + (0x30 * (___#insert_point + ___#abil_fx_idx))) duration
+        WRITE_BYTE   (___#fx_off + 0x12 + (0x30 * (___#insert_point + ___#abil_fx_idx))) probability1
+        WRITE_BYTE   (___#fx_off + 0x13 + (0x30 * (___#insert_point + ___#abil_fx_idx))) probability2
+        WRITE_EVALUATED_ASCII (___#fx_off + 0x14 + (0x30 * (___#insert_point + ___#abil_fx_idx))) ~%resource%~ #8
+        WRITE_LONG   (___#fx_off + 0x1c + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicenumber
+        WRITE_LONG   (___#fx_off + 0x20 + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicesize
+        WRITE_LONG   (___#fx_off + 0x24 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savingthrow
+        WRITE_LONG   (___#fx_off + 0x28 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savebonus
+
+        //correcting effects number
+        WRITE_SHORT (___#abil_off + 0x1e + (0x38 * ___#index1)) (___#abil_fx_num + 1)
+
+        //correcting 1st effect ___#index1es
+        FOR (___#index2 = 0 ; ___#index2 < ___#abil_num ; ___#index2 = ___#index2 + 1) BEGIN
+          READ_SHORT (___#abil_off + ___#index2 * 0x38 + 0x20) ___#1effect_index
+          PATCH_IF (___#1effect_index > ___#abil_fx_idx) //if next abilility
+                OR ((___#1effect_index = ___#abil_fx_idx)
+                AND (___#abil_fx_num = 0)
+                AND (___#index2 != ___#index1)) BEGIN
+            WRITE_SHORT (___#abil_off + ___#index2 * 0x38 + 0x20) (___#1effect_index + 1) //increase 1 effect ___#index1 by 1
+          END
+        END
+        //no offsets to correct
+      END
+    END //end of cycle
+
+    //reset vars
+    SET opcode = 0
+    SET target = 0
+    SET timing = 0
+    SET resist_dispel = 0
+    SET power = 0
+    SET parameter1 = 0
+    SET parameter2 = 0
+    SET duration = 0
+    SET probability1 = 100
+    SET probability2 = 0
+    SPRINT resource ~%___#nil%~
+    SET dicenumber = 0
+    SET dicesize = 0
+    SET savingthrow = 0
+    SET savebonus = 0
+  END
+END
+
+
+
+
+
+//add an effect to a creature.
+//essential parameters:
+//opcode
+//target
+//timing
+
+//optional parameters:
+//resist_dispel (magic resitance/dispel type)
+//power
+//parameter1
+//parameter2
+//duration
+//probability1 (default 100)
+//probability2 (default 0)
+//resource (ascii string 8 chars)
+//dicenumber
+//dicesize
+//savingthrow
+//savebonus
+//school
+//lowestafflvl
+//highestafflvl
+//parameter3
+//parameter4
+//vvcresource (ascii string 8 chars)
+//resource2 (ascii string 8 chars)
+//casterx
+//castery
+//targetx
+//targety
+//effsource (ascii string 8 chars)
+//effvar (ascii string 32 chars)
+//casterlvl
+//sectype
+
+DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT~ BEGIN
+  LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
+  PATCH_IF (valid) BEGIN
+    READ_ASCII 0 __#signature
+    READ_BYTE 0x33 __#effVersion
+    PATCH_IF ~%__#signature%~ STRING_COMPARE_CASE ~CRE V1.0~ THEN BEGIN
+      INNER_ACTION BEGIN
+        FAIL ~%__#signature% not supported in ADD_CRE_EFFECT~
+      END
+    END
+    PATCH_IF __#effVersion = 1 BEGIN
+      LAUNCH_PATCH_MACRO ~ADD_CRE_EFFECT_BG2~
+    END ELSE PATCH_IF __#effVersion = 0 BEGIN
+      LAUNCH_PATCH_MACRO ~ADD_CRE_EFFECT_BG1~
+    END
+  END
+END
+
+DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT_BG1~ BEGIN
+  LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
+  PATCH_IF (valid) BEGIN
+    READ_ASCII 0 __#signature
+    READ_BYTE 0x33 __#effVersion
+    PATCH_IF ~%__#signature%~ STRING_COMPARE_CASE ~CRE V1.0~ THEN BEGIN
+      INNER_ACTION BEGIN
+        FAIL ~%__#signature% not supported in ADD_CRE_EFFECT_BG1~
+      END
+    END
+    PATCH_IF __#effVersion != 0 BEGIN
+      INNER_ACTION BEGIN
+        FAIL ~ADD_CRE_EFFECT_BG1 and EFF version is %__#effVersion%~
+      END
+    END
+
+
+    READ_LONG 0x2c4 ___#fx_off
+    READ_LONG 0x2c8 ___#fx_num
+
+    INSERT_BYTES ___#fx_off 0x30
+
+    WRITE_SHORT (___#fx_off) opcode
+    WRITE_BYTE (___#fx_off + 0x2) target
+    WRITE_BYTE (___#fx_off + 0x3) power
+    WRITE_LONG (___#fx_off + 0x4) parameter1
+    WRITE_LONG (___#fx_off + 0x8) parameter2
+    WRITE_BYTE (___#fx_off + 0xc) timing
+    WRITE_BYTE (___#fx_off + 0xd) resist_dispel
+    WRITE_LONG (___#fx_off + 0xe) duration
+    WRITE_BYTE (___#fx_off + 0x12) probability1
+    WRITE_BYTE (___#fx_off + 0x13) probability2
+    WRITE_EVALUATED_ASCII (___#fx_off + 0x14) ~%resource%~ #8
+    WRITE_LONG (___#fx_off + 0x1c) dicenumber
+    WRITE_LONG (___#fx_off + 0x20) dicesize
+    WRITE_LONG (___#fx_off + 0x24) savingthrow
+    WRITE_LONG (___#fx_off + 0x28) savebonus
+
+    //correcting effects number
+    WRITE_LONG 0x2c8 (___#fx_num + 1)
+
+     //correcting offsets
+    PATCH_FOR_EACH ___#offset IN 0x2b8 0x2bc BEGIN //item num and islot
+      READ_LONG ___#offset ___#current_off
+      WRITE_LONG ___#offset (___#current_off + 0x30)
+    END
+
+    //reset vars
+    SET opcode = 0
+    SET target = 0
+    SET power = 0
+    SET parameter1 = 0
+    SET parameter2 = 0
+    SET timing = 0
+    SET resist_dispel = 0
+    SET duration = 0
+    SET probability1 = 100
+    SET probability2 = 0
+    SPRINT resource ~%___#nil%~
+    SET dicenumber = 0
+    SET dicesize = 0
+    SET savingthrow = 0
+    SET savebonus = 0
+  END
+END
+
+DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT_BG2~ BEGIN
+  LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
+  PATCH_IF (valid) BEGIN
+    READ_ASCII 0 __#signature
+    READ_BYTE 0x33 __#effVersion
+    PATCH_IF ~%__#signature%~ STRING_COMPARE_CASE ~CRE V1.0~ THEN BEGIN
+      INNER_ACTION BEGIN
+        FAIL ~%__#signature% not supported in ADD_CRE_EFFECT_BG2~
+      END
+    END
+    PATCH_IF __#effVersion != 1 BEGIN
+      INNER_ACTION BEGIN
+        FAIL ~ADD_CRE_EFFECT_BG2 and EFF version is %__#effVersion%~
+      END
+    END
+
+    PATCH_IF !VARIABLE_IS_SET restype BEGIN
+      SET restype = 0
+    END
+    PATCH_IF !VARIABLE_IS_SET sourceslot BEGIN
+      SET sourceslot = "-1"
+    END
+
+    READ_LONG 0x2c4 ___#fx_off
+    READ_LONG 0x2c8 ___#fx_num
+
+    INSERT_BYTES ___#fx_off 0x108
+
+//    WRITE_ASCII ___#fx_off ~EFF ~ #4
+//    WRITE_ASCII (___#fx_off + 4) ~V2.0~ #4
+
+    WRITE_LONG (___#fx_off + 0x8) opcode
+    WRITE_LONG (___#fx_off + 0xc) target
+    WRITE_LONG (___#fx_off + 0x10) power
+    WRITE_LONG (___#fx_off + 0x14) parameter1
+    WRITE_LONG (___#fx_off + 0x18) parameter2
+    WRITE_BYTE (___#fx_off + 0x1c) timing
+    WRITE_LONG (___#fx_off + 0x20) duration
+    WRITE_SHORT (___#fx_off + 0x24) probability1
+    WRITE_SHORT (___#fx_off + 0x26) probability2
+    WRITE_EVALUATED_ASCII (___#fx_off + 0x28) ~%resource%~ #8
+    WRITE_LONG (___#fx_off + 0x30) dicenumber
+    WRITE_LONG (___#fx_off + 0x34) dicesize
+    WRITE_LONG (___#fx_off + 0x38) savingthrow
+    WRITE_LONG (___#fx_off + 0x3c) savebonus
+    WRITE_LONG (___#fx_off + 0x44) school
+    WRITE_LONG (___#fx_off + 0x4c) lowestafflvl
+    WRITE_LONG (___#fx_off + 0x50) highestafflvl
+    WRITE_LONG (___#fx_off + 0x54) resist_dispel
+    WRITE_LONG (___#fx_off + 0x58) parameter3
+    WRITE_LONG (___#fx_off + 0x5c) parameter4
+    WRITE_EVALUATED_ASCII (___#fx_off + 0x68) ~%vvcresource%~ #8
+    WRITE_EVALUATED_ASCII (___#fx_off + 0x70) ~%resource2%~ #8
+    WRITE_LONG (___#fx_off + 0x78) casterx
+    WRITE_LONG (___#fx_off + 0x7c) castery
+    WRITE_LONG (___#fx_off + 0x80) targetx
+    WRITE_LONG (___#fx_off + 0x84) targety
+    WRITE_LONG  ___#fx_off + 0x88  restype
+    WRITE_EVALUATED_ASCII (___#fx_off + 0x8c) ~%effsource%~ #8
+    WRITE_LONG  ___#fx_off + 0x9c  sourceslot
+    WRITE_EVALUATED_ASCII (___#fx_off + 0xa0) ~%effvar%~ #32
+    WRITE_LONG (___#fx_off + 0xc0) casterlvl
+    WRITE_LONG (___#fx_off + 0xc8) sectype
+
+    //correcting effects number
+    WRITE_LONG 0x2c8 (___#fx_num + 1)
+
+    //correcting offsets
+    PATCH_FOR_EACH ___#offset IN 0x2b8 0x2bc BEGIN //item num and islot
+      READ_LONG ___#offset ___#current_off
+      WRITE_LONG ___#offset (___#current_off + 0x108)
+    END
+
+    //reset vars
+    SET opcode = 0
+    SET target = 0
+    SET timing = 0
+    SET power = 0
+    SET parameter1 = 0
+    SET parameter2 = 0
+    SET timing = 0
+    SET resist_dispel = 0
+    SET duration = 0
+    SET probability1 = 100
+    SET probability2 = 0
+    SPRINT resource ~%___#nil%~
+    SET dicenumber = 0
+    SET dicesize = 0
+    SET savingthrow = 0
+    SET savebonus = 0
+    SET school = 0
+    SET lowestafflvl = 0
+    SET highestafflvl = 0
+    SET parameter3 = 0
+    SET parameter4 = 0
+    SPRINT vvcresource ~%___#nil%~
+    SPRINT resource2 ~%___#nil%~
+    SET casterx = 0 - 1
+    SET castery = 0 - 1
+    SET targetx = 0 - 1
+    SET targety = 0 - 1
+    SET restype = 0
+    SPRINT effsource ~%___#nil%~
+    SET sourceslot = "-1"
+    SPRINT effvar ~%___#nil%~
+    SET casterlvl = 0
+    SET sectype = 0
+  END
+END
+
+//deletes all effects with spec. opcode from a creature.
+//essential parameters:
+//opcode_to_delete
+DEFINE_PATCH_MACRO ~DELETE_CRE_EFFECT~ BEGIN
+  LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
+  PATCH_IF (valid) BEGIN
+
+    READ_BYTE 0x33  ___#fx_flag
+    READ_LONG 0x2c4 ___#fx_off
+    READ_LONG 0x2c8 ___#fx_num
+    SET ___#delta = 0
+    FOR (___#index1 = 0; ___#index1 < ___#fx_num; ___#index1 = ___#index1 + 1) BEGIN
+      PATCH_IF ___#fx_flag = 0 BEGIN
+        READ_SHORT (___#fx_off + ___#index1 * 0x30) ___#opcode
+      END ELSE BEGIN
+        READ_LONG (___#fx_off + ___#index1 * 0x108 + 8) ___#opcode
+      END
+      PATCH_IF ((___#opcode = opcode_to_delete) OR (opcode_to_delete = (0 - 1))) BEGIN
+        DELETE_BYTES (___#fx_off + ___#index1 * (___#fx_flag = 1 ? 0x108 : 0x30)) ___#fx_flag = 1 ? 0x108 : 0x30
+        SET ___#delta = ___#delta + 1 //track deleted number
+        SET ___#fx_num = ___#fx_num - 1 //decrease effects number to stop cycle properly
+        SET ___#index1 = ___#index1 - 1 //step back to not miss an effect
+      END
+    END
+    //correcting offsets and number
+    PATCH_IF (___#delta > 0) BEGIN
+      WRITE_LONG 0x2c8 ___#fx_num //corrected earlier
+      PATCH_FOR_EACH ___#offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
+        READ_LONG ___#offset ___#current_off
+        PATCH_IF ___#current_off > ___#fx_off BEGIN
+          WRITE_LONG ___#offset (___#current_off - ___#delta * (___#fx_flag = 1 ? 0x108 : 0x30))
+        END
+      END
+    END
+
+  END
+END
+
+
+
+
+
+//deletes all instances of ~item_to_delete~ at current creature
+DEFINE_PATCH_MACRO ~DELETE_CRE_ITEM~ BEGIN
+  LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
+  PATCH_IF (valid) BEGIN
+    READ_LONG 0x2bc ___#itm_off
+    READ_LONG 0x2c0 ___#itm_num
+    READ_LONG 0x2b8 ___#islot_off
+    SET ___#delta = 0
+    FOR (___#cur_itm = 0; ___#cur_itm < ___#itm_num; ___#cur_itm = (___#cur_itm + 1)) BEGIN
+    READ_ASCII (___#itm_off + (___#cur_itm * 0x14)) ~item~
+      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%item_to_delete%~ = 0) THEN BEGIN
+
+        DELETE_BYTES (___#itm_off + (___#cur_itm * 0x14)) 0x14
+        SET ___#itm_num = ___#itm_num - 1
+
+        //correct offsets
+        PATCH_FOR_EACH ___#offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
+          READ_LONG ___#offset ___#current_off
+          PATCH_IF ___#current_off > ___#itm_off BEGIN
+            WRITE_LONG ___#offset (___#current_off - 0x14)
+          END
+        END
+
+        FOR (___#cur_slot = 0; ___#cur_slot < 37; ___#cur_slot = ___#cur_slot + 1) BEGIN
+          READ_LONG 0x2b8 ___#islot_off
+          READ_SHORT  (___#islot_off + ___#cur_slot * 2) ___#itm_index
+          PATCH_IF (___#itm_index = ___#cur_itm) BEGIN //if slot with deleted item
+            WRITE_SHORT  (___#islot_off + ___#cur_slot * 2) 0xffff //nullify reference
+          END
+          PATCH_IF ((___#itm_index > ___#cur_itm) AND NOT (___#itm_index = 0xffff)) BEGIN //if next slot and not empty
+            WRITE_SHORT  (___#islot_off + ___#cur_slot * 2) (___#itm_index - 1) //shift items back
+          END
+        END
+
+        SET ___#cur_itm = ___#cur_itm - 1 //step back to not miss an item
+      END
+    END
+    //correcting number
+    WRITE_LONG  0x02c0 ___#itm_num
+    //no offsets to correct
+
+  END
+END
+
+
+//adds an item in an area.
+//required: container_to_add_to (starting from 1), ~item_to_add~
+//optional: charges1 charges2 charges3 flags
+DEFINE_PATCH_MACRO ~ADD_AREA_ITEM~ BEGIN
+  LOCAL_SET FL#ADD_AREA_ITEM#FLAGS = 0
+  charges1 = VARIABLE_IS_SET charges1 AND IS_AN_INT charges1 ? charges1 : 0
+  charges2 = VARIABLE_IS_SET charges2 AND IS_AN_INT charges2 ? charges2 : 0
+  charges3 = VARIABLE_IS_SET charges3 AND IS_AN_INT charges3 ? charges3 : 0
+  PATCH_IF VARIABLE_IS_SET flags AND "%flags%" STRING_CONTAINS_REGEXP "identified" = 0 BEGIN
+    FL#ADD_AREA_ITEM#FLAGS |= BIT0
+  END
+  PATCH_IF VARIABLE_IS_SET flags AND "%flags%" STRING_CONTAINS_REGEXP "unstealable" = 0 BEGIN
+    FL#ADD_AREA_ITEM#FLAGS |= BIT1
+  END
+  PATCH_IF VARIABLE_IS_SET flags AND "%flags%" STRING_CONTAINS_REGEXP "stolen" = 0 BEGIN
+    FL#ADD_AREA_ITEM#FLAGS |= BIT2
+  END
+  PATCH_IF VARIABLE_IS_SET flags AND "%flags%" STRING_CONTAINS_REGEXP "undroppable" = 0 BEGIN
+    FL#ADD_AREA_ITEM#FLAGS |= BIT3
+  END
+  LPF fj_are_structure
+    INT_VAR
+      fj_con_itm_idx = container_to_add_to - 1
+      fj_charge0 = charges1
+      fj_charge1 = charges2
+      fj_charge2 = charges3
+      fj_flags = FL#ADD_AREA_ITEM#FLAGS
+    STR_VAR
+      fj_structure_type = ~itm~
+      fj_name = EVAL ~%item_to_add%~
+  END
+  //setting optional vars back to default
+  SET charges1 = 0
+  SET charges2 = 0
+  SET charges3 = 0
+  SPRINT flags ~~
+END
+
+//deletes an item from a store. ~item_to_delete~ required
+DEFINE_PATCH_MACRO ~DELETE_STORE_ITEM~ BEGIN
+  PATCH_IF (BUFFER_LENGTH > 0x9a) BEGIN
+    READ_LONG 0x34 ___#4sale_off
+    READ_LONG 0x38 ___#4sale_num
+    READ_LONG 0x2c ___#items_purchased_off
+    READ_LONG 0x70 ___#cures_off
+    SET ___#index1 = 0
+    SET ___#delta = 0
+
+    WHILE (___#index1 < ___#4sale_num) BEGIN //searching through items
+      READ_ASCII (___#4sale_off + (___#index1 * 0x1c)) ~item~
+      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%item_to_delete%~ = 0) BEGIN
+        DELETE_BYTES (___#4sale_off + (___#index1 * 0x1c)) 0x1c
+        SET ___#delta = (___#delta + 1)
+        SET ___#index1 = (___#index1 - 1) //step back
+        SET ___#4sale_num = (___#4sale_num - 1)
+
+      END
+      SET ___#index1 = (___#index1 + 1)
+    END
+
+    //correct number
+    WRITE_LONG 0x38 ___#4sale_num
+
+    //correcting offsets
+    PATCH_FOR_EACH ___#offset IN 0x2c 0x70 BEGIN
+      READ_LONG ___#offset ___#current_off
+      PATCH_IF (___#current_off > ___#4sale_off) BEGIN
+        WRITE_LONG ___#offset (___#current_off - ___#delta * 0x1c)
+      END
+    END
+
+  END
+END
+
+
+//deletes an item from the current area. ~item_to_delete~
+DEFINE_PATCH_MACRO ~DELETE_AREA_ITEM~ BEGIN
+  PATCH_IF (BUFFER_LENGTH > 0x11b) BEGIN
+    //reading necessary offsets
+    READ_LONG 0x70 ___#cont_off
+    READ_SHORT 0x74 ___#cont_num
+    READ_LONG 0x78 ___#itm_off
+    READ_SHORT 0x76 ___#itm_num
+    SET ___#delta = 0
+
+    FOR (___#index1 = 0; ___#index1 < ___#cont_num; ___#index1 = (___#index1 + 1)) BEGIN //searching through containers
+      READ_LONG (___#cont_off + ___#index1 * 0xc0 + 0x44) ___#cont_items_num  //number ot items in container
+      READ_LONG (___#cont_off + ___#index1 * 0xc0 + 0x40) ___#cont_item_index //first item ___#index1
+
+      FOR (___#index2 = ___#cont_item_index ; ___#index2 < (___#cont_item_index + ___#cont_items_num) ; ___#index2 = ___#index2 + 1) BEGIN //cycling through container's items
+        READ_ASCII (___#itm_off + (___#index2 * 0x14)) ~item~
+
+        PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%item_to_delete%~ = 0) BEGIN
+          DELETE_BYTES (___#itm_off + (___#index2 * 0x14)) 0x14
+          SET ___#itm_num = (___#itm_num - 1) //for terminating the cycle properly
+          SET ___#delta = (___#delta + 1) //for final adjusting offsets
+
+          //correct ___#cont_off on the fly if need
+          PATCH_IF (___#cont_off > ___#itm_off) BEGIN
+            SET ___#cont_off = (___#cont_off - 0x14)
+            WRITE_LONG 0x70 ___#cont_off
+          END
+
+          //correct number of items in container
+          SET ___#cont_items_num = (___#cont_items_num - 1)
+          WRITE_LONG (___#cont_off + ___#index1 * 0xc0 + 0x44) ___#cont_items_num
+
+          //adjusting 1 item indexes
+          FOR (___#index3 = 0; ___#index3 < ___#cont_num; ___#index3 = ___#index3 + 1 ) BEGIN //searching through containers
+            READ_LONG (___#cont_off + ___#index3 * 0xc0 + 0x40) ___#1item_index //first item ___#index1
+            PATCH_IF (___#1item_index > ___#index2) BEGIN //if one of next containers
+              WRITE_LONG (___#cont_off + ___#index3 * 0xc0 + 0x40) (___#1item_index - 1) //decrease first item ___#index1 by 1
+            END
+          END
+
+          SET ___#index2 = (___#index2 - 1) //step back to not miss items
+        END
+
+      END
+
+    END
+
+    //correcting offsets (0x70 is already fixed, 0x78 - items offset)
+    PATCH_FOR_EACH ___#offset IN 0x54 0x5c 0x60 0x68 0x7c 0x84 0x88 0xa0 0xa8 0xb0 0xb8 0xbc 0xc0 0xc4 0xcc BEGIN
+      READ_LONG ___#offset ___#current_off
+      PATCH_IF (___#current_off > ___#itm_off) BEGIN
+        WRITE_LONG ___#offset (___#current_off - ___#delta * 0x14)
+      END
+    END
+
+    //correcting total items number
+    WRITE_SHORT 0x76 ___#itm_num
+
+  END
+END
+
+//replace item in .sto. variables ~old_item~ ~new_item~ required number_in_stock
+DEFINE_PATCH_MACRO ~REPLACE_STORE_ITEM~ BEGIN
+  PATCH_IF (BUFFER_LENGTH > 0x9a) BEGIN
+    READ_LONG 0x34 ___#4sale_off
+    READ_LONG 0x38 ___#4sale_num
+
+    WHILE (___#4sale_num > 0) BEGIN
+      SET ___#4sale_num = (___#4sale_num - 1)
+      READ_ASCII (___#4sale_off + (___#4sale_num * 0x1c)) ~item~
+      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%old_item%~ = 0) BEGIN
+        WRITE_EVALUATED_ASCII (___#4sale_off + (___#4sale_num * 0x1c)) ~%new_item%~ #8 // replace item
+
+        //charges:
+        WRITE_SHORT (___#4sale_off + (___#4sale_num * 0x1c + 0xa)) charges1
+        WRITE_SHORT (___#4sale_off + (___#4sale_num * 0x1c + 0xc)) charges2
+        WRITE_SHORT (___#4sale_off + (___#4sale_num * 0x1c + 0xe)) charges3
+
+        //flags
+        SET ___#flags_to_set = 0
+        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~identified~ = 0) BEGIN
+          SET ___#flags_to_set = (___#flags_to_set BOR 0b00000001)
+        END
+        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~unstealable~ = 0) BEGIN
+          SET ___#flags_to_set = (___#flags_to_set BOR 0b00000010)
+        END
+        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~stolen~ = 0) BEGIN
+          SET ___#flags_to_set = (___#flags_to_set BOR 0b00000100)
+        END
+        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~undroppable~ = 0) BEGIN
+          SET ___#flags_to_set = (___#flags_to_set BOR 0b00001000)
+        END
+        WRITE_LONG (___#4sale_off + ___#4sale_num * 0x1c + 0x10) ___#flags_to_set
+
+        WRITE_BYTE (___#4sale_off + 0x14 + 0x1c * ___#4sale_num) number_in_stock
+
+        WRITE_BYTE (___#4sale_off + 0x18 + 0x1c * ___#4sale_num) 0 // Set infinite flag to zero
+
+      END
+    END
+
+  END
+
+  SET number_in_stock = 1
+  SET charges1 = 0
+  SET charges2 = 0
+  SET charges3 = 0
+  SPRINT flags ~%___#nil%~
+END
+
+
+
+//replaces item in an area with another item. Variables ~old_item~, ~new_item~ required
+DEFINE_PATCH_MACRO ~REPLACE_AREA_ITEM~ BEGIN
+  PATCH_IF (BUFFER_LENGTH > 0x11b) BEGIN
+    READ_SHORT 0x76 ___#itm_num
+    READ_LONG  0x78 ___#itm_off
+    WHILE (___#itm_num > 0) BEGIN
+      SET ___#itm_num = (___#itm_num - 1)
+      READ_ASCII (___#itm_off + (___#itm_num * 0x14)) ~item~
+      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%old_item%~ = 0) BEGIN
+        WRITE_EVALUATED_ASCII (___#itm_off + (___#itm_num * 0x14)) ~%new_item%~ #8
+
+        //charges:
+        WRITE_SHORT (___#itm_off + ___#itm_num * 0x14 + 0xa) charges1
+        WRITE_SHORT (___#itm_off + ___#itm_num * 0x14 + 0xc) charges2
+        WRITE_SHORT (___#itm_off + ___#itm_num * 0x14 + 0xe) charges3
+
+        //flags
+        SET ___#flags_to_set = 0
+        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~identified~ = 0) BEGIN
+          SET ___#flags_to_set = (___#flags_to_set BOR 0b00000001)
+        END
+        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~unstealable~ = 0) BEGIN
+          SET ___#flags_to_set = (___#flags_to_set BOR 0b00000010)
+        END
+        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~stolen~ = 0) BEGIN
+          SET ___#flags_to_set = (___#flags_to_set BOR 0b00000100)
+        END
+        PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~undroppable~ = 0) BEGIN
+          SET ___#flags_to_set = (___#flags_to_set BOR 0b00001000)
+        END
+        WRITE_LONG (___#itm_off + ___#itm_num * 0x14 + 0x10) ___#flags_to_set
+
+      END
+    END
+  END
+  SET charges1 = 0
+  SET charges2 = 0
+  SET charges3 = 0
+  SPRINT flags ~%___#nil%~
+END
+
+
+
+//adds flags to an item possessed by a specified creature. variables ~item_to_change~, ~flags~ required
+DEFINE_PATCH_MACRO ~ADD_CRE_ITEM_FLAGS~ BEGIN
+  LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
+  PATCH_IF (valid) BEGIN
+    READ_LONG  0x2bc ___#itm_off
+    READ_LONG  0x2c0 ___#itm_num
+
+    SET ___#flags_to_add = 0
+
+    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~identified~ = 0) BEGIN
+      SET ___#flags_to_add = (___#flags_to_add BOR 0b00000001)
+    END
+    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~unstealable~ = 0) BEGIN
+      SET ___#flags_to_add = (___#flags_to_add BOR 0b00000010)
+    END
+    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~stolen~ = 0) BEGIN
+      SET ___#flags_to_add = (___#flags_to_add BOR 0b00000100)
+    END
+    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~undroppable~ = 0) BEGIN
+      SET ___#flags_to_add = (___#flags_to_add BOR 0b00001000)
+    END
+
+    WHILE (___#itm_num > 0) BEGIN
+      SET ___#itm_num = (___#itm_num - 1)
+      READ_ASCII (___#itm_off + (0x14 * ___#itm_num)) ~item~
+      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%item_to_change%~ = 0) BEGIN
+        READ_BYTE   (___#itm_off + 0x10 + 0x14 * ___#itm_num) ___#current_flags
+        WRITE_BYTE  (___#itm_off + 0x10 + 0x14 * ___#itm_num) (___#current_flags BOR ___#flags_to_add) // adds specified flags
+      END
+    END
+
+  END
+END
+
+
+
+//removes flags from an item possessed by a specified creature. variables ~item_to_change~, ~___#flags_to_remove~ required
+DEFINE_PATCH_MACRO ~REMOVE_CRE_ITEM_FLAGS~ BEGIN
+  LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
+  PATCH_IF (valid) BEGIN
+    READ_LONG  0x2bc ___#itm_off
+    READ_LONG  0x2c0 ___#itm_num
+
+    //flags
+    SET ___#flags_to_remove = 0b11111111
+
+    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~identified~ = 0) BEGIN
+      SET ___#flags_to_remove = (___#flags_to_remove BAND 0b11111110)
+    END
+    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~unstealable~ = 0) BEGIN
+      SET ___#flags_to_remove = (___#flags_to_remove BAND 0b11111101)
+    END
+    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~stolen~ = 0) BEGIN
+      SET ___#flags_to_remove = (___#flags_to_remove BAND 0b11111011)
+    END
+    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~undroppable~ = 0) BEGIN
+      SET ___#flags_to_remove = (___#flags_to_remove BAND 0b11110111)
+    END
+
+    WHILE (___#itm_num > 0) BEGIN
+      SET ___#itm_num = (___#itm_num - 1)
+      READ_ASCII (___#itm_off + (0x14 * ___#itm_num)) ~item~
+      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%item_to_change%~ = 0) BEGIN
+        READ_BYTE   (___#itm_off + 0x10 + (0x14 * ___#itm_num)) ___#current_flags
+        WRITE_BYTE  (___#itm_off + 0x10 + (0x14 * ___#itm_num)) (___#current_flags BAND ___#flags_to_remove) // removes specified flags
+      END
+    END
+
+  END
+END
+
+
+
+//sets flags to an item possessed by a specified creature. variables ~item_to_change~, ~flags~ required
+DEFINE_PATCH_MACRO ~SET_CRE_ITEM_FLAGS~ BEGIN
+  LAUNCH_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid = valid END
+  PATCH_IF (valid) BEGIN
+    READ_LONG  0x2bc ___#itm_off
+    READ_LONG  0x2c0 ___#itm_num
+
+    //flags
+    SET ___#flags_to_set = 0b00000000
+    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~identified~ = 0) BEGIN
+      SET ___#flags_to_set = (___#flags_to_set BOR 0b00000001)
+    END
+    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~unstealable~ = 0) BEGIN
+      SET ___#flags_to_set = (___#flags_to_set BOR 0b00000010)
+    END
+    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~stolen~ = 0) BEGIN
+      SET ___#flags_to_set = (___#flags_to_set BOR 0b00000100)
+    END
+    PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~undroppable~ = 0) BEGIN
+      SET ___#flags_to_set = (___#flags_to_set BOR 0b00001000)
+    END
+
+    WHILE (___#itm_num > 0) BEGIN
+      SET ___#itm_num = (___#itm_num - 1)
+      READ_ASCII (___#itm_off + (0x14 * ___#itm_num)) ~item~
+      PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%item_to_change%~ = 0) BEGIN
+        WRITE_BYTE  (___#itm_off + 0x10 + (0x14 * ___#itm_num)) ___#flags_to_set // set flags
+      END
+    END
+
+  END
+END
+
+
+
+//input: npc (.cre), soundset (string)
+//output: soundset_0-99 (100-int array of strrefs)
+DEFINE_ACTION_MACRO ~READ_SOUNDSET~ BEGIN
+  COPY_EXISTING ~%npc%~ ~override~
+    PATCH_IF (BUFFER_LENGTH > 0x2d3) BEGIN
+      FOR (___#index1 = 0; ___#index1 < 100; ___#index1 = ___#index1 + 1) BEGIN
+        SET EVALUATE_BUFFER ~%soundset%_%___#index1%~ = (0 - 1)
+      END
+      FOR (___#index1 = 0; ___#index1 < 100; ___#index1 = ___#index1 + 1) BEGIN
+        READ_LONG (0xa4 + ___#index1 * 4) ___#strref
+        PATCH_IF NOT (___#strref = (0 - 1)) BEGIN
+          SET EVALUATE_BUFFER ~%soundset%_%___#index1%~ = ___#strref
+        END
+      END
+    END
+  BUT_ONLY_IF_IT_CHANGES
+END
+
+
+
+//npc (.cre), overwrite (0 or 1), soundset (100-int array of strrefs)
+DEFINE_ACTION_MACRO ~WRITE_SOUNDSET~ BEGIN
+  COPY_EXISTING_REGEXP ~^%npc%$~ ~override~
+    PATCH_IF (BUFFER_LENGTH > 0x2d3) BEGIN
+      FOR (___#index1 = 0; ___#index1 < 100; ___#index1 = ___#index1 + 1) BEGIN
+        READ_LONG (0xa4 + ___#index1 * 4) ___#strref
+        SET ___#new_strref = EVALUATE_BUFFER ~%soundset%_%___#index1%~
+        //soft writing
+        PATCH_IF ((overwrite = 0) AND (___#strref = (0 - 1))) BEGIN
+          WRITE_LONG (0xa4 + ___#index1 * 4) ___#new_strref
+        END
+        //forced writing
+        PATCH_IF ((overwrite = 1) AND NOT (___#new_strref = (0 - 1))) BEGIN
+          WRITE_LONG (0xa4 + ___#index1 * 4) ___#new_strref
+        END
+        //overwrite regardless of anything
+        PATCH_IF (overwrite = 2) BEGIN
+          WRITE_LONG (0xa4 + ___#index1 * 4) ___#new_strref
+        END
+      END
+    END
+  BUT_ONLY_IF_IT_CHANGES
+END
+
+DEFINE_PATCH_MACRO ~ADD_AREA_REGION_TRIGGER~ BEGIN
+  LAUNCH_PATCH_MACRO ~ADD_AREA_REGION~
+END
+
+DEFINE_PATCH_MACRO ~ADD_AREA_REGION~ BEGIN
+  FOR (i = 0; i < ab_RT_VxPr; ++i) BEGIN
+    SET EVAL "fj_vertex_%i%" = EVAL "ab_RT_Vx_X_%i%" + (EVAL "ab_RT_Vx_Y_%i%" << 16)
+  END
+  /*
+   * ab_RT_Itxt was not actually used in the old code, so there are instances of
+   * the macro's use where it is not initialised.
+   */
+  ab_RT_Itxt = !VARIABLE_IS_SET ab_RT_Itxt OR !IS_AN_INT ab_RT_Itxt ? "-1" : ab_RT_Itxt
+  LPF fj_are_structure
+    INT_VAR
+      fj_type = ab_RT_Type
+      fj_box_left = ab_RT_BbLX
+      fj_box_top = ab_RT_BbLY
+      fj_box_right = ab_RT_BbHX
+      fj_box_bottom = ab_RT_BbHY
+      fj_cursor_idx = ab_RT_CuId
+      fj_flags = ab_RT_Fbit
+      fj_info_point_strref = ab_RT_Itxt
+      fj_trap_detect = ab_RT_TDtD
+      fj_trap_remove = ab_RT_TRmD
+      fj_trap_active = ab_RT_TSet
+      fj_trap_status = ab_RT_TDet
+      fj_loc_x = ab_RT_LPoX
+      fj_loc_y = ab_RT_LPoY
+      fj_alt_x = ab_RT_ALPX
+      fj_alt_y = ab_RT_ALPY
+    STR_VAR
+      fj_structure_type = region
+      fj_name = EVAL ~%ab_RT_Name%~
+      fj_destination_area = EVAL ~%ab_RT_Dest%~
+      fj_destination_name = EVAL ~%ab_RT_EntN%~
+      fj_key_resref = EVAL ~%ab_RT_KeyI%~
+      fj_reg_script = EVAL ~%ab_RT_Rbcs%~
+      fj_dialog = EVAL ~%ab_RT_Dial%~
+  END
+END

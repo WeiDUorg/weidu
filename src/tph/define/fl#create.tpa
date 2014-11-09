@@ -1,0 +1,779 @@
+/*
+ * At the OCaml level, CREATE defines the variables
+ * %FL#CREATE#TYPE%
+ * %FL#CREATE#RESREF%
+ * %FL#CREATE#VERSION%
+ *
+ * and the patch macro
+ * FL#CREATE#PATCH_LIST
+ *
+ */
+
+/*
+ * Todo: implement a persistent, empty inlined file and use that
+ *       MAKE_BUFF2? Give me a break
+ */
+
+DEFINE_ACTION_MACRO FL#CREATE BEGIN
+  LAF FL#CREATE#VALIDATE_RESREF
+    STR_VAR
+      resref = EVAL "%FL#CREATE#RESREF%"
+      ext = EVAL "%FL#CREATE#TYPE%"
+  END
+  LAF FL#CREATE#MAKE_BUFF
+    STR_VAR
+      type = EVAL "%FL#CREATE#TYPE%"
+      version = EVAL "%FL#CREATE#VERSION%"
+    RET
+      FL#CREATE#BUFF = buff
+  END
+
+  OUTER_INNER_PATCH_SAVE FL#CREATE#BUFF "%FL#CREATE#BUFF%" BEGIN
+    LPM FL#CREATE#PATCH_LIST
+  END
+
+  LAF FL#CREATE#MAKE_FILE
+    STR_VAR
+      ext = EVAL "%FL#CREATE#TYPE%"
+      resref = EVAL "%FL#CREATE#RESREF%"
+      buff = EVAL "%FL#CREATE#BUFF%"
+  END
+END
+
+//////////////////////////////////////////////////////////////////////
+
+DEFINE_ACTION_FUNCTION FL#CREATE#VALIDATE_RESREF
+  STR_VAR
+    resref = ""
+    ext = ""
+BEGIN
+  ACTION_IF "%resref%" STRING_MATCHES_REGEXP ".+\.%ext%$" = 0 BEGIN
+    FAIL ~CREATE: resource refercence "%resref%" should not contain a file extension~
+  END
+  ACTION_IF STRING_LENGTH "%resref%" > 8 BEGIN
+    FAIL ~CREATE: the resource reference "%resref%" is longer than 8 characters~
+  END
+  ACTION_IF STRING_LENGTH "%resref%" = 0 BEGIN
+    FAIL ~CREATE: empty resousrce reference~
+  END
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#FAIL
+  STR_VAR
+    filetype = ""
+    version = ""
+BEGIN
+  FAIL "CREATE does not know how to create %filetype% of type %version%"
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#MAKE_BUFF
+  STR_VAR
+    type = ""
+    version = ""
+  RET
+    buff
+BEGIN
+  ACTION_TO_UPPER type
+  ACTION_TO_UPPER version
+  LAF FL#CREATE#DEFAULT_VERSION STR_VAR type version RET version END
+  ACTION_MATCH "%type%" WITH
+    "ARE"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF#ARE STR_VAR version RET buff END
+    END
+
+    "CRE"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF#CRE STR_VAR version RET buff END
+    END
+
+    "EFF"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x110 STR_VAR mutator = FL#CREATE#EFF#V20 RET buff END
+    END
+
+    "ITM"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF#ITM STR_VAR version RET buff END
+    END
+
+    "SPL"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF#SPL STR_VAR version RET buff END
+    END
+
+    "STO"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF#STO STR_VAR version RET buff END
+    END
+    DEFAULT
+      FAIL "CREATE does not know how to create files of type %type%"
+  END
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#MAKE_BUFF#ARE
+  STR_VAR
+    version = ""
+  RET
+    buff
+BEGIN
+  ACTION_MATCH "%version%" WITH
+    "V1.0"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x11c STR_VAR mutator = FL#CREATE#ARE#V10 RET buff END
+    END
+
+    "V9.1"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x12c STR_VAR mutator = FL#CREATE#ARE#V91 RET buff END
+    END
+
+    DEFAULT
+      LAF FL#CREATE#FAIL STR_VAR filetype = ARE version END
+  END
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#MAKE_BUFF#CRE
+  STR_VAR
+    version = ""
+  RET
+    buff
+BEGIN
+  ACTION_MATCH "%version%" WITH
+    "V1.0"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x2d4 STR_VAR mutator = FL#CREATE#CRE#V10 RET buff END
+    END
+
+    "V1.2"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x378 STR_VAR mutator = FL#CREATE#CRE#V12 RET buff END
+    END
+
+    "V2.2"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x62e STR_VAR mutator = FL#CREATE#CRE#V22 RET buff END
+    END
+
+    "V9.0"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x33c STR_VAR mutator = FL#CREATE#CRE#V90 RET buff END
+    END
+
+    DEFAULT
+      LAF FL#CREATE#FAIL STR_VAR filetype = CRE version END
+  END
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#MAKE_BUFF#ITM
+  STR_VAR
+    version = ""
+  RET
+    buff
+BEGIN
+  ACTION_MATCH "%version%" WITH
+    "V1.0"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x72 STR_VAR mutator = FL#CREATE#ITM#V10 RET buff END
+    END
+
+    "V1.1"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x9a STR_VAR mutator = FL#CREATE#ITM#V11 RET buff END
+    END
+
+    "V2.0"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x82 STR_VAR mutator = FL#CREATE#ITM#V20 RET buff END
+    END
+
+    DEFAULT
+      LAF FL#CREATE#FAIL STR_VAR filetype = ITM version END
+  END
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#MAKE_BUFF#SPL
+  STR_VAR
+    version = ""
+  RET
+    buff
+BEGIN
+  ACTION_MATCH "%version%" WITH
+    "V1.0"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x72 STR_VAR mutator = FL#CREATE#SPL#V10 RET buff END
+    END
+
+    "V2.0"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x82 STR_VAR mutator = FL#CREATE#SPL#V20 RET buff END
+    END
+
+    DEFAULT
+      LAF FL#CREATE#FAIL STR_VAR filetype = SPL version END
+  END
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#MAKE_BUFF#STO
+  STR_VAR
+    version = ""
+  RET
+    buff
+BEGIN
+  ACTION_MATCH "%version%" WITH
+    "V1.0"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x9c STR_VAR mutator = FL#CREATE#STO#V10 RET buff END
+    END
+
+    "V1.1"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x9c STR_VAR mutator = FL#CREATE#STO#V11 RET buff END
+    END
+
+    "V9.0"
+    BEGIN
+      LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0xf0 STR_VAR mutator = FL#CREATE#STO#V90 RET buff END
+    END
+
+    DEFAULT
+      LAF FL#CREATE#FAIL STR_VAR filetype = STO version END
+  END
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#MAKE_BUFF2
+  INT_VAR
+    length = 0
+  STR_VAR
+    mutator = ""
+  RET
+    buff
+BEGIN
+  OUTER_INNER_PATCH_SAVE buff "" BEGIN
+    INSERT_BYTES 0 length
+    LPF "%mutator%" END
+  END
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#DEFAULT_VERSION
+  STR_VAR
+    type = ""
+    version = ""
+  RET
+    version
+BEGIN
+  ACTION_MATCH "%type%" WITH
+    "ARE"
+    BEGIN
+      LAF FL#CREATE#DEFAULT_VERSION#ARE STR_VAR version RET version END
+    END
+
+    "CRE"
+    BEGIN
+      LAF FL#CREATE#DEFAULT_VERSION#CRE STR_VAR version RET version END
+    END
+
+    "ITM"
+    BEGIN
+      LAF FL#CREATE#DEFAULT_VERSION#ITM STR_VAR version RET version END
+    END
+
+    "SPL"
+    BEGIN
+      LAF FL#CREATE#DEFAULT_VERSION#SPL STR_VAR version RET version END
+    END
+
+    "STO"
+    BEGIN
+      LAF FL#CREATE#DEFAULT_VERSION#STO STR_VAR version RET version END
+    END
+
+    DEFAULT
+  END
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#DEFAULT_VERSION#ARE
+  STR_VAR
+    version = ""
+  RET
+    version
+BEGIN
+  ACTION_MATCH "%version%" WITH
+    "" WHEN ENGINE_IS ~bg1 totsc soa tob pst iwd how totlm bgee bg2ee iwdee~
+    BEGIN
+      OUTER_SPRINT version "V1.0"
+    END
+
+    "" WHEN ENGINE_IS ~iwd2~
+    BEGIN
+      OUTER_SPRINT version "V9.1"
+    END
+
+    ""
+    BEGIN
+      OUTER_SPRINT version "V1.0"
+    END
+
+    DEFAULT
+  END
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#DEFAULT_VERSION#CRE
+  STR_VAR
+    version = ""
+  RET
+    version
+BEGIN
+  ACTION_MATCH "%version%" WITH
+    "" WHEN ENGINE_IS ~bg1 totsc soa tob bgee bg2ee iwdee~
+    BEGIN
+      OUTER_SPRINT version "V1.0"
+    END
+
+    "" WHEN ENGINE_IS ~pst~
+    BEGIN
+      OUTER_SPRINT version "V1.2"
+    END
+
+    "" WHEN ENGINE_IS ~iwd2~
+    BEGIN
+      OUTER_SPRINT version "V2.2"
+    END
+
+    "" WHEN ENGINE_IS ~iwd how totlm~
+    BEGIN
+      OUTER_SPRINT version "V9.0"
+    END
+
+    ""
+    BEGIN
+      OUTER_SPRINT version "V1.0"
+    END
+
+    DEFAULT
+  END
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#DEFAULT_VERSION#ITM
+  STR_VAR
+    version = ""
+  RET
+    version
+BEGIN
+  ACTION_MATCH "%version%" WITH
+    "" WHEN ENGINE_IS ~bg1 totsc soa tob iwd how totlm bgee bg2ee iwdee~
+    BEGIN
+      OUTER_SPRINT version "V1.0"
+    END
+
+    "" WHEN ENGINE_IS ~pst~
+    BEGIN
+      OUTER_SPRINT version "V1.1"
+    END
+
+    "" WHEN ENGINE_IS ~iwd2~
+    BEGIN
+      OUTER_SPRINT version "V2.0"
+    END
+
+    ""
+    BEGIN
+      OUTER_SPRINT version "V1.0"
+    END
+
+    DEFAULT
+  END
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#DEFAULT_VERSION#SPL
+  STR_VAR
+    version = ""
+  RET
+    version
+BEGIN
+  ACTION_MATCH "%version%" WITH
+    "" WHEN ENGINE_IS ~bg1 totsc soa tob pst iwd how totlm bgee bg2ee iwdee~
+    BEGIN
+      OUTER_SPRINT version "V1.0"
+    END
+
+    "" WHEN ENGINE_IS ~iwd2~
+    BEGIN
+      OUTER_SPRINT version "V2.0"
+    END
+
+    ""
+    BEGIN
+      OUTER_SPRINT version "V1.0"
+    END
+
+    DEFAULT
+  END
+END
+
+DEFINE_ACTION_FUNCTION FL#CREATE#DEFAULT_VERSION#STO
+  STR_VAR
+    version = ""
+  RET
+    version
+BEGIN
+  ACTION_MATCH "%version%" WITH
+    "" WHEN ENGINE_IS ~bg1 totsc soa tob iwd bgee bg2ee iwdee~
+    BEGIN
+      OUTER_SPRINT version "V1.0"
+    END
+
+    "" WHEN ENGINE_IS ~pst~
+    BEGIN
+      OUTER_SPRINT version "V1.1"
+    END
+
+    "" WHEN ENGINE_IS ~how totlm iwd2~
+    BEGIN
+      OUTER_SPRINT version "V9.0"
+    END
+
+    ""
+    BEGIN
+      OUTER_SPRINT version "V1.0"
+    END
+
+    DEFAULT
+  END
+END
+
+<<<<<<<< .../fl-inlined/tmp
+>>>>>>>>
+
+DEFINE_ACTION_FUNCTION FL#CREATE#MAKE_FILE
+  STR_VAR
+    ext = ""
+    resref = ""
+    buff = ""
+BEGIN
+  ACTION_TO_LOWER ext
+  OUTER_SET count = STRING_LENGTH "%buff%"
+  PRINT "Creating file %resref%.%ext%; %count% bytes"
+  COPY ~.../fl-inlined/tmp~ ~override/%resref%.%ext%~
+    INSERT_BYTES 0 STRING_LENGTH "%buff%"
+    WRITE_ASCIIE 0 "%buff%"
+END
+
+//////////////////////////////////////////////////////////////////////
+
+DEFINE_PATCH_FUNCTION FL#CREATE#ARE#SONGS
+  STR_VAR version = ""
+BEGIN
+  DEFINE_ASSOCIATIVE_ARRAY offset_off BEGIN
+    "V1.0" => 0xbc
+    "V9.1" => 0xcc
+  END
+  DEFINE_ASSOCIATIVE_ARRAY update_off BEGIN
+    "V1.0" => 0xc0
+    "V9.1" => 0xd0
+  END
+
+  READ_LONG $offset_off("%version%") off
+  INSERT_BYTES off 0x90
+  WRITE_LONG $update_off("%version%") THIS + 0x90
+  FOR (o = off + 0x14; o < off + 0x24; o += 0x4) BEGIN
+    WRITE_LONG o "-1"
+  END
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#ARE#REST
+  STR_VAR
+    version = ""
+BEGIN
+  DEFINE_ASSOCIATIVE_ARRAY offset_off BEGIN
+    "V1.0" => 0xc0
+    "V9.1" => 0xd0
+  END
+
+  READ_LONG $offset_off("%version%") off
+  INSERT_BYTES off 0xe4
+  FOR (i = 0; i < 10; ++i) BEGIN
+    WRITE_LONG off + 0x20 + 0x4 * i "-1"
+  END
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#ARE#V10
+  INT_VAR
+    length = 0x11c
+BEGIN
+  WRITE_ASCII 0x00 "AREAV1.0"
+  PATCH_FOR_EACH off IN 0x54 0x5c 0x60 0x68 0x70 0x78 0x7c 0x84 0x88 0xa0 0xa8 0xb0 0xb8 0xbc 0xc0 BEGIN
+    WRITE_LONG off length
+  END
+  LPF FL#CREATE#ARE#SONGS STR_VAR version = "V1.0" END
+  LPF FL#CREATE#ARE#REST STR_VAR version = "V1.0" END
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#ARE#V91
+  INT_VAR
+    length = 0x12c
+BEGIN
+  WRITE_ASCII 0x00 "AREAV9.1"
+  PATCH_FOR_EACH off IN 0x64 0x6c 0x70 0x78 0x80 0x88 0x8c 0x94 0x98 0xb0 0xb8 0xc0 0xc8 0xcc 0xd0 BEGIN
+    WRITE_LONG off length
+  END
+  LPF FL#CREATE#ARE#SONGS STR_VAR version = "V9.1" END
+  LPF FL#CREATE#ARE#REST STR_VAR version = "V9.1" END
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#CRE#SPELL_MEM
+  STR_VAR
+    version = ""
+BEGIN
+  DEFINE_ARRAY V1.0 BEGIN 0x2b0 0x2b8 0x2bc 0x2c4 END
+  DEFINE_ARRAY V1.2 BEGIN 0x354 0x35c 0x360 0x368 END
+  DEFINE_ARRAY V9.0 BEGIN 0x318 0x320 0x324 0x32c END
+  DEFINE_ASSOCIATIVE_ARRAY offset_off BEGIN
+    "V1.0" => 0x2a8
+    "V1.2" => 0x34c
+    "V9.0" => 0x310
+  END
+  DEFINE_ASSOCIATIVE_ARRAY count_off BEGIN
+    "V1.0" => 0x2ac
+    "V1.2" => 0x350
+    "V9.0" => 0x314
+  END
+
+  READ_LONG $offset_off("%version%") offset
+  WRITE_LONG $count_off("%version%") 17
+  PHP_EACH "%version%" AS _ => o BEGIN
+    WRITE_LONG o THIS + 0x110
+  END
+  INSERT_BYTES offset 0x110
+  point = 0
+  FOR (i = 0; i < 7; ++i) BEGIN // Priest spells
+    WRITE_SHORT offset + point i
+    point += 0x10
+  END
+  FOR (i = 0; i < 9; ++i) BEGIN // Wizard spells
+    WRITE_SHORT offset + point i
+    WRITE_SHORT offset + point + 0x6 1
+    point += 0x10
+  END
+  WRITE_SHORT offset + point + 0x6 2 // Innate spells
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#CRE#ITEM_SLOT
+  STR_VAR
+    version = ""
+BEGIN
+  DEFINE_ASSOCIATIVE_ARRAY offset_off BEGIN
+    "V1.0" => 0x2b8
+    "V1.2" => 0x35c
+    "V2.2" => 0x612
+    "V9.0" => 0x320
+  END
+  DEFINE_ASSOCIATIVE_ARRAY slots_count BEGIN
+    "V1.0" => 40
+    "V1.2" => 48
+    "V2.2" => 52
+    "V9.0" => 40
+  END
+
+  READ_LONG $offset_off("%version%") offset
+  INSERT_BYTES offset $slots_count("%version%") * 2
+  FOR (i = 0; i < $slots_count("%version%") - 2; ++i) BEGIN
+    WRITE_SHORT offset + i * 2 "-1"
+  END
+
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#CRE#V10
+  INT_VAR
+    length = 0x2d4
+BEGIN
+  WRITE_ASCII 0x000 "CRE V1.0"
+  WRITE_LONG  0x008 "-1"
+  WRITE_LONG  0x00c "-1"
+  WRITE_BYTE  0x033 ENGINE_IS ~bg1 totsc pst iwd how totlm iwd2~ ? 0 : 1
+  FOR (off = 0xa4; off < 0x234; off += 0x4) BEGIN
+    WRITE_LONG off "-1"
+  END
+  WRITE_SHORT 0x27c "-1"
+  WRITE_SHORT 0x27e "-1"
+  WRITE_LONG  0x2a0 length
+  WRITE_LONG  0x2a8 length
+  WRITE_LONG  0x2b0 length
+  WRITE_LONG  0x2b8 length
+  WRITE_LONG  0x2bc length
+  WRITE_LONG  0x2c4 length
+  LPF FL#CREATE#CRE#SPELL_MEM STR_VAR version = "V1.0" END
+  LPF FL#CREATE#CRE#ITEM_SLOT STR_VAR version = "V1.0" END
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#CRE#V12
+  INT_VAR
+    length = 0x378
+BEGIN
+  WRITE_ASCII 0x000 "CRE V1.2"
+  WRITE_LONG  0x008 "-1"
+  WRITE_LONG  0x00c "-1"
+  FOR (off = 0xa4; off < 0x234; off += 0x4) BEGIN
+    WRITE_LONG off "-1"
+  END
+  WRITE_SHORT 0x320 "-1"
+  WRITE_SHORT 0x322 "-1"
+  WRITE_LONG  0x344 length
+  WRITE_LONG  0x34c length
+  WRITE_LONG  0x354 length
+  WRITE_LONG  0x35c length
+  WRITE_LONG  0x360 length
+  WRITE_LONG  0x368 length
+  LPF FL#CREATE#CRE#SPELL_MEM STR_VAR version = "V1.2" END
+  LPF FL#CREATE#CRE#ITEM_SLOT STR_VAR version = "V1.2" END
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#CRE#V22
+  INT_VAR
+    length = 0x62e
+BEGIN
+  WRITE_ASCII 0x000 "CRE V2.2"
+  WRITE_LONG  0x008 "-1"
+  WRITE_LONG  0x00c "-1"
+  FOR (off = 0xac; off < 0x1ac; off += 0x4) BEGIN
+    WRITE_LONG off "-1"
+  END
+  WRITE_SHORT 0x390 "-1"
+  WRITE_SHORT 0x392 "-1"
+
+  FOR (off = 0x3ba; off < 0x4b6; off += 0x4) BEGIN
+    WRITE_LONG off length
+  END
+  FOR (off = 0x5b2; off < 0x5d6; off += 0x4) BEGIN
+    WRITE_LONG off length
+  END
+  WRITE_LONG 0x5fa length
+  WRITE_LONG 0x602 length
+  WRITE_LONG 0x60a length
+  WRITE_LONG 0x612 length
+  WRITE_LONG 0x616 length
+  WRITE_LONG 0x61e length
+
+  LPF FL#CREATE#CRE#V22#SPELL_MEM END
+  LPF FL#CREATE#CRE#ITEM_SLOT STR_VAR version = "V2.2" END
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#CRE#V22#SPELL_MEM BEGIN
+  READ_LONG 0x3ba off
+  INSERT_BYTES off 0x258
+  count = 0
+  FOR (off = 0x3ba; off < 0x4b6; off += 0x4) BEGIN
+    WRITE_LONG off THIS + count * 0x8
+    ++count
+  END
+  FOR (off = 0x5b2; off < 0x5d6; off += 0x4) BEGIN
+    WRITE_LONG off THIS + count * 0x8
+    ++count
+  END
+  PATCH_FOR_EACH off IN 0x5fa 0x602 0x60a BEGIN
+    WRITE_LONG off THIS + count * 0x8
+    ++count
+  END
+  PATCH_FOR_EACH off IN 0x612 0x616 0x61e BEGIN
+    WRITE_LONG off THIS + count * 0x8
+  END
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#CRE#V90
+  INT_VAR
+    length = 0x33c
+BEGIN
+  WRITE_ASCII 0x000 "CRE V9.0"
+  WRITE_LONG  0x008 "-1"
+  WRITE_LONG  0x00c "-1"
+  FOR (off = 0xa4; off < 0x234; off += 0x4) BEGIN
+    WRITE_LONG off "-1"
+  END
+  WRITE_SHORT 0x2e4 "-1"
+  WRITE_SHORT 0x2e6 "-1"
+  WRITE_LONG  0x308 length
+  WRITE_LONG  0x310 length
+  WRITE_LONG  0x318 length
+  WRITE_LONG  0x320 length
+  WRITE_LONG  0x324 length
+  WRITE_LONG  0x32c length
+  LPF FL#CREATE#CRE#SPELL_MEM STR_VAR version = "V9.0" END
+  LPF FL#CREATE#CRE#ITEM_SLOT STR_VAR version = "V9.0" END
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#EFF#V20 BEGIN
+  WRITE_ASCII 0x00 "EFF V2.0"
+  WRITE_ASCII 0x08 "EFF V2.0"
+  WRITE_LONG  0x80 "-1"
+  WRITE_LONG  0x84 "-1"
+  WRITE_LONG  0x88 "-1"
+  WRITE_LONG  0x8c "-1"
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#ITM#V10
+  INT_VAR
+    length = 0x72
+BEGIN
+  WRITE_ASCII 0x00 "ITM V1.0"
+  WRITE_LONG  0x08 "-1"
+  WRITE_LONG  0x0c "-1"
+  WRITE_LONG  0x50 "-1"
+  WRITE_LONG  0x54 "-1"
+  WRITE_LONG  0x64 length
+  WRITE_LONG  0x6a length
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#ITM#V11
+  INT_VAR
+    length = 0x9a
+BEGIN
+  LPF FL#CREATE#ITM#V10 INT_VAR length END
+  WRITE_ASCII 0x00 "ITM V1.1"
+  WRITE_LONG  0x6e length
+  WRITE_LONG  0x7a "-1"
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#ITM#V20 BEGIN
+  LPF FL#CREATE#ITM#V10 INT_VAR length = 0x82 END
+  WRITE_ASCII 0x00 "ITM V2.0"
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#SPL#V10
+  INT_VAR
+    length = 0x72
+BEGIN
+  WRITE_ASCII 0x00 "SPL V1.0"
+  WRITE_LONG  0x08 "-1"
+  WRITE_LONG  0x0c "-1"
+  WRITE_LONG  0x50 "-1"
+  WRITE_LONG  0x54 "-1"
+  WRITE_LONG  0x64 length
+  WRITE_LONG  0x6a length
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#SPL#V20 BEGIN
+  LPF FL#CREATE#SPL#V10 INT_VAR length = 0x82 END
+  WRITE_ASCII 0x00 "SPL V2.0"
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#STO#V10
+  INT_VAR
+    length = 0x9c
+BEGIN
+  WRITE_ASCII 0x00 "STORV1.0"
+  WRITE_LONG  0x0c "-1"
+  WRITE_LONG  0x2c length
+  WRITE_LONG  0x34 length
+  WRITE_LONG  0x4c length
+  WRITE_LONG  0x70 length
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#STO#V11 BEGIN
+  LPF FL#CREATE#STO#V10 END
+  WRITE_ASCII 0x00 "STORV1.1"
+END
+
+DEFINE_PATCH_FUNCTION FL#CREATE#STO#V90 BEGIN
+  LPF FL#CREATE#STO#V10 INT_VAR length = 0xf0 END
+  WRITE_ASCII 0x00 "STORV9.0"
+END

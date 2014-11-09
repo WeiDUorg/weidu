@@ -13,15 +13,12 @@ WEIDU_BASE_MODULES  := batList batteriesInit \
         smutil useract lexerint parsetables arraystack objpool glr lrparse \
         automate kit tpstate tphelp trealparser tlexer toldparser toldlexer tparser \
         parsewrappers mymarshal tppe tpuninstall tppatch tpaction tpwork
-ifdef ITEMLIST
-WEIDU_BASE_MODULES  += pretty itemlist
-endif
 WEIDU_MODULES  =  $(WEIDU_BASE_MODULES) myarg autoupdate main
 
-MODULES        = $(WEIDU_MODULES) iwgconf iwgrule iwglexer iwgparser iwg2 myarg weinstall tolower
+MODULES        = $(WEIDU_MODULES) myarg weinstall tolower
 SOURCEDIRS     := src zlib glob xdiff elkhound batteries-lite
-MLLS           := dlexer.mll idslexer.mll idslexer2.mll bcslexer.mll baflexer.mll iwglexer.mll tlexer.mll toldlexer.mll refactorbaflexer.mll refactordlexer.mll
-MLYS           := dparser.mly idsparser.mly bcsparser.mly bafparser.mly iwgparser.mly toldparser.mly refactorbafparser.mly refactordparser.mly
+MLLS           := dlexer.mll idslexer.mll idslexer2.mll bcslexer.mll baflexer.mll tlexer.mll toldlexer.mll refactorbaflexer.mll refactordlexer.mll
+MLYS           := dparser.mly idsparser.mly bcsparser.mly bafparser.mly toldparser.mly refactorbafparser.mly refactordparser.mly
 GRS            := trealparserin.gr
 
 src/tph.ml : src/tph/include/* src/tph/define/* scripts/make_tph.ml
@@ -64,5 +61,4 @@ $(OBJDIR)/mymarshal.cmx : $(OBJDIR)/dlexer.cmx
 $(OBJDIR)/util.cmx : $(OBJDIR)/arch.cmx
 
 # Include now the common set of rules for OCAML
-include Makefile.msvc
 include Makefile.ocaml

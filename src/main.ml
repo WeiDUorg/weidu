@@ -779,22 +779,6 @@ let decompile_dlg dlg_list transitive two_pass use_trans d_headers d_toplevel ga
   done ;
 ;;
 
-let make_trb_file trbify =
-  (match trbify with
-  | Some(filename) -> begin
-      let result = parse_file true (File filename) "parsing .tra files"
-          (Dparser.tra_file Dlexer.initial) in
-      log_or_print "[%s] has %d translation strings\n" filename
-        (List.length result);
-      let base = handle_out_boringness filename ["tra"; "trb"] in
-      if !debug_ocaml then log_and_print "I'm trying to save to %s.trb\n\n" base ;
-      let out = Case_ins.perv_open_out_bin (base ^ ".trb") in
-      Marshal.to_channel out result [] ;
-      close_out out
-  end
-  | _ -> ()) ;
-;;
-
 let untraify game untraify_d untraify_tra =
   if_bgee_check_lang_or_fail game ;
   ( match (untraify_d,untraify_tra) with
@@ -862,7 +846,9 @@ let traify_file game traify traify_num traify_comment traify_old_tra =
           let my_regexp = Str.regexp (Str.quote str) in
           buf := Str.global_replace my_regexp "" !buf ;
         in
-        let remove_but_substr regexp =
+        let remove_empty_sound string =
+          let regexp = Str.regexp ("\\(" ^ string ^ "\\)[ \t]+" ^
+                                   (Str.quote "[]")) in
           buf := Str.global_replace regexp "\\1" !buf ;
         in
         let fix_suckage index comment =
@@ -909,39 +895,73 @@ let traify_file game traify traify_num traify_comment traify_old_tra =
         in
 
         let do_traification index lse =
+          (* 'tis a thing of beauty *)
           let delimiters = ["~"; "%"; "\""] in
-          let replace2 index string sound comment =
-            if sound <> "" then
-              let sound = Str.quote ("[" ^ sound ^ "]") in
-              List.iter (fun delimiter ->
-                let string = Str.quote (delimiter ^ string ^ delimiter) in
-                let regexp = Str.regexp (string ^ "[ \t]+" ^ sound) in
-                replace index regexp comment) delimiters
-            else
-              List.iter (fun delimiter ->
-                let string = Str.quote (delimiter ^ string ^ delimiter) in
-                remove_but_substr (Str.regexp ("\\(" ^ string ^ "\\)[ \t]+" ^
-                                               (Str.quote "[]"))) ;
-                let regexp = Str.regexp (string) in
-                replace index regexp comment) delimiters
-          in
-          let replace_male index lse =
-            if lse.lse_male <> "" then begin
-              let comment_string = make_comment lse in
-              replace2 index lse.lse_male lse.lse_male_sound comment_string ;
-            end
-          in
-          let replace_female lse =
-            if (lse.lse_female <> "") &&
-              (lse.lse_female <> lse.lse_male) then begin
-                replace2 index lse.lse_female lse.lse_female_sound "" ;
+          let comment = make_comment lse in
+
+          begin match (lse.lse_male, lse.lse_male_sound, lse.lse_female, lse.lse_female_sound) with
+          | ("", "", "", "") -> ()
+          | (male, "", female, "") -> (* male = female unless there is a female string *)
+              begin
+                List.iter (fun md ->
+                  List.iter (fun fd ->
+                    let male = Str.quote (md ^ male ^ md) in
+                    let female = Str.quote (fd ^ female ^ fd) in
+                    ignore (remove_empty_sound male) ;
+                    ignore (remove_empty_sound female) ;
+                    let regexp = Str.regexp (male ^ "[ \t]+" ^ female) in
+                    ignore (replace index regexp comment) ;
+                    if female = male then begin
+                      let regexp = Str.regexp (male) in
+                      ignore (replace index regexp comment)
+                    end) delimiters) delimiters ;
+                ()
               end
-          in
+          | (male, male_sound, female, "") ->
+              begin
+                List.iter (fun md ->
+                  List.iter (fun fd ->
+                    let male = Str.quote (md ^ male ^ md) in
+                    let female = Str.quote (fd ^ female ^ fd) in
+                    let male_sound = Str.quote ("[" ^ male_sound ^ "]") in
+                    ignore (remove_empty_sound female) ;
+                    let regexp = Str.regexp (male ^ "[ \t]+" ^ male_sound ^ "[ \t]+" ^ female) in
+                    ignore (replace index regexp comment)) delimiters) delimiters ;
+                ()
+              end
 
-          ignore (replace_male index lse) ;
-          ignore (replace_female lse) ;
+          | (male, "", female, female_sound) ->
+              begin
+                List.iter (fun md ->
+                  List.iter (fun fd ->
+                    let male = Str.quote (md ^ male ^ md) in
+                    let female = Str.quote (fd ^ female ^ fd) in
+                    let female_sound = Str.quote ("[" ^ female_sound ^ "]") in
+                    ignore (remove_empty_sound male) ;
+                    let regexp = Str.regexp (male ^ "[ \t]+" ^ female ^ "[ \t]+" ^ female_sound) in
+                    ignore (replace index regexp comment)) delimiters) delimiters ;
+                ()
+              end
+
+          | (male, male_sound, female, female_sound) ->
+              begin
+                List.iter (fun md ->
+                  List.iter (fun fd ->
+                    let male = Str.quote (md ^ male ^ md) in
+                    let female = Str.quote (fd ^ female ^ fd) in
+                    let male_sound = Str.quote ("[" ^ male_sound ^ "]") in
+                    let female_sound = Str.quote ("[" ^ female_sound ^ "]") in
+                    let regexp = Str.regexp (male ^ "[ \t]+" ^ male_sound ^ "[ \t]+" ^ female ^ "[ \t]+" ^ female_sound) in
+                    ignore (replace index regexp comment) ;
+                    if female = male && female_sound = male_sound then begin
+                      let regexp = Str.regexp (male ^ "[ \t]+" ^ male_sound) in
+                      ignore (replace index regexp comment) ;
+                    end) delimiters) delimiters ;
+                ()
+              end
+          end ;
+
           let tra_str = (make_tra_string index lse) in
-
           (index, tra_str)
         in
 
@@ -1334,11 +1354,6 @@ let main () =
   let list_comp_lang = ref 0 in
   let save_comp_name = ref false in
 
-  let make_an_itemlist = ref false in
-  let make_an_xplist = ref false in
-  let do_cre_analysis = ref false in
-  let do_itmsort = ref false in
-
   let dcmp_src = ref None in
   let dcmp_dest = ref None in
 
@@ -1428,7 +1443,6 @@ let main () =
   let traify = ref None in
   let traify_old_tra = ref None in
   let traify_comment = ref false in
-  let trbify = ref None in
   let traify_num = ref 0 in
 
   let untraify_d = ref None in
@@ -1480,7 +1494,8 @@ let main () =
       in
       let chunk_list = Str.split (Str.regexp "[-]") argv0_base in
       let chunk = match chunk_list with
-      | a :: b :: _ -> b
+      | a :: b :: [] -> b
+      | a :: b -> (String.concat "-" b)
       | _ -> ""
       in
       try_it
@@ -1503,7 +1518,7 @@ let main () =
     "--search-ids", Myarg.String Load.add_ids_path, "X\tlook in X for input IDS files (cumulative)" ;
     "--tlkin", Myarg.String Load.set_dialog_tlk_path,"X\tuse X as DIALOG.TLK" ;
     "--ftlkin", Myarg.String Load.set_dialogf_tlk_path,"X\tuse X as DIALOGF.TLK";
-    "--use-lang", Myarg.String (fun s -> ee_use_lang := Some s), "X\ton games with multiple languages, use files in lang/X/";
+    "--use-lang", Myarg.String (fun s -> ee_use_lang := Some (String.lowercase s)), "X\ton games with multiple languages, use files in lang/X/";
     "--tlkmerge", Myarg.String (fun s -> tlk_merge := !tlk_merge @ [s]; test_output_tlk_p := true),
     "X\tmerge X into loaded DIALOG.TLK" ;
     "--yes", Myarg.Set Tp.always_yes,"\tanswer all TP2 questions with 'Yes'";
@@ -1587,7 +1602,6 @@ let main () =
     "--traify-old-tra", Myarg.String (fun s -> traify_old_tra := Some(s)), "X\tthe given .TRA file contains the initial strings to traify" ;
     "--traify#", Myarg.Int (fun d -> traify_num := d), "X\tstart --traify .TRA file at @X" ;
     "--traify-comment", Myarg.Set traify_comment, "\toutput @1 /* ~Hello~ */ rather than @1 when traifying" ;
-    "--trbify", Myarg.String (fun s -> trbify := Some(s)), "X\tconvert .TRA file X to a TRB (use with --out)" ;
     "--untraify-d", Myarg.String (fun s -> untraify_d := Some(s)), "X\tconvert .D file X to use hardcoded strings...";
     "--untraify-tra", Myarg.String (fun s -> untraify_tra := Some(s)), "X\t...from TRA file X";
     "--extract-kits", Myarg.Int (fun d -> extract_kits := d), "X\textract all kits starting with kit #X";
@@ -1601,6 +1615,7 @@ let main () =
     "--strfind", Myarg.String (fun s -> strfind_list := s :: !strfind_list), "X\tdisplay strings that contain X (cumulative, regexp allowed)" ;
     "--strapp", Myarg.String (fun s -> strapp_list := s :: !strapp_list ; test_output_tlk_p := true), "X\tappend string X to DIALOG.TLK (cumulative)\n\nBIFF Options:\n" ;
     "--exit", Myarg.Set exit_now, "\tprint version number and exit";
+    "--version", Myarg.Set exit_now, "\tprint version number and exit";
     "--no-exit-pause", Myarg.Set no_exit_pause, "\tDon't ask to press enter to exit";
     "--list-biffs", Myarg.Set list_biff, "\tenumerate all BIFF files in CHITIN.KEY" ;
     "--list-files", Myarg.Set list_files, "\tenumerate all resource files in CHITIN.KEY";
@@ -1674,8 +1689,7 @@ let main () =
     | "TLK" -> test_output_tlk_p := true ; Load.set_dialog_tlk_path str
     | "TP"
     | "TP2" -> test_output_tlk_p := true ; tp_list := !tp_list @ [str]
-    | "TRA"
-    | "TRB" -> trans_list := !trans_list @ [str]
+    | "TRA" -> trans_list := !trans_list @ [str]
     | "ITM"
     | "EFF"
     | "SPL" -> list_eff_list := !list_eff_list @ [str]
@@ -1936,11 +1950,6 @@ let main () =
   if !test_trans then begin
     Dc.test_trans output_theout game
   end ;
-
-
-  if !trbify <> None then
-    make_trb_file !trbify ;
-
 
   if !untraify_d <> None && !untraify_tra <> None then
     untraify game !untraify_d !untraify_tra ;

@@ -25,7 +25,6 @@ include Configuration
 # Just a target to be used by default
 .PHONY: weidu doc all
 all : weidu
-# "make weimorph" if you want iwg2
 # "make weigui" if you want weigui
 # "make weinstall" if you want weinstall
 
@@ -51,10 +50,6 @@ CAMLFLAGS      += -I zlib -I xdiff
 
 PROJECT_EXECUTABLE = $(OBJDIR)/weidu$(EXE)
 PROJECT_MODULES    = $(WEIDU_MODULES)
-ifdef HAVE_MSVC
-PROJECT_CMODULES   = reg
-PROJECT_CLIBS      = C:\\Windows\\System32\\advapi32.dll
-endif
 ifdef HAVE_MINGW
 PROJECT_CMODULES   = reg
 PROJECT_CLIBS      = -ladvapi32
@@ -77,36 +72,6 @@ $(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                     $(PROJECT_CLIBS:%=-cclib %) \
                     $^
 	cp $(PROJECT_EXECUTABLE) .
-
-# rule for Weimorph
-
-PROJECT2_EXECUTABLE = $(OBJDIR)/weimorph$(EXE)
-PROJECT2_MODULES    = myarg $(WEIDU_BASE_MODULES) \
-                        iwgconf iwgrule iwgparser iwglexer iwg2
-ifdef HAVE_MSVC
-PROJECT2_CMODULES   = reg
-PROJECT2_CLIBS      = advapi32.lib
-endif
-ifdef HAVE_MINGW
-PROJECT2_CMODULES   = reg
-PROJECT2_CLIBS      = -ladvapi32
-endif
-#PROJECT2_CMODULES   += eff_strings
-PROJECT_CMODULES   += zlib adler32 inflate uncompr inftrees zutil inffast $(GLOB) xdiff
-PROJECT_CMODULES   += xemit xpatchi xutils xdiffi xprepare $(ARCH_C_FILES)
-PROJECT_CMODULES   += crc32 compress deflate trees
-PROJECT2_LIBS       = unix str
-.PHONY: weimorph
-weimorph: $(PROJECT2_EXECUTABLE)
-$(PROJECT2_EXECUTABLE) : $(PROJECT2_MODULES:%=$(OBJDIR)/%.$(CMO)) \
-                        $(PROJECT2_CMODULES:%=$(OBJDIR)/%.$(OBJEXT))
-	@$(NARRATIVE) Linking $(COMPILETOWHAT) $@
-	$(CAMLLINK) -o $@ \
-                    $(PROJECT2_LIBS:%=%.$(CMXA)) \
-                    $(PROJECT2_LIBS:%=-cclib -l%) \
-                    $(PROJECT2_CLIBS:%=-cclib %) \
-                    $^
-	cp $(PROJECT2_EXECUTABLE) .
 
 # compile weigui with the Labltk bindings!
 weigui: FORCE
@@ -167,19 +132,12 @@ clean:
 ### Distro
 ###
 VER = $(shell grep "let version" src/version.ml | cut -d \" -f 2 | sed -e's/\(...\)../\1/g')
-IWG2 = `grep "let iwg2_version" /cygdrive/c/src/WeiDU/src/iwg2.ml | cut -d ' ' -f 4`
 VERBIG = $(shell grep "let version" src/version.ml | cut -d \" -f 2)
 doc: doc/base.tex
 	$(MAKE) -C doc
 	cat README.html | sed -e "s/&ndash;/--/g" -e's/&#X2013;/--/g' > README-WeiDU.html
 	rm README.html
 
-ifdef ITEMLIST
-zip :
-	echo cannot make zip -- itemlist included
-linux_zip :
-  echo cannot make zip -- itemlist included
-else
 windows_zip : weidu weinstall tolower clean #weigui
 	rm iwg2* weimorph* || true
 	mv weid*.exe weidu.exe
@@ -196,7 +154,7 @@ windows_zip : weidu weinstall tolower clean #weigui
 	upx --best tolower.exe || echo "No EXE Compression"
 	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU/*.exe WeiDU/COPYING WeiDU/README* WeiDU/*.dll WeiDU/examples WeiDU/*.manifest)
 src_zip : clean
-	(cd .. ; zip -9r WeiDU-Src-$(VER).zip weidu/* -x weidu/*.exe -x weidu/*.dll; )
+	(cd .. ; zip -9r WeiDU-Src-$(VER).zip weidu/* -x weidu/*.exe -x weidu/*.dll -x */.DS_Store; )
 build : weidu
 	rm iwg2* weimorph* || true
 	cp weid*$(EXE) ../WeiDU-Linux/weidu || true
@@ -239,24 +197,6 @@ osx_zip : weidu weinstall #weigui
 	cp -r examples ../WeiDU-Mac
 	#sed -e's/version_plist=.*/version_plist=\"${VERBIG}\"/g'  '../WeiDU-Mac/WeiDU Installer.command' > t
 	#mv t ../WeiDU-Mac/WeiDU\ Installer.command
-	(cd .. ; zip -9r WeiDU-Mac-$(VER).zip WeiDU-Mac )
-endif
-
-IWD2_DIR = "/cygdrive/c/Program Files/Black Isle/Icewind Dale II/"
-IWD1_DIR = "/cygdrive/c/Program Files/Black Isle/BGII - SoA/"
-
-iwg2zip: weimorph
-	upx --best weimorph.asm$(EXE) || echo "Fine"
-	cp weimorph.asm$(EXE) $(IWD2_DIR)/iwg2$(EXE)
-	( cd $(IWD2_DIR) ; rm iwg2/errors/* || echo fine)
-	( cd $(IWD2_DIR) ; /home/weimer/bin/rar a -s -m5 -sfx -r IWG2-v$(IWG2)$(EXE) iwg2$(EXE) "iwg2/*" )
-	( cd $(IWD2_DIR) ; chmod a+r IWG2-v$(IWG2)$(EXE) )
-
-iwg1zip: weimorph
-	upx --best weimorph.asm$(EXE) || echo "Fine"
-	cp weimorph.asm$(EXE) $(IWD1_DIR)/iwg1$(EXE)
-	( cd $(IWD1_DIR) ; rm iwg1/errors/* || echo fine)
-	( cd $(IWD1_DIR) ; /home/weimer/bin/rar a -s -m5 -sfx -r IWG1-v$(IWG2)$(EXE) iwg1$(EXE) "iwg1/*" )
-	( cd $(IWD1_DIR) ; chmod a+r IWG1-v$(IWG2)$(EXE) )
+	(cd .. ; zip -9r WeiDU-Mac-$(VER).zip WeiDU-Mac -x */.DS_Store )
 
 FORCE:

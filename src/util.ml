@@ -702,7 +702,7 @@ let rec remove_trailing_space str =
   
   
 let error_chn_ht = Hashtbl.create 11
-let error_chn_base = ref "iwg2/errors"
+let error_chn_base = ref "errors"
 let get_error_chn sort =
   try
     Hashtbl.find error_chn_ht sort

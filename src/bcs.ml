@@ -650,6 +650,7 @@ let is_concat_string ss ids =
   | _, 115l (*SetGlobalTimer(S:Name.,S:Area.,I:Time.GTimes)*)
   | _, 109l (*IncrementGlobal(S:Name.,S:Area.,I:Value.)*)
   | Load.BG2, 364l (*SetGlobalRandom(S:Variable.,S:Area.,I:Count.,I:Size.)*)
+  | Load.BG2, 377l (*SetGlobalTimerRandom(S:Name*,S:Area*,I:Min*GTimes,I:Max*GTimes)*)
   | Load.BG1, 246l (*CreateCreatureAtLocation(S:GLOBAL.,S:Area.,S:ResRef.)*)
   | Load.BG2, 246l (*CreateCreatureAtLocation(S:GLOBAL.,S:Area.,S:ResRef.)*)
   | _, 256l (*CreateItemGlobal(S:Global.,S:Area.,S:ResRef.)*)
@@ -763,7 +764,7 @@ let rec best_ids_of_trigger game c =
 let rec best_ids_of_action game a = 
   let ids = every_ids_of_int game "ACTION" a.action_id in 
   if ids = [] then begin
-    log_and_print "ERROR: cannot resolve action 0x%lx\n" a.action_id ;
+    log_and_print "ERROR: cannot resolve action %ld\n" a.action_id ;
     raise Not_found
   end else begin
     let rec proc lst = match lst with

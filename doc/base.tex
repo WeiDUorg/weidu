@@ -15,6 +15,7 @@
 \usepackage{color}
 \usepackage{index}
 \usepackage{url}
+\usepackage[utf8]{inputenc}
 \makeindex
 
 \def\ttref#1{\ahrefloc{#1}{\tt #1}}
@@ -367,18 +368,22 @@ All other keywords are symbolic. Notes:
   Behaves like \ttref{CHAIN} except that all of the \ttref{chainText} is
   additionally guarded by the \ttref{transition} predicate {\tt Global("globalVariable","GLOBAL",0)} and accompanied by the action {\tt SetGlobal("globalVariable","GLOBAL",1)}. If you pick {\tt globalVariable } to be unique, this will ensure that the \ttref{chainText} is only ever seen once per game. This is useful for making interjections. \\
 
-  or & \DEFSYN{INTERJECT!COPY!TRANS} entryFilename entryLabel {\tt
-  globalVariable} \ttref{chainText} \Slist &
-  This behaves just like \ttref{INTERJECT} except that the exitFilename and
-  exitLabel are not present. Instead, whenever the dialogue would pass out
-  of the \ttref{chainText} it follows a copy of the \ttref{transition}s
-  that were at the \ttref{state} with \ttref{stateLabel} originally. This
-  is convenient for making quick interjections from NPCs that do not actually
-  change the true flow of the conversation. See the \ttref{transition}
-  \ttref{COPY!TRANS} and the \ttref{INTERJECT!COPY!TRANS} tutorial
-  for more information about this idea.  \\
+  or & \DEFSYN{INTERJECT!COPY!TRANS} \Ob \t{SAFE} \Oe entryFilename
+  entryLabel {\tt globalVariable} \ttref{chainText} \Slist &
+  This behaves just like \ttref{INTERJECT} except that the
+  exitFilename and exitLabel are not present. Instead, whenever the
+  dialogue would pass out of the \ttref{chainText} it follows a copy
+  of the \ttref{transition}s that were at the \ttref{state} with
+  \ttref{stateLabel} originally. This is convenient for making quick
+  interjections from NPCs that do not actually change the true flow of
+  the conversation. See the \ttref{transition} \ttref{COPY!TRANS} and
+  the \ttref{INTERJECT!COPY!TRANS} tutorial for more information about
+  this idea. If \t{SAFE} is specified, \ttref{INTERJECT!COPY!TRANS}
+  will not warn about potentially unsafe uses (use this if you know it
+  is safe).
+  \\
 
-  or & \DEFSYN{INTERJECT!COPY!TRANS2} entryFilename entryLabel {\tt
+  or & \DEFSYN{INTERJECT!COPY!TRANS2} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
   globalVariable} \ttref{chainText} \Slist &
   This works just like \ttref{INTERJECT!COPY!TRANS}, except that any
   actions taken in the transitions of the state specified by entryFilename
@@ -387,14 +392,14 @@ All other keywords are symbolic. Notes:
   speaker). See the \ttref{INTERJECT!COPY!TRANS2} tutorial.
   \\
 
-  or & \DEFINE{INTERJECT!COPY!TRANS3} entryFilename entryLabel {\tt
+  or & \DEFINE{INTERJECT!COPY!TRANS3} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
   globalVariable} \ttref{chainText} \Slist &
   This works just like \ttref{INTERJECT!COPY!TRANS}, except that all
   states in chainText get a link in the entry state, rather than only the
   first one. Expecting documentation.
   \\
 
-  or & \DEFINE{INTERJECT!COPY!TRANS4} entryFilename entryLabel {\tt
+  or & \DEFINE{INTERJECT!COPY!TRANS4} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
   globalVariable} \ttref{chainText} \Slist &
   This is either \ttref{INTERJECT!COPY!TRANS3} with \ttref{INTERJECT!COPY!TRANS2}-style
   action handling, or \ttref{INTERJECT!COPY!TRANS2} with the extended
@@ -596,10 +601,10 @@ regexp. \\
 end of the \ttref{CHAIN}. \\
 is & {\tt END} filename stateNumber & Transfer to the given state in the given dialogue file. \\
 or & {\tt EXTERN} filename stateNumber & Transfer to the given state in the given dialogue file. \\
-or & {\tt COPY!TRANS} filename stateNumber & At the end of the
+or & {\tt COPY!TRANS} \Ob \t{SAFE} \Oe filename stateNumber & At the end of the
 \ttref{CHAIN} text, copy all transitions from the given state in the
-given file. This is useful for interjections (see \ttref{INTERJECT}).  \\
-or & {\tt COPY!TRANS!LATE} filename stateNumber & Same as above, but only copy after all the other \ttref{D Action}s have been applied. \\
+given file. This is useful for interjections (see \ttref{INTERJECT}). If \t{SAFE} is specified, \ttref{CHAIN} will not warn about potentially unsafe uses of \t{COPY!TRANS} (use this if you know it is safe). \\
+or & {\tt COPY!TRANS!LATE} \Ob \t{SAFE} \Oe filename stateNumber & Same as above, but only copy after all the other \ttref{D Action}s have been applied. \\
 or & {\tt EXIT} & At the end of the \ttref{CHAIN} text, exit the dialogue.\\
 or & {\tt END} \ttref{transition} \Slist & Execute the given \ttref{transition}s
 after the final state in the \ttref{CHAIN}. \\
@@ -684,7 +689,7 @@ or & \t{+} \Ob \ttref{transTriggerString} \Oe \t{+} \ttref{replyText}
   (which is by far the most common case) allows you to save yourself
   some time and typing. It behaves like the full form above.  \\
 
-or & \DEFINE{COPY!TRANS} filename \ttref{stateLabel} &
+or & \DEFINE{COPY!TRANS} \Ob \t{SAFE} \Oe filename \ttref{stateLabel} &
     This instructs WeiDU to copy all of the \ttref{transition}s from the
     \ttref{state} with the given \ttref{stateLabel} in \t{filename.}\ttref{DLG}. This
     copying takes place before all other \ttref{D Action}s. For example,
@@ -693,8 +698,9 @@ or & \DEFINE{COPY!TRANS} filename \ttref{stateLabel} &
 <pre width="40"><font color="#3159D1">IF</font> <font color="#868626">~Before()~</font> <font color="#3159D1">THEN</font> <font color="#3159D1">GOTO</font> my_state
 <font color="#3159D1">COPY_TRANS</font> PLAYER1 <font color="#0000FF">33</font>
 <font color="#3159D1">IF</font> <font color="#868626">~After()~</font> <font color="#3159D1">THEN</font> <font color="#3159D1">EXTERN</font> SOLA <font color="#0000FF">55</font></pre>
-\end{rawhtml} \\
-or & \DEFINE{COPY!TRANS!LATE} filename \ttref{stateLabel} &
+\end{rawhtml}
+    If \t{SAFE} is specified, \ttref{COPY!TRANS} will not warn about potentially unsafe uses (use this if you know it is safe). \\
+or & \DEFINE{COPY!TRANS!LATE} \Ob \t{SAFE} \Oe filename \ttref{stateLabel} &
     Same as \ttref{COPY!TRANS}, but is invoked after all other \ttref{D Action}s. \\
 
 \\
@@ -777,7 +783,7 @@ or & \t{!integer} \ttref{text} & \DEFINE{Forced String Reference}. As with
 \ttref{text} in general, but rather than being assigned a new,
 previously-unused \t{DIALOG.TLK} string entry (or merging with an existing
 one that has the same \ttref{text}), this \ttref{text} is written over
-\t{DIALOG.TLK} string entry \#\t{integer}. Do not use this without a real reason.
+\t{DIALOG.TLK} string entry \#\t{integer}. \emph{Do not use this without a real reason.}
 \\
 or & \ttref{reference} & \\
 
@@ -825,6 +831,93 @@ Thus \t{"hello" \^{ } "World"} is the same as \t{"helloWorld"}.
 \\
 
 \end{tabular}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Scripts}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The Infinity Engine uses scripts in a bytecode format, known as
+\t{BCS}. Bytecode is not human-friendly, and the textual format
+\t{BAF} was derived from \t{BCS}. WeiDU includes a \t{BAF} compiler
+for turning \t{BAF} scripts into \t{BCS} scripts and a decompiler for
+the reverse transformation. The \t{BCS} format will not be documented
+here, but the format is described by the
+\ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/bcs.htm}}{IESDP}.
+
+The \t{BAF} format accepted by WeiDU's compiler is documented here in an extended context-free grammar notation.
+
+Syntactical keywords are given in a \t{UPPERCASE COURIER}.
+Other keywords are symbolic, with the exception of \t{TriggerOverride} which is not symbolic and not written in uppercase. Notes:
+\begin{itemize}
+\item foo \Slist means zero or more copies of foo.
+\item \Ob foo \Oe means an optional foo or zero or one copies of foo.
+\item foo bar ... means one or more copies of foo bar.
+\end{itemize}
+
+\begin{tabular}{cp{10in}|p{10in}}
+\DEFINE{BAF File} & &
+
+  A \ttref{BAF File} is a text file that contains zero or more script
+  blocks. \ttref{BAF File}s are compiled into \t{BCS} files, either by
+  the \ttref{COMPILE} \t{TP2} action or on the command line. \\
+
+is & \ttref{script block} \Slist & \\
+
+\\
+
+\DEFINE{script block} & & \\
+
+is & \t{IF} \ttref{script trigger} ... \t{THEN} \ttref{script response} ... \t{END} & \\
+
+\\
+
+\DEFINE{script trigger} & & \\
+
+is & \Ob !\Oe\ttref{Infinity Engine trigger} &
+
+  What constitutes an \DEFINE{Infinity Engine trigger} (trigger)
+  varies between different versions of the Infinity Engine and will
+  not be documented here. Refer to the right section of the
+  \ahref{\url{http://iesdp.gibberlings3.net/scripting/triggers/index.htm}}{IESDP}.
+  A preceding exclamation mark negates the trigger. \\
+
+or & \t{TriggerOverride}(\ttref{Infinity Engine object},\Ob !\Oe\ttref{Infinity Engine trigger}) &
+
+  \t{TriggerOverride}() is a form of syntactical sugar enabled by
+  WeiDU. It does not constitute a trigger of itself, does not exist in
+  \t{BCS} form and it is only available on versions of the Infinity
+  Engine which implement the \t{NextObjectTrigger}()
+  trigger. \t{TriggerOverride}() is compiled into
+  \t{NextObjectTrigger}() and \t{NextObjectTrigger}() is decompiled
+  into \t{TriggerOverride}(). Use of \t{TriggerOverride}() is
+  semantically identical to use of \t{NextObjectTrigger}() but may be
+  a syntactically preferable short-hand. An exclamation mark before
+  the trigger negates it.
+
+  What constitutes an \DEFINE{Infinity Engine object} varies between
+  different versions of the Infinity Engine and will not be documented
+  here. \\
+
+\\
+
+\DEFINE{script response} & & \\
+
+is & \t{RESPONSE} \t{#}weight \ttref{Infinity Engine action} ... &
+
+  weight is a non-negative integer that gives the evaluation
+  probability of the response block relative to any other response
+  blocks in the same \ttref{script block}. What constitutes an
+  \DEFINE{Infinity Engine action} (action) varies between different
+  versions of the Infinity Engine and will not be documented
+  here. Refer to the right section of the
+  \ahref{\url{http://iesdp.gibberlings3.net/scripting/actions/index.htm}}{IESDP}.
+  Any time an Infinity Engine String Reference (strref) is expected by
+  an action, you can use \ttref{text}. When the script is compiled,
+  WeiDU will add the text as a string and insert the corresponding
+  strref in its stead. \\
+
+\end{tabular}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Command Line Options}
@@ -989,9 +1082,9 @@ the default \t{override} directory. \\
 \DEFINE{--use-lang} \t{X} & On multi-language games (e.g., BGEE), use the files
 in lang/X/ instead of asking which lang/X/ to use. This answer is saved
 and --use-lang can override a previously saved answer.\\
-\DEFINE{--tlkin} \t{X}	& Semi-deprecated. Don't use this. Use {\tt X} as {\tt DIALOG.}\ttref{TLK} (instead
+\DEFINE{--tlkin} \t{X}	& Semi-deprecated. \emph{Do not use this.} Use {\tt X} as {\tt DIALOG.}\ttref{TLK} (instead
 of looking for \t{DIALOG.TLK} in the game directory). \\
-\DEFINE{--ftlkin} \t{X} & Semi-deprecated. Don't use this. Use {\tt X} as {\tt DIALOGF.}\ttref{TLK} (instead
+\DEFINE{--ftlkin} \t{X} & Semi-deprecated. \emph{Do not use this.} Use {\tt X} as {\tt DIALOGF.}\ttref{TLK} (instead
 of looking for \t{DIALOGF.TLK} in the game directory). \\
 \tt{FILE.}\ttref{TLK} & Equivalent to \ttref{--tlkin} \t{X}. \\
 \DEFINE{--tlkmerge} \t{X}	& Merge strings from {\tt X} over the strings from any other loaded {\tt \t{DIALOG.}\ttref{TLK}.} \\
@@ -1007,10 +1100,11 @@ will place their output there.  Does not affect \ttref{TP2} processing. \\
 \DEFINE{--append} \t{X} & Like \ttref{--out}, but if \t{X} is an existing
 file then the result will be appended to it instead of overwriting it. \\
 \DEFINE{--backup} \t{X} &	Backup files to directory {\tt X} before overwriting. Does not affect \ttref{TP2} processing. \\
-\DEFINE{--tlkout} \t{X} & Semi-deprecated. Don't use this. Redirect the output dialog to X. If any strings were added to or changed in the loaded \t{DIALOG.TLK}, emit \t{X} as an updated version that reflects those changes. Many operations (e.g., compiling \t{D} files, \ttref{--tlkmerge}, \ttref{STRING!SET}) can add to or modify \t{DIALOG.TLK}. If this option is not provided, the output dialog is the same as the input dialog. \\
-\DEFINE{--ftlkout} \t{X} & Semi-deprecated. Don't use this. Redirect the output dialogf to X. If any strings were added to or changed in the
+\DEFINE{--tlkout} \t{X} & Semi-deprecated. \emph{Do not use this.} Redirect the output dialog to X. If any strings were added to or changed in the loaded \t{DIALOG.TLK}, emit \t{X} as an updated version that reflects those changes. Many operations (e.g., compiling \t{D} files, \ttref{--tlkmerge}, \ttref{STRING!SET}) can add to or modify \t{DIALOG.TLK}. If this option is not provided, the output dialog is the same as the input dialog. \\
+\DEFINE{--ftlkout} \t{X} & Semi-deprecated. \emph{Do not use this.} Redirect the output dialogf to X. If any strings were added to or changed in the
 loaded \t{DIALOGF.TLK}, emit \t{X} as an updated version that reflects
 those changes. If this options is not provided, the output dialogf is the same as the input dialogf. \\
+\DEFINE{--version} & Print version number and exit. \\
 \\
 \multicolumn{2}{c}{ \color{red} Dialogue Text File (\ttref{D}) Options} \\
 \DEFINE{--noheader} &	Do not emit \ttref{D} header comments. \\
@@ -1529,63 +1623,6 @@ String {\tt @1} in your \ttref{TRA} file will become string reference {\tt
 \ttref{TLK} file will have blank entries. You may specify {\tt --make-tlk}
 multiple times: the last \ttref{TRA} file to define a translation string
 determine that string reference.
-
-\item Creating a \ttref{BIFF} File
-
-This tutorial was thoughtfully provided by Japheth.
-
-Using \DEFSYN{--make-biff} is dead easy.  Here's a quick and dirty example:
-
-Assuming WeiDU is in your BGII directory, grab a bunch of files from your
-override folder and stick them into a folder inside your BGII directory.
-We'll call the folder \t{mybiff} for this example.
-
-Once the files are inside the folder, this is all you would have to do to
-make WeiDU create a biff of the files:
-
-  \CMD{ weidu --make-biff mybiff }
-\begin{verbatim}
-  [c:\src\weidu\weidu.exe] WeiDU version 122
-  [./chitin.key] 182 BIFFs, 41793 resources
-  [./dialog.tlk] 82479 string entries
-  [data\mybiff.bif] will contain 20 resources totalling 211096 bytes
-  [data\mybiff.bif] incorporating [mybiff/udsola02.cre]
-          ...
-  [data\mybiff.bif] incorporating [mybiff/sola10.cre]
-  KEY saved (183 biffs, 41813 resources)
-\end{verbatim}
-
-WeiDU will add the files into the \ttref{BIFF} \t{mybiff.bif} and stick
-that file in your \t{data} directory.  It will also update the
-\t{CHITIN.}\ttref{KEY}.
-
-Before using this feature, make sure you backup your
-\t{CHITIN.}\ttref{KEY}.
-
-\item Removing a \ttref{BIFF} File
-
-You can use \DEFSYN{--remove-biff} to remove a \ttref{BIFF} file from
-\t{CHITIN.}\ttref{KEY} and destructively replace it with a new, smaller
-\t{CHITIN.}\ttref{KEY}.
-Before using this feature, make sure you backup your
-\t{CHITIN.}\ttref{KEY}.
-Do not use this feature. Use MAKE!BIFF instead.
-
-  \CMD{ weidu --make-biff mybiff data$\backslash$25ArMisc.bif }
-\begin{verbatim}
-  [c:\src\weidu\weidu.exe] WeiDU version 157
-  [./chitin.key] 182 BIFFs, 41793 resources
-  [./dialog.tlk] 83772 string entries
-  Removing references to 16 resources in [data\25ArMisc.bif]
-  KEY saved (181 biffs, 41777 resources)
-\end{verbatim}
-
-Note that the specified \ttref{BIFF} is not deleted from your computer's
-file system, it is merely removed from \t{CHITIN.}\ttref{KEY}. When
-specifying the \ttref{BIFF} case does not matter but the folder separator,
-usually ``$\backslash$'' or ``\t{:}'', does. Use \t{--list-biffs} to get
-the official list of possible \ttref{BIFF}s to remove. Do not use this
-feature.
 
 \item Viewing Banter Offline with \DEFSYN{--transitive}
 
@@ -2752,7 +2789,9 @@ global option to your \ttref{TP2} file. \\
   is & \DEFINE{AUTO!TRA} path &
        The \ttref{AUTO!TRA} flag is used
        with the \ttref{COMPILE} \ttref{TP2 Action}. It automatically loads
-       \ttref{TRA} files that match your \ttref{D} files.  \\
+       \ttref{TRA} files that match your \ttref{D} files. The \ttref{TRA} file
+       loaded by \ttref{AUTO!TRA} takes precedence over all other \ttref{TRA}
+       files. \\
   or & \DEFINE{ALLOW!MISSING} file \Slist &
        \ttref{ALLOW!MISSING} directive allows you to specify files that can
        be missing (when you try to copy them or reference them from
@@ -2773,7 +2812,7 @@ global option to your \ttref{TP2} file. \\
        statements.
   \\
   or & \DEFSYN{UNINSTALL!ORDER} String \Slist &
-		Don't use without a real reason.
+		\emph{Do not use this without a real reason.}
 
 		Specifies the order in which uninstallation operations are handled.
 		The operations are STRSET (uninstall \ttref{STRING!SET} and
@@ -3022,14 +3061,14 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
 
   or & \DEFINE{MOVE} \ttref{optNoBackup} fromFile toFile ... \verb+(+ \ttref{directory-file-regexp} \verb+)+ toFile ... &
        If optNoBackup is specified, in addition to the usual effects, fromFile may be moved to toFile even if
-       one or both contain spaces in their names. Don't use this feature without a real reason.
+       one or both contain spaces in their names. \emph{Do not use this feature without a real reason.}
 
        You may specify as many fromFile--toFile pairs as you like. Each
        fromFile is moved to its associated toFile.
 
 	   If fromFile is a file, toFile can be a file or a directory; if fromFile is a
 	   directory, toFile must be a directory; if fromFile doesn't exist, an error is
-	   raised.
+	   raised. If toFile already exists, \t{MOVE} is equivalent to \ttref{COPY!LARGE}.
 
 	   \t{MOVE} also supports the \ttref{directory-file-regexp} construct
 	   in place of fromFile; in this form, it must be wrapped in parenthesis,
@@ -3046,23 +3085,37 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
        then all generic actions are restored, then \t{AT!*!UNINSTALL} is handled.
        As such, do your \ttref{AT!NOW}, then do your \ttref{COPY}, then do your \t{MOVE}s
        (exception: if you \t{MOVE} for biffing purposes, it is safe to call
-       \ttref{MAKE!BIFF} after \t{MOVE}. Do not use the --make-biff command-line argument).
+       \ttref{MAKE!BIFF} after \t{MOVE}. \emph{Do not use the --make-biff command-line argument}).
        \\
 
   or & \DEFINE{DELETE} \ttref{optNoBackup} file ... &
-        Removes one or more files from the file system. %If optNoBackup is not specified, the
-        %file is moved to the backup folder; if optNoBackup is specified, the file is definitively
-        %removed.
+        Removes one or more files from the file system.
 
-        Don't use without a real reason.
+        \emph{Do not use without a real reason.}
        \\
 
   or & \DEFINE{DISABLE!FROM!KEY} file ... &
 		Removes one or more files from the chitin.key, while leaving the
 		containing bif file itself untouched.
 
-		Don't use without a real reason.
+		\emph{Do not use without a real reason.}
        \\
+
+  or & \DEFINE{CREATE} type \Ob \t{VERSION} version \Oe resref \Ob \ttref{patch} \Slist \Oe &
+
+      Creates a new file of the specified type with the resource
+      reference resref and a correct file extension for the file
+      type. If there are any patches, they are applied to contents of
+      the new file. Any existing file with the same name will be
+      backed up, as normal. The file will be created structurally
+      correct but will contain no non-zero data aside from the
+      structural details. The file version will be native to the
+      current game, or default to \t{"V1.0"}, but can be overridden
+      with the \t{VERSION} option, which takes a string specifying the
+      desired version. \ttref{CREATE} supports the file types \t{ARE},
+      \t{CRE}, \t{EFF}, \t{ITM}, \t{SPL} and \t{STO} and all their
+      known file versions (aside from EFF V1.0, which is never found
+      as a file).  \\
 
   or & \DEFINE{COMPILE} \Ob \t{EVALUATE!BUFFER} \Oe sourceFile \Slist
        \Ob \ttref{patch} \Slist \Oe \Ob \DEFINE{USING} traFile \Slist \Oe &
@@ -3088,7 +3141,7 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
       \ttref{MOD!FOLDER}, \ttref{LANGUAGE}, \ttref{WEIDU!ARCH},
       \ttref{WEIDU!OS}, \ttref{COMPONENT!NUMBER}, all numeric constants such as \t{NAME1}, the soundsets, or
       \t{SCRIPT!OVERRIDE}). \ttref{INTERACTIVE} is automatically set when you call the
-      next component. Don't use this feature without a real reason. \\
+      next component. \emph{Do not use this feature without a real reason.} \\
   or & \DEFINE{CLEAR!ARRAYS} & removes the names and contents of all arrays
       from the memory (while still keeping their values). \\
   or & \DEFINE{CLEAR!CODES} & Removes all loaded functions and macros from the
@@ -3189,22 +3242,22 @@ P Q R 3
 	  assumed to be at the beginning of newText. A cell containing exactly
 	  \verb+$+ is printed as empty. \\
 
-  or & \DEFSYN{EXTEND!TOP} existingBCS newFile \ttref{patch} \Slist &
+  or & \DEFSYN{EXTEND!TOP} existingBCS newFile \ttref{patch} \Slist \Ob \t{USING} traName \Slist \Oe &
     Loads existingFile (which may be \ttref{BAF} or \ttref{BCS}), prepends
     all of newBCS to the top of it, applies all of the \ttref{patch}es, and
     then copies it to the \t{override} folder. User variables in
     the filenames existingFile and newFile are replaced by their values.
     Use \ttref{EVALUATE!BUFFER} if you want to evaluate variables inside
     the body of newFile before parsing it. \\
-  or & \DEFSYN{EXTEND!BOTTOM} existingBCS newFile \ttref{patch} \Slist &
+  or & \DEFSYN{EXTEND!BOTTOM} existingBCS newFile \ttref{patch} \Slist \Ob \t{USING} traName \Slist \Oe &
     As \ttref{EXTEND!TOP}, but the newFile file is put at the bottom of the
     existingBCS file. User variables in the filenames existingFile and
     newFile are replaced by their values. \\
-  or & \DEFINE{EXTEND!TOP!REGEXP} existingBCSregexp newFile \ttref{patch} \Slist &
-    As \ttref{EXTEND!TOP}, but the newFile file is put at the bottom of the
+  or & \DEFINE{EXTEND!TOP!REGEXP} existingBCSregexp newFile \ttref{patch} \Slist \Ob \t{USING} traName \Slist \Oe &
+    As \ttref{EXTEND!TOP}, but the newFile file is put at the top of the
     every \ttref{BCS} file that matches the \ttref{regexp}
     existingBCSregexp. \\
-  or & \DEFINE{EXTEND!BOTTOM!REGEXP} existingBCSregexp newFile \ttref{patch} \Slist &
+  or & \DEFINE{EXTEND!BOTTOM!REGEXP} existingBCSregexp newFile \ttref{patch} \Slist \Ob \t{USING} traName \Slist \Oe &
     See \ttref{EXTEND!TOP!REGEXP}.  \\
   or & \DEFINE{ACTION!IF} \ttref{value} \t{THEN BEGIN}
     \ttref{TP2 Action} \Slist \t{END}
@@ -3312,7 +3365,7 @@ END
     contents will be available exactly when the biff exists), while the .bif file
     itself is deleted or on uninstall as usual.  \\
   or & \DEFINE{LOAD!TRA} traName \Slist &
-    Loads all traName files (variable substitution is done, the file cannot be inlined)
+    Loads all traName files (variable substitution is done; the file can be inlined)
     to be used in the following tp2 actions, as if you had declared them in \ttref{LANGUAGE}. \\
   or & \DEFINE{UNINSTALL} modToUninstall modComponent &
     If the given component of the given mod is currently installed,
@@ -4040,7 +4093,7 @@ EXTEND_TOP ~sola.bcs~ ~.../mymod-inlined/script.baf~
 \end{verbatim}
 	\t{$myvar$} will be substituted with Anomen, but \t{\%myvar\%} will be not.
 
-	Do not use this without a real reason.
+	\emph{Do not use this without a real reason.}
 \\
 or & \DEFINE{EVALUATE!BUFFER} &
   Any WeiDU variables (like \t{\%myvar\%}) inside the current file (which
@@ -4209,8 +4262,31 @@ or & \DEFINE{GET!OFFSET!ARRAY} \ttref{String} \t{seven \ttref{value}s} &
 
 WeiDU comes with a number of pre-defined sets of values for \t{GET!OFFSET!ARRAY}. These sets are:
 \begin{verbatim}
+ARE_V10_ACTORS (0x54 4 0x58 2 0 0 0x110)
+ARE_V10_REGIONS (0x5c 4 0x5a 2 0 0 0xc4)
+ARE_V10_SPAWN_POINTS (0x60 4 0x64 4 0 0 0xc8)
+ARE_V10_ENTRANCES (0x68 4 0x6c 4 0 0 0x68)
+ARE_V10_CONTAINERS (0x70 4 0x74 2 0 0 0xc0)
+ARE_V10_AMBIENTS (0x84 4 0x82 2 0 0 0xd4)
+ARE_V10_DOORS (0xa8 4 0xa4 4 0 0 0xc8)
+ARE_V10_ANIMATIONS (0xb0 4 0xac 4 0 0 0x4c)
+
+CRE_V10_KNOWN_SPELLS (0x2a0 4 0x2a4 4 0 0 0xc)
+CRE_V10_SPELL_MEM_INFO (0x2a8 4 0x2ac 4 0 0 0x10)
+CRE_V10_EFFECTS (0x2c4 4 0x2c8 4 0 0 0x108)
+CRE_V10_ITEMS (0x2bc 4 0x2c0 4 0 0 0x14)
+
 ITM_V10_HEADERS (0x64 4 0x68 2 0 0 0x38)
 ITM_V10_GEN_EFFECTS (0x6a 4 0x70 2 0x6e 2 0x30)
+
+SPL_V10_HEADERS (0x64 4 0x68 2 0 0 0x28)
+SPL_V10_GEN_EFFECTS (0x6a 4 0x70 2 0x6e 2 0x30)
+
+STO_V10_ITEMS_PURCHASED (0x2c 4 0x30 4 0 0 0x4)
+STO_V10_ITEMS_SOLD (0x34 4 0x38 4 0 0 0x1c)
+STO_V10_DRINKS (0x4c 4 0x50 4 0 0 0x14)
+STO_V10_CURES (0x70 4 0x74 4 0 0 0xc)
+
 WMP_AREAS (0x34 4 0x30 4 0 0 0xf0)
 WMP_LINKS (0x38 4 0x3c 4 0 0 0xd8)
 \end{verbatim}
@@ -4230,11 +4306,24 @@ or & \DEFINE{GET!OFFSET!ARRAY2} \ttref{String} \t{eight \ttref{value}s} &
 8. Length between iterations
 \end{verbatim}
 
-WeiDU comes with a pre-defined set of values for \t{GET!OFFSET!ARRAY2}. This set is:
+WeiDU comes with a number of pre-defined sets of values for \t{GET!OFFSET!ARRAY2}. These sets are:
 \begin{verbatim}
+ARE_V10_ITEMS (0x78 4 0x44 4 0x40 4 0x14)
+ARE_V10_REGION_VERTICES (0x7c 4 0x2a 2 0x2c 4 0x4)
+ARE_V10_CONTAINER_VERTICES (0x7c 4 0x54 2 0x50 4 0x4)
+
+CRE_V10_SPELL_MEM (0x2b0 4 0xc 4 0x8 4 0xc)
+
 ITM_V10_HEAD_EFFECTS (0x6a 4 0x1e 2 0x20 2 0x30)
+
+SPL_V10_HEAD_EFFECTS (0x6a 4 0x1e 2 0x20 2 0x30)
+
+WMP_NORTH_LINKS (0x38 4 0x50 4 0x54 4 0xd8)
+WMP_WEST_LINKS (0x38 4 0x58 4 0x5c 4 0xd8)
+WMP_SOUTH_LINKS (0x38 4 0x60 4 0x64 4 0xd8)
+WMP_EAST_LINKS (0x38 4 0x68 4 0x6c 4 0xd8)
 \end{verbatim}
-As you can see, the value for Offset2 isn't included in the set, since it varies.
+As you can see, the value for Offset2 isn't included in the sets, since it varies.
 
 "Offset2" corresponds to the result from \ttref{GET!OFFSET!ARRAY}. "Offset" is read from the start of the file. "Iterations" and "Index" are read from Offset2 + value. Apart from that \t{GET!OFFSET!ARRAY2} functions like \ttref{GET!OFFSET!ARRAY}. A more detailed explanation can be had in the \ttref{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} tutorial.\\
 
@@ -4572,25 +4661,31 @@ or & \DEFINE{REFACTOR!D!TRIGGER} \ttref{optcase} \ttref{optexact} String String 
 \\
 or & \DEFINE{REPLACE!EVALUATE} \ttref{optcase} findRegexp \t{BEGIN}
   \ttref{patch} \Slist \t{END} replaceRegexp &
+
   For every instance of the \ttref{regexp} findRegexp found, the
-  \ttref{patch} list is evaluated (with the variable \t{MATCH}$i$ set to
-  the $i$th matched group in findRegexp), variable substitute is performed
-  on replaceRegexp, and then findRegexp is replaced by replaceRegexp. Any
-  writes done by the \ttref{patch} list (e.g., \ttref{SAY} or
-  \ttref{WRITE!ASCII}) are ignored: \ttref{SET} should be the main
-  component of the \ttref{patch} list. For example:
+  \ttref{patch} list is evaluated (with the variable \t{MATCH}$i$ set
+  to the $i$th matched group in findRegexp), variable substitution is
+  performed on replaceRegexp, and then findRegexp is replaced by
+  replaceRegexp. Note that \ttref{REPLACE!EVALUATE} defines up to 200
+  \t{MATCH}$i$ variables, but that \t{MATCH1} is normally the variable
+  matching the first group in findRegexp. Due to details of the
+  implementation, \t{MATCH0} normally evaluates to the string matched
+  by the whole of findRegexp. Any writes done by the \ttref{patch}
+  list (e.g., \ttref{SAY} or \ttref{WRITE!ASCII}) are ignored:
+  \ttref{SET} should be the main component of the \ttref{patch}
+  list. For example:
 \begin{verbatim}
 COPY ~nice.baf~ ~mean.baf~
   REPLACE_EVALUATE
     ~Give(\([0-9]+\),\([0-9]+\))~
     BEGIN
-      SET "RESULT" = ("%MATCH1%" + "%MATCH2%") / 2
+      SET result = (MATCH1 + MATCH2) / 2
     END
-    ~Take(%RESULT%)~
+    ~Take(%result%)~
 \end{verbatim}
-  This \ttref{COPY} \ttref{TP2 Action} would replace \t{Give(10,20)} with
-  \t{Take(15)}.
-   optcase allows you to decide if the matching is case-sensitive or not.  \\
+  This \ttref{COPY} \ttref{TP2 Action} would replace \t{Give(10,20)}
+  with \t{Take(15)}.  optcase allows you to decide if the matching is
+  case-sensitive or not.  \\
 
   or & \DEFSYN{ADD!GAM!NPC} npcCRE npcARE xCoord yCoord &
     See the \ttref{ADD!GAM!NPC} tutorial for more information about this
@@ -4942,7 +5037,8 @@ but \ttref{STRING!EQUAL} has more intuitive return values. \\
 
 or & \ttref{String} \DEFINE{STRING!EQUAL!CASE} \ttref{String} &
 As \ttref{STRING!EQUAL}, but the comparison ignores case. That is,
-\t{"ANOMEN"} and \t{"aNoMeN"} are considered equal.\\
+\t{"ANOMEN"} and \t{"aNoMeN"} are considered equal. You may use
+\DEFINE{STR!EQ} as a synonym for \ttref{STRING!EQUAL!CASE}.\\
 
 or & \ttref{String} \DEFINE{STRING!MATCHES!REGEXP} \ttref{String} &
 As \ttref{STRING!COMPARE!CASE}, but the second string is treated as a
@@ -4958,7 +5054,7 @@ contains the second \ttref{regexp}. Thus \t{"AR1005" STRING!CONTAINS!REGEXP
 or & \DEFINE{GAME!IS} \ttref{String} & Returns true if the IE game variant
 is one of the entries in String, otherwise it returns false. String is a list of
 whitespace-separated entries, chosen from (case doesn't matter)
-\verb+bg2=soa, tob, iwd2, pst, bg1, totsc, iwd=iwd1, how, tolm=totlm, tutu, tutu_totsc, bgt, ca, iwd_in_bg2, bgee, bg2ee+.
+\verb+bg2=soa, tob, iwd2, pst, bg1, totsc, iwd=iwd1, how, totlm, tutu, tutu_totsc, bgt, ca, iwd_in_bg2, bgee, bg2ee, eet, iwdee+.
 In the list, \verb+bg2=soa+ means that \verb+bg2+ and \verb+soa+ are synonyms,
 and you can use whichever one you like. Please note that the items in the list are
 defined to be mutually exclusive (except \verb+tob+ will detect both plain ToB
@@ -4972,6 +5068,18 @@ except \verb+bg2=soa+ will detect SoA-based Tutu games in addition to SoA games,
 and \verb+tob+ will detect ToB-based Tutu games in addition to ToB and BGT games.
 As such, a mod that requires Throne of Bhaal's engine enhancements could use
 \verb+REQUIRE_PREDICATE ENGINE_IS ~tob~+ . \\
+
+or & \DEFINE{GAME!INCLUDES} \ttref{String} &
+
+Returns true if the IE game variant includes the game content
+specified by String. String is a single game chosen from
+\verb+bg1, totsc, bg2=soa, tob, pst, iwd=iwd1, how, totlm, iwd2, ca+. In
+the list, \verb+bg2=soa+ means that \verb+bg2+ and \verb+soa+ are
+synonyms, and you can use whichever one you like. Please note that
+unlike \ttref{GAME!IS} you only specify a single game, rather than a
+list of games. As an example, \verb+GAME_INCLUDES ~tob~+ will return
+true for any game which includes the ToB content, such as ToB itself,
+BGT or BG2EE. \\
 
 or & \DEFINE{IDS!OF!SYMBOL} \t{(} File \ttref{String} \t{)} &
 Will return the number associated with String in File.ids,
@@ -6679,7 +6787,7 @@ and \t{Compiling dialogues} (and the similar) text.
 \subsection{\DEFINE{INNER!ACTION}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Normally I would start off with \emph{don't use this feature}, but since
+Normally I would start off with \emph{do not use this feature}, but since
 this \ttref{patch} can basically only be used to do really obscure things,
 you're probably already a master if you're considering it.
 
@@ -8674,12 +8782,12 @@ This function will delete one or more ability headers, along with all of their a
 
 \verb+ALTER_SPELL_EFFECT+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/spl_v1.htm#splv1_Feature_Block}}{effects} on spells. This is a PATCH function. All integer variables except \verb+check_globals+, \verb+check_headers+, \verb+header+ and \verb+savebonus+ default to -1 and negative values result in no change to the corresponding field. The integer variables \verb+check_globals+ and \verb+header+ default to 0. The integer variable \verb+check_headers+ defaults to 1. The integer variable \verb+savebonus+ defaults to -11 and values lower than -10 result in no change to the corresponding field. The string variable \verb+resource+ defaults to the string "same", which results in no change to the corresponding field.
 
-Note that both \verb+check_globals+ and \verb+check_headers+ are 0 by default, so you need to change one or both of these to 1 to perform any patching at all. If you patch headers, you can further target by using type to target melee, ranged, or magical headers. \verb+match_opcode+ can be left at -1 to match all effects on your targeted range or targeted to a specific opcode. If the opcode itself needs to be changed, you can use \verb+match_opcode+ to target the existing effect and \verb+new_opcode+ as the new opcode to use. \verb+duration_high+ is an alternative to \verb+duration+, mainly for changing the overall duration of an item's effects. The idea is to allow you to mass patch effects to new durations while leaving the one-time only cosmetics and visuals--which are usual instant or only run for a few seconds--unchanged.
+The function will by default only check effects on headers. You can change this by changing the values of the variables \verb+check_globals+ and \verb+check_headers+. If you patch headers, you can further target by using type to target melee, ranged, or magical headers. \verb+match_opcode+ can be left at -1 to match all effects on your targeted range or targeted to a specific opcode. If the opcode itself needs to be changed, you can use \verb+match_opcode+ to target the existing effect and \verb+new_opcode+ as the new opcode to use. \verb+duration_high+ is an alternative to \verb+duration+, mainly for changing the overall duration of an item's effects. The idea is to allow you to mass patch effects to new durations while leaving the one-time only cosmetics and visuals--which are usual instant or only run for a few seconds--unchanged.
 \begin{itemize}
 \item INT_VAR \verb+check_globals+ to whether to check global effects (0 for no, 1 for yes). (default 0)
 \item INT_VAR \verb+check_headers+ to whether to check effects on extended headers (0 for no, 1 for yes). (default 1)
 \item INT_VAR \verb+header+ to the number of the ability header that should be altered. A value of 0 matches all headers. (default 0)
-\item INT_VAR \verb+header_type+ to which type of header that should be checked. If this variable is -1, all header types will be checked.this
+\item INT_VAR \verb+header_type+ to which type of header that should be checked. If this variable is -1, all header types will be checked.
 \item INT_VAR \verb+match_opcode+ to which type of opcode to match. If this variable is -1, all opcodes are a match.
 \item INT_VAR \verb+new_opcode+ to the value the matched opcode should be changed into.
 \item INT_VAR \verb+target+ to the new target.
@@ -8735,6 +8843,156 @@ This function will delete one or more ability headers, along with all of their a
 \end{itemize}
 \\
 
+\verb+CLONE_EFFECT+: This is a patch function for creature, item, or spell files that will match an existing effect and create a new one based on the matched effect. Numerous variables are available for matching the specified effect and for specifying new values in the new effect based on the matched effect.
+
+The first batch of variables are meta-variables which will help determine the scope of the function:
+
+\begin{itemize}
+\item INT_VAR \verb+check_globals+ to whether the function should loop through global effects on items (also known as equipping effects) and spells (default is 1). Creature effects are all global effects, so this variable will always be considered to be one when this function is run on a creature.
+\item INT_VAR \verb+check_headers+ to whether the function should loop through effects on extended headers on items and spells if set to 1 (default is 1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+header+ to whether the function should target effects on one specific header, counting the first header as zero. A negative value will match all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+header_type+ to whether the function should only clone effects on extended headers of the specified type (1 - melee, 2 - ranged, etc.). Negative values will look at effects on all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+multi_match+ to the number of effects to clone in the active stack. If you just want to match the first effect and have the function stop, use 1. Otherwise the function will continue matching until the number of cloned effects matches this value. The function will always make at least one change (e.g. 0 or negative values are treated as 1). (default is 999).
+\item INT_VAR \verb+verbose+ to whether the function should provide some rudimentary information on how many effects were added (default is 0).
+\item STR_VAR \verb+insert+ to the relative position the cloned effect should be inserted at. A value of 'below' puts the new, cloned effect immediately below the matched effect. Values of 'first' or last' will put the new effect at the top or bottom of the effect stack, respectively. All other values will default to 'above', where the effect is added immediately before the matched effect (default is 'above').
+\end{itemize}
+
+The next batch of variables sets the function boundaries on matching an effect to clone. Any variables not specified will not be used to determine a match. The function will only determine an effect is a match only if ALL of the variables specified are matched.
+
+\begin{itemize}
+\item INT_VAR \verb+match_opcode+ to the opcode of effects to be matched (default -1).
+\item INT_VAR \verb+match_target+ to the target of effects to be matched (default -1).
+\item INT_VAR \verb+match_power+ to the power of effects to be matched (default -1).
+\item INT_VAR \verb+match_parameter1+ to parameter1 of effects to be matched (default -1).
+\item INT_VAR \verb+match_parameter2+ to parameter2 of effects to be matched (default -1).
+\item INT_VAR \verb+match_timing+ to the timing of effects to be matched (default -1).
+\item INT_VAR \verb+match_resist_dispel+ to the resist/dispel setting of effects to be matched (default -1).
+\item INT_VAR \verb+match_duration+ to the duration of effects to be matched (default -1).
+\item INT_VAR \verb+match_probability1+ to probability1 (the upper bound) of effects to be matched (default -1).
+\item INT_VAR \verb+match_probability2+ to probability2 (the lower bound) of effects to be matched (default -1).
+\item INT_VAR \verb+match_dicenumber+ to the number of dice of effects to be matched (default -1). This field is instead used for maximum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+match_dicesize+ to the size of dice of effects to be matched (default -1). This field is used instead for minimum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+match_savingthrow+ to the saving throw type of effects to be matched (default -1).
+\item INT_VAR \verb+match_savebonus+ to the saving throw bonus of effects to be matched (default -11). Since saving throws can range into negative values, this variable can match all the way down to -10.
+\item INT_VAR \verb+match_special+  to the special field of effects to be matched (default -1). The special field is used by some EE effects.
+\item STR_VAR \verb+match_resource+ to the resource of effects to be matched (default "SAME").
+\end{itemize}
+
+Once a matching effect is found, a new effect is created (STR_VAR \verb+insert+ determines its placement) with all of the same specifications as the matched effect. The next series of variables allows the function to change the fields to new values in the newly-created effect. Any variables not set in this batch will simply inherit their values from the matched effect.
+
+\begin{itemize}
+\item INT_VAR \verb+opcode+ to the value the of the new effect's opcode.
+\item INT_VAR \verb+target+ to the new effect's target.
+\item INT_VAR \verb+power+ to the new effect's power.
+\item INT_VAR \verb+parameter1+ to the new effect's parameter1.
+\item INT_VAR \verb+parameter2+ to the new effect's parameter2.
+\item INT_VAR \verb+timing+ to the new effect's timing mode.
+\item INT_VAR \verb+resist_dispel+ to the new effect's resist/dispel setting.
+\item INT_VAR \verb+duration+ to the new effect's duration.
+\item INT_VAR \verb+probability1+ to the new effect's probability1 (the upper bound).
+\item INT_VAR \verb+probability2+ to the new effect's probability2 (the lower bound).
+\item INT_VAR \verb+dicenumber+ to the new effect's number of dice. This field is instead used for maximum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+dicesize+ to the new effect's size of dice. This field is also instead for minimum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+savingthrow+ to the new effect's saving-throw type.
+\item INT_VAR \verb+savebonus+ to the new effect's saving-throw bonus/penalty. This variable can take negative values down to -10 while still writing to the corresponding field.
+\item INT_VAR \verb+special+ to the new effect's special field. The special field is used by many EE effects.
+\item STR_VAR \verb+resource+ to the new effect's resource reference.
+\end{itemize}
+\\
+
+\verb+DELETE_EFFECT+: This is a patch function for creature, item, or spell files that will match an existing effect and then delete it. Numerous variables are available for matching the specified effect.
+
+The first batch of variables are meta-variables which will help determine the scope of the function:
+
+\begin{itemize}
+\item INT_VAR \verb+check_globals+ to whether the function should loop through global effects on items (also known as equipping effects) and spells (default is 1). Creature effects are all global effects, so this variable will always be considered to be one when this function is run on a creature.
+\item INT_VAR \verb+check_headers+ to whether the function should loop through effects on extended headers on items and spells (default is 1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+header+ to whether the function should target effects on one specific header, counting the first header as zero. A negative value will match all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+header_type+ to whether the function should only delete effects on extended headers of the specified type (1 - melee, 2 - ranged, etc.). Negative values will look at effects on all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+multi_match+ to the number of effects to delete in the active stack. If you just want to match the first effect and have the function stop, use 1. Otherwise the function will continue matching until the number of deleted effects matches this value. The function will always make at least one change (e.g. 0 or negative values are treated as 1). (default is 999).
+\item INT_VAR \verb+verbose+ to whether the function should provide some rudimentary information on how many effects were deleted (default is 0).
+\end{itemize}
+
+The next batch of variables sets the function boundaries on matching an effect to delete. Any variables not specified will not be used to determine a match. The function will only determine an effect is a match only if ALL of the variables specified are matched.
+
+\begin{itemize}
+\item INT_VAR \verb+match_opcode+ to the opcode of effects to be matched (default -1).
+\item INT_VAR \verb+match_target+ to the target of effects to be matched (default -1).
+\item INT_VAR \verb+match_power+ to the power of effects to be matched (default -1).
+\item INT_VAR \verb+match_parameter1+ to parameter1 of effects to be matched (default -1).
+\item INT_VAR \verb+match_parameter2+ to parameter2 of effects to be matched (default -1).
+\item INT_VAR \verb+match_timing+ to the timing of effects to be matched (default -1).
+\item INT_VAR \verb+match_resist_dispel+ to the resist/dispel setting of effects to be matched (default -1).
+\item INT_VAR \verb+match_duration+ to the duration of effects to be matched (default -1).
+\item INT_VAR \verb+match_probability1+ to probability1 (the upper bound) of effects to be matched (default -1).
+\item INT_VAR \verb+match_probability2+ to probability2 (the lower bound) of effects to be matched (default -1).
+\item INT_VAR \verb+match_dicenumber+ to the number of dice of effects to be matched (default -1). This field is instead used for maximum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+match_dicesize+ to the size of dice of effects to be matched (default -1). This field is used instead for minimum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+match_savingthrow+ to the saving throw type of effects to be matched (default -1).
+\item INT_VAR \verb+match_savebonus+ to the saving throw bonus effects to be matched (default -11). Since saving throws can range into negative values, this variable can match all the way down to -10.
+\item INT_VAR \verb+match_special+  to the special field of effects to be matched (default -1). The special field is used by some EE effects.
+\item STR_VAR \verb+match_resource+ to the resource of effects to be matched (default "SAME").
+\end{itemize}
+
+Once a matching effect is found it is deleted. The function will continue to delete effects from the stack until the number of effects deleted matches the \verb+multi_match+ variable.\\
+\\
+
+\verb+ALTER_EFFECT+: This is a patch function for creature, item, or spell files that will match an existing effect and alter it based on the defined variables. Numerous variables are available for matching the specified effect and for specifying new values.
+
+The first batch of variables are meta-variables which will help determine the scope of the function:
+
+\begin{itemize}
+\item INT_VAR \verb+check_globals+ to whether the function should loop through global effects on items (also known as equipping effects) and spells (default is 1). Creature effects are all global effects, so this variable will always be considered to be one when this function is run on a creature.
+\item INT_VAR \verb+check_headers+ to whether the function should loop through effects on extended headers on items and spells (default is 1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+header+ to whether the function should target effects on one specific header, counting the first header as zero. A negative value will match all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+header_type+ to whether the function should only alter effects on extended headers of the specified type (1 - melee, 2 - ranged, etc.). Negative values will look at effects on all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
+\item INT_VAR \verb+multi_match+ to the number of effects to alter in the active stack. If you just want to match the first effect and have the function stop, use 1. Otherwise the function will continue matching until the number of altered effects matches this value. The function will always make at least one change (e.g. 0 or negative values are treated as 1). (default is 999).
+\item INT_VAR \verb+verbose+ to whether the function should provide some rudimentary information on how many effects were added (default is 0).
+\end{itemize}
+
+The next batch of variables sets the function boundaries on matching an effect to alter. Any variables not specified will not be used to determine a match. The function will only determine an effect is a match only if ALL of the variables specified are matched.
+
+\begin{itemize}
+\item INT_VAR \verb+match_opcode+ to the opcode of effects to be matched (default is 1).
+\item INT_VAR \verb+match_target+ to the target of effects to be matched (default is 1).
+\item INT_VAR \verb+match_power+ to the power of effects to be matched (default is 1).
+\item INT_VAR \verb+match_parameter1+ to parameter1 of effects to be matched (default is 1).
+\item INT_VAR \verb+match_parameter2+ to parameter2 of effects to be matched (default is 1).
+\item INT_VAR \verb+match_timing+ to the timing of effects to be matched (default is 1).
+\item INT_VAR \verb+match_resist_dispel+ to the resist/dispel setting of effects to be matched (default is 1).
+\item INT_VAR \verb+match_duration+ to the duration of effects to be matched (default is 1).
+\item INT_VAR \verb+match_probability1+ to probability1 (the upper bound) of effects to be matched (default is 1).
+\item INT_VAR \verb+match_probability2+ to probability2 (the lower bound) of effects to be matched (default is 1).
+\item INT_VAR \verb+match_dicenumber+ to the number of dice of effects to be matched (default is 1). This field is instead used for maximum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+match_dicesize+ to the size of dice of effects to be matched (default is 1). This field is used instead for minimum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+match_savingthrow+ to the saving throw type of effects to be matched (default is 1).
+\item INT_VAR \verb+match_savebonus+ to the saving trow bonus effects to be matched (default is 11). Since saving throws can range into negative values, this variable can match all the way down to10.
+\item INT_VAR \verb+match_special+ to the special field of effects to be matched (default is 1). The special field is used by some EE effects.
+\item STR_VAR \verb+match_resource+ to the resource of effects to be matched (default is "SAME").
+\end{itemize}
+
+Once a matching effect is found, the next series of variables allows the function to change the fields to these new values in the matched effect. Any variables not set in this batch will keep their existing values.
+
+\begin{itemize}
+\item INT_VAR \verb+opcode+ to the value the of the altered effect's opcode.
+\item INT_VAR \verb+target+ to the altered effect's target.
+\item INT_VAR \verb+power+ to the altered effect's power.
+\item INT_VAR \verb+parameter1+ to the altered effect's parameter1.
+\item INT_VAR \verb+parameter2+ to the altered effect's parameter2.
+\item INT_VAR \verb+timing+ to the altered effect's timing mode.
+\item INT_VAR \verb+resist_dispel+ to the altered effect's resist/dispel setting.
+\item INT_VAR \verb+duration+ to the altered effect's duration.
+\item INT_VAR \verb+probability1+ to the altered effect's probability1 (the upper bound).
+\item INT_VAR \verb+probability2+ to the altered effect's probability2 (the lower bound).
+\item INT_VAR \verb+dicenumber+ to the altered effect's number of dice. This field is instead used for maximum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+dicesize+ to the altered effect's size of dice. This field is also instead for minimum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+savingthrow+ to the altered effect's saving-throw type.
+\item INT_VAR \verb+savebonus+ to the altered effect's saving-throw bonus/penalty. This variable can take negative values down to -10 while still writing to the corresponding field.
+\item INT_VAR \verb+special+ to the new effect's special field. The special field is used by many EE effects.
+\item STR_VAR \verb+resource+ to the altered effect's resource reference.
+\end{itemize}
+\\
+
 \verb+SUBSTRING+: returns a substring of the provided string. This is an ACTION and PATCH function. All integer variables default to 0.
 
 The function will fail with an error if either \verb+start+ or \verb+length+ are negative or if any of \verb+start+, \verb+length+ or the sum of the two is greater than the length of \verb+string+.
@@ -8787,6 +9045,47 @@ If tisunpack for the user's platform could not be found, the user is warned that
 \item STR_VAR \verb+tiz_path+ to the path your .tiz files are stored in. By default this variable is \verb+~%MOD_FOLDER%/tiz~+.
 \item STR_VAR \verb+tisunpack_path+ to the common directory where the subdirectories \t{win32}, \t{osx} and \t{unix} are located. By default this variable is \verb+~%tiz_path%~+.
 \end{itemize}
+\\
+
+\DEFINE{\verb+HANDLE_CHARSETS+}: runtime-convert \t{TRA} files into \t{UTF-8} in a safe and easy manner. This is an ACTION function.
+
+This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X and GNU/Linux. If the game is BG: EE or BGII: EE, \t{TRA} files are encoded into \t{UTF-8} so the text can be installed without causing problems. \verb+HANDLE_CHARSETS+ needs to be used before any text is installed and is compatible with \ttref{AUTO!TRA} and all other methods of loading \t{TRA} files.
+
+Conversion is handled by the program \t{iconv}. The program is available as part of the base system on OS\begin{rawhtml}&nbsp;\end{rawhtml}X and GNU/Linux but a Windows version needs to be included in your mod. A Windows version can be downloaded \ahref{\url{http://gnuwin32.sourceforge.net/packages/libiconv.htm}}{here}.
+
+In order to function, \verb+HANDLE_CHARSETS+ needs to know a few things. First, you need to specify where you keep your \t{TRA} files. You do this with the variable \verb+tra_path+. Second, \verb+HANDLE_CHARSETS+ needs to know where the Windows version of \t{iconv} is located. You do this with the variable \verb+iconv_path+. Third, \verb+HANDLE_CHARSETS+ needs to know which character set the \t{TRA} files are in. Note that they can only be converted into \t{UTF-8} and cannot already be in \t{UTF-8}. You provide this information with \verb+charset_table+ or tell \verb+HANDLE_CHARSETS+ to try to infer this by itself with \verb+infer_charsets+. Lastly, \verb+HANDLE_CHARSETS+ needs to know which \t{TRA} files to convert and whether any of them should be reloaded. You can do this with \verb+noconvert_array+, \verb+convert_array+ and \verb+reload_array+.
+
+Unless \verb+convert_array+ is specified, \verb+HANDLE_CHARSETS+ will recursively convert all \t{TRA} files in \verb+tra_path+ except those listed in \verb+noconvert_array+. If \verb+convert_array+ is specified, only those \t{TRA} files listed in the array will be converted. \verb+convert_array+ may contain references to \t{TRA} files in subdirectories of \verb+tra_path+.
+
+\begin{itemize}
+\item INT_VAR \verb+infer_charsets+ to whether \verb+HANDLE_CHARSETS+ should try to infer which character set the \t{TRA} files are encoded in. It uses the contents of the \ttref{LANGUAGE} variable. If the contents of the variable can be recognised, \verb+HANDLE_CHARSETS+ will use the character set used by the localised version of BG2 for this language. If the contents of the variable cannot be recognised, or if the \t{TRA} files use a different character set than the expected one, \verb+HANDLE_CHARSETS+ will fail. Refer to the compatibility matrix below for additional information. \verb+infer_charsets+ overrides \verb+charset_table+. Defaults to 0.
+\item STR_VAR \verb+tra_path+ to the path where your mod's language directories are located. \verb+%tra_path%/%LANGUAGE%+ should be a valid directory containing \t{TRA} files.
+\item STR_VAR \verb+iconv_path+ to the path where iconv.exe is located. Defaults to \verb+%tra_path%/iconv+.
+\item STR_VAR \verb+charset_table+ to the name of an associative array where the keys are the names of your language directories and the corresponding values are the character sets used by the respective language. The keys must be entirely in lowercase. \verb+charset_table+ is not used if you also specify \verb+infer_charsets+.
+\item STR_VAR \verb+noconvert_array+ to the name of an array indexed by monotonically increasing integers starting from 0. The values should be the names of \t{TRA} files that should not be converted into \t{UTF-8}. All \t{TRA} files in the language directory and its subdirectories except the ones listed in \verb+noconvert_array+ will be converted. The .tra file extension is implied and should not be explicitly provided. This variable should not be provided if you also provide \verb+convert_array+.
+\item STR_VAR \verb+convert_array+ to the name of an array indexed by monotonically increasing integers starting from 0. The values should be the names of \t{TRA} files that should be converted into \t{UTF-8}. Only those \t{TRA} files in the language directory or its subdirectories which are listed in \verb+convert_array+ will be converted. The .tra file extension is implied and should not be explicitly provided. If this variable is provided, \verb+noconvert_array+ will not be used.
+\item STR_VAR \verb+reload_array+ to the name of an array indexed by monotonically increasing integers starting from 0. The values should be the names of \t{TRA} files which should be reloaded after they have been converted. You should use this variable for reloading those \t{TRA} files loaded by \ttref{LANGUAGE} which should also be converted.
+\end{itemize}
+
+Compatibility matrix for \verb+infer_charsets+.
+\begin{tabular} {l c r}
+\hline
+Language & \verb+%LANGUAGE%+ contains & Inferred character set \\
+\hline
+Simplified Chinese & schinese & CP936 \\
+Traditional Chinese & tchinese & CP950 \\
+Czech & czech & CP1250 \\
+English & english, american & CP1252 \\
+French & french, francais & CP1252 \\
+German & german, deutsch & CP1252 \\
+Italian & italian, italiano & CP1252 \\
+Japanese & japanese & CP932 \\
+Korean & korean & CP949 \\
+Polish & polish, polski & CP1250 \\
+Russian & russian & CP1251 \\
+Spanish & spanish, castilian, espanol, castellano & CP1252 \\
+\hline
+\end{tabular}
 \\
 
 \DEFINE{\verb+DELETE_WORLDMAP_LINKS+}: delete all links from one worldmap area to another. This is a PATCH function.
@@ -8880,6 +9179,7 @@ Region structure variables:
 \item STR_VAR \verb+fj_reg_script+ to the region script;
 \item INT_VAR \verb+fj_alt_x+ to the activation point X coordinate;
 \item INT_VAR \verb+fj_alt_y+ to the activation point Y coordinate;
+\item STR_VAR \verb+fj_dialog+ to the region's dialogue file (ONLY for PST);
 \item INT_VAR \verb+fj_vertex_0+ to (X coordinate + (Y coordinate << 16)) for each vertex pair*;
 \end{itemize}
 Spawn structure variables:
@@ -8938,7 +9238,7 @@ Item structure variables:
 \item INT_VAR \verb+fj_itm_expiry+ to the item expiration time;
 \item INT_VAR \verb+fj_charge0+ to the charges of the 1st ability (item quantity for stackables);
 \item INT_VAR \verb+fj_charge1+ to the charges of the 2nd ability;
-\item INT_VAR \verb+fj_charge1+ to the charges of the 3rd ability;
+\item INT_VAR \verb+fj_charge2+ to the charges of the 3rd ability;
 \item INT_VAR \verb+fj_flags+ to the bitwise item flags (bit0=identified, bit1=unstealable, bit2=stolen, bit3=undroppable);
 \end{itemize}
 Ambient structure variables:
@@ -9245,7 +9545,7 @@ This is an ACTION function.
 \item INT_VAR \verb+xCoord+ to the area's X (east-west) coordinate;
 \item INT_VAR \verb+yCoord+ to the area's Y (north-south) coordinate;
 \item INT_VAR \verb+tTime+ to the area's travel time in hours * 4 (so 2 = 8 hours);
-\item INT_VAR \verb+inclSv+ to 1 to patch saved game worldmaps as well as the master worldmap;
+\item INT_VAR \verb+inclSv+ to 1 if you want to patch saved game worldmaps as well as the master worldmap. \textbf{NB:} changes to saved games are uninstallable;
 \item INT_VAR \verb+visible+ to 1 if you want the 'visible' flag to be set;
 \item INT_VAR \verb+visibleAdjacent+ to 1 if you want the 'visible from adjacent' flag to be set;
 \item INT_VAR \verb+reachable+ to 1 if you want the 'reachable' flag to be set;
@@ -9295,15 +9595,12 @@ LAUNCH_ACTION_FUNCTION sc#addWmpAre
             xCoord  = 240          // x coordinate
             yCoord  = 130          // y coordinate
             tTime   = 0            // travel time *4, so two means eight hours
-            inclSv  = 1            // include saved games bool: 1 means yes and 0 means no
 
     STR_VAR areName = "YS0390"     // area reference, like "AR0700"
             strName = "Govt. West" // area name, like "Waukeen's Promenade"
             strDesc = "Govt. West" // area description which will show up when hovering the area on the worldmap
 
-    RET areNum = areNum
 END
-PRINT "Government District Westside patched. New area number is: %areNum%"
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -9681,6 +9978,8 @@ Wisp would like to extend further thanks to the following people:
 \item CamDawg (sends documentation and tp2 functions)
 \item Nifft (sends compiles)
 \item Antonio Favata, a.k.a. alnair (sends compiles)
+\item Almateria (sends compiles)
+\item Nicolás Clotta aka Crevs Daak (sends compiles)
 \end{itemize}
 and also The Bigg, for having developed and maintained BiggDU for many years and, while doing so, having significantly improved upon its workings and functionality.
 
@@ -9709,11 +10008,9 @@ all those from IEGMC, the Dragon's Hoard Download Centre, and the SHS Download C
 
 Currently undocumented:
 \begin{itemize}
-\item We might want to mention somewhere that we compile BAF files.
 \item {\tt IF!EVAL}.
 \item {\tt REPLACE!BCS!BLOCK!REGEXP}.
 \item Fred's BCS diff stuff.
-\item {\tt --trbify}, \t{TRB} files.
 \item {\tt EDIT!SAV!FILE}.
 \item {\tt EXTEND!MOS}.
 \end{itemize}

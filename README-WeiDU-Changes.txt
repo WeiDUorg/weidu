@@ -1,3 +1,56 @@
+Version 237:
+  * The argument to --use-lang is lower-cased.
+  * Add --version option.
+  * setup-foo-bar(.exe) does not fail to find its TP2 file.
+  * Support the EEs' file type 0x405 (GLSL).
+  * Fix misnamed variables in ALTER_SPELL_EFFECT.
+  * sc#addWmpAre initialises inclSv to a default value.
+  * Fix a bug that incapacitated ALTER_ITEM_HEADER's damage_type variable.
+  * Add more keywords to GET_OFFSET_ARRAY and GET_OFFSET_ARRAY2.
+  * TRB files are no longer supported.
+  * Cut WeiMorph.
+  * Document SAFE.
+  * Correct documentation of LOAD_TRA.
+  * Add CREATE TP2 action.
+  * ADD_AREA_ITEM and ADD_AREA_REGION are implemented through fj_are_structure.
+  * --traify can handle the syntax of male/female string pairs.
+  * Fix case-mismatch bug in SET_WEIGHT.
+  * Add GAME_INCLUDES TP2 value.
+  * Add STR_EQ as an alias for STRING_EQUAL_CASE.
+  * REPLACE_EVALUATE defines up to and including MATCH200.
+  * Fix variable-evaluation errors in ADD_ITEM_EFFECT.
+  * If HANDLE_TILESETS is unable to install the tilesets, the
+    installation fails.
+  * Add HANDLE_CHARSETS.
+  * Actions missing from action.ids are printed as decimal numbers
+    rather than hexadecimal ones.
+  * Fix bug that prevented WeiDU from finding files in the EEs' lang/
+    directory if the main game directory was something other than
+    the directory WeiDU was running in.
+  * Tile size is not hardcoded to 5120 while biffing tile sets.
+  * Biff path separator is (back)slash on x86 and x86_64 OS X and
+    colon on PPC OS X.
+  * Add (CLONE|DELETE|ALTER)_EFFECT functions. Thanks, CamDawg.
+  * Fix bug where the wrong TLKs were loaded if --game pointed to an
+    EE-type game.
+  * Make BG(2): EE checks more general.
+  * Preliminary/speculative compatibility with IWD: EE.
+  * Documentation of GAME_IS does not state TOLM is a synonym for TOTLM.
+  * WeiDU prints the subcomponent group name in addition to the
+    component name where applicable.
+  * In ambiguous engine checks, WeiDU prefers BGII: EE over BG: EE.
+  * Add EET to GAME_IS.
+  * Support SetGlobalTimerRandom().
+  * Document WeiDU's script-handling abilities.
+  * Check validity of EE TLKs against the right directory.
+  * Translatable strings are provided for the BGEE languages Russian
+    and Ukrainian.
+  * Document MOVE's behaviour when toFile already exists.
+  * If WeiDU fails to restore a MOVEd file during uninstallation, a
+    warning is printed and the uninstallation continues.
+  * Fix a bug in fj_are_structure that could lead to problems, including
+    installation failures.
+
 Version 236:
   * HANDLE_AUDIO and HANDLE_TILESETS delete the decompressed files
     upon uninstallation.
