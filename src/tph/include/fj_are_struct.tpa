@@ -360,7 +360,7 @@ PHP_EACH struct AS key => value BEGIN
       PATCH_IF( key_0 == 0x5c )BEGIN
         PATCH_IF fj_debug BEGIN PATCH_PRINT ~Reading region %num%.~ END
         PATCH_IF( fj_debug && SHORT_AT ( off + 0x2a ) )BEGIN PATCH_PRINT ~  Associating vertices.~ END
-        GET_OFFSET_ARRAY array 0x7c 0x04 (off + 0x2a) 0x02 (off + 0x2c) 0x04 0x04
+        GET_OFFSET_ARRAY2 array off ARE_V10_REGION_VERTICES
         PHP_EACH array AS num1 => off1 BEGIN
           READ_LONG off1 $EVAL ~are_region_%num%_vertex~(~%num1%~)
         END
@@ -383,7 +383,7 @@ PHP_EACH struct AS key => value BEGIN
         PATCH_IF fj_debug BEGIN PATCH_PRINT ~Reading container %num%.~ END
 
         // load container vertices
-        GET_OFFSET_ARRAY array 0x7c 0x04 (off + 0x54) 0x02 (off + 0x50) 0x04 0x04
+        GET_OFFSET_ARRAY2 array off ARE_V10_CONTAINER_VERTICES
         PATCH_IF( fj_debug && LONG_AT 0x54 )BEGIN PATCH_PRINT ~  Associating vertices.~ END
         PHP_EACH array AS num1 => off1 BEGIN
           READ_LONG off1 $EVAL ~are_container_%num%_vertex~(~%num1%~)
@@ -391,7 +391,7 @@ PHP_EACH struct AS key => value BEGIN
         CLEAR_ARRAY array
 
         // load container items
-        GET_OFFSET_ARRAY array 0x78 0x04 (off + 0x44) 0x04 (off + 0x40) 0x04 0x14
+        GET_OFFSET_ARRAY2 array off ARE_V10_ITEMS
         PATCH_IF( fj_debug && LONG_AT 0x44 )BEGIN PATCH_PRINT ~  Associating items.~ END
         PHP_EACH array AS num1 => off1 BEGIN
           READ_ASCII off1 $EVAL ~are_container_%num%_itm~(~%num1%~) (0x14)
@@ -422,28 +422,28 @@ PHP_EACH struct AS key => value BEGIN
       PATCH_IF( key_0 == 0xa8 )BEGIN
         PATCH_IF fj_debug BEGIN PATCH_PRINT ~Reading door %num% and associated vertices.~ END
         // load door open vertices
-        GET_OFFSET_ARRAY array 0x7c 0x04 (off + 0x30) 0x02 (off + 0x2c) 0x04 0x04
+        GET_OFFSET_ARRAY2 array off ARE_V10_DOOR_OPEN_OUTLINE_VERTICES
         PHP_EACH array AS num1 => off1 BEGIN
           READ_LONG off1 $EVAL ~are_door_open_%num%_vertex~(~%num1%~)
         END
         CLEAR_ARRAY array
         WRITE_LONG off + 0x2c 0x00
         // load door closed vertices
-        GET_OFFSET_ARRAY array 0x7c 0x04 (off + 0x32) 0x02 (off + 0x34) 0x04 0x04
+        GET_OFFSET_ARRAY2 array off ARE_V10_DOOR_CLOSED_OUTLINE_VERTICES
         PHP_EACH array AS num1 => off1 BEGIN
           READ_LONG off1 $EVAL ~are_door_closed_%num%_vertex~(~%num1%~)
         END
         CLEAR_ARRAY array
         WRITE_LONG off + 0x34 0x00
         // load cell open vertices
-        GET_OFFSET_ARRAY array 0x7c 0x04 (off + 0x4c) 0x02 (off + 0x48) 0x04 0x04
+        GET_OFFSET_ARRAY2 array off ARE_V10_DOOR_OPEN_CELL_VERTICES
         PHP_EACH array AS num1 => off1 BEGIN
           READ_LONG off1 $EVAL ~are_cell_open_%num%_vertex~(~%num1%~)
         END
         CLEAR_ARRAY array
         WRITE_LONG off + 0x48 0x00
         // load cell closed vertices
-        GET_OFFSET_ARRAY array 0x7c 0x04 (off + 0x4e) 0x02 (off + 0x50) 0x04 0x04
+        GET_OFFSET_ARRAY2 array off ARE_V10_DOOR_CLOSED_CELL_VERTICES
         PHP_EACH array AS num1 => off1 BEGIN
           READ_LONG off1 $EVAL ~are_cell_closed_%num%_vertex~(~%num1%~)
         END
@@ -1179,7 +1179,7 @@ PATCH_IF is_id2 BEGIN
   INSERT_BYTES 0x54 0x10
   WRITE_ASCIIE 0x54 ~%id2_header%~
   SET fj_return_offset += 0x10
-  GET_OFFSET_ARRAY fj_id_actor 0x64 0x04 0x58 0x02 0 0 0x110
+  GET_OFFSET_ARRAY fj_id_actor ARE_V91_ACTORS
   PHP_EACH fj_id_actor AS key => value BEGIN
     PATCH_IF(
       LONG_AT( value + 0x88 ) > 0x00 &&

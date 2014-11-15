@@ -1,6 +1,7 @@
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
   * Add more keywords to GET_OFFSET_ARRAY and GET_OFFSET_ARRAY2.
+  * Fix a compatibility problem between fj_are_structure and the AREA V9.1 format.
 
 Version 237:
   * The argument to --use-lang is lower-cased.
