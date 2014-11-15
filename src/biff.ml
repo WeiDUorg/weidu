@@ -421,7 +421,7 @@ let check_file biff i ign =
   end
 
 let check_tile biff i ign =
-  if i < 0 || i >= Array.length biff.files then begin
+  if i < 0 || i >= Array.length biff.tilesets then begin
     if not ign then log_and_print "ERROR: BIFF [%s] has tileset entries 0--%d, cannot extract tileset at entry %d (this BIFF and your KEY file don't match)\n" biff.filename
         ((Array.length biff.tilesets) - 1) i ;
     failwith "invalid biff tileset entry"
