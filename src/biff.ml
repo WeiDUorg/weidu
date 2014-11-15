@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 231.06. *)
+
 (* Note added due to LGPL terms.
 
    This file was edited by Valerio Bigiani, AKA The Bigg, starting from
@@ -17,7 +20,7 @@ type biff_file = {
     res_offset    : int ;
     res_size      : int ;
     res_type      : int ;
-  } 
+  }
 
 and biff_tis = {
     tis_loc                : int ;
@@ -25,7 +28,7 @@ and biff_tis = {
     tis_number_of_tiles    : int ;
     tis_size_of_one_tile   : int ;
     tis_type               : int ;
-  } 
+  }
 
 and biff = {
     fd         : Unix.file_descr ;
@@ -39,25 +42,25 @@ and biff = {
  * save the biff to the disk
  * returns an updated KEY _that can only be saved, cannot be used_
  *)
-let save_biff key filename components = 
+let save_biff key filename components =
   begin
     let all_components = List.flatten (List.map (fun file ->
       let size = file_size file in
       if size > 0 then begin
-	let a,b = split (Case_ins.filename_basename file) in
-	try
+        let a,b = split (Case_ins.filename_basename file) in
+        try
           let tau = key_of_ext false b in
           [ (size,file,String.uppercase a,String.uppercase b,tau) ]
-	with _ ->
+        with _ ->
           log_only "WARNING: Not including [%s]: unknown resource type\n"
             file ; []
       end else []
-						) components) in
+                                                ) components) in
     let total_size = List.fold_left (fun acc (s,f,a,b,t) -> acc + s) 0
-	all_components in
+        all_components in
     let tis_key = key_of_ext true "TIS" in
     let files,tiles = List.partition (fun (s,f,a,b,t) -> t <> tis_key)
-	all_components in
+        all_components in
     let files = Array.of_list files in
     let tiles = Array.of_list tiles in
 
@@ -90,7 +93,7 @@ let save_biff key filename components =
       write_int buff (off+8) s ;
       write_short buff (off+12) t ;
       offset_data := !offset_data + s ;
-		) files ;
+                ) files ;
     Array.iteri (fun i (s,f,a,b,t) ->
       let in_fd = Case_ins.unix_openfile f [Unix.O_RDONLY] 0 in
       let header = String.create 24 in
@@ -114,7 +117,7 @@ let save_biff key filename components =
       write_int buff (off+12) tile_size ;
       write_short buff (off+16) tis_type ;
       offset_data := !offset_data + s;
-		) tiles ;
+                ) tiles ;
     let out_fd = Unix.descr_of_out_channel (open_for_writing filename true) in
     my_write buff_size out_fd buff filename ;
 
@@ -124,10 +127,10 @@ let save_biff key filename components =
     let copy_over in_fd in_name size =
       let sofar = ref 0 in
       while !sofar < size do
-	let chunk_size = min (size - !sofar) chunk_size in
-	my_read chunk_size in_fd chunk in_name ;
-	my_write chunk_size out_fd chunk filename ;
-	sofar := !sofar + chunk_size ;
+        let chunk_size = min (size - !sofar) chunk_size in
+        my_read chunk_size in_fd chunk in_name ;
+        my_write chunk_size out_fd chunk filename ;
+        sofar := !sofar + chunk_size ;
       done
     in
     Array.iteri (fun i (s,f,a,b,t) ->
@@ -139,7 +142,7 @@ let save_biff key filename components =
       with e ->
         log_and_print "ERROR: save_biff failed to close %s during files\n" f ;
         raise e)
-		) files ;
+                ) files ;
     Array.iteri (fun i (s,f,a,b,t) ->
       log_only "[%s] incorporating [%s]\n" filename f ;
       let in_fd = Case_ins.unix_openfile f [Unix.O_RDONLY] 0 in
@@ -164,7 +167,7 @@ let save_biff key filename components =
       with e ->
         log_and_print "ERROR: save_biff failed to close %s during tiles 3\n" f ;
         raise e)
-		) tiles ;
+                ) tiles ;
     (try
       Unix.close out_fd ;
     with e ->
@@ -172,9 +175,9 @@ let save_biff key filename components =
       raise e) ;
     if true then
       begin
-	try
-	  Case_ins.unix_chmod filename 511 ;
-	with e -> ()
+        try
+          Case_ins.unix_chmod filename 511 ;
+        with e -> ()
       end ;
 
     let total_size = file_size filename in
@@ -183,24 +186,24 @@ let save_biff key filename components =
     let filesep_regexp = Str.regexp "[:/\\]" in
     let new_biffs = Array.append key.biff [|
       { Key.length = total_size ;
-	Key.filename = Str.global_replace filesep_regexp
+        Key.filename = Str.global_replace filesep_regexp
           Arch.biff_path_separator filename ;
-	Key.locations = 1;
+        Key.locations = 1;
       } |] in
     let ctr = ref (-1) in
     let new_file_res = Array.map (fun (s,f,a,b,t) -> incr ctr ;
       { Key.res_name = a ;
-	Key.res_type = t ;
-	Key.other_index = !ctr;
-	Key.tis_index = 0;
-	Key.bif_index = new_biff_index; }) files in
+        Key.res_type = t ;
+        Key.other_index = !ctr;
+        Key.tis_index = 0;
+        Key.bif_index = new_biff_index; }) files in
     let ctr = ref 0 in
     let new_tile_res = Array.map (fun (s,f,a,b,t) -> incr ctr ;
       { Key.res_name = a ;
-	Key.res_type = t ;
-	Key.other_index = 0;
-	Key.tis_index = !ctr;
-	Key.bif_index = new_biff_index ; }) tiles in
+        Key.res_type = t ;
+        Key.other_index = 0;
+        Key.tis_index = !ctr;
+        Key.bif_index = new_biff_index ; }) tiles in
 
     let new_a = Array.append key.resource new_file_res in
 
@@ -210,14 +213,14 @@ let save_biff key filename components =
     let nal_rev = List.rev new_a_list in
     let nal = List.filter (fun elt ->
       if Hashtbl.mem dup_ht (elt.Key.res_name,elt.Key.res_type) then begin
-	log_only "KEY: Duplicate: %s.%x\n" elt.Key.res_name
+        log_only "KEY: Duplicate: %s.%x\n" elt.Key.res_name
           elt.Key.res_type ;
-	false
+        false
       end else begin
-	Hashtbl.add dup_ht (elt.Key.res_name,elt.Key.res_type) true ;
-	true
+        Hashtbl.add dup_ht (elt.Key.res_name,elt.Key.res_type) true ;
+        true
       end
-			  ) nal_rev in
+                          ) nal_rev in
     let new_a = Array.of_list nal in
 
     let new_b = Array.append new_a new_tile_res in
@@ -232,25 +235,25 @@ let save_biff key filename components =
  * if it were not compressed! *)
 let read_compressed_biff_internal fd filename start size chunk_fun =
   let cmp_offset = ref 12 in
-  let unc_offset = ref 0 in 
+  let unc_offset = ref 0 in
 
   (* buffer holds the uncompressed bytes [start_unc,end_unc]  *)
   let (*result*) _ = Buffer.create size in
-  let start_unc_offset = ref 0 in 
+  let start_unc_offset = ref 0 in
   let end_unc_offset = ref 0 in
 
-  let finished = ref false in 
-  let found_it = ref false in 
-  let sizes_buff = String.create 8 in 
+  let finished = ref false in
+  let found_it = ref false in
+  let sizes_buff = String.create 8 in
   while not !finished do
-    (* now we're looking at one block *) 
-    let _ = Unix.lseek fd !cmp_offset Unix.SEEK_SET in 
-    my_read 8 fd sizes_buff filename ; 
+    (* now we're looking at one block *)
+    let _ = Unix.lseek fd !cmp_offset Unix.SEEK_SET in
+    my_read 8 fd sizes_buff filename ;
     let uncmplen = int_of_str_off sizes_buff 0 in
     let cmplen = int_of_str_off sizes_buff 4 in
     (*
-      log_and_print "cmp_off = %d  unc_off = %d :: cmp_len = %d  unc_len = %d\n" 
-      !cmp_offset !unc_offset cmplen uncmplen ; 
+      log_and_print "cmp_off = %d  unc_off = %d :: cmp_len = %d  unc_len = %d\n"
+      !cmp_offset !unc_offset cmplen uncmplen ;
      *)
 
     if not !found_it && !unc_offset + uncmplen >= start then begin
@@ -262,19 +265,19 @@ let read_compressed_biff_internal fd filename start size chunk_fun =
       () (* skip *)
     end else if !found_it && !unc_offset >= start + size then begin
       (* we're done! *)
-      finished := true 
+      finished := true
     end else begin
-      (* read this block *) 
-      let _ = Unix.lseek fd (!cmp_offset+8) Unix.SEEK_SET in 
-      let cmp_buff = String.create cmplen in 
+      (* read this block *)
+      let _ = Unix.lseek fd (!cmp_offset+8) Unix.SEEK_SET in
+      let cmp_buff = String.create cmplen in
       my_read cmplen fd cmp_buff filename ;
       let uncmp = Cbif.uncompress cmp_buff 0 cmplen uncmplen in
       (*
-	if (String.length uncmp <> uncmplen) then begin
+        if (String.length uncmp <> uncmplen) then begin
         log_and_print "ERROR: [%s] chunk at offset %d was supposed to have %d bytes of compressed data that expanded to %d, but in reality they expanded to %d"
         filename !cmp_offset cmplen uncmplen (String.length uncmp) ;
         failwith "BIFC decompression error"
-	end ;  *)
+        end ;  *)
       end_unc_offset := !unc_offset + uncmplen;
 
       (* drop unwanted stuff from the beginning ... *)
@@ -290,137 +293,137 @@ let read_compressed_biff_internal fd filename start size chunk_fun =
           let res = Str.string_before uncmp ((String.length uncmp) - too_much) in
           res
         end else uncmp
-      in 
-      chunk_fun uncmp 
+      in
+      chunk_fun uncmp
     end ;
 
     unc_offset := !unc_offset + uncmplen ;
-    cmp_offset := !cmp_offset + 8 + cmplen ; 
+    cmp_offset := !cmp_offset + 8 + cmplen ;
 
-    (if !found_it && !unc_offset >= start + size then finished := true); 
+    (if !found_it && !unc_offset >= start + size then finished := true);
   done ;
-  () 
+  ()
 
 let read_compressed_biff fd filename a b =
-  let res = Buffer.create (b - a) in 
+  let res = Buffer.create (b - a) in
   let chunk_fun str = Buffer.add_string res str in
   read_compressed_biff_internal fd filename a b chunk_fun ;
-  Buffer.contents res 
+  Buffer.contents res
 
-let load_compressed_biff filename size fd = 
-  Stats.time "unmarshal compressed BIFF" (fun () -> 
-    let header_buff = read_compressed_biff fd filename 0 20 in 
+let load_compressed_biff filename size fd =
+  Stats.time "unmarshal compressed BIFF" (fun () ->
+    let header_buff = read_compressed_biff fd filename 0 20 in
     let num_file_entry = int_of_str_off header_buff 8 in
     let num_tileset_entry = int_of_str_off header_buff 12 in
     let offset_file_entry = int_of_str_off header_buff 16 in
-    let offset_tileset_entry = offset_file_entry + (num_file_entry * 16) in 
+    let offset_tileset_entry = offset_file_entry + (num_file_entry * 16) in
     let table_len = offset_file_entry + (num_file_entry * 16) +
-	(num_tileset_entry * 20) in 
+        (num_tileset_entry * 20) in
     let table_buff = read_compressed_biff fd filename 0 table_len in
-    let result = 
+    let result =
       {
        fd = fd ;
        filename = filename ;
-       compressed = true ; 
-       files = Array.init num_file_entry (fun i -> 
-	 let off = offset_file_entry + (i * 16) in
-	 {
+       compressed = true ;
+       files = Array.init num_file_entry (fun i ->
+         let off = offset_file_entry + (i * 16) in
+         {
           res_loc = int_of_str_off table_buff (off + 0) ;
           res_offset = int_of_str_off table_buff (off + 4) ;
           res_size = int_of_str_off table_buff (off + 8) ;
           res_type = short_of_str_off table_buff (off + 10) ;
-	} 
-					 ) ;
+        }
+                                         ) ;
        tilesets = Array.init num_tileset_entry (fun i ->
-	 let off = offset_tileset_entry + (i * 20) in 
-	 {
+         let off = offset_tileset_entry + (i * 20) in
+         {
           tis_loc = int_of_str_off table_buff (off + 0) ;
           tis_offset = int_of_str_off table_buff (off + 4) ;
           tis_number_of_tiles = int_of_str_off table_buff (off + 8);
           tis_size_of_one_tile = int_of_str_off table_buff (off + 12) ;
-          tis_type = short_of_str_off table_buff (off + 16) ; 
-	} 
-					       ) ;
-     } in 
-    log_or_print "[%s] %d bytes (compressed), %d files, %d tilesets\n" 
-      filename size num_file_entry num_tileset_entry ; 
+          tis_type = short_of_str_off table_buff (off + 16) ;
+        }
+                                               ) ;
+     } in
+    log_or_print "[%s] %d bytes (compressed), %d files, %d tilesets\n"
+      filename size num_file_entry num_tileset_entry ;
     result
-					 ) ()
+                                         ) ()
 
-let load_normal_biff filename size fd buff = 
-  Stats.time "unmarshal BIFF" (fun () -> 
+let load_normal_biff filename size fd buff =
+  Stats.time "unmarshal BIFF" (fun () ->
     let num_file_entry = int_of_str_off buff 8 in
     let num_tileset_entry = int_of_str_off buff 12 in
     let offset_file_entry = int_of_str_off buff 16 in
-    let offset_tileset_entry = (num_file_entry * 16) in 
+    let offset_tileset_entry = (num_file_entry * 16) in
     let table_len = (num_file_entry * 16) +
-	(num_tileset_entry * 20) in 
-    let buff = String.create table_len in 
-    let _ = Unix.lseek fd offset_file_entry Unix.SEEK_SET in 
-    my_read table_len fd buff filename ; 
-    let result = 
+        (num_tileset_entry * 20) in
+    let buff = String.create table_len in
+    let _ = Unix.lseek fd offset_file_entry Unix.SEEK_SET in
+    my_read table_len fd buff filename ;
+    let result =
       {
        fd = fd ;
        filename = filename ;
-       compressed = false ; 
-       files = Array.init num_file_entry (fun i -> 
-	 let off = (i * 16) in                                  
-	 {
+       compressed = false ;
+       files = Array.init num_file_entry (fun i ->
+         let off = (i * 16) in
+         {
           res_loc = int_of_str_off buff (off + 0) ;
           res_offset = int_of_str_off buff (off + 4) ;
           res_size = int_of_str_off buff (off + 8) ;
           res_type = short_of_str_off buff (off + 10) ;
-	} 
-					 ) ;
+        }
+                                         ) ;
        tilesets = Array.init num_tileset_entry (fun i ->
-	 let off = offset_tileset_entry + (i * 20) in 
-	 {
+         let off = offset_tileset_entry + (i * 20) in
+         {
           tis_loc = int_of_str_off buff (off + 0) ;
           tis_offset = int_of_str_off buff (off + 4) ;
           tis_number_of_tiles = int_of_str_off buff (off + 8);
           tis_size_of_one_tile = int_of_str_off buff (off + 12) ;
-          tis_type = short_of_str_off buff (off + 16) ; 
-	} 
-					       ) ;
-     } in 
-    log_or_print "[%s] %d bytes, %d files, %d tilesets\n" 
-      filename size num_file_entry num_tileset_entry ; 
+          tis_type = short_of_str_off buff (off + 16) ;
+        }
+                                               ) ;
+     } in
+    log_or_print "[%s] %d bytes, %d files, %d tilesets\n"
+      filename size num_file_entry num_tileset_entry ;
     result
-			      ) ()
+                              ) ()
 
-let load_biff filename = 
-  try 
+let load_biff filename =
+  try
     let stats = Case_ins.unix_stat filename in
     let size = stats.Unix.st_size in
     let fd = Case_ins.unix_openfile filename [Unix.O_RDONLY] 0 in
     let buff = String.create 20 in
-    let _ = Unix.read fd buff 0 20 in 
-    if String.length buff < 8 then begin 
+    let _ = Unix.read fd buff 0 20 in
+    if String.length buff < 8 then begin
       failwith "not a valid BIFF file (wrong sig)"
-    end ; 
+    end ;
     (
-     match String.sub buff 0 8 with 
+     match String.sub buff 0 8 with
        "BIFFV1  " -> load_normal_biff filename size fd buff
-	   (* comment out this BIFC line if you don't have zlib *)
-     | "BIFCV1.0" -> load_compressed_biff filename size fd 
+           (* comment out this BIFC line if you don't have zlib *)
+     | "BIFCV1.0" -> load_compressed_biff filename size fd
      | s -> failwith ("BIFF file signature unsupported: " ^ s)
     )
-  with e -> 
-    log_and_print "ERROR: BIFF [%s] cannot be loaded: %s\n" filename 
+  with e ->
+    log_and_print "ERROR: BIFF [%s] cannot be loaded: %s\n" filename
       (printexc_to_string e);
     raise e
 
 let check_file biff i ign =
   if i < 0 || i >= Array.length biff.files then begin
     if not ign then log_and_print "ERROR: BIFF [%s] has file entries 0--%d, cannot extract file at entry %d (this BIFF and your KEY file don't match)\n" biff.filename
-	((Array.length biff.files) - 1) i ;
+        ((Array.length biff.files) - 1) i ;
     failwith "invalid biff file entry"
   end
 
 let check_tile biff i ign =
   if i < 0 || i >= Array.length biff.files then begin
     if not ign then log_and_print "ERROR: BIFF [%s] has tileset entries 0--%d, cannot extract tileset at entry %d (this BIFF and your KEY file don't match)\n" biff.filename
-	((Array.length biff.tilesets) - 1) i ;
+        ((Array.length biff.tilesets) - 1) i ;
     failwith "invalid biff tileset entry"
   end
 
@@ -439,9 +442,8 @@ let extract_file biff i ign =
     end
   with e ->
     if not ign then log_and_print "ERROR: BIFF [%s]: unable to extract file %d\n"
-	biff.filename i ;
+        biff.filename i ;
     raise e
-;;
 
 let extract_tis biff i ign =
   try
@@ -450,12 +452,12 @@ let extract_tis biff i ign =
     let size = this.tis_number_of_tiles * this.tis_size_of_one_tile in
     let buff =
       if (biff.compressed) then begin
-	read_compressed_biff biff.fd biff.filename this.tis_offset size
+        read_compressed_biff biff.fd biff.filename this.tis_offset size
       end else begin
-	let _ = Unix.lseek biff.fd this.tis_offset Unix.SEEK_SET in
-	let buff = String.create size in
-	my_read size biff.fd buff biff.filename;
-	buff
+        let _ = Unix.lseek biff.fd this.tis_offset Unix.SEEK_SET in
+        let buff = String.create size in
+        my_read size biff.fd buff biff.filename;
+        buff
       end
     in
     let header = String.create 0x18 in
@@ -471,9 +473,8 @@ let extract_tis biff i ign =
     header ^ buff
   with e ->
     if not ign then log_and_print "ERROR: BIFF [%s]: unable to extract tileset %d\n"
-	biff.filename i ;
+        biff.filename i ;
     raise e
-;;
 
 let copy_file biff i oc is_tis =
   let size,offset = if is_tis then begin
@@ -489,35 +490,35 @@ let copy_file biff i oc is_tis =
     String.blit str 0 header 0x10 4 ;
     let str = str_of_int 64 in
     String.blit str 0 header 0x14 4 ;
-	output_string oc header;
+        output_string oc header;
     (this.tis_number_of_tiles * this.tis_size_of_one_tile) ,
     this.tis_offset
   end else begin
-    check_file biff i false; 
+    check_file biff i false;
     let this = biff.files.(i) in
     (this.res_size),
     this.res_offset
   end
-  in 
-  try 
+  in
+  try
     let copy_chunk str = output_string oc str in
     if (biff.compressed) then begin
-      read_compressed_biff_internal 
-        biff.fd biff.filename offset size copy_chunk 
-    end else begin 
-      let _ = Unix.lseek biff.fd offset Unix.SEEK_SET in 
+      read_compressed_biff_internal
+        biff.fd biff.filename offset size copy_chunk
+    end else begin
+      let _ = Unix.lseek biff.fd offset Unix.SEEK_SET in
       let chunk_size = 10240 in
-      let chunk = String.create chunk_size in 
+      let chunk = String.create chunk_size in
       let sofar = ref 0 in
       while !sofar < size do
         let chunk_size = min (size - !sofar) chunk_size in
         my_read chunk_size biff.fd chunk biff.filename ;
-        output_string oc (String.sub chunk 0 chunk_size) ; 
-        sofar := !sofar + chunk_size ; 
-      done 
-    end 
+        output_string oc (String.sub chunk 0 chunk_size) ;
+        sofar := !sofar + chunk_size ;
+      done
+    end
   with e ->
-    log_and_print "ERROR: BIFF [%s]: unable to extract-copy file %d\n" 
+    log_and_print "ERROR: BIFF [%s]: unable to extract-copy file %d\n"
       biff.filename i ;
     raise e
 
