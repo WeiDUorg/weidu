@@ -9040,7 +9040,7 @@ This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux
 
 This function expects to find tisunpack for one or more of Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X or GNU/Linux in a common directory under the subdirectories \t{win32}, \t{osx}, and \t{unix}, respectively. For example, in \t{mymod/tiz/win32}, \t{mymod/tiz/osx} and \t{mymod/tiz/unix}, the common directory is \t{mymod/tiz} and \t{mymod/tiz/win32/tisunpack.exe} should be a valid file. For GNU/Linux, this function also supports tisunpack being located on the system path (something the user would take care of). If you choose to leave tisunpack to the user, you should mention this requirement in any installation instructions you provide.
 
-If tisunpack for the user's platform could not be found, the user is warned that the tilesets were not installed.
+If tisunpack for the user's platform could not be found, the installation fails.
 
 \begin{itemize}
 \item STR_VAR \verb+tiz_path+ to the path your .tiz files are stored in. By default this variable is \verb+~%MOD_FOLDER%/tiz~+.
