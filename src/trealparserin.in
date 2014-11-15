@@ -818,6 +818,9 @@ nonterm(Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp *
 	-> ARE_V10_ANIMATIONS
 		[ seven_patch_exp 0xb0 4 0xac 4 0 0 0x4c ]
 
+	-> ARE_V91_ACTORS
+		[ seven_patch_exp 0x64 4 0x68 2 0 0 0x110 ]
+
 	-> CRE_V10_KNOWN_SPELLS
 		[ seven_patch_exp 0x2a0 4 0x2a4 4 0 0 0xc ]
 	-> CRE_V10_SPELL_MEM_INFO
@@ -864,6 +867,14 @@ nonterm(Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp *
 		[ eight_patch_exp e1 0x7c 4 0x2a 2 0x2c 4 0x4 ]
 	-> e1:Patch_Exp ARE_V10_CONTAINER_VERTICES
 		[ eight_patch_exp e1 0x7c 4 0x54 2 0x50 4 0x4 ]
+	-> e1:Patch_Exp ARE_V10_DOOR_OPEN_OUTLINE_VERTICES
+		[ eight_patch_exp e1 0x7c 4 0x30 2 0x2c 4 0x4 ]
+	-> e1:Patch_Exp ARE_V10_DOOR_CLOSED_OUTLINE_VERTICES
+		[ eight_patch_exp e1 0x7c 4 0x32 2 0x34 4 0x4 ]
+	-> e1:Patch_Exp ARE_V10_DOOR_OPEN_CELL_VERTICES
+		[ eight_patch_exp e1 0x7c 4 0x4c 2 0x48 4 0x4 ]
+	-> e1:Patch_Exp ARE_V10_DOOR_CLOSED_CELL_VERTICES
+		[ eight_patch_exp e1 0x7c 4 0x4e 2 0x50 4 0x4 ]
 
 	-> e1:Patch_Exp CRE_V10_SPELL_MEM
 		[ eight_patch_exp e1 0x2b0 4 0xc 4 0x8 4 0xc ]

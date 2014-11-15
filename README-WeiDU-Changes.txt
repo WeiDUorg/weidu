@@ -1,5 +1,6 @@
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
+  * Add more keywords to GET_OFFSET_ARRAY and GET_OFFSET_ARRAY2.
 
 Version 237:
   * The argument to --use-lang is lower-cased.
