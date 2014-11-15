@@ -94,6 +94,7 @@ DEFINE_ACTION_FUNCTION HANDLE_AUDIO
     audio_path = EVAL "%MOD_FOLDER%/audio"
     oggdec_path = EVAL "%audio_path%"
     sox_path = EVAL "%audio_path%"
+    output_path = "override"
 BEGIN
   ACTION_IF !FILE_EXISTS_IN_GAME monkfist.2da BEGIN
     ACTION_MATCH "%WEIDU_OS%" WITH
@@ -101,10 +102,9 @@ BEGIN
       BEGIN
         ACTION_IF FILE_EXISTS "%oggdec_path%/oggdec.exe" BEGIN
           ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-            OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
+            OUTER_SPRINT wavfile ~%output_path%/%BASH_FOR_RES%.wav~
             COPY ~.../fl#inlined/null.file~ ~%wavfile%~
-            AT_NOW ~%oggdec_path%/oggdec.exe "%BASH_FOR_FILESPEC%"~
-            MOVE ~%wavfile%~ override
+            AT_NOW ~%oggdec_path%/oggdec.exe -o "%wavfile%" "%BASH_FOR_FILESPEC%"~
           END
         END ELSE BEGIN
           WARN ~WARNING: audio was not installed because oggdec.exe could not be found in %oggdec_path%~
@@ -116,10 +116,9 @@ BEGIN
         ACTION_IF FILE_EXISTS ~%sox_path%/sox~ BEGIN
           AT_NOW ~chmod +x '%sox_path%/sox'~
           ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-            OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
+            OUTER_SPRINT wavfile ~%output_path%/%BASH_FOR_RES%.wav~
             COPY ~.../fl#inlined/null.file~ ~%wavfile%~
             AT_NOW ~'%sox_path%/sox' '%BASH_FOR_FILESPEC%' '%wavfile%'~
-            MOVE ~%wavfile%~ override
           END
         END ELSE BEGIN
           WARN ~WARNING: audio was not installed because sox could not be found in %sox_path%~
@@ -130,14 +129,14 @@ BEGIN
       BEGIN
         OUTER_SET installed = 1
         ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-          OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
+          OUTER_SPRINT wavfile ~%output_path%/%BASH_FOR_RES%.wav~
           COPY ~.../fl#inlined/null.file~ ~%wavfile%~
-          AT_NOW ~oggdec '%BASH_FOR_FILESPEC%'~
-          ACTION_IF FILE_EXISTS ~%wavfile%~ &&
-                    !FILE_SIZE ~%wavfile%~ 0
+          AT_NOW ~oggdec -o '%wavfile%' '%BASH_FOR_FILESPEC%'~
+          ACTION_IF !FILE_EXISTS ~%wavfile%~ OR
+                    FILE_SIZE ~%wavfile%~ 0
           BEGIN
-            MOVE ~%wavfile%~ override
-          END ELSE OUTER_SET installed = 0
+            OUTER_SET installed = 0
+          END
         END
         ACTION_IF !installed BEGIN
           WARN "WARNING: audio was not installed because WAV files were not found. Are you sure you have oggdec installed?"
@@ -152,7 +151,7 @@ BEGIN
       OUTER_SPRINT ext "acm"
     END
     ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-      COPY_LARGE ~%BASH_FOR_FILESPEC%~ ~override/%BASH_FOR_RES%.%ext%~
+      COPY_LARGE ~%BASH_FOR_FILESPEC%~ ~%output_path%/%BASH_FOR_RES%.%ext%~
     END
   END
 END
@@ -161,6 +160,7 @@ DEFINE_ACTION_FUNCTION HANDLE_TILESETS
   STR_VAR
     tiz_path = EVAL "%MOD_FOLDER%/tiz"
     tisunpack_path = EVAL "%tiz_path%"
+    output_path = "override"
 BEGIN
   ACTION_MATCH "%WEIDU_OS%" WITH
     win32
@@ -181,22 +181,21 @@ BEGIN
   END
   ACTION_IF FILE_EXISTS ~%tisunpack_path%/%WEIDU_OS%/%tisunpack%~ BEGIN
     ACTION_BASH_FOR ~%tiz_path%~ ~.+\.tiz$~ BEGIN
-      OUTER_SPRINT tisfile ~%tiz_path%/%BASH_FOR_RES%.tis~
+      OUTER_SPRINT tisfile ~%output_path%/%BASH_FOR_RES%.tis~
       COPY ~.../fl#inlined/null.file~ ~%tisfile%~
       AT_NOW ~%tisunpack_path%/%WEIDU_OS%/%tisunpack% -s -f -o %quote%%tisfile%%quote% %quote%%BASH_FOR_FILESPEC%%quote%~
-      MOVE ~%tisfile%~ override
     END
   END ELSE ACTION_IF "%WEIDU_OS%" STRING_EQUAL_CASE "unix" BEGIN // Support tisunpack being located on the system path
     OUTER_SET installed = 1
     ACTION_BASH_FOR ~%tiz_path%~ ~.+\.tiz$~ BEGIN
-      OUTER_SPRINT tisfile ~%tiz_path%/%BASH_FOR_RES%.tis~
+      OUTER_SPRINT tisfile ~%output_path%/%BASH_FOR_RES%.tis~
       COPY ~.../fl#inlined/null.file~ ~%tisfile%~
       AT_NOW ~tisunpack -s -f -o '%tisfile%' '%BASH_FOR_FILESPEC%'~
-      ACTION_IF FILE_EXISTS ~%tisfile%~ &&
-                !FILE_SIZE ~%tisfile%~ 0
+      ACTION_IF !FILE_EXISTS ~%tisfile%~ OR
+                FILE_SIZE ~%tisfile%~ 0
       BEGIN
-        MOVE ~%tisfile%~ override
-      END ELSE OUTER_SET installed = 0
+        OUTER_SET installed = 0
+      END
     END
     ACTION_IF !installed BEGIN
       FAIL ~ERROR: tilesets were not installed because TIS files were not found. Are you sure you have tisunpack installed?~

@@ -1,3 +1,6 @@
+Version 238:
+  * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
+
 Version 237:
   * The argument to --use-lang is lower-cased.
   * Add --version option.
