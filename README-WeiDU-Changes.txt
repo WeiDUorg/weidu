@@ -3,6 +3,7 @@ Version 238:
   * Add more keywords to GET_OFFSET_ARRAY and GET_OFFSET_ARRAY2.
   * Fix a compatibility problem between fj_are_structure and the AREA V9.1 format.
   * Fix a bug in the bounds checking when unbiffing tilesets.
+  * Document [GET|READ]_STRREF_[F|S|FS] and the corresponding actions.
 
 Version 237:
   * The argument to --use-lang is lower-cased.

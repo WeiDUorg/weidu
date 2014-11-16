@@ -3831,8 +3831,32 @@ or & \DEFINE{ACTION!TO!LOWER} \ttref{variable} &
   Turns to lower-case the contents of \verb+%variable%+ and store the
   results in variable. \\
 or & \DEFINE{ACTION!GET!STRREF} \ttref{value} \ttref{variable} &
-  The string reference value is looked up in \t{DIALOG.TLK} and the (male) string
-  (without any quotes) is stored in the \ttref{variable}.  \\
+
+  The string reference value is looked up in \t{DIALOG.TLK} and the
+  (male) string (without any quotes) is stored in the variable. \\
+
+or & \DEFINE{ACTION!GET!STRREF!F} \ttref{value} \ttref{variable} &
+
+  The string reference value is looked up in \t{DIALOGF.TLK} and the
+  female string (without any quotes) is stored in the variable. If
+  there is no \t{DIALOGF.TLK}, the string from \t{DIALOG.TLK} is used
+  instead. \\
+
+or & \DEFINE{ACTION!GET!STRREF!S} \ttref{value} \ttref{variable} &
+
+  The string reference value is looked up in \t{DIALOG.TLK} and the
+  sound reference associated with the (male) string is stored in the
+  variable. If the string has no sound, the empty string
+  is used instead. \\
+
+or & \DEFINE{ACTION!GET!STRREF!FS} \ttref {value} \ttref{variable} &
+
+  The string reference value is looked up in \t{DIALOGF.TLK} and the
+  sound reference associated with the female string is stored in the
+  variable. If there is no \t{DIALOGF.TLK}, the sound reference
+  associated with the string from \t{DIALOG.TLK} is used instead. If the
+  string has no sound, the empty string is used instead. \\
+
 or & \DEFINE{DECOMPRESS!BIFF} file ... &
   Decompresses one or more biff files from either \t{"BIF V1.0"} or \t{"BIFCV1.0"}
   into \t{"BIFFV1  "}.
@@ -4242,11 +4266,37 @@ or & \DEFINE{READ!ASCII} \ttref{offset} \ttref{variable} \Ob \t{ELSE}
   \\
 or & \DEFINE{READ!STRREF} \ttref{offset} \ttref{variable} \Ob \t{ELSE}
 \t{string} \Oe &
-  A 32-bit Infinity Engine \t{DIALOG.TLK} string reference is read from the
-  file at the given \ttref{offset}. The string reference is looked up in
-  \t{DIALOG.TLK} and the (male) string value for it (without any quotes) is
-  stored in the \ttref{variable}. In some sense this is the opposite of
-  \ttref{SAY!EVALUATED}.  \\
+
+  A 32-bit Infinity Engine string reference is read from the
+  file at the given offset. The string reference is looked up in
+  \t{DIALOG.TLK} and the (male) string (without any quotes) is
+  stored in the variable. In some sense this is the opposite of
+  \ttref{SAY!EVALUATED}. \\
+
+or & \DEFINE{READ!STRREF!F} \ttref{offset} \ttref{variable} \Ob \t{ELSE} \t{string} \Oe &
+
+  A 32-bit Infinity Engine string reference is read from the file at
+  the given offset. The string reference is looked up in
+  \t{DIALOGF.TLK} and the female string (without any quotes) is stored
+  in the variable. \\
+
+or & \DEFINE{READ!STRREF!S} \ttref{offset} \ttref{variable} \Ob \t{ELSE} \t{string} \Oe &
+
+  A 32-bit Infinity Engine string reference is read from the file at
+  the given offset. The string reference is looked up in
+  \t{DIALOG.TLK} and the sound reference associated with the (male)
+  string is stored in the variable. If the string has no sound, the
+  empty string is used instead. \\
+
+or & \DEFINE{READ!STRREF!FS} \ttref{offset} \ttref{variable} \Ob \t{ELSE} \t{string} \Oe &
+
+  A 32-bit Infinity Engine string reference is read from the file at
+  the given offset. The string reference is looked up in
+  \t{DIALOGF.TLK} and the sound reference associated with the female
+  string is stored in the variable. If there is no \t{DIALOGF.TLK},
+  the sound reference associated with the string from \t{DIALOG.TLK}
+  is used instead. If the string has no sound, the empty string is
+  used instead. \\
 
 or & \DEFINE{GET!OFFSET!ARRAY} \ttref{String} \t{seven \ttref{value}s} &
   The seven values are:
@@ -4346,8 +4396,32 @@ You may use \DEFINE{PATCH!DEFINE!ASSOCIATIVE!ARRAY} as a synonym for \ttref{DEFI
 \\
 
 or & \DEFINE{GET!STRREF} \ttref{value} \ttref{variable} &
-  The string reference value is looked up in \t{DIALOG.TLK} and the (male) string
-  (without any quotes) is stored in the \ttref{variable}.  \\
+
+  The string reference value is looked up in \t{DIALOG.TLK} and the
+  (male) string (without any quotes) is stored in the variable. \\
+
+or & \DEFINE{GET!STRREF!F} \ttref{value} \ttref{variable} &
+
+  The string reference value is looked up in \t{DIALOGF.TLK} and the
+  female string (without any quotes) is stored in the variable. If
+  there is no \t{DIALOGF.TLK}, the string from \t{DIALOG.TLK} is used
+  instead. \\
+
+or & \DEFINE{GET!STRREF!S} \ttref{value} \ttref{variable} &
+
+  The string reference value is looked up in \t{DIALOG.TLK} and the
+  sound reference associated with the (male) string is stored in the
+  variable. If the string has no sound, the empty string
+  is used instead. \\
+
+or & \DEFINE{GET!STRREF!FS} \ttref{value} \ttref{variable} &
+
+  The string reference value is looked up in \t{DIALOGF.TLK} and the
+  sound reference associated with the female string is stored in the
+  variable. If there is not \t{DIALOGF.TLK}, the sound reference
+  associated with the string from \t{DIALOG.TLK} is used instead. If the
+  string has no sound, the empty string is used instead. \\
+
 or & \DEFINE{SET} \ttref{variable} \t{=} \ttref{value} &
   Update \ttref{variable} so that it is equal to \ttref{value}. \\
 or & \ttref{variable} \t{=} \ttref{value} &
