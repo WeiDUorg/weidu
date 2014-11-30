@@ -1115,10 +1115,42 @@ DEFINE_PATCH_MACRO ~ADD_AREA_REGION~ BEGIN
     SET EVAL "fj_vertex_%i%" = EVAL "ab_RT_Vx_X_%i%" + (EVAL "ab_RT_Vx_Y_%i%" << 16)
   END
   /*
-   * ab_RT_Itxt was not actually used in the old code, so there are instances of
-   * the macro's use where it is not initialised.
+   * Safety-initialise all variables
    */
-  ab_RT_Itxt = !VARIABLE_IS_SET ab_RT_Itxt OR !IS_AN_INT ab_RT_Itxt ? "-1" : ab_RT_Itxt
+  ab_RT_Type = !IS_AN_INT ab_RT_Type ? 0 : ab_RT_Type
+  ab_RT_BbLX = !IS_AN_INT ab_RT_BbLX ? 0 : ab_RT_BbLX
+  ab_RT_BbLY = !IS_AN_INT ab_RT_BbLY ? 0 : ab_RT_BbLY
+  ab_RT_BbHX = !IS_AN_INT ab_RT_BbHX ? 0 : ab_RT_BbHX
+  ab_RT_BbHY = !IS_AN_INT ab_RT_BbHY ? 0 : ab_RT_BbHY
+  ab_RT_CuId = !IS_AN_INT ab_RT_CuId ? 0 : ab_RT_CuId
+  ab_RT_Fbit = !IS_AN_INT ab_RT_Fbit ? 0 : ab_RT_Fbit
+  ab_RT_Itxt = !IS_AN_INT ab_RT_Itxt ? "-1" : ab_RT_Itxt
+  ab_RT_TDtD = !IS_AN_INT ab_RT_TDtD ? 0 : ab_RT_TDtD
+  ab_RT_TRmD = !IS_AN_INT ab_RT_TRmD ? 0 : ab_RT_TRmD
+  ab_RT_TSet = !IS_AN_INT ab_RT_TSet ? 0 : ab_RT_TSet
+  ab_RT_TDet = !IS_AN_INT ab_RT_TDet ? 0 : ab_RT_TDet
+  ab_RT_LPoX = !IS_AN_INT ab_RT_LPoX ? 0 : ab_RT_LPoX
+  ab_RT_LPoY = !IS_AN_INT ab_RT_LPoY ? 0 : ab_RT_LPoY
+  ab_RT_ALPX = !IS_AN_INT ab_RT_ALPX ? 0 : ab_RT_ALPX
+  ab_RT_ALPY = !IS_AN_INT ab_RT_ALPY ? 0 : ab_RT_ALPY
+  ACTION_IF !VARIABLE_IS_SET ab_RT_Name BEGIN
+    SPRINT ab_RT_Name ""
+  END
+  ACTION_IF !VARIABLE_IS_SET ab_RT_Dest BEGIN
+    SPRINT ab_RT_Dest ""
+  END
+  ACTION_IF !VARIABLE_IS_SET ab_RT_EntN BEGIN
+    SPRINT ab_RT_EntN ""
+  END
+  ACTION_IF !VARIABLE_IS_SET ab_RT_KeyI BEGIN
+    SPRINT ab_RT_KeyI ""
+  END
+  ACTION_IF !VARIABLE_IS_SET ab_RT_Rbcs BEGIN
+    SPRINT ab_RT_Rbcs ""
+  END
+  ACTION_IF !VARIABLE_IS_SET ab_RT_Dial BEGIN
+    SPRINT ab_RT_Dial ""
+  END
   LPF fj_are_structure
     INT_VAR
       fj_type = ab_RT_Type
