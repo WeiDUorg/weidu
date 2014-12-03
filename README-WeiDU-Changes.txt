@@ -5,6 +5,8 @@ Version 238:
   * Fix a bug in the bounds checking when unbiffing tilesets.
   * Document [GET|READ]_STRREF_[F|S|FS] and the corresponding actions.
   * Fix unset-variable regression in ADD_AREA_REGION.
+  * HANDLE_CHARSETS does not recurse over the wrong directory.
+  * HANDLE_CHARSETS does not convert files present in noconvert_array.
 
 Version 237:
   * The argument to --use-lang is lower-cased.

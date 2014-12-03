@@ -368,7 +368,7 @@ BEGIN
    * messier code. noconvert_array is very likely to be short.
    */
   ACTION_PHP_EACH "%noconvert_array%" AS _ => noconvert_file BEGIN
-    ACTION_IF "%noconvert_file%" STRING_EQUAL_CASE "%file%" BEGIN
+    ACTION_IF "%noconvert_file%.tra" STRING_EQUAL_CASE "%file%" BEGIN
       OUTER_SET convert = 0
     END
   END
@@ -436,7 +436,7 @@ BEGIN
       END ELSE BEGIN
         LAF fl#HANDLE_CHARSETS#RECURSE
           STR_VAR
-            path = EVAL "%tra_path%"
+            path = EVAL "%tra_path%/%LANGUAGE%"
             type = "tra"
             function = "fl#HANDLE_CHARSETS#RECURSE#TERMINAL"
         END
