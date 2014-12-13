@@ -7,6 +7,7 @@ Version 238:
   * Fix unset-variable regression in ADD_AREA_REGION.
   * HANDLE_CHARSETS does not recurse over the wrong directory.
   * HANDLE_CHARSETS does not convert files present in noconvert_array.
+  * Fix regression that broke tolower's recursion.
 
 Version 237:
   * The argument to --use-lang is lower-cased.

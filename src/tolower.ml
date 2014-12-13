@@ -52,7 +52,9 @@ let rec find_and_lower cur_dir () =
           stats.Unix.st_kind = Unix.S_DIR
         in
         let lowercase = element = (String.lowercase element) in
-        if not implicit && not is_a_symlink && not lowercase then begin
+        (* Even if directory itself is already lowercased, it may contain
+           not-lowercased items and we consequently need to process it anyway. *)
+        if not implicit && not is_a_symlink && (not lowercase || is_a_dir) then begin
           let exists = Hashtbl.mem done_ht (String.lowercase element) in
           if exists && is_a_dir then begin
             dirlist := (element, true) :: !dirlist;
