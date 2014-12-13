@@ -51,13 +51,13 @@ let rec find_and_lower cur_dir () =
           let stats = Unix.lstat element in
           stats.Unix.st_kind = Unix.S_DIR
         in
-        if not implicit && not is_a_symlink then begin
+        let lowercase = element = (String.lowercase element) in
+        if not implicit && not is_a_symlink && not lowercase then begin
           let exists = Hashtbl.mem done_ht (String.lowercase element) in
           if exists && is_a_dir then begin
             dirlist := (element, true) :: !dirlist;
           end else begin
-            Unix.rename element "TMP_THIS_IS_A_VERY_TMP_NAME";
-            Unix.rename "TMP_THIS_IS_A_VERY_TMP_NAME" (String.lowercase element);
+            Unix.rename element (String.lowercase element);
             if is_a_dir then begin
               dirlist := (String.lowercase element, false) :: !dirlist;
             end
