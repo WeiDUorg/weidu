@@ -403,14 +403,14 @@ let rec eval_pe buff game p =
 	  | Some x -> x
 	else min_int)
     
-  | PE_GameIs(game_list,game_or_engine) -> begin
+  | PE_GameIs(game_list,isGameCheck) -> begin
       let game_list = Str.split many_whitespace_regexp (Var.get_string game_list) in
       let f x = (eval_pe buff game (Pred_File_Exists_In_Game (PE_LiteralString x))) = 1l in
-      let tutu     = if game_or_engine then f "fw0125.are" else false in
-      let  bgt     = if game_or_engine then f "ar7200.are" else false in
-      let   ca     = if game_or_engine then f "tc1300.are" else false in
-      let iwdinbg2 = if game_or_engine then f "ar9201.are" else false in
-      let eet = if game_or_engine then f "eet.flag" else false in
+      let tutu     = if isGameCheck then f "fw0125.are" else false in
+      let  bgt     = if isGameCheck then f "ar7200.are" else false in
+      let   ca     = if isGameCheck then f "tc1300.are" else false in
+      let iwdinbg2 = if isGameCheck then f "ar9201.are" else false in
+      let eet = if isGameCheck then f "eet.flag" else false in
       let  bg2 = f "ar0083.are"   in
       let  tob = f "ar6111.are"   in
       let iwd2 = f "ar6050.are"   in
