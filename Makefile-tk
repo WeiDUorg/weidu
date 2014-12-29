@@ -68,4 +68,4 @@ clean:
 	src/*parser*.ml src/*parser*.mli src/*lexer*.ml src/*lexer*.mli src/*.cmi \
 	src/tlexer.mll src/trealparserin.gr $(OBJDIR)/mytop* \
 	src/toldlexer.mll src/tph.ml
-	find obj-tk -exec rm {} \;
+	find obj-tk -exec rm {} \; || true

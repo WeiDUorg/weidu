@@ -124,7 +124,7 @@ clean:
 	src/*parser*.ml src/*parser*.mli src/*lexer*.ml src/*lexer*.mli src/*.cmi \
 	src/tlexer.mll src/trealparserin.gr  \
 	src/toldlexer.mll src/tph.ml
-	find obj -exec rm {} \;
+	find obj -exec rm {} \; || true
 	$(MAKE) -f Makefile-tk clean
 
 
