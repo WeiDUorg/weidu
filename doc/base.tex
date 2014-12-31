@@ -8813,7 +8813,7 @@ Note that both \verb+check_globals+ and \verb+check_headers+ are 0 by default, s
 \verb+header_type+ is used to limit the scope of matching. The default value of -1 will match all types of headers while values of 0-4 will match headers with those values. If \verb+match_icon+ is 1, the icon resource reference will be match with the \verb+icon+ variable as an additional qualifier. This is useful for items which have multiple magic abilities. \verb+header+ can also be used to limit patching to the Nth header, counting from 1 as the first header. The default is 0, which will match all headers.
 
 \begin{itemize}
-\item INT_VAR \verb+header_type+ to the type of header to be matched. If this variable is -1, all headers will be a match.
+\item INT_VAR \verb+header_type+ to the type of header to be matched. If this variable is -1, all headers will be a match. (default -1)
 \item INT_VAR \verb+match_icon+ to whether to match the ability icon (0 for no, 1 for yes). (default 0)
 \item INT_VAR \verb+header+ to the number of the ability header (starting from 1) that should be altered. A value of 0 matches all header. (default 0)
 \item INT_VAR \verb+new_header_type+ to the value the matched header should be changed into.
@@ -8893,7 +8893,7 @@ The function will by default only check effects on headers. You can change this 
 \verb+header_type+ is used to limit the scope of matching. The default value of -1 will match all types of headers while values of 0-4 will match headers with those values. If \verb+match_icon+ is 1, the icon resource reference will be match with the \verb+icon+ variable as an additional qualifier. This is useful for items which have multiple magic abilities. \verb+header+ can also be used to limit patching to the Nth header, counting from 1 as the first header. The default is 0, which will match all headers.
 
 \begin{itemize}
-\item INT_VAR \verb+header_type+ to the type of header to be matched. If this variable is -1, all headers will be a match.
+\item INT_VAR \verb+header_type+ to the type of header to be matched. If this variable is -1, all headers will be a match. (default -1)
 \item INT_VAR \verb+match_icon+ to whether to match the ability icon (0 for no, 1 for yes). (default 0)
 \item INT_VAR \verb+header+ to the number of the ability header (starting from 1) that should be altered. A value of 0 matches all header. (default 0)
 \item INT_VAR \verb+new_header_type+ to the value the matched header should be changed into.
