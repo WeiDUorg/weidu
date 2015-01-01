@@ -260,12 +260,12 @@ let module_defaults_helper tp this_tp2_filename i has_quickmenu =
     let cli_install =
       List.exists (fun h -> h = i) !force_install_these in
     let m = get_nth_module tp i false in
-    if !always_yes or cli_install then
+    if !always_yes || cli_install then
       TP_Install
-    else if (!always_uninstall or cli_uninstall) &&
+    else if (!always_uninstall || cli_uninstall) &&
       (already_installed this_tp2_filename i) then
       TP_Uninstall
-    else if (!always_uninstall or cli_uninstall) then
+    else if (!always_uninstall || cli_uninstall) then
       TP_Skip
     else if !sometimes_reinstall &&
       (already_installed this_tp2_filename i) then
@@ -1032,7 +1032,7 @@ let rec handle_tp game this_tp2_filename tp =
         log_and_print "%s %s %s %s\n" ((get_trans (-1004))) !log_file
           (get_trans (-1005)) tp.author) ;
       (* log_and_print "PLEASE email the file %s to %s\n" !log_file tp.author;*)
-      if !always_yes or !specified_specific_components then begin
+      if !always_yes || !specified_specific_components then begin
         log_and_print "Automatically Skipping [%s] because of error.\n"
           package_name ;
         finished := true

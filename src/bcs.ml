@@ -378,7 +378,7 @@ let check_file_presence_action string script_style ids game first_or_second_stri
 (*             log_and_print "Looking for %s.%s\n" string ext_s ; *)
              Load.skip_next_load_error := true;
              let buff,path = Load.load_resource "FILE_EXISTS_IN_GAME" game true string ext_s in
-             result := !result or ( String.length buff > 0 ) ;
+             result := !result || ( String.length buff > 0 ) ;
            with | Invalid_argument "String.create" -> result := true
 	 | _ -> ()
 		   ) ext ;
