@@ -206,10 +206,12 @@ BEGIN
 END
 
 DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#WHICH#INFER
+  STR_VAR
+    language = ~~
   RET
     charset
 BEGIN
-  ACTION_MATCH "%LANGUAGE%" WITH
+  ACTION_MATCH "%language%" WITH
     ".*schinese.*"
     BEGIN
       OUTER_SPRINT charset "CP936"
@@ -281,7 +283,7 @@ BEGIN
     END
 
     DEFAULT
-      FAIL "ERROR: charset could not be inferred for language %LANGUAGE%"
+      FAIL "ERROR: charset could not be inferred for language %language%"
   END
 END
 
@@ -289,19 +291,19 @@ DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#WHICH
   INT_VAR
     infer_charsets = 0
   STR_VAR
+    language = ~~
     charset_table = ~~
   RET
     charset
 BEGIN
   ACTION_IF infer_charsets BEGIN
-    LAF fl#HANDLE_CHARSETS#WHICH#INFER RET charset END
+    LAF fl#HANDLE_CHARSETS#WHICH#INFER STR_VAR language RET charset END
   END ELSE BEGIN
-    OUTER_SPRINT lang "%LANGUAGE%"
-    ACTION_TO_LOWER lang
-    ACTION_IF VARIABLE_IS_SET $EVAL "%charset_table%"("%lang%") BEGIN
-      OUTER_SPRINT charset $EVAL "%charset_table%"("%lang%")
+    ACTION_TO_LOWER language
+    ACTION_IF VARIABLE_IS_SET $EVAL "%charset_table%"("%language%") BEGIN
+      OUTER_SPRINT charset $EVAL "%charset_table%"("%language%")
     END ELSE BEGIN
-      FAIL "ERROR: no tabulated charset could be found for language %lang%"
+      FAIL "ERROR: no tabulated charset could be found for language %language%"
     END
   END
 END
@@ -391,13 +393,15 @@ DEFINE_ACTION_FUNCTION HANDLE_CHARSETS
     infer_charsets = 0
   STR_VAR
     tra_path = ~~
+    default_language = ~english~
+    language = EVAL ~%LANGUAGE%~
     iconv_path = EVAL ~%tra_path%/iconv~
     charset_table = ~~
     convert_array = ~~
     noconvert_array = ~~
     reload_array = ~~
 BEGIN
-  ACTION_IF FILE_EXISTS_IN_GAME monkfist.2da AND !FILE_EXISTS ~%tra_path%/%LANGUAGE%/fl#utf8.mrk~ BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME monkfist.2da BEGIN
     /*
      * Initial versions mistakenly called the variable infer_charset.
      * For reasons of backwards-compatibility, we use infer_charset
@@ -419,40 +423,45 @@ BEGIN
 
       DEFAULT
     END
-    LAF fl#HANDLE_CHARSETS#WHICH
-      INT_VAR
-        infer_charsets
-      STR_VAR
-        charset_table
-      RET
-        from_charset = charset
-    END
     ACTION_IF ("%WEIDU_OS%" STRING_EQUAL_CASE "win32" AND FILE_EXISTS "%iconv%") OR
               ("%WEIDU_OS%" STRING_EQUAL_CASE "osx" OR "%WEIDU_OS%" STRING_EQUAL_CASE "unix")
     BEGIN
-      ACTION_IF VARIABLE_IS_SET $EVAL "%convert_array%"(0) BEGIN
-        ACTION_PHP_EACH "%convert_array%" AS _ => filename BEGIN
-          LAF fl#HANDLE_CHARSETS#CONVERT
+      ACTION_FOR_EACH language IN "%default_language%" "%language%" BEGIN
+        ACTION_IF !FILE_EXISTS ~%tra_path%/%language%/fl#utf8.mrk~ BEGIN
+          LAF fl#HANDLE_CHARSETS#WHICH
+            INT_VAR
+              infer_charsets
             STR_VAR
-              iconv
-              quote
-              path = EVAL ~%tra_path%/%LANGUAGE%~
-              file = EVAL ~%filename%.tra~
-              from_charset
+              language
+              charset_table
+            RET
+              from_charset = charset
           END
-        END
-      END ELSE BEGIN
-        LAF fl#HANDLE_CHARSETS#RECURSE
-          STR_VAR
-            path = EVAL "%tra_path%/%LANGUAGE%"
-            type = "tra"
-            function = "fl#HANDLE_CHARSETS#RECURSE#TERMINAL"
+          ACTION_IF VARIABLE_IS_SET $EVAL "%convert_array%"(0) BEGIN
+            ACTION_PHP_EACH "%convert_array%" AS _ => filename BEGIN
+              LAF fl#HANDLE_CHARSETS#CONVERT
+                STR_VAR
+                  iconv
+                  quote
+                  path = EVAL ~%tra_path%/%language%~
+                  file = EVAL ~%filename%.tra~
+                  from_charset
+              END
+            END
+          END ELSE BEGIN
+            LAF fl#HANDLE_CHARSETS#RECURSE
+              STR_VAR
+                path = EVAL ~%tra_path%/%language%~
+                type = ~tra~
+                function = ~fl#HANDLE_CHARSETS#RECURSE#TERMINAL~
+            END
+          END
+          ACTION_PHP_EACH "%reload_array%" AS _ => file BEGIN
+            LOAD_TRA ~%tra_path%/%language%/%file%.tra~
+          END
+          COPY_EXISTING sw1h01.itm ~%tra_path%/%language%/fl#utf8.mrk~
         END
       END
-      ACTION_PHP_EACH "%reload_array%" AS _ => file BEGIN
-        LOAD_TRA ~%tra_path%/%LANGUAGE%/%file%.tra~
-      END
-      COPY_EXISTING sw1h01.itm ~%tra_path%/%LANGUAGE%/fl#utf8.mrk~
     END ELSE BEGIN
       FAIL "ERROR: charsets were not converted because iconv could not be found in %iconv_path%"
     END
