@@ -9203,6 +9203,43 @@ This function add links from one specified area to another. Links can be added f
 \end{itemize}
 \\
 
+\DEFINE{\verb+UPDATE_PVRZ_INDICES+}: update the \t{PVRZ} references in a \t{BAM V2} or \t{MOS V2} resource. This is a PATCH function.
+
+This function will update the \t{PVRZ} references in a \t{BAM V2} or \t{MOS V2} resource with the next contiguous block of free \t{PVRZ} indices. This function is intended to be used in combination with the action function \ttref{INSTALL!PVRZ}.
+
+\begin{itemize}
+\item INT_VAR \verb+target_base_index+ is an optional parameter. When specified, the function attempts to use a block of free \t{PVRZ} indices starting at the specified value. The default value is 1000.
+\item RET \verb+original_base_index+ returns the lowest \t{PVRZ} index used by the source \t{BAM} or \t{MOS}. Returns -1 on error.
+\item RET \verb+new_base_index+ returns the lowest \t{PVRZ} index used by the target \t{BAM} or \t{MOS}. Returns -1 on error.
+\item RET \verb+index_range+ returns the range of reserved \t{PVRZ} indices, i.e., the difference between the smallest and biggest \t{PVRZ} index, inclusive. Returns 0 on error.
+\end{itemize}
+\\
+
+\DEFINE{\verb+INSTALL_PVRZ+}: install a \t{PVRZ} file and updates the \t{PVRZ} index. This is an ACTION function.
+
+This function copies the specified \t{PVRZ} file into the target folder and updates the \t{PVRZ} index. This function should be used in conjunction with \ttref{UPDATE!PVRZ!INDICES}.
+
+\begin{itemize}
+\item INT_VAR \verb+original_base_index+ to the current base index. This value is returned by the function \ttref{UPDATE!PVRZ!INDICES} as \verb+original_base_index+.
+\item INT_VAR \verb+new_base_index+ to the new base index. This value is returned by the function \ttref{UPDATE!PVRZ!INDICES} as \verb+new_base_index+.
+\item STR_VAR \verb+source_file+ to the source file to copy. The filename must match the regular expression \t{\textasciitilde MOS[0-9]+\textbackslash.PVRZ\textasciitilde} (e.g., MOS0000.PVRZ, mos1592.pvrz or Mos12345.PVRZ). Case is ignored.
+\item STR_VAR \verb+target_folder+ to the target folder to copy the source file into. The default value is "override".
+\item RET \verb+success+ is set to non-zero if the function returned successfully and is set to zero on error.
+\item This function can additionally return all the variables automatically set by \ttref{COPY}.
+\end{itemize}
+\\
+
+\DEFINE{\verb+FIND_FREE_PRVZ_INDEX+}: attempt to find a contiguous block of free \t{PVRZ} indices in the game installation. This is a PATCH and an ACTION function.
+
+This function attempts to find the first available free \t{PVRZ} index of a contiguous block which guarantees to fit at least \verb+num_to_reserve+ indices.
+
+\begin{itemize}
+\item INT_VAR \verb+num_to_reserve+ to the minimum required size of the contiguous block of free indices. This number should be no smaller than 1 nor no bigger than 999. The default value is 1.
+\item INT_VAR \verb+start_index+ to the index the search should begin at. The default value is 1000.
+\item RET \verb+free_index+ returns the first available index matching the specified parameters. Returns -1 on errors.
+\end{itemize}
+\\
+
 \subsection{\DEFINE{fj_are_structure}}
 Adds a structure to an area file. All variables are zero or blank by default unless otherwise indicated. Fields designated by an asterisk are typically required; all others are optional.
 This is a PATCH function.
@@ -10064,6 +10101,7 @@ Wisp would like to extend further thanks to the following people:
 \item Antonio Favata, a.k.a. alnair (sends compiles)
 \item Almateria (sends compiles)
 \item Nicolás Clotta aka Crevs Daak (sends compiles)
+\item Argent77 (sends tp2 functions)
 \end{itemize}
 and also The Bigg, for having developed and maintained BiggDU for many years and, while doing so, having significantly improved upon its workings and functionality.
 
