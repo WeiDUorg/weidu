@@ -32,8 +32,8 @@ ACTION_IF (original_base_index >= 0 && new_base_index >= 0) BEGIN
   ACTION_FOR_EACH file IN ~mos0000.pvrz~ ~mos0001.pvrz~ ~mos0002.pvrz~
     LAF ~INSTALL_PVRZ~
       INT_VAR
-        original_base_index = "%original_base_index%"
-        new_base_index      = "%new_base_index%"
+        original_base_index = original_base_index
+        new_base_index      = new_base_index
       STR_VAR
         source_file         = EVAL ~mymod/bam/%file%~
     END
@@ -62,8 +62,8 @@ ACTION_IF (original_base_index >= 0 && new_base_index >= 0) BEGIN
   ACTION_FOR_EACH file IN ~mos0000.pvrz~ ~mos0001.pvrz~ ~mos0002.pvrz~
     LAF ~INSTALL_PVRZ~
       INT_VAR
-        original_base_index = "%original_base_index%"
-        new_base_index      = "%new_base_index%"
+        original_base_index = original_base_index
+        new_base_index      = new_base_index
       STR_VAR
         source_file         = EVAL ~mymod/mos/%file%~
     END
@@ -83,8 +83,8 @@ ACTION_IF (original_base_index >= 0 && new_base_index >= 0) BEGIN
   ACTION_FOR_EACH file IN ~mos0002.pvrz~ ~mos0003.pvrz~
     LAF ~INSTALL_PVRZ~
       INT_VAR
-        original_base_index = "%original_base_index%"
-        new_base_index      = "%new_base_index%"
+        original_base_index = original_base_index
+        new_base_index      = new_base_index
       STR_VAR
         source_file         = EVAL ~mymod/mos/%file%~
     END
