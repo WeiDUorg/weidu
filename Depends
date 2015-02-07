@@ -1,25 +1,25 @@
 
 # First stuff that makes the executable
 # to add later:
-WEIDU_BASE_MODULES  := batList batteriesInit \
+WEIDU_BASE_MODULES := batList batteriesInit \
 	case_ins stats arch version parsing tph util modder var arch2 xor \
 	eff_table key cbif biff tlk load cre \
-        ids idslexer idslexer2 idsparser \
-        bcs bcslexer bcsparser \
-        dlg dc \
-		refactorbaf refactorbaflexer refactorbafparser refactordlexer refactordparser \
-        baflexer bafparser \
-        diff sav mos tp dlexer dparser sql \
-        smutil useract lexerint parsetables arraystack objpool glr lrparse \
-        automate kit tpstate tphelp trealparser tlexer toldparser toldlexer tparser \
-        parsewrappers mymarshal tppe tpuninstall tppatch tpaction tpwork
-WEIDU_MODULES  =  $(WEIDU_BASE_MODULES) myarg autoupdate main
+	ids idslexer idslexer2 idsparser \
+	bcs bcslexer bcsparser \
+	dlg dc \
+	refactorbaf refactorbaflexer refactorbafparser refactordlexer refactordparser \
+	baflexer bafparser \
+	diff sav mos tp dlexer dparser sql \
+	smutil useract lexerint parsetables arraystack objpool glr lrparse \
+	automate kit tpstate tphelp trealparser tlexer toldparser toldlexer tparser \
+	parsewrappers mymarshal tppe tpuninstall tppatch tpaction tpwork
+WEIDU_MODULES = $(WEIDU_BASE_MODULES) myarg autoupdate main
 
-MODULES        = $(WEIDU_MODULES) myarg weinstall tolower
-SOURCEDIRS     := src zlib glob xdiff elkhound batteries-lite
-MLLS           := dlexer.mll idslexer.mll idslexer2.mll bcslexer.mll baflexer.mll tlexer.mll toldlexer.mll refactorbaflexer.mll refactordlexer.mll
-MLYS           := dparser.mly idsparser.mly bcsparser.mly bafparser.mly toldparser.mly refactorbafparser.mly refactordparser.mly
-GRS            := trealparserin.gr
+MODULES = $(WEIDU_MODULES) myarg weinstall tolower
+SOURCEDIRS := src zlib glob xdiff elkhound batteries-lite
+MLLS := dlexer.mll idslexer.mll idslexer2.mll bcslexer.mll baflexer.mll tlexer.mll toldlexer.mll refactorbaflexer.mll refactordlexer.mll
+MLYS := dparser.mly idsparser.mly bcsparser.mly bafparser.mly toldparser.mly refactorbafparser.mly refactordparser.mly
+GRS := trealparserin.gr
 
 src/tph.ml : src/tph/include/* src/tph/define/* scripts/make_tph.ml
 	ocaml str.cma unix.cma -w p scripts/make_tph.ml
