@@ -83,7 +83,6 @@ type game = {
     mutable dialog_search : (string, int) Hashtbl.t;
     mutable str_sets : str_set_record list;
     (* most recent STRING_SET or forced strref is the head of the list *)
-    mutable key_mod : bool ; (* changed? *)
     mutable script_style : script_style ;
     game_type : game_type ;
     dialogs : tlk_pair array;
@@ -365,7 +364,6 @@ let load_null_game () =
      loaded_biffs = Hashtbl.create 1 ;
      dialog_search = Hashtbl.create (1 + (Array.length (Array.get dialogs dialog_index).dialog.contents * 2)) ;
      str_sets = [] ;
-     key_mod = false ;
      script_style = BG2 ;
      game_type = GENERIC ;
      dialogs = dialogs ;
@@ -474,7 +472,6 @@ let load_game () =
      loaded_biffs = Hashtbl.create 5 ;
      dialog_search = Hashtbl.create 100000 ;
      str_sets = [] ; (* and keep it that way! :-) *)
-     key_mod = false ;
      script_style = script_style ;
      game_type = game_type ;
      dialogs = dialogs;

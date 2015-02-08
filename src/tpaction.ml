@@ -255,7 +255,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_DisableFromKey(file_lst) ->
           let file_lst = List.map Var.get_string (List.map eval_pe_str file_lst) in
           let file_lst = List.map String.uppercase file_lst in
-          game.Load.key_mod <- true ;
           let new_key = Key.remove_files game.Load.key file_lst in
           let oc = open_for_writing "CHITIN.KEY" true in
           Key.save_key new_key oc ;
@@ -294,7 +293,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Biff(dest,what) ->
           let find_list = ref [] in
           let dest = Var.get_string dest in
-          game.Load.key_mod <- true ;
           List.iter (fun (directory,exact_match,regexp_string) ->
             (try
               let directory = Var.get_string directory in
