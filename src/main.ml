@@ -1886,9 +1886,12 @@ let main () =
 
 
   if !change_log <> [] then begin
-    let list: string list = Changelog.changelog !change_log game theout.dir in
-    List.iter (fun item ->
-      output_theout item) list ;
+    let results = Changelog.changelog !change_log game in
+    ignore (List.iter (fun result ->
+      output_theout result.Changelog.text ;
+      List.iter (fun (source, new_name) ->
+        let destination = Printf.sprintf "%s/%s" theout.dir new_name in
+        copy_large_file source destination "--change-log") result.Changelog.backup_files) results) ;
   end ;
 
 

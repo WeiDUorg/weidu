@@ -2,7 +2,12 @@
 open BatteriesInit
 open Util
 
-let changelog file_list game output_dir =
+type result = {
+    text: string ;
+    backup_files: (string * string) list ;
+  }
+
+let changelog file_list game =
   Parsewrappers.load_log();
   let backup_lists = Hashtbl.create 1000 in
   let tp2s = Hashtbl.create 100 in
@@ -52,7 +57,7 @@ let changelog file_list game output_dir =
             let (a,b) = (String.uppercase a, String.uppercase b) in
             let a_stem = Str.global_replace (Str.regexp "^OVERRIDE[/\\]") "" a in
             if (List.mem a_stem file_list) then begin
-              log_and_print "%s\n" line;
+              (* log_and_print "%s\n" line; *)
               let m = Tpstate.get_nth_module tp2 comp true in
               Dc.push_trans();
               (try
@@ -93,13 +98,21 @@ let changelog file_list game output_dir =
     let i = ref 0 in
     let first = Printf.sprintf "\n\n\nMods affecting %s:\n" file1 in
     let item_list = List.map (fun (tpfile,lang,comp,comp_str,subcomp_str,version,backup,saveable) ->
-      let out = Printf.sprintf "%s/%s.%05d.%s" output_dir base !i ext in
-      if saveable && file_exists backup then copy_large_file backup out "--change-log";
       let item = Printf.sprintf "%05d: %s~%s~ %d %d // %s%s%s\n" !i
         (if not saveable then "/* acted upon in an indetectable manner */" else if backup = "" then "/* from game biffs */ "  else "") tpfile lang comp subcomp_str comp_str version in
       item) file_log
     in
-    first ^ (List.fold_left (fun acc item ->
-      acc ^ item) "" item_list)) file_list
+    let files = List.filter (fun (tpfile, lang, comp, comp_str, subcomp_str, version, backup, saveable) ->
+      saveable && file_exists backup) file_log in
+    let backup_files = List.map (fun (tpfile, lang, comp, comp_str, subcomp_str, version, backup, saveable) ->
+      let out = Printf.sprintf "%s.%05d.%s" base !i ext in
+      (backup, out)) files in
+    let text =first ^ (List.fold_left (fun acc item ->
+      acc ^ item) "" item_list) in
+    (text, backup_files)) file_list
   in
-  result
+  List.map (fun ((text: string), (files: (string * string) list)) ->
+    {
+     text = text;
+     backup_files = files;
+   }) result
