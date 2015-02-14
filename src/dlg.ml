@@ -286,6 +286,9 @@ let save_dlg dlg outbuff = begin
         incr cur_state_trig ;
       end) sorted_states ;
 
+    let transition_trigger_queue = Queue.create () in
+    let transition_action_queue = Queue.create () in
+
     Array.iteri (fun i s ->
       Buffer.add_string state_buff (str_of_int (tlk_ify s.resp_str)) ;
       Buffer.add_string state_buff (str_of_int !cur_trans) ;
@@ -329,12 +332,12 @@ let save_dlg dlg outbuff = begin
         (match t.trans_trigger with
         | None -> Buffer.add_string trans_buff "\000\000\000\000"
         | Some(s) -> Buffer.add_string trans_buff (str_of_int !cur_trans_trig) ;
-            add_trig trans_trig_buff s ;
+            Queue.add s transition_trigger_queue ;
             incr cur_trans_trig ) ;
         (match t.action with
         | None -> Buffer.add_string trans_buff "\000\000\000\000"
         | Some(s) -> Buffer.add_string trans_buff (str_of_int !cur_action) ;
-            add_trig action_buff s ;
+            Queue.add s transition_action_queue ;
             incr cur_action ) ;
         (match t.next with
         | Exit -> Buffer.add_string trans_buff
@@ -346,6 +349,9 @@ let save_dlg dlg outbuff = begin
             Buffer.add_string trans_buff (str_of_int i)) ;
 
         incr cur_trans) s.trans) dlg.state ;
+
+    Queue.iter (fun string -> add_trig trans_trig_buff string) transition_trigger_queue ;
+    Queue.iter (fun string -> add_trig action_buff string) transition_action_queue ;
 
     (*
      * Layout Order:

@@ -9,6 +9,7 @@ Version 238:
   * HANDLE_CHARSETS does not convert files present in noconvert_array.
   * Fix regression that broke tolower's recursion.
   * Fix a bug where ENGINE_IS could be true for both bgee and bg2ee.
+  * Structural change to how DLGs are emitted, to silence false positives.
 
 Version 237:
   * The argument to --use-lang is lower-cased.
