@@ -99,7 +99,8 @@ let changelog file_list game =
     let first = Printf.sprintf "\n\n\nMods affecting %s:\n" file1 in
     let item_list = List.map (fun (tpfile,lang,comp,comp_str,subcomp_str,version,backup,saveable) ->
       let item = Printf.sprintf "%05d: %s~%s~ %d %d // %s%s%s\n" !i
-        (if not saveable then "/* acted upon in an indetectable manner */" else if backup = "" then "/* from game biffs */ "  else "") tpfile lang comp subcomp_str comp_str version in
+          (if not saveable then "/* acted upon in an indetectable manner */" else if backup = "" then "/* from game biffs */ "  else "") tpfile lang comp subcomp_str comp_str version in
+      incr i ;
       item) file_log
     in
     let files = List.filter (fun (tpfile, lang, comp, comp_str, subcomp_str, version, backup, saveable) ->
