@@ -10,6 +10,8 @@ Version 238:
   * Fix regression that broke tolower's recursion.
   * Fix a bug where ENGINE_IS could be true for both bgee and bg2ee.
   * Structural change to how DLGs are emitted, to silence false positives.
+  * Add PVRZ functions. Thanks, Argent77.
+  * default_language for HANDLE_CHARSETS.
 
 Version 237:
   * The argument to --use-lang is lower-cased.
