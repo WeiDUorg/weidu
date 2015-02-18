@@ -102,9 +102,10 @@ BEGIN
       BEGIN
         ACTION_IF FILE_EXISTS "%oggdec_path%/oggdec.exe" BEGIN
           ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-            OUTER_SPRINT wavfile ~%output_path%/%BASH_FOR_RES%.wav~
+            OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
             COPY ~.../fl#inlined/null.file~ ~%wavfile%~
-            AT_NOW ~%oggdec_path%/oggdec.exe -o "%wavfile%" "%BASH_FOR_FILESPEC%"~
+            AT_NOW ~%oggdec_path%/oggdec.exe "%BASH_FOR_FILESPEC%"~
+            MOVE ~%wavfile%~ ~%output_path%~
           END
         END ELSE BEGIN
           WARN ~WARNING: audio was not installed because oggdec.exe could not be found in %oggdec_path%~
@@ -116,9 +117,10 @@ BEGIN
         ACTION_IF FILE_EXISTS ~%sox_path%/sox~ BEGIN
           AT_NOW ~chmod +x '%sox_path%/sox'~
           ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-            OUTER_SPRINT wavfile ~%output_path%/%BASH_FOR_RES%.wav~
+            OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
             COPY ~.../fl#inlined/null.file~ ~%wavfile%~
             AT_NOW ~'%sox_path%/sox' '%BASH_FOR_FILESPEC%' '%wavfile%'~
+            MOVE ~%wavfile%~ ~%output_path%~
           END
         END ELSE BEGIN
           WARN ~WARNING: audio was not installed because sox could not be found in %sox_path%~
@@ -129,14 +131,12 @@ BEGIN
       BEGIN
         OUTER_SET installed = 1
         ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
-          OUTER_SPRINT wavfile ~%output_path%/%BASH_FOR_RES%.wav~
+          OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
           COPY ~.../fl#inlined/null.file~ ~%wavfile%~
-          AT_NOW ~oggdec -o '%wavfile%' '%BASH_FOR_FILESPEC%'~
-          ACTION_IF !FILE_EXISTS ~%wavfile%~ OR
-                    FILE_SIZE ~%wavfile%~ 0
-          BEGIN
-            OUTER_SET installed = 0
-          END
+          AT_NOW ~oggdec '%BASH_FOR_FILESPEC%'~
+          ACTION_IF FILE_EXISTS ~%wavfile%~ AND !FILE_SIZE ~%wavfile%~ 0 BEGIN
+            MOVE ~%wavfile%~ ~%output_path%~
+          END ELSE OUTER_SET installed = 0
         END
         ACTION_IF !installed BEGIN
           WARN "WARNING: audio was not installed because WAV files were not found. Are you sure you have oggdec installed?"
