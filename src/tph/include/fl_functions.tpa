@@ -393,7 +393,7 @@ DEFINE_ACTION_FUNCTION HANDLE_CHARSETS
     infer_charsets = 0
   STR_VAR
     tra_path = ~~
-    default_language = ~english~
+    default_language = ~~
     language = EVAL ~%LANGUAGE%~
     iconv_path = EVAL ~%tra_path%/iconv~
     charset_table = ~~
@@ -427,7 +427,7 @@ BEGIN
               ("%WEIDU_OS%" STRING_EQUAL_CASE "osx" OR "%WEIDU_OS%" STRING_EQUAL_CASE "unix")
     BEGIN
       ACTION_FOR_EACH language IN "%default_language%" "%language%" BEGIN
-        ACTION_IF !FILE_EXISTS ~%tra_path%/%language%/fl#utf8.mrk~ BEGIN
+        ACTION_IF "%language%" STR_CMP "" AND !FILE_EXISTS ~%tra_path%/%language%/fl#utf8.mrk~ BEGIN
           LAF fl#HANDLE_CHARSETS#WHICH
             INT_VAR
               infer_charsets
