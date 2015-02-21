@@ -135,8 +135,6 @@ VER = $(shell grep "let version" src/version.ml | cut -d \" -f 2 | sed -e's/\(..
 VERBIG = $(shell grep "let version" src/version.ml | cut -d \" -f 2)
 doc: doc/base.tex
 	$(MAKE) -C doc
-	cat README.html | sed -e "s/&ndash;/--/g" -e's/&#X2013;/--/g' > README-WeiDU.html
-	rm README.html
 
 windows_zip : weidu weinstall tolower clean #weigui
 	rm iwg2* weimorph* || true
