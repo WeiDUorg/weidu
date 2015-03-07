@@ -131,7 +131,7 @@ clean:
 ###
 ### Distro
 ###
-VER = $(shell grep "let version" src/version.ml | cut -d \" -f 2 | sed -e's/\(...\)../\1/g')
+VER = $(shell grep "let version" src/version.ml | cut -d \" -f 2 | sed -e's/\(...\)00/\1/g')
 VERBIG = $(shell grep "let version" src/version.ml | cut -d \" -f 2)
 doc: doc/base.tex
 	$(MAKE) -C doc
