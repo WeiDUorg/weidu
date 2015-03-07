@@ -137,7 +137,6 @@ doc: doc/base.tex
 	$(MAKE) -C doc
 
 windows_zip : weidu weinstall tolower
-	rm iwg2* weimorph* || true
 	test -d ../WeiDU-Windows || mkdir ../WeiDU-Windows
 	mv -f weid*.exe ../WeiDU-Windows/weidu.exe || true
 	mv -f wein*.exe ../WeiDU-Windows/weinstall.exe || true
@@ -156,7 +155,6 @@ windows_zip : weidu weinstall tolower
 src_zip : clean
 	(cd .. ; zip -9r WeiDU-Src-$(VER).zip weidu/* -x weidu/*.exe -x weidu/*.dll -x */.DS_Store; )
 linux_zip : weidu weinstall tolower
-	rm iwg2* weimorph* || true
 	test -d ../WeiDU-Linux || mkdir ../WeiDU-Linux
 	mv weid*$(EXE) ../WeiDU-Linux/weidu || true
 	mv wein*$(EXE) ../WeiDU-Linux/weinstall || true
@@ -172,7 +170,6 @@ linux_zip : weidu weinstall tolower
 	cp -r examples ../WeiDU-Linux
 	(cd .. ; zip -9r WeiDU-Linux-$(VER).zip WeiDU-Linux )
 osx_zip : weidu weinstall
-	rm iwg2* weimorph* || true
 	test -d ../WeiDU-Mac || mkdir ../WeiDU-Mac
 	mv weid*$(EXE) ../WeiDU-Mac/weidu || true
 	mv wein*$(EXE) ../WeiDU-Mac/weinstall || true
