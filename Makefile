@@ -136,17 +136,14 @@ VERBIG = $(shell grep "let version" src/version.ml | cut -d \" -f 2)
 doc: doc/base.tex
 	$(MAKE) -C doc
 
-windows_zip : weidu weinstall tolower #weigui
+windows_zip : weidu weinstall tolower
 	rm iwg2* weimorph* || true
 	test -d ../WeiDU-Windows || mkdir ../WeiDU-Windows
 	mv -f weid*.exe ../WeiDU-Windows/weidu.exe || true
-	#mv weig*.exe weigui.exe
 	mv -f wein*.exe ../WeiDU-Windows/weinstall.exe || true
 	mv -f tolo*.exe ../WeiDU-Windows/tolower.exe || true
 	strip ../WeiDU-Windows/weidu.exe || true
 	upx --best ../WeiDU-Windows/weidu.exe || echo "No EXE Compression"
-	#strip weigui.exe || true
-	#upx --best weigui.exe || echo "No EXE Compression"
 	strip ../WeiDU-Windows/weinstall.exe || true
 	upx --best ../WeiDU-Windows/weinstall.exe || echo "No EXE Compression"
 	strip ../WeiDU-Windows/tolower.exe || true
@@ -164,37 +161,31 @@ build : weidu
 	cp wein*$(EXE) ../WeiDU-Linux/weinstall || true
 	cp weig*$(EXE) ../WeiDU-Linux/weigui || true
 	cp tolower$(EXE) ../WeiDU-Linux/tolower || true
-linux_zip : weidu weinstall tolower #weigui
+linux_zip : weidu weinstall tolower
 	rm iwg2* weimorph* || true
 	test -d ../WeiDU-Linux || mkdir ../WeiDU-Linux
 	mv weid*$(EXE) ../WeiDU-Linux/weidu || true
 	mv wein*$(EXE) ../WeiDU-Linux/weinstall || true
-	#mv weig*$(EXE) ../WeiDU-Linux/weigui || true
 	mv tolower$(EXE) ../WeiDU-Linux/tolower || true
 	strip ../WeiDU-Linux/weidu || true
 	upx --best ../WeiDU-Linux/weidu || echo "No EXE Compression"
 	strip ../WeiDU-Linux/weinstall || true
 	upx --best ../WeiDU-Linux/weinstall || echo "No EXE Compression"
-	#strip ../WeiDU-Linux/weigui || true
-	#upx --best ../WeiDU-Linux/weigui || echo "No EXE Compression"
 	strip ../WeiDU-Linux/tolower || true
 	upx --best ../WeiDU-Linux/tolower || echo "No EXE Compression"
 	cp README* ../WeiDU-Linux
 	cp COPYING ../WeiDU-Linux
 	cp -r examples ../WeiDU-Linux
 	(cd .. ; zip -9r WeiDU-Linux-$(VER).zip WeiDU-Linux )
-osx_zip : weidu weinstall #weigui
+osx_zip : weidu weinstall
 	rm iwg2* weimorph* || true
 	test -d ../WeiDU-Mac || mkdir ../WeiDU-Mac
 	mv weid*$(EXE) ../WeiDU-Mac/weidu || true
 	mv wein*$(EXE) ../WeiDU-Mac/weinstall || true
-	#mv weig*$(EXE) ../WeiDU-Mac/weigui    || true
 	strip ../WeiDU-Mac/weidu || true
 	strip ../WeiDU-Mac/weinstall || true
-	#strip ../WeiDU-Mac/weigui    || true
 	upx --best ../WeiDU-Mac/weidu || echo "No EXE Compression"
 	upx --best ../WeiDU-Mac/weinstall || echo "No EXE Compression"
-	#upx --best ../WeiDU-Mac/weigui || echo "No EXE Compression"
 	cp README* ../WeiDU-Mac
 	cp COPYING ../WeiDU-Mac
 	cp -r examples ../WeiDU-Mac
