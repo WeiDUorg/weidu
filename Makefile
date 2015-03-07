@@ -155,12 +155,6 @@ windows_zip : weidu weinstall tolower
 	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU-Windows)
 src_zip : clean
 	(cd .. ; zip -9r WeiDU-Src-$(VER).zip weidu/* -x weidu/*.exe -x weidu/*.dll -x */.DS_Store; )
-build : weidu
-	rm iwg2* weimorph* || true
-	cp weid*$(EXE) ../WeiDU-Linux/weidu || true
-	cp wein*$(EXE) ../WeiDU-Linux/weinstall || true
-	cp weig*$(EXE) ../WeiDU-Linux/weigui || true
-	cp tolower$(EXE) ../WeiDU-Linux/tolower || true
 linux_zip : weidu weinstall tolower
 	rm iwg2* weimorph* || true
 	test -d ../WeiDU-Linux || mkdir ../WeiDU-Linux
