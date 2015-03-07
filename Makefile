@@ -136,21 +136,26 @@ VERBIG = $(shell grep "let version" src/version.ml | cut -d \" -f 2)
 doc: doc/base.tex
 	$(MAKE) -C doc
 
-windows_zip : weidu weinstall tolower clean #weigui
+windows_zip : weidu weinstall tolower #weigui
 	rm iwg2* weimorph* || true
-	mv weid*.exe weidu.exe
+	test -d ../WeiDU-Windows || mkdir ../WeiDU-Windows
+	mv -f weid*.exe ../WeiDU-Windows/weidu.exe || true
 	#mv weig*.exe weigui.exe
-	mv wein*.exe weinstall.exe
-	mv tolo*.exe tolower.exe
-	strip weidu.exe || true
-	upx --best weidu.exe || echo "No EXE Compression"
+	mv -f wein*.exe ../WeiDU-Windows/weinstall.exe || true
+	mv -f tolo*.exe ../WeiDU-Windows/tolower.exe || true
+	strip ../WeiDU-Windows/weidu.exe || true
+	upx --best ../WeiDU-Windows/weidu.exe || echo "No EXE Compression"
 	#strip weigui.exe || true
 	#upx --best weigui.exe || echo "No EXE Compression"
-	strip weinstall.exe || true
-	upx --best weinstall.exe || echo "No EXE Compression"
-	strip tolower.exe || true
-	upx --best tolower.exe || echo "No EXE Compression"
-	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU/*.exe WeiDU/COPYING WeiDU/README* WeiDU/*.dll WeiDU/examples WeiDU/*.manifest)
+	strip ../WeiDU-Windows/weinstall.exe || true
+	upx --best ../WeiDU-Windows/weinstall.exe || echo "No EXE Compression"
+	strip ../WeiDU-Windows/tolower.exe || true
+	upx --best ../WeiDU-Windows/tolower.exe || echo "No EXE Compression"
+	cp README* ../WeiDU-Windows
+	cp COPYING ../WeiDU-Windows
+	cp -r examples ../WeiDU-Windows
+	cp *.manifest ../WeiDU-Windows
+	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU-Windows)
 src_zip : clean
 	(cd .. ; zip -9r WeiDU-Src-$(VER).zip weidu/* -x weidu/*.exe -x weidu/*.dll -x */.DS_Store; )
 build : weidu
