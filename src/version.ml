@@ -10,7 +10,7 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 open BatteriesInit
-let version = "23703"
+let version = "23800"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
@@ -243,4 +243,5 @@ let version = "23703"
 (* 234 let comment = "Wisp uses Karate Chop. It's not very effective." *)
 (* 235 let comment = "No time for this now" *)
 (* 236 let comment = "Your daily WTF" *)
-let comment = "Something about the lateness"
+(* 237 let comment = "Something about the lateness" *)
+let comment = "d41d8cd98f00b204e9800998ecf8427e"
