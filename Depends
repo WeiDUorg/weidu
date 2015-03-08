@@ -3,7 +3,7 @@
 # to add later:
 WEIDU_BASE_MODULES := batList batteriesInit \
 	case_ins stats arch version parsing tph util modder var arch2 xor \
-	eff_table key cbif biff tlk load cre \
+	key cbif biff tlk load cre \
 	ids idslexer idslexer2 idsparser \
 	bcs bcslexer bcsparser \
 	dlg dc \

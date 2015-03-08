@@ -225,11 +225,6 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
         String.blit new_string 0 buff where 4 ;
         buff
 
-    | TP_DescribeItem(dest) ->
-        let str = Eff_table.describe_itm buff in
-        Var.set_string dest str ;
-        buff
-
     | TP_PatchStrRefEvaluated(where,what) ->
         let where = Int32.to_int (eval_pe buff game where) in
         let str = Var.get_string what in

@@ -22,7 +22,6 @@ open Load
   %token AS
   %token PATCH_IF
   %token ADD_CRE_ITEM
-  %token DESCRIBE_ITEM
   %token ADD_KIT
   %token ADD_KNOWN_SPELL
   %token ADD_MEMORIZED_SPELL
@@ -782,7 +781,6 @@ optional_evaluate :
     tp_patch   :
 | SAY patch_exp lse { Tp.TP_PatchStrRef($2,$3) }
 | SAY_EVALUATED patch_exp STRING { Tp.TP_PatchStrRefEvaluated($2,$3) }
-| DESCRIBE_ITEM STRING { Tp.TP_DescribeItem($2) }
 | LAUNCH_PATCH_MACRO STRING { Tp.TP_Launch_Patch_Macro ($2,true) }
 | REPLACE optional_case_sensitive optional_match_exact STRING lse { Tp.TP_PatchString($2,$3,$4,$5) }
 | REPLACE_TEXTUALLY optional_case_sensitive optional_match_exact STRING STRING

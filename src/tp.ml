@@ -332,7 +332,6 @@ and tp_patch =
   | TP_Get2DARows of tp_patchexp * tp_pe_string
   | TP_Get2DACols of tp_pe_string
   | TP_CountRegexpInstances of (bool option) * (bool option) * string * tp_pe_string
-  | TP_DescribeItem of string
   | TP_PatchPrint of Dlg.tlk_string
   | TP_PatchLog of Dlg.tlk_string
   | TP_PatchReraise

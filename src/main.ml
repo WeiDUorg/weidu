@@ -1168,32 +1168,6 @@ let do_script process_script pause_at_end game =
   done
 ;;
 
-let list_effs list_eff_list game =
-  List.iter (fun str ->
-    let name,ext = split (String.uppercase str) in
-    let buff,path = Load.load_resource "list effects command" game true name ext in
-    print_theout "[%s] has effects:\n" str ;
-    let eff_arr = match ext with
-    | "EFF" -> Load.eff_of_eff buff
-    | _ -> Load.eff_of_spl_itm buff
-    in
-    Array.iter (fun eff ->
-      let op = eff.Load.opcode in
-      let eff_name = Eff_table.name_of_opcode op in
-      if op = 139 then begin (* display string *)
-        print_theout "\t%s %s #%d\n" eff_name
-          (Tlk.pretty_print (Load.get_active_dialog game) eff.Load.arg1)
-          eff.Load.arg1
-      end else if op = 101 then begin
-        print_theout "\t%s (%s)\n" eff_name
-          (Eff_table.name_of_opcode eff.Load.arg2)
-      end else begin
-        print_theout "\t%s\n" eff_name
-      end
-          ) eff_arr
-      ) list_eff_list ;
-;;
-
 let decompile_bcs bcs_list game =
   if_bgee_check_lang_or_fail game ;
   List.iter (fun str ->
@@ -1324,8 +1298,6 @@ let main () =
 
   let list_biff = ref false in
   let list_files = ref false in
-
-  let list_eff_list = ref [] in
 
 
   let bs_type_list = ref [] in
@@ -1537,8 +1509,6 @@ let main () =
     "--automate-min", Myarg.Int (fun i -> automate_min := Some i),
     "X\tminimum strref # for --automate (default is SoA)";
 
-    "--list-eff", Myarg.String (fun s -> list_eff_list := s :: !list_eff_list), "X\tlist effects in resource X" ;
-
     "", Myarg.Unit (fun a -> a), "\nComparison Options:\n" ;
     "--cmp-from", Myarg.String (fun s -> cmp_src := Some(s)), "X\temit WRITE_BYTEs to turn this file ..." ;
     "--cmp-to", Myarg.String (fun s -> cmp_dest := Some(s)), "X\t... into this one";
@@ -1588,9 +1558,6 @@ let main () =
     | "TP"
     | "TP2" -> test_output_tlk_p := true ; tp_list := !tp_list @ [str]
     | "TRA" -> trans_list := !trans_list @ [str]
-    | "ITM"
-    | "EFF"
-    | "SPL" -> list_eff_list := !list_eff_list @ [str]
     | "BCS" | "BS" -> bcs_list := !bcs_list @ [str]
     | "BAF" -> test_output_tlk_p := true ; baf_list := !baf_list @ [str]
     | "" ->
@@ -1893,10 +1860,6 @@ let main () =
         let destination = Printf.sprintf "%s/%s" theout.dir new_name in
         copy_large_file source destination "--change-log") result.Changelog.backup_files) results) ;
   end ;
-
-
-  if !list_eff_list <> [] then
-    list_effs !list_eff_list game ;
 
 
   (* Handle BCS files *)

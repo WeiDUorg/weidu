@@ -1,3 +1,6 @@
+Version 239:
+  * Remove DESCRIBE_ITEM and --list-eff.
+
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
   * Add more keywords to GET_OFFSET_ARRAY and GET_OFFSET_ARRAY2.
