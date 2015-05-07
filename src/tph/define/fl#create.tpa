@@ -10,8 +10,7 @@
  */
 
 /*
- * Todo: implement a persistent, empty inlined file and use that
- *       MAKE_BUFF2? Give me a break
+ * Todo: MAKE_BUFF2? Give me a break
  */
 
 DEFINE_ACTION_MACRO FL#CREATE BEGIN
@@ -199,7 +198,7 @@ DEFINE_ACTION_FUNCTION FL#CREATE#MAKE_BUFF#SPL
     buff
 BEGIN
   ACTION_MATCH "%version%" WITH
-    "V1.0"
+    "V1.0" "V1" "V1  "
     BEGIN
       LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x72 STR_VAR mutator = FL#CREATE#SPL#V10 RET buff END
     END
@@ -394,7 +393,7 @@ BEGIN
   ACTION_MATCH "%version%" WITH
     "" WHEN ENGINE_IS ~bg1 totsc soa tob pst iwd how totlm bgee bg2ee iwdee~
     BEGIN
-      OUTER_SPRINT version "V1.0"
+      OUTER_SPRINT version "V1  "
     END
 
     "" WHEN ENGINE_IS ~iwd2~
@@ -404,7 +403,7 @@ BEGIN
 
     ""
     BEGIN
-      OUTER_SPRINT version "V1.0"
+      OUTER_SPRINT version "V1  "
     END
 
     DEFAULT
@@ -742,7 +741,7 @@ DEFINE_PATCH_FUNCTION FL#CREATE#SPL#V10
   INT_VAR
     length = 0x72
 BEGIN
-  WRITE_ASCII 0x00 "SPL V1.0"
+  WRITE_ASCII 0x00 "SPL V1  "
   WRITE_LONG  0x08 "-1"
   WRITE_LONG  0x0c "-1"
   WRITE_LONG  0x50 "-1"

@@ -1,5 +1,6 @@
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
+  * Fix a problem with CREATEd spells of format version V1.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
