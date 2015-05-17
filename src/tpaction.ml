@@ -1064,6 +1064,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_CopyKit(oldString,newString,patches_list) ->
           let oldString = Var.get_string oldString in
           let newString = Var.get_string newString in
+          log_and_print "Preparing to copy kit %s to %s\n" oldString newString ;
           let patches_list = List.map (fun(a,b)->
             (Var.get_string a),(Var.get_string
                                   b)) patches_list in
@@ -1141,6 +1142,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             Str.global_replace (Str.regexp ("^" ^ oldString^"[ \t]"))
               (newString ^ " ") o
           in
+          if not (is_true (eval_pe "" game
+                        (PE_FileContainsEvaluated
+                           (PE_LiteralString "kitlist.2da",
+                            PE_LiteralString
+                              ("[ %TAB%%LNL%%WNL%]" ^ oldString ^ "[ %TAB%%LNL%%WNL%]")))))
+          then
+            failwith (Printf.sprintf "ERROR: Could not find kit %s" oldString) ;
           let copy_kit = {
             kit_name = newString;
             clasweap = get_it "clasweap" "clasweap";
