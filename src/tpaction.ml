@@ -435,7 +435,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           log_and_print "Clearing the macros.\n" ;
           clear_codes () ;
           process_action_real our_lang game this_tp2_filename tp
-            (TP_Include Tph.list_of_includes);
+            (TP_Include Tph.builtin_definitions);
 
       | TP_ClearInlined ->
           log_and_print "Clearing the inlined files.\n" ;
@@ -999,7 +999,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           end else begin
             log_and_print "Adding projectile file %s ...\n" p.pro_file;
             let this_missile_name = Var.get_string p.missile_ids_name in
-            let a1 = TP_Include ["lc_fix_missile_ids.tpa"] in
+            let a1 = TP_Include [".../WEIDU_NAMESPACE/lc_fix_missile_ids.tpa"] in
             List.iter (process_action tp) [a1];
             let this_pro_number = get_next_line_number "PROJECTL.IDS" in
             let a1 =
@@ -1037,7 +1037,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           log_and_print "Adding spell %s\n" ids_name;
           let file = Var.get_string file in
           let ids_name = Var.get_string ids_name in
-          process_action tp (TP_Include ["add_spell.tpa"]);
+          process_action tp (TP_Include [".../WEIDU_NAMESPACE/add_spell.tpa"]);
           let use_ple = if_true (match ple with
           | None -> false
           | Some x ->
@@ -2269,7 +2269,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             Var.set_string "FL#CREATE#VERSION" (eval_pe_str (PE_LiteralString version));
 
             process_action tp (TP_Define_Patch_Macro ("FL#CREATE#PATCH_LIST", [], patch_list));
-            process_action tp (TP_Include ["fl#create.tpa"]);
+            process_action tp (TP_Include [".../WEIDU_NAMESPACE/fl#create.tpa"]);
             process_action tp (TP_Launch_Action_Macro("FL#CREATE"));
           end
       );

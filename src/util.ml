@@ -142,12 +142,12 @@ let clear_inlined () =
   Hashtbl.clear inlined_files;
 List.iter ( fun (name,contents) ->
   Hashtbl.add inlined_files name contents
-	   ) Tph.list_of_stuff
+	   ) Tph.builtin_inlined_files
 ;;
 
 List.iter ( fun (name,contents) ->
   Hashtbl.add inlined_files name contents
-	   ) Tph.list_of_stuff
+	   ) Tph.builtin_inlined_files
 ;;
 
 let backup_ht = Hashtbl.create 511

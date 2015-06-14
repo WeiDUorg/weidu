@@ -18,10 +18,14 @@ let load_file name =
   Unix.close fd ;
   Str.global_replace (Str.regexp "\\([\\\"\']\\)") "\\\\\\1" buff
 
+let namespace = ".../WEIDU_NAMESPACE/"
+let inlined_symbol = "builtin_inlined_files" (* inlined files and content to automatically define *)
+let includes_symbol = "builtin_definitions" (* inlined files where the builtin definitions are defined *)
+
 let main () =
   let o = open_out "src/tph.ml" in
   output_string o "(* DO NOT EDIT, file generated automatically by scripts/make_tph.ml from src/tph/* *)\n";
-  output_string o "let list_of_stuff = [";
+  Printf.fprintf o "let %s = [" inlined_symbol ;
   let file_define  = Sys.readdir "src/tph/define"  in
   let file_include = Sys.readdir "src/tph/include" in
   List.iter (fun (dir, files) ->
@@ -30,12 +34,12 @@ let main () =
       let ext = Str.global_replace (Str.regexp ".*\\.") "" file in
       if ext = "tpa" || ext = "tpp" then begin
         let contents = load_file ("src/tph/" ^ dir ^ "/" ^ file) in
-        Printf.fprintf o "(\"%s\",\"%s  \");\n" file contents;
+        Printf.fprintf o "(\"%s%s\",\"%s  \");\n" namespace file contents;
       end) files) [("define",file_define); ("include",file_include)];
   output_string o "]\n";
-  output_string o "let list_of_includes = [";
+  Printf.fprintf o "let %s = [" includes_symbol ;
   Array.iter (fun file ->
-    let file = String.lowercase file in
+    let file = Printf.sprintf "%s%s" namespace (String.lowercase file) in
     let ext = Str.global_replace (Str.regexp ".*\\.") "" file in
     if ext = "tpa" || ext = "tpp" then Printf.fprintf o "\t\"%s\";\n" file) file_include;
   output_string o "]\n";

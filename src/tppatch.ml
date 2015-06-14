@@ -792,7 +792,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
         List.fold_left (fun acc elt ->
           process_patch2 patch_filename game acc elt) buff
           [TP_PatchSet(get_pe_string "tb#pretty_print_indent", indent);
-           TP_PatchInclude ["tb#pretty_print.tpp"]]
+           TP_PatchInclude [".../WEIDU_NAMESPACE/tb#pretty_print.tpp"]]
 
     | TP_Read2DANow(str, req_col) ->
         let req_col = Int32.to_int (eval_pe buff game req_col) in

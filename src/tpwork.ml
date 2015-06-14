@@ -803,7 +803,7 @@ let rec handle_tp game this_tp2_filename tp =
             let old_silent = !be_silent in
             be_silent := true;
             process_action_real our_lang game this_tp2_filename tp
-              (TP_Include Tph.list_of_includes);
+              (TP_Include Tph.builtin_definitions);
             be_silent := old_silent;
 
             if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] &&
