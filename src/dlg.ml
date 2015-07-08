@@ -503,13 +503,15 @@ let emit_d dlg out_name dt dft o ot only_state reprint_d_action
       in
 
       let worklist = ref [] in
+      let processed_states = Hashtbl.create 50 in
 
       let print_goto no = match no with
       | Absolute(str,i) when str = dlg.name -> Printf.sprintf " GOTO %d" i
       | Absolute(str,i) ->
           begin
-            (if transitive && not
-                (List.mem (str,i) !worklist) then worklist := (str,i) :: !worklist) ;
+            (if transitive && not (Hashtbl.mem processed_states (str,i)) &&
+              not (List.mem (str,i) !worklist) then
+              worklist := (str,i) :: !worklist) ;
             Printf.sprintf " EXTERN ~%s~ %d" str i ;
           end
       | Symbolic(s1,s2,b) -> failwith "emit_d : symbolic next"
@@ -621,7 +623,8 @@ let emit_d dlg out_name dt dft o ot only_state reprint_d_action
             worklist := List.tl !worklist ;
             let buff,path = Load.load_resource dlg.name (Load.the_game ()) true file "DLG" in
             let dlg = load_dlg file buff in
-            print_state file i (dlg.state.(i)) (file ^ " ")
+            print_state file i (dlg.state.(i)) (file ^ " ") ;
+            Hashtbl.add processed_states (file,i) true ;
           with _ -> ()
         done) dlg.state ;
 
