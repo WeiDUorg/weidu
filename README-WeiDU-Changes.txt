@@ -2,6 +2,7 @@ Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
   * Fix a problem with CREATEd spells of format version V1.
   * COPY_KIT fails better if oldKit does not exist.
+  * --transitive does not get caught in infinite loops.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
