@@ -103,21 +103,6 @@ CAMLprim value get_iwd2main_path(void)
   return copy_string(buf); 
 }
 
-CAMLprim value win_check_UAC(void)
-{
-		int isIt;
-    HKEY hKey = 0;
-    char buf[255] = {0};
-    DWORD dwType = 0;
-    DWORD dwBufSize = sizeof(buf);
-    const char* subkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System";
-    RegOpenKey(HKEY_LOCAL_MACHINE,subkey,&hKey);
-    dwType = REG_SZ;
-    RegQueryValueEx(hKey,"EnableLUA",0, &dwType, (BYTE*)buf, &dwBufSize);
-    RegCloseKey(hKey);
-    return Val_bool(buf[0]);
-}
-
 CAMLprim value get_user_personal_dir(void)
 {
   HKEY hKey = 0;

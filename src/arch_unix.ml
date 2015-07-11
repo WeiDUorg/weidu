@@ -81,11 +81,6 @@ let get_version f =
   (try Unix.close newstderr' with _ -> ()) ;
   Unix.kill pid 9;
   version
-;;
-
-let check_UAC () =
-  false
-;;
 
 (* external get_user_personal_dir : unit -> string = "get_user_home_dir" *)
 

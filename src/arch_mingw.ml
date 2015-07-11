@@ -96,13 +96,6 @@ let get_version f =
   (try Unix.close newstderr' with _ -> ()) ;
   let pid', ps = Unix.waitpid [] pid in
   version
-;;
-
-external win_check_UAC : unit -> bool = "win_check_UAC"
-
-let check_UAC () =
-  win_check_UAC ()
-;;
 
 external get_user_personal_dir : unit -> string = "get_user_personal_dir"
 

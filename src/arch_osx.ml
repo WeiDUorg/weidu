@@ -75,11 +75,6 @@ let get_version f =
   ignore (Unix.close_process_full (ic,oc,ec));
   let s = Str.global_replace ( Str.regexp_case_fold ".*version \\([0-9]+\\).*") "\\1" line in
   int_of_string s
-;;
-
-let check_UAC () =
-  false
-;;
 
 external get_user_personal_dir : unit -> string = "get_user_home_dir"
 
