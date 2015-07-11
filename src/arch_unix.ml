@@ -12,14 +12,14 @@
 (* Generic Unix Definitions *)
 open BatteriesInit
 
-let registry_paths = ref [ "\\BGII - SoA\\" ] 
+let registry_paths = ref [ "\\BGII - SoA\\" ]
 
 (* no slash removal: helps make shell scripts work better *)
-let slash_to_backslash s = s 
+let slash_to_backslash s = s
 
 let backslash_to_slash s =
   let s = Str.global_replace (Str.regexp "\\\\") "/" s in
-				s
+                                s
 
 (* how to view a text (or HTML) file on 90% of linuxes *)
 let view_command = "xdg-open ./"
@@ -35,10 +35,9 @@ let handle_view_command s skip =
       result := Str.global_replace (Str.regexp (Str.quote "\\")) "/" !result ;
     end) [Str.regexp_case_fold "^VIEW[ \t]*" ; Str.regexp_case_fold "^NOTEPAD[ \t]*" ;
           Str.regexp_case_fold "^EXPLORER[ \t]*"];
-				    if skip && (s <> !result) then result := "";
-				    let s = String.lowercase !result in
-(*  Printf.printf "exec: %s\n" s; *)
-				    s
+                                    if skip && (s <> !result) then result := "";
+                                    let s = String.lowercase !result in
+                                    s
 
 let glob str fn = failwith "no globbing support"
 
@@ -46,7 +45,7 @@ let biff_path_separator = "\\\\" (* unix, but BG2 runs on Windows *)
 
 let create_process_env = Unix.create_process_env
 
-let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)" 
+let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)"
 
 let is_weidu_executable f =
   try
@@ -55,7 +54,6 @@ let is_weidu_executable f =
     let signature = input i buff 0 4 in
     Str.string_match (Str.regexp_case_fold "setup-.*") f 0 && buff = "\x7fELF"
   with _ -> false
-
 
 let get_version f =
   let newstdin, newstdin' = Unix.pipe () in
@@ -95,4 +93,3 @@ let get_iwdee_user_dir game_path =
 
 let game_path_by_type name =
   failwith "--game-by-path not available on this architecture"
-

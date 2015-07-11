@@ -14,20 +14,20 @@ open BatteriesInit
 
 (* Query the Windows Registry to find out about Infinity Engine games. *)
 
-external registry_path : unit -> string = "get_bg2main_path" 
-external bg_registry_path : unit -> string = "get_bgmain_path" 
-external iwd_registry_path : unit -> string = "get_iwdmain_path" 
-external iwd2_registry_path : unit -> string = "get_iwd2main_path" 
-external pst_registry_path : unit -> string = "get_pstmain_path" 
+external registry_path : unit -> string = "get_bg2main_path"
+external bg_registry_path : unit -> string = "get_bgmain_path"
+external iwd_registry_path : unit -> string = "get_iwdmain_path"
+external iwd2_registry_path : unit -> string = "get_iwd2main_path"
+external pst_registry_path : unit -> string = "get_pstmain_path"
 
-let registry_paths = ref [ 
+let registry_paths = ref [
   (registry_path ()) ;
   (bg_registry_path ()) ;
   (iwd_registry_path ()) ;
   (iwd2_registry_path ()) ;
   (pst_registry_path ()) ;
   "C:\\Program Files\\Black Isle\\BGII - SoA\\" ;
-    "D:\\Program Files\\Black Isle\\BGII - SoA\\" 
+    "D:\\Program Files\\Black Isle\\BGII - SoA\\"
 ]
 
 let slash_to_backslash s =
@@ -37,9 +37,9 @@ let backslash_to_slash (s: string) =
   s
 
 (* how to view a text file *)
-let view_command = "start" 
+let view_command = "start"
 
-let do_auto_update = true 
+let do_auto_update = true
 
 (* handle AT_EXIT ~VIEW mydir\myfile.txt~ *)
 let handle_view_command s skip =
@@ -54,23 +54,22 @@ let handle_view_command s skip =
 
 external glob : string -> (string -> unit) -> unit = "myglob"
 
-external weidu_win_create_process : 
-    string -> string -> string option -> 
-      Unix.file_descr -> Unix.file_descr -> Unix.file_descr -> 
-	int  = "weidu_win_create_process" "weidu_win_create_process_native"
+external weidu_win_create_process :
+    string -> string -> string option ->
+      Unix.file_descr -> Unix.file_descr -> Unix.file_descr ->
+        int  = "weidu_win_create_process" "weidu_win_create_process_native"
 
 let create_process_env prog args env fd1 fd2 fd3 =
   weidu_win_create_process prog (String.concat " " (Array.to_list args))
     (Some(String.concat "\000" (Array.to_list env) ^ "\000"))
-    fd1 fd2 fd3 
+    fd1 fd2 fd3
 
 let biff_path_separator = "\\\\"
 
-let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)" 
+let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)"
 
 let is_weidu_executable f =
   Str.string_match (Str.regexp_case_fold "setup-.*exe") f 0
-
 
 let get_version f =
   let newstdin, newstdin' = Unix.pipe () in

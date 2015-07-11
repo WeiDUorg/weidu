@@ -12,16 +12,15 @@
 (* Mac OSX Arch-Specific Definitions *)
 open BatteriesInit
 
-let registry_paths = ref [ "\\BGII - SoA\\" ] 
+let registry_paths = ref [ "\\BGII - SoA\\" ]
 
 (* no slash removal: helps make shell scripts work better *)
-let slash_to_backslash s = 
+let slash_to_backslash s =
   s
 
 let backslash_to_slash s =
   let s = Str.global_replace (Str.regexp "\\\\") "/" s in
-				s
-
+                                s
 
 (* how to view a text file *)
 (* let view_command = "open -a /Applications/TextEdit.app/"  *)
@@ -40,13 +39,14 @@ let handle_view_command s skip =
   if skip && (s <> !result) then result := "";
   let s = !result in
   s
+
 external glob : string -> (string -> unit) -> unit = "myglob"
 
 let create_process_env = Unix.create_process_env
 
 let biff_path_separator = ":"
 
-(* On OSX, TOB baldur.ini has: 
+(* On OSX, TOB baldur.ini has:
    [Alias]
    CD5:=:CD5:
    HD0:=:
@@ -54,9 +54,9 @@ let biff_path_separator = ":"
    CD2:=:CD2:
    CD3:=:CD3:
    CD4:=:CD4:
- *) 
+ *)
 let cd_regexp = Str.regexp "\\(CD[0-9]\\)"
-(* doesn't work: 
+(* doesn't work:
    let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)"  *)
 
 let is_weidu_executable f =
