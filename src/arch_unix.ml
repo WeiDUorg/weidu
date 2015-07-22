@@ -21,6 +21,9 @@ let backslash_to_slash s =
   let s = Str.global_replace (Str.regexp "\\\\") "/" s in
                                 s
 
+let native_separator string =
+  Str.global_replace (Str.regexp "\\\\") "/" string
+
 (* how to view a text (or HTML) file on 90% of linuxes *)
 let view_command = "xdg-open ./"
 
@@ -32,12 +35,12 @@ let handle_view_command s skip =
   List.iter (fun view_regexp ->
     if Str.string_match view_regexp !result 0 then begin
       result := Str.replace_first view_regexp view_command !result ;
-      result := Str.global_replace (Str.regexp (Str.quote "\\")) "/" !result ;
+      result := native_separator !result ;
     end) [Str.regexp_case_fold "^VIEW[ \t]*" ; Str.regexp_case_fold "^NOTEPAD[ \t]*" ;
           Str.regexp_case_fold "^EXPLORER[ \t]*"];
-                                    if skip && (s <> !result) then result := "";
-                                    let s = String.lowercase !result in
-                                    s
+  if skip && (s <> !result) then result := "";
+  let s = String.lowercase !result in
+  s
 
 let glob str fn = failwith "no globbing support"
 

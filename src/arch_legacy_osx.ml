@@ -22,6 +22,9 @@ let backslash_to_slash s =
   let s = Str.global_replace (Str.regexp "\\\\") "/" s in
                                 s
 
+let native_separator string =
+  Str.global_replace (Str.regexp "\\\\") "/" string
+
 (* how to view a text file *)
 (* let view_command = "open -a /Applications/TextEdit.app/"  *)
 let view_command = "open"
@@ -34,6 +37,7 @@ let handle_view_command s skip =
   List.iter (fun view_regexp ->
     if Str.string_match view_regexp !result 0 then begin
       result := Str.replace_first view_regexp view_command !result ;
+      result := native_separator !result ;
     end) [Str.regexp_case_fold "^VIEW" ; Str.regexp_case_fold "^NOTEPAD" ;
           Str.regexp_case_fold "^EXPLORER"];
   if skip && (s <> !result) then result := "";

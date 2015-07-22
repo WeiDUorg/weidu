@@ -225,10 +225,10 @@ let find_file_in_path path file =
         done
       with e -> ()) ; Unix.closedir h ;
       match !res with
-        Some(e) -> (path ^ "/" ^ e)
-      | None -> (path ^ "/" ^ file)
+        Some(e) -> Arch.native_separator (path ^ "/" ^ e)
+      | None -> Arch.native_separator (path ^ "/" ^ file)
     end
-  with _ -> path ^ "/" ^ file
+  with _ -> Arch.native_separator (path ^ "/" ^ file)
 
 let fake_load_dialog gp dialog_path =
   let path = match dialog_path with
@@ -298,12 +298,12 @@ let load_ee_dialogs game_path =
   let lang_dirs = (List.fast_sort compare
                      (List.map String.lowercase
                         (List.filter (fun dir ->
-                          let dir = Arch.slash_to_backslash (lang_path ^ "/" ^ dir) in
+                          let dir = Arch.native_separator (lang_path ^ "/" ^ dir) in
                           (is_directory dir) &&
-                          (file_exists (Arch.slash_to_backslash (dir ^ "/dialog.tlk"))))
+                          (file_exists (Arch.native_separator (dir ^ "/dialog.tlk"))))
                            (Array.to_list (Case_ins.sys_readdir lang_path))))) in
   let languages = (List.map (fun lang ->
-    let path = Arch.slash_to_backslash (lang_path ^ "/" ^ lang) in
+    let path = Arch.native_separator (lang_path ^ "/" ^ lang) in
     load_dialog_pair path None None) lang_dirs) in
   (match !dialog_tlk_path with
   | None -> Array.of_list languages
@@ -315,7 +315,7 @@ let load_ee_dialogs game_path =
       Array.of_list (List.append languages [tlkin]))
 
 let load_dialogs game_path =
-  if file_exists (Arch.slash_to_backslash (game_path ^ "/lang/en_us/dialog.tlk")) then
+  if file_exists (Arch.native_separator (game_path ^ "/lang/en_us/dialog.tlk")) then
     load_ee_dialogs game_path
   else
     load_default_dialogs game_path

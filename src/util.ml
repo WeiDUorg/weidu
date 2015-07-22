@@ -399,7 +399,7 @@ let handle_readonly filename =
 
 let rec backup_if_extant filename =
   if Hashtbl.mem backup_ht
-      (String.uppercase (slash_to_backslash filename)) then
+      (String.uppercase (native_separator filename)) then
     ()
   else begin
     if (String.uppercase filename) = "OVERRIDE/SPELL.IDS" ||
@@ -412,7 +412,7 @@ let rec backup_if_extant filename =
 	  end
 	end;
     Hashtbl.add backup_ht
-      (String.uppercase (slash_to_backslash filename)) true ;
+      (String.uppercase (native_separator filename)) true ;
     (
      match !backup_list_chn with
      | Some(chn) -> output_string chn (filename ^ "\n") ; flush chn
@@ -823,7 +823,7 @@ let split_log_line line =
 		Str.split (Str.regexp " ") line
 
 let attempt_to_load_bgee_lang_dir game_path =
-  let conf = Arch.slash_to_backslash (game_path ^ "/weidu.conf") in
+  let conf = Arch.native_separator (game_path ^ "/weidu.conf") in
   if file_exists conf then begin
     let buff = load_file conf in
     let regexp = (Str.regexp_case_fold "lang_dir[ \t]+=[ \t]+\\([a-z_]+\\)") in
@@ -836,7 +836,7 @@ let attempt_to_load_bgee_lang_dir game_path =
 
 let write_bgee_lang_dir game_path dir =
   try
-    let conf = Arch.slash_to_backslash (game_path ^ "/weidu.conf") in
+    let conf = Arch.native_separator (game_path ^ "/weidu.conf") in
     let chan = Case_ins.perv_open_out_bin conf in
     ignore (output_string chan (String.lowercase
                                   (Printf.sprintf "lang_dir = %s\n" dir))) ;

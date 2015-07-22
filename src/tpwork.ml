@@ -136,7 +136,7 @@ let do_readme tp this_tp2_filename =
                   answer := String.uppercase (read_line())
                 done;
                 if !answer = "Y" then
-                  ignore (Unix.system (Arch.slash_to_backslash str));
+                  ignore (Unix.system str);
               end
               else walk tail
           | [] -> log_and_print

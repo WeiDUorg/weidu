@@ -3,6 +3,7 @@ Version 239:
   * Fix a problem with CREATEd spells of format version V1.
   * COPY_KIT fails better if oldKit does not exist.
   * --transitive does not get caught in infinite loops.
+  * WeiDU uses native-looking separator characters (mostly cosmetic).
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
