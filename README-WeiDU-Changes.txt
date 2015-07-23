@@ -4,6 +4,7 @@ Version 239:
   * COPY_KIT fails better if oldKit does not exist.
   * --transitive does not get caught in infinite loops.
   * WeiDU uses native-looking separator characters (mostly cosmetic).
+  * WeiDU is able to resolve the IDS symbol ANYONE.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
