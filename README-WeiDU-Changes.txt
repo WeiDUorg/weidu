@@ -3,7 +3,8 @@ Version 239:
   * Fix a problem with CREATEd spells of format version V1.
   * COPY_KIT fails better if oldKit does not exist.
   * --transitive does not get caught in infinite loops.
-  * WeiDU uses native-looking separator characters (mostly cosmetic).
+  * WeiDU uses native-looking separator characters (mostly cosmetic) in a few
+    places it did not use to.
   * WeiDU is able to resolve the IDS symbol ANYONE.
 
 Version 238:
