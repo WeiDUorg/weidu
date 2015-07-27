@@ -472,7 +472,7 @@ let rec verify_arg_list name al fl = match (al,fl) with
         BA_Integer(Int32.of_int 1)
     }
 | LBRACKET ba_arg_list RBRACKET rect_opt { BA_Rect(BA_Bracket($2),$4) }
-| ANYONE {BA_String("ANYONE")} (* Hack to support EE's using ANYONE as an IDS symbol *)
+| ANYONE {BA_String("ANYONE")}
     ;
 
   opt_arg :
