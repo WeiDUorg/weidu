@@ -6,6 +6,7 @@ Version 239:
   * WeiDU uses native-looking separator characters (mostly cosmetic) in a few
     places it did not use to.
   * WeiDU is able to resolve the IDS symbol ANYONE.
+  * WeiDU can resolve IDS symbols starting with a number (presently known cases).
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
