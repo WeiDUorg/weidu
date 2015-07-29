@@ -7,6 +7,7 @@ Version 239:
     places it did not use to.
   * WeiDU is able to resolve the IDS symbol ANYONE.
   * WeiDU can resolve IDS symbols starting with a number (presently known cases).
+  * WeiDU can parse MISSILE.IDS (BG2-flavour).
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.

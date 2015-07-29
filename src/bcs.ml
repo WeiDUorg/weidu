@@ -572,7 +572,8 @@ let get_ids_map game ids_filename =
     let lexer = if (((game.Load.script_style = Load.IWD1 || game.Load.script_style = Load.IWD2) &&
                      ids_filename <> "ACTION" &&
                      ids_filename <> "TRIGGER" ) ||
-		     (game.Load.script_style = Load.PST && ids_filename = "ANIMATE")) then
+		     (game.Load.script_style = Load.PST && ids_filename = "ANIMATE") ||
+                     (game.Load.script_style = Load.BG2 && ids_filename = "MISSILE")) then
       Idslexer2.initial
     else Idslexer.initial
     in
