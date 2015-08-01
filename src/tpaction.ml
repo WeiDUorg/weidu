@@ -599,22 +599,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               if String.uppercase src = "DIALOG.TLK" then
                 log_and_print_modder "\n\nUse COPY_LARGE rather than COPY on dialog.tlk!\n\n\n" ;
 
-              let src_dir = Case_ins.filename_dirname src in
-              Var.set_string "SOURCE_DIRECTORY" src_dir ;
-              Var.set_string "SOURCE_FILESPEC" src ;
-              Var.set_string "SOURCE_FILE" (Case_ins.filename_basename src) ;
-              Var.set_string "SOURCE_RES"
-                (let a,b = split (Case_ins.filename_basename src) in a) ;
-              Var.set_string "SOURCE_EXT"
-                (let a,b = split (Case_ins.filename_basename src) in b) ;
-              let dest_dir = Case_ins.filename_dirname dest in
-              Var.set_string "DEST_DIRECTORY" dest_dir ;
-              Var.set_string "DEST_FILESPEC" dest ;
-              Var.set_string "DEST_FILE" (Case_ins.filename_basename dest) ;
-              Var.set_string "DEST_RES"
-                (let a,b = split (Case_ins.filename_basename dest) in a) ;
-              Var.set_string "DEST_EXT"
-                (let a,b = split (Case_ins.filename_basename dest) in b) ;
               let buff =
                 if not get_existing then
                   load_file src
@@ -622,8 +606,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                   let a,b = split src in
                   let buff,path = Load.load_resource "COPY" game true a b in
                   buff in
-              Var.set_int32 "SOURCE_SIZE" (Int32.of_int (String.length buff));
               let orig_buff = String.copy buff in
+              ignore (set_copy_vars src dest (Some(buff))) ;
 
               (* if (buff <> "") then *) begin
                 if (!has_if_eval_bug || List.exists (fun x ->
@@ -822,6 +806,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             (match String.uppercase (snd (split dest)) with
             | ".IDS" -> Bcs.clear_ids_map game
             | _ -> ()) ;
+            ignore (set_copy_vars src dest None) ;
             Stats.time "saving files" (fun () ->
               if Hashtbl.mem inlined_files (Arch.backslash_to_slash src) then begin
                 let copy_args = {

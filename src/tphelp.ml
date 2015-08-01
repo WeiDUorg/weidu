@@ -503,3 +503,25 @@ let ask_about_lang_dir ask_text: string =
     with _ -> ()
   done ;
   value_of_option !answer
+
+let set_copy_vars src dest buff =
+  let src_dir = Case_ins.filename_dirname src in
+  Var.set_string "SOURCE_DIRECTORY" src_dir ;
+  Var.set_string "SOURCE_FILESPEC" src ;
+  Var.set_string "SOURCE_FILE" (Case_ins.filename_basename src) ;
+  Var.set_string "SOURCE_RES"
+    (let a,b = split (Case_ins.filename_basename src) in a) ;
+  Var.set_string "SOURCE_EXT"
+    (let a,b = split (Case_ins.filename_basename src) in b) ;
+  let dest_dir = Case_ins.filename_dirname dest in
+  Var.set_string "DEST_DIRECTORY" dest_dir ;
+  Var.set_string "DEST_FILESPEC" dest ;
+  Var.set_string "DEST_FILE" (Case_ins.filename_basename dest) ;
+  Var.set_string "DEST_RES"
+    (let a,b = split (Case_ins.filename_basename dest) in a) ;
+  Var.set_string "DEST_EXT"
+    (let a,b = split (Case_ins.filename_basename dest) in b) ;
+  (match buff with
+  | None -> Var.set_int32 "SOURCE_SIZE" (Int32.of_int ((Case_ins.unix_stat src).Unix.st_size))
+  | Some(b) ->
+      Var.set_int32 "SOURCE_SIZE" (Int32.of_int (String.length b)))

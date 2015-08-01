@@ -3030,6 +3030,12 @@ COPY_EXISTING_REGEXP GLOB ~HARM.*.ITM~ ~override~
        Behaves like \ttref{COPY} except that the fromFiles can be of arbitrary
        size (the limit should be over a Gigabyte), but on the other side of
        the coin you can't apply patches to the copying.
+
+       Like \ttref{COPY}, \ttref{COPY!LARGE} sets the variables
+       \ttref{SOURCE!DIRECTORY}, \ttref{SOURCE!FILESPEC}, \ttref{SOURCE!FILE},
+       \ttref{SOURCE!RES}, \ttref{SOURCE!EXT}, \ttref{SOURCE!SIZE},
+       \ttref{DEST!DIRECTORY}, \ttref{DEST!FILESPEC}, \ttref{DEST!FILE},
+       \ttref{DEST!RES} and \ttref{DEST!EXT}.
        \\
   or & \DEFINE{COPY!RANDOM} \t{(} file1 \Slist \t{)}
     \Ob \t{(} fileN \Slist \t{)} \Slist \Oe
