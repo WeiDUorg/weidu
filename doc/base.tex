@@ -5302,8 +5302,10 @@ since she has the death variable \t{Aerie} and \t{pdialog.2da} contains
 \t{AERIE}.  \\
 
 is & \DEFINE{FILE!EXISTS} fileName & Evaluates to 1 if the file exists in the
-filesystem and has non-zero size (or the bif file is referenced inside
-the chitin.key) and evaluates to 0 otherwise. \\
+filesystem (or the bif file is referenced inside
+the chitin.key) and evaluates to 0 otherwise.
+The results of \ttref{FILE!EXISTS} are undefined if fileName is a directory.
+\\
 or & \DEFINE{FILE!EXISTS!IN!GAME} fileName & Evaluates to 1 if the file
 exists as a game resource and has non-zero size. Evaluates to 0 otherwise.
 \ttref{BIFF}s and the \t{override} directory are searched in the standard
