@@ -9238,6 +9238,34 @@ This function attempts to find the first available free \t{PVRZ} index of a cont
 \end{itemize}
 \\
 
+\DEFINE{\verb+DIRECTORY_OF_FILESPEC+}: returns the directory of a file specification. Compare to \ttref{SOURCE!DIRECTORY}. This is an ACTION and PATCH function.
+
+\begin{itemize}
+\item STR_VAR \verb+filespec+ to the file specification, which must include an identifiable directory, or a warning will be raised.
+\item RET \verb+directory+ returns the directory of the file specification.
+\end{itemize}
+
+\DEFINE{\verb+FILE_OF_FILESPEC+}: returns the file of a file specification. Compare to \ttref{SOURCE!FILE}. This is an ACTION and PATCH function.
+
+\begin{itemize}
+\item STR_VAR \verb+filespec+ to the file specification, which may or may not include a directory.
+\item RET \verb+file+ returns the file of the file specification.
+\end{itemize}
+
+\DEFINE{\verb+RES_OF_FILESPEC+}: returns the resource name of a file specification. Compare to \ttref{SOURCE!RES}. This is an ACTION and PATCH function.
+
+\begin{itemize}
+\item STR_VAR \verb+filespec+ to the file specification, which must include an identifiable resource name, or a warning will be raised.
+\item RET \verb+res+ returns the resource name of the file specification.
+\end{itemize}
+
+\DEFINE{\verb+EXT_OF_FILESPEC+}: returns the resource extension of a file specification. Compare to \ttref{SOURCE!EXT}. This is an ACTION and PATCH function.
+
+\begin{itemize}
+\item STR_VAR \verb+filespec+ to the file specification, which must include an identifiable resource extension, or a warning will be raised.
+\item RET \verb+ext+ returns the resource extension of the file specification.
+\end{itemize}
+
 \subsection{\DEFINE{fj_are_structure}}
 Adds a structure to an area file. All variables are zero or blank by default unless otherwise indicated. Fields designated by an asterisk are typically required; all others are optional.
 This is a PATCH function.

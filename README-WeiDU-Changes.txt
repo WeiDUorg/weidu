@@ -9,6 +9,7 @@ Version 239:
   * WeiDU can resolve IDS symbols starting with a number (presently known cases).
   * WeiDU can parse MISSILE.IDS (BG2-flavour).
   * COPY_LARGE sets SOURCE_* and DEST_* variables.
+  * Add the functions (DIRECTORY|FILE|RES|EXT)_OF_FILESPEC.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
