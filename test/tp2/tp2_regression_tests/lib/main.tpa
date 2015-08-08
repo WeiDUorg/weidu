@@ -39,6 +39,7 @@ ACTION_FOR_EACH file IN
                 ~fun_eval~
                 ~add_music~
                 ~game_is~
+                ~x_of_filespec~
 BEGIN
   INCLUDE ~%MOD_FOLDER%/lib/tests/%file%.tpa~
   LAM run_tests

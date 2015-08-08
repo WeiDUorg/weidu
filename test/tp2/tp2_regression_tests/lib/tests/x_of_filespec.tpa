@@ -1,0 +1,219 @@
+DEFINE_ACTION_FUNCTION run
+  RET
+    success
+    message
+BEGIN
+  OUTER_SPRINT message "test_x_of_filespec"
+  PRINT "%message%"
+  ACTION_TRY
+    LAF test_directory_of_filespec END
+    LAF test_file_of_filespec END
+    LAF test_res_of_filespec END
+    LAF test_ext_of_filespec END
+    OUTER_SET success = 1
+  WITH
+    DEFAULT
+      OUTER_SET success = 0
+      OUTER_SPRINT message "WARNING: tests failed in test_x_of_filespec: %ERROR_MESSAGE%"
+  END
+END
+
+/* DIRECTORY_OF_FILESPEC */
+DEFINE_ACTION_FUNCTION test_directory_of_filespec BEGIN
+  ACTION_DEFINE_ASSOCIATIVE_ARRAY directory_tests BEGIN
+    ~test/spwi485.spl~ => ~test~
+    ~spwi485.spl~ => ~~
+    ~test/more/spwi485.spl~ => ~test/more~
+    ~test\more\spwi485.spl~ => ~test/more~
+  END
+  ACTION_PHP_EACH directory_tests AS input => expected BEGIN
+    LAF test_directory_of_filespec_action STR_VAR input expected END
+    LAF test_directory_of_filespec_patch STR_VAR input expected END
+  END
+END
+
+/* FILE_OF_FILESPEC */
+DEFINE_ACTION_FUNCTION test_file_of_filespec BEGIN
+  ACTION_DEFINE_ASSOCIATIVE_ARRAY file_tests BEGIN
+    ~test/spwi485.spl~ => ~spwi485.spl~
+    ~test/more/spwi485.spl~ => ~spwi485.spl~
+    ~/spwi485.spl~ => ~spwi485.spl~
+    ~./spwi485.spl~ => ~spwi485.spl~
+    ~test\spwi485.spl~ => ~spwi485.spl~
+  END
+  ACTION_PHP_EACH file_tests AS input => expected BEGIN
+    LAF test_file_of_filespec_action STR_VAR input expected END
+    LAF test_file_of_filespec_patch STR_VAR input expected END
+  END
+END
+
+/* RES_OF_FILESPEC */
+DEFINE_ACTION_FUNCTION test_res_of_filespec BEGIN
+  ACTION_DEFINE_ASSOCIATIVE_ARRAY res_tests BEGIN
+    ~spwi485.spl~ => ~spwi485~
+    ~test/spwi485.spl~ => ~spwi485~
+    ~test\spwi485.spl~ =>~spwi485~
+    ~test/more/spwi485.spl~ => ~spwi485~
+    ~./spwi485.spl~ => ~spwi485~
+  END
+  ACTION_PHP_EACH res_tests AS input => expected BEGIN
+    LAF test_res_of_filespec_action STR_VAR input expected END
+    LAF test_res_of_filespec_patch STR_VAR input expected END
+  END
+END
+
+/* EXT_OF_FILESPEC */
+DEFINE_ACTION_FUNCTION test_ext_of_filespec BEGIN
+  ACTION_DEFINE_ASSOCIATIVE_ARRAY ext_tests BEGIN
+    ~spwi485.spl~ => ~spl~
+    ~test/spwi485.spl~ => ~spl~
+  END
+  ACTION_PHP_EACH ext_tests AS input => expected BEGIN
+    LAF test_ext_of_filespec_action STR_VAR input expected END
+    LAF test_ext_of_filespec_patch STR_VAR input expected END
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_directory_of_filespec_action
+  STR_VAR
+    input = "foo"
+    expected = "absolutely not expected"
+    directory = "bar"
+BEGIN
+  LAF DIRECTORY_OF_FILESPEC
+    STR_VAR
+      filespec = EVAL ~%input%~
+    RET
+      directory
+  END
+  ACTION_IF "%expected%" STR_CMP "%directory%" BEGIN
+    FAIL "test_directory_of_filespec failed to get directory: %expected% from input: %input%; got: %directory%"
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_directory_of_filespec_patch
+  STR_VAR
+    input = "foo"
+    expected = "absolutely not expected"
+    directory = "bar"
+BEGIN
+  OUTER_INNER_PATCH 0 BEGIN
+    LPF DIRECTORY_OF_FILESPEC
+      STR_VAR
+        filespec = EVAL "%input%"
+      RET
+        directory
+    END
+    PATCH_IF "%expected%" STR_CMP "%directory%" BEGIN
+      PATCH_FAIL "test_directory_of_filespec patch function failed to reproduce expected: %expected% from input: %input%; got %directory%"
+    END
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_file_of_filespec_action
+  STR_VAR
+    input = "foo"
+    expected = "absolutely not expected"
+    file = "bar"
+BEGIN
+  LAF FILE_OF_FILESPEC
+    STR_VAR
+      filespec = EVAL ~%input%~
+    RET
+      file
+  END
+  ACTION_IF "%expected%" STR_CMP "%file%" BEGIN
+    FAIL "test_file_of_filespec failed to get file: %expected% from input: %input%; got %file%"
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_file_of_filespec_patch
+  STR_VAR
+    input = "foo"
+    expected = "absolutely not expected"
+    file = "bar"
+BEGIN
+  OUTER_INNER_PATCH 0 BEGIN
+    LPF FILE_OF_FILESPEC
+      STR_VAR
+        filespec = EVAL "%input%"
+      RET
+        file
+    END
+    PATCH_IF "%expected%" STR_CMP "%file%" BEGIN
+      PATCH_FAIL "test_file_of_filespec patch function failed to reproduce expected: %expected% from input: %input%; got %file%"
+    END
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_res_of_filespec_action
+  STR_VAR
+    input = "foo"
+    expected = "absolutely not expected"
+    res = "bar"
+BEGIN
+  LAF RES_OF_FILESPEC
+    STR_VAR
+      filespec = EVAL "%input%"
+    RET
+      res
+  END
+  ACTION_IF "%expected%" STR_CMP "%res%" BEGIN
+    FAIL "test_res_of_filespec failed to get res: %expected% from input: %input%; got %res%"
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_res_of_filespec_patch
+  STR_VAR
+    input = "foo"
+    expected = "absolutely not expected"
+    res = "bar"
+BEGIN
+  OUTER_INNER_PATCH 0 BEGIN
+    LPF RES_OF_FILESPEC
+      STR_VAR
+        filespec = EVAL "%input%"
+      RET
+        res
+    END
+    PATCH_IF "%expected%" STR_CMP "%res%" BEGIN
+      PATCH_FAIL "test_res_of_filespec patch function failed to reproduce expected: %expected% from input %input%; got %res%"
+    END
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_ext_of_filespec_action
+  STR_VAR
+    input = "foo"
+    expected = "absolutely not expected"
+    ext = "bar"
+BEGIN
+  LAF EXT_OF_FILESPEC
+    STR_VAR
+      filespec = EVAL "%input%"
+    RET
+      ext
+  END
+  ACTION_IF "%expected%" STR_CMP "%ext%" BEGIN
+    FAIL "test_ext_of_filespec failed to get ext: %expected% from %input%; got %ext%"
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_ext_of_filespec_patch
+  STR_VAR
+    input = "foo"
+    expected = "absolutely not expected"
+    ext = "bar"
+BEGIN
+  OUTER_INNER_PATCH 0 BEGIN
+    LPF EXT_OF_FILESPEC
+      STR_VAR
+        filespec = EVAL "%input%"
+      RET
+        ext
+    END
+    PATCH_IF "%expected%" STR_CMP "%ext%" BEGIN
+      PATCH_FAIL "test_ext_of_filespec patch function failed to reproduce expected: %expected% from input: %input%; got %ext%"
+    END
+  END
+END
