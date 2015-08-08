@@ -32,7 +32,7 @@ DEFINE_ACTION_FUNCTION test_game_is BEGIN
   ACTION_REINCLUDE ".../fl-inlined/regression/game_is.tpa"
 
   ACTION_IF !this_ran BEGIN
-    FAIL ~test_game_is failed to rut its tests~
+    FAIL ~test_game_is failed to run its tests~
   END
 END
 
