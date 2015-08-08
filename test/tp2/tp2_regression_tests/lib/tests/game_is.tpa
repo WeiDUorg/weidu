@@ -42,12 +42,13 @@ DEFINE_ACTION_FUNCTION run
     message
 BEGIN
   OUTER_SPRINT message "test_game_is"
+  PRINT "%message%"
   ACTION_TRY
     LAF test_game_is END
     OUTER_SET success = 1
   WITH
     DEFAULT
       OUTER_SET success = 0
-      OUTER_SPRINT message "WARNING: tests failed in test_game_is: %ERROR_MESSAGE%"
+      OUTER_SPRINT message "tests failed in test_game_is: %ERROR_MESSAGE%"
   END
 END

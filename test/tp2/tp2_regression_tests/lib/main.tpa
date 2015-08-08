@@ -12,9 +12,9 @@ DEFINE_ACTION_FUNCTION handle_results
     passed
 BEGIN
   ACTION_IF !success AND stop_on_errors BEGIN
-    FAIL "%message%"
+    FAIL "ERROR: %message%"
   END ELSE ACTION_IF !success BEGIN
-    WARN "%message%"
+    WARN "SUPPRESSED ERROR: %message%"
     OUTER_SET ++warnings
   END ELSE ACTION_IF success BEGIN
     OUTER_SET ++passed

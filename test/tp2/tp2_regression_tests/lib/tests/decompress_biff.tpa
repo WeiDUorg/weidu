@@ -39,12 +39,13 @@ DEFINE_ACTION_FUNCTION run
     message
 BEGIN
   OUTER_SPRINT message "test_decomp_biff"
+  PRINT "%message%"
   ACTION_TRY
     LAF test_decomp_biff END
     OUTER_SET success = 1
   WITH
     DEFAULT
       OUTER_SET success = 0
-      OUTER_SPRINT message = "WARNING: tests failed in test_decomp_biff: %ERROR_MESSAGE%"
+      OUTER_SPRINT message = "tests failed in test_decomp_biff: %ERROR_MESSAGE%"
   END
 END

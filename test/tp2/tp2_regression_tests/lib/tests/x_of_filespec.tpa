@@ -14,7 +14,7 @@ BEGIN
   WITH
     DEFAULT
       OUTER_SET success = 0
-      OUTER_SPRINT message "WARNING: tests failed in test_x_of_filespec: %ERROR_MESSAGE%"
+      OUTER_SPRINT message "tests failed in test_x_of_filespec: %ERROR_MESSAGE%"
   END
 END
 

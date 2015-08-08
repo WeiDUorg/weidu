@@ -68,12 +68,13 @@ DEFINE_ACTION_FUNCTION run
     message
 BEGIN
   OUTER_SPRINT message "test_fun_eval"
+  PRINT "%message%"
   ACTION_TRY
     LAF test_fun_eval END
     OUTER_SET success = 1
   WITH
     DEFAULT
       OUTER_SET success = 0
-      OUTER_SPRINT message "WARNING: tests failed in fun_eval: %ERROR_MESSAGE%"
+      OUTER_SPRINT message "tests failed in fun_eval: %ERROR_MESSAGE%"
   END
 END
