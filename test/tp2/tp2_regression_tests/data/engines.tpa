@@ -10,4 +10,5 @@ ACTION_DEFINE_ARRAY engines BEGIN
   iwd2
   bgee
   bg2ee
+  iwdee
 END
