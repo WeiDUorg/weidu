@@ -946,7 +946,8 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
 	-> FILE_MD5 e1:Patch_String_Right e2:Patch_String_Right [ Tp.Pred_File_MD5(e1,e2) ]
 	-> FILE_EXISTS_IN_GAME e1:Patch_String_Right [ Tp.Pred_File_Exists_In_Game e1 ]
 	-> FILE_SIZE e1:Patch_String_Right e2:STRING [ Tp.Pred_File_Size(e1,my_int_of_string e2) ]
-	-> FILE_CONTAINS e1:Patch_String_Right e2:Patch_String_Right
+        -> SIZE_OF_FILE e1:Patch_String_Right [ Tp.PE_SizeOfFile(e1) ]
+        -> FILE_CONTAINS e1:Patch_String_Right e2:Patch_String_Right
 			[ Tp.Pred_File_Contains(e1,e2) ]
 	-> e1:Patch_Exp PLUS e2:Patch_Exp      { Tp.PE_Add(e1,e2) }
 	-> e1:Patch_Exp MINUS e2:Patch_Exp      { Tp.PE_Sub(e1,e2) }

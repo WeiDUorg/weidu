@@ -14,6 +14,7 @@ let rec pe_to_str pe = "(" ^ (match pe with
 | Pred_File_Exists_In_Game(s) -> Printf.sprintf "FILE_EXISTS_IN_GAME %s"
       (pe_str_str s)
 | Pred_File_Size(s,i) -> Printf.sprintf "FILE_SIZE %s %d" (pe_str_str s) i
+| PE_SizeOfFile(file) -> Printf.sprintf "SIZE_OF_FILE %s" (pe_str_str file)
 | Pred_File_Contains(s,i) -> Printf.sprintf "FILE_CONTAINS %s %s"
       (pe_str_str s) (pe_str_str i)
 | Pred_File_Is_In_Compressed_Bif(a) ->

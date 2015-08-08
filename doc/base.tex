@@ -5332,6 +5332,12 @@ or & \DEFINE{FILE!SIZE} fileName fileSize & Evaluates to 1 if the
 size of the file \t{fileName} is exactly \t{fileSize}. Evaluates to 0
 otherwise. \\
 
+or & \DEFINE{SIZE!OF!FILE} fileName &
+Returns the size of fileName or -1 if the file does not exist. Variables in
+fileName are evaluated. fileName can be a file on the local file system or an
+inlined file.
+\\
+
 or & \t{\%}\ttref{variable}\t{\%}   &
     The value of the \ttref{variable} is used. \\
 

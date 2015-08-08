@@ -499,6 +499,7 @@ and tp_patchexp =
   | PE_IsSilent
   | PE_TraEntryExists of tp_pe_string * (tp_pe_string list)
   | PE_Resolve_Str_Ref of Dlg.tlk_string
+  | PE_SizeOfFile of tp_pe_string
 
   | Pred_File_MD5 of tp_pe_string * tp_pe_string
   | Pred_File_Exists of tp_pe_string

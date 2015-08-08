@@ -499,7 +499,14 @@ let rec eval_pe buff game p =
 	  | _ -> log_and_print "ERROR: cannot RESOLVE_STR_REF\n" ; failwith "resolve"
 	in
     Int32.of_int new_index	
-  
+
+  | PE_SizeOfFile(file) ->
+      let file = Arch.backslash_to_slash (Var.get_string (eval_pe_str file)) in
+      if Hashtbl.mem inlined_files file then
+        Int32.of_int (String.length (Hashtbl.find inlined_files file))
+      else
+        Int32.of_int (file_size file) ;
+
   | PE_StateWhichSays(lse,traref,file) -> begin
       let lookforit game lse lst =
         let rec lookforit game lse lst =
