@@ -35,16 +35,14 @@ DEFINE_ACTION_MACRO run_tests BEGIN
   OUTER_SET ++tests
 END
 
-
-INCLUDE ~%MOD_FOLDER%/lib/tests/fun_eval.tpa~
-LAM run_tests
-
-INCLUDE ~%MOD_FOLDER%/lib/tests/add_music.tpa~
-LAM run_tests
-
-INCLUDE ~%MOD_FOLDER%/lib/tests/game_is.tpa~
-LAM run_tests
-
+ACTION_FOR_EACH file IN
+                ~fun_eval~
+                ~add_music~
+                ~game_is~
+BEGIN
+  INCLUDE ~%MOD_FOLDER%/lib/tests/%file%.tpa~
+  LAM run_tests
+END
 
 INCLUDE ~%MOD_FOLDER%/lib/get_runtime_info.tpa~
 LAF get_runtime_info RET game engine END
