@@ -940,6 +940,7 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
 	-> FILE_CONTAINS_EVALUATED LPAREN e1:Patch_String_Right e2:Patch_String_Right RPAREN
 			[ Tp.PE_FileContainsEvaluated(e1,e2) ]
 	-> FILE_EXISTS e1:Patch_String_Right [ Tp.Pred_File_Exists e1 ]
+        -> DIRECTORY_EXISTS e1:Patch_String_Right [Tp.Pred_Directory_Exists e1 ]
 	-> BIFF_IS_COMPRESSED e1:Patch_String_Right [ Tp.Pred_Biff_Is_Compressed e1 ]
 	-> FILE_IS_IN_COMPRESSED_BIF e1:Patch_String_Right
 			[ Tp.Pred_File_Is_In_Compressed_Bif e1 ]

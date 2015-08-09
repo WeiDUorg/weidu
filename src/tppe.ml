@@ -263,6 +263,11 @@ let rec eval_pe buff game p =
       let filename = (Var.get_string f) in
       bigg_file_exists filename game.Load.key  )
 
+  | Pred_Directory_Exists(dir) -> if_true (
+      let dir = Arch.backslash_to_slash (Var.get_string (eval_pe_str dir)) in
+      (* Windows says foo/bar/ does not exist, so we make that foo/bar *)
+      is_directory (Str.global_replace (Str.regexp "/$") "" dir))
+
   | Pred_File_Is_In_Compressed_Bif(f) -> if_true (
       let f = eval_pe_str f in
       let filename = (Var.get_string f) in

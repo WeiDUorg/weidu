@@ -11,6 +11,7 @@ Version 239:
   * COPY_LARGE sets SOURCE_* and DEST_* variables.
   * Add the functions (DIRECTORY|FILE|RES|EXT)_OF_FILESPEC.
   * Add SIZE_OF_FILE.
+  * Add DIRECTORY_EXISTS.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.

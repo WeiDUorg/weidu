@@ -503,6 +503,7 @@ and tp_patchexp =
 
   | Pred_File_MD5 of tp_pe_string * tp_pe_string
   | Pred_File_Exists of tp_pe_string
+  | Pred_Directory_Exists of tp_pe_string
   | Pred_File_Is_In_Compressed_Bif of tp_pe_string
   | Pred_Biff_Is_Compressed of tp_pe_string
   | Pred_File_Exists_In_Game of tp_pe_string

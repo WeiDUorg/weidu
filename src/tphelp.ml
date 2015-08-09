@@ -11,6 +11,7 @@ open Tp
 let rec pe_to_str pe = "(" ^ (match pe with
 | Pred_File_MD5(s,_) -> Printf.sprintf "FILE_MD5 %s" (pe_str_str s)
 | Pred_File_Exists(s) -> Printf.sprintf "FILE_EXISTS %s" (pe_str_str s)
+| Pred_Directory_Exists(d) -> Printf.sprintf "DIRECTORY_EXISTS %s" (pe_str_str d)
 | Pred_File_Exists_In_Game(s) -> Printf.sprintf "FILE_EXISTS_IN_GAME %s"
       (pe_str_str s)
 | Pred_File_Size(s,i) -> Printf.sprintf "FILE_SIZE %s %d" (pe_str_str s) i
