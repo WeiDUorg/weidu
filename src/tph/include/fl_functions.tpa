@@ -697,7 +697,6 @@ BEGIN
     WARN ~WARNING: DIRECTORY_OF_FILESPEC got a filespec of 0 length~
     OUTER_SPRINT directory ""
   END ELSE ACTION_IF NOT (slash > 0) BEGIN
-    WARN ~WARNING: DIRECTORY_OF_FILESPEC cannot find a directory in filespec %filespec%~
     OUTER_SPRINT directory ""
   END
 END
@@ -781,7 +780,6 @@ BEGIN
     WARN ~WARNING: RES_OF_FILESPEC got a filespec of 0 length~
     OUTER_SPRINT res ""
   END ELSE ACTION_IF (slash + 1) = length BEGIN
-    WARN ~WARNING: RES_OF_FILESPEC cannot find a resource name in filespec %filespec%~
     OUTER_SPRINT res ""
   END
 END
@@ -797,10 +795,8 @@ BEGIN
   OUTER_SET dot = RINDEX ("\." "%filespec%")
   ACTION_IF length > 0 AND (slash + 1) < length BEGIN
     ACTION_IF dot < 0 BEGIN // extensionless file
-      WARN ~WARNING: EXT_OF_FILESPEC cannot find a file extension in filespec %filespce%~
       OUTER_SPRINT ext ""
     END ELSE ACTION_IF dot = 0 OR (slash + 1) = dot BEGIN // dotfile
-      WARN ~WARNING: EXT_OF_FILESPEC cannot find a file extension in filespec %filespec%~
       OUTER_SPRINT ext ""
     END ELSE ACTION_IF dot > 0 AND dot > slash BEGIN // regular file
       LAF SUBSTRING
@@ -817,7 +813,6 @@ BEGIN
     WARN ~WARNING: EXT_OF_FILESPEC got a filespec of 0 length~
     OUTER_SPRINT ext ""
   END ELSE ACTION_IF (slash + 1) = length BEGIN
-    WARN ~WARNING: EXT_OF_FILESPEC cannot find a file extension in filespec %filespec%~
     OUTER_SPRINT ext ""
   END
 END
