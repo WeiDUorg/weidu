@@ -25,6 +25,13 @@ DEFINE_ACTION_FUNCTION test_directory_of_filespec BEGIN
     ~spwi485.spl~ => ~~
     ~test/more/spwi485.spl~ => ~test/more~
     ~test\more\spwi485.spl~ => ~test/more~
+    ~test/foobar~ => ~test~
+    ~test/more/~ => ~test/more~
+    ~test/foo.bar/~ => ~test/foo.bar~
+    ~.test/foobar~ => ~.test~
+    ~test/.more/foobar~ => ~test/.more~
+    ~test/.foobar~ => ~test~
+    ~.foobar~ => ~~
   END
   ACTION_PHP_EACH directory_tests AS input => expected BEGIN
     LAF test_directory_of_filespec_action STR_VAR input expected END
@@ -40,6 +47,13 @@ DEFINE_ACTION_FUNCTION test_file_of_filespec BEGIN
     ~/spwi485.spl~ => ~spwi485.spl~
     ~./spwi485.spl~ => ~spwi485.spl~
     ~test\spwi485.spl~ => ~spwi485.spl~
+    ~test/foobar~ => ~foobar~
+    ~test/more/~ => ~~
+    ~test/foo.bar/~ => ~~
+    ~.test/foobar~ => ~foobar~
+    ~test/.more/foobar~ => ~foobar~
+    ~test/.foobar~ => ~.foobar~
+    ~.foobar~ => ~.foobar~
   END
   ACTION_PHP_EACH file_tests AS input => expected BEGIN
     LAF test_file_of_filespec_action STR_VAR input expected END
@@ -52,9 +66,16 @@ DEFINE_ACTION_FUNCTION test_res_of_filespec BEGIN
   ACTION_DEFINE_ASSOCIATIVE_ARRAY res_tests BEGIN
     ~spwi485.spl~ => ~spwi485~
     ~test/spwi485.spl~ => ~spwi485~
-    ~test\spwi485.spl~ =>~spwi485~
+    ~test\spwi485.spl~ => ~spwi485~
     ~test/more/spwi485.spl~ => ~spwi485~
     ~./spwi485.spl~ => ~spwi485~
+    ~test/foobar~ => ~foobar~
+    ~foobar~ => ~foobar~
+    ~./foobar~ => ~foobar~
+    ~test/more/~ => ~~
+    ~test/foo.bar/~ => ~~
+    ~test/.foobar~ => ~.foobar~
+    ~.foobar~ => ~.foobar~
   END
   ACTION_PHP_EACH res_tests AS input => expected BEGIN
     LAF test_res_of_filespec_action STR_VAR input expected END
@@ -67,6 +88,11 @@ DEFINE_ACTION_FUNCTION test_ext_of_filespec BEGIN
   ACTION_DEFINE_ASSOCIATIVE_ARRAY ext_tests BEGIN
     ~spwi485.spl~ => ~spl~
     ~test/spwi485.spl~ => ~spl~
+    ~test/foobar~ => ~~
+    ~test/more/~ => ~~
+    ~test/foo.bar/~ => ~~
+    ~test/.foobar~ => ~~
+    ~.foobar~ => ~~
   END
   ACTION_PHP_EACH ext_tests AS input => expected BEGIN
     LAF test_ext_of_filespec_action STR_VAR input expected END
