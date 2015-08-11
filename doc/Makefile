@@ -14,7 +14,7 @@ all: ../README-WeiDU.html clean
 ../README-WeiDU.html: base.tex
 	perl -p -e "s/([A-Z2*])!/\1_/g" base.tex > README.tex
 		(hevea article.hva fancysection.hva -fix -O README.tex) 2>&1 | grep -v "occuring outside math mode"
-	cat README.html | sed -e "s/&ndash;/--/g" -e's/&#X2013;/--/g' > README-WeiDU.html
+	cat README.html | sed -e "s/&ndash;/--/g" -e's/&#X2013;/--/g' -e 's/–/--/g' > README-WeiDU.html
 	perl -pi -e "s/^a:.+//g" README-WeiDU.html # HeVeA colors a elements green; we don't want that
 	mv README-WeiDU.html ..
 
