@@ -34,55 +34,61 @@ type trans_opt_type =
 let extra_actions = ref []
 
 let verify_trigger_list s =
-  let con = the_context () in
-  let filename = (Printf.sprintf "trigger list near line %d, column %d of %s"
-		    con.line con.col con.filename) in
-  let lexbuf = lex_init_from_internal_string filename s in
-  let lexbuf = Lexing.from_string (String.copy s) in
-  let result = try
-    let res = Bafparser.trigger_list Baflexer.initial lexbuf in
-    let buff = Buffer.create (String.length s) in
-    Bcs.print_script_text (the_game()) (Bcs.Save_BCS_Buffer(buff))
-      (Bcs.BCS_Print_TriggerList(res,true)) false None ;
-    let result = Buffer.contents buff in
+  if not !Dc.doing_traify then begin
+    let con = the_context () in
+    let filename = (Printf.sprintf "trigger list near line %d, column %d of %s"
+		      con.line con.col con.filename) in
+    let lexbuf = lex_init_from_internal_string filename s in
+    let lexbuf = Lexing.from_string (String.copy s) in
+    let result = try
+      let res = Bafparser.trigger_list Baflexer.initial lexbuf in
+      let buff = Buffer.create (String.length s) in
+      Bcs.print_script_text (the_game()) (Bcs.Save_BCS_Buffer(buff))
+        (Bcs.BCS_Print_TriggerList(res,true)) false None ;
+      let result = Buffer.contents buff in
+      result
+    with e ->
+      log_and_print "WARNING: cannot verify trigger ~%s~: %s\n" s
+        (printexc_to_string e) ;
+      (try assert false with Assert_failure(file,line,col) -> set_errors file line);
+      s
+    in
+    pop_context () ;
     result
-  with e ->
-    log_and_print "WARNING: cannot verify trigger ~%s~: %s\n" s
-      (printexc_to_string e) ;
-    (try assert false with Assert_failure(file,line,col) -> set_errors file line);
+  end else
     s
-  in 
-  pop_context () ;
-  result  
 
 let verify_action_list s =
-  let con = the_context () in 
-  let filename = (Printf.sprintf "action list near line %d, column %d of %s"
-		    con.line con.col con.filename) in 
-  let lexbuf = lex_init_from_internal_string filename s in
-  let result = try 
-    let res = Bafparser.action_list Baflexer.initial lexbuf in
-    let buff = Buffer.create (String.length s) in
-    Bcs.print_script_text (the_game()) (Bcs.Save_BCS_Buffer(buff))
-      (Bcs.BCS_Print_ActionList(res)) false None ;
-    Buffer.contents buff
-  with e ->
-    log_and_print "WARNING: cannot verify action ~%s~: %s\n" s
-      (printexc_to_string e) ;
-    (try assert false with Assert_failure(file,line,col) -> set_errors file line);
+  if not !Dc.doing_traify then begin
+    let con = the_context () in
+    let filename = (Printf.sprintf "action list near line %d, column %d of %s"
+		      con.line con.col con.filename) in
+    let lexbuf = lex_init_from_internal_string filename s in
+    let result = try
+      let res = Bafparser.action_list Baflexer.initial lexbuf in
+      let buff = Buffer.create (String.length s) in
+      Bcs.print_script_text (the_game()) (Bcs.Save_BCS_Buffer(buff))
+        (Bcs.BCS_Print_ActionList(res)) false None ;
+      Buffer.contents buff
+    with e ->
+      log_and_print "WARNING: cannot verify action ~%s~: %s\n" s
+        (printexc_to_string e) ;
+      (try assert false with Assert_failure(file,line,col) -> set_errors file line);
+      s
+    in
+    pop_context () ;
+    (*
+      (if result = "" then begin
+      let warn = con.warn_only in
+      con.warn_only <- true ;
+      (try parse_error "Empty Action (may confuse some utilities, like NI)"
+      with _ -> () ) ;
+      con.warn_only <- warn
+      end) ;
+     *)
+    result
+  end else
     s
-  in
-  pop_context () ;
-  (*
-    (if result = "" then begin
-    let warn = con.warn_only in
-    con.warn_only <- true ;
-    (try parse_error "Empty Action (may confuse some utilities, like NI)"
-    with _ -> () ) ;
-    con.warn_only <- warn
-    end) ;
-   *)
-  result
 
     %}
 

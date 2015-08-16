@@ -12,6 +12,7 @@ Version 239:
   * Add the functions (DIRECTORY|FILE|RES|EXT)_OF_FILESPEC.
   * Add SIZE_OF_FILE.
   * Add DIRECTORY_EXISTS.
+  * WeiDU does not verify trigger or action lists during --traify.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
