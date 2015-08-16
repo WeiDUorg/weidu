@@ -312,6 +312,12 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
           copy_large_file backup_filename override_filename "restoring a backup" ;
           my_unlink backup_filename
         in
+        let ensure_dir dirname =
+          if not (is_directory dirname) then begin
+            log_or_print "  Creating directory [%s]\n" dirname ;
+            recursive_mkdir dirname 0o777
+          end
+        in
         let inchan = Case_ins.perv_open_in_bin u_filename in
         try
           while true do
@@ -341,12 +347,14 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
             check_pre_hooks game tp2 i interactive override_filename;
             my_unlink override_filename;
             try
-              if !has_mappings && Hashtbl.mem mappings_list override_filename then
+              if !has_mappings && Hashtbl.mem mappings_list override_filename then begin
+                ensure_dir (Case_ins.filename_dirname override_filename) ;
                 restore (Hashtbl.find mappings_list override_filename) override_filename
-              else begin
+              end else begin
                 let base = Case_ins.filename_basename override_filename in
                 let backup_filename = d ^ "/" ^ base in
                 let backup_filename1 = d ^ "/" ^ (Str.global_replace (Str.regexp "[\\/]") "." override_filename) in
+                ensure_dir (Case_ins.filename_dirname override_filename) ;
                 if file_exists backup_filename then
                   restore backup_filename override_filename
                 else if file_exists backup_filename1 then
