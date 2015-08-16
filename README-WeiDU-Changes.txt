@@ -13,6 +13,7 @@ Version 239:
   * Add SIZE_OF_FILE.
   * Add DIRECTORY_EXISTS.
   * WeiDU does not verify trigger or action lists during --traify.
+  * DELETE can recursively delete directories and everything in them.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.

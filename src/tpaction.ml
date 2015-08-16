@@ -163,12 +163,32 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           run_patch (TP_PatchGetStrRef(a,b,c,d))
 
       | TP_Delete(filelist, do_backup) ->
-          List.iter (fun file ->
-            let file = Var.get_string(eval_pe_str file) in
-            if do_backup then begin
-              backup_if_extant file;
-            end;
-            Sys.remove file;) filelist
+          let directories = ref [] in
+          let rec delete list =
+            match list with
+            | [] -> ()
+            | head :: tail -> begin
+                if file_exists head && not (is_directory head) then begin
+                  if do_backup then
+                    backup_if_extant head ;
+                  Sys.remove head ;
+                  delete tail
+                end else if is_directory head then begin
+                  let head = Str.global_replace (Str.regexp "/$") ""
+                      (Arch.backslash_to_slash head) in
+                  let contents = List.map (fun x ->
+                    String.concat "/" [head;x]) (Array.to_list
+                                                   (Case_ins.sys_readdir head)) in
+                  directories := head :: !directories ;
+                  delete (List.append contents tail)
+                end else begin
+                  log_or_print "DELETE [%s]: does not exist" head ;
+                  delete tail
+                end
+            end
+          in
+          delete (List.map (fun x -> Var.get_string (eval_pe_str x)) filelist) ;
+          List.iter (fun dir -> Case_ins.unix_rmdir dir) !directories
 
       | TP_Move(filelist, do_backup) ->
           let move src dst =

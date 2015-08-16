@@ -3085,7 +3085,9 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
        \\
 
   or & \DEFINE{DELETE} \ttref{optNoBackup} file ... &
-        Removes one or more files from the file system.
+  Removes one or more files from the file system. If file is a
+  directory, it will be recursively deleted together with anything
+  it contains.
 
         \emph{Do not use without a real reason.}
        \\
