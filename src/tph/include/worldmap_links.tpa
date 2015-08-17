@@ -1,0 +1,203 @@
+DEFINE_PATCH_FUNCTION fl#WORLDMAP_LINKS#PATCH_LINK
+  INT_VAR
+    link_offset = 0
+    target_index = 0
+    distance_scale = 0
+    default_entry = 1
+    encounter_probability = 0
+  STR_VAR
+    entry = ""
+    random_area1 = ""
+    random_area2 = ""
+    random_area3 = ""
+    random_area4 = ""
+    random_area5 = ""
+BEGIN
+  PATCH_IF link_offset > 0 BEGIN
+    WRITE_LONG   link_offset target_index
+    WRITE_ASCIIE link_offset + 0x4  "%entry%" #32
+    WRITE_LONG   link_offset + 0x24 distance_scale
+    WRITE_LONG   link_offset + 0x28 default_entry
+    WRITE_ASCIIE link_offset + 0x2c "%random_area1%" #8
+    WRITE_ASCIIE link_offset + 0x34 "%random_area2%" #8
+    WRITE_ASCIIE link_offset + 0x3c "%random_area3%" #8
+    WRITE_ASCIIE link_offset + 0x44 "%random_area4%" #8
+    WRITE_ASCIIE link_offset + 0x4c "%random_area5%" #8
+    WRITE_LONG   link_offset + 0x54 encounter_probability
+  END
+END
+
+DEFINE_PATCH_FUNCTION fl#WORLDMAP_LINKS#GET_SOURCE_NODE
+  INT_VAR
+    default = "-1"
+  STR_VAR
+    from_node = ""
+  RET
+    source_node
+BEGIN
+  source_node = default
+  PATCH_MATCH "%from_node%" WITH
+    "north" "n" BEGIN source_node = 0 END
+    "east" "e" BEGIN source_node = 3 END
+    "south" "s" BEGIN source_node = 2 END
+    "west" "w" BEGIN source_node = 1 END
+    "" BEGIN source_node = default END
+    DEFAULT
+      PATCH_WARN "WARNING: ADD_WORLDMAP_LINKS got an illegal value for from_node (~%from_node%~); defaulting to all nodes"
+  END
+END
+
+DEFINE_PATCH_FUNCTION DELETE_WORLDMAP_LINKS
+  STR_VAR
+    from_area = ""
+    from_node = ""
+    to_area = ""
+BEGIN
+  fl#SOURCE_NODE_DEFAULT = "-1"
+  LPF fl#WORLDMAP_LINKS#GET_SOURCE_NODE
+    INT_VAR
+      default = fl#SOURCE_NODE_DEFAULT
+    STR_VAR
+      from_node
+    RET
+      source_node
+  END
+  READ_LONG 0x34 ao
+  READ_LONG 0x38 lo
+  links = 0
+  FOR (i = 0; i < LONG_AT 0x30; ++i) BEGIN
+    lao = ao + 0xf0 * i
+    READ_ASCII lao source_name
+    PATCH_FOR_EACH node IN 0 3 2 1 BEGIN
+      io = lao + 0x50 + 0x8 * node
+      no = lao + 0x54 + 0x8 * node
+      WRITE_LONG io links
+      READ_LONG no number
+      PATCH_IF "%source_name%" STRING_EQUAL_CASE "%from_area%" AND
+               (source_node = node OR source_node = fl#SOURCE_NODE_DEFAULT)
+      BEGIN
+        FOR (j = 0; j < number; ++j) BEGIN
+          llo = lo + 0xd8 * (links + j)
+          READ_ASCII ao + 0xf0 * (LONG_AT llo) target_name
+          PATCH_IF "%target_name%" STRING_EQUAL_CASE "%to_area%" BEGIN
+            DELETE_BYTES llo 0xd8
+            --number
+          END
+        END
+      END
+      WRITE_LONG no number
+      links += number
+    END
+  END
+  WRITE_LONG 0x3c links
+END
+
+DEFINE_PATCH_FUNCTION ADD_WORLDMAP_LINKS
+  INT_VAR
+    distance_scale = 0
+    default_entry = 1
+    encounter_probability = 0
+  STR_VAR
+    from_area = ""
+    from_node = ""
+    to_area = ""
+    entry = ""
+    random_area1 = ""
+    random_area2 = ""
+    random_area3 = ""
+    random_area4 = ""
+    random_area5 = ""
+BEGIN
+  fl#SOURCE_NODE_DEFAULT = "-1"
+  LPF fl#WORLDMAP_LINKS#GET_SOURCE_NODE
+    INT_VAR
+      default = fl#SOURCE_NODE_DEFAULT
+    STR_VAR
+      from_node
+    RET
+      source_node
+  END
+  READ_LONG 0x30 na
+  READ_LONG 0x34 ao
+  READ_LONG 0x38 lo
+  links = 0
+  FOR (i = 0; i < na; ++i) BEGIN
+    READ_ASCII ao + 0xf0 * i name
+    TO_UPPER name
+    SET $fl#ADD_WORLDMAP_LINKS#AREAS("%name%") = i
+  END
+  TO_UPPER from_area
+  TO_UPPER to_area
+  PATCH_IF VARIABLE_IS_SET $fl#ADD_WORLDMAP_LINKS#AREAS("%from_area%") AND
+           VARIABLE_IS_SET $fl#ADD_WORLDMAP_LINKS#AREAS("%to_area%")
+  BEGIN
+    FOR (i = 0; i < na; ++i) BEGIN
+      lao = ao + 0xf0 * i
+      READ_ASCII lao source_name
+      PATCH_FOR_EACH node IN 0 3 2 1 BEGIN
+        io = lao + 0x50 + 0x8 * node
+        no = lao + 0x54 + 0x8 * node
+        WRITE_LONG io links
+        READ_LONG no number
+        PATCH_IF "%source_name%" STRING_EQUAL_CASE "%from_area%" AND
+                 (source_node = node OR source_node = fl#SOURCE_NODE_DEFAULT)
+        BEGIN
+          exists = 0
+          FOR (j = 0; j < number; ++j) BEGIN
+            llo = lo + 0xd8 * (links + j)
+            READ_ASCII ao + 0xf0 * (LONG_AT llo) target_name
+            PATCH_IF "%target_name%" STRING_EQUAL_CASE "%to_area%" BEGIN
+              exists = llo
+            END
+          END
+          PATCH_IF exists = 0 BEGIN
+            llo = lo + 0xd8 * (links + number)
+            INSERT_BYTES llo 0xd8
+            LPF fl#WORLDMAP_LINKS#PATCH_LINK
+              INT_VAR
+                link_offset = llo
+                target_index = $fl#ADD_WORLDMAP_LINKS#AREAS("%to_area%")
+                distance_scale
+                default_entry
+                encounter_probability
+              STR_VAR
+                entry
+                random_area1
+                random_area2
+                random_area3
+                random_area4
+                random_area5
+            END
+            ++number
+          END ELSE BEGIN
+            LPF fl#WORLDMAP_LINKS#PATCH_LINK
+              INT_VAR
+                link_offset = exists
+                target_index = $fl#ADD_WORLDMAP_LINKS#AREAS("%to_area%")
+                distance_scale
+                default_entry
+                encounter_probability
+              STR_VAR
+                entry
+                random_area1
+                random_area2
+                random_area3
+                random_area4
+                random_area5
+            END
+          END
+        END
+        WRITE_LONG no number
+        links += number
+      END
+    END
+    WRITE_LONG 0x3c links
+  END ELSE BEGIN
+    PATCH_IF !VARIABLE_IS_SET $fl#ADD_WORLDMAP_LINKS#AREAS("%from_area%") BEGIN
+      PATCH_WARN "WARNING: links from %from_area% were not added because %from_area% does not exist in the worldmap"
+    END ELSE
+    PATCH_IF !VARIABLE_IS_SET $fl#ADD_WORLDMAP_LINKS#AREAS("%to_area%") BEGIN
+      PATCH_WARN "WARNING: links to %to_area% were not added because %to_area% does not exist in the worldmap"
+    END
+  END
+END

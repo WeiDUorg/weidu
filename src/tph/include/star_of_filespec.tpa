@@ -1,0 +1,208 @@
+DEFINE_ACTION_FUNCTION DIRECTORY_OF_FILESPEC
+  STR_VAR
+    filespec = ""
+  RET
+    directory
+BEGIN
+  OUTER_INNER_PATCH_SAVE filespec "%filespec%" BEGIN
+    REPLACE_TEXTUALLY EXACT_MATCH "\" "/"
+  END
+  OUTER_SET length = STRING_LENGTH "%filespec%"
+  OUTER_SET slash = RINDEX ("/" "%filespec%")
+  ACTION_IF length > 0 AND slash > 0 BEGIN
+    LAF SUBSTRING
+      INT_VAR
+        start = 0
+        length = slash
+      STR_VAR
+        string = EVAL "%filespec%"
+      RET
+        directory = substring
+    END
+  END ELSE ACTION_IF length = 0 BEGIN
+    WARN ~WARNING: DIRECTORY_OF_FILESPEC got a filespec of 0 length~
+    OUTER_SPRINT directory ""
+  END ELSE ACTION_IF NOT (slash > 0) BEGIN
+    OUTER_SPRINT directory ""
+  END
+END
+
+DEFINE_ACTION_FUNCTION FILE_OF_FILESPEC
+  STR_VAR
+    filespec = ""
+  RET
+    file
+BEGIN
+  OUTER_INNER_PATCH_SAVE filespec "%filespec%" BEGIN
+    REPLACE_TEXTUALLY EXACT_MATCH "\" "/"
+  END
+  OUTER_SET length = STRING_LENGTH "%filespec%"
+  OUTER_SET slash = RINDEX ("/" "%filespec%")
+  ACTION_IF length > 0 BEGIN
+    ACTION_IF slash >= 0 BEGIN
+      LAF SUBSTRING
+        INT_VAR
+          start = slash + 1
+          length = length - slash - 1
+        STR_VAR
+          string = EVAL "%filespec%"
+        RET
+          file = substring
+      END
+    END ELSE ACTION_IF slash < 0 BEGIN
+      OUTER_SPRINT file "%filespec%"
+    END
+  END ELSE BEGIN
+    WARN ~WARNING: FILE_OF_FILESPEC got a filespec of 0 length~
+    OUTER_SPRINT file ""
+  END
+END
+
+DEFINE_ACTION_FUNCTION RES_OF_FILESPEC
+  STR_VAR
+    filespec = ""
+  RET
+    res
+BEGIN
+  OUTER_INNER_PATCH_SAVE filespec "%filespec%" BEGIN
+    REPLACE_TEXTUALLY EXACT_MATCH "\" "/"
+  END
+  OUTER_SET length = STRING_LENGTH "%filespec%"
+  OUTER_SET slash = RINDEX ("/" "%filespec%")
+  OUTER_SET dot = RINDEX ("\." "%filespec%")
+  ACTION_IF length > 0 AND (slash + 1) < length BEGIN
+    ACTION_IF dot < 0 OR dot < slash BEGIN // extensionless file
+      LAF SUBSTRING
+        INT_VAR
+          start = slash + 1
+          length = length - slash - 1
+        STR_VAR
+          string = EVAL "%filespec%"
+        RET
+          res = substring
+      END
+    END ELSE ACTION_IF dot = 0 OR (slash + 1) = dot BEGIN // dotfile
+      LAF SUBSTRING
+        INT_VAR
+          start = slash + 1
+          length = length - slash - 1
+        STR_VAR
+          string = EVAL "%filespec%"
+        RET
+          res = substring
+      END
+    END ELSE ACTION_IF dot > 0 AND dot > slash BEGIN // regular file
+      LAF SUBSTRING
+        INT_VAR
+          start = slash + 1
+          length = dot - slash - 1
+        STR_VAR
+          string = EVAL "%filespec%"
+        RET
+          res = substring
+      END
+    END
+  END ELSE ACTION_IF length = 0 BEGIN
+    WARN ~WARNING: RES_OF_FILESPEC got a filespec of 0 length~
+    OUTER_SPRINT res ""
+  END ELSE ACTION_IF (slash + 1) = length BEGIN
+    OUTER_SPRINT res ""
+  END
+END
+
+DEFINE_ACTION_FUNCTION EXT_OF_FILESPEC
+  STR_VAR
+    filespec = ""
+  RET
+    ext
+BEGIN
+  OUTER_SET length = STRING_LENGTH "%filespec%"
+  OUTER_SET slash = RINDEX ("/" "%filespec%")
+  OUTER_SET dot = RINDEX ("\." "%filespec%")
+  ACTION_IF length > 0 AND (slash + 1) < length BEGIN
+    ACTION_IF dot < 0 BEGIN // extensionless file
+      OUTER_SPRINT ext ""
+    END ELSE ACTION_IF dot = 0 OR (slash + 1) = dot BEGIN // dotfile
+      OUTER_SPRINT ext ""
+    END ELSE ACTION_IF dot > 0 AND dot > slash BEGIN // regular file
+      LAF SUBSTRING
+        INT_VAR
+          start = dot + 1
+          length = length - dot - 1
+        STR_VAR
+          string = EVAL "%filespec%"
+        RET
+          ext = substring
+      END
+    END
+  END ELSE ACTION_IF length = 0 BEGIN
+    WARN ~WARNING: EXT_OF_FILESPEC got a filespec of 0 length~
+    OUTER_SPRINT ext ""
+  END ELSE ACTION_IF (slash + 1) = length BEGIN
+    OUTER_SPRINT ext ""
+  END
+END
+
+DEFINE_PATCH_FUNCTION DIRECTORY_OF_FILESPEC
+  STR_VAR
+    filespec = ""
+  RET
+    directory
+BEGIN
+  INNER_ACTION BEGIN
+    LAF DIRECTORY_OF_FILESPEC
+      STR_VAR
+        filespec
+      RET
+        directory
+    END
+  END
+END
+
+DEFINE_PATCH_FUNCTION FILE_OF_FILESPEC
+  STR_VAR
+    filespec = ""
+  RET
+    file
+BEGIN
+  INNER_ACTION BEGIN
+    LAF FILE_OF_FILESPEC
+      STR_VAR
+        filespec
+      RET
+        file
+    END
+  END
+END
+
+DEFINE_PATCH_FUNCTION RES_OF_FILESPEC
+  STR_VAR
+    filespec = ""
+  RET
+    res
+BEGIN
+  INNER_ACTION BEGIN
+    LAF RES_OF_FILESPEC
+      STR_VAR
+        filespec
+      RET
+        res
+    END
+  END
+END
+
+DEFINE_PATCH_FUNCTION EXT_OF_FILESPEC
+  STR_VAR
+    filespec = ""
+  RET
+    ext
+BEGIN
+  INNER_ACTION BEGIN
+    LAF EXT_OF_FILESPEC
+      STR_VAR
+        filespec
+      RET
+        ext
+    END
+  END
+END

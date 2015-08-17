@@ -1,0 +1,48 @@
+DEFINE_ACTION_FUNCTION HANDLE_TILESETS
+  STR_VAR
+    tiz_path = EVAL "%MOD_FOLDER%/tiz"
+    tisunpack_path = EVAL "%tiz_path%"
+    output_path = "override"
+BEGIN
+  ACTION_MATCH "%WEIDU_OS%" WITH
+    win32
+    BEGIN
+      OUTER_SPRINT tisunpack "tisunpack.exe"
+      OUTER_SPRINT quote ~"~
+    END
+
+    osx unix
+    BEGIN
+      OUTER_SPRINT tisunpack "tisunpack"
+      ACTION_IF FILE_EXISTS ~%tisunpack_path%/%WEIDU_OS%/%tisunpack%~ BEGIN
+        AT_NOW ~chmod +x '%tisunpack_path%/%WEIDU_OS%/%tisunpack%'~
+      END
+      OUTER_SPRINT quote ~'~
+    END
+    DEFAULT
+  END
+  ACTION_IF FILE_EXISTS ~%tisunpack_path%/%WEIDU_OS%/%tisunpack%~ BEGIN
+    ACTION_BASH_FOR ~%tiz_path%~ ~.+\.tiz$~ BEGIN
+      OUTER_SPRINT tisfile ~%output_path%/%BASH_FOR_RES%.tis~
+      COPY ~.../fl#inlined/null.file~ ~%tisfile%~
+      AT_NOW ~%tisunpack_path%/%WEIDU_OS%/%tisunpack% -s -f -o %quote%%tisfile%%quote% %quote%%BASH_FOR_FILESPEC%%quote%~
+    END
+  END ELSE ACTION_IF "%WEIDU_OS%" STRING_EQUAL_CASE "unix" BEGIN // Support tisunpack being located on the system path
+    OUTER_SET installed = 1
+    ACTION_BASH_FOR ~%tiz_path%~ ~.+\.tiz$~ BEGIN
+      OUTER_SPRINT tisfile ~%output_path%/%BASH_FOR_RES%.tis~
+      COPY ~.../fl#inlined/null.file~ ~%tisfile%~
+      AT_NOW ~tisunpack -s -f -o '%tisfile%' '%BASH_FOR_FILESPEC%'~
+      ACTION_IF !FILE_EXISTS ~%tisfile%~ OR
+                FILE_SIZE ~%tisfile%~ 0
+      BEGIN
+        OUTER_SET installed = 0
+      END
+    END
+    ACTION_IF !installed BEGIN
+      FAIL ~ERROR: tilesets were not installed because TIS files were not found. Are you sure you have tisunpack installed?~
+    END
+  END ELSE BEGIN
+    FAIL ~ERROR: tilesets were not installed because %tisunpack% was not found in %tisunpack_path%/%WEIDU_OS%~
+  END
+END
