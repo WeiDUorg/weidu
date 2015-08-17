@@ -843,3 +843,13 @@ let write_bgee_lang_dir game_path dir =
     ignore (close_out chan)
   with e ->
     log_and_print "ERROR: unable to save weidu.conf because: %s\n" (printexc_to_string e)
+
+let deduplicate list =
+  let table = Hashtbl.create (List.length list) in
+  List.filter (fun x ->
+    if Hashtbl.mem table x then
+      false
+    else begin
+      Hashtbl.add table x true ;
+      true
+    end) list

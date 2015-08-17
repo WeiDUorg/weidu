@@ -720,17 +720,9 @@ let make_list_for_traify traify_num =
   let local_strings = (match !local_string_ht with
   | Some (l) -> l
   | None -> failwith "Internal error: no local strings for traify") in
-  let ls_table = Hashtbl.create (List.length local_strings) in
-  let uniques = List.filter (fun ls ->
-    if Hashtbl.mem ls_table ls then
-      false
-    else begin
-      Hashtbl.add ls_table ls true ;
-      true
-    end) (List.rev local_strings) in
   let counter = ref !traify_num in
   let enumerated = List.map (fun ts ->
     let tuple = (!counter, (lse_of_ts ts)) in
-    counter := !counter + 1 ;
-    tuple) uniques in
+    incr counter ;
+    tuple) (deduplicate (List.rev local_strings)) in
   sort_list_for_traify enumerated
