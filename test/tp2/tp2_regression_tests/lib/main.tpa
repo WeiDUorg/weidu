@@ -5,6 +5,8 @@ OUTER_SET warnings = 0
 DEFINE_ACTION_FUNCTION handle_results
   INT_VAR
     success = 0
+    warnings = 0
+    passed = 0
   STR_VAR
     message = ""
   RET
@@ -26,6 +28,8 @@ DEFINE_ACTION_MACRO run_tests BEGIN
   LAF handle_results
     INT_VAR
       success
+      warnings
+      passed
     STR_VAR
       message
     RET
