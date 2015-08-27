@@ -16,6 +16,7 @@ Version 239:
   * DELETE can recursively delete directories and everything in them.
   * RES_NAME_OF_SPELL_NUM, RES_NUM_OF_SPELL_NAME and NAME_NUM_OF_SPELL_RES are
     also available as patch functions and macros.
+  * NAME_NUM_OF_SPELL_RES matches resource references case-insensitively.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.

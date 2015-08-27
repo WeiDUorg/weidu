@@ -132,7 +132,7 @@ DEFINE_ACTION_MACRO ~NAME_NUM_OF_SPELL_RES~ BEGIN
     FAIL ~Invalid spell resource: %spell_res%~
   END
   OUTER_PATCH ~%spell_res%~ BEGIN
-    REPLACE_EVALUATE ~SP..\([0-9][0-9][0-9]\)~ BEGIN
+    REPLACE_EVALUATE CASE_INSENSITIVE ~SP..\([0-9][0-9][0-9]\)~ BEGIN
       SPRINT spell_num ~%lc_ast%%MATCH1%~
     END ~%MATCH0%~
     LOOKUP_IDS_SYMBOL_OF_INT spell_name SPELL spell_num
