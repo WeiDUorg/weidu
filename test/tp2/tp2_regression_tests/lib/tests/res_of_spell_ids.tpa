@@ -1,0 +1,165 @@
+DEFINE_ACTION_FUNCTION run
+  RET
+    success
+    message
+BEGIN
+  OUTER_SPRINT message "test_res_of_spell_ids"
+  PRINT "%message%"
+  ACTION_TRY
+    LAF test_res_name_of_num END
+    LAF test_res_num_of_name END
+    LAF test_name_num_of_res END
+    OUTER_SET success = 1
+  WITH
+    DEFAULT
+      OUTER_SET success = 0
+      OUTER_SPRINT message "tests failed in res_of_spell_ids: %ERROR_MESSAGE%"
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_res_name_of_num BEGIN
+  ACTION_DEFINE_ASSOCIATIVE_ARRAY res_name_of_num BEGIN
+    sppr101, CLERIC_BLESS => 1101
+    spwi304, WIZARD_FIREBALL => 2304
+    spin999, TANARI_PARALYZE => 3999
+    spcl121, ARCHER_CALL_SHOT => 4121
+  END
+  ACTION_PHP_EACH res_name_of_num AS key => num BEGIN
+    OUTER_SPRINT res "%key_0%"
+    OUTER_SPRINT name "%key_1%"
+    LAF test_res_name_of_num_action INT_VAR num STR_VAR res name END
+    LAF test_res_name_of_num_patch INT_VAR num STR_VAR res name END
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_res_num_of_name BEGIN
+  ACTION_DEFINE_ASSOCIATIVE_ARRAY res_num_of_name BEGIN
+    sppr101, 1101 => CLERIC_BLESS
+    spwi304, 2304 => WIZARD_FIREBALL
+    spin999, 3999 => TANARI_PARALYZE
+    spcl121, 4121 => ARCHER_CALL_SHOT
+  END
+  ACTION_PHP_EACH res_num_of_name AS key => name BEGIN
+    OUTER_SPRINT res "%key_0%"
+    OUTER_SET num = key_1
+    LAF test_res_num_of_name_action INT_VAR num STR_VAR res name END
+    LAF test_res_num_of_name_patch INT_VAR num STR_VAR res name END
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_name_num_of_res BEGIN
+  ACTION_DEFINE_ASSOCIATIVE_ARRAY name_num_of_res BEGIN
+    CLERIC_BLESS, 1101 => sppr101
+    WIZARD_FIREBALL, 2304 => spwi304
+    TANARI_PARALYZE, 3999 => spin999
+    ARCHER_CALL_SHOT, 4121 => spcl121
+  END
+  ACTION_PHP_EACH name_num_of_res AS key => res BEGIN
+    OUTER_SPRINT name "%key_0%"
+    OUTER_SET num = key_1
+    LAF test_name_num_of_res_action INT_VAR num STR_VAR res name END
+    LAF test_name_num_of_res_patch INT_VAR num STR_VAR res name END
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_res_name_of_num_action
+  INT_VAR
+    num = 0
+  STR_VAR
+    res = ""
+    name = ""
+BEGIN
+  LAF RES_NAME_OF_SPELL_NUM INT_VAR spell_num = num RET spell_res spell_name END
+  ACTION_IF "%spell_res%" STRING_COMPARE_CASE "%res%" BEGIN
+    FAIL ~test_res_name_of_num obtained spell_res: %spell_res% from spell_num: %num%; %res% was expected~
+  END
+  ACTION_IF "%spell_name%" STRING_COMPARE_CASE "%name%" BEGIN
+    FAIL ~test_res_name_of_num obtained spell_name: %spell_name% from spell_num: %num%; %name% was expected~
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_res_name_of_num_patch
+  INT_VAR
+    num = 0
+  STR_VAR
+    res = ""
+    name = ""
+BEGIN
+  OUTER_INNER_PATCH 0 BEGIN
+    LPF RES_NAME_OF_SPELL_NUM INT_VAR spell_num = num RET spell_res spell_name END
+  END
+  ACTION_IF "%spell_res%" STRING_COMPARE_CASE "%res%" BEGIN
+    FAIL ~test_res_name_of_num patch function obtained spell_res: %spell_res% from spell_num: %num%; %res% was expected~
+  END
+  ACTION_IF "%spell_name%" STRING_COMPARE_CASE "%name%" BEGIN
+    FAIL ~test_res_name_of_num patch function obtained spell_name: %spell_name% from spell_num: %num%; %res% was expected~
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_res_num_of_name_action
+  INT_VAR
+    num = 0
+  STR_VAR
+    res = ""
+    name = ""
+BEGIN
+  LAF RES_NUM_OF_SPELL_NAME STR_VAR spell_name = EVAL "%name%" RET spell_num spell_res END
+  ACTION_IF spell_num != num BEGIN
+    FAIL ~test_res_num_of_name obtained spell_num: %spell_num% from spell_name: %name%; %num% was expected~
+  END
+  ACTION_IF "%spell_res%" STRING_COMPARE_CASE "%res%" BEGIN
+    FAIL ~test_res_num_of_name obtained spell_res: %spell_res% from spell_name: %name%; %res% was expected~
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_res_num_of_name_patch
+  INT_VAR
+    num = 0
+  STR_VAR
+    res = ""
+    name = ""
+BEGIN
+  OUTER_INNER_PATCH 0 BEGIN
+    LPF RES_NUM_OF_SPELL_NAME STR_VAR spell_name = EVAL "%name%" RET spell_num spell_res END
+  END
+  ACTION_IF spell_num != num BEGIN
+    FAIL ~test_res_num_of_name obtained spell_num: %spell_num% from spell_name: %name%; %num% was expected~
+  END
+  ACTION_IF "%spell_res%" STRING_COMPARE_CASE "%res%" BEGIN
+    FAIL ~test_res_num_of_name obtained spell_res: %spell_res% from spell_name: %name%; %res% was expected~
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_name_num_of_res_action
+  INT_VAR
+    num = 0
+  STR_VAR
+    res = ""
+    name = ""
+BEGIN
+  LAF NAME_NUM_OF_SPELL_RES STR_VAR spell_res = EVAL "%res%" RET spell_num spell_name END
+  ACTION_IF spell_num != num BEGIN
+    FAIL ~test_name_num_of_res obtained spell_num: %spell_num% from spell_res: %res%; %num% was expected~
+  END
+  ACTION_IF "%spell_name%" STRING_COMPARE_CASE "%name%" BEGIN
+    FAIL ~test_name_num_of_res obtained spell_name: %spell_name% from spell_res: %res%; %name% was expected~
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_name_num_of_res_patch
+  INT_VAR
+    num = 0
+  STR_VAR
+    res = ""
+    name = ""
+BEGIN
+  OUTER_INNER_PATCH 0 BEGIN
+    LPF NAME_NUM_OF_SPELL_RES STR_VAR spell_res = EVAL "%res%" RET spell_num spell_name END
+  END
+  ACTION_IF spell_num != num BEGIN
+    FAIL ~test_name_num_of_res obtained spell_num: %spell_num% from spell_res: %res%; %num% was expected~
+  END
+  ACTION_IF "%spell_name%" STRING_COMPARE_CASE "%name%" BEGIN
+    FAIL ~test_name_num_of_res obtained spell_name: %spell_name% from spell_res: %res%; %name% was expected~
+  END
+END
