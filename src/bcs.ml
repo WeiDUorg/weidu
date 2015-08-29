@@ -898,7 +898,8 @@ let print_script_text game how what comments strhandle =
   in
   let rec print_cr (tl,rl) =
     bcs_printf "IF\n" ;
-    print_trigger_list tl false;
+	let or_count = ref 0 in
+    print_trigger_list tl false or_count;
     bcs_printf "THEN\n" ;
     List.iter (fun (w,al) -> 
       bcs_printf "  RESPONSE #%d\n" w ;
@@ -1086,8 +1087,7 @@ let print_script_text game how what comments strhandle =
       | _ -> ()
     end ;
     bcs_printf "\n"
-  and print_trigger_list tr compiling_to_dlg =
-    let or_count = ref 0 in
+  and print_trigger_list tr compiling_to_dlg or_count =
     match tr with
     | t :: [] when not compiling_to_dlg && String.lowercase ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
       failwith "NextTriggerObject() without a next trigger (broken TriggerOverride)"
@@ -1100,13 +1100,13 @@ let print_script_text game how what comments strhandle =
       if print_trigger {t1 with negated = false} > 0 then
         failwith "OR() cannot be used inside NextTriggerObject / TriggerOverride";
       bcs_printf ")\n";
-      print_trigger_list tl compiling_to_dlg
+      print_trigger_list tl compiling_to_dlg or_count
     | t :: tl ->
       let indent = 2 + if !or_count > 0 then (decr or_count ; 2) else 0 in
       bcs_printf "%.*s" indent " " ;
       or_count := !or_count + (print_trigger t) ;
       bcs_printf "\n";
-      print_trigger_list tl compiling_to_dlg
+      print_trigger_list tl compiling_to_dlg or_count
     | [] -> ()
   and print_trigger t =
     if (t.negated) then bcs_printf "!" ;
@@ -1143,7 +1143,7 @@ let print_script_text game how what comments strhandle =
   match what with
   | BCS_Print_Script(s) -> List.iter print_cr s
   | BCS_Print_ActionList(al) -> List.iter print_action al
-  | BCS_Print_TriggerList(tl,dlg) -> print_trigger_list tl dlg
+  | BCS_Print_TriggerList(tl,dlg) -> let or_count = ref 0 in print_trigger_list tl dlg or_count
 
 let parse_al : (string -> action list) ref =  ref (fun al -> failwith "Internal: Bcs.parse_al is not loaded")	
 	
