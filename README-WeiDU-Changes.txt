@@ -22,6 +22,8 @@ Version 239:
     fj_base_num is unused and its functionality is implemented through
     the variable fj_difficulty.
   * Add fj_(pitch|volume)_variance to fj_are_structure's ambient variables.
+  * To save time, WeiDU will not ask what should be done about components
+    which cannot be installed.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.

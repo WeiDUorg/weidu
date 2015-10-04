@@ -208,10 +208,7 @@ let check_installed_state tp this_tp2_filename last =
       | Some(ts) -> Hashtbl.add subcomp_installed ts true
       | None -> ()
     end else begin
-      let deprecated = List.exists (fun f -> match f with
-      | TPM_Deprecated(warn) -> true
-      | _ -> false) m.mod_flags in
-      if not deprecated then begin
+      if not (fails_requirements tp m) then begin
         let group_already =
           match subcomp_group m with
           | Some(ts) -> Hashtbl.mem subcomp_installed ts
