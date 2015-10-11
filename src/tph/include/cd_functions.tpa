@@ -901,12 +901,12 @@ BEGIN
 
     "fail"
     BEGIN
-      PATCH_WARN "WARNING: CLONE_EFFECT does not think %SOURCE_FILE% appears to be a valid file"
+      PATCH_FAIL "ERROR: CLONE_EFFECT does not think %SOURCE_FILE% appears to be a valid file"
     END
 
     DEFAULT
       SET min_size = "-1" // kill macro as the file type is not recognized
-      PATCH_WARN "WARNING: CLONE_EFFECT does not support file type %sig%"
+      PATCH_FAIL "ERROR: CLONE_EFFECT does not support file type %sig%"
   END
 
   PATCH_IF (BUFFER_LENGTH >= min_size) BEGIN // sanity check

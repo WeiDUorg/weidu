@@ -24,6 +24,7 @@ Version 239:
   * Add fj_(pitch|volume)_variance to fj_are_structure's ambient variables.
   * To save time, WeiDU will not ask what should be done about components
     which cannot be installed.
+  * CLONE_EFFECT fails louder on files with invalid signatures.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
