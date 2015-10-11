@@ -92,6 +92,8 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   // ambients
   fj_radius            = 500
   fj_loc_z             = 0
+  fj_pitch_variance    = 0
+  fj_volume_variance   = 0
   fj_volume            = 80
   fj_sound_num         = 0
   fj_delay             = 0
@@ -701,6 +703,8 @@ PHP_EACH struct AS key => value BEGIN
       WRITE_SHORT  fj_return_offset + 0x22 fj_loc_y
       WRITE_SHORT  fj_return_offset + 0x24 fj_radius
       WRITE_SHORT  fj_return_offset + 0x26 fj_loc_z
+      WRITE_LONG   fj_return_offset + 0x28 fj_pitch_variance
+      WRITE_SHORT  fj_return_offset + 0x2c fj_volume_variance
       WRITE_SHORT  fj_return_offset + 0x2e fj_volume
       WRITE_ASCIIE fj_return_offset + 0x30 ~%fj_wav_resref0%~ #8
       WRITE_ASCIIE fj_return_offset + 0x38 ~%fj_wav_resref1%~ #8

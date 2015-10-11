@@ -4763,7 +4763,7 @@ COPY ~nice.baf~ ~mean.baf~
 \end{verbatim}
   This \ttref{COPY} \ttref{TP2 Action} would replace \t{Give(10,20)}
   with \t{Take(15)}.  optcase allows you to decide if the matching is
-  case-sensitive or not.  \\
+  case-sensitive or not. Matching is case-sensitive by default.  \\
 
   or & \DEFSYN{ADD!GAM!NPC} npcCRE npcARE xCoord yCoord &
     See the \ttref{ADD!GAM!NPC} tutorial for more information about this
@@ -9347,7 +9347,7 @@ Spawn structure variables:
 \item INT_VAR \verb+fj_loc_y+ to the spawning Y coordinate*;
 \item STR_VAR \verb+fj_cre_resref0+ to the resource reference of each creature spawned (0-9)*;
 \item INT_VAR \verb+fj_spawn_num+ to the count of spawn creatures*;
-\item INT_VAR \verb+fj_base_num+ to the base number of creatures to spawn (encounter difficulty)*;
+\item INT_VAR \verb+fj_difficulty+ to the base number of creatures to spawn (encounter difficulty)*;
 \item INT_VAR \verb+fj_delay+ to the number of seconds between spawning (default 10);
 \item INT_VAR \verb+fj_method+ to the spawn method;
 \item INT_VAR \verb+fj_duration+ to the creature duration (default 1000);
@@ -9406,6 +9406,8 @@ Ambient structure variables:
 \item INT_VAR \verb+fj_loc_y+ to the Y coordinate*;
 \item INT_VAR \verb+fj_radius+ to the sound radius (default 500);
 \item INT_VAR \verb+fj_loc_z+ to the Z coordinate (height);
+\item INT_VAR \verb+fj_pitch_variance+ to the pitch variance;
+\item INT_VAR \verb+fj_volume_variance+ to the volume variance;
 \item INT_VAR \verb+fj_volume+ to the volume percentage (default 80);
 \item STR_VAR \verb+fj_wav_resref0+ to the resource reference of each sound (0-9)*;
 \item INT_VAR \verb+fj_sound_num+ to the number of sounds*;

@@ -18,6 +18,12 @@ Version 239:
     also available as patch functions and macros.
   * NAME_NUM_OF_SPELL_RES matches resource references case-insensitively.
   * Fix regression in OR() indentation.
+  * Fix documentation of fj_are_structure: the spawn-point variable
+    fj_base_num is unused and its functionality is implemented through
+    the variable fj_difficulty.
+  * Add fj_(pitch|volume)_variance to fj_are_structure's ambient variables.
+  * To save time, WeiDU will not ask what should be done about components
+    which cannot be installed.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
