@@ -25,6 +25,7 @@ Version 239:
   * To save time, WeiDU will not ask what should be done about components
     which cannot be installed.
   * CLONE_EFFECT fails louder on files with invalid signatures.
+  * --force-uninstall-rest works as described.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
