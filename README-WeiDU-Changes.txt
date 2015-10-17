@@ -25,6 +25,8 @@ Version 239:
   * To save time, WeiDU will not ask what should be done about components
     which cannot be installed.
   * CLONE_EFFECT fails louder on files with invalid signatures.
+  * As per readme, --safe-exit cannot be used together with --uninstall and
+    friends.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
