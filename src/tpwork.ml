@@ -626,6 +626,9 @@ let ask_about_groups tp groups module_defaults last_module_index using_quickmenu
 let rec handle_tp game this_tp2_filename tp =
 
   ignore (init_tp_state ()) ;
+  
+  if !Tpstate.safe_exit && !Tp.force_uninstall_these <> [] then failwith "--safe-exit and --force-uninstall-* are not compatible";
+  if !Tpstate.safe_exit && !Tp.always_uninstall then failwith "--safe-exit and --uninstall are not compatible";
 
   let old_allow_missing = !Load.allow_missing in
   Load.allow_missing :=

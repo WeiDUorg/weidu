@@ -26,6 +26,8 @@ Version 239:
     which cannot be installed.
   * CLONE_EFFECT fails louder on files with invalid signatures.
   * --force-uninstall-rest works as described.
+  * As per readme, --safe-exit cannot be used together with --uninstall and
+    friends.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
