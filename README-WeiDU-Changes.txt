@@ -1,6 +1,6 @@
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
-  * Fix a problem with CREATEd spells of format version V1.
+  * Fix a problem with CREATEd spells and items of format version V1.
   * COPY_KIT fails better if oldKit does not exist.
   * --transitive does not get caught in infinite loops.
   * WeiDU uses native-looking separator characters (mostly cosmetic) in a few

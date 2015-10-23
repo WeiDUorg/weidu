@@ -171,7 +171,7 @@ DEFINE_ACTION_FUNCTION FL#CREATE#MAKE_BUFF#ITM
     buff
 BEGIN
   ACTION_MATCH "%version%" WITH
-    "V1.0"
+    "V1.0" "V1" "V1  "
     BEGIN
       LAF FL#CREATE#MAKE_BUFF2 INT_VAR length = 0x72 STR_VAR mutator = FL#CREATE#ITM#V10 RET buff END
     END
@@ -362,7 +362,7 @@ BEGIN
   ACTION_MATCH "%version%" WITH
     "" WHEN ENGINE_IS ~bg1 totsc soa tob iwd how totlm bgee bg2ee iwdee~
     BEGIN
-      OUTER_SPRINT version "V1.0"
+      OUTER_SPRINT version "V1  "
     END
 
     "" WHEN ENGINE_IS ~pst~
@@ -377,7 +377,7 @@ BEGIN
 
     ""
     BEGIN
-      OUTER_SPRINT version "V1.0"
+      OUTER_SPRINT version "V1  "
     END
 
     DEFAULT
@@ -713,7 +713,7 @@ DEFINE_PATCH_FUNCTION FL#CREATE#ITM#V10
   INT_VAR
     length = 0x72
 BEGIN
-  WRITE_ASCII 0x00 "ITM V1.0"
+  WRITE_ASCII 0x00 "ITM V1  "
   WRITE_LONG  0x08 "-1"
   WRITE_LONG  0x0c "-1"
   WRITE_LONG  0x50 "-1"
