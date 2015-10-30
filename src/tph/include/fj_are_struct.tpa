@@ -34,8 +34,8 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   // actors
   fj_loc_x             = 0
   fj_loc_y             = 0
-  fj_dest_x            = 0
-  fj_dest_y            = 0
+  fj_dest_x            = fj_loc_x
+  fj_dest_y            = fj_loc_y
   fj_loading           = 1
   fj_spawned           = 0
   fj_animation         = 0

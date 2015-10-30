@@ -9296,12 +9296,12 @@ Actor structure variables:
 \item STR_VAR \verb+fj_name+ to the actor's name*;
 \item INT_VAR \verb+fj_loc_x+ to the starting X (horizontal) coordinate*;
 \item INT_VAR \verb+fj_loc_y+ to the starting Y (vertical) coordinate*;
-\item INT_VAR \verb+fj_dest_x+ to the destination X coordinate (normally the same as fj_loc_x)*;
-\item INT_VAR \verb+fj_dest_y+ to the destination Y coordinate (normally the same as fj_loc_y)*;
+\item INT_VAR \verb+fj_dest_x+ to the destination X coordinate (by default the same as \verb+fj_loc_x+)*;
+\item INT_VAR \verb+fj_dest_y+ to the destination Y coordinate (by default the same as \verb+fj_loc_y+)*;
 \item INT_VAR \verb+fj_loading+ to whether the .cre file is loaded (0=attached, 1=loaded, default 1);
-\item INT_VAR \verb+fj_spawned+ to whether the creature has been spawned (0=no, 1=yes);
+\item INT_VAR \verb+fj_spawned+ to whether the creature has been spawned (0=no, 1=yes, default 0);
 \item INT_VAR \verb+fj_animation+ to the actor's animation number (from animate.ids, though the engine uses the animation set on the .cre file);
-\item INT_VAR \verb+fj_orientation+ to the facing direction (0-15 where 0=south, 4=west, 8=north, 12=east)*;
+\item INT_VAR \verb+fj_orientation+ to the facing direction (0-15 where 0=south, 4=west, 8=north, 12=east, default 0);
 \item INT_VAR \verb+fj_expiry+ to the actor removal timer in absolute ticks (default -1 to avoid removal);
 \item INT_VAR \verb+fj_wander_dist_actor+ to the actor's random walk distance limit;
 \item INT_VAR \verb+fj_mvmt_dist_actor+ to the actor's movement distance limit;
@@ -9315,7 +9315,7 @@ Actor structure variables:
 \item STR_VAR \verb+fj_bcs_default+ to the actor's default script (normally obtained from .cre files);
 \item STR_VAR \verb+fj_bcs_specific+ to the actor's specific script (normally obtained from .cre files);
 \item STR_VAR \verb+fj_cre_resref+ to the actor's resource reference (creature filename)*;
-\item STR_VAR \verb+fj_cre_embedded+ to ~path/to/file.cre~ if embedding a new creature (defaults to fj_cre_resref if not set);
+\item STR_VAR \verb+fj_cre_embedded+ to ~path/to/file.cre~ if embedding a new creature (defaults to \verb+fj_cre_resref+ if not set);
 \end{itemize}
 Region structure variables:
 \begin{itemize}
