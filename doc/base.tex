@@ -9395,12 +9395,12 @@ Container structure variables:
 Item structure variables:
 \begin{itemize}
 \item STR_VAR \verb+fj_name+ to the item's resource reference (filename)*;
-\item INT_VAR \verb+fj_con_itm_idx+ to the index of the container to which the item is added;
-\item INT_VAR \verb+fj_itm_expiry+ to the item expiration time;
-\item INT_VAR \verb+fj_charge0+ to the charges of the 1st ability (item quantity for stackables);
-\item INT_VAR \verb+fj_charge1+ to the charges of the 2nd ability;
-\item INT_VAR \verb+fj_charge2+ to the charges of the 3rd ability;
-\item INT_VAR \verb+fj_flags+ to the bitwise item flags (bit0=identified, bit1=unstealable, bit2=stolen, bit3=undroppable);
+\item INT_VAR \verb+fj_con_itm_idx+ to the index of the container to which the item is added*;
+\item INT_VAR \verb+fj_itm_expiry+ to the item expiration time (default 0);
+\item INT_VAR \verb+fj_charge0+ to the charges of the 1st ability (item quantity for stackables, default 0);
+\item INT_VAR \verb+fj_charge1+ to the charges of the 2nd ability (default 0);
+\item INT_VAR \verb+fj_charge2+ to the charges of the 3rd ability (default 0);
+\item INT_VAR \verb+fj_flags+ to the bitwise item flags (bit0=identified, bit1=unstealable, bit2=stolen, bit3=undroppable, default 0);
 \end{itemize}
 Ambient structure variables:
 \begin{itemize}
