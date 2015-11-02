@@ -16,11 +16,11 @@
 open BatteriesInit
 open Util
 
-let debug_assign = ref false 
+let debug_assign = ref false
 
-type variable_value = 
+type variable_value =
   | Int32 of Int32.t
-  | String of string 
+  | String of string
 
 let variables = ref(Hashtbl.create 255)
 
@@ -30,18 +30,16 @@ let variables_stack = ref []
 let arrays_stack = ref []
 
 let var_pop () =
-  variables := List.hd !variables_stack;
-  variables_stack := List.tl !variables_stack;
-  arrays := List.hd !arrays_stack;
-  arrays_stack := List.tl !arrays_stack;
-;;
+  variables := List.hd !variables_stack ;
+  variables_stack := List.tl !variables_stack ;
+  arrays := List.hd !arrays_stack ;
+  arrays_stack := List.tl !arrays_stack
 
 let var_push () =
-  variables_stack := !variables :: !variables_stack;
-  variables := Hashtbl.copy !variables;
-  arrays_stack := !arrays :: !arrays_stack;
-  arrays := Hashtbl.copy !arrays;
-;;
+  variables_stack := !variables :: !variables_stack ;
+  variables := Hashtbl.copy !variables ;
+  arrays_stack := !arrays :: !arrays_stack ;
+  arrays := Hashtbl.copy !arrays
 
 let cli_variables : string list option ref = ref None
 
@@ -56,25 +54,25 @@ let get_int32 name =
   match Hashtbl.find !variables name with
   | Int32(v) -> v
   | String(s) -> Int32.of_string s
-  
+
 let get_int32_extended s =
-	try
-		Int32.of_string s
-	with e ->
-	  begin 
-	    try
-			get_int32 ("%" ^ s ^ "%")
-	    with e -> 
-            begin
-				try
-					get_int32 s
-				with e -> begin
-					if !eval_pe_warn then
-					log_and_print "ERROR: cannot convert %s or %%%s%% to an integer\n" s s ;
-					raise e
-				end
-			end
-	end 
+  try
+    Int32.of_string s
+  with e ->
+    begin
+      try
+        get_int32 ("%" ^ s ^ "%")
+      with e ->
+        begin
+          try
+            get_int32 s
+          with e -> begin
+            if !eval_pe_warn then
+              log_and_print "ERROR: cannot convert %s or %%%s%% to an integer\n" s s ;
+            raise e
+          end
+        end
+    end
 
 let set_string name value =
   let name = "%" ^ name ^ "%" in
@@ -119,7 +117,7 @@ let var_subst reg subst s =
               start_search := start_match + 1 ;
               Buffer.add_substring buf s start_match 1
           | Some(str) ->
-              start_search := after_last_match;
+              start_search := after_last_match ;
               Buffer.add_string buf str
         done
       with Not_found ->
@@ -128,28 +126,26 @@ let var_subst reg subst s =
     Buffer.contents buf
   in res
 
-
 let variable_regexp = Str.regexp "%[^%]+%"
 
 let get_string_special reg str =
   let res =
     var_subst reg
       (fun whole_thing -> (* "%foo%" *)
-	let quoted_substr = Str.matched_string whole_thing in
-	try
+        let quoted_substr = Str.matched_string whole_thing in
+        try
           (match Hashtbl.find !variables quoted_substr with
           | Int32(v) -> Some(Int32.to_string v)
           | String(s) -> Some(s))
-	with Not_found -> if reg <> variable_regexp then begin
-	  try
-	    let try_substr = String.sub quoted_substr 1 (String.length quoted_substr - 2) in
-	    let try_substr = "%" ^ try_substr ^ "%" in
-	    (match Hashtbl.find !variables try_substr with
-	    | Int32(v) -> Some(Int32.to_string v)
-	    | String(s) -> Some(s))
-	  with Not_found -> None
-	end else None
-      ) str
+        with Not_found -> if reg <> variable_regexp then begin
+          try
+            let try_substr = String.sub quoted_substr 1 (String.length quoted_substr - 2) in
+            let try_substr = "%" ^ try_substr ^ "%" in
+            (match Hashtbl.find !variables try_substr with
+            | Int32(v) -> Some(Int32.to_string v)
+            | String(s) -> Some(s))
+          with Not_found -> None
+        end else None) str
   in
   (if !debug_assign then Util.log_and_print "GET ~%s~ = ~%s~\n" str res) ;
   res
@@ -161,20 +157,15 @@ let get_string_exact str =
   | Int32(v) -> Int32.to_string v
   | String(s) -> s
 
-
 let clear_var () =
   let var_spec = Hashtbl.copy !variables in
-  Hashtbl.iter ( fun a b -> Hashtbl.remove !variables a
-		) var_spec ;
-  Hashtbl.clear !variables;
-;;
+  Hashtbl.iter (fun a b -> Hashtbl.remove !variables a) var_spec ;
+  Hashtbl.clear !variables
 
 let clear_arr () =
   let arr_spec = Hashtbl.copy !arrays in
-  Hashtbl.iter ( fun a b -> Hashtbl.remove !arrays a
-		) arr_spec ;
-  Hashtbl.clear !arrays;
-;;
+  Hashtbl.iter (fun a b -> Hashtbl.remove !arrays a) arr_spec ;
+  Hashtbl.clear !arrays
 
 let assoc name value =
   let value = Int32.of_int value in
@@ -281,24 +272,22 @@ let all_the_assoc a =
   assoc "DIALOG_DEFAULT" 0412 ;
   assoc "DIALOG_HOSTILE" 0408 ;
   assoc "UNHAPPY_BREAKING_POINT" 0184 ;
-  
+
   for i = 0 to 31 do
-	set_int32 (Printf.sprintf "BIT%d" i) (Int32.shift_left 1l i);
+    set_int32 (Printf.sprintf "BIT%d" i) (Int32.shift_left 1l i) ;
   done;
 
-  set_string "WNL" "\r\n";
-  set_string "MNL" "\r";
-  set_string "LNL" "\n";
-  set_string "TAB" "\t";
-  
+  set_string "WNL" "\r\n" ;
+  set_string "MNL" "\r" ;
+  set_string "LNL" "\n" ;
+  set_string "TAB" "\t" ;
+
   List.iter (fun game ->
     let var = "REGISTRY_" ^ (String.uppercase game) ^ "_PATH" in
     try
       let res = Arch.game_path_by_type game in
       set_string var (if res = "." then "" else res)
-    with _ -> set_string var ""
-  ) ["bg1"; "bg2"; "pst"; "iwd1"; "iwd2"];
-  
+    with _ -> set_string var "") ["bg1" ; "bg2" ; "pst" ; "iwd1" ; "iwd2"] ;
   ()
 
 let _ =
@@ -331,7 +320,6 @@ let iwdee_game_vars game_path =
 let default_game_vars game_path =
   ignore (set_savedir_var ".") ;
   ignore (set_userdir_var ".")
-
 
 let get_tp2_base_name dir =
   (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" dir)
