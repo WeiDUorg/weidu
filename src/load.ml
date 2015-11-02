@@ -497,6 +497,7 @@ let use_bgee_lang_dir game dir =
                   ((Str.quote game.game_path) ^ "[\\\\/]+" ^ str1 ^ "[\\\\/]+" ^ str2)) in
   let foundp = ref false in
   ignore (set_additional_bgee_load_paths game dir) ;
+  ignore (Var.set_ee_language_var dir) ;
   ignore (Array.iteri (fun index tlk_pair ->
     if Str.string_match regexp tlk_pair.dialog.path 0 then begin
       game.dialog_index <- index ;

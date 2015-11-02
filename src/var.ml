@@ -321,6 +321,9 @@ let default_game_vars game_path =
   ignore (set_savedir_var ".") ;
   ignore (set_userdir_var ".")
 
+let set_ee_language_var lang_dir =
+  set_string "EE_LANGUAGE" lang_dir
+
 let get_tp2_base_name dir =
   (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" dir)
 

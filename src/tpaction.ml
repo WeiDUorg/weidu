@@ -434,6 +434,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           let temp_save = Var.get_string "%SAVE_DIRECTORY%" in
           let temp_mpsave = Var.get_string "%MPSAVE_DIRECTORY%" in
           let temp_user = Var.get_string "%USER_DIRECTORY%" in
+          let temp_ee_lang = Var.get_string "%EE_LANGUAGE%" in
           Var.clear_var () ;
           Var.all_the_assoc () ;
           Var.set_string "TP2_AUTHOR" temp_author ;
@@ -445,6 +446,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           Var.set_string "SAVE_DIRECTORY" temp_save ;
           Var.set_string "MPSAVE_DIRECTORY" temp_mpsave ;
           Var.set_string "USER_DIRECTORY" temp_user ;
+          Var.set_string "EE_LANGUAGE" temp_ee_lang ;
           Arch2.associate_these () ;
 
       | TP_ClearArrays ->

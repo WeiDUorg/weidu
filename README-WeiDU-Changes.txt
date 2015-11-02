@@ -28,6 +28,7 @@ Version 239:
   * --force-uninstall-rest works as described.
   * As per readme, --safe-exit cannot be used together with --uninstall and
     friends.
+  * Add EE_LANGUAGE variable.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
