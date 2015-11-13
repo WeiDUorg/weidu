@@ -455,5 +455,7 @@ BEGIN
     TEXT_SPRINT cur_file ~MOS%index%.PVRZ~
   END
 
-  SET is_free_index = (FILE_EXISTS_IN_GAME ~%cur_file%~ || FILE_EXISTS ~%USER_DIRECTORY%/override/%cur_file%~) ? 0 : 1
+  SET is_free_index = (FILE_EXISTS_IN_GAME ~%cur_file%~ ||
+                       FILE_EXISTS ~%USER_DIRECTORY%/override/%cur_file%~ ||
+                       FILE_EXISTS ~lang/%EE_LANGUAGE%/override/%cur_file%~) ? 0 : 1
 END
