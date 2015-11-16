@@ -64,6 +64,10 @@ let rec eval_pe_str s = match s with
       if not (List.mem a old) then Hashtbl.add !Var.arrays s (a :: old);
      );
     result
+(* this is really nonsense, but I don't see another way;
+ * PE_UndefinedString should not be evaluated anyway
+ *)
+| PE_UndefinedString -> ""
 
 let eval_pe_tlk_str game s = match s with
 | PE_Tlk(d) -> Dc.single_string_of_tlk_string game d
@@ -619,6 +623,7 @@ let rec eval_pe buff game p =
         Int32.of_int !whichstate
       end
   end
+  | PE_Undefined -> 0l
 
 let eval_pe buff game pe =
   let res = Stats.time "eval_pe" (fun () -> eval_pe buff game pe) () in

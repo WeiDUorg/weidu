@@ -114,6 +114,7 @@ let rec pe_to_str pe = "(" ^ (match pe with
 | PE_StateWhichSays(Some(_),Some(_),_) -> Printf.sprintf "INTERNAL ERROR"
 | PE_Resolve_Str_Ref(a) -> Printf.sprintf "RESOLVE_STR_REF (__)"
 | PE_IsSilent -> "IS_SILENT"
+| PE_Undefined -> "UNDEFINED"
 | PE_IsAnInt(x) -> Printf.sprintf "IS_AN_INT %s" (pe_str_str x)
                              ) ^ ")"
 
@@ -127,6 +128,7 @@ and pe_str_str s = match s with
       (fun acc this ->
         acc ^ " " ^ (pe_str_str this)) ("$" ^ (pe_str_str s) ^ "(") a in
   Printf.sprintf "%s)" result
+| PE_UndefinedString -> "UNDEFINED"
 
 
 let action_to_str a = match a with

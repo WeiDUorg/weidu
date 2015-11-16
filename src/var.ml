@@ -93,6 +93,9 @@ let remove_local name =
   let name = "%" ^ name ^ "%" in
   Hashtbl.remove !variables name
 
+let undefine name =
+  Hashtbl.remove !variables ("%" ^ name ^ "%")
+
 (* var_subst:
  * Str.global_substitute replacement for replacing variables inside a string
  * It takes a (string -> option string) function and depending on whether the

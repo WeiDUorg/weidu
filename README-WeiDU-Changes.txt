@@ -29,6 +29,7 @@ Version 239:
   * As per readme, --safe-exit cannot be used together with --uninstall and
     friends.
   * Add EE_LANGUAGE variable.
+  * Add UNDEFINED keyword for function definitions.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
