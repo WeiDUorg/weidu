@@ -153,6 +153,6 @@ let self () =
     if not silent then begin
       log_and_print
         "\n\n\t***********************************************************\n\tWeiDU has finished auto-updating all copies of itself\n\tin this directory. Please RE-RUN %s\n\tto actually install the mod.\n\t(sorry, I can't do it for you, Windows won't let me)\n" target ;
-      (if Myarg.term <> "xterm" then (try ignore (read_line () ) with _ -> ()))
+      (if not Myarg.good_terminal_p then (try ignore (read_line () ) with _ -> ()))
     end;
     exit return_value_retry_autoupdate ;

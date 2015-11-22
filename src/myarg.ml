@@ -1,3 +1,6 @@
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 231.06. *)
+
 (* Note added due to LGPL terms.
 
    This file was edited by Valerio Bigiani, AKA The Bigg, starting from
@@ -53,15 +56,20 @@ let rec assoc3 x l =
   | _::t -> assoc3 x t
 ;;
 
-let term = try Sys.getenv "TERM" with _ -> ""
-;;
+let good_terminal_p =
+  let term = try Sys.getenv "TERM" with _ -> "" in
+  let xterm = Str.regexp_string "xterm" in
+  (try
+    let _ = Str.search_forward xterm term 0 in
+    true
+  with Not_found -> false)
 
 let usage speclist errmsg =
   eprintf "%s\n" errmsg;
   let counter = ref 0 in
   List.iter (function (key, _, doc) ->
     incr counter ;
-    if !counter > 10 && term <> "xterm" then begin
+    if !counter > 10 && not good_terminal_p then begin
       eprintf "\n\t\tPress Enter For More Options\n" ;
       flush_all () ; 
       let _ = read_line () in 

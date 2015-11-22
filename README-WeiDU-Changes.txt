@@ -30,6 +30,8 @@ Version 239:
     friends.
   * Add EE_LANGUAGE variable.
   * Add UNDEFINED keyword for function definitions.
+  * Fix compatibility issue that had WeiDU resort to dumb-terminal behaviour on
+    modern terminal emulators.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
