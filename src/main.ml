@@ -1379,8 +1379,10 @@ let main () =
   let forced_script_style = ref Load.NONE in
   let counter = ref 0 in
 
-  let usageMsg = Printf.sprintf "\t\tWeiDU (version %s: \"%s\")\n\nusage: WeiDU [options] BAF,BCS,D,DLG,TRA,TP,TP2-files\n\nGeneral Input Options:\n" version comment in
+  let usageMsg = Printf.sprintf "\t\tWeiDU (version %s: \"%s\")\n\nusage: WeiDU [options] BAF,BCS,D,DLG,TRA,TP,TP2-files" version comment in
   let argDescr = [
+    "", Myarg.Unit (fun a -> a), "\nGeneral Input Options:\n" ;
+
     "--game", Myarg.String Load.add_game_path, "X\tset main game directory to X" ;
     "--game-by-type", Myarg.String (fun x -> Load.add_game_path(Arch.game_path_by_type x)), "X\tset main game directory to the one where X is installed (BG,BG2,IWD,IWD2,PST)";
     "--nogame", Myarg.Set no_game,"\tdo not load any default game files" ;
@@ -1412,6 +1414,9 @@ let main () =
     "--skip-at-view", Myarg.Set Tp.skip_at_view, "\tkills AT_* ~VIEW this~";
     "--quick-log", Myarg.Set Tp.quick_log, "\tDoesn't print the name of components in weidu.log (much faster)";
     "--safe-exit", Myarg.Set Tpstate.safe_exit, "\tPrints weidu.log after starting the installation of every component";
+    "--version", Myarg.Set exit_now, "\tprint version number and exit";
+    "--exit", Myarg.Set exit_now, "\tprint version number and exit";
+    "--no-exit-pause", Myarg.Set no_exit_pause, "\tDon't ask to press enter to exit";
     "--ask-every", Myarg.Set Tp.ask_all, "\task about every TP2 component" ;
     "--list-languages", Myarg.String (fun s -> list_lang := Some s), "\tX lists the languages in X";
     "--list-components", Myarg.Tuple [
@@ -1448,13 +1453,20 @@ let main () =
       | "IWD1" -> Load.IWD1
       | "IWD2" -> Load.IWD2
       | _ -> parse_error "unknown SCRIPT_STYLE"
-      in forced_script_style := n),"X\tuse BCS/BAF style X (BG, PST, IWD1, IWD2)"
+      in forced_script_style := n),"X\tuse BCS/BAF style X (BG, PST, IWD1, IWD2)" ;
+    "--min", Myarg.Int (fun i -> user_min := Some(i)), "X\tlower range for some commands (like --tlkcmp)" ;
+    "--max", Myarg.Int (fun i -> user_max := Some(i)), "X\tupper range for some commands (like --string)" ;
 
-    ^ "\n\nGeneral Output Options:\n" ;
+    "", Myarg.Unit (fun a -> a), "\nGeneral Output Options:\n" ;
 
+    "--out", Myarg.String (set_theout false), "X\temit to file or directory X" ;
+    "--append", Myarg.String (set_theout true), "X\tappend to file or directory X" ;
     "--backup", Myarg.String (fun s -> backup_dir := Some(s)), "X\tbackup files to directory X before overwriting" ;
+    "--extract-kits", Myarg.Int (fun d -> extract_kits := d), "X\textract all kits starting with kit #X";
     "--tlkout", Myarg.String (fun s -> output_dialog := Some(s) ; test_output_tlk_p := true), "X\temit X as new DIALOG.TLK" ;
-    "--ftlkout", Myarg.String (fun s -> output_dialogf := Some(s) ; test_output_tlk_p := true), "X\temit X as new DIALOGF.TLK\n\nD Options:\n" ;
+    "--ftlkout", Myarg.String (fun s -> output_dialogf := Some(s) ; test_output_tlk_p := true), "X\temit X as new DIALOGF.TLK" ;
+
+    "", Myarg.Unit (fun a -> a), "\nD Options:\n" ;
 
     "--transin", Myarg.String (fun s -> trans_list := !trans_list @ [s]), "X\tuse translation file X (cumulative)" ;
     "--testtrans", Myarg.Set test_trans, "\ttest all translations files" ;
@@ -1465,28 +1477,23 @@ let main () =
     "--transitive", Myarg.Set transitive, "\tFollow EXTERN links when making D files" ;
     "--toplevel", Myarg.Set d_toplevel, "\tEmit top-level DLG states only" ;
     "--text", Myarg.Set Dlg.emit_text, "\temit string text with refs in comments" ;
-
-    "--out", Myarg.String (set_theout false), "X\temit to file or directory X" ;
-    "--append", Myarg.String (set_theout true), "X\tappend to file or directory X" ;
     "--traify", Myarg.String (fun s -> traify := Some(s)), "X\tconvert .D file X to use TRAs (use with --out)" ;
     "--traify-old-tra", Myarg.String (fun s -> traify_old_tra := Some(s)), "X\tthe given .TRA file contains the initial strings to traify" ;
     "--traify#", Myarg.Int (fun d -> traify_num := d), "X\tstart --traify .TRA file at @X" ;
     "--traify-comment", Myarg.Set traify_comment, "\toutput @1 /* ~Hello~ */ rather than @1 when traifying" ;
     "--untraify-d", Myarg.String (fun s -> untraify_d := Some(s)), "X\tconvert .D file X to use hardcoded strings...";
     "--untraify-tra", Myarg.String (fun s -> untraify_tra := Some(s)), "X\t...from TRA file X";
-    "--extract-kits", Myarg.Int (fun d -> extract_kits := d), "X\textract all kits starting with kit #X";
     "--forceify", Myarg.String (fun s -> forceify := Some(s)), "X\tconvert .D file X to use forced strrefs (use with --dout)" ;
     "--transref", Myarg.Set Dlg.use_trans_ref, "\temit string reference numbers in TRA files" ;
     "--trans", Myarg.Set use_trans, "\temit coupled .D and .TRA files\n\nTLK String Options:\n" ;
-
     "--traify-tlk", Myarg.Set extract_tlk, "\temit a .TRA file for the given .TLK file (see --out, --min, --traify#)" ;
     "--make-tlk", Myarg.String (fun s -> make_tlk := s :: !make_tlk ; test_output_tlk_p := true), "X\tmake a .TLK file from .TRA file X (cumulative, see --tlkout)" ;
     "--string", Myarg.Int (fun i -> ds_list := i :: !ds_list), "X\tdisplay string reference #X (cumulative)" ;
     "--strfind", Myarg.String (fun s -> strfind_list := s :: !strfind_list), "X\tdisplay strings that contain X (cumulative, regexp allowed)" ;
-    "--strapp", Myarg.String (fun s -> strapp_list := s :: !strapp_list ; test_output_tlk_p := true), "X\tappend string X to DIALOG.TLK (cumulative)\n\nBIFF Options:\n" ;
-    "--exit", Myarg.Set exit_now, "\tprint version number and exit";
-    "--version", Myarg.Set exit_now, "\tprint version number and exit";
-    "--no-exit-pause", Myarg.Set no_exit_pause, "\tDon't ask to press enter to exit";
+    "--strapp", Myarg.String (fun s -> strapp_list := s :: !strapp_list ; test_output_tlk_p := true), "X\tappend string X to DIALOG.TLK (cumulative)" ;
+
+    "", Myarg.Unit (fun a -> a), "\nBIFF Options:\n" ;
+
     "--list-biffs", Myarg.Set list_biff, "\tenumerate all BIFF files in CHITIN.KEY" ;
     "--list-files", Myarg.Set list_files, "\tenumerate all resource files in CHITIN.KEY";
     "--biff", Myarg.String (fun s -> bc_list := (String.uppercase s) :: !bc_list), "X\tenumerate contents of BIFF file X (cumulative)" ;
@@ -1503,18 +1510,18 @@ let main () =
     "--remove-biff", Myarg.String (fun s -> remove_biff := Some(s)), "X\tremove references to biff X and its resources, update CHITIN.KEY" ;
 
     "", Myarg.Unit (fun a -> a), "\nARE/ITM/SPL/CRE Options:\n" ;
+
     "--automate", Myarg.String (fun s -> automate_list := s ::
       !automate_list), "X\tautomatically make a TP2 file for ARE/ITM/SPL/CRE/EFF/STO files in X" ;
-    "--automate-file", Myarg.String (fun s -> automate_file := Some s), "X\tautomatically make a TP2 snippet for ARE/ITM/SPL/CRE/EFF/STO file X";
-    "--automate-min", Myarg.Int (fun i -> automate_min := Some i),
-    "X\tminimum strref # for --automate (default is SoA)";
+    "--automate-file", Myarg.String (fun s -> automate_file := Some s), "X\tautomatically make a TP2 snippet for ARE/ITM/SPL/CRE/EFF/STO file X" ;
+    "--automate-min", Myarg.Int (fun i -> automate_min := Some i), "X\tminimum strref # for --automate (default is SoA)" ;
 
     "", Myarg.Unit (fun a -> a), "\nComparison Options:\n" ;
+
     "--cmp-from", Myarg.String (fun s -> cmp_src := Some(s)), "X\temit WRITE_BYTEs to turn this file ..." ;
     "--cmp-to", Myarg.String (fun s -> cmp_dest := Some(s)), "X\t... into this one";
     "--dcmp-from", Myarg.String (fun s -> dcmp_src := Some(s)), "X\temit REPLACEs to turn this DLG file ..." ;
     "--dcmp-to", Myarg.String (fun s -> dcmp_dest := Some(s)), "X\t... into this one";
-
     "--tcmp-from", Myarg.String (fun s -> tcmp_src := Some(s)), "X\tcompare this TRA file (or directory of TRA files)..." ;
     "--tcmp-to", Myarg.String (fun s -> tcmp_dest := Some(s)), "X\t... with this one (or this directory)";
     "--bcmp-from", Myarg.String (fun s -> bcmp_src := Some(s)), "X\temit APPLY_BCS_PATCH to turn this BCS file..." ;
@@ -1529,8 +1536,6 @@ let main () =
     "--tlkcmp-from", Myarg.String (fun s -> tlkcmp_src := Some(s)), "X\temit STRING_SETs to convert this TLK file ..." ;
     "--tlkcmp-to", Myarg.String (fun s -> tlkcmp_dest := Some(s)), "X\t... into this one";
     "--tlkcmp-use-strings", Myarg.Set tlkcmp_strings, "\tmodifies --tlkcmp behavior";
-    "--min", Myarg.Int (fun i -> user_min := Some(i)), "X\tlower range for some commands (like --tlkcmp)" ;
-    "--max", Myarg.Int (fun i -> user_max := Some(i)), "X\tupper range for some commands (like --string)" ;
 
     "", Myarg.Unit (fun a -> a), "\nLog Options:\n" ;
 
@@ -1542,7 +1547,7 @@ let main () =
     "--debug-value", Myarg.Set Tp.debug_pe,"\tPrint out all value expressions" ;
     "--continue", Myarg.Set Tp.continue_on_error,"\tcontinue despite TP2 action errors" ;
 
-    "", Myarg.Unit (fun a -> a), "\nHelp Options:\n";
+    "", Myarg.Unit (fun a -> a), "\nHelp Options:\n" ;
 
   ] in
   let give_help () =
