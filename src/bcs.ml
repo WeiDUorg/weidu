@@ -1080,7 +1080,7 @@ let print_script_text game how what comments strhandle =
       failwith "NextTriggerObject() without a next trigger (broken TriggerOverride)"
     | t :: t1 :: tl when not compiling_to_dlg && String.lowercase ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
       let indent = 2 + if !or_count > 0 then (decr or_count ; 2) else 0 in
-      bcs_printf "%.*s" indent " " ;
+      bcs_printf "%*s" indent " " ;
       bcs_printf "%sTriggerOverride(" (if t1.negated then "!" else "");
       print_obj t.t_5;
       bcs_printf ",";
@@ -1090,7 +1090,7 @@ let print_script_text game how what comments strhandle =
       print_trigger_list tl compiling_to_dlg or_count
     | t :: tl ->
       let indent = 2 + if !or_count > 0 then (decr or_count ; 2) else 0 in
-      bcs_printf "%.*s" indent " " ;
+      bcs_printf "%*s" indent " " ;
       or_count := !or_count + (print_trigger t) ;
       bcs_printf "\n";
       print_trigger_list tl compiling_to_dlg or_count

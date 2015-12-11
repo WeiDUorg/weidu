@@ -783,7 +783,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
                   else orig_elt
                 in
                 if this_col < (this_col_size - 1) then
-                  Printf.bprintf buf "%-.*s " !max elt
+                  Printf.bprintf buf "%-*s " !max elt
                 else
                   Printf.bprintf buf "%s" elt) entry_array ;
               Buffer.add_char buf '\n' ;
@@ -966,7 +966,7 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
           let buf = Buffer.create (slv * 2) in
           List.iter (fun entry_array ->
             Array.iter (fun elt ->
-              Printf.bprintf buf "%-.*s " !max elt) entry_array ;
+              Printf.bprintf buf "%-*s " !max elt) entry_array ;
             Buffer.add_char buf '\n') entries ;
           Buffer.contents buf
         end)
