@@ -272,10 +272,10 @@ BEGIN
 END
 
 /////                                                  \\\\\
-///// item/spell functions                             \\\\\
+///// item functions                                   \\\\\
 /////                                                  \\\\\
 
-DEFINE_PATCH_FUNCTION ALTER_ITMSPL_EFFECT
+DEFINE_PATCH_FUNCTION ALTER_ITEM_EFFECT
   INT_VAR
     check_globals  = 0      // check global effects: 0 for no, 1 for yes
     check_headers  = 0      // check effects on headers; 0 for no, 1 for yes
@@ -297,12 +297,11 @@ DEFINE_PATCH_FUNCTION ALTER_ITMSPL_EFFECT
     dicesize       = "-1"   // change size of dice at 0x20; negative values mean no change
     savingthrow    = "-1"   // changing type of saving throw at 0x24; negative values mean no change
     savebonus      = "-11"  // change save bonus/penalty; values -11 or lower are ignored
-
-    header_length = 0x38
   STR_VAR
     resource       = "same" // resref at 0x14; same means no change, otherwise use this value
 BEGIN
 
+  header_length = 0x38
   READ_LONG 0x6a fx_off
   PATCH_IF (check_globals = 1) BEGIN
     READ_SHORT 0x70 fx_num
@@ -379,209 +378,6 @@ BEGIN
 
 END
 
-DEFINE_PATCH_FUNCTION ALTER_ITMSPL_HEADER
-  INT_VAR
-    header_type        = "-1" // -1 is all headers, otherwise use value here
-    match_icon         = 0    // make icon match a qualifier, 0 = no, 1 = yes
-    header             = 0    // 0 matches all headers, otherwise just modify specified header - use with type = -1
-    new_header_type    = "-1" // change the type at 0x00 to this value; negative values mean no change
-    identify           = "-1" // identify to use? at 0x01; negative values mean no change
-    location           = "-1" // ability location at 0x02; negative values mean no change
-    target             = "-1" // target at 0x0c; negative values mean no change
-    range              = "-1" // range at 0x0e; negative values mean no change
-    launcher_or_level  = "-1" // launcher (item) or min level (spell) required at 0x10; negative values mean no change
-    speed              = "-1" // speed at 0x12; negative values mean no change
-    thac0_bonus        = "-1" // to-hit bonus at 0x14; negative values mean no change
-    dicesize           = "-1" // dice size at 0x16; negative values mean no change
-    primary_type       = "-1" // primary school at 0x17; negative values mean no change
-    dicenumber         = "-1" // number of dice at 0x18; negative values mean no change
-    secondary_type     = "-1" // seoncdary type at 0x19; negative values mean no change
-    damage_bonus       = "-1" // +damage bonus at 0x1a; negative values mean no change
-    damage_type        = "-1" // damage type at 0x1c; negative values mean no change
-//    effects_num        = "-1" // number of effects at 0x1e; negative values mean no change
-//    effects_index      = "-1" // effects index at 0x20; negative values mean no change
-    charges            = "-1" // number of charges at 0x22; negative values mean no change
-    drained            = "-1" // when drained? at 0x24; negative values mean no change
-    projectile         = "-1" // projectile at 0x2a; negative values mean no change
-    animation_overhand = "-1" // % of overhand attacks at 0x2c; negative values mean no change
-    animation_backhand = "-1" // % of backhand attacks at 0x2e; negative values mean no change
-    animation_thrust   = "-1" // % of thrusting attacks at 0x30; negative values mean no change
-    arrow              = "-1" // is arrow? at 0x32; negative values mean no change
-    bolt               = "-1" // is bolt? at 0x34; negative values mean no change
-    bullet             = "-1" // is bullet? at 0x36; negative values mean no change
-    // flag_ vars affect flags starting at 0x26; 0 means remove flag, 1 means add flag, -1 no change
-    flag_strength      = "-1" // add strength bonus, bit0
-    flag_break         = "-1" // breakable, bit1
-    flag_hostile       = "-1" // hostile, bit10
-    flag_recharge      = "-1" // recharge after resting, bit11
-    flag_bypass        = "-1" // bypass armor, bit16
-    flag_keenedge      = "-1" // keen edge, bit17
-    flag_backstab      = "-1" // tobex only, can backstab, bit25
-    flag_noinvisible   = "-1" // tobex only, cannot target invisible, bit26
-
-    header_length = 0x38
-  STR_VAR
-    icon          = "same" // ability icon at 0x04; used to match if type > 4; same means no change otherwise use this value
-BEGIN
-
-  READ_LONG   0x64 "abil_off"
-  READ_SHORT  0x68 "abil_num"
-  PATCH_IF (header = 0) BEGIN SET loop_start = 0            SET loop_end = abil_num END
-                   ELSE BEGIN SET loop_start = (header - 1) SET loop_end = header   END
-  FOR (index = loop_start ; index < loop_end ; ++index) BEGIN
-    READ_BYTE  (abil_off +        (index * header_length)) abil_type
-    READ_ASCII (abil_off + 0x04 + (index * header_length)) icon_file
-    PATCH_IF ((header_type < 0 AND !match_icon) OR (abil_type = header_type) OR ((match_icon = 1) AND ("%icon_file%" STRING_COMPARE_CASE "%icon%" = 0))) BEGIN
-      SET ip = abil_off + (index * header_length)
-      SET pro_off = header_length = 0x38 ? 0x2a : 0x26
-      /* Some of these write lengths do not line up perfectly with the known SPL ability. Some
-       * fields are bytes in the ITM ability but (presumed to be) words in the SPL ability.
-       * However, legal values for the relevant fields never fall outside the byte range, so
-       * we WRITE_BYTE regardless of header type. -Wisp
-       */
-      PATCH_IF (new_header_type >= 0)    BEGIN WRITE_BYTE  (ip)        new_header_type    END
-      PATCH_IF (identify >= 0)           BEGIN WRITE_BYTE  (ip + 0x01) identify           END
-      PATCH_IF (location >= 0)           BEGIN WRITE_BYTE  (ip + 0x02) location           END
-      PATCH_IF (target >= 0)             BEGIN WRITE_BYTE  (ip + 0x0c) target             END
-      PATCH_IF (range >= 0)              BEGIN WRITE_SHORT (ip + 0x0e) range              END
-      PATCH_IF (launcher_or_level >= 0)  BEGIN WRITE_BYTE  (ip + 0x10) launcher_or_level  END
-      PATCH_IF (speed >= 0)              BEGIN WRITE_BYTE  (ip + 0x12) speed              END
-      PATCH_IF (thac0_bonus >= 0)        BEGIN WRITE_SHORT (ip + 0x14) thac0_bonus        END
-      PATCH_IF (dicesize >= 0)           BEGIN WRITE_BYTE  (ip + 0x16) dicesize           END
-      PATCH_IF (primary_type >= 0)       BEGIN WRITE_BYTE  (ip + 0x17) primary_type       END
-      PATCH_IF (dicenumber >= 0)         BEGIN WRITE_BYTE  (ip + 0x18) dicenumber         END
-      PATCH_IF (secondary_type >= 0)     BEGIN WRITE_BYTE  (ip + 0x19) secondary_type     END
-      PATCH_IF (damage_bonus >= 0)       BEGIN WRITE_SHORT (ip + 0x1a) damage_bonus       END
-      PATCH_IF (damage_type >= 0)        BEGIN WRITE_SHORT (ip + 0x1c) damage_type        END
-   /* PATCH_IF (effects_num >= 0)        BEGIN WRITE_SHORT (ip + 0x1e) effects_num        END
-      PATCH_IF (effects_index >= 0)      BEGIN WRITE_SHORT (ip + 0x20) effects_index      END */
-      PATCH_IF (charges >= 0)            BEGIN WRITE_SHORT (ip + 0x22) charges            END
-      PATCH_IF (drained >= 0)            BEGIN WRITE_SHORT (ip + 0x24) drained            END
-      PATCH_IF (projectile >= 0)         BEGIN WRITE_SHORT (ip + pro_off) projectile      END
-      PATCH_IF (animation_overhand >= 0) BEGIN WRITE_SHORT (ip + 0x2c) animation_overhand END
-      PATCH_IF (animation_backhand >= 0) BEGIN WRITE_SHORT (ip + 0x2e) animation_backhand END
-      PATCH_IF (animation_thrust >= 0)   BEGIN WRITE_SHORT (ip + 0x30) animation_thrust   END
-      PATCH_IF (arrow >= 0)              BEGIN WRITE_SHORT (ip + 0x32) arrow              END
-      PATCH_IF (bolt >= 0)               BEGIN WRITE_SHORT (ip + 0x34) bolt               END
-      PATCH_IF (bullet >= 0)             BEGIN WRITE_SHORT (ip + 0x36) bullet             END
-      PATCH_IF (flag_strength = 0)       BEGIN WRITE_BYTE  (ip + 0x26) THIS & `BIT0       END
-      PATCH_IF (flag_break = 0)          BEGIN WRITE_BYTE  (ip + 0x26) THIS & `BIT1       END
-      PATCH_IF (flag_hostile = 0)        BEGIN WRITE_BYTE  (ip + 0x27) THIS & `BIT2       END
-      PATCH_IF (flag_recharge = 0)       BEGIN WRITE_BYTE  (ip + 0x27) THIS & `BIT3       END
-      PATCH_IF (flag_bypass = 0)         BEGIN WRITE_BYTE  (ip + 0x28) THIS & `BIT0       END
-      PATCH_IF (flag_keenedge = 0)       BEGIN WRITE_BYTE  (ip + 0x28) THIS & `BIT1       END
-      PATCH_IF (flag_backstab = 0)       BEGIN WRITE_BYTE  (ip + 0x29) THIS & `BIT1       END
-      PATCH_IF (flag_noinvisible = 0)    BEGIN WRITE_BYTE  (ip + 0x29) THIS & `BIT2       END
-      PATCH_IF (flag_strength = 1)       BEGIN WRITE_BYTE  (ip + 0x26) THIS | BIT0        END
-      PATCH_IF (flag_break = 1)          BEGIN WRITE_BYTE  (ip + 0x26) THIS | BIT1        END
-      PATCH_IF (flag_hostile = 1)        BEGIN WRITE_BYTE  (ip + 0x27) THIS | BIT2        END
-      PATCH_IF (flag_recharge = 1)       BEGIN WRITE_BYTE  (ip + 0x27) THIS | BIT3        END
-      PATCH_IF (flag_bypass = 1)         BEGIN WRITE_BYTE  (ip + 0x28) THIS | BIT0        END
-      PATCH_IF (flag_keenedge = 1)       BEGIN WRITE_BYTE  (ip + 0x28) THIS | BIT1        END
-      PATCH_IF (flag_backstab = 1)       BEGIN WRITE_BYTE  (ip + 0x29) THIS | BIT1        END
-      PATCH_IF (flag_noinvisible = 1)    BEGIN WRITE_BYTE  (ip + 0x29) THIS | BIT2        END
-      PATCH_IF ("%icon%" STRING_COMPARE_CASE "same") BEGIN
-        WRITE_ASCIIE (ip + 0x04) "%icon%" #8
-      END
-    END
-  END
-
-END
-
-DEFINE_PATCH_FUNCTION DELETE_ITMSPL_HEADER
-  INT_VAR header_type = 0    // -1 for all headers, otherwise match type
-          min_level   = "-1" // -1 for all headers, otherwise match
-          header_length = 0x38
-BEGIN
-
-    READ_LONG   0x64 abil_off
-    READ_SHORT  0x68 abil_num
-    READ_LONG   0x6a fx_off
-    READ_SHORT  0x70 fx_num
-    SET fx_delta = 0
-    FOR (index = 0 ; index < abil_num ; ++index) BEGIN // looks for default ability header
-      READ_BYTE   (abil_off +        (index * header_length)) type_file
-      READ_SHORT  (abil_off + 0x10 + (index * header_length)) min_level_file
-      PATCH_IF (((header_type = type_file) OR (header_type < 0)) AND
-                ((min_level = min_level_file) OR (min_level < 0))) BEGIN // default ability check
-        READ_SHORT  (0x1e + abil_off + (index * header_length)) abil_fx_num
-        READ_SHORT  (0x20 + abil_off + (index * header_length)) abil_fx_idx
-        DELETE_BYTES (fx_off + (0x30 * (abil_fx_idx - fx_delta))) (0x30 * abil_fx_num) // deletes all associated effects
-        DELETE_BYTES (abil_off + (index * header_length)) header_length                // deletes ability itself
-        SET fx_delta = (fx_delta + abil_fx_num)
-        SET abil_num = (abil_num - 1)
-        SET index = (index - 1)
-        SET fx_off = (fx_off - header_length)
-      END ELSE BEGIN // if non-matched ability, need to adjust effect indices
-        READ_SHORT  (0x20 + abil_off + (index * header_length)) abil_fx_idx
-        WRITE_SHORT (0x20 + abil_off + (index * header_length)) (abil_fx_idx - fx_delta)
-      END
-    END
-    WRITE_SHORT  0x68 abil_num
-    WRITE_LONG   0x6a fx_off
-
-END
-
-/////                                                  \\\\\
-///// item functions                                   \\\\\
-/////                                                  \\\\\
-
-DEFINE_PATCH_FUNCTION ALTER_ITEM_EFFECT
-  INT_VAR
-    check_globals  = 0      // check global effects: 0 for no, 1 for yes
-    check_headers  = 0      // check effects on headers; 0 for no, 1 for yes
-    header         = 0      // add to this header; 0 for all headers
-    header_type    = "-1"   // -1 to check all headers, otherwise use type specified
-    match_opcode   = "-1"   // opcode at 0x00 to match, use -1 for all
-    new_opcode     = "-1"   // if opcode matches, change to this value
-    target         = "-1"   // change target at 0x02; negative values mean no change
-    timing         = "-1"   // change timing at 0x0c; negative values mean no change
-    power          = "-1"   // change power level at 0x03; negative values mean no change
-    parameter1     = "-1"   // change parameter at 0x04; negative values mean no change
-    parameter2     = "-1"   // change parameter at 0x08; negative values mean no change
-    resist_dispel  = "-1"   // change resist/dispel at 0x0d; negative values mean no change
-    duration       = "-1"   // change duration at 0x0e; negative values mean no change
-    duration_high  = "-1"   // same as duration, but only if existing duration > 5
-    probability1   = "-1"   // change high probability at 0x12; negative values mean no change
-    probability2   = "-1"   // change low probability at 0x13; negative values mean no change
-    dicenumber     = "-1"   // change number of dice at 0x1c; negative values mean no change
-    dicesize       = "-1"   // change size of dice at 0x20; negative values mean no change
-    savingthrow    = "-1"   // changing type of saving throw at 0x24; negative values mean no change
-    savebonus      = "-11"  // change save bonus/penalty; values -11 or lower are ignored
-  STR_VAR
-    resource       = "same" // resref at 0x14; same means no change, otherwise use this value
-BEGIN
-
-  LPF ALTER_ITMSPL_EFFECT
-    INT_VAR
-      check_globals
-      check_headers
-      header
-      header_type
-      match_opcode
-      new_opcode
-      target
-      timing
-      power
-      parameter1
-      parameter2
-      resist_dispel
-      duration
-      duration_high
-      probability1
-      probability2
-      dicenumber
-      dicesize
-      savingthrow
-      savebonus
-
-      header_length = 0x38
-    STR_VAR
-      resource
-  END
-
-END
-
 DEFINE_PATCH_FUNCTION ALTER_ITEM_HEADER
   INT_VAR header_type        = "-1" // -1 is all headers, otherwise use value here
           match_icon         = 0    // make icon match a qualifier, 0 = no, 1 = yes
@@ -623,59 +419,97 @@ DEFINE_PATCH_FUNCTION ALTER_ITEM_HEADER
   STR_VAR icon               = "same" // ability icon at 0x04; used to match if type > 4; same means no change otherwise use this value
 BEGIN
 
-  LPF ALTER_ITMSPL_HEADER
-    INT_VAR
-      header_type
-      match_icon
-      header
-      new_header_type
-      identify
-      location
-      target
-      range
-      launcher_or_level = launcher
-      speed
-      thac0_bonus
-      dicesize
-      primary_type
-      dicenumber
-      secondary_type
-      damage_bonus
-      damage_type
-      charges
-      drained
-      projectile
-      animation_overhand
-      animation_backhand
-      animation_thrust
-      arrow
-      bolt
-      bullet
-      flag_strength
-      flag_break
-      flag_hostile
-      flag_recharge
-      flag_bypass
-      flag_keenedge
-      flag_backstab
-      flag_noinvisible
-
-      header_length = 0x38
-    STR_VAR
-      icon
+  header_length = 0x38
+  READ_LONG   0x64 "abil_off"
+  READ_SHORT  0x68 "abil_num"
+  PATCH_IF (header = 0) BEGIN SET loop_start = 0            SET loop_end = abil_num END
+                   ELSE BEGIN SET loop_start = (header - 1) SET loop_end = header   END
+  FOR (index = loop_start ; index < loop_end ; ++index) BEGIN
+    READ_BYTE  (abil_off +        (index * header_length)) abil_type
+    READ_ASCII (abil_off + 0x04 + (index * header_length)) icon_file
+    PATCH_IF ((header_type < 0 AND !match_icon) OR (abil_type = header_type) OR ((match_icon = 1) AND ("%icon_file%" STRING_COMPARE_CASE "%icon%" = 0))) BEGIN
+      SET ip = abil_off + (index * header_length)
+      PATCH_IF (new_header_type >= 0)    BEGIN WRITE_BYTE  (ip)        new_header_type    END
+      PATCH_IF (identify >= 0)           BEGIN WRITE_BYTE  (ip + 0x01) identify           END
+      PATCH_IF (location >= 0)           BEGIN WRITE_BYTE  (ip + 0x02) location           END
+      PATCH_IF (target >= 0)             BEGIN WRITE_BYTE  (ip + 0x0c) target             END
+      PATCH_IF (range >= 0)              BEGIN WRITE_SHORT (ip + 0x0e) range              END
+      PATCH_IF (launcher_or_level >= 0)  BEGIN WRITE_BYTE  (ip + 0x10) launcher_or_level  END
+      PATCH_IF (speed >= 0)              BEGIN WRITE_BYTE  (ip + 0x12) speed              END
+      PATCH_IF (thac0_bonus >= 0)        BEGIN WRITE_SHORT (ip + 0x14) thac0_bonus        END
+      PATCH_IF (dicesize >= 0)           BEGIN WRITE_BYTE  (ip + 0x16) dicesize           END
+      PATCH_IF (primary_type >= 0)       BEGIN WRITE_BYTE  (ip + 0x17) primary_type       END
+      PATCH_IF (dicenumber >= 0)         BEGIN WRITE_BYTE  (ip + 0x18) dicenumber         END
+      PATCH_IF (secondary_type >= 0)     BEGIN WRITE_BYTE  (ip + 0x19) secondary_type     END
+      PATCH_IF (damage_bonus >= 0)       BEGIN WRITE_SHORT (ip + 0x1a) damage_bonus       END
+      PATCH_IF (damage_type >= 0)        BEGIN WRITE_SHORT (ip + 0x1c) damage_type        END
+   /* PATCH_IF (effects_num >= 0)        BEGIN WRITE_SHORT (ip + 0x1e) effects_num        END
+      PATCH_IF (effects_index >= 0)      BEGIN WRITE_SHORT (ip + 0x20) effects_index      END */
+      PATCH_IF (charges >= 0)            BEGIN WRITE_SHORT (ip + 0x22) charges            END
+      PATCH_IF (drained >= 0)            BEGIN WRITE_SHORT (ip + 0x24) drained            END
+      PATCH_IF (projectile >= 0)         BEGIN WRITE_SHORT (ip + 0x2a) projectile         END
+      PATCH_IF (animation_overhand >= 0) BEGIN WRITE_SHORT (ip + 0x2c) animation_overhand END
+      PATCH_IF (animation_backhand >= 0) BEGIN WRITE_SHORT (ip + 0x2e) animation_backhand END
+      PATCH_IF (animation_thrust >= 0)   BEGIN WRITE_SHORT (ip + 0x30) animation_thrust   END
+      PATCH_IF (arrow >= 0)              BEGIN WRITE_SHORT (ip + 0x32) arrow              END
+      PATCH_IF (bolt >= 0)               BEGIN WRITE_SHORT (ip + 0x34) bolt               END
+      PATCH_IF (bullet >= 0)             BEGIN WRITE_SHORT (ip + 0x36) bullet             END
+      PATCH_IF (flag_strength = 0)       BEGIN WRITE_BYTE  (ip + 0x26) THIS & `BIT0       END
+      PATCH_IF (flag_break = 0)          BEGIN WRITE_BYTE  (ip + 0x26) THIS & `BIT1       END
+      PATCH_IF (flag_hostile = 0)        BEGIN WRITE_BYTE  (ip + 0x27) THIS & `BIT2       END
+      PATCH_IF (flag_recharge = 0)       BEGIN WRITE_BYTE  (ip + 0x27) THIS & `BIT3       END
+      PATCH_IF (flag_bypass = 0)         BEGIN WRITE_BYTE  (ip + 0x28) THIS & `BIT0       END
+      PATCH_IF (flag_keenedge = 0)       BEGIN WRITE_BYTE  (ip + 0x28) THIS & `BIT1       END
+      PATCH_IF (flag_backstab = 0)       BEGIN WRITE_BYTE  (ip + 0x29) THIS & `BIT1       END
+      PATCH_IF (flag_noinvisible = 0)    BEGIN WRITE_BYTE  (ip + 0x29) THIS & `BIT2       END
+      PATCH_IF (flag_strength = 1)       BEGIN WRITE_BYTE  (ip + 0x26) THIS | BIT0        END
+      PATCH_IF (flag_break = 1)          BEGIN WRITE_BYTE  (ip + 0x26) THIS | BIT1        END
+      PATCH_IF (flag_hostile = 1)        BEGIN WRITE_BYTE  (ip + 0x27) THIS | BIT2        END
+      PATCH_IF (flag_recharge = 1)       BEGIN WRITE_BYTE  (ip + 0x27) THIS | BIT3        END
+      PATCH_IF (flag_bypass = 1)         BEGIN WRITE_BYTE  (ip + 0x28) THIS | BIT0        END
+      PATCH_IF (flag_keenedge = 1)       BEGIN WRITE_BYTE  (ip + 0x28) THIS | BIT1        END
+      PATCH_IF (flag_backstab = 1)       BEGIN WRITE_BYTE  (ip + 0x29) THIS | BIT1        END
+      PATCH_IF (flag_noinvisible = 1)    BEGIN WRITE_BYTE  (ip + 0x29) THIS | BIT2        END
+      PATCH_IF ("%icon%" STRING_COMPARE_CASE "same") BEGIN
+        WRITE_ASCIIE (ip + 0x04) "%icon%" #8
+      END
+    END
   END
 
 END
 
 DEFINE_PATCH_FUNCTION DELETE_ITEM_HEADER
-  INT_VAR header_type = 0 // -1 for all headers, otherwise match type
+  INT_VAR
+    header_type = 0 // -1 for all headers, otherwise match type
+    min_level = "-1" // -1 for all headers, otherwise match
 BEGIN
 
-  LPF DELETE_ITMSPL_HEADER
-    INT_VAR
-      header_type
-      header_length = 0x38
+  header_length = 0x38
+  READ_LONG   0x64 abil_off
+  READ_SHORT  0x68 abil_num
+  READ_LONG   0x6a fx_off
+  READ_SHORT  0x70 fx_num
+  SET fx_delta = 0
+  FOR (index = 0 ; index < abil_num ; ++index) BEGIN // looks for default ability header
+    READ_BYTE   (abil_off +        (index * header_length)) type_file
+    READ_SHORT  (abil_off + 0x10 + (index * header_length)) min_level_file
+    PATCH_IF (((header_type = type_file) OR (header_type < 0)) AND
+              ((min_level = min_level_file) OR (min_level < 0))) BEGIN // default ability check
+      READ_SHORT  (0x1e + abil_off + (index * header_length)) abil_fx_num
+      READ_SHORT  (0x20 + abil_off + (index * header_length)) abil_fx_idx
+      DELETE_BYTES (fx_off + (0x30 * (abil_fx_idx - fx_delta))) (0x30 * abil_fx_num) // deletes all associated effects
+      DELETE_BYTES (abil_off + (index * header_length)) header_length                // deletes ability itself
+      SET fx_delta = (fx_delta + abil_fx_num)
+      SET abil_num = (abil_num - 1)
+      SET index = (index - 1)
+      SET fx_off = (fx_off - header_length)
+    END ELSE BEGIN // if non-matched ability, need to adjust effect indices
+      READ_SHORT  (0x20 + abil_off + (index * header_length)) abil_fx_idx
+      WRITE_SHORT (0x20 + abil_off + (index * header_length)) (abil_fx_idx - fx_delta)
+    END
   END
+  WRITE_SHORT  0x68 abil_num
+  WRITE_LONG   0x6a fx_off
 
 END
 
@@ -709,31 +543,79 @@ DEFINE_PATCH_FUNCTION ALTER_SPELL_EFFECT
     resource       = "same" // resref at 0x14; same means no change, otherwise use this value
 BEGIN
 
-  LPF ALTER_ITMSPL_EFFECT
-    INT_VAR
-      check_globals
-      check_headers
-      header
-      header_type
-      match_opcode
-      new_opcode
-      target
-      timing
-      power
-      parameter1
-      parameter2
-      resist_dispel
-      duration
-      duration_high
-      probability1
-      probability2
-      dicenumber
-      dicesize
-      savingthrow
-      savebonus
-      header_length = 0x28
-    STR_VAR
-      resource
+  header_length = 0x28
+  READ_LONG 0x6a fx_off
+  PATCH_IF (check_globals = 1) BEGIN
+    READ_SHORT 0x70 fx_num
+    FOR (index = 0 ; index < fx_num ; ++index) BEGIN
+      READ_SHORT (fx_off +        (index * 0x30)) opcode_file
+      PATCH_IF ((match_opcode = opcode_file) OR (match_opcode < 0)) BEGIN
+        PATCH_IF (new_opcode >= 0)    BEGIN WRITE_SHORT (fx_off +        (index * 0x30)) new_opcode    END
+        PATCH_IF (target >= 0)        BEGIN WRITE_BYTE  (fx_off + 0x02 + (index * 0x30)) target        END
+        PATCH_IF (power >= 0)         BEGIN WRITE_BYTE  (fx_off + 0x03 + (index * 0x30)) power         END
+        PATCH_IF (parameter1 >= 0)    BEGIN WRITE_LONG  (fx_off + 0x04 + (index * 0x30)) parameter1    END
+        PATCH_IF (parameter2 >= 0)    BEGIN WRITE_LONG  (fx_off + 0x08 + (index * 0x30)) parameter2    END
+        PATCH_IF (timing >= 0)        BEGIN WRITE_BYTE  (fx_off + 0x0c + (index * 0x30)) timing        END
+        PATCH_IF (resist_dispel >= 0) BEGIN WRITE_BYTE  (fx_off + 0x0d + (index * 0x30)) resist_dispel END
+        PATCH_IF (duration >= 0)      BEGIN WRITE_LONG  (fx_off + 0x0e + (index * 0x30)) duration      END
+        PATCH_IF (probability1 >= 0)  BEGIN WRITE_BYTE  (fx_off + 0x12 + (index * 0x30)) probability1  END
+        PATCH_IF (probability2 >= 0)  BEGIN WRITE_BYTE  (fx_off + 0x13 + (index * 0x30)) probability2  END
+        PATCH_IF (dicenumber >= 0)    BEGIN WRITE_LONG  (fx_off + 0x1c + (index * 0x30)) dicenumber    END
+        PATCH_IF (dicesize >= 0)      BEGIN WRITE_LONG  (fx_off + 0x20 + (index * 0x30)) dicesize      END
+        PATCH_IF (savingthrow >= 0)   BEGIN WRITE_LONG  (fx_off + 0x24 + (index * 0x30)) savingthrow   END
+        PATCH_IF (savebonus >= "-10") BEGIN WRITE_LONG  (fx_off + 0x28 + (index * 0x30)) savebonus     END
+        PATCH_IF (duration_high >= 0) BEGIN
+          READ_LONG (fx_off + 0x0e + (index * 0x30)) duration_file
+          PATCH_IF (duration_file > 5) BEGIN
+            WRITE_LONG (fx_off + 0x0e + (index * 0x30)) duration_high
+          END
+        END
+        PATCH_IF ("%resource%" STRING_COMPARE_CASE "same") BEGIN
+          WRITE_ASCIIE (fx_off + 0x14 + (index * 0x30)) "%resource%" #8
+        END
+      END
+    END
+  END
+  PATCH_IF (check_headers = 1) BEGIN
+    READ_LONG   0x64 "abil_off"
+    READ_SHORT  0x68 "abil_num"
+    PATCH_IF (header = 0) BEGIN SET loop_start = 0            SET loop_end = abil_num END
+                     ELSE BEGIN SET loop_start = (header - 1) SET loop_end = header   END
+    FOR (index2 = loop_start ; index2 < loop_end ; ++index2) BEGIN // looks through headers
+      READ_BYTE (abil_off +        (index2 * header_length)) abil_type
+      PATCH_IF ((abil_type = header_type) OR (header_type < 0)) BEGIN
+        READ_SHORT (abil_off + 0x1e + (index2 * header_length)) abil_fx_num
+        READ_SHORT (abil_off + 0x20 + (index2 * header_length)) abil_fx_idx
+        FOR (index = 0 ; index < abil_fx_num ; index = index + 1) BEGIN
+          READ_SHORT (fx_off +        ((abil_fx_idx + index) * 0x30)) opcode_file
+          PATCH_IF ((match_opcode = opcode_file) OR (match_opcode < 0)) BEGIN
+            PATCH_IF (new_opcode >= 0)    BEGIN WRITE_SHORT (fx_off +        ((index + abil_fx_idx) * 0x30)) new_opcode    END
+            PATCH_IF (target >= 0)        BEGIN WRITE_BYTE  (fx_off + 0x02 + ((index + abil_fx_idx) * 0x30)) target        END
+            PATCH_IF (power >= 0)         BEGIN WRITE_BYTE  (fx_off + 0x03 + ((index + abil_fx_idx) * 0x30)) power         END
+            PATCH_IF (parameter1 >= 0)    BEGIN WRITE_LONG  (fx_off + 0x04 + ((index + abil_fx_idx) * 0x30)) parameter1    END
+            PATCH_IF (parameter2 >= 0)    BEGIN WRITE_LONG  (fx_off + 0x08 + ((index + abil_fx_idx) * 0x30)) parameter2    END
+            PATCH_IF (timing >= 0)        BEGIN WRITE_BYTE  (fx_off + 0x0c + ((index + abil_fx_idx) * 0x30)) timing        END
+            PATCH_IF (resist_dispel >= 0) BEGIN WRITE_BYTE  (fx_off + 0x0d + ((index + abil_fx_idx) * 0x30)) resist_dispel END
+            PATCH_IF (duration >= 0)      BEGIN WRITE_LONG  (fx_off + 0x0e + ((index + abil_fx_idx) * 0x30)) duration      END
+            PATCH_IF (probability1 >= 0)  BEGIN WRITE_BYTE  (fx_off + 0x12 + ((index + abil_fx_idx) * 0x30)) probability1  END
+            PATCH_IF (probability2 >= 0)  BEGIN WRITE_BYTE  (fx_off + 0x13 + ((index + abil_fx_idx) * 0x30)) probability2  END
+            PATCH_IF (dicenumber >= 0)    BEGIN WRITE_LONG  (fx_off + 0x1c + ((index + abil_fx_idx) * 0x30)) dicenumber    END
+            PATCH_IF (dicesize >= 0)      BEGIN WRITE_LONG  (fx_off + 0x20 + ((index + abil_fx_idx) * 0x30)) dicesize      END
+            PATCH_IF (savingthrow >= 0)   BEGIN WRITE_LONG  (fx_off + 0x24 + ((index + abil_fx_idx) * 0x30)) savingthrow   END
+            PATCH_IF (savebonus >= "-10") BEGIN WRITE_LONG  (fx_off + 0x28 + ((index + abil_fx_idx) * 0x30)) savebonus     END
+            PATCH_IF (duration_high >= 0) BEGIN
+              READ_LONG (fx_off + 0x0e + ((index + abil_fx_idx) * 0x30)) duration_file
+              PATCH_IF (duration_file > 5) BEGIN
+                WRITE_LONG (fx_off + 0x0e + ((index + abil_fx_idx) * 0x30)) duration_high
+              END
+            END
+            PATCH_IF ("%resource%" STRING_COMPARE_CASE "same") BEGIN
+              WRITE_ASCIIE (fx_off + 0x14 + ((index + abil_fx_idx) * 0x30)) "%resource%" #8
+            END
+          END
+        END
+      END
+    END
   END
 
 END
@@ -760,43 +642,80 @@ DEFINE_PATCH_FUNCTION ALTER_SPELL_HEADER
   STR_VAR icon            = "same" // ability icon at 0x04; used to match if type > 4; same means no change otherwise use this value
 BEGIN
 
-  LPF ALTER_ITMSPL_HEADER
-    INT_VAR
-      header_type
-      match_icon
-      header
-      new_header_type
-      location
-      target
-      range
-      launcher_or_level = min_level
-      speed
-      thac0_bonus
-      dicesize
-      dicenumber
-      damage_bonus
-      damage_type
-      charges
-      projectile
-
-      header_length = 0x28
-    STR_VAR
-      icon
+  header_length = 0x28
+  READ_LONG   0x64 "abil_off"
+  READ_SHORT  0x68 "abil_num"
+  PATCH_IF (header = 0) BEGIN SET loop_start = 0            SET loop_end = abil_num END
+                   ELSE BEGIN SET loop_start = (header - 1) SET loop_end = header   END
+  FOR (index = loop_start ; index < loop_end ; ++index) BEGIN
+    READ_BYTE  (abil_off +        (index * header_length)) abil_type
+    READ_ASCII (abil_off + 0x04 + (index * header_length)) icon_file
+    PATCH_IF ((header_type < 0 AND !match_icon) OR (abil_type = header_type) OR ((match_icon = 1) AND ("%icon_file%" STRING_COMPARE_CASE "%icon%" = 0))) BEGIN
+      SET ip = abil_off + (index * header_length)
+      /* Some of these write lengths do not line up perfectly with the known SPL ability. Some
+       * fields are bytes in the ITM ability but (presumed to be) words in the SPL ability.
+       * However, legal values for the relevant fields never fall outside the byte range, so
+       * we WRITE_BYTE regardless of header type. -Wisp
+       */
+      PATCH_IF (new_header_type >= 0)    BEGIN WRITE_BYTE  (ip)        new_header_type    END
+      PATCH_IF (identify >= 0)           BEGIN WRITE_BYTE  (ip + 0x01) identify           END
+      PATCH_IF (location >= 0)           BEGIN WRITE_BYTE  (ip + 0x02) location           END
+      PATCH_IF (target >= 0)             BEGIN WRITE_BYTE  (ip + 0x0c) target             END
+      PATCH_IF (range >= 0)              BEGIN WRITE_SHORT (ip + 0x0e) range              END
+      PATCH_IF (launcher_or_level >= 0)  BEGIN WRITE_BYTE  (ip + 0x10) launcher_or_level  END
+      PATCH_IF (speed >= 0)              BEGIN WRITE_BYTE  (ip + 0x12) speed              END
+      PATCH_IF (thac0_bonus >= 0)        BEGIN WRITE_SHORT (ip + 0x14) thac0_bonus        END
+      PATCH_IF (dicesize >= 0)           BEGIN WRITE_BYTE  (ip + 0x16) dicesize           END
+      PATCH_IF (primary_type >= 0)       BEGIN WRITE_BYTE  (ip + 0x17) primary_type       END
+      PATCH_IF (dicenumber >= 0)         BEGIN WRITE_BYTE  (ip + 0x18) dicenumber         END
+      PATCH_IF (secondary_type >= 0)     BEGIN WRITE_BYTE  (ip + 0x19) secondary_type     END
+      PATCH_IF (damage_bonus >= 0)       BEGIN WRITE_SHORT (ip + 0x1a) damage_bonus       END
+      PATCH_IF (damage_type >= 0)        BEGIN WRITE_SHORT (ip + 0x1c) damage_type        END
+   /* PATCH_IF (effects_num >= 0)        BEGIN WRITE_SHORT (ip + 0x1e) effects_num        END
+      PATCH_IF (effects_index >= 0)      BEGIN WRITE_SHORT (ip + 0x20) effects_index      END */
+      PATCH_IF (charges >= 0)            BEGIN WRITE_SHORT (ip + 0x22) charges            END
+      PATCH_IF (drained >= 0)            BEGIN WRITE_SHORT (ip + 0x24) drained            END
+      PATCH_IF (projectile >= 0)         BEGIN WRITE_SHORT (ip + 0x26) projectile         END
+      PATCH_IF ("%icon%" STRING_COMPARE_CASE "same") BEGIN
+        WRITE_ASCIIE (ip + 0x04) "%icon%" #8
+      END
+    END
   END
 
 END
 
 DEFINE_PATCH_FUNCTION DELETE_SPELL_HEADER
-  INT_VAR header_type = 0    // -1 for all headers, otherwise match type
-          min_level   = "-1" // -1 for all headers, otherwise match
+  INT_VAR
+    header_type = 0    // -1 for all headers, otherwise match type
+    min_level   = "-1" // -1 for all headers, otherwise match
 BEGIN
 
-  LPF DELETE_ITMSPL_HEADER
-    INT_VAR
-      header_type
-      min_level
-      header_length = 0x28
+  header_length = 0x28
+  READ_LONG   0x64 abil_off
+  READ_SHORT  0x68 abil_num
+  READ_LONG   0x6a fx_off
+  READ_SHORT  0x70 fx_num
+  SET fx_delta = 0
+  FOR (index = 0 ; index < abil_num ; ++index) BEGIN // looks for default ability header
+    READ_BYTE   (abil_off +        (index * header_length)) type_file
+    READ_SHORT  (abil_off + 0x10 + (index * header_length)) min_level_file
+    PATCH_IF (((header_type = type_file) OR (header_type < 0)) AND
+              ((min_level = min_level_file) OR (min_level < 0))) BEGIN // default ability check
+      READ_SHORT  (0x1e + abil_off + (index * header_length)) abil_fx_num
+      READ_SHORT  (0x20 + abil_off + (index * header_length)) abil_fx_idx
+      DELETE_BYTES (fx_off + (0x30 * (abil_fx_idx - fx_delta))) (0x30 * abil_fx_num) // deletes all associated effects
+      DELETE_BYTES (abil_off + (index * header_length)) header_length                // deletes ability itself
+      SET fx_delta = (fx_delta + abil_fx_num)
+      SET abil_num = (abil_num - 1)
+      SET index = (index - 1)
+      SET fx_off = (fx_off - header_length)
+    END ELSE BEGIN // if non-matched ability, need to adjust effect indices
+      READ_SHORT  (0x20 + abil_off + (index * header_length)) abil_fx_idx
+      WRITE_SHORT (0x20 + abil_off + (index * header_length)) (abil_fx_idx - fx_delta)
+    END
   END
+  WRITE_SHORT  0x68 abil_num
+  WRITE_LONG   0x6a fx_off
 
 END
 

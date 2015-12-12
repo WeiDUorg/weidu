@@ -32,6 +32,7 @@ Version 239:
   * Add UNDEFINED keyword for function definitions.
   * Fix compatibility issue that had WeiDU resort to dumb-terminal behaviour on
     modern terminal emulators.
+  * Underlying changes to (ALTER|DELETE)_(ITEM|SPELL)_(EFFECT|HEADER).
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
