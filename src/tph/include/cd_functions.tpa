@@ -783,12 +783,8 @@ BEGIN
       SET abil_length    = 0x28
       SET fx_type        = 0
       SET min_size       = 0x72
-      PATCH_IF (check_headers = 0) BEGIN
-        SET abil_num = 0
-      END ELSE BEGIN
-        READ_LONG   0x64 abil_off ELSE 0
-        READ_SHORT  0x68 abil_num ELSE 0
-      END
+      READ_LONG   0x64 abil_off ELSE 0
+      READ_SHORT  0x68 abil_num ELSE 0
     END
 
     "ITM "
@@ -798,12 +794,8 @@ BEGIN
       SET abil_length    = 0x38
       SET fx_type        = 0
       SET min_size       = 0x72
-      PATCH_IF (check_headers = 0) BEGIN
-        SET abil_num = 0
-      END ELSE BEGIN
-        READ_LONG   0x64 abil_off ELSE 0
-        READ_SHORT  0x68 abil_num ELSE 0
-      END
+      READ_LONG   0x64 abil_off ELSE 0
+      READ_SHORT  0x68 abil_num ELSE 0
     END
 
     "CRE "
@@ -841,7 +833,8 @@ BEGIN
       END
       READ_SHORT counter_offset counter // fx_num on global loop, otherwise abil_fx_num
       PATCH_IF (((abil_type = header_type) OR (abil_type < 0) OR (header_type < 0)) AND // only look on the right header types, if specified...
-                ((header = index) OR (header < 0))) BEGIN                               // and only on the right # header, if specified
+                ((header = index) OR (header < 0)) AND                                  // and only on the right # header, if specified
+                ((index < 0) OR (check_headers))) BEGIN                                 // if check headers = 0, only re-index
         SET last = 0                              // and only on the right # header, if specified
         SET local_multi = multi_match
         FOR (index2 = 0 ; index2 < (counter - last) ; ++index2) BEGIN
@@ -1009,12 +1002,8 @@ BEGIN
       SET abil_length    = 0x28
       SET fx_type        = 0
       SET min_size       = 0x72
-      PATCH_IF (check_headers = 0) BEGIN
-        SET abil_num = 0
-      END ELSE BEGIN
-        READ_LONG   0x64 abil_off ELSE 0
-        READ_SHORT  0x68 abil_num ELSE 0
-      END
+      READ_LONG   0x64 abil_off ELSE 0
+      READ_SHORT  0x68 abil_num ELSE 0
     END
 
     "ITM "
@@ -1024,12 +1013,8 @@ BEGIN
       SET abil_length    = 0x38
       SET fx_type        = 0
       SET min_size       = 0x72
-      PATCH_IF (check_headers = 0) BEGIN
-        SET abil_num = 0
-      END ELSE BEGIN
-        READ_LONG   0x64 abil_off ELSE 0
-        READ_SHORT  0x68 abil_num ELSE 0
-      END
+      READ_LONG   0x64 abil_off ELSE 0
+      READ_SHORT  0x68 abil_num ELSE 0
     END
 
     "CRE " // creature effects treated like they're a single, global loop
@@ -1067,7 +1052,8 @@ BEGIN
       END
       READ_SHORT counter_offset counter // fx_num on global loop, otherwise abil_fx_num
       PATCH_IF (((abil_type = header_type) OR (abil_type < 0) OR (header_type < 0)) AND // only look on the right header types, if specified...
-                ((header = index) OR (header < 0))) BEGIN                               // and only on the right # header, if specified
+                ((header = index) OR (header < 0)) AND                                  // and only on the right # header, if specified
+                ((index < 0) OR (check_headers))) BEGIN                                 // if check headers = 0, only re-index
         SET local_multi = multi_match
         FOR (index2 = 0 ; index2 < counter ; ++index2) BEGIN
 

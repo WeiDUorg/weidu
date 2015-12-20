@@ -33,6 +33,7 @@ Version 239:
   * Fix compatibility issue that had WeiDU resort to dumb-terminal behaviour on
     modern terminal emulators.
   * Underlying changes to (ALTER|DELETE)_(ITEM|SPELL)_(EFFECT|HEADER).
+  * The functions (DELETE|CLONE)_EFFECT do not misindex files under certain conditions.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
