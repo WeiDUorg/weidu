@@ -206,6 +206,9 @@ DEFINE_PATCH_MACRO ~ADD_SPELL_EFFECT~ BEGIN
         WRITE_LONG   (___#fx_off + 0x20 + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicesize
         WRITE_LONG   (___#fx_off + 0x24 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savingthrow
         WRITE_LONG   (___#fx_off + 0x28 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savebonus
+        PATCH_IF IS_AN_INT ___#special BEGIN
+          WRITE_LONG (___#fx_off + 0x2c + (0x30 * (___#insert_point + ___#abil_fx_idx))) ___#special
+        END
 
         //correcting effects number
         WRITE_SHORT (___#abil_off + 0x1e + (0x28 * ___#index1)) (___#abil_fx_num + 1)
@@ -297,6 +300,9 @@ DEFINE_PATCH_MACRO ~ADD_ITEM_EQEFFECT~ BEGIN
     WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x20) dicesize
     WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x24) savingthrow
     WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x28) savebonus
+    PATCH_IF IS_AN_INT ___#special BEGIN
+      WRITE_LONG (___#fx_off + ___#eqfx_index + 0x2c) ___#special
+    END
 
     //correcting global effects number
     WRITE_SHORT 0x70 (___#eqfx_num + 1)
@@ -367,6 +373,9 @@ DEFINE_PATCH_MACRO ~ADD_ITEM_EFFECT~ BEGIN
         WRITE_LONG   (___#fx_off + 0x20 + (0x30 * (___#insert_point + ___#abil_fx_idx))) dicesize
         WRITE_LONG   (___#fx_off + 0x24 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savingthrow
         WRITE_LONG   (___#fx_off + 0x28 + (0x30 * (___#insert_point + ___#abil_fx_idx))) savebonus
+        PATCH_IF IS_AN_INT ___#special BEGIN
+          WRITE_LONG (___#fx_off + 0x2c + (0x30 * (___#insert_point + ___#abil_fx_idx))) ___#special
+        END
 
         //correcting effects number
         WRITE_SHORT (___#abil_off + 0x1e + (0x38 * ___#index1)) (___#abil_fx_num + 1)
