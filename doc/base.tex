@@ -8495,6 +8495,7 @@ This is a PATCH macro and function.
 \item SET \verb+savingthrow+ to type of savingthrow to be allowed against the effect
 \item SET \verb+savebonus+ to saving throw bonus
 \item SET \verb+school+ to magical school
+\item SET \verb+special+ to the special parameter (only valid for functions; not macros)
 \item SET \verb+lowestafflvl+ to lowest affected level
 \item SET \verb+highestafflvl+ to highest affected level
 \item SET \verb+casterx+ to caster X position
@@ -8831,6 +8832,7 @@ Note that both \verb+check_globals+ and \verb+check_headers+ are 0 by default, s
 \item INT_VAR \verb+dicesize+ to the new size of dice. This field is also instead for minimum hit-dice (HD) by some opcodes.
 \item INT_VAR \verb+savingthrow+ to the new saving-throw type.
 \item INT_VAR \verb+savebonus+ to the new saving-throw bonus/penalty. This variable can take negative values down to -10 while still writing to the corresponding field. (default -11)
+\item INT_VAR \verb+special+ to the new special parameter.
 \item STR_VAR \verb+resource+ to the new resource reference.
 \end{itemize}
 \\
@@ -8911,6 +8913,7 @@ The function will by default only check effects on headers. You can change this 
 \item INT_VAR \verb+dicesize+ to the new size of dice. This field is also instead for minimum hit-dice (HD) by some opcodes.
 \item INT_VAR \verb+savingthrow+ to the new saving-throw type.
 \item INT_VAR \verb+savebonus+ to the new saving-throw bonus/penalty. This variable can take negative values down to -10 while still writing to the corresponding field. (default -11)
+\item INT_VAR \verb+special+ to the new special parameter.
 \item STR_VAR \verb+resource+ to the new resource reference.
 \end{itemize}
 \\

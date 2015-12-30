@@ -507,6 +507,9 @@ DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT_BG1~ BEGIN
     WRITE_LONG (___#fx_off + 0x20) dicesize
     WRITE_LONG (___#fx_off + 0x24) savingthrow
     WRITE_LONG (___#fx_off + 0x28) savebonus
+    PATCH_IF IS_AN_INT ___#special BEGIN
+      WRITE_LONG (___#fx_off + 0x2c) ___#special
+    END
 
     //correcting effects number
     WRITE_LONG 0x2c8 (___#fx_num + 1)
@@ -582,6 +585,9 @@ DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT_BG2~ BEGIN
     WRITE_LONG (___#fx_off + 0x38) savingthrow
     WRITE_LONG (___#fx_off + 0x3c) savebonus
     WRITE_LONG (___#fx_off + 0x44) school
+    PATCH_IF IS_AN_INT ___#special BEGIN
+      WRITE_LONG (___#fx_off + 0x48) ___#special
+    END
     WRITE_LONG (___#fx_off + 0x4c) lowestafflvl
     WRITE_LONG (___#fx_off + 0x50) highestafflvl
     WRITE_LONG (___#fx_off + 0x54) resist_dispel

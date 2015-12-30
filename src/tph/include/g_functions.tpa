@@ -121,6 +121,8 @@ DEFINE_PATCH_FUNCTION ~ADD_CRE_EFFECT~
           parameter3 = 0
           parameter4 = 0
           school = 0
+          special = 0
+          ___#special = special
           lowestafflvl = 0
           highestafflvl = 0
           casterx = 0 - 1

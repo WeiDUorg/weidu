@@ -34,9 +34,11 @@ Version 239:
     modern terminal emulators.
   * Underlying changes to (ALTER|DELETE)_(ITEM|SPELL)_(EFFECT|HEADER).
   * The functions (DELETE|CLONE)_EFFECT do not misindex files under certain conditions.
-  * The ADD_SPELL_EFFECT, ADD_ITEM_EFFECT and ADD_ITEM_EQEFFECT functions
-    support setting the special parameter. The corresponding macros do NOT
-    support this.
+  * The ADD_SPELL_EFFECT, ADD_ITEM_EFFECT, ADD_ITEM_EQEFFECT and ADD_CRE_EFFECT
+    functions support setting the special parameter. The corresponding macros
+    do NOT support this.
+  * The ALTER_(ITEM|SPELL)_EFFECT functions support altering the special
+    parameter.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
