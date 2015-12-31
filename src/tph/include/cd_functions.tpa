@@ -49,7 +49,6 @@ BEGIN
   END
 
 END
-
 DEFINE_PATCH_FUNCTION ALTER_AREA_REGION
   INT_VAR type        = "-1" // region type at 0x20; negative values mean no change
           cursor      = "-1" // cursor type at 0x34; negative values mean no change
@@ -70,6 +69,15 @@ DEFINE_PATCH_FUNCTION ALTER_AREA_REGION
           flag_impassable_npc   = "-1" // can not be passed by npcs, bit9
           flag_activation_point = "-1" // use activation point, bit10
           flag_connect_to_door  = "-1" // connected to door, bit11
+          bounding_left         = "-1"
+          bounding_top          = "-1"
+          bounding_right        = "-1"
+          bounding_bottom       = "-1"
+          info_point            = 99999999
+          launch_x              = "-1"
+          launch_y              = "-1"
+          activate_x            = "-1"
+          activate_y            = "-1"
   STR_VAR region_name = ""     // required, at 0x00, used to match region
           destination_area    = "same" // changes destination area at 0x38; "same" means no change
           entrance_name     = "same" // changes entrance name at 0x40; "same" means no change
@@ -124,6 +132,15 @@ BEGIN
       PATCH_IF ("%door_script%" STRING_COMPARE_CASE "same") BEGIN
         WRITE_ASCIIE (trig_off + 0x7c + (index * 0xc4)) "%door_script%" #8
       END
+      PATCH_IF (bounding_left >= 0)     BEGIN WRITE_SHORT (trig_off + 0x22 + (index * 0xc4)) bounding_left   END
+      PATCH_IF (bounding_top >= 0)      BEGIN WRITE_SHORT (trig_off + 0x24 + (index * 0xc4)) bounding_top    END
+      PATCH_IF (bounding_right >= 0)    BEGIN WRITE_SHORT (trig_off + 0x26 + (index * 0xc4)) bounding_right  END
+      PATCH_IF (bounding_bottom >= 0)   BEGIN WRITE_SHORT (trig_off + 0x28 + (index * 0xc4)) bounding_bottom END
+      PATCH_IF (info_point != 99999999) BEGIN WRITE_LONG  (trig_off + 0x64 + (index * 0xc4)) info_point      END
+      PATCH_IF (launch_x >= 0)          BEGIN WRITE_SHORT (trig_off + 0x70 + (index * 0xc4)) launch_x        END
+      PATCH_IF (launch_y >= 0)          BEGIN WRITE_SHORT (trig_off + 0x72 + (index * 0xc4)) launch_y        END
+      PATCH_IF (activate_x >= 0)        BEGIN WRITE_SHORT (trig_off + 0x84 + (index * 0xc4)) activate_x      END
+      PATCH_IF (activate_y >= 0)        BEGIN WRITE_SHORT (trig_off + 0x86 + (index * 0xc4)) activate_y      END
     END
   END
 
@@ -133,6 +150,43 @@ DEFINE_PATCH_FUNCTION ALTER_AREA_ACTOR
   INT_VAR x_coord = "-1" // new x coordinate at 0x20 and 0x24; negative values mean no change
           y_coord = "-1" // new y coordinate at 0x22 and 0x26; negative values mean no change
           orient  = "-1" // facing direction for actor at 0x34; negative values mean no change
+          dest_x       = "-1"
+          dest_y       = "-1"
+          spawned      = "-1"
+          animation    = "-1"
+          expiry       = "-2"
+          wander       = "-1"
+          follow       = "-1"
+          times_talked = "-1"
+          flag_cre_unattached = "-1"
+          flag_seen_party     = "-1"
+          flag_invulnerable   = "-1"
+          flag_override_script_name   = "-1"
+          flag_time_0         = "-1"
+          flag_time_1         = "-1"
+          flag_time_2         = "-1"
+          flag_time_3         = "-1"
+          flag_time_4         = "-1"
+          flag_time_5         = "-1"
+          flag_time_6         = "-1"
+          flag_time_7         = "-1"
+          flag_time_8         = "-1"
+          flag_time_9         = "-1"
+          flag_time_10        = "-1"
+          flag_time_11        = "-1"
+          flag_time_12        = "-1"
+          flag_time_13        = "-1"
+          flag_time_14        = "-1"
+          flag_time_15        = "-1"
+          flag_time_16        = "-1"
+          flag_time_17        = "-1"
+          flag_time_18        = "-1"
+          flag_time_19        = "-1"
+          flag_time_20        = "-1"
+          flag_time_21        = "-1"
+          flag_time_22        = "-1"
+          flag_time_23        = "-1"
+
   STR_VAR actor_name       = ""     // required, at 0x00, used to match actor
           dlg_file         = "same" // changes dialog file at 0x48; "same" means no change
           script_override  = "same" // changes override script at 0x50; "same" means no change
@@ -149,10 +203,18 @@ BEGIN
   FOR (index = 0 ; index < cre_num ; ++index) BEGIN
     READ_ASCII (cre_off + (index * 0x110)) actor_name_file (32) NULL
     PATCH_IF ("%actor_name%" STRING_COMPARE_CASE "%actor_name_file%" = 0) BEGIN
-      PATCH_IF (x_coord >= 0) BEGIN WRITE_SHORT (cre_off + 0x20 + (index * 0x110)) x_coord
-                                    WRITE_SHORT (cre_off + 0x24 + (index * 0x110)) x_coord END
-      PATCH_IF (y_coord >= 0) BEGIN WRITE_SHORT (cre_off + 0x22 + (index * 0x110)) y_coord
-                                    WRITE_SHORT (cre_off + 0x26 + (index * 0x110)) y_coord END
+      PATCH_IF (x_coord >= 0) BEGIN
+        WRITE_SHORT (cre_off + 0x20 + (index * 0x110)) x_coord
+        PATCH_IF (dest_x < 0) BEGIN
+          WRITE_SHORT (cre_off + 0x24 + (index * 0x110)) x_coord
+        END
+      END
+      PATCH_IF (y_coord >= 0) BEGIN
+        WRITE_SHORT (cre_off + 0x22 + (index * 0x110)) y_coord
+        PATCH_IF (dest_y < 0) BEGIN
+          WRITE_SHORT (cre_off + 0x26 + (index * 0x110)) y_coord
+        END
+      END
       PATCH_IF (orient >= 0)  BEGIN WRITE_SHORT (cre_off + 0x34 + (index * 0x110)) orient END
       PATCH_IF ("%dlg_file%" STRING_COMPARE_CASE "same") BEGIN
         WRITE_ASCIIE (cre_off + 0x48 + (index * 0x110)) "%dlg_file%" #8
@@ -178,6 +240,70 @@ BEGIN
       PATCH_IF ("%cre_file%" STRING_COMPARE_CASE "same") BEGIN
         WRITE_ASCIIE (cre_off + 0x80 + (index * 0x110)) "%cre_file%" #8
       END
+      PATCH_IF (dest_x >= 0)       BEGIN WRITE_SHORT (cre_off + 0x24 + (index * 0x110)) dest_x       END
+      PATCH_IF (dest_y >= 0)       BEGIN WRITE_SHORT (cre_off + 0x26 + (index * 0x110)) dest_y       END
+      PATCH_IF (spawned >= 0)      BEGIN WRITE_SHORT (cre_off + 0x2c + (index * 0x110)) spawned      END
+      PATCH_IF (animation >= 0)    BEGIN WRITE_LONG  (cre_off + 0x30 + (index * 0x110)) animation    END
+      PATCH_IF (expiry >= "-1")    BEGIN WRITE_LONG  (cre_off + 0x38 + (index * 0x110)) expiry       END
+      PATCH_IF (wander >= 0)       BEGIN WRITE_SHORT (cre_off + 0x3c + (index * 0x110)) wander       END
+      PATCH_IF (follow >= 0)       BEGIN WRITE_SHORT (cre_off + 0x3e + (index * 0x110)) follow       END
+      PATCH_IF (times_talked >= 0) BEGIN WRITE_LONG  (cre_off + 0x44 + (index * 0x110)) times_talked END
+      PATCH_IF (flag_cre_unattached = 0) BEGIN WRITE_BYTE  (cre_off + 0x28 + (index * 0x110)) (THIS & `BIT0) END
+      PATCH_IF (flag_cre_unattached = 1) BEGIN WRITE_BYTE  (cre_off + 0x28 + (index * 0x110)) (THIS BOR BIT0) END
+      PATCH_IF (flag_seen_party = 0)     BEGIN WRITE_BYTE  (cre_off + 0x28 + (index * 0x110)) (THIS & `BIT1) END
+      PATCH_IF (flag_seen_party = 1)     BEGIN WRITE_BYTE  (cre_off + 0x28 + (index * 0x110)) (THIS BOR BIT1) END
+      PATCH_IF (flag_invulnerable = 0)         BEGIN WRITE_BYTE  (cre_off + 0x28 + (index * 0x110)) (THIS & `BIT2) END
+      PATCH_IF (flag_invulnerable = 1)         BEGIN WRITE_BYTE  (cre_off + 0x28 + (index * 0x110)) (THIS BOR BIT2) END
+      PATCH_IF (flag_override_script_name = 0)    BEGIN WRITE_BYTE  (cre_off + 0x28 + (index * 0x110)) (THIS & `BIT3) END
+      PATCH_IF (flag_override_script_name = 1)    BEGIN WRITE_BYTE  (cre_off + 0x28 + (index * 0x110)) (THIS BOR BIT3) END
+      PATCH_IF (flag_time_0 = 0)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS & `BIT0) END
+      PATCH_IF (flag_time_0 = 1)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS BOR BIT0) END
+      PATCH_IF (flag_time_1 = 0)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS & `BIT1) END
+      PATCH_IF (flag_time_1 = 1)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS BOR BIT1) END
+      PATCH_IF (flag_time_2 = 0)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS & `BIT2) END
+      PATCH_IF (flag_time_2 = 1)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS BOR BIT2) END
+      PATCH_IF (flag_time_3 = 0)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS & `BIT3) END
+      PATCH_IF (flag_time_3 = 1)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS BOR BIT3) END
+      PATCH_IF (flag_time_4 = 0)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS & `BIT4) END
+      PATCH_IF (flag_time_4 = 1)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS BOR BIT4) END
+      PATCH_IF (flag_time_5 = 0)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS & `BIT5) END
+      PATCH_IF (flag_time_5 = 1)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS BOR BIT5) END
+      PATCH_IF (flag_time_6 = 0)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS & `BIT6) END
+      PATCH_IF (flag_time_6 = 1)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS BOR BIT6) END
+      PATCH_IF (flag_time_7 = 0)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS & `BIT7) END
+      PATCH_IF (flag_time_7 = 1)  BEGIN WRITE_BYTE  (cre_off + 0x40 + (index * 0x110)) (THIS BOR BIT7) END
+      PATCH_IF (flag_time_8 = 0)  BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS & `BIT0) END
+      PATCH_IF (flag_time_8 = 1)  BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS BOR BIT0) END
+      PATCH_IF (flag_time_9 = 0)  BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS & `BIT1) END
+      PATCH_IF (flag_time_9 = 1)  BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS BOR BIT1) END
+      PATCH_IF (flag_time_10 = 0) BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS & `BIT2) END
+      PATCH_IF (flag_time_10 = 1) BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS BOR BIT2) END
+      PATCH_IF (flag_time_11 = 0) BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS & `BIT3) END
+      PATCH_IF (flag_time_11 = 1) BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS BOR BIT3) END
+      PATCH_IF (flag_time_12 = 0) BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS & `BIT4) END
+      PATCH_IF (flag_time_12 = 1) BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS BOR BIT4) END
+      PATCH_IF (flag_time_13 = 0) BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS & `BIT5) END
+      PATCH_IF (flag_time_13 = 1) BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS BOR BIT5) END
+      PATCH_IF (flag_time_14 = 0) BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS & `BIT6) END
+      PATCH_IF (flag_time_14 = 1) BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS BOR BIT6) END
+      PATCH_IF (flag_time_15 = 0) BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS & `BIT7) END
+      PATCH_IF (flag_time_15 = 1) BEGIN WRITE_BYTE  (cre_off + 0x41 + (index * 0x110)) (THIS BOR BIT7) END
+      PATCH_IF (flag_time_16 = 0) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS & `BIT0) END
+      PATCH_IF (flag_time_16 = 1) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS BOR BIT0) END
+      PATCH_IF (flag_time_17 = 0) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS & `BIT1) END
+      PATCH_IF (flag_time_17 = 1) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS BOR BIT1) END
+      PATCH_IF (flag_time_18 = 0) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS & `BIT2) END
+      PATCH_IF (flag_time_18 = 1) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS BOR BIT2) END
+      PATCH_IF (flag_time_19 = 0) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS & `BIT3) END
+      PATCH_IF (flag_time_19 = 1) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS BOR BIT3) END
+      PATCH_IF (flag_time_20 = 0) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS & `BIT4) END
+      PATCH_IF (flag_time_20 = 1) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS BOR BIT4) END
+      PATCH_IF (flag_time_21 = 0) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS & `BIT5) END
+      PATCH_IF (flag_time_21 = 1) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS BOR BIT5) END
+      PATCH_IF (flag_time_22 = 0) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS & `BIT6) END
+      PATCH_IF (flag_time_22 = 1) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS BOR BIT6) END
+      PATCH_IF (flag_time_23 = 0) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS & `BIT7) END
+      PATCH_IF (flag_time_23 = 1) BEGIN WRITE_BYTE  (cre_off + 0x42 + (index * 0x110)) (THIS BOR BIT7) END
     END
   END
 
@@ -196,6 +322,15 @@ DEFINE_PATCH_FUNCTION ALTER_AREA_CONTAINER
           flag_mlocked    = "-1" // magical lock, bit2
           flag_resets     = "-1" // trap resets, bit3
           flag_disabled   = "-1" // disabled, bit5
+          coord_x         = "-1"
+          coord_y         = "-1"
+          launch_x        = "-1"
+          launch_y        = "-1"
+          bounding_left   = "-1"
+          bounding_top    = "-1"
+          bounding_right  = "-1"
+          bounding_bottom = "-1"
+          range           = "-1"
   STR_VAR container_name  = ""   // required, at 0x00, used to match container
           container_script = "same" // changes container script at 0x48; "same" means no change
           container_key    = "same" // changes container key 0x78; "same" means no change
@@ -229,6 +364,16 @@ BEGIN
       PATCH_IF ("%container_key%" STRING_COMPARE_CASE "same") BEGIN
         WRITE_ASCIIE (cont_off + 0x78 + (index * 0xc0)) "%container_key%" #8
       END
+
+      PATCH_IF (coord_x  >= 0)                BEGIN WRITE_SHORT (cont_off + 0x20 + (index * 0xc0)) coord_x         END
+      PATCH_IF (coord_y  >= 0)                BEGIN WRITE_SHORT (cont_off + 0x22 + (index * 0xc0)) coord_y         END
+      PATCH_IF (launch_x  >= 0)               BEGIN WRITE_SHORT (cont_off + 0x34 + (index * 0xc0)) launch_x        END
+      PATCH_IF (launch_y  >= 0)               BEGIN WRITE_SHORT (cont_off + 0x36 + (index * 0xc0)) launch_y        END
+      PATCH_IF (bounding_left  >= 0)          BEGIN WRITE_SHORT (cont_off + 0x38 + (index * 0xc0)) bounding_left   END
+      PATCH_IF (bounding_top  >= 0)           BEGIN WRITE_SHORT (cont_off + 0x3a + (index * 0xc0)) bounding_top    END
+      PATCH_IF (bounding_right  >= 0)         BEGIN WRITE_SHORT (cont_off + 0x3c + (index * 0xc0)) bounding_right  END
+      PATCH_IF (bounding_bottom  >= 0)        BEGIN WRITE_SHORT (cont_off + 0x3e + (index * 0xc0)) bounding_bottom END
+      PATCH_IF (range  >= 0)                  BEGIN WRITE_SHORT (cont_off + 0x56 + (index * 0xc0)) range           END
     END
   END
 
@@ -242,9 +387,44 @@ DEFINE_PATCH_FUNCTION ALTER_AREA_DOOR
           detected        = "-1" // is detected? at 0x72; negative values mean no change
           door_detect     = "-1" // difficulty of detection at 0x88; negative values mean no change
           lock_difficulty = "-1" // difficulty of lock at 0x8c; negative values mean no change
+          flag_open         = "-1"
+          flag_locked       = "-1"
+          flag_resets       = "-1"
+          flag_detectable   = "-1"
+          flag_forced       = "-1"
+          flag_no_close     = "-1"
+          flag_located      = "-1"
+          flag_secret       = "-1"
+          flag_detected     = "-1"
+          flag_no_look      = "-1"
+          flag_uses_key     = "-1"
+          flag_sliding      = "-1"
+          bounding_open_left   = "-1"
+          bounding_open_top    = "-1"
+          bounding_open_right  = "-1"
+          bounding_open_bottom = "-1"
+          bounding_closed_left   = "-1"
+          bounding_closed_top    = "-1"
+          bounding_closed_right  = "-1"
+          bounding_closed_bottom = "-1"
+          door_hp           = "-1"
+          door_ac           = "-1"
+          launch_x          = "-1"
+          launch_y          = "-1"
+          open_x            = "-1"
+          open_y            = "-1"
+          close_x           = "-1"
+          close_y           = "-1"
+          string_unlock     = 99999999
+          string_speaker    = 99999999
+
   STR_VAR door_name   = ""     // required, at 0x00, used to match door
           door_key    = "same" // changes door key at 0x78; "same" means no change
           door_script = "same" // changes door script at 0x80; "same" means no change; "same" means no change
+          door_open_sound  = "same"
+          door_close_sound = "same"
+          travel_trigger = "same"
+          dialogue       = "same"
 BEGIN
 
   READ_LONG 0xa4 door_num
@@ -265,6 +445,63 @@ BEGIN
       END
       PATCH_IF ("%door_script%" STRING_COMPARE_CASE "same") BEGIN
         WRITE_ASCIIE (door_off + 0x80 + (index * 0xc8)) "%door_script%" #8
+      END
+
+      PATCH_IF (flag_open       = 0) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS & `BIT0 END
+      PATCH_IF (flag_open       = 1) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS |  BIT0 END
+      PATCH_IF (flag_locked     = 0) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS & `BIT1 END
+      PATCH_IF (flag_locked     = 1) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS |  BIT1 END
+      PATCH_IF (flag_resets     = 0) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS & `BIT2 END
+      PATCH_IF (flag_resets     = 1) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS |  BIT2 END
+      PATCH_IF (flag_detectable = 0) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS & `BIT3 END
+      PATCH_IF (flag_detectable = 1) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS |  BIT3 END
+      PATCH_IF (flag_forced     = 0) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS & `BIT4 END
+      PATCH_IF (flag_forced     = 1) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS |  BIT4 END
+      PATCH_IF (flag_no_close   = 0) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS & `BIT5 END
+      PATCH_IF (flag_no_close   = 1) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS |  BIT5 END
+      PATCH_IF (flag_located    = 0) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS & `BIT6 END
+      PATCH_IF (flag_located    = 1) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS |  BIT6 END
+      PATCH_IF (flag_secret     = 0) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS & `BIT7 END
+      PATCH_IF (flag_secret     = 1) BEGIN WRITE_BYTE  (door_off + 0x28 + (index * 0xc8)) THIS |  BIT7 END
+      PATCH_IF (flag_detected   = 0) BEGIN WRITE_BYTE  (door_off + 0x29 + (index * 0xc8)) THIS & `BIT0 END
+      PATCH_IF (flag_detected   = 1) BEGIN WRITE_BYTE  (door_off + 0x29 + (index * 0xc8)) THIS |  BIT0 END
+      PATCH_IF (flag_no_look    = 0) BEGIN WRITE_BYTE  (door_off + 0x29 + (index * 0xc8)) THIS & `BIT1 END
+      PATCH_IF (flag_no_look    = 1) BEGIN WRITE_BYTE  (door_off + 0x29 + (index * 0xc8)) THIS |  BIT1 END
+      PATCH_IF (flag_uses_key   = 0) BEGIN WRITE_BYTE  (door_off + 0x29 + (index * 0xc8)) THIS & `BIT2 END
+      PATCH_IF (flag_uses_key   = 1) BEGIN WRITE_BYTE  (door_off + 0x29 + (index * 0xc8)) THIS |  BIT2 END
+      PATCH_IF (flag_sliding    = 0) BEGIN WRITE_BYTE  (door_off + 0x29 + (index * 0xc8)) THIS & `BIT3 END
+      PATCH_IF (flag_sliding    = 1) BEGIN WRITE_BYTE  (door_off + 0x29 + (index * 0xc8)) THIS |  BIT3 END
+
+      PATCH_IF (bounding_open_left       >= 0) BEGIN WRITE_SHORT (door_off + 0x38 + (index * 0xc8)) bounding_open_left   END
+      PATCH_IF (bounding_open_top        >= 0) BEGIN WRITE_SHORT (door_off + 0x3a + (index * 0xc8)) bounding_open_top    END
+      PATCH_IF (bounding_open_right      >= 0) BEGIN WRITE_SHORT (door_off + 0x3c + (index * 0xc8)) bounding_open_right  END
+      PATCH_IF (bounding_open_bottom     >= 0) BEGIN WRITE_SHORT (door_off + 0x3e + (index * 0xc8)) bounding_open_bottom END
+      PATCH_IF (bounding_closed_left       >= 0) BEGIN WRITE_SHORT (door_off + 0x40 + (index * 0xc8)) bounding_closed_left   END
+      PATCH_IF (bounding_closed_top        >= 0) BEGIN WRITE_SHORT (door_off + 0x42 + (index * 0xc8)) bounding_closed_top    END
+      PATCH_IF (bounding_closed_right      >= 0) BEGIN WRITE_SHORT (door_off + 0x44 + (index * 0xc8)) bounding_closed_right  END
+      PATCH_IF (bounding_closed_bottom     >= 0) BEGIN WRITE_SHORT (door_off + 0x46 + (index * 0xc8)) bounding_closed_bottom END
+      PATCH_IF (door_hp               >= 0) BEGIN WRITE_SHORT (door_off + 0x54 + (index * 0xc8)) door_hp           END
+      PATCH_IF (door_ac               >= 0) BEGIN WRITE_SHORT (door_off + 0x56 + (index * 0xc8)) door_ac           END
+      PATCH_IF (launch_x              >= 0) BEGIN WRITE_SHORT (door_off + 0x74 + (index * 0xc8)) launch_x          END
+      PATCH_IF (launch_y              >= 0) BEGIN WRITE_SHORT (door_off + 0x76 + (index * 0xc8)) launch_y          END
+      PATCH_IF (open_x                >= 0) BEGIN WRITE_SHORT (door_off + 0x90 + (index * 0xc8)) open_x            END
+      PATCH_IF (open_y                >= 0) BEGIN WRITE_SHORT (door_off + 0x92 + (index * 0xc8)) open_y            END
+      PATCH_IF (close_x               >= 0) BEGIN WRITE_SHORT (door_off + 0x94 + (index * 0xc8)) close_x           END
+      PATCH_IF (close_y               >= 0) BEGIN WRITE_SHORT (door_off + 0x96 + (index * 0xc8)) close_y           END
+      PATCH_IF (string_unlock  != 99999999) BEGIN WRITE_LONG  (door_off + 0x98 + (index * 0xc8)) string_unlock     END
+      PATCH_IF (string_speaker != 99999999) BEGIN WRITE_LONG  (door_off + 0xb4 + (index * 0xc8)) string_speaker    END
+
+      PATCH_IF ("%door_open_sound%" STRING_COMPARE_CASE "same") BEGIN
+        WRITE_ASCIIE (door_off + 0x58 + (index * 0xc8)) "%door_open_sound%" #8
+      END
+      PATCH_IF ("%door_close_sound%" STRING_COMPARE_CASE "same") BEGIN
+        WRITE_ASCIIE (door_off + 0x60 + (index * 0xc8)) "%door_close_sound%" #8
+      END
+      PATCH_IF ("%travel_trigger%" STRING_COMPARE_CASE "same") BEGIN
+        WRITE_ASCIIE (door_off + 0x9c + (index * 0xc8)) "%travel_trigger%" #24
+      END
+      PATCH_IF ("%dialogue%" STRING_COMPARE_CASE "same") BEGIN
+        WRITE_ASCIIE (door_off + 0xb8 + (index * 0xc8)) "%dialogue%" #8
       END
     END
   END

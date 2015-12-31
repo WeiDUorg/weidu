@@ -8728,7 +8728,7 @@ This is a PATCH function. For all integer variables, a negative value results in
 \\
 
 \verb+ALTER_AREA_REGION+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Info}}{area regions}, also known as area triggers.
-This is a PATCH function. For all integer variables, a negative value results in no change and the default value is -1. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. For all string variables except \verb+region_name+, the default value is the string "same", which results in no change to that field. The variable \verb+region_name+ is required.
+This is a PATCH function. For all integer variables except \verb+info_point+, a negative value results in no change and the default value is -1. The variable \verb+info_point+ results in no change if it has the default value 99999999. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. For all string variables except \verb+region_name+, the default value is the string "same", which results in no change to that field. The variable \verb+region_name+ is required.
 \begin{itemize}
 \item INT_VAR \verb+type+ to the new type of the region.
 \item INT_VAR \verb+cursor+ to the new cursor index to be used.
@@ -8748,6 +8748,15 @@ This is a PATCH function. For all integer variables, a negative value results in
 \item INT_VAR \verb+flag_impassable_npc+ to the new value of the flag known as \t{cannot be passed by NPCs} (bit 9).
 \item INT_VAR \verb+flag_activation_point+ to the new value of the flag known as \t{use activation point} (bit 10).
 \item INT_VAR \verb+flag_connect_to_door+ to the new value of the flag known as \t{connected to door} (bit 11).
+\item INT_VAR \verb+bounding_left+ to the new value of the left edge of the bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+bounding_top+ to the new value of the top edge of the bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+bounding_right+ to the new value of the right edge of the bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+bounding_bottom+ to the new value of the bottom edge of the bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+info_point+ to the new string reference of the info point.
+\item INT_VAR \verb+launch_x+ to the new x coordinate of the launch point.
+\item INT_VAR \verb+launch_y+ to the new y coordinate of the launch point.
+\item INT_VAR \verb+activate_x+ to the new x coordinate of the activation point.
+\item INT_VAR \verb+activate_y+ to the new y coordinate of the activation point.
 \item STR_VAR \verb+region_name+ to the name of the region to be patched. This variable is required.
 \item STR_VAR \verb+destination_area+ to the resref of the new destination area.
 \item STR_VAR \verb+entrance_name+ to the new entrance name of the destination area.
@@ -8757,11 +8766,24 @@ This is a PATCH function. For all integer variables, a negative value results in
 \\
 
 \verb+ALTER_AREA_ACTOR+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Actor}}{area actors}.
-This is a PATCH function. All integer variables default to the value -1 and a negative value results in no change to the corresponding field. All string variables except \verb+actor_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+actor_name+ is required.
+This is a PATCH function. All integer variables, except \verb+expiry+, default to the value -1 and a negative value results in no change to the corresponding field. The variable \verb+expiry+ instead has a default value of -2. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. All string variables except \verb+actor_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+actor_name+ is required.
 \begin{itemize}
-\item INT_VAR \verb+x_coord+ to the new x coordinate.
-\item INT_VAR \verb+y_coord+ to the new y coordinate.
+\item INT_VAR \verb+x_coord+ to the new x coordinate. Unless \verb+dest_x+ is defined, \verb+x_coord+ is used as the x-value of the destination, as well.
+\item INT_VAR \verb+y_coord+ to the new y coordinate. Unless \verb+dest_y+ is defined, \verb+y_coord+ is used as the y-value of the destination, as well.
+\item INT_VAR \verb+dest_x+ to the new x destination.
+\item INT_VAR \verb+dest_y+ to the new y destination.
+\item INT_VAR \verb+spawned+ to the new spawned value.
+\item INT_VAR \verb+animation+ to the new animation value.
 \item INT_VAR \verb+orient+ to the new facing direction.
+\item INT_VAR \verb+expiry+ to the new expiration time.
+\item INT_VAR \verb+wander+ to the new wander-distance value.
+\item INT_VAR \verb+follow+ to the new follow-distance value.
+\item INT_VAR \verb+times_talked+ to the new number of times the actor has been talked to.
+\item INT_VAR \verb+flag_cre_unattached+ to the new value of the flag known as \t{CRE attached} (bit 0).
+\item INT_VAR \verb+flag_seen_party+ to the new value of the flag known as \t{has seen party} (bit 1).
+\item INT_VAR \verb+flag_invulnerable+ to the new value of the flag known as \t{invulnerable} (bit 2).
+\item INT_VAR \verb+flag_override_script_name+ to the new value of the flag known as {override script name} (bit 3).
+\item INT_VAR \verb+flag_time_0+ through \verb+flag_time_23+ to the new values of the actor's appearance schedule.
 \item STR_VAR \verb+actor_name+ to the name of the actor to be patched. This variable is required.
 \item STR_VAR \verb+dlg_file+ to the resref of the new dialogue file.
 \item STR_VAR \verb+script_override+ to the resref of the new override script.
@@ -8776,9 +8798,18 @@ This is a PATCH function. All integer variables default to the value -1 and a ne
 
 \verb+ALTER_AREA_CONTAINER+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Container}}{area containers}, but not their contents. This is a PATCH function. All integer variables default to -1 and negative values result in no change to the corresponding field. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. All string variables except \verb+container_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+container_name+ is required.
 \begin{itemize}
+\item INT_VAR \verb+coord_x+ to the new x coordinate.
+\item INT_VAR \verb+coord_y+ to the new y coordinate.
 \item INT_VAR \verb+container_type+ to the new type of the container.
 \item INT_VAR \verb+trapped+ to whether the container should be trapped.
 \item INT_VAR \verb+detected+ to whether the container trap should be detected.
+\item INT_VAR \verb+launch_x+ to the new x coordinate of the launch point.
+\item INT_VAR \verb+launch_y+ to the new y coordinate of the launch point.
+\item INT_VAR \verb+bounding_left+ to the new value of the left edge of the bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+bounding_top+ to the new value of the top edge of the bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+bounding_right+ to the new value of the right edge of the bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+bounding_bottom+ to the new value of the bottom edge of the bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+range+ to the new trigger-range value.
 \item INT_VAR \verb+lockpick_strref+ to the new strref of the lockpick string.
 \item INT_VAR \verb+lock_difficulty+ to the new difficulty of the lock.
 \item INT_VAR \verb+trap_detect+ to the new difficulty of trap detection.
@@ -8793,18 +8824,52 @@ This is a PATCH function. All integer variables default to the value -1 and a ne
 \end{itemize}
 \\
 
-\verb+ALTER_AREA_DOOR+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Door}}{area doors.} This is a PATCH function. All integer variables default to -1 and negative values result in no change to the corresponding field. All string variables except \verb+door_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+door_name+ is required.
+\verb+ALTER_AREA_DOOR+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Door}}{area doors.} This is a PATCH function. All integer variables, except \verb+string_unlock+ and \verb+string_speaker+, default to -1 and negative values result in no change to the corresponding field. The variables \verb+string_unlock+ and \verb+string_speaker+ instead default to 99999999. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. All string variables except \verb+door_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+door_name+ is required.
 \begin{itemize}
+\item INT_VAR \verb+bounding_open_left+ to the new value of the left edge of the open-state bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+bounding_open_top+ to the new value of the top edge of the open-state bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+bounding_open_right+ to the new value of the right edge of the open-state bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+bounding_open_bottom+ to the new value of the bottom edge of the open-state bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+bounding_closed_left+ to the new value of the left edge of the closed-state bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+bounding_closed_top+ to the new value of the top edge of the closed-state bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+bounding_closed_right+ to the new value of the right edge of the closed-state bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+bounding_closed_bottom+ to the new value of the bottom edge of the closed-state bounding box. The vertices remain unchanged.
+\item INT_VAR \verb+door_hp+ to the new hit-point value.
+\item INT_VAR \verb+door_ac+ to the new armor-class value.
 \item INT_VAR \verb+cursor+ to the new cursor index.
 \item INT_VAR \verb+trap_detect+ to the new difficulty of trap detection.
 \item INT_VAR \verb+trap_remove+ to the new difficulty of trap removal.
 \item INT_VAR \verb+trapped+ to whether the door should be trapped.
 \item INT_VAR \verb+detected+ to whether the door trap should be detected.
+\item INT_VAR \verb+launch_x+ to the new x coordinate of the launch point.
+\item INT_VAR \verb+launch_y+ to the new y coordinate of the launch point.
 \item INT_VAR \verb+door_detect+ to the new difficulty of door detection.
 \item INT_VAR \verb+lock_difficulty+ to the new difficulty of the lock.
+\item INT_VAR \verb+open_x+ to the new x coordinate of the opening point.
+\item INT_VAR \verb+open_y+ to the new y coordinate of the opening point.
+\item INT_VAR \verb+close_x+ to the new x coordinate of the closing point.
+\item INT_VAR \verb+close_y+ to the new y coordinate of the closing point.
+\item INT_VAR \verb+string_unlock+ to the new string reference of the unlock message.
+\item INT_VAR \verb+string_speaker+ to the new string reference of the dialogue-speaker name.
+\item INT_VAR \verb+flag_open+ to the new value of the flag known as \t{door open} (bit 0).
+\item INT_VAR \verb+flag_locked+ to the new value of the flag known as \t{door locked} (bit 1).
+\item INT_VAR \verb+flag_resets+ to the new value of the flag known as \t{reset trap} (bit 2).
+\item INT_VAR \verb+flag_detectable+ to the new value of the flag known as \t{trap detectable} (bit 3).
+\item INT_VAR \verb+flag_forced+ to the new value of the flag known as \t{broken} (bit 4).
+\item INT_VAR \verb+flag_no_close+ to the new value of the flag known as \t{can't close} (bit 5).
+\item INT_VAR \verb+flag_located+ to the new value of the flag known as \t{linked} (bit 6).
+\item INT_VAR \verb+flag_secret+ to the new value of the flag known as \t{door hidden} (bit 7).
+\item INT_VAR \verb+flag_detected+ to the new value of the flag known as \t{door found} (bit 8).
+\item INT_VAR \verb+flag_no_look+ to the new value of the flag known as \t{don't block line of sight} (bit 9).
+\item INT_VAR \verb+flag_uses_key+ to the new value of the flag known as \t{remove key} (bit 10).
+\item INT_VAR \verb+flag_sliding+ to the new value of the flag known as \t{ignore obstacles when closing} (bit 11).
 \item STR_VAR \verb+door_name+ to the name of the door to be patched. This variable is required.
+\item STR_VAR \verb+door_open_sound+ to the resource reference of the opening sound.
+\item STR_VAR \verb+door_close_sound+ to the resource reference of the closing sound.
 \item STR_VAR \verb+door_key+ to the resref of the new door key.
 \item STR_VAR \verb+door_script+ to the resref of the new door script.
+\item STR_VAR \verb+travel_trigger+ to the new travel-trigger name. This field is 24 bytes in length.
+\item STR_VAR \verb+dialogue+ to the new resource reference of the dialogue file.
 \end{itemize}
 \\
 
