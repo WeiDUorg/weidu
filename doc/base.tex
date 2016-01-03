@@ -4928,6 +4928,17 @@ or & \DEFSYN{INNER!ACTION} \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
   \t{COPY!EXISTING ~foo.2da~}. More formally, if the inner action and the
   outer action both modify the same file, the results are undefined.}\\
 
+or & \DEFINE{EDIT!SAV!FILE} level \t{BEGIN} \ttref{TP2 Patch} \Slist \t{END} &
+
+  The current file should be a \t{SAV} file. \ttref{EDIT!SAV!FILE}
+  will iterate over the files contained within the \t{SAV} file, set
+  the variable \t{SAV!FILE} to the name of the current file and
+  evaluate the patch list against the decompressed contents of
+  \t{SAV!FILE}. The file contents are then recompressed into the
+  \t{SAV} file using the specified compression level. level can be 0
+  to 9, where 0 means no compression, 1 is the fastest compression and
+  9 is the best compression.\\
+
 or & \DEFINE{DECOMPRESS!REPLACE!FILE} start length uncompressedlength &
 	Decompress (ZLIB) the \verb/start...start+length-1/ portion of the current
 	file (requires to specify the uncompressed length as well). The result overwrites
@@ -10260,7 +10271,6 @@ Currently undocumented:
 \item {\tt IF!EVAL}.
 \item {\tt REPLACE!BCS!BLOCK!REGEXP}.
 \item Fred's BCS diff stuff.
-\item {\tt EDIT!SAV!FILE}.
 \item {\tt EXTEND!MOS}.
 \end{itemize}
 

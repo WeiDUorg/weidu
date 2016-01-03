@@ -39,6 +39,7 @@ Version 239:
     do NOT support this.
   * The ALTER_(ITEM|SPELL)_EFFECT functions support altering the special
     parameter.
+  * Document EDIT_SAV_FILE.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
