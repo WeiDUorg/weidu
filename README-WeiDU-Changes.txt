@@ -40,6 +40,8 @@ Version 239:
   * The ALTER_(ITEM|SPELL)_EFFECT functions support altering the special
     parameter.
   * Document EDIT_SAV_FILE.
+  * TP2 precedence order is now MyMod/MyMod.tp2, MyMod/Setup-MyMod.tp2,
+    MyMod.tp2, Setup-MyMod.tp2.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.

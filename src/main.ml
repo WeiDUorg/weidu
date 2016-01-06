@@ -1369,10 +1369,10 @@ let main () =
       | _ -> ""
       in
       try_it
-        [ (argv0_base ^ ".TP2") ;
-          (chunk ^ ".TP2") ;
+        [ (chunk ^ "/" ^ chunk ^ ".TP2") ;
           (chunk ^ "/" ^ argv0_base ^ ".TP2") ;
-          (chunk ^ "/" ^ chunk ^ ".TP2") ; ]
+          (chunk ^ ".TP2") ;
+          (argv0_base ^ ".TP2") ; ]
     end
   end in
 

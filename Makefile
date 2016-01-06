@@ -99,7 +99,7 @@ $(PROJECT3_EXECUTABLE) : $(PROJECT3_MODULES:%=$(OBJDIR)/%.$(CMO)) \
 # rule for WeInstall
 
 PROJECT4_EXECUTABLE = $(OBJDIR)/weinstall$(EXE)
-PROJECT4_MODULES    =  case_ins weinstall
+PROJECT4_MODULES    = batList batteriesInit case_ins weinstall
 PROJECT4_CMODULES   =
 PROJECT4_OCAML_LIBS = unix str
 PROJECT4_LIBS       = unix camlstr

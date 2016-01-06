@@ -39,8 +39,13 @@ let main () =
     Buffer.add_string buff (Printf.sprintf "%s --log %s "
                               weidu_executable debug_where);
     let x = Sys.argv.(1) in
-    Buffer.add_string buff (Printf.sprintf " %s.tp2 setup-%s.tp2 %s/%s.tp2 %s/setup-%s.tp2 "
-                              x            x      x  x      x        x);
+    let tp2s = List.filter Sys.file_exists
+        [ (x ^ "/" ^ x ^ ".tp2") ;
+          (x ^ "/" ^ "setup-" ^ x ^ ".tp2") ;
+          (x ^ ".tp2") ;
+          ("setup-" ^ x ^ ".tp2") ; ] in
+    let tp2 = (try List.hd tp2s with _ -> failwith "ERROR: TP2 file not found.") in
+    Buffer.add_string buff tp2 ;
     if (fast) then
       Buffer.add_string buff " --quick-log --skip-at-view --safe-exit --no-exit-pause ";
     for i = 2 to Array.length Sys.argv - 1 do
