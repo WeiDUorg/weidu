@@ -32,7 +32,6 @@ Version 239:
   * Add UNDEFINED keyword for function definitions.
   * Fix compatibility issue that had WeiDU resort to dumb-terminal behaviour on
     modern terminal emulators.
-  * Underlying changes to (ALTER|DELETE)_(ITEM|SPELL)_(EFFECT|HEADER).
   * The functions (DELETE|CLONE)_EFFECT do not misindex files under certain conditions.
   * The ADD_SPELL_EFFECT, ADD_ITEM_EFFECT, ADD_ITEM_EQEFFECT and ADD_CRE_EFFECT
     functions support setting the special parameter. The corresponding macros
