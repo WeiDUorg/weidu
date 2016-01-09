@@ -37,6 +37,7 @@ Version 239:
     do NOT support this.
   * The ALTER_(ITEM|SPELL)_EFFECT functions support altering the special
     parameter.
+  * The functionality of the ALTER_AREA_* functions has been expanded.
   * Document EDIT_SAV_FILE.
   * TP2 precedence order is now MyMod/MyMod.tp2, MyMod/Setup-MyMod.tp2,
     MyMod.tp2, Setup-MyMod.tp2.
