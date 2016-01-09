@@ -600,6 +600,7 @@ BEGIN
             PATCH_IF (dicesize >= 0)      BEGIN WRITE_LONG  (fx_off + 0x20 + ((index + abil_fx_idx) * 0x30)) dicesize      END
             PATCH_IF (savingthrow >= 0)   BEGIN WRITE_LONG  (fx_off + 0x24 + ((index + abil_fx_idx) * 0x30)) savingthrow   END
             PATCH_IF (savebonus >= "-10") BEGIN WRITE_LONG  (fx_off + 0x28 + ((index + abil_fx_idx) * 0x30)) savebonus     END
+            PATCH_IF (special >= 0)       BEGIN WRITE_LONG  (fx_off + 0x2c + ((index + abil_fx_idx) * 0x30)) special       END
             PATCH_IF (duration_high >= 0) BEGIN
               READ_LONG (fx_off + 0x0e + ((index + abil_fx_idx) * 0x30)) duration_file
               PATCH_IF (duration_file > 5) BEGIN
