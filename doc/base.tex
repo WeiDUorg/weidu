@@ -3885,29 +3885,15 @@ or & \DEFINE{DEFINE!ACTION!FUNCTION} \ttref{String}
      \Ob \t{STR!VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe
      \Ob \t{RET} \ttref{variable} ... \Oe \t{BEGIN} \ttref{TP2 Action} \Slist
      \t{END} &
-  Define an action function. Function definitions support the
-  additional keyword \t{UNDEFINED}, which may be used instead of a
-  value or string on the right of an equality sign when declaring
-  variables in the \t{INT!VAR} or \t{STR!VAR} sections. A variable
-  declared as \t{UNDEFINED} will be undefined in the function's scope,
-  regardless of its status outside the function, unless a value for
-  the variable is passed when the function is launched. Refer to the
-  \ttref{Functions} section for additional information about using
-  functions. \\
+  Define an action function. Refer to the \ttref{Functions} section for
+  additional information. \\
 or & \DEFINE{DEFINE!PATCH!FUNCTION} \ttref{String}
      \Ob \t{INT!VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
      \Ob \t{STR!VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe
      \Ob \t{RET} \ttref{variable} ... \Oe \t{BEGIN} \ttref{patch} \Slist
      \t{END} &
-  Define a patch function. Function definitions support the additional
-  keyword \t{UNDEFINED}, which may be used instead of a value or
-  string on the right of an equality sign when declaring variables in
-  the \t{INT!VAR} or \t{STR!VAR} sections. A variable declared as
-  \t{UNDEFINED} will be undefined in the function's scope, regardless
-  of its status outside the function, unless a value for the variable
-  is passed when the function is launched. Refer to the
-  \ttref{Functions} section for additional information about using
-  functions. \\
+  Define a patch function. Refer to the \ttref{Functions} section for
+  additional information. \\
 or & \DEFINE{LAUNCH!ACTION!MACRO} \ttref{String} &
   Launch an action macro. Refer to the \ttref{macros} section for
   additional information. You may use \DEFINE{LAM} as a synonym for

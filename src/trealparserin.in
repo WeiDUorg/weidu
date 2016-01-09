@@ -13,7 +13,6 @@ let rec left_to_right p =
   | Tp.PE_Uppercase s -> Tp.PE_Uppercase(left_to_right s)
   | Tp.PE_Dollars (s,sl,true,false) -> Tp.PE_Dollars(left_to_right s, List.map left_to_right sl, false, true)
   | Tp.PE_Dollars (s,sl,a,b) -> Tp.PE_Dollars(left_to_right s, List.map left_to_right sl, a, b)
-  | Tp.PE_UndefinedString -> Tp.PE_UndefinedString
 
 let seven_patch_exp v1 v2 v3 v4 v5 v6 v7 =
   let g x = Tp.get_pe_int (string_of_int x) in
@@ -599,12 +598,7 @@ nonterm((Tp.tp_pe_string * Tp.tp_patchexp) list) PeStr_Pe_List {
 
 nonterm((Tp.tp_pe_string * Tp.tp_patchexp) list) PeStr_Pe_List_Rev {
 	-> { [] }
-	-> e1:PeStr_Pe_List_Rev e2:Patch_String_Left EQUALS e3:PE_Or_Undefined [ (e2,e3) :: e1 ]
-}
-
-nonterm(Tp.tp_patchexp) PE_Or_Undefined {
-	-> UNDEFINED [ Tp.PE_Undefined ]
-	-> e1:Patch_Exp [ e1 ]
+	-> e1:PeStr_Pe_List_Rev e2:Patch_String_Left EQUALS e3:Patch_Exp [ (e2,e3) :: e1 ]
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_patchexp) list) LaunchFunctionIntVar {
@@ -643,12 +637,7 @@ nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStr_List {
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStr_List_Rev {
 	-> { [] }
-	-> e1:PeStr_PeStr_List_Rev e2:Patch_String_Left EQUALS e3:PeStr_Or_Undefined [ (e2,e3) :: e1 ]
-}
-
-nonterm(Tp.tp_pe_string) PeStr_Or_Undefined {
-	-> UNDEFINED { Tp.PE_UndefinedString }
-	-> e1:Patch_String_Right { e1 }
+	-> e1:PeStr_PeStr_List_Rev e2:Patch_String_Left EQUALS e3:Patch_String_Right [ (e2,e3) :: e1 ]
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStrMaybe_List {

@@ -511,15 +511,11 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
           List.iter (fun (a,b) ->
             let a = eval_pe_str a in
             if not (Hashtbl.mem done_var_ht a) then
-              (match b with
-              | PE_Undefined -> Var.undefine a
-              | _ -> Var.set_int32 a (eval_pe buff game b))) f_int_args;
+              Var.set_int32 a (eval_pe buff game b)) f_int_args;
           List.iter (fun (a,b) ->
             let a = eval_pe_str a in
-            if not (Hashtbl.mem done_var_ht a) then
-              (match b with
-              | PE_UndefinedString -> Var.undefine a
-              | _ -> Var.set_string a (eval_pe_str b))) f_str_args;
+            if not (Hashtbl.mem done_var_ht a)
+            then Var.set_string a (eval_pe_str b)) f_str_args;
           let buff = List.fold_left (fun acc elt ->
             process_patch2 patch_filename game acc elt) buff f_code in
           let final_returns = Hashtbl.create 5 in

@@ -29,7 +29,6 @@ Version 239:
   * As per readme, --safe-exit cannot be used together with --uninstall and
     friends.
   * Add EE_LANGUAGE variable.
-  * Add UNDEFINED keyword for function definitions.
   * Fix compatibility issue that had WeiDU resort to dumb-terminal behaviour on
     modern terminal emulators.
   * The functions (DELETE|CLONE)_EFFECT do not misindex files under certain conditions.
