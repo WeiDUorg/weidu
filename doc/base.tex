@@ -4914,7 +4914,8 @@ or & \DEFSYN{INNER!ACTION} \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
   \t{COPY!EXISTING ~foo.2da~}. More formally, if the inner action and the
   outer action both modify the same file, the results are undefined.}\\
 
-or & \DEFINE{EDIT!SAV!FILE} level \t{BEGIN} \ttref{TP2 Patch} \Slist \t{END} &
+or & \DEFINE{EDIT!SAV!FILE} level \Ob \t{ADD!IF!MISSING} \Oe filename \Slist
+\t{BEGIN} \ttref{TP2 Patch} \Slist \t{END} &
 
   The current file should be a \t{SAV} file. \ttref{EDIT!SAV!FILE}
   will iterate over the files contained within the \t{SAV} file, set
@@ -4923,7 +4924,13 @@ or & \DEFINE{EDIT!SAV!FILE} level \t{BEGIN} \ttref{TP2 Patch} \Slist \t{END} &
   \t{SAV!FILE}. The file contents are then recompressed into the
   \t{SAV} file using the specified compression level. level can be 0
   to 9, where 0 means no compression, 1 is the fastest compression and
-  9 is the best compression.\\
+  9 is the best compression.
+  
+  If the list of filenames is non-empty, only files whose name appear
+  in that list are patched (the comparison is case-insensitive, variables and arrays
+  are parsed if using \ttref{EVALUATE!BUFFER} or \ttref{AUTO!EVAL!STRINGS}).
+  If the optional \t{ADD!IF!MISSING} is provided, the patches are applied to the empty string,
+  and the resulting file will be added to the SAV itself.  \\
 
 or & \DEFINE{DECOMPRESS!REPLACE!FILE} start length uncompressedlength &
 	Decompress (ZLIB) the \verb/start...start+length-1/ portion of the current
@@ -10274,3 +10281,4 @@ See the file
 for a description of how WeiDU
 has changed over time.
 \end{document}
+

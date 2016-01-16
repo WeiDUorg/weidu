@@ -297,6 +297,11 @@ nonterm(bool) Optional_Plus {
 	-> PLUS [ false ]
 }
 
+nonterm(bool) Optional_Add_If_Missing {
+	-> [ false ]
+	-> ADD_IF_MISSING [ true ]
+}
+
 nonterm(bool) Optional_Equip {
 	-> [ false ]
 	-> EQUIP [ true ]
@@ -1253,7 +1258,7 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> SET_2DA_ENTRY_LATER e1:STRING e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp
 			[ Tp.TP_Patch2DALater(e1,e2,e3,e4) ]
 	-> SET_2DA_ENTRIES_NOW e1:STRING e2:Patch_Exp [ Tp.TP_Patch2DANow(e1,e2) ]
-	-> EDIT_SAV_FILE e1:Patch_Exp BEGIN e2:Tp_Patch_List END [ Tp.TP_PatchSavFile(e1,e2) ]
+	-> EDIT_SAV_FILE e1:Patch_Exp e2:Optional_Add_If_Missing e3:Patch_String_Right_List BEGIN e4:Tp_Patch_List END [ Tp.TP_PatchSavFile(e1,e2,e3,e4) ]
 	-> ADD_MAP_NOTE e1:String_Ref_Or_Pe e2:String_Ref_Or_Pe e3:STRING e4:Lse
 			{ Tp.TP_Add_Map_Note(
 				{Tp.xcoord = e1 ;
