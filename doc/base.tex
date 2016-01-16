@@ -5148,7 +5148,9 @@ evaluates to 0 (``no difference''). You may use
 or & \ttref{String} \DEFINE{STRING!CONTAINS!REGEXP} \ttref{String} &
 As \ttref{STRING!MATCHES!REGEXP}, but it evaluates to 0 if the first string
 contains the second \ttref{regexp}. Thus \t{"AR1005" STRING!CONTAINS!REGEXP
-"[w-z]"} evaluates to 1 (``mismatch''). \\
+"[w-z]"} evaluates to 1 (``mismatch'').
+
+{\em Be warned that this does the exact opposite of what the name suggests.} \\
 
 or & \DEFINE{GAME!IS} \ttref{String} & Returns true if the IE game variant
 is one of the entries in String, otherwise it returns false. String is a list of
