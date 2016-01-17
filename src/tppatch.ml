@@ -1609,11 +1609,12 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
     | TP_PatchSavFile(lvl,create,files,pl ) ->
         let sav = Sav.sav_of_str buff in
         let nsav = Queue.create () in
+        let allFiles = List.is_empty files in
         let files = ref files in
         while not (Queue.is_empty sav) do
           let current = Queue.pop sav in
           Var.set_string "SAV_FILE" current.Sav.filename;
-          if (List.is_empty !files) then begin
+          if allFiles then begin
             let result = List.fold_left (fun acc elt ->
               process_patch2 patch_filename game acc elt)
                 current.Sav.contents pl in
