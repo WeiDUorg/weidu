@@ -41,6 +41,7 @@ Version 239:
   * Document EDIT_SAV_FILE.
   * TP2 precedence order is now MyMod/MyMod.tp2, MyMod/Setup-MyMod.tp2,
     MyMod.tp2, Setup-MyMod.tp2.
+  * CREATE does not write length to 'first effect index' in ITM V1.1
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
