@@ -42,6 +42,7 @@ Version 239:
   * TP2 precedence order is now MyMod/MyMod.tp2, MyMod/Setup-MyMod.tp2,
     MyMod.tp2, Setup-MyMod.tp2.
   * CREATE does not write length to 'first effect index' in ITM V1.1
+  * Add silent option to CLONE_EFFECT and ALTER_EFFECT.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.

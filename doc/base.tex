@@ -9026,6 +9026,7 @@ The first batch of variables are meta-variables which will help determine the sc
 \item INT_VAR \verb+header_type+ to whether the function should only clone effects on extended headers of the specified type (1 - melee, 2 - ranged, etc.). Negative values will look at effects on all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
 \item INT_VAR \verb+multi_match+ to the number of effects to clone in the active stack. If you just want to match the first effect and have the function stop, use 1. Otherwise the function will continue matching until the number of cloned effects matches this value. The function will always make at least one change (e.g. 0 or negative values are treated as 1). (default is 999).
 \item INT_VAR \verb+verbose+ to whether the function should provide some rudimentary information on how many effects were added (default is 0).
+\item INT_VAR \verb+silent+ to whether the function should suppress warnings when no effects were added. This option also suppresses the \t{verbose} option (default is 0).
 \item STR_VAR \verb+insert+ to the relative position the cloned effect should be inserted at. A value of 'below' puts the new, cloned effect immediately below the matched effect. Values of 'first' or last' will put the new effect at the top or bottom of the effect stack, respectively. All other values will default to 'above', where the effect is added immediately before the matched effect (default is 'above').
 \end{itemize}
 
@@ -9120,6 +9121,7 @@ The first batch of variables are meta-variables which will help determine the sc
 \item INT_VAR \verb+header_type+ to whether the function should only alter effects on extended headers of the specified type (1 - melee, 2 - ranged, etc.). Negative values will look at effects on all headers (default is -1). Creatures have no extended headers, so this variable is ignored when used on creatures.
 \item INT_VAR \verb+multi_match+ to the number of effects to alter in the active stack. If you just want to match the first effect and have the function stop, use 1. Otherwise the function will continue matching until the number of altered effects matches this value. The function will always make at least one change (e.g. 0 or negative values are treated as 1). (default is 999).
 \item INT_VAR \verb+verbose+ to whether the function should provide some rudimentary information on how many effects were added (default is 0).
+\item INT_VAR \verb+silent+ to whether the function should suppress warnings when no effects were altered. This option also suppresses the \t{verbose} option (default is 0).
 \end{itemize}
 
 The next batch of variables sets the function boundaries on matching an effect to alter. Any variables not specified will not be used to determine a match. The function will only determine an effect is a match only if ALL of the variables specified are matched.

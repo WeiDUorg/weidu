@@ -1052,6 +1052,7 @@ DEFINE_PATCH_FUNCTION CLONE_EFFECT
           header_type         = "-1"
           multi_match         = 999
           verbose             = 0
+          silent              = 0
 
   // variables for finding the effect to match
           match_opcode        = "-1"
@@ -1268,9 +1269,9 @@ BEGIN
     END
   END
 
-  PATCH_IF (new_fx = 0) BEGIN
+  PATCH_IF (new_fx = 0 && !silent) BEGIN
     PATCH_WARN "WARNING: no effects added to %SOURCE_FILE%"
-  END ELSE PATCH_IF (verbose) BEGIN
+  END ELSE PATCH_IF (verbose && !silent) BEGIN
     READ_LONG 0x0c strref
     PATCH_IF ((strref > 0) AND (strref < 200000)) BEGIN
       READ_STRREF 0x0c name
@@ -1469,6 +1470,7 @@ DEFINE_PATCH_FUNCTION ALTER_EFFECT
           header_type         = "-1"
           multi_match         = 999
           verbose             = 0
+          silent              = 0
 
   // variables for finding the effect to match
           match_opcode        = "-1"
@@ -1657,11 +1659,11 @@ BEGIN
     END // end loop through effects on ability
   END // end ability loop
 
-  PATCH_IF (alter = 0) BEGIN
+  PATCH_IF (alter = 0 && !silent) BEGIN
     PATCH_WARN "WARNING: no effects altered on %SOURCE_FILE%"
   END
 
-  PATCH_IF (verbose) BEGIN
+  PATCH_IF (verbose && !silent) BEGIN
     READ_LONG 0x0c strref
     PATCH_IF ((strref > 0) AND (strref < 200000)) BEGIN
       READ_STRREF 0x0c name
