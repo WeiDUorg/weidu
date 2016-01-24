@@ -4834,7 +4834,7 @@ or & \DEFINE{SET!BG2!PROFICIENCY} String \ttref{value} &
 	to set said proficiency to value. \\
 
 or & \DEFSYN{ADD!CRE!ITEM} itmName \t{\#}charge1 \t{\#}charge2 \t{\#}charge3 flags slot \Ob
-\t{EQUIP} \Oe \Ob \t{TWOHANDED} \Oe &
+\t{EQUIP} \Oe \Ob \t{TWOHANDED} \Oe \Ob \t{NOMOVE} \Oe &
   See the \ttref{ADD!CRE!ITEM} tutorial. \\
 
 or & \DEFINE{REPLACE!CRE!ITEM} itmName \t{\#}charge1 \t{\#}charge2 \t{\#}charge3 flags slot \Ob
@@ -6653,7 +6653,7 @@ install one of them. This could be useful if you want to ask the user if he want
 biffing of wav files or not (as you need different actions for either choice).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{ADD!CRE!ITEM} (Last Update: v213)}
+\subsection{\DEFINE{ADD!CRE!ITEM} (Last Update: v240)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial was thoughtfully provided by Japheth.
 
@@ -6721,11 +6721,17 @@ Now here is the syntax:
 
 \begin{verbatim}
 COPY_EXISTING ~alynar.cre~ ~override~
-  ADD_CRE_ITEM ~itemname~ #charge1 #charge2 #charge3 ~Flags~ ~Inventory Slots~ [EQUIP] [TWOHANDED]
+  ADD_CRE_ITEM ~itemname~ #charge1 #charge2 #charge3 ~Flags~ ~Inventory Slots~ [EQUIP] [TWOHANDED] [NOMOVE]
 \end{verbatim}
 
-\t{EQUIP} and \t{TWOHANDED} are optional and are only needed when dealing
-with weapons.  I'll give some examples now.
+\t{EQUIP} and \t{TWOHANDED} are optional and are only needed when
+dealing with weapons. \t{NOMOVE} is likewise optional and controls
+whether \t{ADD!CRE!ITEM} should move items to make room for the new
+item. If no items are moved and there are no empty slots, the new item
+will not be added. Conversely, if an item is moved and there is no
+empty slot into which to move it, the moved item is lost.
+
+I'll give some examples now.
 
 Example \#1:
 
