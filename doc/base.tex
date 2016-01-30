@@ -9127,21 +9127,21 @@ The first batch of variables are meta-variables which will help determine the sc
 The next batch of variables sets the function boundaries on matching an effect to alter. Any variables not specified will not be used to determine a match. The function will only determine an effect is a match only if ALL of the variables specified are matched.
 
 \begin{itemize}
-\item INT_VAR \verb+match_opcode+ to the opcode of effects to be matched (default is 1).
-\item INT_VAR \verb+match_target+ to the target of effects to be matched (default is 1).
-\item INT_VAR \verb+match_power+ to the power of effects to be matched (default is 1).
-\item INT_VAR \verb+match_parameter1+ to parameter1 of effects to be matched (default is 1).
-\item INT_VAR \verb+match_parameter2+ to parameter2 of effects to be matched (default is 1).
-\item INT_VAR \verb+match_timing+ to the timing of effects to be matched (default is 1).
-\item INT_VAR \verb+match_resist_dispel+ to the resist/dispel setting of effects to be matched (default is 1).
-\item INT_VAR \verb+match_duration+ to the duration of effects to be matched (default is 1).
-\item INT_VAR \verb+match_probability1+ to probability1 (the upper bound) of effects to be matched (default is 1).
-\item INT_VAR \verb+match_probability2+ to probability2 (the lower bound) of effects to be matched (default is 1).
-\item INT_VAR \verb+match_dicenumber+ to the number of dice of effects to be matched (default is 1). This field is instead used for maximum hit-dice (HD) by some opcodes.
-\item INT_VAR \verb+match_dicesize+ to the size of dice of effects to be matched (default is 1). This field is used instead for minimum hit-dice (HD) by some opcodes.
-\item INT_VAR \verb+match_savingthrow+ to the saving throw type of effects to be matched (default is 1).
-\item INT_VAR \verb+match_savebonus+ to the saving trow bonus effects to be matched (default is 11). Since saving throws can range into negative values, this variable can match all the way down to10.
-\item INT_VAR \verb+match_special+ to the special field of effects to be matched (default is 1). The special field is used by some EE effects.
+\item INT_VAR \verb+match_opcode+ to the opcode of effects to be matched (default is -1).
+\item INT_VAR \verb+match_target+ to the target of effects to be matched (default is -1).
+\item INT_VAR \verb+match_power+ to the power of effects to be matched (default is -1).
+\item INT_VAR \verb+match_parameter1+ to parameter1 of effects to be matched (default is -1).
+\item INT_VAR \verb+match_parameter2+ to parameter2 of effects to be matched (default is -1).
+\item INT_VAR \verb+match_timing+ to the timing of effects to be matched (default is -1).
+\item INT_VAR \verb+match_resist_dispel+ to the resist/dispel setting of effects to be matched (default is -1).
+\item INT_VAR \verb+match_duration+ to the duration of effects to be matched (default is -1).
+\item INT_VAR \verb+match_probability1+ to probability1 (the upper bound) of effects to be matched (default is -1).
+\item INT_VAR \verb+match_probability2+ to probability2 (the lower bound) of effects to be matched (default is -1).
+\item INT_VAR \verb+match_dicenumber+ to the number of dice of effects to be matched (default is -1). This field is instead used for maximum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+match_dicesize+ to the size of dice of effects to be matched (default is -1). This field is used instead for minimum hit-dice (HD) by some opcodes.
+\item INT_VAR \verb+match_savingthrow+ to the saving throw type of effects to be matched (default is -1).
+\item INT_VAR \verb+match_savebonus+ to the saving trow bonus effects to be matched (default is -11). Since saving throws can range into negative values, this variable can match all the way down to -10.
+\item INT_VAR \verb+match_special+ to the special field of effects to be matched (default is -1). The special field is used by some EE effects.
 \item STR_VAR \verb+match_resource+ to the resource of effects to be matched (default is "SAME").
 \end{itemize}
 
