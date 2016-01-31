@@ -43,6 +43,7 @@ Version 239:
     MyMod.tp2, Setup-MyMod.tp2.
   * CREATE does not write length to 'first effect index' in ITM V1.1
   * Add silent option to CLONE_EFFECT and ALTER_EFFECT.
+  * Document ADD_SPELL_CFEFFECT and add the corresponding function.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.
