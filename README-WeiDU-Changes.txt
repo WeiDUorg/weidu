@@ -45,6 +45,7 @@ Version 239:
   * Add silent option to CLONE_EFFECT and ALTER_EFFECT.
   * Document ADD_SPELL_CFEFFECT and add the corresponding function.
   * Update documentation of ADD_CRE_ITEM.
+  * Update documentation of ADD_STORE_ITEM.
 
 Version 238:
   * Add output_path option to HANDLE_AUDIO and HANDLE_TILESETS.

@@ -4621,9 +4621,33 @@ or & \DEFINE{PATCH!READLN} \ttref{variable} &
 or & \DEFINE{PATCH!RANDOM!SEED} \ttref{value} &
   See \ttref{RANDOM!SEED}. \\
 or & \DEFSYN{ADD!STORE!ITEM} \Ob \t{+} \Oe itemName \Ob position \Oe
-  numCharges ext2 ext3 itemFlag maxInStack \Ob unlimited \Oe &
-  See the \ttref{ADD!STORE!ITEM} tutorial for more information.
- \\
+  charge1 charge2 charge3 flags stack \Ob unlimited \Oe &
+
+  Add the item itemName to the current STO file. An optional \t{+}
+  signifies that the new instance of the item should overwrite any
+  existing instance of the same item. The item's number of charges are
+  given by the respective charge argument, which must take the form of
+  \t{\#}integer or \t{(} \ttref{value} \t{)}. The optional position
+  argument must be one of \t{AFTER} \ttref{String}, \t{BEFORE}
+  \ttref{String}, \t{LAST}, \t{FIRST} or \t{AT}
+  \ttref{value}. \t{AFTER} will place the new item behind the item
+  given by \ttref{String}. \t{BEFORE} will place the item before the
+  item provided by \ttref{String}. \t{LAST} will place the new item
+  after all existing items. \t{FIRST} will place the new item as the
+  first item in the store. \t{AT} will place the new item at the
+  position given by \ttref{value}, with the first item having position
+  0. If no position argument is given, \ttref{ADD!STORE!ITEM} defaults
+  to \t{FIRST}. The argument flags must be a string consisting of one
+  of \t{none}, \t{identified}, \t{unstealable}, \t{stolen},
+  \t{identified\&stolen} or \t{identified\&unstealable}. The argument
+  stack sets the number of item the store carries in the stack and
+  must take the form of \t{\#}integer or \t{(} \ttref{value}
+  \t{)}. The optional argument unlimited should be one of the strings
+  \t{limited} or \t{unlimited} and controls whether the store should
+  carry an inexhaustible stack of the new item, or not. \t{limited} is
+  the default behaviour. See the \ttref{ADD!STORE!ITEM} tutorial for
+  more information.\\
+
 or & \DEFINE{REMOVE!STORE!ITEM} itmName \Slist &
   Remove the listed items from the current store. Does nothing if an item is not for sale.
 	Multiple instances are removed. \\
@@ -5996,16 +6020,7 @@ ADD_STORE_ITEM "myitem" #10 #0 #0 ~IDENTIFIED~ #5
   \#10 is the first extension headers number of charges
   The two \#0s that follow are the second and third extension headers number
   of charges.
-  ~IDENTIFED~ is the flag that we want on the item.  Here are the flags
-  that you can use:
-
-\begin{verbatim}
-  IDENTIFIED
-  UNSTEALABLE
-  STOLEN
-  IDENTIFIED&STOLEN
-  IDENTIFIED&UNSTEALABLE
-\end{verbatim}
+  ~IDENTIFED~ is the flag that we want on the item.
 
   \#5 is the number of items that will be in stock.
 
