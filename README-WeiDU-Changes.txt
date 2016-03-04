@@ -1,3 +1,6 @@
+Version 240:
+  * GAME_IS, ENGINE_IS and GAME_INCLUDES support SoD.
+
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
   * Fix a problem with CREATEd spells and items of format version V1.
