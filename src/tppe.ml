@@ -429,7 +429,6 @@ let rec eval_pe buff game p =
       let bgee = f "oh1000.are"   in
       let bg2ee = f "oh6000.are"  in
       let iwdee = f "howparty.2da" in
-      let sod = f "bd1000.are" in
       let res = List.exists (fun this ->
         match String.uppercase this with
         | "BG2"
@@ -452,18 +451,17 @@ let rec eval_pe buff game p =
         | "IWD_IN_BG2"
         | "IWDINBG2"   -> bg2 && iwdinbg2
         | "BG2EE"      -> bg2ee && not eet
-        | "BGEE"       -> bgee && not bg2ee && not eet && not sod
+        | "BGEE"       -> bgee && not bg2ee && not eet
         | "IWDEE"      -> iwdee
         | "EET"        -> eet
-        | "SOD" -> sod && not eet
         | _ -> failwith (Printf.sprintf "No rule to identify %s" (String.uppercase this))
       ) game_list in
       if res then 1l else 0l;
   end
 
   | PE_GameIncludes(game_set) -> begin
-      let bg1 = ["BG1"; "TOTSC"; "TUTU"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"; "SOD"] in
-      let totsc = ["TOTSC"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"; "SOD"] in
+      let bg1 = ["BG1"; "TOTSC"; "TUTU"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"] in
+      let totsc = ["TOTSC"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"] in
       let soa = ["SOA"; "TOB"; "BGT"; "BG2EE"; "EET"] in
       let tob = ["TOB"; "BGT"; "BG2EE"; "EET"] in
       let pst = ["PST"] in
@@ -472,7 +470,6 @@ let rec eval_pe buff game p =
       let totlm = ["TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
       let iwd2 = ["IWD2"] in
       let ca = ["CA"] in
-      let sod = ["SOD"] in
       let list = (match String.uppercase game_set with
       | "BG1" -> bg1
       | "TOTSC" -> totsc
@@ -486,7 +483,6 @@ let rec eval_pe buff game p =
       | "TOTLM" -> totlm
       | "IWD2" -> iwd2
       | "CA" -> ca
-      | "SOD" -> sod
       | _ -> failwith (Printf.sprintf "GAME_INCLUDES has no rule for %s" (String.uppercase game_set))) in
       eval_pe buff game (PE_GameIs((String.concat " " list), true)) ;
   end
