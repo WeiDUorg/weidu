@@ -312,6 +312,11 @@ nonterm(bool) Optional_2H {
 	-> TWOHANDED [ false ]
 }
 
+nonterm(bool) Optional_Nomove {
+	-> [ false ]
+	-> NOMOVE [ true ]
+}
+
 nonterm(bool option) Optional_Glob {
 	-> [ None ]
 	-> GLOB [ Some true ]
@@ -1096,7 +1101,8 @@ nonterm (Tp.tp_patch) Tp_Patch {
 			Tp.i_flags = e5 ;
 			Tp.item_slot = e6 ;
 			Tp.equip = e7 ;
-			Tp.twohanded_weapon = e8 ;} ]
+			Tp.twohanded_weapon = e8 ;
+                        Tp.nomove = false ;} ]
 	-> APPLY_BCS_PATCH e1:STRING [ Tp.TP_PatchApplyBCSPatch(e1,None) ]
 	-> APPLY_BCS_PATCH_OR_COPY e1:STRING e2:STRING [ Tp.TP_PatchApplyBCSPatch(e1,Some e2) ]
 	-> GET_STRREF     e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchGetStrRef (e1,e2,        false,false) ]
@@ -1277,8 +1283,8 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> READ_2DA_ENTRY_FORMER e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING
 			[ Tp.TP_Read2DAFormer(e1,e2,e3,e4) ]
 	-> ADD_CRE_ITEM e1:STRING e2:String_Ref_Or_Pe e3:String_Ref_Or_Pe e4:String_Ref_Or_Pe
-		e5:STRING e6:STRING e7:Optional_Equip e8:Optional_2H
-			{ Tp.TP_Add_Cre_Item(
+		e5:STRING e6:STRING e7:Optional_Equip e8:Optional_2H e9:Optional_Nomove
+			{Tp.TP_Add_Cre_Item(
 				{ Tp.item_name = e1 ;
 					Tp.i_charge1 = e2 ;
 					Tp.i_charge2 = e3 ;
@@ -1286,7 +1292,8 @@ nonterm (Tp.tp_patch) Tp_Patch {
 					Tp.i_flags = e5 ;
 					Tp.item_slot = e6 ;
 					Tp.equip = e7 ;
-					Tp.twohanded_weapon = e8 ;})}
+					Tp.twohanded_weapon = e8 ;
+                                        Tp.nomove = e9 ;})}
 	-> PATCH_GAM e1:STRING e2:STRING e3:String_Ref_Or_Pe e4:String_Ref_Or_Pe
 			[ Tp.TP_Patch_Gam(e1,e2,e3,e4) ]
 	-> ADD_STORE_ITEM e1:Optional_Plus e2:STRING e3:Optional_Store_Position

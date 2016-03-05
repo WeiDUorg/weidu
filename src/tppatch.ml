@@ -1939,26 +1939,33 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
                        (fun (name, (unknown, q1, q2, q3, flags, slots)) ->
                          List.mem slot slots) !items)) possible_slots
             with Not_found ->
-              (* defaulting to first element in possible_slots, move item to inv *)
-              let def_slot = List.hd possible_slots in
-              move_to_inv def_slot ;
-              def_slot in
+              if not i.nomove then begin
+                (* defaulting to first element in possible_slots, move item to inv *)
+                let def_slot = List.hd possible_slots in
+                move_to_inv def_slot ;
+                def_slot
+              end else -1
+          in
           let equipped = ref cre.Cre.equipped in
           let is_twohanded = not i.twohanded_weapon in
 
-          if i.equip && target_slot >= 9 && target_slot <= 12 &&
-            (Load.the_game()).Load.script_style <> Load.IWD2 &&
-            (Load.the_game()).Load.script_style <> Load.PST then begin
-              (* move potential shield to inv if two-handed *)
-              if is_twohanded then move_to_inv 2 ;
-              equipped := target_slot - 9
-            end ;
-          (* finally add the item *)
-          items := List.append !items
-              [(i.item_name, (0, i_charge1, i_charge2,
-                              i_charge3, new_flags, [target_slot]))] ;
-          Cre.string_of_cre {cre with Cre.items = !items;
-                             Cre.equipped = !equipped}
+          if target_slot >= 0 then begin
+            if i.equip && target_slot >= 9 && target_slot <= 12 &&
+              (Load.the_game()).Load.script_style <> Load.IWD2 &&
+              (Load.the_game()).Load.script_style <> Load.PST then begin
+                (* move potential shield to inv if two-handed *)
+                if is_twohanded then move_to_inv 2 ;
+                equipped := target_slot - 9
+              end ;
+            (* finally add the item *)
+            items := List.append !items
+                [(i.item_name, (0, i_charge1, i_charge2,
+                                i_charge3, new_flags, [target_slot]))] ;
+            Cre.string_of_cre {cre with Cre.items = !items;
+                               Cre.equipped = !equipped}
+          end else begin
+            log_only "ADD_CRE_ITEM could not find an empty slot for %s. Skipping!\n" i.item_name ;
+            Cre.string_of_cre cre end ;
         with Cre.Cre22 ->
           let item_buff = String.make 20 '\000' in
           String.blit i.item_name 0 item_buff 0 (String.length i.item_name);

@@ -272,6 +272,7 @@ and tp_add_cre_item = {
     item_slot : string ;
     equip : bool ; (* Normally FALSE *)
   twohanded_weapon : bool ; (* Normally TRUE *)
+  nomove : bool ; (* Normally FALSE *)
 }
 
 and tp_add_music = {

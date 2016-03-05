@@ -3,6 +3,9 @@
 open Util
 open Load
 
+(* This file has been edited by Fredrik Lindgren, a.k.a. Wisp,
+   starting from 18 December 2012 and WeiDU 231.06. *)
+
 (* Note added due to LGPL terms.
 
    This file was edited by Valerio Bigiani, AKA The Bigg, starting from
@@ -800,7 +803,8 @@ optional_evaluate :
 	Tp.i_flags = $6 ;
 	Tp.item_slot = $7 ;
 	Tp.equip = $8 ;
-	Tp.twohanded_weapon = $9 ;})}
+	Tp.twohanded_weapon = $9 ;
+	Tp.nomove = false ;})}
 | APPLY_BCS_PATCH STRING { Tp.TP_PatchApplyBCSPatch($2,None) }
 | APPLY_BCS_PATCH_OR_COPY STRING STRING { Tp.TP_PatchApplyBCSPatch($2,Some($3)) }
 | GET_STRREF patch_exp STRING { Tp.TP_PatchGetStrRef($2,Tp.PE_LiteralString $3,false,false) }
@@ -955,7 +959,8 @@ optional_evaluate :
 	Tp.i_flags = $6 ;
 	Tp.item_slot = $7 ;
 	Tp.equip = $8 ;
-	Tp.twohanded_weapon = $9 ;})}
+	Tp.twohanded_weapon = $9 ;
+	Tp.nomove = false ;})}
 | PATCH_GAM STRING STRING string_ref_or_pe string_ref_or_pe { Tp.TP_Patch_Gam($2,$3,$4,$5) }
 | ADD_STORE_ITEM optional_plus STRING optional_store_position string_ref_or_pe string_ref_or_pe string_ref_or_pe STRING string_ref_or_pe
     { Tp.TP_Add_S_Item({ Tp.overwrite_store_item = $2; },$3,$4,$5,$6,$7,$8,$9,None) }
