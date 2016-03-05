@@ -3817,7 +3817,7 @@ END
 >>>>>>>>
 
 COMPILE ~.../mymod-inlined/myfile.baf~
-\end{verbatim} 
+\end{verbatim}
   This inclusion method is eight-bit clean, so if you are very careful you
   can \ttref{inline} a binary file (e.g., a \ttref{CRE} or \ttref{BAM}) with
   this method. Be careful to shave off the newline before the \t{>>>>>>>>}
@@ -4975,7 +4975,8 @@ or & \DEFSYN{INNER!ACTION} \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
   \t{COPY!EXISTING ~foo.2da~}. More formally, if the inner action and the
   outer action both modify the same file, the results are undefined.}\\
 
-or & \DEFINE{EDIT!SAV!FILE} level \t{BEGIN} \ttref{TP2 Patch} \Slist \t{END} &
+or & \DEFINE{EDIT!SAV!FILE} level \Ob \t{ADD!IF!MISSING} \Oe filename \Slist
+\t{BEGIN} \ttref{TP2 Patch} \Slist \t{END} &
 
   The current file should be a \t{SAV} file. \ttref{EDIT!SAV!FILE}
   will iterate over the files contained within the \t{SAV} file, set
@@ -4984,7 +4985,13 @@ or & \DEFINE{EDIT!SAV!FILE} level \t{BEGIN} \ttref{TP2 Patch} \Slist \t{END} &
   \t{SAV!FILE}. The file contents are then recompressed into the
   \t{SAV} file using the specified compression level. level can be 0
   to 9, where 0 means no compression, 1 is the fastest compression and
-  9 is the best compression.\\
+  9 is the best compression.
+
+  If the list of filenames is non-empty, only files whose name appear
+  in that list are patched (the comparison is case-insensitive, variables and arrays
+  are parsed if using \ttref{EVALUATE!BUFFER} or \ttref{AUTO!EVAL!STRINGS}).
+  If the optional \t{ADD!IF!MISSING} is provided, the patches are applied to the empty string,
+  and the resulting file will be added to the SAV itself.  \\
 
 or & \DEFINE{DECOMPRESS!REPLACE!FILE} start length uncompressedlength &
 	Decompress (ZLIB) the \verb/start...start+length-1/ portion of the current
@@ -5202,7 +5209,9 @@ evaluates to 0 (``no difference''). You may use
 or & \ttref{String} \DEFINE{STRING!CONTAINS!REGEXP} \ttref{String} &
 As \ttref{STRING!MATCHES!REGEXP}, but it evaluates to 0 if the first string
 contains the second \ttref{regexp}. Thus \t{"AR1005" STRING!CONTAINS!REGEXP
-"[w-z]"} evaluates to 1 (``mismatch''). \\
+"[w-z]"} evaluates to 1 (``mismatch'').
+
+{\em Be warned that this does the exact opposite of what the name suggests.} \\
 
 or & \DEFINE{GAME!IS} \ttref{String} & Returns true if the IE game variant
 is one of the entries in String, otherwise it returns false. String is a list of

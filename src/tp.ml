@@ -381,7 +381,7 @@ and tp_patch =
   | TP_PatchVerbose
 
 
-  | TP_PatchSavFile of tp_patchexp * (tp_patch list)
+  | TP_PatchSavFile of tp_patchexp * bool * (tp_pe_string list) * (tp_patch list)
   | TP_Add_Map_Note of tp_add_map_note
   | TP_Patch_Gam of string * string * tp_patchexp * tp_patchexp
   | TP_Add_Cre_Item of tp_add_cre_item

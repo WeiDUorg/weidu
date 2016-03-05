@@ -1606,18 +1606,51 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
           (Cre.string_of_cre {cre with Cre.memorized_info = !memorized_info})
           (TP_Add_Known_Spell(spell,level,stype))
 
-    | TP_PatchSavFile(lvl,pl) ->
+    | TP_PatchSavFile(lvl,create,files,pl ) ->
         let sav = Sav.sav_of_str buff in
         let nsav = Queue.create () in
+        let allFiles = List.is_empty files in
+        let files = ref files in
         while not (Queue.is_empty sav) do
           let current = Queue.pop sav in
           Var.set_string "SAV_FILE" current.Sav.filename;
-          let result = List.fold_left (fun acc elt ->
-            process_patch2 patch_filename game acc elt)
-              current.Sav.contents pl in
-          Queue.push {Sav.filename = current.Sav.filename;
-                      Sav.contents = result}  nsav;
+          if allFiles then begin
+            let result = List.fold_left (fun acc elt ->
+              process_patch2 patch_filename game acc elt)
+                current.Sav.contents pl in
+            Queue.push {Sav.filename = current.Sav.filename;
+                        Sav.contents = result}  nsav;
+          end else begin
+            let cur_file = String.uppercase current.Sav.filename in
+            let new_files, found = List.fold_left (
+              fun (files, found) file ->
+                let maybe_file = String.uppercase (eval_pe_str file) in
+                if maybe_file = cur_file then (files, true)
+                  else (file :: files, found)
+            ) ([], false) !files in
+            if (found) then begin
+              files := new_files;
+              let result = List.fold_left (fun acc elt ->
+                process_patch2 patch_filename game acc elt)
+                  current.Sav.contents pl in
+              Queue.push {Sav.filename = current.Sav.filename;
+                          Sav.contents = result}  nsav;
+            end else begin
+              Queue.push current nsav;
+            end
+          end
         done;
+        if (create) then begin
+          List.iter (fun file ->
+            let file = String.uppercase(eval_pe_str file) in
+            Var.set_string "SAV_FILE" file;
+            let result = List.fold_left (fun acc elt ->
+                process_patch2 patch_filename game acc elt)
+                  "" pl in
+              Queue.push {Sav.filename = file;
+                          Sav.contents = result}  nsav;
+          ) !files;
+        end;
         let b = Sav.str_of_sav (eval_pe buff game lvl) nsav in
         if !debug_ocaml then log_and_print "done PatchSavFile\n";
         b
