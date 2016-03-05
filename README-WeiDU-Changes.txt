@@ -1,6 +1,7 @@
 Version 240:
   * GAME_IS, ENGINE_IS and GAME_INCLUDES support SoD.
   * Allow EDIT_SAV_FILE to add wholly new files to SAV files.
+  * New NOMOVE keyword for ADD_CRE_ITEM.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
