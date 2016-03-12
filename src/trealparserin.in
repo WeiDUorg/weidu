@@ -711,6 +711,7 @@ nonterm(Tp.tp_constraint) Tp_When {
 	-> IF_SIZE_IS e1:STRING [ Tp.TP_IfSizeIs(my_int_of_string e1) ]
 	-> IF_EVAL e1:Patch_Exp [ Tp.TP_Eval e1 ]
 	-> BUT_ONLY_IF_IT_CHANGES [ Tp.TP_ButOnlyIfItChanges ]
+        -> IF_EXISTS [ Tp.TP_IfExists ]
 }
 
 nonterm((Tp.file_or_directory_regexp * string) list) TP_Move_List {

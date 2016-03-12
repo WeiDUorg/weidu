@@ -431,6 +431,7 @@ and tp_constraint =
   | TP_IfSizeIs of int
   | TP_Eval of tp_patchexp
   | TP_ButOnlyIfItChanges
+  | TP_IfExists
 
 and tp_pe_string =
   | PE_LiteralString of string

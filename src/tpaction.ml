@@ -49,6 +49,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       raise e
   in
 
+  let when_exists file when_list existing game =
+    if List.mem TP_IfExists when_list then begin
+      if not existing then
+        bigg_file_exists file game.Load.key
+      else is_true (eval_pe "" game (Pred_File_Exists_In_Game (PE_LiteralString(file)))) ;
+    end else true in
+
   let process_action = (process_action_real our_lang game this_tp2_filename) in
   let process_patch2 = process_patch2_real process_action tp in
 
@@ -474,6 +481,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
       | TP_CopyRandom(slistlist,plist,wlist) ->
           List.iter (fun slist ->
+            let slist = List.filter (fun file -> when_exists file wlist true game) slist in
             log_and_print "Randomizing %d file(s) ...\n" (List.length slist) ;
             let final_dlist = ref [] in
             let finished = ref false in
@@ -569,8 +577,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               (if bts2 then Arch.backslash_to_slash y else y)) slist
             in
 
-            let slist =
-              if get_existing = true && use_reg = true then begin
+            let slist = List.filter (fun (src,dst) -> when_exists src clist get_existing game)
+              (if get_existing = true && use_reg = true then begin
                 let files_in_chitin = Key.list_of_key_resources game.Load.key use_glob in
                 let new_list = List.map (fun (s,p) ->
                   let regexp = Str.regexp_case_fold s in
@@ -599,7 +607,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                   res) slist ;
                 !res
               end else
-                slist in
+                slist) in
 
             let len = List.length slist in
             log_and_print "Copying%s %d file%s ...\n"
@@ -675,7 +683,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                         log_only_modder "Not copying [%s] to [%s] because condition evaluates to %ld\n"
                           src dest v ; false
                       end else true
-                  | TP_ButOnlyIfItChanges -> true) true clist in
+                  | TP_ButOnlyIfItChanges
+                  | TP_IfExists -> true) true clist in
                 if ok_to_copy then begin
                   let result_buff =
                     List.fold_left (fun acc elt ->
@@ -1684,212 +1693,218 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
       | TP_Append_Col(file,src,count_prepend,con_l,frombif,do_backup) ->
           let file = Arch.backslash_to_slash (Var.get_string file) in
-          let temp = Var.get_string src in
-          let src_list = Str.split (Str.regexp "[ \t]+") temp in
-          let src_list = List.map (fun elt -> if elt = "$" then "" else elt) src_list in
-          let count_prepend = Int32.to_int (eval_pe "" game count_prepend) in
-          let rec prepend i string_list =
-            if i = 1 then
-              ("" :: string_list)
-            else begin
-              if i > 1 then
-                "" :: (prepend (i-1) string_list)
-              else      (* i <= 0 *)
-                string_list
-            end
-          in
+          if when_exists file con_l frombif game then begin (* Ugly-code blues *)
+            let temp = Var.get_string src in
+            let src_list = Str.split (Str.regexp "[ \t]+") temp in
+            let src_list = List.map (fun elt -> if elt = "$" then "" else elt) src_list in
+            let count_prepend = Int32.to_int (eval_pe "" game count_prepend) in
+            let rec prepend i string_list =
+              if i = 1 then
+                ("" :: string_list)
+              else begin
+                if i > 1 then
+                  "" :: (prepend (i-1) string_list)
+                else      (* i <= 0 *)
+                  string_list
+              end
+            in
 
-          let src_list = prepend count_prepend src_list in
-          log_and_print "Appending to files column-wise ...\n" ;
-          let buff = if frombif then
-            let eight,three = split (String.uppercase file) in
-            let buff,loaded_path =
-              Load.load_resource "APPEND_COLUMN" game true eight three in
-            buff
-          else
-            load_file file
-          in
-          if buff = "" then
-            log_or_print "[%s]: empty or does not exist\n" file
-          else begin
+            let src_list = prepend count_prepend src_list in
+            log_and_print "Appending to files column-wise ...\n" ;
+            let buff = if frombif then
+              let eight,three = split (String.uppercase file) in
+              let buff,loaded_path =
+                Load.load_resource "APPEND_COLUMN" game true eight three in
+              buff
+            else
+              load_file file
+            in
+            if buff = "" then
+              log_or_print "[%s]: empty or does not exist\n" file
+            else begin
+              let okay = List.fold_left (fun acc elt -> acc &&
+                match elt with
+                  TP_Contains(s) -> begin
+                    let my_regexp = Str.regexp_case_fold (Var.get_string (eval_pe_str s)) in
+                    try let _ = Str.search_forward my_regexp buff 0 in
+                    log_only "Appending cols to [%s] because it DOES contain [%s]\n"
+                      file (eval_pe_str s)  ;
+                    true
+                    with _ ->
+                      log_only "Not appending cols to [%s] because it does NOT contain [%s]\n"
+                        file (eval_pe_str s) ;
+                      false
+                  end
+                | TP_NotContains(s) -> begin
+                    let my_regexp = Str.regexp_case_fold (Var.get_string (eval_pe_str s)) in
+                    try let _ = Str.search_forward my_regexp buff 0 in
+                    log_only "Not appending cols to [%s] because it DOES contains [%s]\n"
+                      file (eval_pe_str s) ;
+                    false
+                    with _ ->
+                      log_only "Appending cols to [%s] because it does NOT contain [%s]\n"
+                        file (eval_pe_str s) ;
+                      true
+                end
+                | TP_IfSizeIs(size) -> String.length buff = size
+                | TP_ButOnlyIfItChanges
+                | TP_IfExists -> true
+                | TP_Eval(pe) ->
+                    let v = eval_pe buff game pe in
+                    if v = Int32.zero then begin
+                      log_only "Not appending cols to [%s] because condition evaluates to %ld\n"
+                        file v ; false
+                    end else begin
+                      log_only "Appending cols to [%s] because condition evaluates to %ld\n"
+                        file v ; true
+                    end) true con_l in
+              if okay then begin (* do the append *)
+                let dest = if frombif then
+                  "override/" ^ file
+                else
+                  file in
+                let buff_as_lines = Str.split many_newline_or_cr_regexp buff in
+                if List.length buff_as_lines <> List.length src_list then begin
+                  log_and_print "Cannot append column-wise because there are %d lines in %s but I was only given %d things to append\n"
+                    (List.length buff_as_lines) file (List.length src_list)  ;
+                  failwith ("cannot append column-wise to " ^ file)
+                end ;
+                Stats.time "saving files" (fun () ->
+                  if do_backup = 2 then begin
+                    let out_buff = Buffer.create 1000 in
+                    List.iter2 (fun orig app ->
+                      Buffer.add_string out_buff orig ;
+                      Buffer.add_string out_buff " " ;
+                      Buffer.add_string out_buff app ;
+                      Buffer.add_string out_buff "\r\n") buff_as_lines src_list ;
+                    let result_buff = Buffer.contents out_buff in
+                    log_only_modder "Defined Inlined File [%s] (length %d)\n"
+                      dest (String.length result_buff) ;
+                    Hashtbl.add inlined_files (Arch.backslash_to_slash dest) result_buff
+                  end else begin
+                    let out = open_for_writing_internal (do_backup = 0) dest true in
+                    List.iter2 (fun orig app ->
+                      output_string out orig ;
+                      output_string out " " ;
+                      output_string out app ;
+                      output_string out "\r\n") buff_as_lines src_list ;
+                    close_out out ;
+                    begin (* handle read-only files! *)
+                      try
+                        Case_ins.unix_chmod dest 511 ; (* 511 = octal 0777 = a+rwx *)
+                      with e -> ()
+                          (* log_or_print "WARNING: chmod %s : %s\n" filename
+                             (printexc_to_string e) *)
+                    end
+                  end) () ;
+                log_or_print "Appended text to [%s] column-wise\n" file
+              end
+            end
+          end else log_or_print "Not appending to [%s] because the file does not exist\n" file
+
+      | TP_Append(file,src,con_l,frombif,keep_crlf,do_backup) ->
+          let file = Arch.backslash_to_slash file in
+          if when_exists file con_l frombif game then begin
+            if Case_ins.filename_check_suffix(String.lowercase file) "ids" then
+              Bcs.clear_ids_map game ;
+            log_and_print "Appending to files ...\n" ;
+            let file = Var.get_string file in
+            let src = Var.get_string src in
+            let buff = if frombif then begin
+              let eight,three = split (String.uppercase file) in
+              let the_buff,loaded_path =
+                Load.load_resource "APPEND" game true eight three in
+              the_buff
+            end else begin
+              load_file file
+            end in
             let okay = List.fold_left (fun acc elt -> acc &&
               match elt with
                 TP_Contains(s) -> begin
-                  let my_regexp = Str.regexp_case_fold (Var.get_string (eval_pe_str s)) in
+                  let my_regexp = Str.regexp_case_fold
+                      (Var.get_string (eval_pe_str s)) in
                   try let _ = Str.search_forward my_regexp buff 0 in
-                  log_only "Appending cols to [%s] because it DOES contain [%s]\n"
-                    file (eval_pe_str s)  ;
+                  log_only "Appending [%.10s...] to [%s] because it DOES contain [%s]\n"
+                    src file (eval_pe_str s)  ;
                   true
                   with _ ->
-                    log_only "Not appending cols to [%s] because it does NOT contain [%s]\n"
-                      file (eval_pe_str s) ;
+                    log_only "Not appending [%.10s...] to [%s] because it does NOT contain [%s]\n"
+                      src file (eval_pe_str s) ;
                     false
                 end
               | TP_NotContains(s) -> begin
-                  let my_regexp = Str.regexp_case_fold (Var.get_string (eval_pe_str s)) in
+                  let my_regexp = Str.regexp_case_fold
+                      (Var.get_string (eval_pe_str s)) in
                   try let _ = Str.search_forward my_regexp buff 0 in
-                  log_only "Not appending cols to [%s] because it DOES contains [%s]\n"
-                    file (eval_pe_str s) ;
+                  log_only "Not appending [%.10s...] to [%s] because it DOES contains [%s]\n"
+                    src file (eval_pe_str s) ;
                   false
                   with _ ->
-                    log_only "Appending cols to [%s] because it does NOT contain [%s]\n"
-                      file (eval_pe_str s) ;
+                    log_only "Appending [%.10s...] to [%s] because it does NOT contain [%s]\n"
+                      src file (eval_pe_str s) ;
                     true
               end
               | TP_IfSizeIs(size) -> String.length buff = size
-              | TP_ButOnlyIfItChanges -> true
+              | TP_ButOnlyIfItChanges
+              | TP_IfExists -> true
               | TP_Eval(pe) ->
                   let v = eval_pe buff game pe in
                   if v = Int32.zero then begin
-                    log_only "Not appending cols to [%s] because condition evaluates to %ld\n"
-                      file v ; false
+                    log_only "Not appending [%.10s] to [%s] because condition evaluates to %ld\n"
+                      src file v ; false
                   end else begin
-                    log_only "Appending cols to [%s] because condition evaluates to %ld\n"
-                      file v ; true
+                    log_only "Appending [%.10s] to [%s] because condition evaluates to %ld\n"
+                      src file v ; true
                   end) true con_l in
             if okay then begin (* do the append *)
-              let dest = if frombif then
-                "override/" ^ file
-              else
-                file in
-              let buff_as_lines = Str.split many_newline_or_cr_regexp buff in
-              if List.length buff_as_lines <> List.length src_list then begin
-                log_and_print "Cannot append column-wise because there are %d lines in %s but I was only given %d things to append\n"
-                  (List.length buff_as_lines) file (List.length src_list)  ;
-                failwith ("cannot append column-wise to " ^ file)
-              end ;
+              let dest =
+                if frombif then "override/" ^ file
+                else file
+              in
               Stats.time "saving files" (fun () ->
+                let save_to fn =
+                  if keep_crlf then begin
+                    fn buff;
+                    if !debug_ocaml then log_and_print "%s\n" buff;
+                    if String.length buff < 2 || Str.last_chars buff 2 <> "\r\n" then
+                      fn "\r\n";
+                    let src = if String.lowercase dest = "quests.ini" &&
+                      Arch.view_command = "start" then
+                      (Str.global_replace (Str.regexp "\\([^\r]\\)\n") "\\1\r\n" src)
+                    else src in
+                    fn src;
+                    if !debug_ocaml then log_and_print "%s\n" src;
+                    if Str.last_chars src 2 <> "\r\n" then fn "\r\n";
+                  end else begin
+                    let nice_newlines = Str.global_replace
+                        many_newline_or_cr_regexp "\r\n" (buff ^ "\r\n") in
+                    fn nice_newlines ;
+                    fn src ;
+                    fn "\r\n" ;
+                  end;
+                in
                 if do_backup = 2 then begin
                   let out_buff = Buffer.create 1000 in
-                  List.iter2 (fun orig app ->
-                    Buffer.add_string out_buff orig ;
-                    Buffer.add_string out_buff " " ;
-                    Buffer.add_string out_buff app ;
-                    Buffer.add_string out_buff "\r\n") buff_as_lines src_list ;
+                  save_to (Buffer.add_string out_buff);
                   let result_buff = Buffer.contents out_buff in
                   log_only_modder "Defined Inlined File [%s] (length %d)\n"
                     dest (String.length result_buff) ;
                   Hashtbl.add inlined_files (Arch.backslash_to_slash dest) result_buff
                 end else begin
                   let out = open_for_writing_internal (do_backup = 0) dest true in
-                  List.iter2 (fun orig app ->
-                    output_string out orig ;
-                    output_string out " " ;
-                    output_string out app ;
-                    output_string out "\r\n") buff_as_lines src_list ;
+                  save_to (output_string out);
                   close_out out ;
                   begin (* handle read-only files! *)
                     try
                       Case_ins.unix_chmod dest 511 ; (* 511 = octal 0777 = a+rwx *)
                     with e -> ()
-                                          (* log_or_print "WARNING: chmod %s : %s\n" filename
-                                             (printexc_to_string e) *)
-                  end
-                end) () ;
-              log_or_print "Appended text to [%s] column-wise\n" file
+                        (* log_or_print "WARNING: chmod %s : %s\n" filename
+                           (printexc_to_string e) *)
+                  end ;
+                end;) () ;
+              log_or_print "Appended text to [%s]\n" file
             end
-          end
-
-      | TP_Append(file,src,con_l,frombif,keep_crlf,do_backup) ->
-          let file = Arch.backslash_to_slash file in
-          if Case_ins.filename_check_suffix(String.lowercase file) "ids" then
-            Bcs.clear_ids_map game ;
-          log_and_print "Appending to files ...\n" ;
-          let file = Var.get_string file in
-          let src = Var.get_string src in
-          let buff = if frombif then begin
-            let eight,three = split (String.uppercase file) in
-            let the_buff,loaded_path =
-              Load.load_resource "APPEND" game true eight three in
-            the_buff
-          end else begin
-            load_file file
-          end in
-          let okay = List.fold_left (fun acc elt -> acc &&
-            match elt with
-              TP_Contains(s) -> begin
-                let my_regexp = Str.regexp_case_fold
-                    (Var.get_string (eval_pe_str s)) in
-                try let _ = Str.search_forward my_regexp buff 0 in
-                log_only "Appending [%.10s...] to [%s] because it DOES contain [%s]\n"
-                  src file (eval_pe_str s)  ;
-                true
-                with _ ->
-                  log_only "Not appending [%.10s...] to [%s] because it does NOT contain [%s]\n"
-                    src file (eval_pe_str s) ;
-                  false
-              end
-            | TP_NotContains(s) -> begin
-                let my_regexp = Str.regexp_case_fold
-                    (Var.get_string (eval_pe_str s)) in
-                try let _ = Str.search_forward my_regexp buff 0 in
-                log_only "Not appending [%.10s...] to [%s] because it DOES contains [%s]\n"
-                  src file (eval_pe_str s) ;
-                false
-                with _ ->
-                  log_only "Appending [%.10s...] to [%s] because it does NOT contain [%s]\n"
-                    src file (eval_pe_str s) ;
-                  true
-            end
-            | TP_IfSizeIs(size) -> String.length buff = size
-            | TP_ButOnlyIfItChanges -> true
-            | TP_Eval(pe) ->
-                let v = eval_pe buff game pe in
-                if v = Int32.zero then begin
-                  log_only "Not appending [%.10s] to [%s] because condition evaluates to %ld\n"
-                    src file v ; false
-                end else begin
-                  log_only "Appending [%.10s] to [%s] because condition evaluates to %ld\n"
-                    src file v ; true
-                end) true con_l in
-          if okay then begin (* do the append *)
-            let dest =
-              if frombif then "override/" ^ file
-              else file
-            in
-            Stats.time "saving files" (fun () ->
-              let save_to fn =
-                if keep_crlf then begin
-                  fn buff;
-                  if !debug_ocaml then log_and_print "%s\n" buff;
-                  if String.length buff < 2 || Str.last_chars buff 2 <> "\r\n" then
-                    fn "\r\n";
-                  let src = if String.lowercase dest = "quests.ini" &&
-                    Arch.view_command = "start" then
-                    (Str.global_replace (Str.regexp "\\([^\r]\\)\n") "\\1\r\n" src)
-                  else src in
-                  fn src;
-                  if !debug_ocaml then log_and_print "%s\n" src;
-                  if Str.last_chars src 2 <> "\r\n" then fn "\r\n";
-                end else begin
-                  let nice_newlines = Str.global_replace
-                      many_newline_or_cr_regexp "\r\n" (buff ^ "\r\n") in
-                  fn nice_newlines ;
-                  fn src ;
-                  fn "\r\n" ;
-                end;
-              in
-              if do_backup = 2 then begin
-                let out_buff = Buffer.create 1000 in
-                save_to (Buffer.add_string out_buff);
-                let result_buff = Buffer.contents out_buff in
-                log_only_modder "Defined Inlined File [%s] (length %d)\n"
-                  dest (String.length result_buff) ;
-                Hashtbl.add inlined_files (Arch.backslash_to_slash dest) result_buff
-              end else begin
-                let out = open_for_writing_internal (do_backup = 0) dest true in
-                save_to (output_string out);
-                close_out out ;
-                begin (* handle read-only files! *)
-                  try
-                    Case_ins.unix_chmod dest 511 ; (* 511 = octal 0777 = a+rwx *)
-                  with e -> ()
-        (* log_or_print "WARNING: chmod %s : %s\n" filename
-           (printexc_to_string e) *)
-                end ;
-              end;) () ;
-            log_or_print "Appended text to [%s]\n" file
-          end
+          end else log_or_print "Not appending to [%s] because the file does not exist\n" file
 
       | TP_Extend_Top(use_reg,dest,src,pl,tra_l)
       | TP_Extend_Bottom(use_reg,dest,src,pl,tra_l) -> begin
