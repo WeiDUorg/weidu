@@ -3,6 +3,8 @@ Version 240:
   * Allow EDIT_SAV_FILE to add wholly new files to SAV files.
   * New NOMOVE keyword for ADD_CRE_ITEM.
   * New TP2 when clause: IF_EXISTS
+  * Fix regression in --change-log which produced only the last backup
+    file instead of all of them.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.

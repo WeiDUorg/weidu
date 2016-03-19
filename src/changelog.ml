@@ -95,19 +95,16 @@ let changelog file_list game =
     let file = if Case_ins.filename_check_suffix file1 ".EXE" || Case_ins.filename_check_suffix file1 ".KEY" then file1 else "OVERRIDE/" ^ file1 in
     let file_log = List.rev (get_file file) in
     let (base,ext) = split file1 in
-    let i = ref 0 in
     let first = Printf.sprintf "\n\n\nMods affecting %s:\n" file1 in
-    let item_list = List.map (fun (tpfile,lang,comp,comp_str,subcomp_str,version,backup,saveable) ->
-      let item = Printf.sprintf "%05d: %s~%s~ %d %d // %s%s%s\n" !i
-          (if not saveable then "/* acted upon in an indetectable manner */" else if backup = "" then "/* from game biffs */ "  else "") tpfile lang comp subcomp_str comp_str version in
-      incr i ;
-      item) file_log
-    in
-    let files = List.filter (fun (tpfile, lang, comp, comp_str, subcomp_str, version, backup, saveable) ->
-      saveable && file_exists backup) file_log in
-    let backup_files = List.map (fun (tpfile, lang, comp, comp_str, subcomp_str, version, backup, saveable) ->
-      let out = Printf.sprintf "%s.%05d.%s" base !i ext in
-      (backup, out)) files in
+    let item_list = List.mapi (fun i (tpfile,lang,comp,comp_str,subcomp_str,version,backup,saveable) ->
+      Printf.sprintf "%05d: %s~%s~ %d %d // %s%s%s\n" i
+        (if not saveable then "/* acted upon in an indetectable manner */" else if backup = "" then "/* from game biffs */ "  else "") tpfile lang comp subcomp_str comp_str version
+                              ) file_log in
+    let backup_files = List.map value_of_option
+        (List.filter (function | Some tuple -> true | None -> false)
+           (List.mapi (fun i (tpfile, lang, comp, comp_str, subcomp_str, version, backup, saveable) ->
+             let out = Printf.sprintf "%s.%05d.%s" base i ext in
+             if saveable && file_exists backup then Some (backup, out) else None) file_log)) in
     let text =first ^ (List.fold_left (fun acc item ->
       acc ^ item) "" item_list) in
     (text, backup_files)) file_list
