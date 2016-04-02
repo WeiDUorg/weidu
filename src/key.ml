@@ -57,10 +57,13 @@ let _ =
   assoc "BS"  0x3f9 ;
   assoc "CHR" 0x3fa ;
   assoc "CHU" 0x3ea ;
-  assoc "CRE" 1009 ;
+  assoc "CRE" 0x3f1 ;
   assoc "DLG" 0x3f3 ;
   assoc "EFF" 0x3f8 ;
+  assoc "FNT" 0x400 ;
   assoc "GAM" 0x3f5 ;
+  assoc "GLSL" 0x405 ;
+  assoc "GUI" 0x402 ;
   assoc "IDS" 0x3f0 ;
   assoc "INI" 0x802 ;
   assoc "ITM" 0x3ed ;
@@ -71,7 +74,9 @@ let _ =
   assoc "PLT" 0x006 ;
   assoc "PNG" 0x40b ;
   assoc "PRO" 0x3fd ;
+  assoc "PVRZ" 0x404 ;
   assoc "SPL" 0x3ee ;
+  assoc "SQL" 0x403 ;
   assoc "SRC" 0x803 ;
   assoc "STO" 0x3f6 ;
   assoc "TIS" 0x3eb ;
@@ -85,11 +90,6 @@ let _ =
   assoc "WED" 0x3e9 ;
   assoc "WFX" 0x005 ;
   assoc "WMP" 0x3f7 ;
-  assoc "FNT" 0x400 ;
-  assoc "GUI" 0x402 ;
-  assoc "SQL" 0x403 ;
-  assoc "PVRZ" 0x404 ;
-  assoc "GLSL" 0x405 ;
   ()
 
 let ext_of_key key =
