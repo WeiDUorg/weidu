@@ -5,6 +5,7 @@ Version 240:
   * New TP2 when clause: IF_EXISTS
   * Fix regression in --change-log which produced only the last backup
     file instead of all of them.
+  * GAME_IS et al. do not fail on unrecognised games.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
