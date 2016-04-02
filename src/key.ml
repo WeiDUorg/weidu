@@ -75,11 +75,11 @@ let _ =
   assoc "VEF" 0x3fc ;
   assoc "VVC" 0x3fb ;
   assoc "WAV" 0x004 ;
+  assoc "WBM" 0x3ff ;
   assoc "WED" 0x3e9 ;
   assoc "WFX" 0x005 ;
   assoc "WMP" 0x3f7 ;
   assoc "FNT" 0x400 ;
-  assoc "WBM" 0x401 ;
   assoc "GUI" 0x402 ;
   assoc "SQL" 0x403 ;
   assoc "PVRZ" 0x404 ;
