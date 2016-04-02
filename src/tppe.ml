@@ -471,7 +471,7 @@ let rec eval_pe buff game p =
       let totlm = ["TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
       let iwd2 = ["IWD2"] in
       let ca = ["CA"] in
-      let sod = ["SOD"] in
+      let sod = ["SOD"; "EET"] in
       let list = (match String.uppercase game_set with
       | "BG1" -> bg1
       | "TOTSC" -> totsc
