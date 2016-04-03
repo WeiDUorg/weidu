@@ -167,10 +167,6 @@ let print_log () =
     | Permanently_Uninstalled -> "Permanently_Uninstalled")
       (str_of_str_opt sopt)) !the_log
 
-let decompile_var s =
-  match s with
-  | Must_Get_Var x -> Var.get_string x
-
 let subcomp_str game the_comp =
   let subcomp_group the_comp =
     let rec walk lst = match lst with
@@ -212,7 +208,7 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
             (try
               let l = List.nth tp2.languages b in
               List.iter (fun s ->
-                let s = decompile_var s in
+                let s = Var.get_string s in
                 let x =
                   (* log_or_print "*** Loading %s for %s.\n" s a; *)
                   try Hashtbl.find tra_ht s

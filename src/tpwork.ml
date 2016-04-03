@@ -111,7 +111,7 @@ let lang_init our_lang =
           l.lang_name (List.length l.lang_tra_files) ;
         List.iter handle_tra_filename
           (List.map Arch.backslash_to_slash
-             (List.map decompile_var l.lang_tra_files))
+             (List.map Var.get_string l.lang_tra_files))
   end
 
 let do_readme tp this_tp2_filename =
@@ -1420,7 +1420,7 @@ let rec handle_tp game this_tp2_filename tp =
               our_lang_index := b ;
               List.iter handle_tra_filename (List.map
                                                Arch.backslash_to_slash
-                                               (List.map decompile_var l.lang_tra_files));
+                                               (List.map Var.get_string l.lang_tra_files));
               (*  log_and_print "Re-Installing Using Language [%s]\n" l.lang_name ;*)
               log_and_print "%s [%s]\n" ((get_trans (-1012))) l.lang_name ;
               Var.set_string "LANGUAGE" l.lang_dir_name ;
