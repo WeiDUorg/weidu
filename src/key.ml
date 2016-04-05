@@ -67,7 +67,7 @@ let _ =
   assoc "IDS" 0x3f0 ;
   assoc "INI" 0x802 ;
   assoc "ITM" 0x3ed ;
-  assoc "LUA" 0x309 ;
+  assoc "LUA" 0x409 ;
   assoc "MENU" 0x408 ;
   assoc "MOS" 0x3ec ;
   assoc "MVE" 0x002 ;
