@@ -158,6 +158,7 @@ DEFINE_PATCH_FUNCTION ~ADD_CRE_EFFECT~
           sourceslot = "-1"
           casterlvl = 0
           sectype = 0
+          insert_point = 0
   STR_VAR resource = ~~
           resource2 = ~~
           vvcresource = ~~

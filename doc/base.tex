@@ -8521,6 +8521,9 @@ This is a PATCH macro and function.
 \item SET \verb+sourceslot+ to source resource slot
 \item SET \verb+casterlvl+ to caster level
 \item SET \verb+sectype+ to secondary type
+\item SET \verb+insert_point+ to the index at which the new effect
+  is to be inserted. 0 is first and negative values or values
+  equal to or exceeding the existing number of effects are last.
 \end{itemize}
 
 \verb+DELETE_CRE_ITEM+: deletes all matching items from a creature. Regexp allowed.

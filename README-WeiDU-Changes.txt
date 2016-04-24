@@ -8,6 +8,7 @@ Version 240:
   * GAME_IS et al. do not fail on unrecognised games.
   * Use the correct key value for WBM.
   * Add support for MENU, LUA, TTF, PNG, TOT, TOH key values.
+  * Add insert_point to ADD_CRE_EFFECT.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.

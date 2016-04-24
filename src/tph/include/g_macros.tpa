@@ -490,25 +490,34 @@ DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT_BG1~ BEGIN
     READ_LONG 0x2c4 ___#fx_off
     READ_LONG 0x2c8 ___#fx_num
 
-    INSERT_BYTES ___#fx_off 0x30
+    /* If insert_point is greater than or equal to 0 and less than num_fx, use it as a value
+     * Otherwise, insert at num_fx
+     * The function should use 0 as its default value
+     */
+    ___#insert_point = IS_AN_INT insert_point AND
+                       insert_point >= 0 AND
+                       insert_point < ___#fx_num ?
+                       insert_point : ___#fx_num
 
-    WRITE_SHORT (___#fx_off) opcode
-    WRITE_BYTE (___#fx_off + 0x2) target
-    WRITE_BYTE (___#fx_off + 0x3) power
-    WRITE_LONG (___#fx_off + 0x4) parameter1
-    WRITE_LONG (___#fx_off + 0x8) parameter2
-    WRITE_BYTE (___#fx_off + 0xc) timing
-    WRITE_BYTE (___#fx_off + 0xd) resist_dispel
-    WRITE_LONG (___#fx_off + 0xe) duration
-    WRITE_BYTE (___#fx_off + 0x12) probability1
-    WRITE_BYTE (___#fx_off + 0x13) probability2
-    WRITE_EVALUATED_ASCII (___#fx_off + 0x14) ~%resource%~ #8
-    WRITE_LONG (___#fx_off + 0x1c) dicenumber
-    WRITE_LONG (___#fx_off + 0x20) dicesize
-    WRITE_LONG (___#fx_off + 0x24) savingthrow
-    WRITE_LONG (___#fx_off + 0x28) savebonus
+    INSERT_BYTES ___#fx_off + ___#insert_point * 0x30 0x30
+
+    WRITE_SHORT (___#fx_off + ___#insert_point * 0x30) opcode
+    WRITE_BYTE (___#fx_off + ___#insert_point * 0x30 + 0x2) target
+    WRITE_BYTE (___#fx_off + ___#insert_point * 0x30 + 0x3) power
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x30 + 0x4) parameter1
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x30 + 0x8) parameter2
+    WRITE_BYTE (___#fx_off + ___#insert_point * 0x30 + 0xc) timing
+    WRITE_BYTE (___#fx_off + ___#insert_point * 0x30 + 0xd) resist_dispel
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x30 + 0xe) duration
+    WRITE_BYTE (___#fx_off + ___#insert_point * 0x30 + 0x12) probability1
+    WRITE_BYTE (___#fx_off + ___#insert_point * 0x30 + 0x13) probability2
+    WRITE_EVALUATED_ASCII (___#fx_off + ___#insert_point * 0x30 + 0x14) ~%resource%~ #8
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x30 + 0x1c) dicenumber
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x30 + 0x20) dicesize
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x30 + 0x24) savingthrow
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x30 + 0x28) savebonus
     PATCH_IF IS_AN_INT ___#special BEGIN
-      WRITE_LONG (___#fx_off + 0x2c) ___#special
+      WRITE_LONG (___#fx_off + ___#insert_point * 0x30 + 0x2c) ___#special
     END
 
     //correcting effects number
@@ -565,46 +574,55 @@ DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT_BG2~ BEGIN
     READ_LONG 0x2c4 ___#fx_off
     READ_LONG 0x2c8 ___#fx_num
 
-    INSERT_BYTES ___#fx_off 0x108
+    /* If insert_point is greater than or equal to 0 and less than num_fx, use it as a value
+     * Otherwise, insert at num_fx
+     * The function should use 0 as its default value
+     */
+    ___#insert_point = IS_AN_INT insert_point AND
+                       insert_point >= 0 AND
+                       insert_point < ___#fx_num ?
+                       insert_point : ___#fx_num
 
-//    WRITE_ASCII ___#fx_off ~EFF ~ #4
-//    WRITE_ASCII (___#fx_off + 4) ~V2.0~ #4
+    INSERT_BYTES ___#fx_off + ___#insert_point * 0x108 0x108
 
-    WRITE_LONG (___#fx_off + 0x8) opcode
-    WRITE_LONG (___#fx_off + 0xc) target
-    WRITE_LONG (___#fx_off + 0x10) power
-    WRITE_LONG (___#fx_off + 0x14) parameter1
-    WRITE_LONG (___#fx_off + 0x18) parameter2
-    WRITE_BYTE (___#fx_off + 0x1c) timing
-    WRITE_LONG (___#fx_off + 0x20) duration
-    WRITE_SHORT (___#fx_off + 0x24) probability1
-    WRITE_SHORT (___#fx_off + 0x26) probability2
-    WRITE_EVALUATED_ASCII (___#fx_off + 0x28) ~%resource%~ #8
-    WRITE_LONG (___#fx_off + 0x30) dicenumber
-    WRITE_LONG (___#fx_off + 0x34) dicesize
-    WRITE_LONG (___#fx_off + 0x38) savingthrow
-    WRITE_LONG (___#fx_off + 0x3c) savebonus
-    WRITE_LONG (___#fx_off + 0x44) school
+//    WRITE_ASCII ___#fx_off + ___#insert_point * 0x108 ~EFF ~ #4
+//    WRITE_ASCII (___#fx_off + ___#insert_point * 0x108 + 4) ~V2.0~ #4
+
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x8) opcode
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0xc) target
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x10) power
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x14) parameter1
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x18) parameter2
+    WRITE_BYTE (___#fx_off + ___#insert_point * 0x108 + 0x1c) timing
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x20) duration
+    WRITE_SHORT (___#fx_off + ___#insert_point * 0x108 + 0x24) probability1
+    WRITE_SHORT (___#fx_off + ___#insert_point * 0x108 + 0x26) probability2
+    WRITE_EVALUATED_ASCII (___#fx_off + ___#insert_point * 0x108 + 0x28) ~%resource%~ #8
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x30) dicenumber
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x34) dicesize
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x38) savingthrow
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x3c) savebonus
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x44) school
     PATCH_IF IS_AN_INT ___#special BEGIN
-      WRITE_LONG (___#fx_off + 0x48) ___#special
+      WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x48) ___#special
     END
-    WRITE_LONG (___#fx_off + 0x4c) lowestafflvl
-    WRITE_LONG (___#fx_off + 0x50) highestafflvl
-    WRITE_LONG (___#fx_off + 0x54) resist_dispel
-    WRITE_LONG (___#fx_off + 0x58) parameter3
-    WRITE_LONG (___#fx_off + 0x5c) parameter4
-    WRITE_EVALUATED_ASCII (___#fx_off + 0x68) ~%vvcresource%~ #8
-    WRITE_EVALUATED_ASCII (___#fx_off + 0x70) ~%resource2%~ #8
-    WRITE_LONG (___#fx_off + 0x78) casterx
-    WRITE_LONG (___#fx_off + 0x7c) castery
-    WRITE_LONG (___#fx_off + 0x80) targetx
-    WRITE_LONG (___#fx_off + 0x84) targety
-    WRITE_LONG  ___#fx_off + 0x88  restype
-    WRITE_EVALUATED_ASCII (___#fx_off + 0x8c) ~%effsource%~ #8
-    WRITE_LONG  ___#fx_off + 0x9c  sourceslot
-    WRITE_EVALUATED_ASCII (___#fx_off + 0xa0) ~%effvar%~ #32
-    WRITE_LONG (___#fx_off + 0xc0) casterlvl
-    WRITE_LONG (___#fx_off + 0xc8) sectype
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x4c) lowestafflvl
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x50) highestafflvl
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x54) resist_dispel
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x58) parameter3
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x5c) parameter4
+    WRITE_EVALUATED_ASCII (___#fx_off + ___#insert_point * 0x108 + 0x68) ~%vvcresource%~ #8
+    WRITE_EVALUATED_ASCII (___#fx_off + ___#insert_point * 0x108 + 0x70) ~%resource2%~ #8
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x78) casterx
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x7c) castery
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x80) targetx
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x84) targety
+    WRITE_LONG  ___#fx_off + ___#insert_point * 0x108 + 0x88  restype
+    WRITE_EVALUATED_ASCII (___#fx_off + ___#insert_point * 0x108 + 0x8c) ~%effsource%~ #8
+    WRITE_LONG  ___#fx_off + ___#insert_point * 0x108 + 0x9c  sourceslot
+    WRITE_EVALUATED_ASCII (___#fx_off + ___#insert_point * 0x108 + 0xa0) ~%effvar%~ #32
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0xc0) casterlvl
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0xc8) sectype
 
     //correcting effects number
     WRITE_LONG 0x2c8 (___#fx_num + 1)
