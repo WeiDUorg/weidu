@@ -81,8 +81,10 @@ DEFINE_PATCH_FUNCTION ALTER_AREA_REGION
   STR_VAR region_name = ""     // required, at 0x00, used to match region
           destination_area    = "same" // changes destination area at 0x38; "same" means no change
           entrance_name     = "same" // changes entrance name at 0x40; "same" means no change
-          door_key     = "same" // resref of key to unlock at 0x74; "same" means no change
-          door_script  = "same" // resref of region script at 0x7c; "same" means no change
+          door_key     = "same" // legacy
+          door_script  = "same" // legacy
+          region_key = EVAL "%door_key%" // resref of key to unlock at 0x74; "same" means no change
+          region_script = EVAL"%door_script%" // resref of region script at 0x7c; "same" means no change
 BEGIN
 
   READ_SHORT 0x5a trig_num
@@ -126,11 +128,11 @@ BEGIN
       PATCH_IF ("%entrance_name%" STRING_COMPARE_CASE "same") BEGIN
         WRITE_ASCIIE (trig_off + 0x40 + (index * 0xc4)) "%entrance_name%" #32
       END
-      PATCH_IF ("%door_key%" STRING_COMPARE_CASE "same") BEGIN
-        WRITE_ASCIIE (trig_off + 0x74 + (index * 0xc4)) "%door_key%" #8
+      PATCH_IF ("%region_key%" STRING_COMPARE_CASE "same") BEGIN
+        WRITE_ASCIIE (trig_off + 0x74 + (index * 0xc4)) "%region_key%" #8
       END
-      PATCH_IF ("%door_script%" STRING_COMPARE_CASE "same") BEGIN
-        WRITE_ASCIIE (trig_off + 0x7c + (index * 0xc4)) "%door_script%" #8
+      PATCH_IF ("%region_script%" STRING_COMPARE_CASE "same") BEGIN
+        WRITE_ASCIIE (trig_off + 0x7c + (index * 0xc4)) "%region_script%" #8
       END
       PATCH_IF (bounding_left >= 0)     BEGIN WRITE_SHORT (trig_off + 0x22 + (index * 0xc4)) bounding_left   END
       PATCH_IF (bounding_top >= 0)      BEGIN WRITE_SHORT (trig_off + 0x24 + (index * 0xc4)) bounding_top    END

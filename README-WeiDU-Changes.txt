@@ -9,6 +9,7 @@ Version 240:
   * Use the correct key value for WBM.
   * Add support for MENU, LUA, TTF, PNG, TOT, TOH key values.
   * Add insert_point to ADD_CRE_EFFECT.
+  * region_key and region_script for ALTER_AREA_REGION.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
