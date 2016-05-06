@@ -28,10 +28,7 @@
 // If you wish to prevent this macro from running, set the variables
 // "append_projectl_size" and "append_missile_size" to 0.
 
-ACTION_IF ( FILE_EXISTS_IN_GAME "MISSILE.IDS" AND
-            FILE_EXISTS_IN_GAME "PROJECTL.IDS" AND
-            FILE_EXISTS_IN_GAME "FIREBALL.IDS" ) BEGIN
-
+DEFINE_ACTION_FUNCTION fl#weidu#donotpolluteglobalnamespaceplease BEGIN
   OUTER_SET fully_updated_projectl = 0
   OUTER_SET fully_updated_missile = 0
 
@@ -156,8 +153,6 @@ ACTION_IF ( FILE_EXISTS_IN_GAME "MISSILE.IDS" AND
       UNLESS ~%append_col1%~
     END
 
-    SILENT
-
     ACTION_IF (append_projectl_size > 0) BEGIN
       COPY_EXISTING ~PROJECTL.IDS~ ~override~
         COUNT_2DA_ROWS 2 projectl_rowcount
@@ -200,8 +195,6 @@ ACTION_IF ( FILE_EXISTS_IN_GAME "MISSILE.IDS" AND
       COPY_EXISTING ~SW1H01.itm~ ~override/TOB_MISSILE_PROJECTL.xxx~
     END
 
-    VERBOSE
-
     APPEND ~FIREBALL.IDS~ ~18 DRAGONACID~
     UNLESS ~18~
     APPEND ~FIREBALL.IDS~ ~17 DRAGONPURPLEFIRE~
@@ -210,8 +203,6 @@ ACTION_IF ( FILE_EXISTS_IN_GAME "MISSILE.IDS" AND
     OUTER_SET updated_missile_and_projectl = 0
 
   END
-
-  SILENT
 
   COPY_EXISTING ~MISSILE.ids~ ~override~
     COUNT_2DA_ROWS 1 missile_rowcount
@@ -224,8 +215,6 @@ ACTION_IF ( FILE_EXISTS_IN_GAME "MISSILE.IDS" AND
     READ_2DA_ENTRY projectl_rowcount 0 0 last_projectl_entry
   BUT_ONLY_IF_IT_CHANGES
 
-  VERBOSE
-
   OUTER_WHILE ( last_projectl_entry < last_missile_entry - 1) BEGIN
     OUTER_SET last_projectl_entry = last_projectl_entry + 1
     APPEND ~PROJECTL.IDS~ ~%last_projectl_entry% ~
@@ -235,4 +224,10 @@ ACTION_IF ( FILE_EXISTS_IN_GAME "MISSILE.IDS" AND
     APPEND ~MISSILE.IDS~ ~%last_missile_entry% Unnamed~
   END
 
+END
+
+ACTION_IF ( FILE_EXISTS_IN_GAME "MISSILE.IDS" AND
+            FILE_EXISTS_IN_GAME "PROJECTL.IDS" AND
+            FILE_EXISTS_IN_GAME "FIREBALL.IDS" ) BEGIN
+  LAF fl#weidu#donotpolluteglobalnamespaceplease END
 END
