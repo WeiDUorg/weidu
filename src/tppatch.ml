@@ -184,8 +184,8 @@ let split_apart str = Str.split many_whitespace_regexp str
 (*************************************************************************
  * process_patch2
  *************************************************************************)
-let rec process_patch2_real process_action tp patch_filename game buff p =
-  let process_patch2 = process_patch2_real process_action tp in
+let rec process_patch2_real process_action tp our_lang patch_filename game buff p =
+  let process_patch2 = process_patch2_real process_action tp our_lang in
   process_patch1 patch_filename game buff p ;
 
   Stats.time "process_patch2" (fun () ->
@@ -2731,4 +2731,17 @@ let rec process_patch2_real process_action tp patch_filename game buff p =
             with _ -> () end;
             Mos.str_of_mos new_mos
           end else buff
+        end
+    | TP_PatchWithTra(tra_list, patch_list) ->
+        begin
+          let tra_list = List.map (fun f -> Arch.backslash_to_slash
+              (Var.get_string (eval_pe_str f))) tra_list in
+          Dc.push_copy_trans_modder () ;
+          try
+            resolve_tra_paths_and_load !our_lang tra_list ;
+            let buff = List.fold_left (fun acc patch ->
+              process_patch2 patch_filename game acc patch) buff patch_list in
+            Dc.pop_trans () ;
+            buff
+          with e -> Dc.pop_trans () ; raise e
         end) () (* end: process_patch2 *)

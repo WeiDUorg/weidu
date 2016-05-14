@@ -547,6 +547,7 @@ nonterm(Tp.tp_action) Tp_Action {
   -> ADD_JOURNAL e1:Optional_Journal_Existing e2:Optional_Journal_Managed e3:Optional_Journal_Title
                  e4:Reference_List e5:Optional_Using [ Tp.TP_AddJournal(e1,e2,e3,e4,e5) ]
   -> CREATE e1:STRING e2:Optional_File_Version e3:STRING e4:Tp_Patch_List [ Tp.TP_Create(e1, e2, e3, e4) ]
+  -> WITH_TRA e1:Patch_String_Left_List BEGIN e2:Tp_Action_List END [ Tp.TP_WithTra(e1, e2) ]
 }
 
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List_Rev {
@@ -1339,6 +1340,7 @@ nonterm (Tp.tp_patch) Tp_Patch {
 	-> COMPRESS_INTO_FILE e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp e5:Patch_Exp { Tp.TP_Compress(e1,e2,e3,Tp.TP_DW_IntoFile(e4,e5)) }
 	-> COMPRESS_INTO_VAR e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_String_Left { Tp.TP_Compress(e1,e2,e3,Tp.TP_DW_Variable(e4)) }
 	-> REBUILD_CRE_FILE { Tp.TP_RebuildCreFile }
+	-> PATCH_WITH_TRA e1:Patch_String_Left_List BEGIN e2:Tp_Patch_List END { Tp.TP_PatchWithTra(e1, e2) }
 }
 
 nonterm(Tp.tp_patchexp) Optional_When {

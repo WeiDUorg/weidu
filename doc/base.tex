@@ -3368,6 +3368,10 @@ END
   or & \DEFINE{LOAD!TRA} traName \Slist &
     Loads all traName files (variable substitution is done; the file can be inlined)
     to be used in the following tp2 actions, as if you had declared them in \ttref{LANGUAGE}. \\
+  or & \DEFINE{WITH!TRA} traName \Slist \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
+    Creates a new \t{TRA} scope copied from the surrounding scope, loads all traName files
+    (variable substitution is done; the file can be inlined) and evaluates the \t{TP2 Action}s.
+    When \ttref{WITH!TRA} exits the \t{TRA} scope is restored to what it was. \\
   or & \DEFINE{UNINSTALL} modToUninstall modComponent &
     If the given component of the given mod is currently installed,
     uninstall it before proceeding. \emph{Do not use this action without
@@ -4557,6 +4561,10 @@ or & \DEFINE{PATCH!REINCLUDE} \t{\ttref{String}} \Slist &
     This is slower, but required if you want to edit your tpp file between an
     inclusion and another.
     \\
+or & \DEFINE{PATCH!WITH!TRA} traName \Slist \t{BEGIN} \ttref{patch} \Slist \t{END} &
+    Creates a new \t{TRA} scope copied from the surrounding scope, loads all traName files
+    (variable substitution is done; the file can be inlined) and evaluates the \t{patch}s.
+    When \ttref{PATCH!WITH!TRA} exits the \t{TRA} scope is restored to what it was. \\
 or & \DEFSYN{SET!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
 \ttref{value} &
   The first \ttref{value} is the row, the second is the column and the

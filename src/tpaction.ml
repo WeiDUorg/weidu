@@ -57,7 +57,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
     end else true in
 
   let process_action = (process_action_real our_lang game this_tp2_filename) in
-  let process_patch2 = process_patch2_real process_action tp in
+  let process_patch2 = process_patch2_real process_action tp our_lang in
 
   let run_patch x = ignore (process_patch2 "" game "" x) in
   let pl_of_al x = [TP_PatchInnerAction x] in
@@ -2293,6 +2293,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             process_action tp (TP_Define_Patch_Macro ("FL#CREATE#PATCH_LIST", [], patch_list));
             process_action tp (TP_Include [".../WEIDU_NAMESPACE/fl#create.tpa"]);
             process_action tp (TP_Launch_Action_Macro("FL#CREATE"));
+          end
+
+      | TP_WithTra(tra_list, action_list) ->
+          begin
+            run_patch (TP_PatchWithTra (tra_list, pl_of_al action_list))
           end
       );
       if !clear_memory then begin

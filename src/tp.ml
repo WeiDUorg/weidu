@@ -223,6 +223,7 @@ and tp_action =
   | TP_ActionGetStrRef of tp_patchexp * tp_pe_string * bool * bool
   | TP_AddJournal of bool * bool * (Dlg.tlk_string option) * (Dlg.tlk_string list) * (string list)
   | TP_Create of string * (string option) * string * (tp_patch list)
+  | TP_WithTra of tp_pe_string list * tp_action list
 
 (*
   and predicate =
@@ -409,6 +410,7 @@ and tp_patch =
 	(* start, clen, ulen, where to put the result *)
   | TP_Compress of tp_patchexp * tp_patchexp * tp_patchexp * tp_decompress_where
   | TP_RebuildCreFile
+  | TP_PatchWithTra of tp_pe_string list * tp_patch list
 
 and tp_decompress_where =
   | TP_DW_ReplaceFile

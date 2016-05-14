@@ -10,6 +10,7 @@ Version 240:
   * Add support for MENU, LUA, TTF, PNG, TOT, TOH key values.
   * Add insert_point to ADD_CRE_EFFECT.
   * region_key and region_script for ALTER_AREA_REGION.
+  * Add WITH_TRA and PATCH_WITH_TRA.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
