@@ -1390,27 +1390,27 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           end
 
       | TP_String_Set(lst,tra_file_opt) -> begin
-          (match tra_file_opt with
-          | None -> ()
-          | Some(tra_file) ->
-              begin
-                let tra_file = Var.get_string tra_file in
-                Dc.push_copy_trans ();
-                handle_tra_filename (Arch.backslash_to_slash tra_file)
-              end) ;
-          List.iter (fun (s1,str) ->
-            let i = try [int_of_string s1]
-            with _ -> begin
-              try
-                Hashtbl.find_all game.Load.dialog_search s1
-              with _ ->
-                log_and_print "ERROR: Cannot find string [%s]\n" s1 ;
-                failwith "ERROR: STRING_SET"
-            end in
-            List.iter (fun i -> Dc.set_string game i str false) i) lst ;
-          (match tra_file_opt with
-          | None -> ()
-          | Some(_) -> Dc.pop_trans ())
+          Dc.push_copy_trans_modder () ;
+          (try
+            (match tra_file_opt with
+            | None -> ()
+            | Some(tra_file) ->
+                begin
+                  let tra_file = Var.get_string tra_file in
+                  handle_tra_filename (Arch.backslash_to_slash tra_file)
+                end) ;
+            List.iter (fun (s1,str) ->
+              let i = (try [int_of_string s1]
+              with _ -> begin
+                try
+                  Hashtbl.find_all game.Load.dialog_search s1
+                with _ ->
+                  log_and_print "ERROR: Cannot find string [%s]\n" s1 ;
+                  failwith "ERROR: STRING_SET"
+              end) in
+              List.iter (fun i -> Dc.set_string game i str false) i) lst ;
+            Dc.pop_trans () ;
+          with e -> Dc.pop_trans () ; raise e)
       end
 
       | TP_String_Set_Evaluate(lst,tra_file_opt) ->
@@ -1932,89 +1932,91 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           end
         in
         Dc.push_copy_trans_modder () ;
-        Dc.notChanged := true ;
-        (* handle AUTO_TRA "solarom/%s" *)
-        List.iter (fun f ->
-          match f,!our_lang with
-            Auto_Tra(path),Some(l) ->
-            let my_regexp = Str.regexp_string "%s" in
-            let tra_file_dir = Str.global_replace
-                my_regexp l.lang_dir_name path in
-            let d_base,_ = split (Case_ins.filename_basename src) in
-            let tra_file = tra_file_dir ^ "/" ^ d_base ^ ".TRA" in
-            handle_tra_filename tra_file ;
-              | Auto_Tra(path),None ->
-            let d_base,_ = split (Case_ins.filename_basename src) in
-            let tra_file = path ^ "/" ^ d_base ^ ".TRA" in
-            handle_tra_filename tra_file
-          | _ -> ()) tp.flags ;
+        (try
+          Dc.notChanged := true ;
+          (* handle AUTO_TRA "solarom/%s" *)
+          List.iter (fun f ->
+            (match f,!our_lang with
+            | Auto_Tra(path),Some(l) ->
+                let my_regexp = Str.regexp_string "%s" in
+                let tra_file_dir = Str.global_replace
+                    my_regexp l.lang_dir_name path in
+                let d_base,_ = split (Case_ins.filename_basename src) in
+                let tra_file = tra_file_dir ^ "/" ^ d_base ^ ".TRA" in
+                handle_tra_filename tra_file ;
+            | Auto_Tra(path),None ->
+                let d_base,_ = split (Case_ins.filename_basename src) in
+                let tra_file = path ^ "/" ^ d_base ^ ".TRA" in
+                handle_tra_filename tra_file
+            | _ -> ())) tp.flags ;
 
-        resolve_tra_paths_and_load !our_lang tra_l;
+          resolve_tra_paths_and_load !our_lang tra_l ;
 
-        if !Dc.notChanged then
-          Modder.handle_msg "SETUP_TRA"
-            (Printf.sprintf "WARNING: EXTEND* %s with strings from setup.tra\n" src);
-        let src_script =
-          let src_buff = load_file src in
-          if (!has_if_eval_bug) then begin
-            try
-              List.iter (fun p -> process_patch1 src game src_buff p) pl ;
-            with _ -> ()
-          end;
-          let src_buff = List.fold_left (fun acc elt ->
-            try
-              process_patch2 src game acc elt
-            with e ->
-              log_and_print "ERROR: [%s] -> [%s] Patching Failed (EXTEND_TOP/BOTTOM)\n"
-                src dest ; raise e)
-              src_buff pl in
-          Dc.ok_to_resolve_strings_while_loading := Some(game) ;
-          (try
-            let res = handle_script_buffer src src_buff in
-            Dc.ok_to_resolve_strings_while_loading := None ;
-            res
-          with e ->
-            begin
+          if !Dc.notChanged then
+            Modder.handle_msg "SETUP_TRA"
+              (Printf.sprintf "WARNING: EXTEND* %s with strings from setup.tra\n" src);
+          let src_script =
+            let src_buff = load_file src in
+            if (!has_if_eval_bug) then begin
+              (try
+                List.iter (fun p -> process_patch1 src game src_buff p) pl ;
+              with _ -> ())
+            end ;
+            let src_buff = List.fold_left (fun acc elt ->
+              (try
+                process_patch2 src game acc elt
+              with e ->
+                log_and_print "ERROR: [%s] -> [%s] Patching Failed (EXTEND_TOP/BOTTOM)\n"
+                  src dest ; raise e))
+                src_buff pl in
+            Dc.ok_to_resolve_strings_while_loading := Some(game) ;
+            (try
+              let res = handle_script_buffer src src_buff in
               Dc.ok_to_resolve_strings_while_loading := None ;
-              raise e
-            end) ; in
-        List.iter (fun dest ->
-          let base,ext = split (String.uppercase dest) in
-          let dest_script =
-            let old_a_m = !Load.allow_missing in
-            Load.allow_missing := dest :: old_a_m ;
-            let dest_buff, dest_path =
-              try
-                Load.load_resource "EXTEND_TOP/EXTEND_BOTTOM" game true base ext
-              with _ ->
-                begin
-                  log_only "[%s] not found, treating as empty.\n" dest ;
-                  "",""
-                end
-            in
-            Load.allow_missing := old_a_m ;
-            handle_script_buffer dest dest_buff in
+              res
+            with e ->
+              begin
+                Dc.ok_to_resolve_strings_while_loading := None ;
+                raise e
+              end) ; in
+          List.iter (fun dest ->
+            let base,ext = split (String.uppercase dest) in
+            let dest_script =
+              let old_a_m = !Load.allow_missing in
+              Load.allow_missing := dest :: old_a_m ;
+              let dest_buff, dest_path =
+                (try
+                  Load.load_resource "EXTEND_TOP/EXTEND_BOTTOM" game true base ext
+                with _ ->
+                  begin
+                    log_only "[%s] not found, treating as empty.\n" dest ;
+                    "",""
+                  end)
+              in
+              Load.allow_missing := old_a_m ;
+              handle_script_buffer dest dest_buff in
 
-          let destpath =
-            try
-              ignore(String.index dest '/'); dest
-            with _ -> "override/" ^ dest in
-          Stats.time "saving files" (fun () ->
-            let out = open_for_writing destpath true in
-            Bcs.save_bcs game (Bcs.Save_BCS_OC(out))
-              (match a with
-                TP_Extend_Top(_,_,_,_,_) -> src_script @ dest_script
-              | _ -> dest_script @ src_script) ;
-            close_out out ;
-            begin (* handle read-only files! *)
-              try
-                Case_ins.unix_chmod destpath 511 ; (* 511 = octal 0777 = a+rwx *)
-              with e -> ()
-              (* log_or_print "WARNING: chmod %s : %s\n" filename
-                 (printexc_to_string e) *)
-            end ;) () ;
-          log_or_print "Extended script [%s] with [%s]\n" dest src) dlist ;
-        Dc.pop_trans () ;
+            let destpath =
+              (try
+                ignore(String.index dest '/'); dest
+              with _ -> "override/" ^ dest) in
+            Stats.time "saving files" (fun () ->
+              let out = open_for_writing destpath true in
+              Bcs.save_bcs game (Bcs.Save_BCS_OC(out))
+                (match a with
+                  TP_Extend_Top(_,_,_,_,_) -> src_script @ dest_script
+                | _ -> dest_script @ src_script) ;
+              close_out out ;
+              begin (* handle read-only files! *)
+                (try
+                  Case_ins.unix_chmod destpath 511 ; (* 511 = octal 0777 = a+rwx *)
+                with e -> ())
+                  (* log_or_print "WARNING: chmod %s : %s\n" filename
+                     (printexc_to_string e) *)
+              end ;) () ;
+            log_or_print "Extended script [%s] with [%s]\n" dest src) dlist ;
+          Dc.pop_trans () ;
+        with e -> Dc.pop_trans () ; raise e)
       end
 
       | TP_At_Interactive_Exit(str,exact) ->
@@ -2174,107 +2176,109 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               let tra_list = List.map Arch.backslash_to_slash tra_list in
 
               Dc.push_copy_trans_modder ();
-              Dc.notChanged := true;
+              (try
+                Dc.notChanged := true;
 
-              resolve_tra_paths_and_load !our_lang tra_list;
+                resolve_tra_paths_and_load !our_lang tra_list;
 
-              if !Dc.notChanged then
-                Modder.handle_msg "SETUP_TRA"
-                  (Printf.sprintf "WARNING: ADD_JOURNAL with strings from setup.tra\n");
+                if !Dc.notChanged then
+                  Modder.handle_msg "SETUP_TRA"
+                    (Printf.sprintf "WARNING: ADD_JOURNAL with strings from setup.tra\n");
 
-              let indices = List.map resolve_string ref_list in
+                let indices = List.map resolve_string ref_list in
 
-              let titled_indices = (match title with
-                Some(t) ->
-                  let title = resolve_string t in
-                  List.map (fun index ->
-                    title,index) indices
-              | None ->
-                  List.map (fun index ->
-                    let title = isolate_title_and_resolve index in
-                    title,index) indices) in
+                let titled_indices = (match title with
+                  Some(t) ->
+                    let title = resolve_string t in
+                    List.map (fun index ->
+                      title,index) indices
+                | None ->
+                    List.map (fun index ->
+                      let title = isolate_title_and_resolve index in
+                      title,index) indices) in
 
-              let quests,journals_quests = Sql.get_quests_data "ADD_JOURNAL" in
-              let highest_quest_id = ref (List.fold_left (fun acc record ->
-                max acc record.Sql.quest_id) 1 quests) in
+                let quests,journals_quests = Sql.get_quests_data "ADD_JOURNAL" in
+                let highest_quest_id = ref (List.fold_left (fun acc record ->
+                  max acc record.Sql.quest_id) 1 quests) in
 
-              let quest_id_table = Hashtbl.create
-                  (if not existing then (List.length titled_indices)
-                  else ((List.length quests) + (List.length titled_indices))) in
+                let quest_id_table = Hashtbl.create
+                    (if not existing then (List.length titled_indices)
+                    else ((List.length quests) + (List.length titled_indices))) in
 
-              let journal_id_table = Hashtbl.create
-                  (if not existing then (List.length titled_indices)
-                  else ((List.length journals_quests) + (List.length titled_indices))) in
+                let journal_id_table = Hashtbl.create
+                    (if not existing then (List.length titled_indices)
+                    else ((List.length journals_quests) + (List.length titled_indices))) in
 
-              if existing then begin
-                ignore (List.iter (fun record ->
-                  Hashtbl.add quest_id_table record.Sql.quest_strref record.Sql.quest_id)
-                          quests) ;
-                ignore (List.iter (fun record ->
-                  Hashtbl.add journal_id_table (record.Sql.journal_id,record.Sql.journal_quest_id) 0)
-                          journals_quests) ;
-              end;
+                if existing then begin
+                  ignore (List.iter (fun record ->
+                    Hashtbl.add quest_id_table record.Sql.quest_strref record.Sql.quest_id)
+                            quests) ;
+                  ignore (List.iter (fun record ->
+                    Hashtbl.add journal_id_table (record.Sql.journal_id,record.Sql.journal_quest_id) 0)
+                            journals_quests) ;
+                end;
 
-              let get_quest_id strref =
-                if not (Hashtbl.mem quest_id_table strref) then begin
-                  let id = !highest_quest_id + 1 in
-                  Hashtbl.add quest_id_table strref id ;
-                  highest_quest_id := id ;
-                  id ;
-                end
-                else
-                  Hashtbl.find quest_id_table strref ;
-              in
+                let get_quest_id strref =
+                  if not (Hashtbl.mem quest_id_table strref) then begin
+                    let id = !highest_quest_id + 1 in
+                    Hashtbl.add quest_id_table strref id ;
+                    highest_quest_id := id ;
+                    id ;
+                  end
+                  else
+                    Hashtbl.find quest_id_table strref ;
+                in
 
-              let new_quests = List.fold_left (fun acc (title,index) ->
-                if not (Hashtbl.mem quest_id_table title) then
-                  List.append acc
-                    [(Sql.make_quests_record (get_quest_id title) "" title 0 0 0
-                        ~quest_MC1:(Some (-1)) ())]
-                else
-                  acc) [] titled_indices in
+                let new_quests = List.fold_left (fun acc (title,index) ->
+                  if not (Hashtbl.mem quest_id_table title) then
+                    List.append acc
+                      [(Sql.make_quests_record (get_quest_id title) "" title 0 0 0
+                          ~quest_MC1:(Some (-1)) ())]
+                  else
+                    acc) [] titled_indices in
 
-              (* this can be optimised *)
-              let highest_quest_group = ref (List.fold_left (fun acc record ->
-                (match record.Sql.journal_quest_group with
-                  None -> (-1)
-                | Some i -> max acc i))
-                                             0 journals_quests) in
+                (* this can be optimised *)
+                let highest_quest_group = ref (List.fold_left (fun acc record ->
+                  (match record.Sql.journal_quest_group with
+                    None -> (-1)
+                  | Some i -> max acc i))
+                                                 0 journals_quests) in
 
-              let new_journals = List.fold_left (fun acc (title,index) ->
-                let quest_id = get_quest_id title in
-                if not (Hashtbl.mem journal_id_table (index,quest_id)) then begin
-                  Hashtbl.add journal_id_table (index,quest_id) 0 ;
-                  List.append acc
-                    [(Sql.make_journals_record index quest_id 0
-                        ~quest_group:(if managed then
-                          (Some (!highest_quest_group + 1))
-                        else
-                          (Some 0)) ~date:(Some "") ~journal_MC1:(Some (-1)) ())]
-                end
-                else
-                  acc) [] titled_indices in
+                let new_journals = List.fold_left (fun acc (title,index) ->
+                  let quest_id = get_quest_id title in
+                  if not (Hashtbl.mem journal_id_table (index,quest_id)) then begin
+                    Hashtbl.add journal_id_table (index,quest_id) 0 ;
+                    List.append acc
+                      [(Sql.make_journals_record index quest_id 0
+                          ~quest_group:(if managed then
+                            (Some (!highest_quest_group + 1))
+                          else
+                            (Some 0)) ~date:(Some "") ~journal_MC1:(Some (-1)) ())]
+                  end
+                  else
+                    acc) [] titled_indices in
 
-              if existing && managed then
-                ignore (List.iter (fun (title,index) ->
-                  List.iter (fun record ->
-                    (try
-                      if (Hashtbl.mem quest_id_table title) &&
-                        (Hashtbl.find quest_id_table title) = record.Sql.journal_quest_id &&
-                        (match record.Sql.journal_quest_group with
-                          Some 0 -> true
-                        | _ -> false) then
-                        record.Sql.journal_quest_group <- (Some (!highest_quest_group + 1))
-                    with Not_found -> ())) journals_quests)
-                          (match title,titled_indices with
-                            Some t, [] -> [(resolve_string t),0]
-                          | _,_ -> titled_indices)) ;
+                if existing && managed then
+                  ignore (List.iter (fun (title,index) ->
+                    List.iter (fun record ->
+                      (try
+                        if (Hashtbl.mem quest_id_table title) &&
+                          (Hashtbl.find quest_id_table title) = record.Sql.journal_quest_id &&
+                          (match record.Sql.journal_quest_group with
+                            Some 0 -> true
+                          | _ -> false) then
+                          record.Sql.journal_quest_group <- (Some (!highest_quest_group + 1))
+                      with Not_found -> ())) journals_quests)
+                            (match title,titled_indices with
+                              Some t, [] -> [(resolve_string t),0]
+                            | _,_ -> titled_indices)) ;
 
-              let quests = List.append new_quests quests in
-              let journals_quests = List.append new_journals journals_quests in
-              ignore (Sql.set_quests_data (quests,journals_quests)) ;
+                let quests = List.append new_quests quests in
+                let journals_quests = List.append new_journals journals_quests in
+                ignore (Sql.set_quests_data (quests,journals_quests)) ;
 
-              Dc.pop_trans ();
+                Dc.pop_trans ();
+              with e -> Dc.pop_trans () ; raise e)
             end
           | Load.GENERIC -> ())
 
