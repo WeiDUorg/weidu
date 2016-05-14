@@ -30,172 +30,169 @@ public:
 
 terminals {
 // Elkhound forces me to use hardcoded numbers for the terminals.
-     0  : EOF;
-     1  : SOUND;
-     2  : STRING;
-     3  : INLINED_FILE;
-     4  : STRING_REF;
-     5  : TRANS_REF;
-     6  : FORCED_STRING_REF;
-     7  : START_FROM_TP;
-     8  : START_FROM_TPA;
-     9  : START_FROM_TPP;
+  0 : EOF;
+  1 : SOUND;
+  2 : STRING;
+  3 : INLINED_FILE;
+  4 : STRING_REF;
+  5 : TRANS_REF;
+  6 : FORCED_STRING_REF;
+  7 : START_FROM_TP;
+  8 : START_FROM_TPA;
+  9 : START_FROM_TPP;
 
 // do not remove or edit the following line.
 // BEGIN TOKEN LIST
 // do not remove or edit the following line.
 // END TOKEN LIST
 
-	token (string) SOUND;
-	token (string) STRING;
-	token (string * string) INLINED_FILE;
-	token (int) STRING_REF;
-	token (int) TRANS_REF;
-	token (int) FORCED_STRING_REF;
+  token (string) SOUND;
+  token (string) STRING;
+  token (string * string) INLINED_FILE;
+  token (int) STRING_REF;
+  token (int) TRANS_REF;
+  token (int) FORCED_STRING_REF;
 
-	precedence {
-		right 140 LONG_AT SLONG_AT BYTE_AT SBYTE_AT SHORT_AT SSHORT_AT;
-		right 130 NOT BNOT ABS;
-		left  120 TIMESTIMES;
-		left  110 TIMES DIVIDE;
-		left  100 PLUS MINUS;
-		left   90 BLSL BLSR BASR;
-		left   80 GT GTE LT LTE;
-		left   70 EQUALS EQUALSEQUALS NOTEQUALS STRING_COMPARE STRING_COMPARE_CASE STRING_EQUAL STRING_EQUAL_CASE STRING_MATCHES_REGEXP STRING_CONTAINS_REGEXP;
-		left   60 BAND;
-		left   50 BXOR;
-		left   40 BOR;
-		left   30 AND;
-		left   20 OR;
-		right  10 QUESTION COLON;
-	}
+  precedence {
+    right 140 LONG_AT SLONG_AT BYTE_AT SBYTE_AT SHORT_AT SSHORT_AT;
+    right 130 NOT BNOT ABS;
+    left  120 TIMESTIMES;
+    left  110 TIMES DIVIDE;
+    left  100 PLUS MINUS;
+    left   90 BLSL BLSR BASR;
+    left   80 GT GTE LT LTE;
+    left   70 EQUALS EQUALSEQUALS NOTEQUALS STRING_COMPARE STRING_COMPARE_CASE STRING_EQUAL STRING_EQUAL_CASE STRING_MATCHES_REGEXP STRING_CONTAINS_REGEXP;
+    left   60 BAND;
+    left   50 BXOR;
+    left   40 BOR;
+    left   30 AND;
+    left   20 OR;
+    right  10 QUESTION COLON;
+  }
 }
 
 nonterm (Tp.wrapper) Start {
-	-> START_FROM_TP  e1:Tp_File  [ Tp.Start_From_Tp  e1 ]
-	-> START_FROM_TPP e1:Tpp_File [ Tp.Start_From_Tpp e1 ]
-	-> START_FROM_TPA e1:Tpa_File [ Tp.Start_From_Tpa e1 ]
+  -> START_FROM_TP  e1:Tp_File  [ Tp.Start_From_Tp  e1 ]
+  -> START_FROM_TPP e1:Tpp_File [ Tp.Start_From_Tpp e1 ]
+  -> START_FROM_TPA e1:Tpa_File [ Tp.Start_From_Tpa e1 ]
 }
 
 nonterm (Tp.tp_file) Tp_File {
-	-> BACKUP e1:STRING AUTHOR e2:STRING e3:Tp_Flag_List e4:Tp_Lang_List e5:Tp_Mod_List
-		[ { Tp.tp_filename = e1 ;
-      Tp.backup = (Arch.backslash_to_slash e1);
-      Tp.author = e2;
-      Tp.flags = e3;
-      Tp.languages = e4 ;
-      Tp.module_list = e5 ;
-	  Tp.is_auto_eval_string = List.mem Tp.Auto_Eval_Strings e3;
-  	} ]
+  -> BACKUP e1:STRING AUTHOR e2:STRING e3:Tp_Flag_List e4:Tp_Lang_List e5:Tp_Mod_List
+     [ { Tp.tp_filename = e1 ;
+         Tp.backup = (Arch.backslash_to_slash e1);
+         Tp.author = e2;
+         Tp.flags = e3;
+         Tp.languages = e4 ;
+         Tp.module_list = e5 ;
+         Tp.is_auto_eval_string = List.mem Tp.Auto_Eval_Strings e3;
+       } ]
 }
 
 nonterm(bool) Optional_Evaluate {
-	-> [ false ]
-	-> EVALUATE_BUFFER [ true ]
+  -> [ false ]
+  -> EVALUATE_BUFFER [ true ]
 }
 
 nonterm(unit) Optional_Then {
-	-> [ () ]
-	-> THEN [ () ]
+  -> [ () ]
+  -> THEN [ () ]
 }
 
 nonterm(string) Lse_String {
-	-> e1:STRING [ e1 ]
-	-> e1:STRING STRING_CONCAT e2:Lse_String [ e1 ^ e2 ]
+  -> e1:STRING [ e1 ]
+  -> e1:STRING STRING_CONCAT e2:Lse_String [ e1 ^ e2 ]
 }
 
 nonterm (Dlg.tlk_string) Lse {
-	-> e1:Lse_String e2:Sound_Opt [
-		let result = Dlg.Local_String({ lse_male = e1 ; lse_male_sound = e2;
-                    lse_female = e1; lse_female_sound = e2;}) in
-    (match !Dlg.local_string_ht with
-      Some(l) -> if not (List.mem result l ) then begin
+  -> e1:Lse_String e2:Sound_Opt [
+       let result = Dlg.Local_String({ lse_male = e1 ; lse_male_sound = e2;
+                                       lse_female = e1; lse_female_sound = e2;}) in
+       (match !Dlg.local_string_ht with
+       | Some(l) -> if not (List.mem result l ) then begin
           Dlg.local_string_ht := Some(result :: l )
-        end
-    | _ -> () ) ;
-    result ]
-   -> e1:Lse_String e2:Sound_Opt e3:Lse_String e4:Sound_Opt [
-		let result = Dlg.Local_String({ lse_male = e1 ; lse_male_sound = e2;
-                    lse_female = e3; lse_female_sound = e4;}) in
-    (match !Dlg.local_string_ht with
-      Some(l) -> if not (List.mem result l ) then begin
+       end
+       | _ -> () ) ;
+       result ]
+  -> e1:Lse_String e2:Sound_Opt e3:Lse_String e4:Sound_Opt [
+       let result = Dlg.Local_String({ lse_male = e1 ; lse_male_sound = e2;
+                                       lse_female = e3; lse_female_sound = e4;}) in
+       (match !Dlg.local_string_ht with
+       | Some(l) -> if not (List.mem result l ) then begin
           Dlg.local_string_ht := Some(result :: l )
-        end
-    | _ -> () ) ;
-    result ]
+       end
+       | _ -> () ) ;
+       result ]
   -> e1:FORCED_STRING_REF e2:Lse
-		[ let _ = Dc.set_string_while_loading e1 e2 in Dlg.TLK_Index(e1) ]
+       [ let _ = Dc.set_string_while_loading e1 e2 in Dlg.TLK_Index(e1) ]
   -> e1:Unambiguous_Reference [ e1 ]
 }
 
 nonterm (string) Sound_Opt {
-	-> [ "" ]
-	-> e1:SOUND [ e1 ]
+  -> [ "" ]
+  -> e1:SOUND [ e1 ]
 }
 
 nonterm (Dlg.tlk_string) Unambiguous_Reference {
-        -> e1:STRING_REF [ Dlg.TLK_Index(e1) ]
-        -> e1:TRANS_REF  [ Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.Int e1)) ]
-        -> LPAREN AT e1:STRING RPAREN [Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.String e1))]
+  -> e1:STRING_REF [ Dlg.TLK_Index(e1) ]
+  -> e1:TRANS_REF  [ Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.Int e1)) ]
+  -> LPAREN AT e1:STRING RPAREN [Dc.resolve_string_while_loading (Dlg.Trans_String(Dlg.String e1))]
 }
 
 nonterm (Dlg.tlk_string list) Reference_List_Rev {
-        -> { [] }
-        -> e2:Reference_List_Rev e1:Unambiguous_Reference [ e1 :: e2 ]
+  -> { [] }
+  -> e2:Reference_List_Rev e1:Unambiguous_Reference [ e1 :: e2 ]
 }
 
 nonterm (Dlg.tlk_string list) Reference_List {
-        -> e2:Reference_List_Rev [ List.rev e2 ]
+  -> e2:Reference_List_Rev [ List.rev e2 ]
 }
 
 nonterm (Tp.tp_flag list) Tp_Flag_List_Rev {
-	-> { [ Tp.TP_No_If_Eval() ] }
-	-> e1:Tp_Flag_List_Rev e2:Tp_Flag  [ e2 :: e1 ]
+  -> { [ Tp.TP_No_If_Eval() ] }
+  -> e1:Tp_Flag_List_Rev e2:Tp_Flag  [ e2 :: e1 ]
 }
 
 nonterm (Tp.tp_flag list) Tp_Flag_List {
-	-> e1:Tp_Flag_List_Rev { List.rev e1 }
+  -> e1:Tp_Flag_List_Rev { List.rev e1 }
 }
 
 nonterm (Tp.tp_flag) Tp_Flag {
   -> VERSION e1:Lse [ Tp.Version e1 ]
-	-> AUTO_TRA e1:STRING [ Tp.Auto_Tra e1 ]
-	-> NO_IF_EVAL_BUG [ Tp.TP_No_If_Eval () ]
-	-> MENU_STYLE e1:STRING [ Tp.Menu_Style e1 ]
-	-> ASK_EVERY_COMPONENT [ Tp.Ask_Every_Component ]
-	-> ALWAYS e1:Tp_Action_List END [ Tp.Always e1 ]
-	-> DEFINE_ACTION_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Action_List END
-		[ Tp.Define_Action_Macro(e1,e2,e3) ]
-	-> DEFINE_PATCH_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Patch_List END
-		[ Tp.Define_Patch_Macro(e1,e2,e3) ]
-	-> LOAD e1:String_List
-		[ Tp.TP_No_If_Eval() ]
-	-> MODDER e1:Str_Str_List [ Modder.set_modder (List.map (fun (a,b) -> (a,b,20)) e1);
-		Tp.Menu_Style "1" ]
-	-> ALLOW_MISSING e1:Upper_String_List [ Tp.Allow_Missing e1 ]
-	-> SCRIPT_STYLE e1:STRING
-		[ let n = match (String.uppercase e1) with
-      | "BG"
-      | "BG2" -> Load.BG2
-      | "BG1" -> Load.BG1
-      | "PST" -> Load.PST
-      | "IWD"
-      | "IWD1" -> Load.IWD1
-      | "IWD2" -> Load.IWD2
-      | _ -> parse_error "unknown SCRIPT_STYLE"
-      in
-      Tp.Script_Style(n)
-		]
-	-> README e1:String_List [ Tp.Readme e1 ]
-	-> UNINSTALL_ORDER e1:String_List [
-		List.iter 
-			(fun x -> match String.uppercase x with 
-				| "MOVE" | "COPY" | "STRSET" | "AT" -> ()
-				| _ -> failwith (Printf.sprintf "%s not allowed in UNINSTALL_ORDER" x);
-			) e1;
-		Tp.Uninstall_Order (List.map String.uppercase e1) ]
-   -> QUICK_MENU ALWAYS_ASK e0:String_List END e1:Menu_List END [ Tp.Quick_Menu (e1,List.map int_of_string e0) ]
-   -> AUTO_EVAL_STRINGS [ Tp.Auto_Eval_Strings ]
+  -> AUTO_TRA e1:STRING [ Tp.Auto_Tra e1 ]
+  -> NO_IF_EVAL_BUG [ Tp.TP_No_If_Eval () ]
+  -> MENU_STYLE e1:STRING [ Tp.Menu_Style e1 ]
+  -> ASK_EVERY_COMPONENT [ Tp.Ask_Every_Component ]
+  -> ALWAYS e1:Tp_Action_List END [ Tp.Always e1 ]
+  -> DEFINE_ACTION_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Action_List END
+       [ Tp.Define_Action_Macro(e1,e2,e3) ]
+  -> DEFINE_PATCH_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Patch_List END
+       [ Tp.Define_Patch_Macro(e1,e2,e3) ]
+  -> LOAD e1:String_List [ Tp.TP_No_If_Eval() ]
+  -> MODDER e1:Str_Str_List [ Modder.set_modder (List.map (fun (a,b) -> (a,b,20)) e1);
+       Tp.Menu_Style "1" ]
+  -> ALLOW_MISSING e1:Upper_String_List [ Tp.Allow_Missing e1 ]
+  -> SCRIPT_STYLE e1:STRING
+       [ let n = match (String.uppercase e1) with
+         | "BG"
+         | "BG2" -> Load.BG2
+         | "BG1" -> Load.BG1
+         | "PST" -> Load.PST
+         | "IWD"
+         | "IWD1" -> Load.IWD1
+         | "IWD2" -> Load.IWD2
+         | _ -> parse_error "unknown SCRIPT_STYLE"
+         in
+         Tp.Script_Style(n) ]
+  -> README e1:String_List [ Tp.Readme e1 ]
+  -> UNINSTALL_ORDER e1:String_List [
+       List.iter (fun x -> match String.uppercase x with
+                 | "MOVE" | "COPY" | "STRSET" | "AT" -> ()
+                 | _ -> failwith (Printf.sprintf "%s not allowed in UNINSTALL_ORDER" x);
+                 ) e1;
+                 Tp.Uninstall_Order (List.map String.uppercase e1) ]
+  -> QUICK_MENU ALWAYS_ASK e0:String_List END e1:Menu_List END [ Tp.Quick_Menu (e1,List.map int_of_string e0) ]
+  -> AUTO_EVAL_STRINGS [ Tp.Auto_Eval_Strings ]
 }
 
 nonterm((Dlg.tlk_string * int list) list) Menu_List {
@@ -208,253 +205,249 @@ nonterm((Dlg.tlk_string * int list) list) Menu_List_Rev {
 }
 
 nonterm(string list) Upper_String_List_Rev {
-	-> { [] }
-	-> e1:Upper_String_List_Rev e2:STRING [ String.uppercase e2 :: e1 ]
+  -> { [] }
+  -> e1:Upper_String_List_Rev e2:STRING [ String.uppercase e2 :: e1 ]
 }
 
 nonterm(string list) Upper_String_List {
-	-> e1:Upper_String_List_Rev [ List.rev e1 ]
+  -> e1:Upper_String_List_Rev [ List.rev e1 ]
 }
 
 nonterm(Tp.tp_lang list) Tp_Lang_List_Rev {
-	-> [ [] ]
-	-> e4:Tp_Lang_List_Rev LANGUAGE e1:STRING e2:STRING e3:String_List [ { Tp.lang_name = e1 ;
-      Tp.lang_dir_name = e2 ;
-      Tp.lang_tra_files = e3 ;
-  } :: e4 ]
+  -> [ [] ]
+  -> e4:Tp_Lang_List_Rev LANGUAGE e1:STRING e2:STRING e3:String_List [ { Tp.lang_name = e1 ;
+                                                                         Tp.lang_dir_name = e2 ;
+                                                                         Tp.lang_tra_files = e3 ;
+                                                                       } :: e4 ]
 }
 
 nonterm(Tp.tp_lang list) Tp_Lang_List {
-	-> e1:Tp_Lang_List_Rev [ List.rev e1 ]
+  -> e1:Tp_Lang_List_Rev [ List.rev e1 ]
 }
 
 nonterm(Tp.tp_mod list) Tp_Mod_List_Rev {
-	-> { [] }
-	-> e2:Tp_Mod_List_Rev e1:Tp_Mod [ e1 :: e2 ]
+  -> { [] }
+  -> e2:Tp_Mod_List_Rev e1:Tp_Mod [ e1 :: e2 ]
 }
 
 nonterm(Tp.tp_mod list) Tp_Mod_List {
-	-> e1:Tp_Mod_List_Rev [ List.rev e1 ]
+  -> e1:Tp_Mod_List_Rev [ List.rev e1 ]
 }
 
 nonterm(Tp.tp_mod) Tp_Mod {
-	-> BEGIN e1:Lse e2:Tp_Mod_Flag_List e3:Tp_Action_List [ {Tp.mod_name=e1; Tp.mod_parts=e3; Tp.mod_flags=e2} ]
+  -> BEGIN e1:Lse e2:Tp_Mod_Flag_List e3:Tp_Action_List [ {Tp.mod_name=e1; Tp.mod_parts=e3; Tp.mod_flags=e2} ]
 }
 
 nonterm(Tp.tp_mod_flag list) Tp_Mod_Flag_List_Rev {
-	-> { [] }
-	-> e2:Tp_Mod_Flag_List_Rev e1:Tp_Mod_Flag [ e1 :: e2 ]
+  -> { [] }
+  -> e2:Tp_Mod_Flag_List_Rev e1:Tp_Mod_Flag [ e1 :: e2 ]
 }
 
 nonterm(Tp.tp_mod_flag list) Tp_Mod_Flag_List {
-	-> e2:Tp_Mod_Flag_List_Rev [ List.rev e2 ]
+  -> e2:Tp_Mod_Flag_List_Rev [ List.rev e2 ]
 }
 
 nonterm(Tp.tp_mod_flag) Tp_Mod_Flag {
-	-> SUBCOMPONENT e1:Lse [ Tp.TPM_SubComponents (e1,Tp.Pred_True,false) ]
-	-> FORCED_SUBCOMPONENT e1:Lse [ Tp.TPM_SubComponents (e1,Tp.Pred_True,true) ]
-	-> SUBCOMPONENT e1:Lse e2:Patch_Exp [ Tp.TPM_SubComponents (e1,e2,false) ]
-	-> FORCED_SUBCOMPONENT e1:Lse e2:Patch_Exp [ Tp.TPM_SubComponents (e1,e2,true) ]
-	-> NO_LOG_RECORD [ Tp.TPM_NotInLog ]
-	-> DEPRECATED e1:Lse [ Tp.TPM_Deprecated e1 ]
-	-> DESIGNATED e1:STRING [ Tp.TPM_Designated (my_int_of_string e1) ]
-	-> REQUIRE_COMPONENT e1:STRING e2:STRING e3:Lse [ Tp.TPM_RequireComponent(e1,my_int_of_string e2,e3) ]
-	-> INSTALL_BY_DEFAULT [ Tp.TPM_InstallByDefault ]
-	-> FORBID_COMPONENT e1:STRING e2:STRING e3:Lse [ Tp.TPM_ForbidComponent(e1,my_int_of_string e2,e3) ]
-	-> REQUIRE_PREDICATE e1:Patch_Exp e2:Lse [ Tp.TPM_RequirePredicate(e1,e2) ]
-	-> GROUP e1:Lse e2:Patch_Exp [ Tp.TPM_Group (e1,e2) ]
-	-> GROUP e1:Lse [ Tp.TPM_Group (e1,Tp.Pred_True) ]
-	-> LABEL e1:STRING [ Tp.TPM_Label e1 ]
+  -> SUBCOMPONENT e1:Lse [ Tp.TPM_SubComponents (e1,Tp.Pred_True,false) ]
+  -> FORCED_SUBCOMPONENT e1:Lse [ Tp.TPM_SubComponents (e1,Tp.Pred_True,true) ]
+  -> SUBCOMPONENT e1:Lse e2:Patch_Exp [ Tp.TPM_SubComponents (e1,e2,false) ]
+  -> FORCED_SUBCOMPONENT e1:Lse e2:Patch_Exp [ Tp.TPM_SubComponents (e1,e2,true) ]
+  -> NO_LOG_RECORD [ Tp.TPM_NotInLog ]
+  -> DEPRECATED e1:Lse [ Tp.TPM_Deprecated e1 ]
+  -> DESIGNATED e1:STRING [ Tp.TPM_Designated (my_int_of_string e1) ]
+  -> REQUIRE_COMPONENT e1:STRING e2:STRING e3:Lse [ Tp.TPM_RequireComponent(e1,my_int_of_string e2,e3) ]
+  -> INSTALL_BY_DEFAULT [ Tp.TPM_InstallByDefault ]
+  -> FORBID_COMPONENT e1:STRING e2:STRING e3:Lse [ Tp.TPM_ForbidComponent(e1,my_int_of_string e2,e3) ]
+  -> REQUIRE_PREDICATE e1:Patch_Exp e2:Lse [ Tp.TPM_RequirePredicate(e1,e2) ]
+  -> GROUP e1:Lse e2:Patch_Exp [ Tp.TPM_Group (e1,e2) ]
+  -> GROUP e1:Lse [ Tp.TPM_Group (e1,Tp.Pred_True) ]
+  -> LABEL e1:STRING [ Tp.TPM_Label e1 ]
 }
 
 nonterm(Tp.tp_action list) Tp_Action_List_Rev {
-	fun merge (l,r) {
-		let c = the_context () in
-		log_and_print "WARNING: possible ambiguity (merge Tp_Action_List) at %s.%d.%d:\n" c.filename c.line c.col;
-		l
-	}
-	-> { [] }
-	->  e2:Tp_Action_List_Rev e1:Tp_Action [ e1 :: e2 ]
+  fun merge (l,r) {
+    let c = the_context () in
+    log_and_print "WARNING: possible ambiguity (merge Tp_Action_List) at %s.%d.%d:\n" c.filename c.line c.col;
+    l }
+  -> { [] }
+  ->  e2:Tp_Action_List_Rev e1:Tp_Action [ e1 :: e2 ]
 }
 
 nonterm(Tp.tp_action list) Tp_Action_List {
-	->  e1:Tp_Action_List_Rev [ List.rev e1 ]
+  ->  e1:Tp_Action_List_Rev [ List.rev e1 ]
 }
 
 nonterm(string list) Optional_Using {
-	-> { [] }
-	-> USING e1:String_List [ e1 ]
+  -> { [] }
+  -> USING e1:String_List [ e1 ]
 }
 
 nonterm(int) Optional_Backup {
-	-> [ 0 ]
-	-> PLUS [ 1 ]
-	-> MINUS [ 2 ]
+  -> [ 0 ]
+  -> PLUS [ 1 ]
+  -> MINUS [ 2 ]
 }
 
 nonterm(bool) Optional_Plus {
-	-> [ true ]
-	-> PLUS [ false ]
+  -> [ true ]
+  -> PLUS [ false ]
 }
 
 nonterm(bool) Optional_Add_If_Missing {
-	-> [ false ]
-	-> ADD_IF_MISSING [ true ]
+  -> [ false ]
+  -> ADD_IF_MISSING [ true ]
 }
 
 nonterm(bool) Optional_Equip {
-	-> [ false ]
-	-> EQUIP [ true ]
+  -> [ false ]
+  -> EQUIP [ true ]
 }
 
 nonterm(bool) Optional_2H {
-	-> [ true ]
-	-> TWOHANDED [ false ]
+  -> [ true ]
+  -> TWOHANDED [ false ]
 }
 
 nonterm(bool) Optional_Nomove {
-	-> [ false ]
-	-> NOMOVE [ true ]
+  -> [ false ]
+  -> NOMOVE [ true ]
 }
 
 nonterm(bool option) Optional_Glob {
-	-> [ None ]
-	-> GLOB [ Some true ]
-	-> NOGLOB [ Some false ]
+  -> [ None ]
+  -> GLOB [ Some true ]
+  -> NOGLOB [ Some false ]
 }
 
 nonterm(Tp.tp_patchexp) String_Ref_Or_Pe {
-	-> e1:STRING_REF [ Tp.PE_String(Tp.PE_LiteralString(string_of_int e1)) ]
-	-> LPAREN e1:Patch_Exp RPAREN [ e1 ]
+  -> e1:STRING_REF [ Tp.PE_String(Tp.PE_LiteralString(string_of_int e1)) ]
+  -> LPAREN e1:Patch_Exp RPAREN [ e1 ]
 }
 
 nonterm((string*bool option *string) list) Str_Reg_List_Rev {
-	-> { [] }
-	-> e4:Str_Reg_List_Rev e1:STRING e2:Optional_Match_Exact e3:STRING [ (e1,e2,e3) :: e4 ]
+  -> { [] }
+  -> e4:Str_Reg_List_Rev e1:STRING e2:Optional_Match_Exact e3:STRING [ (e1,e2,e3) :: e4 ]
 }
 
 nonterm((string*bool option *string) list) Str_Reg_List {
-	-> e4:Str_Reg_List_Rev [ List.rev e4 ]
+  -> e4:Str_Reg_List_Rev [ List.rev e4 ]
 }
 
 nonterm(Tp.tp_action) Tp_Action {
-	-> ACTION_BASH_FOR e1:Str_Reg_List BEGIN e2:Tp_Action_List END
-			[ Tp.TP_ActionBashFor(e1,e2) ]
-	-> ACTION_FOR_EACH e1:Patch_String_Right IN e2:String_List BEGIN e3:Tp_Action_List END
-			[ Tp.TP_Action_For_Each(e1,e2,e3) ]
-	-> ACTION_PHP_EACH e1:Patch_String_Left AS e2:Patch_String_Left EQUALSGREATER e3:Patch_String_Left
-		BEGIN e4:Tp_Action_List END [ Tp.TP_ActionPHPEach(e1,e2,e3,e4) ]
-	-> CLEAR_MEMORY [ Tp.TP_ClearMemory ]
-	-> CLEAR_ARRAYS [ Tp.TP_ClearArrays ]
-	-> CLEAR_CODES [ Tp.TP_ClearCodes ]
-	-> CLEAR_INLINED [ Tp.TP_ClearInlined ]
-	-> CLEAR_IDS_MAP [ Tp.TP_Clear_Ids_Map ]
-	-> CLEAR_EVERYTHING [ Tp.TP_ClearEverything ]
-	-> ACTION_CLEAR_ARRAY e1:Patch_String_Left [ Tp.TP_ActionClearArray(e1) ]
+  -> ACTION_BASH_FOR e1:Str_Reg_List BEGIN e2:Tp_Action_List END
+       [ Tp.TP_ActionBashFor(e1,e2) ]
+  -> ACTION_FOR_EACH e1:Patch_String_Right IN e2:String_List BEGIN e3:Tp_Action_List END
+       [ Tp.TP_Action_For_Each(e1,e2,e3) ]
+  -> ACTION_PHP_EACH e1:Patch_String_Left AS e2:Patch_String_Left EQUALSGREATER e3:Patch_String_Left
+       BEGIN e4:Tp_Action_List END [ Tp.TP_ActionPHPEach(e1,e2,e3,e4) ]
+  -> CLEAR_MEMORY [ Tp.TP_ClearMemory ]
+  -> CLEAR_ARRAYS [ Tp.TP_ClearArrays ]
+  -> CLEAR_CODES [ Tp.TP_ClearCodes ]
+  -> CLEAR_INLINED [ Tp.TP_ClearInlined ]
+  -> CLEAR_IDS_MAP [ Tp.TP_Clear_Ids_Map ]
+  -> CLEAR_EVERYTHING [ Tp.TP_ClearEverything ]
+  -> ACTION_CLEAR_ARRAY e1:Patch_String_Left [ Tp.TP_ActionClearArray(e1) ]
   -> COPY e1:Optional_Backup e2:Optional_Glob e3:Str_Str_List e4:Tp_Patch_List e5:Tp_When_List
-			[ Tp.TP_Copy {
-				Tp.copy_get_existing = false;
-        Tp.copy_use_regexp = false;
-        Tp.copy_use_glob = (match e2 with Some x -> x | None -> false) ;
-        Tp.copy_file_list = e3 ;
-        Tp.copy_patch_list = e4 ;
-        Tp.copy_constraint_list = e5 ;
-        Tp.copy_backup = not (e1 = 1) ;
-        Tp.copy_at_end = false ;
-        Tp.copy_save_inlined = (e1 = 2) ;
-			}]
-	-> MOVE e0:Optional_Plus e1:TP_Move_List [ Tp.TP_Move(e1,e0) ]
-        -> DELETE e0:Optional_Plus e1:Patch_String_Left_List [ Tp.TP_Delete(e1,e0) ]
-	-> DISABLE_FROM_KEY e1: Patch_String_Left_List [ Tp.TP_DisableFromKey e1 ]
-	-> COPY_ALL_GAM_FILES e1:Tp_Patch_List e2:Tp_When_List [ Tp.TP_CopyAllGamFiles(e1,e2) ]
-	-> COPY_LARGE e1:Optional_Plus e2:Optional_Glob e3:Str_Str_List [ Tp.TP_CopyLarge {
-			Tp.copy_large_use_glob= (match e2 with Some x -> x | None -> false);
-			Tp.copy_large_file_list=e3;
-			Tp.copy_large_backup=e1;
-		}]
-	-> COPY_EXISTING e1:Optional_Backup e3:Str_Str_List e4:Tp_Patch_List e5:Tp_When_List
-			[ Tp.TP_Copy {
-				Tp.copy_get_existing = true;
-        Tp.copy_use_regexp = false;
-        Tp.copy_use_glob = false ;
-        Tp.copy_file_list = e3 ;
-        Tp.copy_patch_list = e4 ;
-        Tp.copy_constraint_list = e5 ;
-        Tp.copy_backup = not (e1 = 1) ;
-        Tp.copy_at_end = false ;
-        Tp.copy_save_inlined = (e1 = 2) ;
-			}]
-	-> COPY_EXISTING_REGEXP e1:Optional_Backup e2:Optional_Glob e3:Str_Str_List e4:Tp_Patch_List e5:Tp_When_List
-			[ Tp.TP_Copy {
-				Tp.copy_get_existing = true;
-        Tp.copy_use_regexp = true;
-        Tp.copy_use_glob =  (match e2 with Some x -> x | None -> true) ;
-        Tp.copy_file_list = e3 ;
-        Tp.copy_patch_list = e4 ;
-        Tp.copy_constraint_list = e5 ;
-        Tp.copy_backup = not (e1 = 1) ;
-        Tp.copy_at_end = false ;
-        Tp.copy_save_inlined = (e1 = 2) ;
-			}]
-	-> COPY_RANDOM e1:Copy_Random_String_List e2:Tp_Patch_List e3:Tp_When_List
-		[ Tp.TP_CopyRandom(e1,e2,e3) ]
-	-> COPY_RANDOM e1:String_List [ Tp.TP_CopyRandom([e1],[],[]) ]
-	-> RANDOM_SEED e1:Patch_Exp
-		[ Tp.TP_RandomSeed e1 ]
-	-> COMPILE e1:Optional_Evaluate e2:Nonempty_String_List e3:Tp_Patch_List e4:Optional_Using
-		[ Tp.TP_Compile(e1,e2,e3,e4) ]
-	-> AT_NOW e1:STRING e2:Optional_Exact [ Tp.TP_At_Now (e1,e2) ]
-	-> AT_INTERACTIVE_NOW e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Now (e1,e2) ]
-	-> BIFF e1:STRING BEGIN e2:Str_Reg_List END [ Tp.TP_Biff(e1,e2) ]
-	-> e1:INLINED_FILE [ Tp.TP_Inlined_File(e1) ]
-	-> GET_FILE_ARRAY e1:Patch_String_Left e2:Patch_String_Right e3:Patch_String_Right
-		[ Tp.TP_GetFileArray(e1,e2,e3,false) ]
-	-> GET_DIRECTORY_ARRAY e1:Patch_String_Left e2:Patch_String_Right e3:Patch_String_Right
-		[ Tp.TP_GetFileArray(e1,e2,e3,true) ]
-	-> DEFINE_ACTION_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Action_List END
-		[ Tp.TP_Define_Action_Macro(e1,e2,e3) ]
-	-> DEFINE_PATCH_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Patch_List END
-		[ Tp.TP_Define_Patch_Macro(e1,e2,e3) ]
-	-> DEFINE_PATCH_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:DefineFunctionRet
-		BEGIN e5:Tp_Patch_List END [ Tp.TP_Define_Patch_Function(e1,e2,e3,e4,e5) ]
-	-> DEFINE_ACTION_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:DefineFunctionRet
-		BEGIN e5:Tp_Action_List END [ Tp.TP_Define_Action_Function(e1,e2,e3,e4,e5) ]
-	-> LAUNCH_ACTION_MACRO e1:STRING [ Tp.TP_Launch_Action_Macro e1 ]
-	-> LAUNCH_ACTION_FUNCTION e1:STRING e2:LaunchFunctionIntVar e3:LaunchFunctionStrVar e4:LaunchFunctionRet END
-		[ Tp.TP_Launch_Action_Function(e1,e2,e3,e4) ]
-	-> INCLUDE e1:String_List [ Tp.TP_Include e1 ]
-	-> REINCLUDE e1:String_List [ Tp.TP_Reinclude e1 ]
-	-> LOAD_TRA e1:String_List [ Tp.TP_Load_Tra e1 ]
-	-> MKDIR e1:String_List [ Tp.TP_Mkdir e1 ]
-	-> OUTER_FOR LPAREN e1:Tp_Patch_List SEMICOLON e2:Patch_Exp SEMICOLON e3:Tp_Patch_List RPAREN
-		BEGIN e4:Tp_Action_List END [ Tp.TP_Outer_For(e1,e2,e3,e4) ]
+       [ Tp.TP_Copy { Tp.copy_get_existing = false;
+                      Tp.copy_use_regexp = false;
+                      Tp.copy_use_glob = (match e2 with Some x -> x | None -> false) ;
+                      Tp.copy_file_list = e3 ;
+                      Tp.copy_patch_list = e4 ;
+                      Tp.copy_constraint_list = e5 ;
+                      Tp.copy_backup = not (e1 = 1) ;
+                      Tp.copy_at_end = false ;
+                      Tp.copy_save_inlined = (e1 = 2) ;
+                    }]
+  -> MOVE e0:Optional_Plus e1:TP_Move_List [ Tp.TP_Move(e1,e0) ]
+  -> DELETE e0:Optional_Plus e1:Patch_String_Left_List [ Tp.TP_Delete(e1,e0) ]
+  -> DISABLE_FROM_KEY e1: Patch_String_Left_List [ Tp.TP_DisableFromKey e1 ]
+  -> COPY_ALL_GAM_FILES e1:Tp_Patch_List e2:Tp_When_List [ Tp.TP_CopyAllGamFiles(e1,e2) ]
+  -> COPY_LARGE e1:Optional_Plus e2:Optional_Glob e3:Str_Str_List [ Tp.TP_CopyLarge {
+       Tp.copy_large_use_glob= (match e2 with Some x -> x | None -> false);
+       Tp.copy_large_file_list=e3;
+       Tp.copy_large_backup=e1;
+       }]
+  -> COPY_EXISTING e1:Optional_Backup e3:Str_Str_List e4:Tp_Patch_List e5:Tp_When_List
+       [ Tp.TP_Copy { Tp.copy_get_existing = true;
+                      Tp.copy_use_regexp = false;
+                      Tp.copy_use_glob = false ;
+                      Tp.copy_file_list = e3 ;
+                      Tp.copy_patch_list = e4 ;
+                      Tp.copy_constraint_list = e5 ;
+                      Tp.copy_backup = not (e1 = 1) ;
+                      Tp.copy_at_end = false ;
+                      Tp.copy_save_inlined = (e1 = 2) ;
+                    }]
+  -> COPY_EXISTING_REGEXP e1:Optional_Backup e2:Optional_Glob e3:Str_Str_List e4:Tp_Patch_List e5:Tp_When_List
+       [ Tp.TP_Copy { Tp.copy_get_existing = true;
+                      Tp.copy_use_regexp = true;
+                      Tp.copy_use_glob =  (match e2 with Some x -> x | None -> true) ;
+                      Tp.copy_file_list = e3 ;
+                      Tp.copy_patch_list = e4 ;
+                      Tp.copy_constraint_list = e5 ;
+                      Tp.copy_backup = not (e1 = 1) ;
+                      Tp.copy_at_end = false ;
+                      Tp.copy_save_inlined = (e1 = 2) ;
+                    }]
+  -> COPY_RANDOM e1:Copy_Random_String_List e2:Tp_Patch_List e3:Tp_When_List
+       [ Tp.TP_CopyRandom(e1,e2,e3) ]
+  -> COPY_RANDOM e1:String_List [ Tp.TP_CopyRandom([e1],[],[]) ]
+  -> RANDOM_SEED e1:Patch_Exp
+       [ Tp.TP_RandomSeed e1 ]
+  -> COMPILE e1:Optional_Evaluate e2:Nonempty_String_List e3:Tp_Patch_List e4:Optional_Using
+       [ Tp.TP_Compile(e1,e2,e3,e4) ]
+  -> AT_NOW e1:STRING e2:Optional_Exact [ Tp.TP_At_Now (e1,e2) ]
+  -> AT_INTERACTIVE_NOW e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Now (e1,e2) ]
+  -> BIFF e1:STRING BEGIN e2:Str_Reg_List END [ Tp.TP_Biff(e1,e2) ]
+  -> e1:INLINED_FILE [ Tp.TP_Inlined_File(e1) ]
+  -> GET_FILE_ARRAY e1:Patch_String_Left e2:Patch_String_Right e3:Patch_String_Right
+       [ Tp.TP_GetFileArray(e1,e2,e3,false) ]
+  -> GET_DIRECTORY_ARRAY e1:Patch_String_Left e2:Patch_String_Right e3:Patch_String_Right
+       [ Tp.TP_GetFileArray(e1,e2,e3,true) ]
+  -> DEFINE_ACTION_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Action_List END
+       [ Tp.TP_Define_Action_Macro(e1,e2,e3) ]
+  -> DEFINE_PATCH_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Patch_List END
+       [ Tp.TP_Define_Patch_Macro(e1,e2,e3) ]
+  -> DEFINE_PATCH_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:DefineFunctionRet
+       BEGIN e5:Tp_Patch_List END [ Tp.TP_Define_Patch_Function(e1,e2,e3,e4,e5) ]
+  -> DEFINE_ACTION_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:DefineFunctionRet
+       BEGIN e5:Tp_Action_List END [ Tp.TP_Define_Action_Function(e1,e2,e3,e4,e5) ]
+  -> LAUNCH_ACTION_MACRO e1:STRING [ Tp.TP_Launch_Action_Macro e1 ]
+  -> LAUNCH_ACTION_FUNCTION e1:STRING e2:LaunchFunctionIntVar e3:LaunchFunctionStrVar e4:LaunchFunctionRet END
+       [ Tp.TP_Launch_Action_Function(e1,e2,e3,e4) ]
+  -> INCLUDE e1:String_List [ Tp.TP_Include e1 ]
+  -> REINCLUDE e1:String_List [ Tp.TP_Reinclude e1 ]
+  -> LOAD_TRA e1:String_List [ Tp.TP_Load_Tra e1 ]
+  -> MKDIR e1:String_List [ Tp.TP_Mkdir e1 ]
+  -> OUTER_FOR LPAREN e1:Tp_Patch_List SEMICOLON e2:Patch_Exp SEMICOLON e3:Tp_Patch_List RPAREN
+       BEGIN e4:Tp_Action_List END [ Tp.TP_Outer_For(e1,e2,e3,e4) ]
   -> OUTER_PATCH e1:STRING BEGIN e2:Tp_Patch_List END [ Tp.TP_Outer_Inner_Buff(e1,e2) ]
   -> OUTER_PATCH_SAVE e1:Patch_String_Left e2:STRING BEGIN e3:Tp_Patch_List END [ Tp.TP_Outer_Inner_Buff_Save(e1,e2,e3) ]
   -> OUTER_SET e1:Patch_String_Left EQUALS e2:Patch_Exp [ Tp.TP_Outer_Set(e1,e2) ]
   -> OUTER_SET e1:Patch_String_Left PLUS_EQUALS e2:Patch_Exp
-     [ Tp.TP_Outer_Set(e1,(Tp.PE_Add(Tp.PE_String e1,e2))) ]
+       [ Tp.TP_Outer_Set(e1,(Tp.PE_Add(Tp.PE_String e1,e2))) ]
   -> OUTER_SET e1:Patch_String_Left MINUS_EQUALS e2:Patch_Exp
-     [ Tp.TP_Outer_Set(e1,(Tp.PE_Sub(Tp.PE_String e1,e2))) ]
+       [ Tp.TP_Outer_Set(e1,(Tp.PE_Sub(Tp.PE_String e1,e2))) ]
   -> OUTER_SET e1:Patch_String_Left TIMES_EQUALS e2:Patch_Exp
-     [ Tp.TP_Outer_Set(e1,(Tp.PE_Mul(Tp.PE_String e1,e2))) ]
+       [ Tp.TP_Outer_Set(e1,(Tp.PE_Mul(Tp.PE_String e1,e2))) ]
   -> OUTER_SET e1:Patch_String_Left DIVIDE_EQUALS e2:Patch_Exp
-     [ Tp.TP_Outer_Set(e1,(Tp.PE_Div(Tp.PE_String e1,e2))) ]
+       [ Tp.TP_Outer_Set(e1,(Tp.PE_Div(Tp.PE_String e1,e2))) ]
   -> OUTER_SET e1:Patch_String_Left OR_EQUALS e2:Patch_Exp
-     [ Tp.TP_Outer_Set(e1,(Tp.PE_BOR(Tp.PE_String e1,e2))) ]
+       [ Tp.TP_Outer_Set(e1,(Tp.PE_BOR(Tp.PE_String e1,e2))) ]
   -> OUTER_SET e1:Patch_String_Left AND_EQUALS e2:Patch_Exp
-     [ Tp.TP_Outer_Set(e1,(Tp.PE_BAND(Tp.PE_String e1,e2))) ]
+       [ Tp.TP_Outer_Set(e1,(Tp.PE_BAND(Tp.PE_String e1,e2))) ]
   -> OUTER_SET e1:Patch_String_Left BLSL_EQUALS e2:Patch_Exp
-     [ Tp.TP_Outer_Set(e1,(Tp.PE_BLSL(Tp.PE_String e1,e2))) ]
+       [ Tp.TP_Outer_Set(e1,(Tp.PE_BLSL(Tp.PE_String e1,e2))) ]
   -> OUTER_SET e1:Patch_String_Left BLSR_EQUALS e2:Patch_Exp
-     [ Tp.TP_Outer_Set(e1,(Tp.PE_BLSR(Tp.PE_String e1,e2))) ]
+       [ Tp.TP_Outer_Set(e1,(Tp.PE_BLSR(Tp.PE_String e1,e2))) ]
   -> OUTER_SET e1:Patch_String_Left BXOR_EQUALS e2:Patch_Exp
-     [ Tp.TP_Outer_Set(e1,(Tp.PE_BXOR(Tp.PE_String e1,e2))) ]
+       [ Tp.TP_Outer_Set(e1,(Tp.PE_BXOR(Tp.PE_String e1,e2))) ]
   -> OUTER_SET PLUS_PLUS e1:Patch_String_Left [ Tp.TP_Outer_Set(e1,(Tp.PE_Add(Tp.PE_String e1, Tp.get_pe_int "1"))) ]
   -> OUTER_SET MINUS_MINUS e1:Patch_String_Left [ Tp.TP_Outer_Set(e1,(Tp.PE_Sub(Tp.PE_String e1, Tp.get_pe_int "1"))) ]
   -> OUTER_SPRINT e1:Patch_String_Left e2:Dlg_Or_Patch_String_Right [ Tp.TP_Outer_Sprint(e1,e2) ]
   -> OUTER_TEXT_SPRINT e1:Patch_String_Left e2:Patch_String_Right [ Tp.TP_Outer_Text_Sprint(e1,e2) ]
-	-> ACTION_DEFINE_ASSOCIATIVE_ARRAY e1:Patch_String_Left BEGIN e2:Associative_String_List END
-			[ Tp.TP_ActionDefineAssociativeArray(e1,e2) ]
+  -> ACTION_DEFINE_ASSOCIATIVE_ARRAY e1:Patch_String_Left BEGIN e2:Associative_String_List END
+       [ Tp.TP_ActionDefineAssociativeArray(e1,e2) ]
   -> OUTER_WHILE e1:Patch_Exp BEGIN e2:Tp_Action_List END [ Tp.TP_Outer_While(e1,e2) ]
   -> ACTION_READLN e1:Patch_String_Left [ Tp.TP_Action_ReadLN e1 ]
   -> REQUIRE_FILE e1:STRING e2:Lse [ Tp.TP_Require_File(e1,e2) ]
@@ -471,63 +464,62 @@ nonterm(Tp.tp_action) Tp_Action {
   -> EXTEND_BOTTOM e1:STRING e2:STRING e3:Tp_Patch_List e4:Optional_Using [ Tp.TP_Extend_Bottom(false,e1,e2,e3,e4) ]
   -> EXTEND_TOP_REGEXP e1:STRING e2:STRING e3:Tp_Patch_List e4:Optional_Using [ Tp.TP_Extend_Top(true,e1,e2,e3,e4) ]
   -> EXTEND_BOTTOM_REGEXP e1:STRING e2:STRING e3:Tp_Patch_List e4:Optional_Using [ Tp.TP_Extend_Bottom(true,e1,e2,e3,e4) ]
-	-> AT_EXIT e1:STRING e2:Optional_Exact [ Tp.TP_At_Exit(e1,e2) ]
-	-> AT_INTERACTIVE_EXIT e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Exit(e1,e2) ]
-	-> AT_UNINSTALL e1:STRING e2:Optional_Exact [ Tp.TP_At_Uninstall(e1,e2) ]
-	-> AT_INTERACTIVE_UNINSTALL e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Uninstall(e1,e2) ]
-	-> AT_UNINSTALL_EXIT e1:STRING e2:Optional_Exact [ Tp.TP_At_Uninstall_Exit(e1,e2) ]
-	-> AT_INTERACTIVE_UNINSTALL_EXIT e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Uninstall_Exit(e1,e2) ]
-	-> ADD_MUSIC e1:STRING e2:STRING [ Tp.TP_Add_Music {Tp.music_name=e1;Tp.music_file=e2} ]
+  -> AT_EXIT e1:STRING e2:Optional_Exact [ Tp.TP_At_Exit(e1,e2) ]
+  -> AT_INTERACTIVE_EXIT e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Exit(e1,e2) ]
+  -> AT_UNINSTALL e1:STRING e2:Optional_Exact [ Tp.TP_At_Uninstall(e1,e2) ]
+  -> AT_INTERACTIVE_UNINSTALL e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Uninstall(e1,e2) ]
+  -> AT_UNINSTALL_EXIT e1:STRING e2:Optional_Exact [ Tp.TP_At_Uninstall_Exit(e1,e2) ]
+  -> AT_INTERACTIVE_UNINSTALL_EXIT e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Uninstall_Exit(e1,e2) ]
+  -> ADD_MUSIC e1:STRING e2:STRING [ Tp.TP_Add_Music {Tp.music_name=e1;Tp.music_file=e2} ]
   -> ADD_AREA_TYPE e1:Patch_String_Right [ Tp.TP_Add_AreaType(e1) ]
-	-> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List e6:Tp_When_List
-		[ if e6 <> [] then log_and_print_modder "\n\nWARNING: ignoring non-empty constraint list on ADD_SPELL\n\n"; Tp.TP_Add_Spell(e1,e2,e3,e4,e5,None,None) ]
-	-> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List IF_EXISTING e6:Tp_Patch_List END
-		[ Tp.TP_Add_Spell(e1,e2,e3,e4,e5,Some e6,None) ]
-	-> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List ON_DISABLE e6:Tp_Patch_List END
-		[ Tp.TP_Add_Spell(e1,e2,e3,e4,e5,None,Some e6) ]
-	-> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List IF_EXISTING e6:Tp_Patch_List END  ON_DISABLE e7:Tp_Patch_List END
-		[ Tp.TP_Add_Spell(e1,e2,e3,e4,e5,Some e6,Some e7) ]
-	-> ADD_PROJECTILE e1:STRING [ Tp.TP_Add_Projectile { Tp.pro_file = e1; Tp.missile_ids_name = Case_ins.filename_chop_extension (Case_ins.filename_basename e1) } ]
-	-> ADD_PROJECTILE e1:STRING e2:STRING [ Tp.TP_Add_Projectile { Tp.pro_file = e1; Tp.missile_ids_name = e2 } ]
-	-> ADD_SCHOOL e1:Patch_String_Right e2:Lse [ Tp.TP_Add_2DA("MSCHOOL.2DA",e1,e2) ]
-	-> ADD_SECTYPE e1:Patch_String_Right e2:Lse [ Tp.TP_Add_2DA("MSECTYPE.2DA",e1,e2) ]
-	-> SILENT [ Tp.TP_Silent ]
-	-> STRING_SET e1:String_Lse_List [ Tp.TP_String_Set(e1,None) ]
-	-> STRING_SET e1:String_Lse_List USING e2:STRING [ Tp.TP_String_Set(e1,Some e2) ]
-	-> STRING_SET_EVALUATE e1:Pe_Lse_List [ Tp.TP_String_Set_Evaluate(e1,None) ]
-	-> STRING_SET_EVALUATE e1:Pe_Lse_List USING e2:STRING [ Tp.TP_String_Set_Evaluate(e1,Some e2) ]
-	-> STRING_SET_RANGE e1:String_Ref_Or_Pe e2:String_Ref_Or_Pe USING e3:STRING [ Tp.TP_String_Set_Range(e1,e2,e3) ]
-	-> ALTER_TLK BEGIN e1:Tp_Patch_List END { Tp.TP_Alter_TLK(e1) }
-	-> ALTER_TLK_RANGE e1:Patch_Exp e2:Patch_Exp BEGIN e3:Tp_Patch_List END { Tp.TP_Alter_TLK_Range(e1,e2,e3) }
-	-> ALTER_TLK_LIST BEGIN e1:Patch_Exp_List END BEGIN e2:Tp_Patch_List END { Tp.TP_Alter_TLK_List(e1,e2) }
-	-> ACTION_DEFINE_ARRAY e1:Patch_String_Left BEGIN e2:String_List END [ Tp.TP_ActionDefineArray(e1,e2) ]
-	-> UNINSTALL e1:STRING e2:Patch_Exp [ Tp.TP_Uninstall_Now(e1,e2) ]
-	-> VERBOSE [ Tp.TP_Verbose ]
-	-> COPY_KIT e1:STRING e2:STRING LPAREN e3:Str_Str_List RPAREN [ Tp.TP_CopyKit(e1,e2,e3) ]
-	-> ADD_KIT e1:STRING e2:STRING e3:STRING e4:STRING e5:STRING e6:STRING e7:STRING
-	    e8:STRING e9:STRING e10:STRING e11:STRING e12:STRING e13:STRING e14:STRING
-	    SAY e15:Lse SAY e16:Lse SAY e17:Lse [ Tp.TP_Add_Kit(
-	   { Tp.kit_name = e1 ;
-	    Tp.clasweap = e2 ;
-	    Tp.weapprof = e3 ;
-	    Tp.abclasrq = e4 ;
-	    Tp.abclsmod = e5 ;
-	    Tp.abdcdsrq = e6 ;
-	    Tp.abdcscrq = e7 ;
-	    Tp.alignmnt = e8 ;
-	    Tp.dualclas = e9 ;
-	    Tp.ability_file = e10 ;
-	    Tp.include_in = e11 ;
-	    Tp.unused_class = e12 ;
-	    Tp.tob_abbr = e13;
-	    Tp.tob_start =
-	      (let lst = Str.split (Str.regexp "[ \t]+") e14 in
-	      List.map (fun elt -> if elt = "$" then "" else elt) lst) ;
-	    Tp.lower = e15 ;
-	    Tp.mixed = e16 ;
-	    Tp.help = e17 ;
-	  })]
-	-> ACTION_RERAISE [ Tp.TP_Reraise ]
+  -> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List e6:Tp_When_List
+       [ if e6 <> [] then log_and_print_modder "\n\nWARNING: ignoring non-empty constraint list on ADD_SPELL\n\n"; Tp.TP_Add_Spell(e1,e2,e3,e4,e5,None,None) ]
+  -> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List IF_EXISTING e6:Tp_Patch_List END
+       [ Tp.TP_Add_Spell(e1,e2,e3,e4,e5,Some e6,None) ]
+  -> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List ON_DISABLE e6:Tp_Patch_List END
+       [ Tp.TP_Add_Spell(e1,e2,e3,e4,e5,None,Some e6) ]
+  -> ADD_SPELL e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING e5:Tp_Patch_List IF_EXISTING e6:Tp_Patch_List END  ON_DISABLE e7:Tp_Patch_List END
+       [ Tp.TP_Add_Spell(e1,e2,e3,e4,e5,Some e6,Some e7) ]
+  -> ADD_PROJECTILE e1:STRING [ Tp.TP_Add_Projectile { Tp.pro_file = e1; Tp.missile_ids_name = Case_ins.filename_chop_extension (Case_ins.filename_basename e1) } ]
+  -> ADD_PROJECTILE e1:STRING e2:STRING [ Tp.TP_Add_Projectile { Tp.pro_file = e1; Tp.missile_ids_name = e2 } ]
+  -> ADD_SCHOOL e1:Patch_String_Right e2:Lse [ Tp.TP_Add_2DA("MSCHOOL.2DA",e1,e2) ]
+  -> ADD_SECTYPE e1:Patch_String_Right e2:Lse [ Tp.TP_Add_2DA("MSECTYPE.2DA",e1,e2) ]
+  -> SILENT [ Tp.TP_Silent ]
+  -> STRING_SET e1:String_Lse_List [ Tp.TP_String_Set(e1,None) ]
+  -> STRING_SET e1:String_Lse_List USING e2:STRING [ Tp.TP_String_Set(e1,Some e2) ]
+  -> STRING_SET_EVALUATE e1:Pe_Lse_List [ Tp.TP_String_Set_Evaluate(e1,None) ]
+  -> STRING_SET_EVALUATE e1:Pe_Lse_List USING e2:STRING [ Tp.TP_String_Set_Evaluate(e1,Some e2) ]
+  -> STRING_SET_RANGE e1:String_Ref_Or_Pe e2:String_Ref_Or_Pe USING e3:STRING [ Tp.TP_String_Set_Range(e1,e2,e3) ]
+  -> ALTER_TLK BEGIN e1:Tp_Patch_List END { Tp.TP_Alter_TLK(e1) }
+  -> ALTER_TLK_RANGE e1:Patch_Exp e2:Patch_Exp BEGIN e3:Tp_Patch_List END { Tp.TP_Alter_TLK_Range(e1,e2,e3) }
+  -> ALTER_TLK_LIST BEGIN e1:Patch_Exp_List END BEGIN e2:Tp_Patch_List END { Tp.TP_Alter_TLK_List(e1,e2) }
+  -> ACTION_DEFINE_ARRAY e1:Patch_String_Left BEGIN e2:String_List END [ Tp.TP_ActionDefineArray(e1,e2) ]
+  -> UNINSTALL e1:STRING e2:Patch_Exp [ Tp.TP_Uninstall_Now(e1,e2) ]
+  -> VERBOSE [ Tp.TP_Verbose ]
+  -> COPY_KIT e1:STRING e2:STRING LPAREN e3:Str_Str_List RPAREN [ Tp.TP_CopyKit(e1,e2,e3) ]
+  -> ADD_KIT e1:STRING e2:STRING e3:STRING e4:STRING e5:STRING e6:STRING e7:STRING
+       e8:STRING e9:STRING e10:STRING e11:STRING e12:STRING e13:STRING e14:STRING
+       SAY e15:Lse SAY e16:Lse SAY e17:Lse [ Tp.TP_Add_Kit(
+           { Tp.kit_name = e1 ;
+             Tp.clasweap = e2 ;
+             Tp.weapprof = e3 ;
+             Tp.abclasrq = e4 ;
+             Tp.abclsmod = e5 ;
+             Tp.abdcdsrq = e6 ;
+             Tp.abdcscrq = e7 ;
+             Tp.alignmnt = e8 ;
+             Tp.dualclas = e9 ;
+             Tp.ability_file = e10 ;
+             Tp.include_in = e11 ;
+             Tp.unused_class = e12 ;
+             Tp.tob_abbr = e13;
+             Tp.tob_start = (let lst = Str.split (Str.regexp "[ \t]+") e14 in
+                             List.map (fun elt -> if elt = "$" then "" else elt) lst) ;
+             Tp.lower = e15 ;
+             Tp.mixed = e16 ;
+             Tp.help = e17 ;
+           })]
+  -> ACTION_RERAISE [ Tp.TP_Reraise ]
   -> FAIL e1:Lse [ Tp.TP_Fail e1 ]
   -> WARN e1:Lse [ Tp.TP_Warn e1 ]
   -> PRINT e1:Lse [ Tp.TP_Print e1 ]
@@ -539,11 +531,11 @@ nonterm(Tp.tp_action) Tp_Action {
   -> ACTION_MATCH e1:Patch_Exp e2:Action_With_List END [ Tp.TP_ActionMatch(e1,e2) ]
   -> DECOMPRESS_BIFF e1:Patch_String_Right_List [ Tp.TP_DecompressBiff(e1) ]
   -> ACTION_TO_LOWER e1:Patch_String_Right [ Tp.TP_ActionToLower e1 ]
-	-> ACTION_TO_UPPER e1:Patch_String_Right [ Tp.TP_ActionToUpper e1 ]
-	-> ACTION_GET_STRREF     e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        false,false) ]
-	-> ACTION_GET_STRREF_F   e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        true,false) ]
-	-> ACTION_GET_STRREF_S   e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        false,true) ]
-	-> ACTION_GET_STRREF_FS  e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        true,true) ]
+  -> ACTION_TO_UPPER e1:Patch_String_Right [ Tp.TP_ActionToUpper e1 ]
+  -> ACTION_GET_STRREF     e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        false,false) ]
+  -> ACTION_GET_STRREF_F   e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        true,false) ]
+  -> ACTION_GET_STRREF_S   e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        false,true) ]
+  -> ACTION_GET_STRREF_FS  e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_ActionGetStrRef (e1,e2,        true,true) ]
   -> ADD_JOURNAL e1:Optional_Journal_Existing e2:Optional_Journal_Managed e3:Optional_Journal_Title
                  e4:Reference_List e5:Optional_Using [ Tp.TP_AddJournal(e1,e2,e3,e4,e5) ]
   -> CREATE e1:STRING e2:Optional_File_Version e3:STRING e4:Tp_Patch_List [ Tp.TP_Create(e1, e2, e3, e4) ]
@@ -551,37 +543,37 @@ nonterm(Tp.tp_action) Tp_Action {
 }
 
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List_Rev {
-	-> { [] }
-	-> e4:Action_With_List_Rev e0:Patch_Exp e1:Patch_Exp_List e2:Optional_When BEGIN e3:Tp_Action_List END [ (e0::e1,e2,e3) :: e4 ]
-	-> e4:Action_With_List_Rev ANY e2:Patch_Exp BEGIN e3:Tp_Action_List END [ ([],e2,e3) :: e4 ]
+  -> { [] }
+  -> e4:Action_With_List_Rev e0:Patch_Exp e1:Patch_Exp_List e2:Optional_When BEGIN e3:Tp_Action_List END [ (e0::e1,e2,e3) :: e4 ]
+  -> e4:Action_With_List_Rev ANY e2:Patch_Exp BEGIN e3:Tp_Action_List END [ ([],e2,e3) :: e4 ]
 }
 
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List  {
-	-> WITH e3:Action_With_List_Rev DEFAULT e2:Tp_Action_List [ List.rev (([],Tp.Pred_True,e2) :: e3) ]
+  -> WITH e3:Action_With_List_Rev DEFAULT e2:Tp_Action_List [ List.rev (([],Tp.Pred_True,e2) :: e3) ]
 }
 
 nonterm((string * Dlg.tlk_string) list) String_Lse_List_Rev {
-	fun merge (l,r) {
-		let c = the_context () in
-		log_and_print "WARNING: possible ambiguity (merge String_Lse_List_Rev) at %s.%d.%d:\n" c.filename c.line c.col;
-		l
-	}
-	-> { [] }
-	-> e3:String_Lse_List_Rev e1:STRING e2:Lse [ (e1,e2) :: e3 ]
+  fun merge (l,r) {
+    let c = the_context () in
+    log_and_print "WARNING: possible ambiguity (merge String_Lse_List_Rev) at %s.%d.%d:\n" c.filename c.line c.col;
+    l
+  }
+  -> { [] }
+  -> e3:String_Lse_List_Rev e1:STRING e2:Lse [ (e1,e2) :: e3 ]
 }
 
 
 nonterm((string * Dlg.tlk_string) list) String_Lse_List {
-	-> e3:String_Lse_List_Rev [ List.rev e3 ]
+  -> e3:String_Lse_List_Rev [ List.rev e3 ]
 }
 
 nonterm(Tp.tp_patchexp list) Patch_Exp_List_Rev {
-	-> { [] }
-	-> e3:Patch_Exp_List_Rev e1:Patch_Exp [ e1 :: e3 ]
+  -> { [] }
+  -> e3:Patch_Exp_List_Rev e1:Patch_Exp [ e1 :: e3 ]
 }
 
 nonterm(Tp.tp_patchexp list) Patch_Exp_List {
-	-> e3:Patch_Exp_List_Rev [ List.rev e3 ]
+  -> e3:Patch_Exp_List_Rev [ List.rev e3 ]
 }
 
 nonterm(Tp.tp_patchexp option) Optional_Patch_Exp {
@@ -590,757 +582,751 @@ nonterm(Tp.tp_patchexp option) Optional_Patch_Exp {
 }
 
 nonterm((Tp.tp_patchexp * Dlg.tlk_string) list) Pe_Lse_List_Rev {
-	-> { [] }
-	-> e3:Pe_Lse_List_Rev e1:Patch_Exp e2:Lse [ (e1,e2) :: e3 ]
+  -> { [] }
+  -> e3:Pe_Lse_List_Rev e1:Patch_Exp e2:Lse [ (e1,e2) :: e3 ]
 }
 
 nonterm((Tp.tp_patchexp * Dlg.tlk_string) list) Pe_Lse_List {
-	-> e3:Pe_Lse_List_Rev [ List.rev e3 ]
+  -> e3:Pe_Lse_List_Rev [ List.rev e3 ]
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_patchexp) list) DefineFunctionIntVar {
-	-> { [] }
-	-> INT_VAR e1:PeStr_Pe_List { e1 }
+  -> { [] }
+  -> INT_VAR e1:PeStr_Pe_List { e1 }
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_patchexp) list) PeStr_Pe_List {
-	-> e1:PeStr_Pe_List_Rev [ List.rev e1 ]
+  -> e1:PeStr_Pe_List_Rev [ List.rev e1 ]
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_patchexp) list) PeStr_Pe_List_Rev {
-	-> { [] }
-	-> e1:PeStr_Pe_List_Rev e2:Patch_String_Left EQUALS e3:Patch_Exp [ (e2,e3) :: e1 ]
+  -> { [] }
+  -> e1:PeStr_Pe_List_Rev e2:Patch_String_Left EQUALS e3:Patch_Exp [ (e2,e3) :: e1 ]
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_patchexp) list) LaunchFunctionIntVar {
-	-> { [] }
-	-> INT_VAR e1:PeStr_PeMaybe_List { e1 }
+  -> { [] }
+  -> INT_VAR e1:PeStr_PeMaybe_List { e1 }
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_patchexp) list) PeStr_PeMaybe_List {
-	-> e1:PeStr_PeMaybe_List_Rev [ List.rev e1 ]
+  -> e1:PeStr_PeMaybe_List_Rev [ List.rev e1 ]
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_patchexp) list) PeStr_PeMaybe_List_Rev {
-	-> { [] }
-	-> e1:PeStr_PeMaybe_List_Rev e2:Patch_String_Left EQUALS e3:Patch_Exp [ (e2,e3) :: e1 ]
+  -> { [] }
+  -> e1:PeStr_PeMaybe_List_Rev e2:Patch_String_Left EQUALS e3:Patch_Exp [ (e2,e3) :: e1 ]
   -> e1:PeStr_PeMaybe_List_Rev e2:Patch_String_Left [ (e2, Tp.PE_String(left_to_right e2))::e1 ]
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) DefineFunctionStrVar {
-	-> { [] }
-	-> STR_VAR e1:PeStr_PeStr_List { e1 }
+  -> { [] }
+  -> STR_VAR e1:PeStr_PeStr_List { e1 }
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) LaunchFunctionStrVar {
-	-> { [] }
-	-> STR_VAR e1:PeStr_PeStrMaybe_List { e1 }
+  -> { [] }
+  -> STR_VAR e1:PeStr_PeStrMaybe_List { e1 }
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) LaunchFunctionRet {
-	-> { [] }
-	-> RET e1:PeStr_PeStrMaybeLit_List { e1 }
+  -> { [] }
+  -> RET e1:PeStr_PeStrMaybeLit_List { e1 }
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStr_List {
-	-> e1:PeStr_PeStr_List_Rev [ List.rev e1 ]
+  -> e1:PeStr_PeStr_List_Rev [ List.rev e1 ]
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStr_List_Rev {
-	-> { [] }
-	-> e1:PeStr_PeStr_List_Rev e2:Patch_String_Left EQUALS e3:Patch_String_Right [ (e2,e3) :: e1 ]
+  -> { [] }
+  -> e1:PeStr_PeStr_List_Rev e2:Patch_String_Left EQUALS e3:Patch_String_Right [ (e2,e3) :: e1 ]
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStrMaybe_List {
-	-> e1:PeStr_PeStrMaybe_List_Rev [ List.rev e1 ]
+  -> e1:PeStr_PeStrMaybe_List_Rev [ List.rev e1 ]
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStrMaybe_List_Rev {
-	-> { [] }
-	-> e1:PeStr_PeStrMaybe_List_Rev e2:Patch_String_Left EQUALS e3:Patch_String_Right [ (e2,e3) :: e1 ]
-	-> e1:PeStr_PeStrMaybe_List_Rev e2:Patch_String_Left [ (e2, Tp.PE_GetVar(left_to_right e2))::e1 ]
+  -> { [] }
+  -> e1:PeStr_PeStrMaybe_List_Rev e2:Patch_String_Left EQUALS e3:Patch_String_Right [ (e2,e3) :: e1 ]
+  -> e1:PeStr_PeStrMaybe_List_Rev e2:Patch_String_Left [ (e2, Tp.PE_GetVar(left_to_right e2))::e1 ]
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStrMaybeLit_List {
-        -> e1:PeStr_PeStrMaybeLit_List_Rev [ List.rev e1 ]
+  -> e1:PeStr_PeStrMaybeLit_List_Rev [ List.rev e1 ]
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStrMaybeLit_List_Rev {
-        -> { [] }
-        -> e1:PeStr_PeStrMaybeLit_List_Rev e2:Patch_String_Left EQUALS e3:Patch_String_Right [ (e2,e3) :: e1 ]
-        -> e1:PeStr_PeStrMaybeLit_List_Rev e2:Patch_String_Left [ (e2, left_to_right e2) :: e1 ]
+  -> { [] }
+  -> e1:PeStr_PeStrMaybeLit_List_Rev e2:Patch_String_Left EQUALS e3:Patch_String_Right [ (e2,e3) :: e1 ]
+  -> e1:PeStr_PeStrMaybeLit_List_Rev e2:Patch_String_Left [ (e2, left_to_right e2) :: e1 ]
 }
 
 nonterm(string list) String_List_Rev {
-	-> { [] }
-	-> e2:String_List_Rev e1:STRING [ e1 :: e2 ]
+  -> { [] }
+  -> e2:String_List_Rev e1:STRING [ e1 :: e2 ]
 }
 
 nonterm(string list) String_List {
-	-> e2:String_List_Rev [ List.rev e2 ]
+  -> e2:String_List_Rev [ List.rev e2 ]
 }
 
 nonterm(string list) Nonempty_String_List {
-	-> e1:STRING e2:String_List [ e1 :: e2 ]
+  -> e1:STRING e2:String_List [ e1 :: e2 ]
 }
 
 nonterm(string list list) Copy_Random_String_List {
-	-> LPAREN e1:String_List RPAREN e2:Copy_Random_String_List_Inner [ e1 :: e2 ]
+  -> LPAREN e1:String_List RPAREN e2:Copy_Random_String_List_Inner [ e1 :: e2 ]
 }
 
 nonterm(string list list) Copy_Random_String_List_Inner_Rev {
-	-> [ [] ]
-	-> e2:Copy_Random_String_List_Inner_Rev LPAREN e1:String_List RPAREN [ e1 :: e2 ]
+  -> [ [] ]
+  -> e2:Copy_Random_String_List_Inner_Rev LPAREN e1:String_List RPAREN [ e1 :: e2 ]
 }
 
 nonterm(string list list) Copy_Random_String_List_Inner {
-	-> e1:Copy_Random_String_List_Inner_Rev [ List.rev e1 ]
+  -> e1:Copy_Random_String_List_Inner_Rev [ List.rev e1 ]
 }
 
 nonterm(Tp.tp_constraint list) Tp_When_List_Rev {
-	-> { [] }
-	-> e2:Tp_When_List_Rev e1:Tp_When [ e1 :: e2 ]
+  -> { [] }
+  -> e2:Tp_When_List_Rev e1:Tp_When [ e1 :: e2 ]
 }
 
 nonterm(Tp.tp_constraint list) Tp_When_List {
-	-> e2:Tp_When_List_Rev [ List.rev e2 ]
+  -> e2:Tp_When_List_Rev [ List.rev e2 ]
 }
 
 nonterm(Tp.tp_constraint) Tp_When {
-	-> IF e1:Patch_String_Right [ Tp.TP_Contains e1 ]
-	-> UNLESS e1:Patch_String_Right [ Tp.TP_NotContains e1 ]
-	-> IF_SIZE_IS e1:STRING [ Tp.TP_IfSizeIs(my_int_of_string e1) ]
-	-> IF_EVAL e1:Patch_Exp [ Tp.TP_Eval e1 ]
-	-> BUT_ONLY_IF_IT_CHANGES [ Tp.TP_ButOnlyIfItChanges ]
-        -> IF_EXISTS [ Tp.TP_IfExists ]
+  -> IF e1:Patch_String_Right [ Tp.TP_Contains e1 ]
+  -> UNLESS e1:Patch_String_Right [ Tp.TP_NotContains e1 ]
+  -> IF_SIZE_IS e1:STRING [ Tp.TP_IfSizeIs(my_int_of_string e1) ]
+  -> IF_EVAL e1:Patch_Exp [ Tp.TP_Eval e1 ]
+  -> BUT_ONLY_IF_IT_CHANGES [ Tp.TP_ButOnlyIfItChanges ]
+  -> IF_EXISTS [ Tp.TP_IfExists ]
 }
 
 nonterm((Tp.file_or_directory_regexp * string) list) TP_Move_List {
-	-> e1:Rev_TP_Move_List [ List.rev e1 ]
+  -> e1:Rev_TP_Move_List [ List.rev e1 ]
 }
 
 nonterm((Tp.file_or_directory_regexp * string) list) Rev_TP_Move_List {
-	-> { [] }
-	-> e5:Rev_TP_Move_List e1:STRING e4:STRING [ (Tp.TP_File e1, e4) :: e5 ]
-	-> e5:Rev_TP_Move_List LPAREN e1:STRING e2:Optional_Match_Exact e3:STRING RPAREN e4:STRING [ (Tp.TP_Directory_Regexp (e1,e2,e3), e4) :: e5 ]
+  -> { [] }
+  -> e5:Rev_TP_Move_List e1:STRING e4:STRING [ (Tp.TP_File e1, e4) :: e5 ]
+  -> e5:Rev_TP_Move_List LPAREN e1:STRING e2:Optional_Match_Exact e3:STRING RPAREN e4:STRING [ (Tp.TP_Directory_Regexp (e1,e2,e3), e4) :: e5 ]
 }
 
 nonterm((string * string) list) Str_Str_List {
-	-> e1:Rev_Str_Str_List [ List.rev e1 ]
+  -> e1:Rev_Str_Str_List [ List.rev e1 ]
 }
 
 nonterm((string * string) list) Rev_Str_Str_List {
-	-> { [] }
-	-> e3:Rev_Str_Str_List e1:STRING e2:STRING [ (e1,e2) :: e3 ]
+  -> { [] }
+  -> e3:Rev_Str_Str_List e1:STRING e2:STRING [ (e1,e2) :: e3 ]
 }
 
 nonterm(((Tp.tp_pe_string list) * Tp.tp_pe_string) list) Associative_String_List_Rev {
-	-> { [] }
-	-> e3:Associative_String_List_Rev e1:Array_Parameter_List EQUALSGREATER e2:Patch_String_Right
-		[ (e1,e2) :: e3 ]
+  -> { [] }
+  -> e3:Associative_String_List_Rev e1:Array_Parameter_List EQUALSGREATER e2:Patch_String_Right
+       [ (e1,e2) :: e3 ]
 }
 
 nonterm(((Tp.tp_pe_string list) * Tp.tp_pe_string) list) Associative_String_List {
-	-> e3:Associative_String_List_Rev
-		[ List.rev e3 ]
+  -> e3:Associative_String_List_Rev
+       [ List.rev e3 ]
 }
 
 nonterm(Tp.tp_pe_string list) Array_Parameter_List_Rev {
-	-> e1:Patch_String_Left { [e1] }
-	-> e3:Array_Parameter_List_Rev COMMA e1:Patch_String_Left
-		[ e1 :: e3 ]
+  -> e1:Patch_String_Left { [e1] }
+  -> e3:Array_Parameter_List_Rev COMMA e1:Patch_String_Left
+       [ e1 :: e3 ]
 }
 
 nonterm(Tp.tp_pe_string list) Array_Parameter_List {
-	-> e3:Array_Parameter_List_Rev
-		[ List.rev e3 ]
+  -> e3:Array_Parameter_List_Rev
+       [ List.rev e3 ]
 }
 
 nonterm(Tp.tp_pe_string) Patch_String_Left {
-	-> e1:STRING [ Tp.PE_LiteralString e1 ]
-	-> EVALUATE_BUFFER e1:Patch_String_Right [ Tp.PE_Evaluate e1 ]
-	-> DOLLARS e1:Patch_String_Right LPAREN e2:Patch_String_Right_List RPAREN
-			[ Tp.PE_Dollars(e1,e2,false,true) ]
+  -> e1:STRING [ Tp.PE_LiteralString e1 ]
+  -> EVALUATE_BUFFER e1:Patch_String_Right [ Tp.PE_Evaluate e1 ]
+  -> DOLLARS e1:Patch_String_Right LPAREN e2:Patch_String_Right_List RPAREN
+       [ Tp.PE_Dollars(e1,e2,false,true) ]
 }
 
 nonterm(Tp.tp_pe_string) Patch_String_Name {
-	-> e1:STRING [ Tp.PE_LiteralString e1 ]
-	-> EVALUATE_BUFFER e1:Patch_String_Right [ Tp.PE_Evaluate e1 ]
-	-> DOLLARS e1:Patch_String_Right LPAREN e2:Patch_String_Right_List RPAREN
-			[ Tp.PE_Dollars(e1,e2,false,false) ]
+  -> e1:STRING [ Tp.PE_LiteralString e1 ]
+  -> EVALUATE_BUFFER e1:Patch_String_Right [ Tp.PE_Evaluate e1 ]
+  -> DOLLARS e1:Patch_String_Right LPAREN e2:Patch_String_Right_List RPAREN
+       [ Tp.PE_Dollars(e1,e2,false,false) ]
 }
 
 nonterm(Tp.tp_pe_string) Patch_String_Right {
-	-> e1:STRING [ Tp.PE_LiteralString e1 ]
-	-> EVALUATE_BUFFER e1:Patch_String_Right [ Tp.PE_Evaluate e1 ]
-	-> DOLLARS e1:Patch_String_Right LPAREN e2:Patch_String_Right_List RPAREN
-			[ Tp.PE_Dollars(e1,e2,true,false) ]
+  -> e1:STRING [ Tp.PE_LiteralString e1 ]
+  -> EVALUATE_BUFFER e1:Patch_String_Right [ Tp.PE_Evaluate e1 ]
+  -> DOLLARS e1:Patch_String_Right LPAREN e2:Patch_String_Right_List RPAREN
+       [ Tp.PE_Dollars(e1,e2,true,false) ]
 }
 
 nonterm(Tp.tp_pe_string list) Patch_String_Left_List_Rev {
-	-> { [] }
-	-> e2:Patch_String_Left_List_Rev e1:Patch_String_Left [ e1 :: e2 ]
+  -> { [] }
+  -> e2:Patch_String_Left_List_Rev e1:Patch_String_Left [ e1 :: e2 ]
 }
 
 nonterm(Tp.tp_pe_string list) Patch_String_Left_List {
-	-> e2:Patch_String_Left_List_Rev [ List.rev e2 ]
+  -> e2:Patch_String_Left_List_Rev [ List.rev e2 ]
 }
 
 nonterm(Tp.tp_pe_string list) DefineFunctionRet {
-	-> { [] }
-	-> RET e1:Patch_String_Left_List { e1 }
+  -> { [] }
+  -> RET e1:Patch_String_Left_List { e1 }
 }
 
 nonterm(Tp.tp_pe_string list) Patch_String_Right_List_Rev {
-	-> { [] }
-	-> e2:Patch_String_Right_List_Rev e1:Patch_String_Right [ e1 :: e2 ]
+  -> { [] }
+  -> e2:Patch_String_Right_List_Rev e1:Patch_String_Right [ e1 :: e2 ]
 }
 
 nonterm(Tp.tp_pe_string list) Patch_String_Right_List {
-	-> e2:Patch_String_Right_List_Rev [ List.rev e2 ]
+  -> e2:Patch_String_Right_List_Rev [ List.rev e2 ]
 }
 
 nonterm(Tp.tp_pe_tlk_string) Dlg_Or_Patch_String_Right {
-	-> e1:Lse [ Tp.PE_Tlk e1 ]
-	-> EVALUATE_BUFFER e1:Patch_String_Right [ Tp.PE_Pe(Tp.PE_Evaluate e1) ]
-	-> DOLLARS e1:Patch_String_Right LPAREN e2:Patch_String_Left_List RPAREN
-			[ Tp.PE_Pe (Tp.PE_Dollars(e1,e2,true,false)) ]
+  -> e1:Lse [ Tp.PE_Tlk e1 ]
+  -> EVALUATE_BUFFER e1:Patch_String_Right [ Tp.PE_Pe(Tp.PE_Evaluate e1) ]
+  -> DOLLARS e1:Patch_String_Right LPAREN e2:Patch_String_Left_List RPAREN
+                        [ Tp.PE_Pe (Tp.PE_Dollars(e1,e2,true,false)) ]
 }
 
 nonterm(Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp *
-	Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp)
-		Seven_Patch_Exp {
-	-> e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp e5:Patch_Exp e6:Patch_Exp e7:Patch_Exp
-		[ e1,e2,e3,e4,e5,e6,e7 ]
+        Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp) Seven_Patch_Exp {
+  -> e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp e5:Patch_Exp e6:Patch_Exp e7:Patch_Exp
+       [ e1,e2,e3,e4,e5,e6,e7 ]
 
-	-> ARE_V10_ACTORS
-		[ seven_patch_exp 0x54 4 0x58 2 0 0 0x110 ]
-	-> ARE_V10_REGIONS
-		[ seven_patch_exp 0x5c 4 0x5a 2 0 0 0xc4 ]
-	-> ARE_V10_SPAWN_POINTS
-		[ seven_patch_exp 0x60 4 0x64 4 0 0 0xc8 ]
-	-> ARE_V10_ENTRANCES
-		[ seven_patch_exp 0x68 4 0x6c 4 0 0 0x68 ]
-	-> ARE_V10_CONTAINERS
-		[ seven_patch_exp 0x70 4 0x74 2 0 0 0xc0 ]
-	-> ARE_V10_AMBIENTS
-		[ seven_patch_exp 0x84 4 0x82 2 0 0 0xd4 ]
-	-> ARE_V10_DOORS
-		[ seven_patch_exp 0xa8 4 0xa4 4 0 0 0xc8 ]
-	-> ARE_V10_ANIMATIONS
-		[ seven_patch_exp 0xb0 4 0xac 4 0 0 0x4c ]
+  -> ARE_V10_ACTORS
+       [ seven_patch_exp 0x54 4 0x58 2 0 0 0x110 ]
+  -> ARE_V10_REGIONS
+       [ seven_patch_exp 0x5c 4 0x5a 2 0 0 0xc4 ]
+  -> ARE_V10_SPAWN_POINTS
+       [ seven_patch_exp 0x60 4 0x64 4 0 0 0xc8 ]
+  -> ARE_V10_ENTRANCES
+       [ seven_patch_exp 0x68 4 0x6c 4 0 0 0x68 ]
+  -> ARE_V10_CONTAINERS
+       [ seven_patch_exp 0x70 4 0x74 2 0 0 0xc0 ]
+  -> ARE_V10_AMBIENTS
+       [ seven_patch_exp 0x84 4 0x82 2 0 0 0xd4 ]
+  -> ARE_V10_DOORS
+       [ seven_patch_exp 0xa8 4 0xa4 4 0 0 0xc8 ]
+  -> ARE_V10_ANIMATIONS
+       [ seven_patch_exp 0xb0 4 0xac 4 0 0 0x4c ]
 
-	-> ARE_V91_ACTORS
-		[ seven_patch_exp 0x64 4 0x68 2 0 0 0x110 ]
+  -> ARE_V91_ACTORS
+       [ seven_patch_exp 0x64 4 0x68 2 0 0 0x110 ]
 
-	-> CRE_V10_KNOWN_SPELLS
-		[ seven_patch_exp 0x2a0 4 0x2a4 4 0 0 0xc ]
-	-> CRE_V10_SPELL_MEM_INFO
-		[ seven_patch_exp 0x2a8 4 0x2ac 4 0 0 0x10 ]
-	-> CRE_V10_EFFECTS
-		[ seven_patch_exp 0x2c4 4 0x2c8 4 0 0 0x108 ]
-	-> CRE_V10_ITEMS
-		[ seven_patch_exp 0x2bc 4 0x2c0 4 0 0 0x14 ]
+  -> CRE_V10_KNOWN_SPELLS
+       [ seven_patch_exp 0x2a0 4 0x2a4 4 0 0 0xc ]
+  -> CRE_V10_SPELL_MEM_INFO
+       [ seven_patch_exp 0x2a8 4 0x2ac 4 0 0 0x10 ]
+  -> CRE_V10_EFFECTS
+       [ seven_patch_exp 0x2c4 4 0x2c8 4 0 0 0x108 ]
+  -> CRE_V10_ITEMS
+       [ seven_patch_exp 0x2bc 4 0x2c0 4 0 0 0x14 ]
 
-	-> ITM_V10_HEADERS
-		[ seven_patch_exp 0x64 4 0x68 2 0 0 0x38 ]
-	-> ITM_V10_GEN_EFFECTS
-		[ seven_patch_exp 0x6a 4 0x70 2 0x6e 2 0x30 ]
+  -> ITM_V10_HEADERS
+       [ seven_patch_exp 0x64 4 0x68 2 0 0 0x38 ]
+  -> ITM_V10_GEN_EFFECTS
+       [ seven_patch_exp 0x6a 4 0x70 2 0x6e 2 0x30 ]
 
-	-> SPL_V10_HEADERS
-		[ seven_patch_exp 0x64 4 0x68 2 0 0 0x28 ]
-	-> SPL_V10_GEN_EFFECTS
-		[ seven_patch_exp 0x6a 4 0x70 2 0x6e 2 0x30 ]
+  -> SPL_V10_HEADERS
+       [ seven_patch_exp 0x64 4 0x68 2 0 0 0x28 ]
+  -> SPL_V10_GEN_EFFECTS
+       [ seven_patch_exp 0x6a 4 0x70 2 0x6e 2 0x30 ]
 
-	-> STO_V10_ITEMS_PURCHASED
-		[ seven_patch_exp 0x2c 4 0x30 4 0 0 0x4 ]
-	-> STO_V10_ITEMS_SOLD
-		[ seven_patch_exp 0x34 4 0x38 4 0 0 0x1c ]
-	-> STO_V10_DRINKS
-		[ seven_patch_exp 0x4c 4 0x50 4 0 0 0x14 ]
-	-> STO_V10_CURES
-		[ seven_patch_exp 0x70 4 0x74 4 0 0 0xc ]
+  -> STO_V10_ITEMS_PURCHASED
+       [ seven_patch_exp 0x2c 4 0x30 4 0 0 0x4 ]
+  -> STO_V10_ITEMS_SOLD
+       [ seven_patch_exp 0x34 4 0x38 4 0 0 0x1c ]
+  -> STO_V10_DRINKS
+       [ seven_patch_exp 0x4c 4 0x50 4 0 0 0x14 ]
+  -> STO_V10_CURES
+       [ seven_patch_exp 0x70 4 0x74 4 0 0 0xc ]
 
-	-> WMP_AREAS
-		[ seven_patch_exp 0x34 4 0x30 4 0 0 0xf0 ]
-	-> WMP_LINKS
-		[ seven_patch_exp 0x38 4 0x3c 4 0 0 0xd8 ]
+  -> WMP_AREAS
+       [ seven_patch_exp 0x34 4 0x30 4 0 0 0xf0 ]
+  -> WMP_LINKS
+       [ seven_patch_exp 0x38 4 0x3c 4 0 0 0xd8 ]
 }
 
 nonterm(Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp *
-	Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp)
-		Eight_Patch_Exp {
-	-> e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp e5:Patch_Exp e6:Patch_Exp e7:Patch_Exp e8:Patch_Exp
-		[ e1,e2,e3,e4,e5,e6,e7,e8 ]
+        Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp) Eight_Patch_Exp {
+  -> e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp e5:Patch_Exp e6:Patch_Exp e7:Patch_Exp e8:Patch_Exp
+       [ e1,e2,e3,e4,e5,e6,e7,e8 ]
 
-	-> e1:Patch_Exp ARE_V10_ITEMS
-		[ eight_patch_exp e1 0x78 4 0x44 4 0x40 4 0x14 ]
-	-> e1:Patch_Exp ARE_V10_REGION_VERTICES
-		[ eight_patch_exp e1 0x7c 4 0x2a 2 0x2c 4 0x4 ]
-	-> e1:Patch_Exp ARE_V10_CONTAINER_VERTICES
-		[ eight_patch_exp e1 0x7c 4 0x54 2 0x50 4 0x4 ]
-	-> e1:Patch_Exp ARE_V10_DOOR_OPEN_OUTLINE_VERTICES
-		[ eight_patch_exp e1 0x7c 4 0x30 2 0x2c 4 0x4 ]
-	-> e1:Patch_Exp ARE_V10_DOOR_CLOSED_OUTLINE_VERTICES
-		[ eight_patch_exp e1 0x7c 4 0x32 2 0x34 4 0x4 ]
-	-> e1:Patch_Exp ARE_V10_DOOR_OPEN_CELL_VERTICES
-		[ eight_patch_exp e1 0x7c 4 0x4c 2 0x48 4 0x4 ]
-	-> e1:Patch_Exp ARE_V10_DOOR_CLOSED_CELL_VERTICES
-		[ eight_patch_exp e1 0x7c 4 0x4e 2 0x50 4 0x4 ]
+  -> e1:Patch_Exp ARE_V10_ITEMS
+       [ eight_patch_exp e1 0x78 4 0x44 4 0x40 4 0x14 ]
+  -> e1:Patch_Exp ARE_V10_REGION_VERTICES
+       [ eight_patch_exp e1 0x7c 4 0x2a 2 0x2c 4 0x4 ]
+  -> e1:Patch_Exp ARE_V10_CONTAINER_VERTICES
+       [ eight_patch_exp e1 0x7c 4 0x54 2 0x50 4 0x4 ]
+  -> e1:Patch_Exp ARE_V10_DOOR_OPEN_OUTLINE_VERTICES
+       [ eight_patch_exp e1 0x7c 4 0x30 2 0x2c 4 0x4 ]
+  -> e1:Patch_Exp ARE_V10_DOOR_CLOSED_OUTLINE_VERTICES
+       [ eight_patch_exp e1 0x7c 4 0x32 2 0x34 4 0x4 ]
+  -> e1:Patch_Exp ARE_V10_DOOR_OPEN_CELL_VERTICES
+       [ eight_patch_exp e1 0x7c 4 0x4c 2 0x48 4 0x4 ]
+  -> e1:Patch_Exp ARE_V10_DOOR_CLOSED_CELL_VERTICES
+       [ eight_patch_exp e1 0x7c 4 0x4e 2 0x50 4 0x4 ]
 
-	-> e1:Patch_Exp CRE_V10_SPELL_MEM
-		[ eight_patch_exp e1 0x2b0 4 0xc 4 0x8 4 0xc ]
+  -> e1:Patch_Exp CRE_V10_SPELL_MEM
+       [ eight_patch_exp e1 0x2b0 4 0xc 4 0x8 4 0xc ]
 
-	-> e1:Patch_Exp ITM_V10_HEAD_EFFECTS
-		[ eight_patch_exp e1 0x6a 4 0x1e 2 0x20 2 0x30 ]
+  -> e1:Patch_Exp ITM_V10_HEAD_EFFECTS
+       [ eight_patch_exp e1 0x6a 4 0x1e 2 0x20 2 0x30 ]
 
-	-> e1:Patch_Exp SPL_V10_HEAD_EFFECTS
-		[ eight_patch_exp e1 0x6a 4 0x1e 2 0x20 2 0x30 ]
+  -> e1:Patch_Exp SPL_V10_HEAD_EFFECTS
+       [ eight_patch_exp e1 0x6a 4 0x1e 2 0x20 2 0x30 ]
 
-	-> e1:Patch_Exp WMP_NORTH_LINKS
-		[ eight_patch_exp e1 0x38 4 0x50 4 0x54 4 0xd8 ]
-	-> e1:Patch_Exp WMP_WEST_LINKS
-		[ eight_patch_exp e1 0x38 4 0x58 4 0x5c 4 0xd8 ]
-	-> e1:Patch_Exp WMP_SOUTH_LINKS
-		[ eight_patch_exp e1 0x38 4 0x60 4 0x64 4 0xd8 ]
-	-> e1:Patch_Exp WMP_EAST_LINKS
-		[ eight_patch_exp e1 0x38 4 0x68 4 0x6c 4 0xd8 ]
+  -> e1:Patch_Exp WMP_NORTH_LINKS
+       [ eight_patch_exp e1 0x38 4 0x50 4 0x54 4 0xd8 ]
+  -> e1:Patch_Exp WMP_WEST_LINKS
+       [ eight_patch_exp e1 0x38 4 0x58 4 0x5c 4 0xd8 ]
+  -> e1:Patch_Exp WMP_SOUTH_LINKS
+       [ eight_patch_exp e1 0x38 4 0x60 4 0x64 4 0xd8 ]
+  -> e1:Patch_Exp WMP_EAST_LINKS
+       [ eight_patch_exp e1 0x38 4 0x68 4 0x6c 4 0xd8 ]
 }
 
 nonterm (Tp.tp_patchexp) Patch_Exp_Safe {
-	-> e1:Patch_String_Right { Tp.PE_String e1 }
-	-> LPAREN e1:Patch_Exp RPAREN { e1 }
+  -> e1:Patch_String_Right { Tp.PE_String e1 }
+  -> LPAREN e1:Patch_Exp RPAREN { e1 }
 }
 
 nonterm (Tp.tp_patchexp) Patch_Exp {
-	fun merge (l,r) {
-		let c = the_context () in
-  let near_text = Lexing.lexeme c.lexbuf in
-  log_and_print "\n[%s] Patch_Exp ambiguity at line %d column %d-%d\nNear Text: %s\n"
+  fun merge (l,r) {
+    let c = the_context () in
+    let near_text = Lexing.lexeme c.lexbuf in
+    log_and_print "\n[%s] Patch_Exp ambiguity at line %d column %d-%d\nNear Text: %s\n"
     c.filename
     c.line (c.col - c.delta) (c.col-1) near_text ;
-  log_and_print "I can't decide which interpretation is correct:\n\"%s\"\nor\n\"%s\"\nPlease add parenthesis to your code to ensure correct interpretation.\n\n" (pe_to_str l) (pe_to_str r);
-		l
-	}
-	-> e1:Patch_String_Right [ Tp.PE_String(e1) ]
-	-> e1:Patch_String_Right STRING_COMPARE e2:Patch_String_Right
-			[ Tp.PE_StringEqual(e1,e2,false,false) ]
-	-> e1:Patch_String_Right STRING_COMPARE_CASE e2:Patch_String_Right
-			[ Tp.PE_StringEqual(e1,e2,true,false) ]
-	-> e1:Patch_String_Right STRING_EQUAL e2:Patch_String_Right
-			[ Tp.PE_StringEqual(e1,e2,false,true) ]
-	-> e1:Patch_String_Right STRING_EQUAL_CASE e2:Patch_String_Right
-			[ Tp.PE_StringEqual(e1,e2,true,true) ]
-	-> e1:Patch_String_Right STRING_MATCHES_REGEXP e2:Patch_String_Right
-			[ Tp.PE_StringRegexp(e1,e2,true) ]
-	-> e1:Patch_String_Right STRING_CONTAINS_REGEXP e2:Patch_String_Right
-			[ Tp.PE_StringRegexp(e1,e2,false) ]
-	-> BYTE_AT e1:Patch_Exp   [ Tp.TP_PE_Byte_At(e1) ]
-	-> SBYTE_AT e1:Patch_Exp  [ Tp.TP_PE_SByte_At(e1) ]
-	-> SHORT_AT e1:Patch_Exp  [ Tp.TP_PE_Short_At(e1) ]
-	-> SSHORT_AT e1:Patch_Exp [ Tp.TP_PE_SShort_At(e1) ]
-	-> LONG_AT e1:Patch_Exp  [ Tp.TP_PE_Long_At(e1) ]
-	-> SLONG_AT e1:Patch_Exp  [ Tp.TP_PE_SLong_At(e1) ]
-	-> RANDOM LPAREN e1:Patch_Exp e2:Patch_Exp RPAREN
-			[ Tp.PE_Random(e1,e2) ]
-	-> BUFFER_LENGTH [ Tp.PE_Buffer_Length ]
-	-> STRING_LENGTH e1:Patch_String_Right [ Tp.PE_String_Length e1 ]
+    log_and_print "I can't decide which interpretation is correct:\n\"%s\"\nor\n\"%s\"\nPlease add parenthesis to your code to ensure correct interpretation.\n\n" (pe_to_str l) (pe_to_str r);
+    l
+  }
+  -> e1:Patch_String_Right [ Tp.PE_String(e1) ]
+  -> e1:Patch_String_Right STRING_COMPARE e2:Patch_String_Right
+       [ Tp.PE_StringEqual(e1,e2,false,false) ]
+  -> e1:Patch_String_Right STRING_COMPARE_CASE e2:Patch_String_Right
+       [ Tp.PE_StringEqual(e1,e2,true,false) ]
+  -> e1:Patch_String_Right STRING_EQUAL e2:Patch_String_Right
+       [ Tp.PE_StringEqual(e1,e2,false,true) ]
+  -> e1:Patch_String_Right STRING_EQUAL_CASE e2:Patch_String_Right
+       [ Tp.PE_StringEqual(e1,e2,true,true) ]
+  -> e1:Patch_String_Right STRING_MATCHES_REGEXP e2:Patch_String_Right
+       [ Tp.PE_StringRegexp(e1,e2,true) ]
+  -> e1:Patch_String_Right STRING_CONTAINS_REGEXP e2:Patch_String_Right
+       [ Tp.PE_StringRegexp(e1,e2,false) ]
+  -> BYTE_AT e1:Patch_Exp   [ Tp.TP_PE_Byte_At(e1) ]
+  -> SBYTE_AT e1:Patch_Exp  [ Tp.TP_PE_SByte_At(e1) ]
+  -> SHORT_AT e1:Patch_Exp  [ Tp.TP_PE_Short_At(e1) ]
+  -> SSHORT_AT e1:Patch_Exp [ Tp.TP_PE_SShort_At(e1) ]
+  -> LONG_AT e1:Patch_Exp  [ Tp.TP_PE_Long_At(e1) ]
+  -> SLONG_AT e1:Patch_Exp  [ Tp.TP_PE_SLong_At(e1) ]
+  -> RANDOM LPAREN e1:Patch_Exp e2:Patch_Exp RPAREN
+       [ Tp.PE_Random(e1,e2) ]
+  -> BUFFER_LENGTH [ Tp.PE_Buffer_Length ]
+  -> STRING_LENGTH e1:Patch_String_Right [ Tp.PE_String_Length e1 ]
   -> INDEX LPAREN e1:Optional_Case_Sensitive e2:Optional_Match_Exact e4:Patch_String_Right e5:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ Tp.PE_Index(false,e1,e2,e4,e3,Some e5) ]
   -> RINDEX LPAREN e1:Optional_Case_Sensitive e2:Optional_Match_Exact e4:Patch_String_Right e5:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ Tp.PE_Index(true,e1,e2,e4,e3,Some e5) ]
   -> INDEX_BUFFER LPAREN e1:Optional_Case_Sensitive e2:Optional_Match_Exact e4:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ Tp.PE_Index(false,e1,e2,e4,e3,None) ]
   -> RINDEX_BUFFER LPAREN e1:Optional_Case_Sensitive e2:Optional_Match_Exact e4:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ Tp.PE_Index(true,e1,e2,e4,e3,None) ]
-	-> FILE_CONTAINS_EVALUATED LPAREN e1:Patch_String_Right e2:Patch_String_Right RPAREN
-			[ Tp.PE_FileContainsEvaluated(e1,e2) ]
-	-> FILE_EXISTS e1:Patch_String_Right [ Tp.Pred_File_Exists e1 ]
-        -> DIRECTORY_EXISTS e1:Patch_String_Right [Tp.Pred_Directory_Exists e1 ]
-	-> BIFF_IS_COMPRESSED e1:Patch_String_Right [ Tp.Pred_Biff_Is_Compressed e1 ]
-	-> FILE_IS_IN_COMPRESSED_BIF e1:Patch_String_Right
-			[ Tp.Pred_File_Is_In_Compressed_Bif e1 ]
-	-> FILE_MD5 e1:Patch_String_Right e2:Patch_String_Right [ Tp.Pred_File_MD5(e1,e2) ]
-	-> FILE_EXISTS_IN_GAME e1:Patch_String_Right [ Tp.Pred_File_Exists_In_Game e1 ]
-	-> FILE_SIZE e1:Patch_String_Right e2:STRING [ Tp.Pred_File_Size(e1,my_int_of_string e2) ]
-        -> SIZE_OF_FILE e1:Patch_String_Right [ Tp.PE_SizeOfFile(e1) ]
-        -> FILE_CONTAINS e1:Patch_String_Right e2:Patch_String_Right
-			[ Tp.Pred_File_Contains(e1,e2) ]
-	-> e1:Patch_Exp PLUS e2:Patch_Exp      { Tp.PE_Add(e1,e2) }
-	-> e1:Patch_Exp MINUS e2:Patch_Exp      { Tp.PE_Sub(e1,e2) }
-	-> e1:Patch_Exp TIMES e2:Patch_Exp      { Tp.PE_Mul(e1,e2) }
-	-> e1:Patch_Exp DIVIDE e2:Patch_Exp      { Tp.PE_Div(e1,e2) }
-	-> e1:Patch_Exp TIMESTIMES e2:Patch_Exp      { Tp.PE_Exp(e1,e2,Tp.Pred_True) }
-	-> e1:Patch_Exp TIMESTIMES LPAREN e2:Patch_Exp e3:Patch_Exp RPAREN
-			{ Tp.PE_Exp(e1,e2,e3) }
-	-> e1:Patch_Exp EQUALS e2:Patch_Exp  { Tp.PE_Equal(e1,e2) }
-	-> e1:Patch_Exp EQUALSEQUALS e2:Patch_Exp  { Tp.PE_Equal(e1,e2) }
-	-> e1:Patch_Exp NOTEQUALS e2:Patch_Exp { Tp.PE_Not(Tp.PE_Equal(e1,e2)) }
-	-> NOT e1:Patch_Exp               { Tp.PE_Not(e1) }
-	-> e1:Patch_Exp AND e2:Patch_Exp  { Tp.PE_And(e1,e2) }
-	-> e1:Patch_Exp OR e2:Patch_Exp  { Tp.PE_Or(e1,e2) }
-	-> e1:Patch_Exp GT e2:Patch_Exp  { Tp.PE_GT(e1,e2) }
-	-> e1:Patch_Exp GTE e2:Patch_Exp  { Tp.PE_GTE(e1,e2) }
-	-> e1:Patch_Exp LT e2:Patch_Exp  { Tp.PE_LT(e1,e2) }
-	-> e1:Patch_Exp LTE e2:Patch_Exp  { Tp.PE_LTE(e1,e2) }
-	-> e1:Patch_Exp BAND e2:Patch_Exp  { Tp.PE_BAND(e1,e2) }
-	-> e1:Patch_Exp BOR e2:Patch_Exp  { Tp.PE_BOR(e1,e2) }
-	-> BNOT e1:Patch_Exp  { Tp.PE_BNOT(e1) }
-	-> ABS e1:Patch_Exp { Tp.PE_ABS(e1) }
-	-> e1:Patch_Exp BXOR e2:Patch_Exp  { Tp.PE_BXOR(e1,e2) }
-	-> e1:Patch_Exp BLSL e2:Patch_Exp  { Tp.PE_BLSL(e1,e2) }
-	-> e1:Patch_Exp BLSR e2:Patch_Exp  { Tp.PE_BLSR(e1,e2) }
-	-> e1:Patch_Exp BASR e2:Patch_Exp  { Tp.PE_BASR(e1,e2) }
-	-> e1:Patch_Exp QUESTION e2:Patch_Exp COLON e3:Patch_Exp [ Tp.PE_If(e1,e2,e3) ]
-	-> MOD_IS_INSTALLED e1:STRING e2:Patch_Exp_Safe [ Tp.PE_ModIsInstalled(e1,e2) ]
-	-> INSTALL_ORDER e1:Patch_String_Right e2:Patch_Exp_Safe AFTER e3:Patch_String_Right e4:Patch_Exp_Safe [ Tp.PE_IsInstalledAfter(e1,e2,e3,e4) ]
-	-> INSTALL_ORDER e1:Patch_String_Right e2:Patch_Exp_Safe BEFORE e3:Patch_String_Right e4:Patch_Exp_Safe [ Tp.PE_IsInstalledAfter(e3,e4,e1,e2) ]
-	-> ID_OF_LABEL e1:Patch_String_Right e2:Patch_String_Right [ Tp.PE_IdOfLabel(e1,e2) ]
-	-> GAME_IS e1:STRING [ Tp.PE_GameIs(e1,true) ]
-	-> ENGINE_IS e1:STRING [ Tp.PE_GameIs(e1,false) ]
-	-> GAME_INCLUDES e1:STRING [ Tp.PE_GameIncludes(e1) ]
-	-> VARIABLE_IS_SET e1:Patch_String_Name [ Tp.PE_VariableIsSet e1 ]
-	-> IDS_OF_SYMBOL LPAREN e1:STRING e2:STRING RPAREN [ Tp.PE_IdsOfSymbol(e1,e2) ]
-	-> STATE_WHICH_SAYS e1:Lse FROM e2:STRING
-			[ let file = fst (split e2) ^ ".dlg" in
-				Tp.PE_StateWhichSays(Some(e1),None,file) ]
-	-> STATE_WHICH_SAYS e1:Patch_Exp IN e2:STRING FROM e3:STRING
-			[ let file = fst (split e3) ^ ".dlg" in
-				Tp.PE_StateWhichSays(None,Some(e1,e2),file) ]
-	-> IS_AN_INT e1:Patch_String_Name [ Tp.PE_IsAnInt e1 ]
-	-> TRA_ENTRY_EXISTS LPAREN e1:Patch_String_Name  e2:Patch_String_Right_List RPAREN [ Tp.PE_TraEntryExists(e1,e2) ]
-	-> RESOLVE_STR_REF LPAREN e1:Lse RPAREN [ Tp.PE_Resolve_Str_Ref e1 ]
-	-> LPAREN e1:Patch_Exp RPAREN [ e1 ]
-	-> IS_SILENT [ Tp.PE_IsSilent ]
+  -> FILE_CONTAINS_EVALUATED LPAREN e1:Patch_String_Right e2:Patch_String_Right RPAREN
+       [ Tp.PE_FileContainsEvaluated(e1,e2) ]
+  -> FILE_EXISTS e1:Patch_String_Right [ Tp.Pred_File_Exists e1 ]
+  -> DIRECTORY_EXISTS e1:Patch_String_Right [Tp.Pred_Directory_Exists e1 ]
+  -> BIFF_IS_COMPRESSED e1:Patch_String_Right [ Tp.Pred_Biff_Is_Compressed e1 ]
+  -> FILE_IS_IN_COMPRESSED_BIF e1:Patch_String_Right
+       [ Tp.Pred_File_Is_In_Compressed_Bif e1 ]
+  -> FILE_MD5 e1:Patch_String_Right e2:Patch_String_Right [ Tp.Pred_File_MD5(e1,e2) ]
+  -> FILE_EXISTS_IN_GAME e1:Patch_String_Right [ Tp.Pred_File_Exists_In_Game e1 ]
+  -> FILE_SIZE e1:Patch_String_Right e2:STRING [ Tp.Pred_File_Size(e1,my_int_of_string e2) ]
+  -> SIZE_OF_FILE e1:Patch_String_Right [ Tp.PE_SizeOfFile(e1) ]
+  -> FILE_CONTAINS e1:Patch_String_Right e2:Patch_String_Right
+       [ Tp.Pred_File_Contains(e1,e2) ]
+  -> e1:Patch_Exp PLUS e2:Patch_Exp      { Tp.PE_Add(e1,e2) }
+  -> e1:Patch_Exp MINUS e2:Patch_Exp      { Tp.PE_Sub(e1,e2) }
+  -> e1:Patch_Exp TIMES e2:Patch_Exp      { Tp.PE_Mul(e1,e2) }
+  -> e1:Patch_Exp DIVIDE e2:Patch_Exp      { Tp.PE_Div(e1,e2) }
+  -> e1:Patch_Exp TIMESTIMES e2:Patch_Exp      { Tp.PE_Exp(e1,e2,Tp.Pred_True) }
+  -> e1:Patch_Exp TIMESTIMES LPAREN e2:Patch_Exp e3:Patch_Exp RPAREN
+       { Tp.PE_Exp(e1,e2,e3) }
+  -> e1:Patch_Exp EQUALS e2:Patch_Exp  { Tp.PE_Equal(e1,e2) }
+  -> e1:Patch_Exp EQUALSEQUALS e2:Patch_Exp  { Tp.PE_Equal(e1,e2) }
+  -> e1:Patch_Exp NOTEQUALS e2:Patch_Exp { Tp.PE_Not(Tp.PE_Equal(e1,e2)) }
+  -> NOT e1:Patch_Exp               { Tp.PE_Not(e1) }
+  -> e1:Patch_Exp AND e2:Patch_Exp  { Tp.PE_And(e1,e2) }
+  -> e1:Patch_Exp OR e2:Patch_Exp  { Tp.PE_Or(e1,e2) }
+  -> e1:Patch_Exp GT e2:Patch_Exp  { Tp.PE_GT(e1,e2) }
+  -> e1:Patch_Exp GTE e2:Patch_Exp  { Tp.PE_GTE(e1,e2) }
+  -> e1:Patch_Exp LT e2:Patch_Exp  { Tp.PE_LT(e1,e2) }
+  -> e1:Patch_Exp LTE e2:Patch_Exp  { Tp.PE_LTE(e1,e2) }
+  -> e1:Patch_Exp BAND e2:Patch_Exp  { Tp.PE_BAND(e1,e2) }
+  -> e1:Patch_Exp BOR e2:Patch_Exp  { Tp.PE_BOR(e1,e2) }
+  -> BNOT e1:Patch_Exp  { Tp.PE_BNOT(e1) }
+  -> ABS e1:Patch_Exp { Tp.PE_ABS(e1) }
+  -> e1:Patch_Exp BXOR e2:Patch_Exp  { Tp.PE_BXOR(e1,e2) }
+  -> e1:Patch_Exp BLSL e2:Patch_Exp  { Tp.PE_BLSL(e1,e2) }
+  -> e1:Patch_Exp BLSR e2:Patch_Exp  { Tp.PE_BLSR(e1,e2) }
+  -> e1:Patch_Exp BASR e2:Patch_Exp  { Tp.PE_BASR(e1,e2) }
+  -> e1:Patch_Exp QUESTION e2:Patch_Exp COLON e3:Patch_Exp [ Tp.PE_If(e1,e2,e3) ]
+  -> MOD_IS_INSTALLED e1:STRING e2:Patch_Exp_Safe [ Tp.PE_ModIsInstalled(e1,e2) ]
+  -> INSTALL_ORDER e1:Patch_String_Right e2:Patch_Exp_Safe AFTER e3:Patch_String_Right e4:Patch_Exp_Safe [ Tp.PE_IsInstalledAfter(e1,e2,e3,e4) ]
+  -> INSTALL_ORDER e1:Patch_String_Right e2:Patch_Exp_Safe BEFORE e3:Patch_String_Right e4:Patch_Exp_Safe [ Tp.PE_IsInstalledAfter(e3,e4,e1,e2) ]
+  -> ID_OF_LABEL e1:Patch_String_Right e2:Patch_String_Right [ Tp.PE_IdOfLabel(e1,e2) ]
+  -> GAME_IS e1:STRING [ Tp.PE_GameIs(e1,true) ]
+  -> ENGINE_IS e1:STRING [ Tp.PE_GameIs(e1,false) ]
+  -> GAME_INCLUDES e1:STRING [ Tp.PE_GameIncludes(e1) ]
+  -> VARIABLE_IS_SET e1:Patch_String_Name [ Tp.PE_VariableIsSet e1 ]
+  -> IDS_OF_SYMBOL LPAREN e1:STRING e2:STRING RPAREN [ Tp.PE_IdsOfSymbol(e1,e2) ]
+  -> STATE_WHICH_SAYS e1:Lse FROM e2:STRING
+       [ let file = fst (split e2) ^ ".dlg" in
+         Tp.PE_StateWhichSays(Some(e1),None,file) ]
+  -> STATE_WHICH_SAYS e1:Patch_Exp IN e2:STRING FROM e3:STRING
+       [ let file = fst (split e3) ^ ".dlg" in
+         Tp.PE_StateWhichSays(None,Some(e1,e2),file) ]
+  -> IS_AN_INT e1:Patch_String_Name [ Tp.PE_IsAnInt e1 ]
+  -> TRA_ENTRY_EXISTS LPAREN e1:Patch_String_Name  e2:Patch_String_Right_List RPAREN [ Tp.PE_TraEntryExists(e1,e2) ]
+  -> RESOLVE_STR_REF LPAREN e1:Lse RPAREN [ Tp.PE_Resolve_Str_Ref e1 ]
+  -> LPAREN e1:Patch_Exp RPAREN [ e1 ]
+  -> IS_SILENT [ Tp.PE_IsSilent ]
 }
 
 nonterm (Tp.tp_store_position) Optional_Store_Position {
-	-> { Tp.TP_Store_First }
-	-> AFTER e1:Patch_String_Right [ Tp.TP_Store_After e1 ]
-	-> BEFORE e1:Patch_String_Right [ Tp.TP_Store_Before e1 ]
-	-> LAST [ Tp.TP_Store_Last ]
-	-> FIRST { Tp.TP_Store_First }
-	-> AT e1:Patch_Exp { Tp.TP_Store_At e1 }
+  -> { Tp.TP_Store_First }
+  -> AFTER e1:Patch_String_Right [ Tp.TP_Store_After e1 ]
+  -> BEFORE e1:Patch_String_Right [ Tp.TP_Store_Before e1 ]
+  -> LAST [ Tp.TP_Store_Last ]
+  -> FIRST { Tp.TP_Store_First }
+  -> AT e1:Patch_Exp { Tp.TP_Store_At e1 }
 }
 
 nonterm(Tp.tp_patch list) Tp_Patch_List_Rev {
-	-> { [] }
-	-> e2:Tp_Patch_List_Rev e1:Tp_Patch [ e1 :: e2 ]
-	-> e3:Tp_Patch_List_Rev WRITE_ASCII_LIST e1:Patch_Exp e2:Patch_String_Right_List
-			[ Array.to_list (Array.mapi (fun i x ->
-				Tp.TP_PatchASCII(Tp.PE_Add(Tp.PE_Mul(Tp.get_pe_int (string_of_int i), Tp.get_pe_int "8"), e1), x, true, Some (Tp.get_pe_int "8"))
-			  ) (Array.of_list e2))
-			  @ e3 ]
+  -> { [] }
+  -> e2:Tp_Patch_List_Rev e1:Tp_Patch [ e1 :: e2 ]
+  -> e3:Tp_Patch_List_Rev WRITE_ASCII_LIST e1:Patch_Exp e2:Patch_String_Right_List
+       [ Array.to_list (Array.mapi (fun i x ->
+         Tp.TP_PatchASCII(Tp.PE_Add(Tp.PE_Mul(Tp.get_pe_int (string_of_int i), Tp.get_pe_int "8"), e1), x, true, Some (Tp.get_pe_int "8"))
+                                   ) (Array.of_list e2)) @ e3 ]
 }
 
 nonterm(Tp.tp_patch list) Tp_Patch_List {
-	-> e2:Tp_Patch_List_Rev [ List.rev e2 ]
+  -> e2:Tp_Patch_List_Rev [ List.rev e2 ]
 }
 
 nonterm (bool option) Optional_Case_Sensitive {
-	-> [ None ]
-	-> CASE_SENSITIVE [ Some true ]
-	-> CASE_INSENSITIVE [ Some false ]
+  -> [ None ]
+  -> CASE_SENSITIVE [ Some true ]
+  -> CASE_INSENSITIVE [ Some false ]
 }
 
 nonterm (bool option) Optional_Match_Exact {
-	-> [ None ]
-	-> EXACT_MATCH [ Some true ]
-	-> EVALUATE_REGEXP [ Some false ]
+  -> [ None ]
+  -> EXACT_MATCH [ Some true ]
+  -> EVALUATE_REGEXP [ Some false ]
 }
 
 nonterm (bool) Optional_Exact {
-	-> [ false ]
-	-> EXACT [ true ]
+  -> [ false ]
+  -> EXACT [ true ]
 }
 
 nonterm (bool) Optional_Null_Terminated {
-	-> [ false ]
-	-> NULL [ true ]
+  -> [ false ]
+  -> NULL [ true ]
 }
 
 nonterm (bool) Optional_Journal_Existing {
-        -> [ false ]
-        -> EXISTING [ true ]
+  -> [ false ]
+  -> EXISTING [ true ]
 }
 
 nonterm (bool) Optional_Journal_Managed {
-        -> [ false ]
-        -> MANAGED [ true ]
+  -> [ false ]
+  -> MANAGED [ true ]
 }
 
 nonterm (Dlg.tlk_string option) Optional_Journal_Title {
-        -> [ None ]
-        -> TITLE LPAREN e1:Lse RPAREN [ Some e1 ]
+  -> [ None ]
+  -> TITLE LPAREN e1:Lse RPAREN [ Some e1 ]
 }
 
 nonterm (string option) Optional_File_Version {
-        -> [ None ]
-        -> VERSION e1:STRING [ Some e1 ]
+  -> [ None ]
+  -> VERSION e1:STRING [ Some e1 ]
 }
 
 nonterm (Tp.tp_patch) Tp_Patch {
-	-> SAY e1:Patch_Exp e2:Lse [ Tp.TP_PatchStrRef(e1,e2) ]
-	-> SAY_EVALUATED e1:Patch_Exp e2:STRING [ Tp.TP_PatchStrRefEvaluated(e1,e2) ]
-	-> LAUNCH_PATCH_MACRO e1:STRING [ Tp.TP_Launch_Patch_Macro (e1,true) ]
+  -> SAY e1:Patch_Exp e2:Lse [ Tp.TP_PatchStrRef(e1,e2) ]
+  -> SAY_EVALUATED e1:Patch_Exp e2:STRING [ Tp.TP_PatchStrRefEvaluated(e1,e2) ]
+  -> LAUNCH_PATCH_MACRO e1:STRING [ Tp.TP_Launch_Patch_Macro (e1,true) ]
   -> LAUNCH_PATCH_FUNCTION e1:STRING e2:LaunchFunctionIntVar e3:LaunchFunctionStrVar e4:LaunchFunctionRet END
-		[ Tp.TP_Launch_Patch_Function(e1,true,e2,e3,e4) ]
-		-> REPLACE e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:Lse
-			[ Tp.TP_PatchString(e1,e2,e3,e4) ]
-	-> REPLACE_TEXTUALLY e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:STRING
-			[ Tp.TP_PatchStringTextually(e1,e2,e3,e4,None) ]
-	-> REPLACE_TEXTUALLY e1:Optional_Case_Sensitive ignore:Optional_Match_Exact e2:STRING e3:STRING LPAREN e4:Patch_Exp_Safe RPAREN
-			[ if ignore = Some(false) then failwith "cannot EVALUATE_REGEXP "; Tp.TP_PatchStringTextually(e1,None,e2,e3,Some e4) ]
-	-> REPLACE_EVALUATE e1:Optional_Case_Sensitive e2:STRING BEGIN e3:Tp_Patch_List END
-		e4:STRING
-			[ Tp.TP_PatchStringEvaluate(e1,e2,e3,e4) ]
-	-> REPLACE_BCS_BLOCK e3:Optional_Evaluate e4:Optional_Case_Sensitive e1:STRING e2:STRING [ Tp.TP_PatchReplaceBCSBlock(e1,e2,None,e3,e4) ]
-	-> REPLACE_BCS_BLOCK_REGEXP e1:STRING e2:STRING [ Tp.TP_PatchReplaceBCSBlockRE(e1,e2,None) ]
-	-> REPLACE_BCS_BLOCK e4:Optional_Evaluate e5:Optional_Case_Sensitive e1:STRING e2:STRING ON_MISMATCH e3:Tp_Patch_List END [ Tp.TP_PatchReplaceBCSBlock(e1,e2,Some e3,e4,e5) ]
-	-> REPLACE_BCS_BLOCK_REGEXP e1:STRING e2:STRING ON_MISMATCH e3:Tp_Patch_List END [ Tp.TP_PatchReplaceBCSBlockRE(e1,e2, Some e3) ]
-	-> REPLACE_CRE_ITEM e1:STRING e2:String_Ref_Or_Pe e3:String_Ref_Or_Pe e4:String_Ref_Or_Pe
-		e5:STRING e6:STRING e7:Optional_Equip e8:Optional_2H
-			[ Tp.TP_Replace_Cre_Item { Tp.item_name = e1 ;
-			Tp.i_charge1 = e2 ;
-			Tp.i_charge2 = e3 ;
-			Tp.i_charge3 = e4 ;
-			Tp.i_flags = e5 ;
-			Tp.item_slot = e6 ;
-			Tp.equip = e7 ;
-			Tp.twohanded_weapon = e8 ;
-                        Tp.nomove = false ;} ]
-	-> APPLY_BCS_PATCH e1:STRING [ Tp.TP_PatchApplyBCSPatch(e1,None) ]
-	-> APPLY_BCS_PATCH_OR_COPY e1:STRING e2:STRING [ Tp.TP_PatchApplyBCSPatch(e1,Some e2) ]
-	-> GET_STRREF     e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchGetStrRef (e1,e2,        false,false) ]
-	-> READ_STRREF    e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchReadStrRef(e1,e2,None,   false,false) ]
-	-> READ_STRREF    e1:Patch_Exp e2:Patch_String_Left ELSE e3:STRING [ Tp.TP_PatchReadStrRef(e1,e2,Some e3,false,false) ]
-	-> GET_STRREF_F   e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchGetStrRef (e1,e2,        true,false) ]
-	-> READ_STRREF_F  e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchReadStrRef(e1,e2,None,   true,false) ]
-	-> READ_STRREF_F  e1:Patch_Exp e2:Patch_String_Left ELSE e3:STRING [ Tp.TP_PatchReadStrRef(e1,e2,Some e3,true,false) ]
-	-> GET_STRREF_S   e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchGetStrRef (e1,e2,        false,true) ]
-	-> READ_STRREF_S  e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchReadStrRef(e1,e2,None,   false,true) ]
-	-> READ_STRREF_S  e1:Patch_Exp e2:Patch_String_Left ELSE e3:STRING [ Tp.TP_PatchReadStrRef(e1,e2,Some e3,false,true) ]
-	-> GET_STRREF_FS  e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchGetStrRef (e1,e2,        true,true) ]
-	-> READ_STRREF_FS e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchReadStrRef(e1,e2,None,   true,true) ]
-	-> READ_STRREF_FS e1:Patch_Exp e2:Patch_String_Left ELSE e3:STRING [ Tp.TP_PatchReadStrRef(e1,e2,Some e3,true,true) ]
-	-> READ_BYTE e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_PatchReadByte(e1,e2,None) ]
-	-> READ_BYTE e1:Patch_Exp e2:Patch_String_Left ELSE e3:Patch_Exp [ Tp.TP_PatchReadByte(e1,e2,Some e3) ]
-	-> READ_SBYTE e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_PatchReadSByte(e1,e2,None) ]
-	-> READ_SBYTE e1:Patch_Exp e2:Patch_String_Left ELSE e3:Patch_Exp [ Tp.TP_PatchReadSByte(e1,e2,Some e3) ]
-	-> READ_SHORT e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_PatchReadShort(e1,e2,None) ]
-	-> READ_SHORT e1:Patch_Exp e2:Patch_String_Left ELSE e3:Patch_Exp [ Tp.TP_PatchReadShort(e1,e2,Some e3) ]
-	-> READ_SSHORT e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_PatchReadSShort(e1,e2,None) ]
-	-> READ_SSHORT e1:Patch_Exp e2:Patch_String_Left ELSE e3:Patch_Exp [ Tp.TP_PatchReadSShort(e1,e2,Some e3) ]
-	-> READ_LONG e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_PatchReadLong(e1,e2,None) ]
-	-> READ_LONG e1:Patch_Exp e2:Patch_String_Left ELSE e3:Patch_Exp [ Tp.TP_PatchReadLong(e1,e2,Some e3) ]
-	-> READ_SLONG e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_PatchReadSLong(e1,e2,None) ]
-	-> READ_SLONG e1:Patch_Exp e2:Patch_String_Left ELSE e3:Patch_Exp [ Tp.TP_PatchReadSLong(e1,e2,Some e3) ]
-	-> READ_ASCII e1:Patch_Exp e2:Patch_String_Left
-			[ Tp.TP_PatchReadAscii(e1,e2,None,Tp.get_pe_int "8",true) ]
-	-> READ_ASCII e1:Patch_Exp e2:Patch_String_Left ELSE e3:STRING
-			[ Tp.TP_PatchReadAscii(e1,e2,Some e3,Tp.get_pe_int "8",true) ]
-	-> READ_ASCII e1:Patch_Exp e2:Patch_String_Left LPAREN e4:Patch_Exp RPAREN e5:Optional_Null_Terminated
-			[ Tp.TP_PatchReadAscii(e1,e2,None,e4,e5) ]
-	-> READ_ASCII e1:Patch_Exp e2:Patch_String_Left ELSE e3:STRING LPAREN e4:Patch_Exp RPAREN e5:Optional_Null_Terminated
-			[ Tp.TP_PatchReadAscii(e1,e2,Some e3,e4,e5) ]
-	-> GET_OFFSET_ARRAY e1:Patch_String_Left e2:Seven_Patch_Exp
-			[ Tp.TP_PatchGetOffsetArray(e1,e2) ]
-	-> GET_OFFSET_ARRAY2 e1:Patch_String_Left e2:Eight_Patch_Exp
-			[ Tp.TP_PatchGetOffsetArray2(e1,e2) ]
-	-> WRITE_FILE e1:Patch_Exp e2:STRING [ Tp.TP_PatchWriteFile(e1,e2,false) ]
-	-> INSERT_FILE e1:Patch_Exp e2:STRING [ Tp.TP_PatchWriteFile(e1,e2,true) ]
-	-> APPEND_FILE e1:STRING [ Tp.TP_PatchAppendFile(e1,false) ]
-	-> APPEND_FILE_EVALUATE e1:STRING [ Tp.TP_PatchAppendFile(e1,true) ]
-	-> WRITE_BYTE e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchByte(e1,e2) ]
-	-> WRITE_SHORT e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchShort(e1,e2) ]
-	-> WRITE_LONG e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchLong(e1,e2) ]
-	-> WRITE_ASCII e1:Patch_Exp e2:STRING
-			[ Tp.TP_PatchASCII(e1,Tp.PE_LiteralString e2,false,None) ]
-	-> WRITE_ASCII e1:Patch_Exp e2:STRING e3:String_Ref_Or_Pe
-			[ Tp.TP_PatchASCII(e1,Tp.PE_LiteralString e2,false,Some e3) ]
-	-> WRITE_EVALUATED_ASCII e1:Patch_Exp e2:Patch_String_Right
-			[ Tp.TP_PatchASCII(e1,e2,true,None) ]
-	-> WRITE_EVALUATED_ASCII e1:Patch_Exp e2:Patch_String_Right e3:String_Ref_Or_Pe
-			[ Tp.TP_PatchASCII(e1,e2,true,Some e3) ]
-	-> WRITE_ASCII_TERMINATED e1:Patch_Exp e2:STRING [ Tp.TP_PatchASCIITerminated(e1,e2) ]
-	-> INSERT_BYTES e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchInsertBytes(e1,e2) ]
-	-> DELETE_BYTES e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchDeleteBytes(e1,e2) ]
-	-> SET e1:Patch_String_Left EQUALS e2:Patch_Exp [ Tp.TP_PatchSet(e1,e2) ]
-	-> SET e1:Patch_String_Left PLUS_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet(e1,(Tp.PE_Add(Tp.PE_String e1,e2))) ]
-	-> SET e1:Patch_String_Left MINUS_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet(e1,(Tp.PE_Sub(Tp.PE_String e1,e2))) ]
-	-> SET e1:Patch_String_Left TIMES_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet(e1,(Tp.PE_Mul(Tp.PE_String e1,e2))) ]
-	-> SET e1:Patch_String_Left DIVIDE_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet(e1,(Tp.PE_Div(Tp.PE_String e1,e2))) ]
-	-> SET e1:Patch_String_Left OR_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet(e1,(Tp.PE_BOR(Tp.PE_String e1,e2))) ]
-	-> SET e1:Patch_String_Left AND_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet(e1,(Tp.PE_BAND(Tp.PE_String e1,e2))) ]
-	-> SET e1:Patch_String_Left BLSL_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet(e1,(Tp.PE_BLSL(Tp.PE_String e1,e2))) ]
-	-> SET e1:Patch_String_Left BLSR_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet(e1,(Tp.PE_BLSR(Tp.PE_String e1,e2))) ]
-	-> SET e1:Patch_String_Left BXOR_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet(e1,(Tp.PE_BXOR(Tp.PE_String e1,e2))) ]
-	-> SET PLUS_PLUS e1:Patch_String_Left [ Tp.TP_PatchSet(e1,(Tp.PE_Add(Tp.PE_String e1, Tp.get_pe_int "1"))) ]
-	-> SET MINUS_MINUS e1:Patch_String_Left [ Tp.TP_PatchSet(e1,(Tp.PE_Sub(Tp.PE_String e1, Tp.get_pe_int "1"))) ]
-	-> e1:STRING EQUALS e2:Patch_Exp [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),e2) ]
-	-> e1:STRING PLUS_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_Add(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
-	-> e1:STRING MINUS_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_Sub(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
-	-> e1:STRING TIMES_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_Mul(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
-	-> e1:STRING DIVIDE_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_Div(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
-	-> e1:STRING OR_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_BOR(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
-	-> e1:STRING AND_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_BAND(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
-	-> e1:STRING BLSL_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_BLSL(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
-	-> e1:STRING BLSR_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_BLSR(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
-	-> e1:STRING BXOR_EQUALS e2:Patch_Exp
-			[ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_BXOR(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
-	-> PLUS_PLUS e1:STRING [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_Add(Tp.get_pe_int e1, Tp.get_pe_int "1"))) ]
-	-> MINUS_MINUS e1:STRING [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_Sub(Tp.get_pe_int e1, Tp.get_pe_int "1"))) ]
-	-> SET_IDS_SYMBOL_OF_INT e1:STRING e2:STRING e3:Patch_Exp [ Tp.TP_PatchSetIdsSymOfInt(e1,e2,e3) ]
-	-> ADD_KNOWN_SPELL e1:STRING e2:String_Ref_Or_Pe e3:STRING
-			[ Tp.TP_Add_Known_Spell(e1,e2,e3) ]
-	-> ADD_MEMORIZED_SPELL e1:STRING e2:String_Ref_Or_Pe e3:STRING
-			[ Tp.TP_Add_Memorized_Spell(e1,e2,e3,Tp.get_pe_int "1") ]
-	-> ADD_MEMORIZED_SPELL e1:STRING e2:String_Ref_Or_Pe e3:STRING e4:String_Ref_Or_Pe
-			[ Tp.TP_Add_Memorized_Spell(e1,e2,e3,e4) ]
-	-> WHILE e1:Patch_Exp BEGIN e2:Tp_Patch_List END [ Tp.TP_PatchWhile(e1,e2) ]
-	-> PATCH_BASH_FOR e1:Str_Reg_List BEGIN e2:Tp_Patch_List END
-			[ Tp.TP_PatchBashFor(e1,e2) ]
-	-> PATCH_CLEAR_ARRAY e1:Patch_String_Left [ Tp.TP_PatchClearArray(e1) ]
-	-> PATCH_DEFINE_ARRAY e1:Patch_String_Left BEGIN e2:String_List END
-			[ Tp.TP_PatchDefineArray(e1,e2) ]
-	-> DEFINE_ASSOCIATIVE_ARRAY e1:Patch_String_Left BEGIN e2:Associative_String_List END
-			[ Tp.TP_DefineAssociativeArray(e1,e2) ]
-	-> PATCH_FOR_EACH e1:Patch_String_Right IN e2:String_List BEGIN e3:Tp_Patch_List END
-			[ Tp.TP_PatchForEach(e1,e2,e3) ]
-	-> PATCH_PHP_EACH e1:Patch_String_Left AS e2:Patch_String_Left EQUALSGREATER
-		e3:Patch_String_Left BEGIN e4:Tp_Patch_List END
-			[ Tp.TP_PatchPHPEach(e1,e2,e3,e4) ]
-	-> FOR LPAREN e1:Tp_Patch_List SEMICOLON e2:Patch_Exp SEMICOLON e3:Tp_Patch_List
-		RPAREN BEGIN e4:Tp_Patch_List END
-			[ Tp.TP_PatchFor(e1,e2,e3,e4) ]
-	-> PATCH_INCLUDE e1:String_List [ Tp.TP_PatchInclude(e1) ]
-	-> PATCH_REINCLUDE e1:String_List [ Tp.TP_PatchReinclude(e1) ]
-	-> PATCH_RANDOM_SEED e1:Patch_Exp [ Tp.TP_PatchRandomSeed(e1) ]
-	-> PATCH_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Patch_List END
-			[ Tp.TP_PatchIf(e1,e2,[]) ]
-	-> PATCH_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Patch_List END ELSE BEGIN e3:Tp_Patch_List END
-			[ Tp.TP_PatchIf(e1,e2,e3) ]
-	-> PATCH_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Patch_List END ELSE e3:Tp_Patch
-			[ Tp.TP_PatchIf(e1,e2,[e3]) ]
+       [ Tp.TP_Launch_Patch_Function(e1,true,e2,e3,e4) ]
+  -> REPLACE e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:Lse
+       [ Tp.TP_PatchString(e1,e2,e3,e4) ]
+  -> REPLACE_TEXTUALLY e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:STRING
+       [ Tp.TP_PatchStringTextually(e1,e2,e3,e4,None) ]
+  -> REPLACE_TEXTUALLY e1:Optional_Case_Sensitive ignore:Optional_Match_Exact e2:STRING e3:STRING LPAREN e4:Patch_Exp_Safe RPAREN
+       [ if ignore = Some(false) then failwith "cannot EVALUATE_REGEXP "; Tp.TP_PatchStringTextually(e1,None,e2,e3,Some e4) ]
+  -> REPLACE_EVALUATE e1:Optional_Case_Sensitive e2:STRING BEGIN e3:Tp_Patch_List END
+       e4:STRING
+       [ Tp.TP_PatchStringEvaluate(e1,e2,e3,e4) ]
+  -> REPLACE_BCS_BLOCK e3:Optional_Evaluate e4:Optional_Case_Sensitive e1:STRING e2:STRING [ Tp.TP_PatchReplaceBCSBlock(e1,e2,None,e3,e4) ]
+  -> REPLACE_BCS_BLOCK_REGEXP e1:STRING e2:STRING [ Tp.TP_PatchReplaceBCSBlockRE(e1,e2,None) ]
+  -> REPLACE_BCS_BLOCK e4:Optional_Evaluate e5:Optional_Case_Sensitive e1:STRING e2:STRING ON_MISMATCH e3:Tp_Patch_List END [ Tp.TP_PatchReplaceBCSBlock(e1,e2,Some e3,e4,e5) ]
+  -> REPLACE_BCS_BLOCK_REGEXP e1:STRING e2:STRING ON_MISMATCH e3:Tp_Patch_List END [ Tp.TP_PatchReplaceBCSBlockRE(e1,e2, Some e3) ]
+  -> REPLACE_CRE_ITEM e1:STRING e2:String_Ref_Or_Pe e3:String_Ref_Or_Pe e4:String_Ref_Or_Pe
+       e5:STRING e6:STRING e7:Optional_Equip e8:Optional_2H
+       [ Tp.TP_Replace_Cre_Item { Tp.item_name = e1 ;
+                                  Tp.i_charge1 = e2 ;
+                                  Tp.i_charge2 = e3 ;
+                                  Tp.i_charge3 = e4 ;
+                                  Tp.i_flags = e5 ;
+                                  Tp.item_slot = e6 ;
+                                  Tp.equip = e7 ;
+                                  Tp.twohanded_weapon = e8 ;
+                                  Tp.nomove = false ;} ]
+  -> APPLY_BCS_PATCH e1:STRING [ Tp.TP_PatchApplyBCSPatch(e1,None) ]
+  -> APPLY_BCS_PATCH_OR_COPY e1:STRING e2:STRING [ Tp.TP_PatchApplyBCSPatch(e1,Some e2) ]
+  -> GET_STRREF     e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchGetStrRef (e1,e2,        false,false) ]
+  -> READ_STRREF    e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchReadStrRef(e1,e2,None,   false,false) ]
+  -> READ_STRREF    e1:Patch_Exp e2:Patch_String_Left ELSE e3:STRING [ Tp.TP_PatchReadStrRef(e1,e2,Some e3,false,false) ]
+  -> GET_STRREF_F   e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchGetStrRef (e1,e2,        true,false) ]
+  -> READ_STRREF_F  e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchReadStrRef(e1,e2,None,   true,false) ]
+  -> READ_STRREF_F  e1:Patch_Exp e2:Patch_String_Left ELSE e3:STRING [ Tp.TP_PatchReadStrRef(e1,e2,Some e3,true,false) ]
+  -> GET_STRREF_S   e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchGetStrRef (e1,e2,        false,true) ]
+  -> READ_STRREF_S  e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchReadStrRef(e1,e2,None,   false,true) ]
+  -> READ_STRREF_S  e1:Patch_Exp e2:Patch_String_Left ELSE e3:STRING [ Tp.TP_PatchReadStrRef(e1,e2,Some e3,false,true) ]
+  -> GET_STRREF_FS  e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchGetStrRef (e1,e2,        true,true) ]
+  -> READ_STRREF_FS e1:Patch_Exp e2:Patch_String_Left                [ Tp.TP_PatchReadStrRef(e1,e2,None,   true,true) ]
+  -> READ_STRREF_FS e1:Patch_Exp e2:Patch_String_Left ELSE e3:STRING [ Tp.TP_PatchReadStrRef(e1,e2,Some e3,true,true) ]
+  -> READ_BYTE e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_PatchReadByte(e1,e2,None) ]
+  -> READ_BYTE e1:Patch_Exp e2:Patch_String_Left ELSE e3:Patch_Exp [ Tp.TP_PatchReadByte(e1,e2,Some e3) ]
+  -> READ_SBYTE e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_PatchReadSByte(e1,e2,None) ]
+  -> READ_SBYTE e1:Patch_Exp e2:Patch_String_Left ELSE e3:Patch_Exp [ Tp.TP_PatchReadSByte(e1,e2,Some e3) ]
+  -> READ_SHORT e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_PatchReadShort(e1,e2,None) ]
+  -> READ_SHORT e1:Patch_Exp e2:Patch_String_Left ELSE e3:Patch_Exp [ Tp.TP_PatchReadShort(e1,e2,Some e3) ]
+  -> READ_SSHORT e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_PatchReadSShort(e1,e2,None) ]
+  -> READ_SSHORT e1:Patch_Exp e2:Patch_String_Left ELSE e3:Patch_Exp [ Tp.TP_PatchReadSShort(e1,e2,Some e3) ]
+  -> READ_LONG e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_PatchReadLong(e1,e2,None) ]
+  -> READ_LONG e1:Patch_Exp e2:Patch_String_Left ELSE e3:Patch_Exp [ Tp.TP_PatchReadLong(e1,e2,Some e3) ]
+  -> READ_SLONG e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_PatchReadSLong(e1,e2,None) ]
+  -> READ_SLONG e1:Patch_Exp e2:Patch_String_Left ELSE e3:Patch_Exp [ Tp.TP_PatchReadSLong(e1,e2,Some e3) ]
+  -> READ_ASCII e1:Patch_Exp e2:Patch_String_Left
+       [ Tp.TP_PatchReadAscii(e1,e2,None,Tp.get_pe_int "8",true) ]
+  -> READ_ASCII e1:Patch_Exp e2:Patch_String_Left ELSE e3:STRING
+       [ Tp.TP_PatchReadAscii(e1,e2,Some e3,Tp.get_pe_int "8",true) ]
+  -> READ_ASCII e1:Patch_Exp e2:Patch_String_Left LPAREN e4:Patch_Exp RPAREN e5:Optional_Null_Terminated
+       [ Tp.TP_PatchReadAscii(e1,e2,None,e4,e5) ]
+  -> READ_ASCII e1:Patch_Exp e2:Patch_String_Left ELSE e3:STRING LPAREN e4:Patch_Exp RPAREN e5:Optional_Null_Terminated
+       [ Tp.TP_PatchReadAscii(e1,e2,Some e3,e4,e5) ]
+  -> GET_OFFSET_ARRAY e1:Patch_String_Left e2:Seven_Patch_Exp
+       [ Tp.TP_PatchGetOffsetArray(e1,e2) ]
+  -> GET_OFFSET_ARRAY2 e1:Patch_String_Left e2:Eight_Patch_Exp
+       [ Tp.TP_PatchGetOffsetArray2(e1,e2) ]
+  -> WRITE_FILE e1:Patch_Exp e2:STRING [ Tp.TP_PatchWriteFile(e1,e2,false) ]
+  -> INSERT_FILE e1:Patch_Exp e2:STRING [ Tp.TP_PatchWriteFile(e1,e2,true) ]
+  -> APPEND_FILE e1:STRING [ Tp.TP_PatchAppendFile(e1,false) ]
+  -> APPEND_FILE_EVALUATE e1:STRING [ Tp.TP_PatchAppendFile(e1,true) ]
+  -> WRITE_BYTE e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchByte(e1,e2) ]
+  -> WRITE_SHORT e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchShort(e1,e2) ]
+  -> WRITE_LONG e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchLong(e1,e2) ]
+  -> WRITE_ASCII e1:Patch_Exp e2:STRING
+       [ Tp.TP_PatchASCII(e1,Tp.PE_LiteralString e2,false,None) ]
+  -> WRITE_ASCII e1:Patch_Exp e2:STRING e3:String_Ref_Or_Pe
+       [ Tp.TP_PatchASCII(e1,Tp.PE_LiteralString e2,false,Some e3) ]
+  -> WRITE_EVALUATED_ASCII e1:Patch_Exp e2:Patch_String_Right
+       [ Tp.TP_PatchASCII(e1,e2,true,None) ]
+  -> WRITE_EVALUATED_ASCII e1:Patch_Exp e2:Patch_String_Right e3:String_Ref_Or_Pe
+       [ Tp.TP_PatchASCII(e1,e2,true,Some e3) ]
+  -> WRITE_ASCII_TERMINATED e1:Patch_Exp e2:STRING [ Tp.TP_PatchASCIITerminated(e1,e2) ]
+  -> INSERT_BYTES e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchInsertBytes(e1,e2) ]
+  -> DELETE_BYTES e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchDeleteBytes(e1,e2) ]
+  -> SET e1:Patch_String_Left EQUALS e2:Patch_Exp [ Tp.TP_PatchSet(e1,e2) ]
+  -> SET e1:Patch_String_Left PLUS_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet(e1,(Tp.PE_Add(Tp.PE_String e1,e2))) ]
+  -> SET e1:Patch_String_Left MINUS_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet(e1,(Tp.PE_Sub(Tp.PE_String e1,e2))) ]
+  -> SET e1:Patch_String_Left TIMES_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet(e1,(Tp.PE_Mul(Tp.PE_String e1,e2))) ]
+  -> SET e1:Patch_String_Left DIVIDE_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet(e1,(Tp.PE_Div(Tp.PE_String e1,e2))) ]
+  -> SET e1:Patch_String_Left OR_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet(e1,(Tp.PE_BOR(Tp.PE_String e1,e2))) ]
+  -> SET e1:Patch_String_Left AND_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet(e1,(Tp.PE_BAND(Tp.PE_String e1,e2))) ]
+  -> SET e1:Patch_String_Left BLSL_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet(e1,(Tp.PE_BLSL(Tp.PE_String e1,e2))) ]
+  -> SET e1:Patch_String_Left BLSR_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet(e1,(Tp.PE_BLSR(Tp.PE_String e1,e2))) ]
+  -> SET e1:Patch_String_Left BXOR_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet(e1,(Tp.PE_BXOR(Tp.PE_String e1,e2))) ]
+  -> SET PLUS_PLUS e1:Patch_String_Left [ Tp.TP_PatchSet(e1,(Tp.PE_Add(Tp.PE_String e1, Tp.get_pe_int "1"))) ]
+  -> SET MINUS_MINUS e1:Patch_String_Left [ Tp.TP_PatchSet(e1,(Tp.PE_Sub(Tp.PE_String e1, Tp.get_pe_int "1"))) ]
+  -> e1:STRING EQUALS e2:Patch_Exp [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),e2) ]
+  -> e1:STRING PLUS_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_Add(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
+  -> e1:STRING MINUS_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_Sub(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
+  -> e1:STRING TIMES_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_Mul(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
+  -> e1:STRING DIVIDE_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_Div(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
+  -> e1:STRING OR_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_BOR(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
+  -> e1:STRING AND_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_BAND(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
+  -> e1:STRING BLSL_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_BLSL(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
+  -> e1:STRING BLSR_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_BLSR(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
+  -> e1:STRING BXOR_EQUALS e2:Patch_Exp
+       [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_BXOR(Tp.PE_String (Tp.PE_LiteralString e1),e2))) ]
+  -> PLUS_PLUS e1:STRING [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_Add(Tp.get_pe_int e1, Tp.get_pe_int "1"))) ]
+  -> MINUS_MINUS e1:STRING [ Tp.TP_PatchSet((Tp.PE_LiteralString e1),(Tp.PE_Sub(Tp.get_pe_int e1, Tp.get_pe_int "1"))) ]
+  -> SET_IDS_SYMBOL_OF_INT e1:STRING e2:STRING e3:Patch_Exp [ Tp.TP_PatchSetIdsSymOfInt(e1,e2,e3) ]
+  -> ADD_KNOWN_SPELL e1:STRING e2:String_Ref_Or_Pe e3:STRING
+       [ Tp.TP_Add_Known_Spell(e1,e2,e3) ]
+  -> ADD_MEMORIZED_SPELL e1:STRING e2:String_Ref_Or_Pe e3:STRING
+       [ Tp.TP_Add_Memorized_Spell(e1,e2,e3,Tp.get_pe_int "1") ]
+  -> ADD_MEMORIZED_SPELL e1:STRING e2:String_Ref_Or_Pe e3:STRING e4:String_Ref_Or_Pe
+       [ Tp.TP_Add_Memorized_Spell(e1,e2,e3,e4) ]
+  -> WHILE e1:Patch_Exp BEGIN e2:Tp_Patch_List END [ Tp.TP_PatchWhile(e1,e2) ]
+  -> PATCH_BASH_FOR e1:Str_Reg_List BEGIN e2:Tp_Patch_List END
+       [ Tp.TP_PatchBashFor(e1,e2) ]
+  -> PATCH_CLEAR_ARRAY e1:Patch_String_Left [ Tp.TP_PatchClearArray(e1) ]
+  -> PATCH_DEFINE_ARRAY e1:Patch_String_Left BEGIN e2:String_List END
+       [ Tp.TP_PatchDefineArray(e1,e2) ]
+  -> DEFINE_ASSOCIATIVE_ARRAY e1:Patch_String_Left BEGIN e2:Associative_String_List END
+       [ Tp.TP_DefineAssociativeArray(e1,e2) ]
+  -> PATCH_FOR_EACH e1:Patch_String_Right IN e2:String_List BEGIN e3:Tp_Patch_List END
+       [ Tp.TP_PatchForEach(e1,e2,e3) ]
+  -> PATCH_PHP_EACH e1:Patch_String_Left AS e2:Patch_String_Left EQUALSGREATER
+       e3:Patch_String_Left BEGIN e4:Tp_Patch_List END
+       [ Tp.TP_PatchPHPEach(e1,e2,e3,e4) ]
+  -> FOR LPAREN e1:Tp_Patch_List SEMICOLON e2:Patch_Exp SEMICOLON e3:Tp_Patch_List
+         RPAREN BEGIN e4:Tp_Patch_List END [ Tp.TP_PatchFor(e1,e2,e3,e4) ]
+  -> PATCH_INCLUDE e1:String_List [ Tp.TP_PatchInclude(e1) ]
+  -> PATCH_REINCLUDE e1:String_List [ Tp.TP_PatchReinclude(e1) ]
+  -> PATCH_RANDOM_SEED e1:Patch_Exp [ Tp.TP_PatchRandomSeed(e1) ]
+  -> PATCH_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Patch_List END
+       [ Tp.TP_PatchIf(e1,e2,[]) ]
+  -> PATCH_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Patch_List END ELSE BEGIN e3:Tp_Patch_List END
+       [ Tp.TP_PatchIf(e1,e2,e3) ]
+  -> PATCH_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Patch_List END ELSE e3:Tp_Patch
+       [ Tp.TP_PatchIf(e1,e2,[e3]) ]
   -> PATCH_TRY e1:Tp_Patch_List e2:Patch_With_List END [ Tp.TP_PatchTry(e1,e2) ]
   -> PATCH_MATCH e1:Patch_Exp e2:Patch_With_List END [ Tp.TP_PatchMatch(e1,e2) ]
-	-> PATCH_READLN e1:Patch_String_Left [ Tp.TP_PatchReadLN(e1) ]
-	-> PATCH_SILENT [ Tp.TP_PatchSilent ]
-	-> PATCH_VERBOSE [ Tp.TP_PatchVerbose ]
-	-> INNER_ACTION BEGIN e1:Tp_Action_List END [ Tp.TP_PatchInnerAction(e1) ]
-	-> INNER_PATCH e1:STRING BEGIN e2:Tp_Patch_List END [ Tp.TP_PatchInnerBuff(e1,e2) ]
-	-> INNER_PATCH_FILE e1:STRING BEGIN e2:Tp_Patch_List END [ Tp.TP_PatchInnerBuffFile(e1,e2) ]
-	-> INNER_PATCH_SAVE e1:Patch_String_Left e2:STRING BEGIN e3:Tp_Patch_List END
-			[ Tp.TP_PatchInnerBuffSave(e1,e2,e3) ]
-	-> PATCH_PRINT e1:Lse [ Tp.TP_PatchPrint(e1) ]
-	-> PATCH_RERAISE [ Tp.TP_PatchReraise ]
+  -> PATCH_READLN e1:Patch_String_Left [ Tp.TP_PatchReadLN(e1) ]
+  -> PATCH_SILENT [ Tp.TP_PatchSilent ]
+  -> PATCH_VERBOSE [ Tp.TP_PatchVerbose ]
+  -> INNER_ACTION BEGIN e1:Tp_Action_List END [ Tp.TP_PatchInnerAction(e1) ]
+  -> INNER_PATCH e1:STRING BEGIN e2:Tp_Patch_List END [ Tp.TP_PatchInnerBuff(e1,e2) ]
+  -> INNER_PATCH_FILE e1:STRING BEGIN e2:Tp_Patch_List END [ Tp.TP_PatchInnerBuffFile(e1,e2) ]
+  -> INNER_PATCH_SAVE e1:Patch_String_Left e2:STRING BEGIN e3:Tp_Patch_List END
+       [ Tp.TP_PatchInnerBuffSave(e1,e2,e3) ]
+  -> PATCH_PRINT e1:Lse [ Tp.TP_PatchPrint(e1) ]
+  -> PATCH_RERAISE [ Tp.TP_PatchReraise ]
   -> PATCH_FAIL e1:Lse [ Tp.TP_PatchFail(e1) ]
-	-> PATCH_WARN e1:Lse [ Tp.TP_PatchWarn(e1) ]
+  -> PATCH_WARN e1:Lse [ Tp.TP_PatchWarn(e1) ]
   -> PATCH_LOG e1:Lse [ Tp.TP_PatchLog(e1) ]
-	-> TO_LOWER e1:Patch_String_Right [ Tp.TP_PatchToLower e1 ]
-	-> TO_UPPER e1:Patch_String_Right [ Tp.TP_PatchToUpper e1 ]
-	-> SPRINT e1:Patch_String_Left e2:Dlg_Or_Patch_String_Right [ Tp.TP_PatchSprint(e1,e2) ]
-	-> SPRINTF e1:Patch_String_Left e2:Dlg_Or_Patch_String_Right LPAREN e3:Patch_Exp_List RPAREN [ Tp.TP_PatchSprintf(e1,e2,e3) ]
-	-> SNPRINT e1:Patch_Exp e2:Patch_String_Left e3:Dlg_Or_Patch_String_Right
-			[ Tp.TP_PatchSnprint(e1,e2,e3) ]
-	-> TEXT_SPRINT e1:Patch_String_Left e2:Patch_String_Right [ Tp.TP_PatchTextSprint(e1,e2) ]
-	-> SOURCE_BIFF e1:Patch_String_Left e2:Patch_String_Right [ Tp.TP_SourceBiff(e1,e2) ]
-	-> SPACES e1:Patch_String_Left e2:Patch_String_Right [ Tp.TP_PatchSpaces(e1,e2) ]
-	-> QUOTE  e1:Patch_String_Left e2:Patch_String_Right [ Tp.TP_PatchQuote(e1,e2) ]
-	-> INSERT_2DA_ROW e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp [ Tp.TP_PatchInsert2DARow(e1,e2,e3) ]
-	-> SET_2DA_ENTRY e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp
-			[ Tp.TP_Patch2DA(e1,e2,e3,e4) ]
-	-> SET_2DA_ENTRY_LATER e1:STRING e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp
-			[ Tp.TP_Patch2DALater(e1,e2,e3,e4) ]
-	-> SET_2DA_ENTRIES_NOW e1:STRING e2:Patch_Exp [ Tp.TP_Patch2DANow(e1,e2) ]
-	-> EDIT_SAV_FILE e1:Patch_Exp e2:Optional_Add_If_Missing e3:Patch_String_Right_List BEGIN e4:Tp_Patch_List END [ Tp.TP_PatchSavFile(e1,e2,e3,e4) ]
-	-> ADD_MAP_NOTE e1:String_Ref_Or_Pe e2:String_Ref_Or_Pe e3:STRING e4:Lse
-			{ Tp.TP_Add_Map_Note(
-				{Tp.xcoord = e1 ;
-					Tp.ycoord = e2 ;
-					Tp.mstring = e4 ;
-					Tp.colour = e3 ; })}
-	-> COUNT_2DA_ROWS e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_Get2DARows(e1,e2) ]
-	-> COUNT_2DA_COLS e1:Patch_String_Left [ Tp.TP_Get2DACols(e1) ]
-	-> PRETTY_PRINT_2DA LPAREN e1:Patch_Exp RPAREN [ Tp.TP_PrettyPrint2DA(e1) ]
-	-> PRETTY_PRINT_2DA [ Tp.TP_PrettyPrint2DA(Tp.get_pe_int "2") ]
-	-> COUNT_REGEXP_INSTANCES e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:Patch_String_Left
-			[ Tp.TP_CountRegexpInstances(e1,e2,e3,e4) ]
-	-> READ_2DA_ENTRY e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_String_Left
-			[ Tp.TP_Read2DA(e1,e2,e3,e4) ]
-	-> READ_2DA_ENTRIES_NOW e1:STRING e2:Patch_Exp [ Tp.TP_Read2DANow(e1,e2) ]
-	-> READ_2DA_ENTRY_FORMER e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING
-			[ Tp.TP_Read2DAFormer(e1,e2,e3,e4) ]
-	-> ADD_CRE_ITEM e1:STRING e2:String_Ref_Or_Pe e3:String_Ref_Or_Pe e4:String_Ref_Or_Pe
-		e5:STRING e6:STRING e7:Optional_Equip e8:Optional_2H e9:Optional_Nomove
-			{Tp.TP_Add_Cre_Item(
-				{ Tp.item_name = e1 ;
-					Tp.i_charge1 = e2 ;
-					Tp.i_charge2 = e3 ;
-					Tp.i_charge3 = e4 ;
-					Tp.i_flags = e5 ;
-					Tp.item_slot = e6 ;
-					Tp.equip = e7 ;
-					Tp.twohanded_weapon = e8 ;
-                                        Tp.nomove = e9 ;})}
-	-> PATCH_GAM e1:STRING e2:STRING e3:String_Ref_Or_Pe e4:String_Ref_Or_Pe
-			[ Tp.TP_Patch_Gam(e1,e2,e3,e4) ]
-	-> ADD_STORE_ITEM e1:Optional_Plus e2:STRING e3:Optional_Store_Position
-		e4:String_Ref_Or_Pe e5:String_Ref_Or_Pe e6:String_Ref_Or_Pe e7:STRING
-		e8:String_Ref_Or_Pe
-			[ Tp.TP_Add_S_Item({ Tp.overwrite_store_item = e1; },e2,e3,e4,e5,e6,e7,e8,None) ]
-	-> ADD_STORE_ITEM e1:Optional_Plus e2:STRING e3:Optional_Store_Position
-		e4:String_Ref_Or_Pe e5:String_Ref_Or_Pe e6:String_Ref_Or_Pe e7:STRING
-		e8:String_Ref_Or_Pe e9:STRING
-			[ Tp.TP_Add_S_Item({ Tp.overwrite_store_item = e1; },e2,e3,e4,e5,e6,e7,e8,Some e9) ]
-	-> REMOVE_CRE_ITEM e1:String_List [ Tp.TP_Remove_Cre_Item e1 ]
-	-> SET_BG2_PROFICIENCY e1:Patch_Exp e2:Patch_Exp [ Tp.TP_Set_BG2_Proficiency(e1,e2) ]
-	-> REMOVE_KNOWN_SPELL e1:String_List [ Tp.TP_Remove_Known_Spell e1 ]
-	-> REMOVE_MEMORIZED_SPELL e1:String_List [ Tp.TP_Remove_Memorized_Spell e1 ]
-	-> REMOVE_STORE_ITEM e1:String_List [ Tp.TP_Remove_Store_Item(e1) ]
-	-> REMOVE_KNOWN_SPELLS [ Tp.TP_Remove_Known_Spells ]
-	-> REMOVE_MEMORIZED_SPELLS [ Tp.TP_Remove_Memorized_Spells ]
-	-> REMOVE_CRE_ITEMS [ Tp.TP_Remove_Cre_Items ]
-	-> REMOVE_CRE_EFFECTS [ Tp.TP_Remove_Cre_Effects ]
-	-> REMOVE_2DA_ROW e1:Patch_Exp e2:Patch_Exp [ Tp.TP_Remove_2DA_Row(e1,e2) ]
-	-> EXTEND_MOS e1:STRING e2:Patch_Exp [ Tp.TP_Extend_Mos(e1,e2) ]
-	-> COMPILE_BAF_TO_BCS { Tp.TP_CompileBAFtoBCS }
-	-> DECOMPILE_BCS_TO_BAF { Tp.TP_CompileBCStoBAF }
-	-> COMPILE_D_TO_DLG { Tp.TP_CompileDtoDLG }
-	-> DECOMPILE_DLG_TO_D { Tp.TP_CompileDLGtoD }
+  -> TO_LOWER e1:Patch_String_Right [ Tp.TP_PatchToLower e1 ]
+  -> TO_UPPER e1:Patch_String_Right [ Tp.TP_PatchToUpper e1 ]
+  -> SPRINT e1:Patch_String_Left e2:Dlg_Or_Patch_String_Right [ Tp.TP_PatchSprint(e1,e2) ]
+  -> SPRINTF e1:Patch_String_Left e2:Dlg_Or_Patch_String_Right LPAREN e3:Patch_Exp_List RPAREN [ Tp.TP_PatchSprintf(e1,e2,e3) ]
+  -> SNPRINT e1:Patch_Exp e2:Patch_String_Left e3:Dlg_Or_Patch_String_Right
+       [ Tp.TP_PatchSnprint(e1,e2,e3) ]
+  -> TEXT_SPRINT e1:Patch_String_Left e2:Patch_String_Right [ Tp.TP_PatchTextSprint(e1,e2) ]
+  -> SOURCE_BIFF e1:Patch_String_Left e2:Patch_String_Right [ Tp.TP_SourceBiff(e1,e2) ]
+  -> SPACES e1:Patch_String_Left e2:Patch_String_Right [ Tp.TP_PatchSpaces(e1,e2) ]
+  -> QUOTE  e1:Patch_String_Left e2:Patch_String_Right [ Tp.TP_PatchQuote(e1,e2) ]
+  -> INSERT_2DA_ROW e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp [ Tp.TP_PatchInsert2DARow(e1,e2,e3) ]
+  -> SET_2DA_ENTRY e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp
+       [ Tp.TP_Patch2DA(e1,e2,e3,e4) ]
+  -> SET_2DA_ENTRY_LATER e1:STRING e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp
+       [ Tp.TP_Patch2DALater(e1,e2,e3,e4) ]
+  -> SET_2DA_ENTRIES_NOW e1:STRING e2:Patch_Exp [ Tp.TP_Patch2DANow(e1,e2) ]
+  -> EDIT_SAV_FILE e1:Patch_Exp e2:Optional_Add_If_Missing e3:Patch_String_Right_List BEGIN e4:Tp_Patch_List END [ Tp.TP_PatchSavFile(e1,e2,e3,e4) ]
+  -> ADD_MAP_NOTE e1:String_Ref_Or_Pe e2:String_Ref_Or_Pe e3:STRING e4:Lse
+       { Tp.TP_Add_Map_Note({ Tp.xcoord = e1 ;
+                              Tp.ycoord = e2 ;
+                              Tp.mstring = e4 ;
+                              Tp.colour = e3 ; })}
+  -> COUNT_2DA_ROWS e1:Patch_Exp e2:Patch_String_Left [ Tp.TP_Get2DARows(e1,e2) ]
+  -> COUNT_2DA_COLS e1:Patch_String_Left [ Tp.TP_Get2DACols(e1) ]
+  -> PRETTY_PRINT_2DA LPAREN e1:Patch_Exp RPAREN [ Tp.TP_PrettyPrint2DA(e1) ]
+  -> PRETTY_PRINT_2DA [ Tp.TP_PrettyPrint2DA(Tp.get_pe_int "2") ]
+  -> COUNT_REGEXP_INSTANCES e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:Patch_String_Left
+       [ Tp.TP_CountRegexpInstances(e1,e2,e3,e4) ]
+  -> READ_2DA_ENTRY e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_String_Left
+       [ Tp.TP_Read2DA(e1,e2,e3,e4) ]
+  -> READ_2DA_ENTRIES_NOW e1:STRING e2:Patch_Exp [ Tp.TP_Read2DANow(e1,e2) ]
+  -> READ_2DA_ENTRY_FORMER e1:STRING e2:Patch_Exp e3:Patch_Exp e4:STRING
+       [ Tp.TP_Read2DAFormer(e1,e2,e3,e4) ]
+  -> ADD_CRE_ITEM e1:STRING e2:String_Ref_Or_Pe e3:String_Ref_Or_Pe e4:String_Ref_Or_Pe
+                  e5:STRING e6:STRING e7:Optional_Equip e8:Optional_2H e9:Optional_Nomove
+       {Tp.TP_Add_Cre_Item({ Tp.item_name = e1 ;
+                             Tp.i_charge1 = e2 ;
+                             Tp.i_charge2 = e3 ;
+                             Tp.i_charge3 = e4 ;
+                             Tp.i_flags = e5 ;
+                             Tp.item_slot = e6 ;
+                             Tp.equip = e7 ;
+                             Tp.twohanded_weapon = e8 ;
+                             Tp.nomove = e9 ;})}
+  -> PATCH_GAM e1:STRING e2:STRING e3:String_Ref_Or_Pe e4:String_Ref_Or_Pe
+       [ Tp.TP_Patch_Gam(e1,e2,e3,e4) ]
+  -> ADD_STORE_ITEM e1:Optional_Plus e2:STRING e3:Optional_Store_Position
+                    e4:String_Ref_Or_Pe e5:String_Ref_Or_Pe e6:String_Ref_Or_Pe e7:STRING
+                    e8:String_Ref_Or_Pe
+       [ Tp.TP_Add_S_Item({ Tp.overwrite_store_item = e1; },e2,e3,e4,e5,e6,e7,e8,None) ]
+  -> ADD_STORE_ITEM e1:Optional_Plus e2:STRING e3:Optional_Store_Position
+                    e4:String_Ref_Or_Pe e5:String_Ref_Or_Pe e6:String_Ref_Or_Pe e7:STRING
+                    e8:String_Ref_Or_Pe e9:STRING
+       [ Tp.TP_Add_S_Item({ Tp.overwrite_store_item = e1; },e2,e3,e4,e5,e6,e7,e8,Some e9) ]
+  -> REMOVE_CRE_ITEM e1:String_List [ Tp.TP_Remove_Cre_Item e1 ]
+  -> SET_BG2_PROFICIENCY e1:Patch_Exp e2:Patch_Exp [ Tp.TP_Set_BG2_Proficiency(e1,e2) ]
+  -> REMOVE_KNOWN_SPELL e1:String_List [ Tp.TP_Remove_Known_Spell e1 ]
+  -> REMOVE_MEMORIZED_SPELL e1:String_List [ Tp.TP_Remove_Memorized_Spell e1 ]
+  -> REMOVE_STORE_ITEM e1:String_List [ Tp.TP_Remove_Store_Item(e1) ]
+  -> REMOVE_KNOWN_SPELLS [ Tp.TP_Remove_Known_Spells ]
+  -> REMOVE_MEMORIZED_SPELLS [ Tp.TP_Remove_Memorized_Spells ]
+  -> REMOVE_CRE_ITEMS [ Tp.TP_Remove_Cre_Items ]
+  -> REMOVE_CRE_EFFECTS [ Tp.TP_Remove_Cre_Effects ]
+  -> REMOVE_2DA_ROW e1:Patch_Exp e2:Patch_Exp [ Tp.TP_Remove_2DA_Row(e1,e2) ]
+  -> EXTEND_MOS e1:STRING e2:Patch_Exp [ Tp.TP_Extend_Mos(e1,e2) ]
+  -> COMPILE_BAF_TO_BCS { Tp.TP_CompileBAFtoBCS }
+  -> DECOMPILE_BCS_TO_BAF { Tp.TP_CompileBCStoBAF }
+  -> COMPILE_D_TO_DLG { Tp.TP_CompileDtoDLG }
+  -> DECOMPILE_DLG_TO_D { Tp.TP_CompileDLGtoD }
   -> DECOMPILE_AND_PATCH BEGIN e1:Tp_Patch_List END { Tp.TP_DecompileAndPatch e1 }
-	-> REFACTOR_TRIGGER e3:Optional_Case_Sensitive e4:Optional_Match_Exact e1:Patch_String_Right e2:Patch_String_Right {
-		let g v d = match v with None -> d | Some x -> x in
-		Tp.TP_RefactorTrigger(e1,e2,g e3 false, g e4 false,None) }
-	-> REFACTOR_D_TRIGGER e3:Optional_Case_Sensitive e4:Optional_Match_Exact e1:Patch_String_Right e2:Patch_String_Right {
-		let g v d = match v with None -> d | Some x -> x in
-		Tp.TP_RefactorTrigger(e1,e2,g e3 false, g e4 false,Some "d") }
-	-> REFACTOR_BAF_TRIGGER e3:Optional_Case_Sensitive e4:Optional_Match_Exact e1:Patch_String_Right e2:Patch_String_Right {
-		let g v d = match v with None -> d | Some x -> x in
-		Tp.TP_RefactorTrigger(e1,e2,g e3 false, g e4 false,Some "baf") }
-	-> EVALUATE_BUFFER { Tp.TP_EvaluateBuffer }
-	-> EVALUATE_BUFFER_SPECIAL e1:STRING { Tp.TP_EvaluateBufferSpecial e1 }
-	-> DECOMPRESS_REPLACE_FILE e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp { Tp.TP_Decompress(e1,e2,e3,Tp.TP_DW_ReplaceFile) }
-	-> DECOMPRESS_INTO_FILE e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp e5:Patch_Exp { Tp.TP_Decompress(e1,e2,e3,Tp.TP_DW_IntoFile(e4,e5)) }
-	-> DECOMPRESS_INTO_VAR e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_String_Left { Tp.TP_Decompress(e1,e2,e3,Tp.TP_DW_Variable(e4)) }
-	-> COMPRESS_REPLACE_FILE e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp { Tp.TP_Compress(e1,e2,e3,Tp.TP_DW_ReplaceFile) }
-	-> COMPRESS_INTO_FILE e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp e5:Patch_Exp { Tp.TP_Compress(e1,e2,e3,Tp.TP_DW_IntoFile(e4,e5)) }
-	-> COMPRESS_INTO_VAR e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_String_Left { Tp.TP_Compress(e1,e2,e3,Tp.TP_DW_Variable(e4)) }
-	-> REBUILD_CRE_FILE { Tp.TP_RebuildCreFile }
-	-> PATCH_WITH_TRA e1:Patch_String_Left_List BEGIN e2:Tp_Patch_List END { Tp.TP_PatchWithTra(e1, e2) }
+  -> REFACTOR_TRIGGER e3:Optional_Case_Sensitive e4:Optional_Match_Exact e1:Patch_String_Right e2:Patch_String_Right {
+       let g v d = match v with None -> d | Some x -> x in
+       Tp.TP_RefactorTrigger(e1,e2,g e3 false, g e4 false,None) }
+  -> REFACTOR_D_TRIGGER e3:Optional_Case_Sensitive e4:Optional_Match_Exact e1:Patch_String_Right e2:Patch_String_Right {
+       let g v d = match v with None -> d | Some x -> x in
+       Tp.TP_RefactorTrigger(e1,e2,g e3 false, g e4 false,Some "d") }
+  -> REFACTOR_BAF_TRIGGER e3:Optional_Case_Sensitive e4:Optional_Match_Exact e1:Patch_String_Right e2:Patch_String_Right {
+       let g v d = match v with None -> d | Some x -> x in
+       Tp.TP_RefactorTrigger(e1,e2,g e3 false, g e4 false,Some "baf") }
+  -> EVALUATE_BUFFER { Tp.TP_EvaluateBuffer }
+  -> EVALUATE_BUFFER_SPECIAL e1:STRING { Tp.TP_EvaluateBufferSpecial e1 }
+  -> DECOMPRESS_REPLACE_FILE e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp { Tp.TP_Decompress(e1,e2,e3,Tp.TP_DW_ReplaceFile) }
+  -> DECOMPRESS_INTO_FILE e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp e5:Patch_Exp { Tp.TP_Decompress(e1,e2,e3,Tp.TP_DW_IntoFile(e4,e5)) }
+  -> DECOMPRESS_INTO_VAR e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_String_Left { Tp.TP_Decompress(e1,e2,e3,Tp.TP_DW_Variable(e4)) }
+  -> COMPRESS_REPLACE_FILE e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp { Tp.TP_Compress(e1,e2,e3,Tp.TP_DW_ReplaceFile) }
+  -> COMPRESS_INTO_FILE e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_Exp e5:Patch_Exp { Tp.TP_Compress(e1,e2,e3,Tp.TP_DW_IntoFile(e4,e5)) }
+  -> COMPRESS_INTO_VAR e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_String_Left { Tp.TP_Compress(e1,e2,e3,Tp.TP_DW_Variable(e4)) }
+  -> REBUILD_CRE_FILE { Tp.TP_RebuildCreFile }
+  -> PATCH_WITH_TRA e1:Patch_String_Left_List BEGIN e2:Tp_Patch_List END { Tp.TP_PatchWithTra(e1, e2) }
 }
 
 nonterm(Tp.tp_patchexp) Optional_When {
@@ -1349,35 +1335,34 @@ nonterm(Tp.tp_patchexp) Optional_When {
 }
 
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_patch list) list) Patch_With_List_Rev {
-	-> { [] }
-	-> e4:Patch_With_List_Rev e0:Patch_Exp e1:Patch_Exp_List e2:Optional_When BEGIN e3:Tp_Patch_List END [ (e0::e1,e2,e3) :: e4 ]
-	-> e4:Patch_With_List_Rev ANY e2:Patch_Exp BEGIN e3:Tp_Patch_List END [ ([],e2,e3) :: e4 ]
+  -> { [] }
+  -> e4:Patch_With_List_Rev e0:Patch_Exp e1:Patch_Exp_List e2:Optional_When BEGIN e3:Tp_Patch_List END [ (e0::e1,e2,e3) :: e4 ]
+  -> e4:Patch_With_List_Rev ANY e2:Patch_Exp BEGIN e3:Tp_Patch_List END [ ([],e2,e3) :: e4 ]
 }
 
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_patch list) list) Patch_With_List  {
-	-> WITH e3:Patch_With_List_Rev DEFAULT e2:Tp_Patch_List [ List.rev (([],Tp.Pred_True,e2) :: e3) ]
+  -> WITH e3:Patch_With_List_Rev DEFAULT e2:Tp_Patch_List [ List.rev (([],Tp.Pred_True,e2) :: e3) ]
 }
 
 nonterm (Tp.tp_local_declaration list) Tp_Local_Declaration_List_Rev {
-	-> { [] }
-	-> e2:Tp_Local_Declaration_List_Rev e1:Tp_Local_Declaration [ e1 :: e2 ]
+  -> { [] }
+  -> e2:Tp_Local_Declaration_List_Rev e1:Tp_Local_Declaration [ e1 :: e2 ]
 }
 
 nonterm (Tp.tp_local_declaration list) Tp_Local_Declaration_List {
-	-> e2:Tp_Local_Declaration_List_Rev [ List.rev e2 ]
+  -> e2:Tp_Local_Declaration_List_Rev [ List.rev e2 ]
 }
 
 nonterm (Tp.tp_local_declaration) Tp_Local_Declaration {
-	-> LOCAL_SET e1:Patch_String_Left EQUALS e2:Patch_Exp [ Tp.TP_LocalSet(e1,e2) ]
-	-> LOCAL_SPRINT e1:Patch_String_Left e2:Dlg_Or_Patch_String_Right { Tp.TP_LocalSprint(e1,e2) }
-	-> LOCAL_TEXT_SPRINT e1:Patch_String_Left e2:Patch_String_Right { Tp.TP_LocalTextSprint(e1,e2) }
+  -> LOCAL_SET e1:Patch_String_Left EQUALS e2:Patch_Exp [ Tp.TP_LocalSet(e1,e2) ]
+  -> LOCAL_SPRINT e1:Patch_String_Left e2:Dlg_Or_Patch_String_Right { Tp.TP_LocalSprint(e1,e2) }
+  -> LOCAL_TEXT_SPRINT e1:Patch_String_Left e2:Patch_String_Right { Tp.TP_LocalTextSprint(e1,e2) }
 }
 
 nonterm (Tp.tp_action list) Tpa_File {
-	-> e1:Tp_Action_List [ e1 ]
+  -> e1:Tp_Action_List [ e1 ]
 }
 
 nonterm (Tp.tp_patch list) Tpp_File {
-	-> e1:Tp_Patch_List [ e1 ]
+  -> e1:Tp_Patch_List [ e1 ]
 }
-
