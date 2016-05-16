@@ -307,9 +307,8 @@ let set_string (g : Load.game) (i :int) (ts : Dlg.tlk_string)
   let rec process ts = match ts with
   | Dlg.TLK_Index(i) ->
       if (allow_strref) then begin
-        if (i < 0 || i >= Array.length (Load.get_active_dialog g) + Queue.length !strings_to_add) then begin
-          log_and_print "SET_STRING %d out of range 0 -- %d\n"
-            i (Array.length (Load.get_active_dialog g) + Queue.length !strings_to_add) ;
+        if (i < 0 || i >= !cur_index) then begin
+          log_and_print "SET_STRING %d out of range 0 -- %d\n" i (!cur_index - 1) ;
         end ;
         if (i < Array.length (Load.get_active_dialog g)) then
           (((Load.get_active_dialog g).(i)) ,
@@ -337,9 +336,8 @@ let set_string (g : Load.game) (i :int) (ts : Dlg.tlk_string)
   let f = {f with Tlk.text = Var.get_string f.Tlk.text;
            Tlk.sound_name = Var.get_string f.Tlk.sound_name} in
   let dialog = Load.get_active_dialog g in
-  if (i < 0 || i >= Array.length dialog + Queue.length !strings_to_add) then begin
-    log_and_print "SET_STRING %d out of range 0 -- %d\n"
-      i (Array.length dialog + Queue.length !strings_to_add) ;
+  if (i < 0 || i >= !cur_index) then begin
+    log_and_print "SET_STRING %d out of range 0 -- %d\n" i (!cur_index - 1) ;
     failwith "SET_STRING out of range"
   end ;
   (*
