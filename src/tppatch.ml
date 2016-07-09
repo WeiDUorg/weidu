@@ -2380,7 +2380,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         write_short item_buff 0xe charge3;
 
         let new_flags =
-          (match (String.uppercase flags) with
+          (match (String.uppercase (Var.get_string flags)) with
           | "NONE" -> 0
           | "IDENTIFIED" -> 1
           | "UNSTEALABLE" -> 2
@@ -2393,7 +2393,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               log_and_print
                 "WARNING: ADD_STORE_ITEM: Unknown flag %s. \
                 Defaulting to 0 for flags.\n"
-                (String.uppercase flags);
+                (String.uppercase (Var.get_string flags));
               0) in
 
         let supply_tog = match supply with

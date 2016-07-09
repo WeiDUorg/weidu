@@ -12,6 +12,7 @@ Version 240:
   * region_key and region_script for ALTER_AREA_REGION.
   * Add WITH_TRA and PATCH_WITH_TRA.
   * Fix misspelled parameter in ADD_SPELL_EFFECT.
+  * ADD_STORE_ITEM evaluates variables for the flag parameter.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
