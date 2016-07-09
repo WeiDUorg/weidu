@@ -48,7 +48,7 @@ DEFINE_PATCH_FUNCTION ~ADD_SPELL_EFFECT~
           header = 0
           insert_point = "-1"
           special = 0
-          ___#specal = special
+          ___#special = special
   STR_VAR resource = ~~
 BEGIN
   LAUNCH_PATCH_MACRO ~ADD_SPELL_EFFECT~
