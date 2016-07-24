@@ -21,6 +21,8 @@ type local_string_entry = {
     lse_female_sound : string ;
   }
 
+type game_type = BGEE | BG2EE | IWDEE | GENERIC
+
 let one_newline_regexp = Str.regexp "[\n]"
 let one_newline_or_cr_regexp = Str.regexp "[\r\n]"
 let many_newline_or_cr_regexp = Str.regexp "[\r\n]+"
@@ -853,3 +855,27 @@ let deduplicate list =
       Hashtbl.add table x true ;
       true
     end) list
+
+let get_user_dir_from_lua file =
+  if file_exists file then begin
+    let buff = load_file file in
+    let regexp = (Str.regexp_case_fold "engine_name[ \t]+=[ \t]+\\(\".*\"\\)") in
+    (try
+      ignore (Str.search_forward regexp buff 0) ;
+      Some (Str.matched_group 1 buff)
+    with Not_found -> None)
+  end else
+    None
+
+let get_ee_user_dir game_path default =
+  let path = get_user_dir_from_lua (Arch.native_separator (game_path ^ "/engine.lua")) in
+  (match path with
+  | Some path -> Arch.native_separator ((Arch.get_user_dir game_path) ^ "/" ^ path)
+  | None -> Arch.native_separator ((Arch.get_user_dir game_path) ^ "/" ^ default))
+
+let get_user_dir game_path game_type =
+  match game_type with
+  | GENERIC -> "."
+  | BGEE -> get_ee_user_dir game_path "Baldur's Gate - Enhanced Edition"
+  | BG2EE -> get_ee_user_dir game_path "Baldur's Gate II - Enhanced Edition"
+  | IWDEE -> get_ee_user_dir game_path "Icewind Dale - Enhanced Edition"

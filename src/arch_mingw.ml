@@ -102,17 +102,8 @@ let get_version f =
 
 external get_user_personal_dir : unit -> string = "get_user_personal_dir"
 
-let get_bgee_user_dir game_path =
-  let personal = get_user_personal_dir () in
-  personal ^ "/Baldur's Gate - Enhanced Edition"
-
-let get_bg2ee_user_dir game_path =
-  let personal = get_user_personal_dir () in
-  personal ^ "/Baldur's Gate II - Enhanced Edition"
-
-let get_iwdee_user_dir game_path =
-  let personal = get_user_personal_dir () in
-  personal ^ "/Icewind Dale - Enhanced Edition"
+let get_user_dir game_path =
+  get_user_personal_dir ()
 
 let game_path_by_type name =
   match String.lowercase name with

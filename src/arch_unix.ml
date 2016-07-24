@@ -85,13 +85,7 @@ let get_version f =
 
 (* external get_user_personal_dir : unit -> string = "get_user_home_dir" *)
 
-let get_bgee_user_dir game_path =
-  game_path
-
-let get_bg2ee_user_dir game_path =
-  game_path
-
-let get_iwdee_user_dir game_path =
+let get_user_dir game_path =
   game_path
 
 let game_path_by_type name =

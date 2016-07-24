@@ -302,24 +302,10 @@ let set_savedir_var path =
 let set_userdir_var path =
   set_string "USER_DIRECTORY" path
 
-let bgee_game_vars game_path =
-  let user_dir = Arch.get_bgee_user_dir game_path in
+let set_game_vars game_path game_type =
+  let user_dir = Util.get_user_dir game_path game_type in
   ignore (set_savedir_var user_dir) ;
   ignore (set_userdir_var user_dir)
-
-let bg2ee_game_vars game_path =
-  let user_dir = Arch.get_bg2ee_user_dir game_path in
-  ignore (set_savedir_var user_dir) ;
-  ignore (set_userdir_var user_dir)
-
-let iwdee_game_vars game_path =
-  let user_dir = Arch.get_iwdee_user_dir game_path in
-  ignore (set_savedir_var user_dir) ;
-  ignore (set_userdir_var user_dir)
-
-let default_game_vars game_path =
-  ignore (set_savedir_var ".") ;
-  ignore (set_userdir_var ".")
 
 let set_ee_language_var lang_dir =
   set_string "EE_LANGUAGE" lang_dir

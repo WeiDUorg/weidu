@@ -2137,9 +2137,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
       | TP_AddJournal(existing,managed,title,ref_list,tra_list) ->
           (match game.Load.game_type with
-          | Load.BGEE
-          | Load.BG2EE
-          | Load.IWDEE -> begin
+          | Util.BGEE
+          | Util.BG2EE
+          | Util.IWDEE -> begin
 
               log_and_print "Processing quests and journals\n" ;
 
@@ -2280,7 +2280,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 Dc.pop_trans ();
               with e -> Dc.pop_trans () ; raise e)
             end
-          | Load.GENERIC -> ())
+          | Util.GENERIC -> ())
 
       | TP_Create(filetype, version, resref, patch_list) ->
           begin

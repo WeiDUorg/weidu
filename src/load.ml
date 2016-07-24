@@ -20,8 +20,6 @@ let registry_game_paths () =
     if str = "." then str else Case_ins.filename_dirname str
       ) str_list
 
-type game_type = BGEE | BG2EE | IWDEE | GENERIC
-
 let game_paths = ref []
 
 let add_game_path path = game_paths := (Str.global_replace (Str.regexp "[\\\\/]*$") "" path) :: !game_paths
@@ -477,11 +475,7 @@ let load_game () =
      dialogs = dialogs;
      dialog_index = dialog_index;
    } in
-  ignore (match game_type with
-  | BGEE -> Var.bgee_game_vars result.game_path
-  | BG2EE -> Var.bg2ee_game_vars result.game_path
-  | IWDEE -> Var.iwdee_game_vars result.game_path
-  | GENERIC -> Var.default_game_vars result.game_path) ;
+  ignore (Var.set_game_vars result.game_path result.game_type) ;
   result
 
 let set_additional_bgee_load_paths game dir =

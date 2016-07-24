@@ -13,6 +13,8 @@ Version 240:
   * Add WITH_TRA and PATCH_WITH_TRA.
   * Fix misspelled parameter in ADD_SPELL_EFFECT.
   * ADD_STORE_ITEM evaluates variables for the flag parameter.
+  * If engine.lua exists on EE-type games, engine_name will be used for
+    USER_DIRECTORY.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
