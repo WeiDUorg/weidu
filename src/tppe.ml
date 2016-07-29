@@ -428,7 +428,6 @@ let rec eval_pe buff game p =
       let bgee = f "oh1000.are"   in
       let bg2ee = f "oh6000.are"  in
       let iwdee = f "howparty.2da" in
-      let sod = f "bd1000.are" in
       let res = List.exists (fun this ->
         match String.uppercase this with
         | "BG2"
@@ -451,10 +450,9 @@ let rec eval_pe buff game p =
         | "IWD_IN_BG2"
         | "IWDINBG2"   -> bg2 && iwdinbg2
         | "BG2EE"      -> bg2ee && not eet
-        | "BGEE"       -> bgee && not bg2ee && not eet && not sod
+        | "BGEE"       -> bgee && not bg2ee && not eet
         | "IWDEE"      -> iwdee
         | "EET"        -> eet
-        | "SOD" -> sod && not eet
         | _ -> log_and_print "WARNING: No rule to identify %s" (String.uppercase this) ; false
       ) game_list in
       if res then 1l else 0l;

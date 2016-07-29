@@ -1,5 +1,5 @@
 Version 240:
-  * GAME_IS, ENGINE_IS and GAME_INCLUDES support SoD.
+  * GAME_INCLUDES supports SoD.
   * Allow EDIT_SAV_FILE to add wholly new files to SAV files.
   * New NOMOVE keyword for ADD_CRE_ITEM.
   * New TP2 when clause: IF_EXISTS
