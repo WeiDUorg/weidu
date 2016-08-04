@@ -1644,9 +1644,14 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
           List.iter (fun file ->
             let file = String.uppercase(eval_pe_str file) in
             Var.set_string "SAV_FILE" file;
+            let res, ext = split file in
+            let buff, path =
+              if is_true (eval_pe "" game (Pred_File_Exists_In_Game (PE_LiteralString(file)))) then
+                Load.load_resource "EDIT_SAV_FILE" game true res ext
+              else "", "" in
             let result = List.fold_left (fun acc elt ->
                 process_patch2 patch_filename game acc elt)
-                  "" pl in
+                  buff pl in
               Queue.push {Sav.filename = file;
                           Sav.contents = result}  nsav;
           ) !files;
