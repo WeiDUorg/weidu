@@ -15,6 +15,8 @@ Version 240:
   * ADD_STORE_ITEM evaluates variables for the flag parameter.
   * If engine.lua exists on EE-type games, engine_name will be used for
     USER_DIRECTORY.
+  * The array construct automatically evaluates variables in the
+    array name ($"%array_name%"())
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
