@@ -859,7 +859,7 @@ let deduplicate list =
 let get_user_dir_from_lua file =
   if file_exists file then begin
     let buff = load_file file in
-    let regexp = (Str.regexp_case_fold "engine_name[ \t]+=[ \t]+\\(\".*\"\\)") in
+    let regexp = (Str.regexp_case_fold "engine_name[ \t]+=[ \t]+\"\\(.*\\)\"") in
     (try
       ignore (Str.search_forward regexp buff 0) ;
       Some (Str.matched_group 1 buff)
