@@ -453,7 +453,7 @@ let rec eval_pe buff game p =
         | "BGEE"       -> bgee && not bg2ee && not eet
         | "IWDEE"      -> iwdee
         | "EET"        -> eet
-        | _ -> log_and_print "WARNING: No rule to identify %s" (String.uppercase this) ; false
+        | _ -> log_and_print "WARNING: No rule to identify %s\n" (String.uppercase this) ; false
       ) game_list in
       if res then 1l else 0l;
   end
@@ -484,7 +484,7 @@ let rec eval_pe buff game p =
       | "IWD2" -> iwd2
       | "CA" -> ca
       | "SOD" -> sod
-      | _ -> log_and_print "WARNING: GAME_INCLUDES has no rule for %s" (String.uppercase game_set) ; [(String.uppercase game_set)]) in
+      | _ -> log_and_print "WARNING: GAME_INCLUDES has no rule for %s\n" (String.uppercase game_set) ; [(String.uppercase game_set)]) in
       eval_pe buff game (PE_GameIs((String.concat " " list), true)) ;
   end
 
