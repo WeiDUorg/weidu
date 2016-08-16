@@ -469,23 +469,27 @@ let rec eval_pe buff game p =
       let totlm = ["TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
       let iwd2 = ["IWD2"] in
       let ca = ["CA"] in
-      let sod = ["SOD"; "EET"] in
-      let list = (match String.uppercase game_set with
-      | "BG1" -> bg1
-      | "TOTSC" -> totsc
-      | "BG2"
-      | "SOA" -> soa
-      | "TOB" -> tob
-      | "PST" -> pst
-      | "IWD1"
-      | "IWD" -> iwd
-      | "HOW" -> how
-      | "TOTLM" -> totlm
-      | "IWD2" -> iwd2
-      | "CA" -> ca
-      | "SOD" -> sod
-      | _ -> log_and_print "WARNING: GAME_INCLUDES has no rule for %s\n" (String.uppercase game_set) ; [(String.uppercase game_set)]) in
-      eval_pe buff game (PE_GameIs((String.concat " " list), true)) ;
+      (match String.uppercase game_set with
+      | "SOD" -> eval_pe "" game (PE_FileContainsEvaluated
+                                    (PE_LiteralString "CAMPAIGN.2DA",
+                                     PE_LiteralString "SOD"))
+      | _ -> begin
+          let list = (match String.uppercase game_set with
+          | "BG1" -> bg1
+          | "TOTSC" -> totsc
+          | "BG2"
+          | "SOA" -> soa
+          | "TOB" -> tob
+          | "PST" -> pst
+          | "IWD1"
+          | "IWD" -> iwd
+          | "HOW" -> how
+          | "TOTLM" -> totlm
+          | "IWD2" -> iwd2
+          | "CA" -> ca
+          | _ -> log_and_print "WARNING: GAME_INCLUDES has no rule for %s\n" (String.uppercase game_set) ; [(String.uppercase game_set)]) in
+          eval_pe buff game (PE_GameIs((String.concat " " list), true))
+      end)
   end
 
   | PE_IsAnInt(x) -> let old_eval_pe_warn = !eval_pe_warn in (eval_pe_warn := false ;
