@@ -602,10 +602,10 @@ DEFINE_PATCH_MACRO ~ADD_CRE_EFFECT_BG2~ BEGIN
     WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x34) dicesize
     WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x38) savingthrow
     WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x3c) savebonus
-    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x44) school
     PATCH_IF IS_AN_INT ___#special BEGIN
-      WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x48) ___#special
+      WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x40) ___#special
     END
+    WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x44) school
     WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x4c) lowestafflvl
     WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x50) highestafflvl
     WRITE_LONG (___#fx_off + ___#insert_point * 0x108 + 0x54) resist_dispel

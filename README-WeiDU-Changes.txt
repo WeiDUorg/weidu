@@ -17,6 +17,7 @@ Version 240:
     USER_DIRECTORY.
   * The array construct automatically evaluates variables in the
     array name ($"%array_name%"())
+  * ADD_CRE_EFFECT correctly sets the special parameter.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
