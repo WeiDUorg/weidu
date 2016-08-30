@@ -18,6 +18,8 @@ Version 240:
   * The array construct automatically evaluates variables in the
     array name ($"%array_name%"())
   * ADD_CRE_EFFECT correctly sets the special parameter.
+  * sc#addWmpAre writes the string reference -1 to the corresponding
+    fields if the variables strName or strDesc are the empty string.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.

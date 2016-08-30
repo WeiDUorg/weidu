@@ -15,7 +15,8 @@ DEFINE_ACTION_FUNCTION sc#addWmpAre //STR_VAR areName  = "sc#ar00"   // default 
                                       inclSv = 0
                                     STR_VAR
                                       worldmap = "worldmap"
-
+                                      strName = ""
+                                      strDesc = ""
                                     RET
                                       areNum
 
@@ -56,8 +57,12 @@ BEGIN
       WRITE_LONG            ( "%area_off%" + 0x34 + ( 0xf0 * "%area_num%" ) ) "%mapIcon%"    // map icon
       WRITE_LONG            ( "%area_off%" + 0x38 + ( 0xf0 * "%area_num%" ) ) "%xCoord%"     // x coordinate
       WRITE_LONG            ( "%area_off%" + 0x3C + ( 0xf0 * "%area_num%" ) ) "%yCoord%"     // y coordinate
-      SAY                   ( "%area_off%" + 0x40 + ( 0xf0 * "%area_num%" ) ) "%strName%"    // area name
-      SAY                   ( "%area_off%" + 0x44 + ( 0xf0 * "%area_num%" ) ) "%strDesc%"    // area description
+      PATCH_IF "%strName%" STR_CMP "" BEGIN
+        SAY                 ( "%area_off%" + 0x40 + ( 0xf0 * "%area_num%" ) ) "%strName%"    // area name
+      END ELSE SAY          ( "%area_off%" + 0x40 + ( 0xf0 * "%area_num%" ) ) #-1
+      PATCH_IF "%strDesc%" STR_CMP "" BEGIN
+        SAY                 ( "%area_off%" + 0x44 + ( 0xf0 * "%area_num%" ) ) "%strDesc%"    // area description
+      END ELSE SAY          ( "%area_off%" + 0x44 + ( 0xf0 * "%area_num%" ) ) #-1
       // feel free to set flags and such here
 
       // re-read link offset, as we just changed it
