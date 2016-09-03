@@ -20,6 +20,7 @@ Version 240:
   * ADD_CRE_EFFECT correctly sets the special parameter.
   * sc#addWmpAre writes the string reference -1 to the corresponding
     fields if the variables strName or strDesc are the empty string.
+  * Add NEXT_STRREF value.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.

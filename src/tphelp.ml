@@ -115,6 +115,7 @@ let rec pe_to_str pe = "(" ^ (match pe with
 | PE_Resolve_Str_Ref(a) -> Printf.sprintf "RESOLVE_STR_REF (__)"
 | PE_IsSilent -> "IS_SILENT"
 | PE_IsAnInt(x) -> Printf.sprintf "IS_AN_INT %s" (pe_str_str x)
+| PE_NextStrref -> "NEXT_STRREF"
                              ) ^ ")"
 
 and pe_str_str s = match s with

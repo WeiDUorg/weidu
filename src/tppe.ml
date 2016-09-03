@@ -625,6 +625,8 @@ let rec eval_pe buff game p =
       end
   end
 
+  | PE_NextStrref -> Int32.of_int !Dc.cur_index
+
 let eval_pe buff game pe =
   let res = Stats.time "eval_pe" (fun () -> eval_pe buff game pe) () in
   (if !debug_pe then log_and_print "Value [%s] = %ld\n"

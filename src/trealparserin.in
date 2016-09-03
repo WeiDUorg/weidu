@@ -998,6 +998,7 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
   -> RESOLVE_STR_REF LPAREN e1:Lse RPAREN [ Tp.PE_Resolve_Str_Ref e1 ]
   -> LPAREN e1:Patch_Exp RPAREN [ e1 ]
   -> IS_SILENT [ Tp.PE_IsSilent ]
+  -> NEXT_STRREF [Tp.PE_NextStrref]
 }
 
 nonterm (Tp.tp_store_position) Optional_Store_Position {
