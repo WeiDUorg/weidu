@@ -307,8 +307,8 @@ let set_string (g : Load.game) (i :int) (ts : Dlg.tlk_string)
   let rec process ts = match ts with
   | Dlg.TLK_Index(i) ->
       if (allow_strref) then begin
-        if (i < 0 || i >= !cur_index) then begin
-          log_and_print "SET_STRING %d out of range 0 -- %d\n" i (!cur_index - 1) ;
+        if (i < 0 || i > !cur_index) then begin
+          log_and_print "SET_STRING %d out of range 0 -- %d\n" i (!cur_index) ;
         end ;
         if (i < Array.length (Load.get_active_dialog g)) then
           (((Load.get_active_dialog g).(i)) ,
@@ -336,8 +336,8 @@ let set_string (g : Load.game) (i :int) (ts : Dlg.tlk_string)
   let f = {f with Tlk.text = Var.get_string f.Tlk.text;
            Tlk.sound_name = Var.get_string f.Tlk.sound_name} in
   let dialog = Load.get_active_dialog g in
-  if (i < 0 || i >= !cur_index) then begin
-    log_and_print "SET_STRING %d out of range 0 -- %d\n" i (!cur_index - 1) ;
+  if (i < 0 || i > !cur_index) then begin
+    log_and_print "SET_STRING %d out of range 0 -- %d\n" i (!cur_index) ;
     failwith "SET_STRING out of range"
   end ;
   (*
@@ -352,10 +352,11 @@ let set_string (g : Load.game) (i :int) (ts : Dlg.tlk_string)
     | None -> g.Load.str_sets <- (i,dialog.(i),dialog.(i))
         :: g.Load.str_sets) ;
     dialog.(i) <- m ;
-  end else begin
+  end else if (i < !cur_index) then begin (* Array.length dialog < !cur_index *)
     let orig_lse = Hashtbl.find strings_added_ht i in
     let orig_tlk = Tlk.lse_to_tlk_string orig_lse in
-    let new_lse = {lse_male = m.Tlk.text; lse_male_sound = m.Tlk.sound_name; lse_female = f.Tlk.text; lse_female_sound = f.Tlk.sound_name} in
+    let new_lse = {lse_male = m.Tlk.text ; lse_male_sound = m.Tlk.sound_name ;
+                   lse_female = f.Tlk.text ; lse_female_sound = f.Tlk.sound_name} in
     (match Load.get_active_dialogf_opt g with
     | Some(a) -> g.Load.str_sets <- (i,fst orig_tlk, snd orig_tlk) ::
         g.Load.str_sets ;
@@ -374,7 +375,14 @@ let set_string (g : Load.game) (i :int) (ts : Dlg.tlk_string)
         Queue.add new_lse newQueue
     done;
     strings_to_add := newQueue;
-  end;
+  end else begin (* i = !cur_index *)
+    let lse = {lse_male = m.Tlk.text; lse_male_sound = m.Tlk.sound_name;
+               lse_female = f.Tlk.text; lse_female_sound = f.Tlk.sound_name} in
+    Queue.add lse !strings_to_add ;
+    Hashtbl.add strings_to_add_ht lse i ;
+    Hashtbl.add strings_added_ht i lse ;
+    incr cur_index ;
+  end ;
   (Load.get_active_dialogs g).Load.dialog_mod <- true ;
   ()
 

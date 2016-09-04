@@ -3611,10 +3611,16 @@ COPY ~MyMod/MYDART.ITM~ ~override/MYDART.ITM~
 
   or & \DEFINE{STRING!SET!EVALUATE} \ttref{value} newValue \Slist
     \Ob \t{USING} traFile \Oe &
-    This command replaces the string at index value in the user's \ttref{TLK} file
-    with the associated newValue. If a
-    traFile is given, that file is is read once before all of the
-    replacements take place and its contents are forgotten after. \\
+    This command replaces the string at index value in the user's
+    \ttref{TLK} file with the associated newValue. If a traFile is
+    given, that file is is read once before all of the replacements
+    take place and its contents are forgotten after. If the index
+    value equals the current number of strings in the \ttref{TLK} file
+    (for example, through \ttref{NEXT!STRREF}), newValue will be added
+    to the \ttref{TLK} file as a new string. This addition is made with
+    no deduplication. Use with caution, as this will continue to grow
+    the \ttref{TLK} file each time the mod is reinstalled.
+    \\
 
   or & \DEFINE{STRING!SET!RANGE} \t{\#}min \t{\#}max \t{USING} traFile &
     For every integer i between min and max (inclusive) we do

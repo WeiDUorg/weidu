@@ -21,6 +21,7 @@ Version 240:
   * sc#addWmpAre writes the string reference -1 to the corresponding
     fields if the variables strName or strDesc are the empty string.
   * Add NEXT_STRREF value.
+  * STRING_SET_EVALUATE can add new strings to the TLK with no deduplication.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
