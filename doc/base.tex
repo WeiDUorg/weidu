@@ -3568,23 +3568,30 @@ COPY ~MyMod/MYDART.ITM~ ~override/MYDART.ITM~
   or & \DEFINE{ADD!JOURNAL} \Ob \t{EXISTING} \Oe \Ob \t{MANAGED} \Oe \Ob
        \t{TITLE} \t{(} \ttref{text} \t{)} \Oe \ttref{reference} \Slist \Ob
        \t{USING} traFile \Slist \Oe &
-    If the game is not BGEE, this action does nothing.
-    If the game is BGEE, this action patches BGEE.SQL with the provided
-    quests and journal entries, so they will work with BGEE's journal system.
+
+    If the game is not of an EE-type, this action does nothing.  If
+    the game is of an EE-type, this action patches BGEE.SQL or
+    BGEE.LUA (depending on game version) with the provided quests and
+    journal entries, so they will work with the EE-type journal
+    system.
 
     For each of the provided \ttref{reference}s, which are taken to be
     journal entries, the first line of text, up to a newline character, is
     taken to be the title of the journal entry. Titles isolated in this way
     have any trailing whitespace and full stops trimmed. The title is added
     as a separate string to the TLK, together with the complete journal entry.
-    BGEE.SQL is patched with the strrefs of the title and journal entry.
+    The game files patched with the strrefs of the title and journal entry.
     Each unique title is given a unique quest id and journal entries that
     share titles end up sharing quest ids.
 
-    If \t{EXISTING} is specified, the strref of the title is matched against
-    the existing title strrefs. If a match is found, the journal entry is
-    added under the quest id of the existing quest. Otherwise it is added as
-    a new quest.
+    If \t{EXISTING} is specified, the strref of the title is matched
+    against the existing title strrefs. If a match is found, the
+    journal entry is added under the quest id of the existing
+    quest. Otherwise it is added as a new quest. Note that \t{TITLE}
+    should be given a string reference in this case. \t{ADD!JOURNAL}
+    cannot guarantee correct results if \t{EXISTING} is used without
+    \t{TITLE} or if \t{TITLE} is given a string or tra reference
+    instead of a string reference.
 
     If \t{MANAGED} is specified, all provided journal entries are given a
     unique, non-zero quest-group number. They share the same quest-group

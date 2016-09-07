@@ -1,0 +1,102 @@
+/**
+ *
+ * NB: This macro is not public and not included in the backward-compatibility guarantee.
+ *
+ * This action macro patches the BGEE.LUA of Enhanced Edition games v2.0 or higher with the
+ * provided journal entries, so they will be correctly added to the quest tab of the journal.
+
+ * Author: Argent77; edited by Wisp:
+ *   not use WITH_TRA
+ *   remove as_strref
+ *   remove the check for bgee.lua
+ *   replace success variable with conditional WARN
+ *   convert into macro
+ *   conform to doc of ADD_JOURNAL
+ *
+ * INT_VAR existing   Indicates whether to add entries to an existing journal group.
+ *                    Set to 0 if you want to force this macro to create a new journal group
+ *                    even if a group of the exact same title already exists.
+ *                    Set to non-zero if you want to reuse existing journal groups when available.
+ *                    (Default: 0)
+ * INT_VAR title      A optional title for the journal group where all entries are added to,
+ *                    defined as strref value. title is either -1 or a strref not found in bgee.lua.
+ *                    If no title is given then the first line of the first available journal entry
+ *                    is used instead.
+ * STR_VAR entries    An array of strref values for the respective journal entries that are added
+ *                    to the current journal group.
+ *                    You can use ACTION_DEFINE_ARRAY or ACTION_DEFINE_ASSOCIATIVE_ARRAY to build
+ *                    the array. (Note: This macro uses the value part of associative arrays.)
+ */
+DEFINE_ACTION_MACRO fl#ADD_JOURNAL_LUA BEGIN
+  ACTION_IF (VARIABLE_IS_SET $entries(0)) BEGIN
+    // preparing journal title
+    ACTION_PHP_EACH entries AS _ => strref BEGIN
+      ACTION_IF (title < 0) BEGIN
+        ACTION_GET_STRREF strref text
+        OUTER_PATCH_SAVE title_string ~%text%~ BEGIN
+          REPLACE_TEXTUALLY ~^\(.+?\)\([%WNL%%LNL%%MNL%]?.*\)*$~ ~\1~
+        END
+        // remove trailing whitespace and terminal full stops
+        OUTER_PATCH_SAVE title_string ~%title_string%~ BEGIN
+          REPLACE_TEXTUALLY ~^\(.*\)[. %TAB%]$~ ~\1~
+        END
+        ACTION_IF (STRING_LENGTH ~%title_string%~ > 0) BEGIN
+          OUTER_SET strref_title = RESOLVE_STR_REF (~%title_string%~)
+          ACTION_IF !existing AND
+                    FILE_CONTAINS_EVALUATED (~bgee.lua~ ~createQuest[%TAB% ]*([%TAB% ]*%strref_title%[%TAB% ]*)~)
+          BEGIN
+            OUTER_SET strref_title = NEXT_STRREF
+            STRING_SET_EVALUATE strref_title ~%title_string%~
+          END
+          OUTER_SET $titles(~%strref%~) = strref_title
+        END ELSE FAIL ~ERROR: ADD_JOURNAL could not extract a title string~
+      END ELSE OUTER_SET $titles(~%strref%~) = title
+    END
+
+    // processing journal entries
+    COPY_EXISTING ~bgee.lua~ ~override~
+      READ_ASCII 0 text ELSE ~~ (SOURCE_SIZE)
+      // Determining the correct new line sequence
+      LPF fl#A7_GET_NEWLINE STR_VAR text = EVAL ~%text%~ RET newline END
+
+      TEXT_SPRINT createEntry_var ~~
+      TEXT_SPRINT createQuest_var ~~
+      PATCH_PHP_EACH titles AS strref => title BEGIN
+
+        // preparing quest group (doesn't add duplicates)
+        PATCH_IF (~%text%~ STRING_CONTAINS_REGEXP            ~createQuest[%TAB% ]*([%TAB% ]*%title%[%TAB% ]*)~ = 0) OR
+                 (~%createQuest_var%~ STRING_CONTAINS_REGEXP ~createQuest[%TAB% ]*([%TAB% ]*%title%[%TAB% ]*)~ = 0)
+        BEGIN
+          TEXT_SPRINT createQuest_var ~%createQuest_var%~
+        END ELSE BEGIN
+          TEXT_SPRINT createQuest_var ~%createQuest_var%%newline%%TAB%createQuest    ( %title% )~
+        END
+
+        // prepare associated quest entry
+        TEXT_SPRINT createEntry_var ~%createEntry_var%%newline%%TAB%createEntry    ( %title%, -1, %strref%, {}, nil )~
+
+      END
+
+      // applying changes to BGEE.LUA
+      REPLACE_TEXTUALLY ~\(create\(Entry\|Quest\).+)\)[%WNL%%LNL%%MNL%%TAB% ]*end~
+                          ~\1%createQuest_var%%createEntry_var%%newline%end~
+    BUT_ONLY
+  END ELSE WARN ~WARNING: ADD_JOURNAL received no quest entries~
+END
+
+// Attempts to determine the new line sequence used in the specified string.
+// Defaults to Linux new line.
+DEFINE_PATCH_FUNCTION fl#A7_GET_NEWLINE
+STR_VAR
+  text = ~~
+RET
+  newline
+BEGIN
+  PATCH_IF (~%text%~ STRING_CONTAINS_REGEXP ~%WNL%~ = 0) BEGIN
+    TEXT_SPRINT newline ~%WNL%~
+  END ELSE PATCH_IF (~%text%~ STRING_CONTAINS_REGEXP ~%MNL%~ = 0) BEGIN
+    TEXT_SPRINT newline ~%MNL%~
+  END ELSE BEGIN
+    TEXT_SPRINT newline ~%LNL%~
+  END
+END

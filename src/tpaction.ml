@@ -2187,95 +2187,135 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
                 let indices = List.map resolve_string ref_list in
 
-                let titled_indices = (match title with
-                  Some(t) ->
-                    let title = resolve_string t in
-                    List.map (fun index ->
-                      title,index) indices
-                | None ->
-                    List.map (fun index ->
-                      let title = isolate_title_and_resolve index in
-                      title,index) indices) in
+                if is_true (eval_pe "" game (Pred_File_Exists_In_Game (PE_LiteralString "bgee.lua"))) then begin
+                  try
+                    Var.var_push () ;
 
-                let quests,journals_quests = Sql.get_quests_data "ADD_JOURNAL" in
-                let highest_quest_id = ref (List.fold_left (fun acc record ->
-                  max acc record.Sql.quest_id) 1 quests) in
+                    ignore (if existing then
+                      Var.set_int32 "existing" (Int32.of_int 1)
+                    else Var.set_int32 "existing" (Int32.of_int 0)) ;
 
-                let quest_id_table = Hashtbl.create
-                    (if not existing then (List.length titled_indices)
-                    else ((List.length quests) + (List.length titled_indices))) in
+                    ignore (match title with
+                    | None -> Var.set_int32 "title" (Int32.of_int (-1))
+                    | Some s -> begin
+                        let strref = resolve_string s in
+                        Var.set_int32 "title" (Int32.of_int strref) ;
+                        if not existing &&
+                          is_true (eval_pe "" game
+                                     (PE_FileContainsEvaluated
+                                        ((PE_LiteralString "bgee.lua"),
+                                         (PE_LiteralString
+                                            (Printf.sprintf "createQuest[ %%TAB%%]*([ %%TAB%%]*%d[ %%TAB%%]*)" strref)))))
+                        then begin
+                          let strref = eval_pe "" game PE_NextStrref in
+                          Dc.set_string game (Int32.to_int strref) s true ;
+                          Var.set_int32 "title" strref ;
+                        end ;
+                    end) ;
 
-                let journal_id_table = Hashtbl.create
-                    (if not existing then (List.length titled_indices)
-                    else ((List.length journals_quests) + (List.length titled_indices))) in
+                    ignore (process_action tp
+                              (TP_ActionDefineArray
+                                 (PE_LiteralString "entries",
+                                  (List.map (fun x -> Printf.sprintf "%d" x) indices)))) ;
 
-                if existing then begin
-                  ignore (List.iter (fun record ->
-                    Hashtbl.add quest_id_table record.Sql.quest_strref record.Sql.quest_id)
-                            quests) ;
-                  ignore (List.iter (fun record ->
-                    Hashtbl.add journal_id_table (record.Sql.journal_id,record.Sql.journal_quest_id) 0)
-                            journals_quests) ;
-                end;
+                    ignore (process_action tp (TP_Include
+                                                 [".../WEIDU_NAMESPACE/fl#add_journal_lua.tpa"])) ;
+                    ignore (process_action tp (TP_Launch_Action_Macro "fl#ADD_JOURNAL_LUA")) ;
+                    Var.var_pop () ;
+                  with e -> Var.var_pop () ; raise e
+                end else begin (* code path for legacy SQL format *)
 
-                let get_quest_id strref =
-                  if not (Hashtbl.mem quest_id_table strref) then begin
-                    let id = !highest_quest_id + 1 in
-                    Hashtbl.add quest_id_table strref id ;
-                    highest_quest_id := id ;
-                    id ;
-                  end
-                  else
-                    Hashtbl.find quest_id_table strref ;
-                in
+                  let titled_indices = (match title with
+                    Some(t) ->
+                      let title = resolve_string t in
+                      List.map (fun index ->
+                        title,index) indices
+                  | None ->
+                      List.map (fun index ->
+                        let title = isolate_title_and_resolve index in
+                        title,index) indices) in
 
-                let new_quests = List.fold_left (fun acc (title,index) ->
-                  if not (Hashtbl.mem quest_id_table title) then
-                    List.append acc
-                      [(Sql.make_quests_record (get_quest_id title) "" title 0 0 0
-                          ~quest_MC1:(Some (-1)) ())]
-                  else
-                    acc) [] titled_indices in
+                  let quests,journals_quests = Sql.get_quests_data "ADD_JOURNAL" in
+                  let highest_quest_id = ref (List.fold_left (fun acc record ->
+                    max acc record.Sql.quest_id) 1 quests) in
 
-                (* this can be optimised *)
-                let highest_quest_group = ref (List.fold_left (fun acc record ->
-                  (match record.Sql.journal_quest_group with
-                    None -> (-1)
-                  | Some i -> max acc i))
-                                                 0 journals_quests) in
+                  let quest_id_table = Hashtbl.create
+                      (if not existing then (List.length titled_indices)
+                      else ((List.length quests) + (List.length titled_indices))) in
 
-                let new_journals = List.fold_left (fun acc (title,index) ->
-                  let quest_id = get_quest_id title in
-                  if not (Hashtbl.mem journal_id_table (index,quest_id)) then begin
-                    Hashtbl.add journal_id_table (index,quest_id) 0 ;
-                    List.append acc
-                      [(Sql.make_journals_record index quest_id 0
-                          ~quest_group:(if managed then
-                            (Some (!highest_quest_group + 1))
-                          else
-                            (Some 0)) ~date:(Some "") ~journal_MC1:(Some (-1)) ())]
-                  end
-                  else
-                    acc) [] titled_indices in
+                  let journal_id_table = Hashtbl.create
+                      (if not existing then (List.length titled_indices)
+                      else ((List.length journals_quests) + (List.length titled_indices))) in
 
-                if existing && managed then
-                  ignore (List.iter (fun (title,index) ->
-                    List.iter (fun record ->
-                      (try
-                        if (Hashtbl.mem quest_id_table title) &&
-                          (Hashtbl.find quest_id_table title) = record.Sql.journal_quest_id &&
-                          (match record.Sql.journal_quest_group with
-                            Some 0 -> true
-                          | _ -> false) then
-                          record.Sql.journal_quest_group <- (Some (!highest_quest_group + 1))
-                      with Not_found -> ())) journals_quests)
-                            (match title,titled_indices with
-                              Some t, [] -> [(resolve_string t),0]
-                            | _,_ -> titled_indices)) ;
+                  if existing then begin
+                    ignore (List.iter (fun record ->
+                      Hashtbl.add quest_id_table record.Sql.quest_strref record.Sql.quest_id)
+                              quests) ;
+                    ignore (List.iter (fun record ->
+                      Hashtbl.add journal_id_table (record.Sql.journal_id,
+                                                    record.Sql.journal_quest_id) 0)
+                              journals_quests) ;
+                  end;
 
-                let quests = List.append new_quests quests in
-                let journals_quests = List.append new_journals journals_quests in
-                ignore (Sql.set_quests_data (quests,journals_quests)) ;
+                  let get_quest_id strref =
+                    if not (Hashtbl.mem quest_id_table strref) then begin
+                      let id = !highest_quest_id + 1 in
+                      Hashtbl.add quest_id_table strref id ;
+                      highest_quest_id := id ;
+                      id ;
+                    end
+                    else
+                      Hashtbl.find quest_id_table strref ;
+                  in
+
+                  let new_quests = List.fold_left (fun acc (title,index) ->
+                    if not (Hashtbl.mem quest_id_table title) then
+                      List.append acc
+                        [(Sql.make_quests_record (get_quest_id title) "" title 0 0 0
+                            ~quest_MC1:(Some (-1)) ())]
+                    else
+                      acc) [] titled_indices in
+
+                  (* this can be optimised *)
+                  let highest_quest_group = ref (List.fold_left (fun acc record ->
+                    (match record.Sql.journal_quest_group with
+                      None -> (-1)
+                    | Some i -> max acc i))
+                                                   0 journals_quests) in
+
+                  let new_journals = List.fold_left (fun acc (title,index) ->
+                    let quest_id = get_quest_id title in
+                    if not (Hashtbl.mem journal_id_table (index,quest_id)) then begin
+                      Hashtbl.add journal_id_table (index,quest_id) 0 ;
+                      List.append acc
+                        [(Sql.make_journals_record index quest_id 0
+                            ~quest_group:(if managed then
+                              (Some (!highest_quest_group + 1))
+                            else
+                              (Some 0)) ~date:(Some "") ~journal_MC1:(Some (-1)) ())]
+                    end
+                    else
+                      acc) [] titled_indices in
+
+                  if existing && managed then
+                    ignore (List.iter (fun (title,index) ->
+                      List.iter (fun record ->
+                        (try
+                          if (Hashtbl.mem quest_id_table title) &&
+                            (Hashtbl.find quest_id_table title) = record.Sql.journal_quest_id &&
+                            (match record.Sql.journal_quest_group with
+                              Some 0 -> true
+                            | _ -> false) then
+                            record.Sql.journal_quest_group <- (Some (!highest_quest_group + 1))
+                        with Not_found -> ())) journals_quests)
+                              (match title,titled_indices with
+                                Some t, [] -> [(resolve_string t),0]
+                              | _,_ -> titled_indices)) ;
+
+                  let quests = List.append new_quests quests in
+                  let journals_quests = List.append new_journals journals_quests in
+                  ignore (Sql.set_quests_data (quests,journals_quests)) ;
+                end ; (* end legacy SQL path *)
 
                 Dc.pop_trans ();
               with e -> Dc.pop_trans () ; raise e)
