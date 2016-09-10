@@ -842,7 +842,7 @@ The Infinity Engine uses scripts in a bytecode format, known as
 for turning \t{BAF} scripts into \t{BCS} scripts and a decompiler for
 the reverse transformation. The \t{BCS} format will not be documented
 here, but the format is described by the
-\ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/bcs.htm}}{IESDP}.
+\ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/bcs.htm}}{IESDP}.
 
 The \t{BAF} format accepted by WeiDU's compiler is documented here in an extended context-free grammar notation.
 
@@ -881,7 +881,7 @@ is & \Ob !\Oe\ttref{Infinity Engine trigger} &
   What constitutes an \DEFINE{Infinity Engine trigger} (trigger)
   varies between different versions of the Infinity Engine and will
   not be documented here. Refer to the right section of the
-  \ahref{\url{http://iesdp.gibberlings3.net/scripting/triggers/index.htm}}{IESDP}.
+  \ahref{\url{http://gibberlings3.net/iesdp/scripting/triggers/index.htm}}{IESDP}.
   A preceding exclamation mark negates the trigger. \\
 
 or & \t{TriggerOverride}(\ttref{Infinity Engine object},\Ob !\Oe\ttref{Infinity Engine trigger}) &
@@ -913,7 +913,7 @@ is & \t{RESPONSE} \t{#}weight \ttref{Infinity Engine action} ... &
   \DEFINE{Infinity Engine action} (action) varies between different
   versions of the Infinity Engine and will not be documented
   here. Refer to the right section of the
-  \ahref{\url{http://iesdp.gibberlings3.net/scripting/actions/index.htm}}{IESDP}.
+  \ahref{\url{http://gibberlings3.net/iesdp/scripting/actions/index.htm}}{IESDP}.
   Any time an Infinity Engine String Reference (strref) is expected by
   an action, you can use \ttref{text}. When the script is compiled,
   WeiDU will add the text as a string and insert the corresponding
@@ -3420,7 +3420,7 @@ unusabilities
   &
     This command allows you to add new kits to the BGII.
     See the example file \t{mymod.tp2} or the tutorial at
-    \ahrefurl{\url{http://forums.gibberlings3.net/index.php?showtopic=584}}
+    \ahrefurl{\url{http://gibberlings3.net/forums/index.php?showtopic=584}}
     for information on how to do this.
 
     \ttref{ADD!KIT} sets the variable \t{\%internalKitName\%} to the number
@@ -3606,7 +3606,7 @@ COPY ~MyMod/MYDART.ITM~ ~override/MYDART.ITM~
     entry remains unchanged, they are just all listed under the same title.
 
     For more information on \t{ADD!JOURNAL} and some usage examples, refer to
-    the journal section of \ahref{\url{http://forums.gibberlings3.net/index.php?showtopic=25609}}{this tutorial}.
+    the journal section of \ahref{\url{http://gibberlings3.net/forums/index.php?showtopic=26671}}{this tutorial}.
     \\
 
   or & \DEFINE{STRING!SET} indexOrString newValue \Slist
@@ -5681,7 +5681,7 @@ READ_SHORT 0x1c type
 \end{verbatim}
 
 I found the offset by looking at the file format for items in the IESDP:
-\ahrefurl{\url{http://iesdp.gibberlings3.net/}}. The
+\ahrefurl{\url{http://gibberlings3.net/iesdp/}}. The
 variable "type" can really be anything, it's just what I've chosen.
 
 We should edit the item only if the item is really a longsword:
@@ -8769,7 +8769,7 @@ of the call, and the file name you're working on, for instance:
 \end{itemize}
 \\
 
-\verb+ALTER_AREA_ENTRANCE+: patch coordinates and orientation of \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Entrance}}{area party entrance points}.
+\verb+ALTER_AREA_ENTRANCE+: patch coordinates and orientation of \ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Entrance}}{area party entrance points}.
 This is a PATCH function. For all integer variables, a negative value results in no change to that field and the default value is -1. The variable \verb+entrance_name+ is required.
 \begin{itemize}
 \item INT_VAR \verb+x_coord+ to the new X coordinate.
@@ -8779,7 +8779,7 @@ This is a PATCH function. For all integer variables, a negative value results in
 \end{itemize}
 \\
 
-\verb+ALTER_AREA_REGION+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Info}}{area regions}, also known as area triggers.
+\verb+ALTER_AREA_REGION+: patch \ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Info}}{area regions}, also known as area triggers.
 This is a PATCH function. For all integer variables except \verb+info_point+, a negative value results in no change and the default value is -1. The variable \verb+info_point+ results in no change if it has the default value 99999999. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. For all string variables except \verb+region_name+, the default value is the string "same", which results in no change to that field. The variable \verb+region_name+ is required.
 \begin{itemize}
 \item INT_VAR \verb+type+ to the new type of the region.
@@ -8817,7 +8817,7 @@ This is a PATCH function. For all integer variables except \verb+info_point+, a 
 \end{itemize}
 \\
 
-\verb+ALTER_AREA_ACTOR+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Actor}}{area actors}.
+\verb+ALTER_AREA_ACTOR+: patch \ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Actor}}{area actors}.
 This is a PATCH function. All integer variables, except \verb+expiry+, default to the value -1 and a negative value results in no change to the corresponding field. The variable \verb+expiry+ instead has a default value of -2. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. All string variables except \verb+actor_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+actor_name+ is required.
 \begin{itemize}
 \item INT_VAR \verb+x_coord+ to the new x coordinate. Unless \verb+dest_x+ is defined, \verb+x_coord+ is used as the x-value of the destination, as well.
@@ -8848,7 +8848,7 @@ This is a PATCH function. All integer variables, except \verb+expiry+, default t
 \end{itemize}
 \\
 
-\verb+ALTER_AREA_CONTAINER+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Container}}{area containers}, but not their contents. This is a PATCH function. All integer variables default to -1 and negative values result in no change to the corresponding field. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. All string variables except \verb+container_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+container_name+ is required.
+\verb+ALTER_AREA_CONTAINER+: patch \ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Container}}{area containers}, but not their contents. This is a PATCH function. All integer variables default to -1 and negative values result in no change to the corresponding field. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. All string variables except \verb+container_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+container_name+ is required.
 \begin{itemize}
 \item INT_VAR \verb+coord_x+ to the new x coordinate.
 \item INT_VAR \verb+coord_y+ to the new y coordinate.
@@ -8876,7 +8876,7 @@ This is a PATCH function. All integer variables, except \verb+expiry+, default t
 \end{itemize}
 \\
 
-\verb+ALTER_AREA_DOOR+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Door}}{area doors.} This is a PATCH function. All integer variables, except \verb+string_unlock+ and \verb+string_speaker+, default to -1 and negative values result in no change to the corresponding field. The variables \verb+string_unlock+ and \verb+string_speaker+ instead default to 99999999. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. All string variables except \verb+door_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+door_name+ is required.
+\verb+ALTER_AREA_DOOR+: patch \ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/are_v1.htm#formAREAV1_0_Door}}{area doors.} This is a PATCH function. All integer variables, except \verb+string_unlock+ and \verb+string_speaker+, default to -1 and negative values result in no change to the corresponding field. The variables \verb+string_unlock+ and \verb+string_speaker+ instead default to 99999999. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. All string variables except \verb+door_name+ default to the string "same", which results in no change to the corresponding field. The variable \verb+door_name+ is required.
 \begin{itemize}
 \item INT_VAR \verb+bounding_open_left+ to the new value of the left edge of the open-state bounding box. The vertices remain unchanged.
 \item INT_VAR \verb+bounding_open_top+ to the new value of the top edge of the open-state bounding box. The vertices remain unchanged.
@@ -8925,7 +8925,7 @@ This is a PATCH function. All integer variables, except \verb+expiry+, default t
 \end{itemize}
 \\
 
-\verb+ALTER_ITEM_EFFECT+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/itm_v1.htm#itmv1_Feature_Block}}{global (equipping) effects} and/or \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/itm_v1.htm#itmv1_Extended_Header}}{effects on extended headers}. This is a PATCH function. All integer variables except \verb+check_globals+, \verb+check_headers+, \verb+header+ and \verb+savebonus+ default to -1 and negative values result in no change to the corresponding field. The integer variables \verb+check_globals+, \verb+check_headers+ and \verb+header+ default to 0. The integer variable \verb+savebonus+ defaults to -11 and values lower than -10 result in no change to the corresponding field. The string variable \verb+resource+ defaults to the string "same", which results in no change to the corresponding field.
+\verb+ALTER_ITEM_EFFECT+: patch \ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/itm_v1.htm#itmv1_Feature_Block}}{global (equipping) effects} and/or \ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/itm_v1.htm#itmv1_Extended_Header}}{effects on extended headers}. This is a PATCH function. All integer variables except \verb+check_globals+, \verb+check_headers+, \verb+header+ and \verb+savebonus+ default to -1 and negative values result in no change to the corresponding field. The integer variables \verb+check_globals+, \verb+check_headers+ and \verb+header+ default to 0. The integer variable \verb+savebonus+ defaults to -11 and values lower than -10 result in no change to the corresponding field. The string variable \verb+resource+ defaults to the string "same", which results in no change to the corresponding field.
 
 Note that both \verb+check_globals+ and \verb+check_headers+ are 0 by default, so you need to change one or both of these to 1 to perform any patching at all. If you patch headers, you can further target by using type to target melee, ranged, or magical headers. \verb+match_opcode+ can be left at -1 to match all effects on your targeted range or targeted to a specific opcode. If the opcode itself needs to be changed, you can use \verb+match_opcode+ to target the existing effect and \verb+new_opcode+ as the new opcode to use. \verb+duration_high+ is an alternative to \verb+duration+, mainly for changing the overall duration of an item's effects. The idea is to allow you to mass patch effects to new durations while leaving the one-time only cosmetics and visuals--which are usual instant or only run for a few seconds--unchanged.
 \begin{itemize}
@@ -8954,7 +8954,7 @@ Note that both \verb+check_globals+ and \verb+check_headers+ are 0 by default, s
 \end{itemize}
 \\
 
-\verb+ALTER_ITEM_HEADER+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/itm_v1.htm#itmv1_Extended_Header}}{ability headers} on items. This is a PATCH function. All integer variables except \verb+match_icon+ and \verb+header+ default to -1 and negative values result in no change to the corresponding field. The integer variables \verb+match_icon+ and \verb+header+ default to 0. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. The string variable \verb+icon+ defaults to the string "same", which results in no change to the corresponding field.
+\verb+ALTER_ITEM_HEADER+: patch \ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/itm_v1.htm#itmv1_Extended_Header}}{ability headers} on items. This is a PATCH function. All integer variables except \verb+match_icon+ and \verb+header+ default to -1 and negative values result in no change to the corresponding field. The integer variables \verb+match_icon+ and \verb+header+ default to 0. In the case of flags, a value of 1 will set the flag and a value of 0 will unset it. The string variable \verb+icon+ defaults to the string "same", which results in no change to the corresponding field.
 
 \verb+header_type+ is used to limit the scope of matching. The default value of -1 will match all types of headers while values of 0-4 will match headers with those values. If \verb+match_icon+ is 1, the icon resource reference will be match with the \verb+icon+ variable as an additional qualifier. This is useful for items which have multiple magic abilities. \verb+header+ can also be used to limit patching to the Nth header, counting from 1 as the first header. The default is 0, which will match all headers.
 
@@ -8997,7 +8997,7 @@ Note that both \verb+check_globals+ and \verb+check_headers+ are 0 by default, s
 \end{itemize}
 \\
 
-\verb+DELETE_ITEM_HEADER+: delete ability headers, also known as \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/itm_v1.htm#itmv1_Extended_Header}}{extended headers}, from items. This is a PATCH function. All integer variables default to 0.
+\verb+DELETE_ITEM_HEADER+: delete ability headers, also known as \ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/itm_v1.htm#itmv1_Extended_Header}}{extended headers}, from items. This is a PATCH function. All integer variables default to 0.
 
 This function will delete one or more ability headers, along with all of their associated effects, and properly re-index the file.
 
@@ -9006,7 +9006,7 @@ This function will delete one or more ability headers, along with all of their a
 \end{itemize}
 \\
 
-\verb+ALTER_SPELL_EFFECT+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/spl_v1.htm#splv1_Feature_Block}}{effects} on spells. This is a PATCH function. All integer variables except \verb+check_globals+, \verb+check_headers+, \verb+header+ and \verb+savebonus+ default to -1 and negative values result in no change to the corresponding field. The integer variables \verb+check_globals+ and \verb+header+ default to 0. The integer variable \verb+check_headers+ defaults to 1. The integer variable \verb+savebonus+ defaults to -11 and values lower than -10 result in no change to the corresponding field. The string variable \verb+resource+ defaults to the string "same", which results in no change to the corresponding field.
+\verb+ALTER_SPELL_EFFECT+: patch \ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/spl_v1.htm#splv1_Feature_Block}}{effects} on spells. This is a PATCH function. All integer variables except \verb+check_globals+, \verb+check_headers+, \verb+header+ and \verb+savebonus+ default to -1 and negative values result in no change to the corresponding field. The integer variables \verb+check_globals+ and \verb+header+ default to 0. The integer variable \verb+check_headers+ defaults to 1. The integer variable \verb+savebonus+ defaults to -11 and values lower than -10 result in no change to the corresponding field. The string variable \verb+resource+ defaults to the string "same", which results in no change to the corresponding field.
 
 The function will by default only check effects on headers. You can change this by changing the values of the variables \verb+check_globals+ and \verb+check_headers+. If you patch headers, you can further target by using type to target melee, ranged, or magical headers. \verb+match_opcode+ can be left at -1 to match all effects on your targeted range or targeted to a specific opcode. If the opcode itself needs to be changed, you can use \verb+match_opcode+ to target the existing effect and \verb+new_opcode+ as the new opcode to use. \verb+duration_high+ is an alternative to \verb+duration+, mainly for changing the overall duration of an item's effects. The idea is to allow you to mass patch effects to new durations while leaving the one-time only cosmetics and visuals--which are usual instant or only run for a few seconds--unchanged.
 \begin{itemize}
@@ -9035,7 +9035,7 @@ The function will by default only check effects on headers. You can change this 
 \end{itemize}
 \\
 
-\verb+ALTER_SPELL_HEADER+: patch \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/spl_v1.htm#splv1_Extended_Header}}{ability headers} on spells. This is a PATCH function.All integer variables except \verb+match_icon+ and \verb+header+ default to -1 and negative values result in no change to the corresponding field. The integer variables \verb+match_icon+ and \verb+header+ default to 0. The string variable \verb+icon+ defaults to the string "same", which results in no change to the corresponding field.
+\verb+ALTER_SPELL_HEADER+: patch \ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/spl_v1.htm#splv1_Extended_Header}}{ability headers} on spells. This is a PATCH function.All integer variables except \verb+match_icon+ and \verb+header+ default to -1 and negative values result in no change to the corresponding field. The integer variables \verb+match_icon+ and \verb+header+ default to 0. The string variable \verb+icon+ defaults to the string "same", which results in no change to the corresponding field.
 
 \verb+header_type+ is used to limit the scope of matching. The default value of -1 will match all types of headers while values of 0-4 will match headers with those values. If \verb+match_icon+ is 1, the icon resource reference will be match with the \verb+icon+ variable as an additional qualifier. This is useful for items which have multiple magic abilities. \verb+header+ can also be used to limit patching to the Nth header, counting from 1 as the first header. The default is 0, which will match all headers.
 
@@ -9060,7 +9060,7 @@ The function will by default only check effects on headers. You can change this 
 \end{itemize}
 \\
 
-\verb+DELETE_SPELL_HEADER+: delete ability headers, also known as \ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/itm_v1.htm#itmv1_Extended_Header}}{extended headers}, from spells. This is a PATCH function. The integer variable \verb+header_type+ defaults to 0. The integer variable \verb+min_level+ defaults to -1 and if this variable is 0 or greater, only headers with a matching minimum level will be deleted.
+\verb+DELETE_SPELL_HEADER+: delete ability headers, also known as \ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/itm_v1.htm#itmv1_Extended_Header}}{extended headers}, from spells. This is a PATCH function. The integer variable \verb+header_type+ defaults to 0. The integer variable \verb+min_level+ defaults to -1 and if this variable is 0 or greater, only headers with a matching minimum level will be deleted.
 
 This function will delete one or more ability headers, along with all of their associated effects, and properly re-index the file.
 
@@ -9265,7 +9265,7 @@ If the decompression utility cannot be found, the user is warned that the audio 
 
 \DEFINE{\verb+HANDLE_TILESETS+}: install TISpack-compressed tilesets in a safe and easy manner. This is an ACTION function.
 
-This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games that support the \t{\ahref{\url{http://iesdp.gibberlings3.net/file_formats/ie_formats/tis_v1.htm}}{TIS V1}} file format. The program tisunpack, part of \ahref{\url{http://www.pocketplane.net/mambo/index.php?option=com_content&task=blogcategory&id=137&Itemid=96}}{TISpack}, is used to decompress the provided .tiz files and the resulting .tis files are placed in the override. Refer to the \ttref{HANDLE!AUDIO and HANDLE!TILESETS} tutorial for usage examples and a more practical explanation.
+This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games that support the \t{\ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/tis_v1.htm}}{TIS V1}} file format. The program tisunpack, part of \ahref{\url{http://www.pocketplane.net/mambo/index.php?option=com_content&task=blogcategory&id=137&Itemid=96}}{TISpack}, is used to decompress the provided .tiz files and the resulting .tis files are placed in the override. Refer to the \ttref{HANDLE!AUDIO and HANDLE!TILESETS} tutorial for usage examples and a more practical explanation.
 
 This function expects to find tisunpack for one or more of Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X or GNU/Linux in a common directory under the subdirectories \t{win32}, \t{osx}, and \t{unix}, respectively. For example, in \t{mymod/tiz/win32}, \t{mymod/tiz/osx} and \t{mymod/tiz/unix}, the common directory is \t{mymod/tiz} and \t{mymod/tiz/win32/tisunpack.exe} should be a valid file. For GNU/Linux, this function also supports tisunpack being located on the system path (something the user would take care of). If you choose to leave tisunpack to the user, you should mention this requirement in any installation instructions you provide.
 
@@ -10130,7 +10130,7 @@ BIT31 0b10000000000000000000000000000000
 
 This section briefly explains some common file formats. The definitive
 reference is
-\ahrefurl{\url{http://iesdp.gibberlings3.net/}}.
+\ahrefurl{\url{http://gibberlings3.net/iesdp/}}.
 
 \begin{itemize}
 
@@ -10213,13 +10213,13 @@ For more information, please refer to the forum.
 {\em Weimer's thank you}:
 I would like to thank the fine folks at the Infinity Engine File Format
 Hacking Project, without which this would not have been possible:
-\ahrefurl{\url{http://iesdp.gibberlings3.net/}}.
+\ahrefurl{\url{http://gibberlings3.net/iesdp/}}.
 
 In addition, I make heavy use of Near Infinity for general IE mods: \ahrefurl{\url{http://www.idi.ntnu.no/~joh/ni/}}.
 
 The Infinity Engine Editor Pro was very good at changing \ttref{ITM}s and
 \ttref{SPL}s, but DLTCEP is now a better choice:
-\ahrefurl{\url{http://www.gibberlings3.net/tools/dltcep.php}}.
+\ahrefurl{\url{http://gibberlings3.net/tools/dltcep.php}}.
 
 Kudos to my main out-of-house developer:
 \begin{itemize}
