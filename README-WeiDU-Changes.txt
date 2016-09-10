@@ -22,6 +22,8 @@ Version 240:
     fields if the variables strName or strDesc are the empty string.
   * Add NEXT_STRREF value.
   * STRING_SET_EVALUATE can add new strings to the TLK with no deduplication.
+  * ADD_JOURNAL supports writing to BGEE.LUA.
+  * Update G3 links in the readme.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
