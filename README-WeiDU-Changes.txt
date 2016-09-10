@@ -24,6 +24,7 @@ Version 240:
   * STRING_SET_EVALUATE can add new strings to the TLK with no deduplication.
   * ADD_JOURNAL supports writing to BGEE.LUA.
   * Update G3 links in the readme.
+  * --make-tlk can emit dialogf.tlk
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.

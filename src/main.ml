@@ -200,14 +200,19 @@ let make_tlk_from_file game make_tlk =
                                    Tlk.pitch = 0;
                                    Tlk.text = ""; } )
   in
+  let new_tlkf = Array.copy new_tlk in
   List.iter (fun (i,lse) ->
     let male, female = Tlk.lse_to_tlk_string lse in
-    new_tlk.(i) <- male) results ;
+    new_tlk.(i) <- male ;
+    new_tlkf.(i) <- female) results ;
   let d_pair = Load.get_active_dialogs game in
   d_pair.Load.dialog_mod <- true ;
   d_pair.Load.dialog.Load.contents <- new_tlk ;
-  end ;
-;;
+  (match d_pair.Load.dialogf with
+  | None -> ()
+  | Some f -> f.Load.contents <- new_tlkf ;
+      d_pair.Load.dialogf_mod <- true)
+  end
 
 let extract_tlk_to_file game user_min user_max strfind_list traify_num =
   if_bgee_check_lang_or_fail game ;
