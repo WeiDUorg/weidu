@@ -7540,55 +7540,73 @@ ASK!EVERY!COMPONENT tp2 flag.
 \subsection{\DEFINE{array construct}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The array construct (for lack of a better term) can be used to create with
-ease arrays at the install time. The construct is formed as follows:
+The array construct is a facile way of constructing multi-component
+variables. If you come from a programming background, the array
+construct has little in common with conventional arrays. It can be
+more accurately thought of as a multi-dimensional cross between an array
+and a dictionary.
 
-\verb+$variable(modifier list)+
+The array construct can have any number of keys but only a single result.
 
-It is equivalent to saying
+The construct is formed as follows:
+\verb+$variable(key list)+
 
-\verb+~variable_%modifier1%_%modifier2%_etc.~+
-
-When it is on the right handed side of a SPRINT or SET statement, the contents of
-a variable with the resulting name, if existing, is used in place of the variable name.
-This does not happen on the left handed side (this is good for you).
-
-Example dummy use:
+The construct can be used to store a result when used on the left-hand
+side of an expression or to retrieve a result when used on the
+right-hand side. For example, the following code snippet illustrates
+how the array construct could be used to dynamically construct a
+dictionary at install-time. A dictionary can be used to look up an
+associated value for any key value included in the dictionary. Here we
+use it to parse kitlist.2da to construct a dictionary of which
+CLAB-file is associated with each kit.
 
 \begin{verbatim}
-OUTER_SPRINT ~var_1_sbar~ ~300~
-OUTER_SPRINT ~var_1~ ~bar~
-OUTER_SPRINT $asd(doo) ~f00~
-  // equivalent to OUTER_SPRINT ~asd_doo~ ~f00~
-OUTER_SET $s(x) = 4
-  // equivalent to OUTER_SET ~s_x~ = 4
-OUTER_SET one = 1
-OUTER_SPRINT two ~sbar~
-
-OUTER_SET ~x~ = $var("%one%" "%two%")
-  // equivalent to OUTER_SET ~x~ = ~var_%one%_%two%~
-  // which is again equivalent to OUTER_SET ~x~ = ~var_1_sbar~  (which is 300)
-OUTER_SPRINT ~y~ $var("%one%")
-  // equivalent to OUTER_SPRINT ~y~ (the contents of variable ~var_%one%~/~var_1~ )
-OUTER_SPRINT ~z~ $asd(doo)
-  // equivalent to OUTER_SPRINT ~z~ (the contents of variable ~asd_doo~ )
-OUTER_SPRINT ~t~ $miss(ing)
-  // equivalent to OUTER_SPRINT ~t~ (the contents of variable ~miss_ing~
-	// there's no variable "miss_ing", so we default to the "miss_ing" text instead )
-OUTER_SET ~f~ = $s(x)
-  // equivalent to OUTER_SET ~f~ = ~s_%x%~
-
-OUTER_SPRINT $var(x) ~p~
-  // equivalent to OUTER_SPRINT ~var_x~ ~p~
-OUTER_SPRINT $var(x) ~y~
-  // equivalent to OUTER_SPRINT ~var_x~ ~y~
-  // notice that the ~var_x~ variable is not checked, so this doesn't become OUTER_SPRINT ~p~ ~y~
-
-PRINT ~"%x% %y% %z% %t% %f% %var_x%" should yeld "300 bar f00 miss_ing 4 y"~
+COPY_EXISTING kitlist.2da override
+  READ_2DA_ENTRIES_NOW kitlist 9
+  FOR (i = 1; i < kitlist; ++i) BEGIN
+    READ_2DA_ENTRY_FORMER kitlist i 1 kit
+    READ_2DA_ENTRY_FORMER kitlist i 5 clab
+    SPRINT $kitlist("%kit%") "%clab%"
+  END
+BUT_ONLY
 \end{verbatim}
 
-We expect somebody to actually write a mod which uses this form more seriously
-this construct and use their code as a more useful example.
+Arrays can either be iterated over with the action
+\ttref{ACTION!PHP!EACH} or patch \ttref{PHP!EACH}.
+
+\begin{verbatim}
+ACTION_PHP_EACH kitlist AS kit => clab BEGIN
+  PRINT "Kit %kit% uses CLAB-file %clab%"
+END
+\end{verbatim}
+
+You can easily make use of the dictionary properties by using the
+array construct on the right-hand side of the expression and inserting
+one of the keys found in the construct.
+
+\begin{verbatim}
+OUTER_SPRINT clab $kitlist(cavalier)
+PRINT "The Cavalier kit uses the CLAB-file %clab%"
+\end{verbatim}
+
+Using an invalid key produces the same result as trying to use an
+undefined variable. Using multiple keys works analogously. As a
+completely artificial example:
+
+\begin{verbatim}
+OUTER_SET $var(a b c) = 1
+OUTER_SET number = $var(a b c)
+\end{verbatim}
+
+The array construct can also be used to retrieve results from arrays
+constructed in other ways, like with \ttref{ACTION!DEFINE!ARRAY} or
+\ttref{ACTION!DEFINE!ASSOCIATIVE!ARRAY}. For example:
+
+\begin{verbatim}
+ACTION_DEFINE_ARRAY array BEGIN a b c END
+OUTER_SPRINT letter $array(2)
+PRINT "The second letter is %letter%" // Will print "b"
+\end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\DEFINE{MODDER} (Last update: v230)}
