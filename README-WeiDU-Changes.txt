@@ -26,6 +26,8 @@ Version 240:
   * Update G3 links in the readme.
   * --make-tlk can emit dialogf.tlk
   * Fix bug in fj_are_structure resulting in incorrect deletion of items.
+  * Fix documentation error pertaining to fj_are_structure and the variable
+    fj_debug.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
