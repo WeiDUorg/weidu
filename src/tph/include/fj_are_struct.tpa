@@ -902,6 +902,8 @@ PHP_EACH struct AS key => value BEGIN
 
   // add items and index to their containers
   PATCH_IF( key_0 == 0x78 )BEGIN
+    /* Delete once, even if num1 + index equal the mode of a subsequent item */
+    fl#fj_are_structure#itm#state = 1
     PHP_EACH are_container AS num => structure BEGIN
       PATCH_IF( fj_structure_type == 0x70 && num == fj_delete_mode && fj_deleted == 0x00 )BEGIN
         SET fj_deleted = 0x01
@@ -910,7 +912,8 @@ PHP_EACH struct AS key => value BEGIN
         PHP_EACH ~are_container_%num%_itm~ AS num1 => value1 BEGIN
           PATCH_IF(
             ( fj_structure_type != 0x78 ) ||
-            ( fj_delete_mode != num1 + LONG_AT ( LONG_AT 0x70 + 0xc0 * ( num - fj_deleted ) + 0x40 ) )
+            ( fj_delete_mode != num1 + LONG_AT ( LONG_AT 0x70 + 0xc0 * ( num - fj_deleted ) + 0x40 ) ||
+              !fl#fj_are_structure#itm#state )
           )BEGIN
             PATCH_IF fj_debug BEGIN PATCH_PRINT ~Reassociating item %num1% to container %num%.~ END
             WRITE_LONG LONG_AT 0x70 + 0xc0 * ( num - fj_deleted ) + 0x44 THIS + 0x01
@@ -919,7 +922,7 @@ PHP_EACH struct AS key => value BEGIN
             WRITE_SHORT  0x76 THIS + 0x01
             SET ++ fj_itm_idx
             SET fj_position += key_3
-          END
+          END ELSE fl#fj_are_structure#itm#state = 0
         END
       END
       PATCH_IF( fj_con_itm_idx == num && fj_structure_type == 0x78 )BEGIN

@@ -25,6 +25,7 @@ Version 240:
   * ADD_JOURNAL supports writing to BGEE.LUA.
   * Update G3 links in the readme.
   * --make-tlk can emit dialogf.tlk
+  * Fix bug in fj_are_structure resulting in incorrect deletion of items.
 
 Version 239:
   * Remove DESCRIBE_ITEM and --list-eff.
