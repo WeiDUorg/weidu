@@ -1,4 +1,5 @@
 Version 241:
+  * You can use MOD_FOLDER in LANGUAGE statements.
 
 Version 240:
   * GAME_INCLUDES supports SoD.

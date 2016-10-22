@@ -23,6 +23,14 @@ let rec get_menu_style fl = match fl with
 | Menu_Style(i) :: tl -> int_of_string i
 | hd :: tl -> get_menu_style tl
 
+let set_tp2_vars tp =
+  Var.set_string "TP2_AUTHOR" tp.author ;
+  Var.set_string "TP2_FILE_NAME" tp.tp_filename ;
+  Var.set_string "TP2_BASE_NAME" (Var.get_tp2_base_name tp.tp_filename) ;
+  (match Var.get_mod_folder tp.backup with
+  | Some s -> Var.set_string "MOD_FOLDER" s
+  | None -> ())
+
 (************************************************************************
  * Common hashtables.
  ************************************************************************)
@@ -204,6 +212,8 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
             in
             Dc.clear_state () ;
             Dc.push_trans ();
+            Var.var_clear_push () ;
+            ignore (set_tp2_vars tp2) ;
             let a_dir = Case_ins.filename_dirname a in
             (try
               let l = List.nth tp2.languages b in
@@ -229,6 +239,7 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
             let version = get_version tp2.flags in
             Dc.clear_state () ;
             Dc.pop_trans ();
+            Var.var_pop () ;
             (comp_str, subcomp_str,version)
           with _ ->
             ("??? -> ", "???", ": ???")

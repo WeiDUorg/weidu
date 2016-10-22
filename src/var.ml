@@ -41,6 +41,12 @@ let var_push () =
   arrays_stack := !arrays :: !arrays_stack ;
   arrays := Hashtbl.copy !arrays
 
+let var_clear_push () =
+  variables_stack := !variables :: !variables_stack ;
+  arrays_stack := !arrays :: !arrays_stack ;
+  variables := Hashtbl.create 255 ;
+  arrays := Hashtbl.create 255
+
 let cli_variables : string list option ref = ref None
 
 let set_int32 name value =
