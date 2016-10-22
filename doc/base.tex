@@ -2849,8 +2849,12 @@ global option to your \ttref{TP2} file. \\
     instructions, and caveats. \\
 
   or & \DEFINE{AUTO!EVAL!STRINGS} &
-    If used, an \ttref{EVALUATE!BUFFER} is implied everywhere possible. In particular,
-    you can now "forget" about using it in FUNCTIONs and arrays. \\
+    \t{EVALUATE!BUFFER} is used whenever variables are evaluated. In
+    particular, you can now "forget" about using it in FUNCTIONs and
+    arrays. Note, TP2 defines multiple instances of
+    \t{EVALUATE!BUFFER}, like \ttref{EVALUATE!BUFFER}, but these are
+    not affected by \ttref{AUTO!EVAL!STRINGS}. \\
+
 \\
 
 \DEFINE{Language} & &
