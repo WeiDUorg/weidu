@@ -1,3 +1,5 @@
+Version 241:
+
 Version 240:
   * GAME_INCLUDES supports SoD.
   * Allow EDIT_SAV_FILE to add wholly new files to SAV files.
