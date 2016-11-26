@@ -279,7 +279,7 @@ PATCH_IF is_pst BEGIN
 END ELSE BEGIN
   TEXT_SPRINT $struct(0xc4 0xc8 0x04 0x034) note
 END
-TEXT_SPRINT $struct(0xcc 0xd0 0x02 0x01c) projectile
+TEXT_SPRINT $struct(0xcc 0xd0 0x04 0x01c) projectile
 PHP_EACH struct AS key => value BEGIN
   PATCH_IF ~%value%~ STRING_EQUAL_CASE ~%fj_structure_type%~ BEGIN
     SET fj_structure_type = key_0
@@ -386,7 +386,7 @@ PHP_EACH struct AS key => value BEGIN
 
         // load container vertices
         GET_OFFSET_ARRAY2 array off ARE_V10_CONTAINER_VERTICES
-        PATCH_IF( fj_debug && LONG_AT 0x54 )BEGIN PATCH_PRINT ~  Associating vertices.~ END
+        PATCH_IF( fj_debug && LONG_AT ( off + 0x54 ) )BEGIN PATCH_PRINT ~  Associating vertices.~ END
         PHP_EACH array AS num1 => off1 BEGIN
           READ_LONG off1 $EVAL ~are_container_%num%_vertex~(~%num1%~)
         END
@@ -394,7 +394,7 @@ PHP_EACH struct AS key => value BEGIN
 
         // load container items
         GET_OFFSET_ARRAY2 array off ARE_V10_ITEMS
-        PATCH_IF( fj_debug && LONG_AT 0x44 )BEGIN PATCH_PRINT ~  Associating items.~ END
+        PATCH_IF( fj_debug && LONG_AT ( off + 0x44 ) )BEGIN PATCH_PRINT ~  Associating items.~ END
         PHP_EACH array AS num1 => off1 BEGIN
           READ_ASCII off1 $EVAL ~are_container_%num%_itm~(~%num1%~) (0x14)
         END
