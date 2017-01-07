@@ -44,6 +44,7 @@ let rec pe_to_str pe = "(" ^ (match pe with
 | PE_Sub(e1,e2) -> Printf.sprintf "%s - %s" (pe_to_str e1) (pe_to_str e2)
 | PE_Mul(e1,e2) -> Printf.sprintf "%s * %s" (pe_to_str e1) (pe_to_str e2)
 | PE_Div(e1,e2) -> Printf.sprintf "%s / %s" (pe_to_str e1) (pe_to_str e2)
+| PE_Mod(e1,e2) -> Printf.sprintf "%s MODULO %s" (pe_to_str e1) (pe_to_str e2)
 | PE_Exp(e1,e2,Pred_True) -> Printf.sprintf "%s ** %s"
       (pe_to_str e1) (pe_to_str e2)
 | PE_Exp(e1,e2,e3) -> Printf.sprintf "%s ** (%s / %s)"

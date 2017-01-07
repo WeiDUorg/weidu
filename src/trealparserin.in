@@ -57,7 +57,7 @@ terminals {
     right 140 LONG_AT SLONG_AT BYTE_AT SBYTE_AT SHORT_AT SSHORT_AT;
     right 130 NOT BNOT ABS;
     left  120 TIMESTIMES;
-    left  110 TIMES DIVIDE;
+    left  110 TIMES DIVIDE MODULO;
     left  100 PLUS MINUS;
     left   90 BLSL BLSR BASR;
     left   80 GT GTE LT LTE;
@@ -956,6 +956,7 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
   -> e1:Patch_Exp MINUS e2:Patch_Exp      { Tp.PE_Sub(e1,e2) }
   -> e1:Patch_Exp TIMES e2:Patch_Exp      { Tp.PE_Mul(e1,e2) }
   -> e1:Patch_Exp DIVIDE e2:Patch_Exp      { Tp.PE_Div(e1,e2) }
+  -> e1:Patch_Exp MODULO e2:Patch_Exp      { Tp.PE_Mod(e1,e2) }
   -> e1:Patch_Exp TIMESTIMES e2:Patch_Exp      { Tp.PE_Exp(e1,e2,Tp.Pred_True) }
   -> e1:Patch_Exp TIMESTIMES LPAREN e2:Patch_Exp e3:Patch_Exp RPAREN
        { Tp.PE_Exp(e1,e2,e3) }

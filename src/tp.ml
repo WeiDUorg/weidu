@@ -462,6 +462,7 @@ and tp_patchexp =
   | PE_Sub of tp_patchexp * tp_patchexp
   | PE_Mul of tp_patchexp * tp_patchexp
   | PE_Div of tp_patchexp * tp_patchexp
+  | PE_Mod of tp_patchexp * tp_patchexp
   | PE_Exp of tp_patchexp * tp_patchexp * tp_patchexp
   | PE_Equal of tp_patchexp * tp_patchexp
   | PE_And of tp_patchexp * tp_patchexp

@@ -351,6 +351,8 @@ let rec eval_pe buff game p =
   | PE_Mul(a,b) -> let a = eval_pe buff game a in let b = eval_pe buff game b in Int32.mul a b
   | PE_Div(a,b) -> let a = eval_pe buff game a in let b = eval_pe buff game b in 
     (try Int32.div a b with Division_by_zero -> Int32.zero)
+  | PE_Mod(a,b) -> let a = eval_pe buff game a in let b = eval_pe buff game b in
+    (try Int32.rem a b with Division_by_zero -> Int32.zero)
   | PE_Exp(a,b,c) -> 
       (try 
 	let a = Int32.to_float (eval_pe buff game a) in
