@@ -3174,7 +3174,7 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
       itself (e.g., by using the current time).  \\
   or & \DEFINE{ACTION!READLN} \ttref{variable} &
       Waits for the user to provided an enter-terminated string and store it in
-      variable. Said string will be stored and re-used at reinstall time. See the
+      variable. Said string will be stored and re-used during non-interactive reinstalls. See the
       \ttref{READLN} tutorial. \\
 or & \DEFSYN{APPEND} \ttref{optNoBackup} filename newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe  &
       If there are no \ttref{when} conditions or they are all true, the
@@ -4647,7 +4647,7 @@ or & \DEFINE{REMOVE!2DA!ROW} \t{\ttref{value}1 \ttref{value}2} &
 \\
 or & \DEFINE{PATCH!READLN} \ttref{variable} &
   Waits for the user to provided an enter-terminated string and store it in
-  variable. Said string will be stored and re-used at reinstall time. See the
+  variable. Said string will be stored and re-used during non-interactive reinstalls. See the
   \ttref{READLN} tutorial. \\
 or & \DEFINE{PATCH!RANDOM!SEED} \ttref{value} &
   See \ttref{RANDOM!SEED}. \\
