@@ -656,7 +656,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                       true
                       with _ ->
                         log_only_modder "Not copying [%s] to [%s] because it does NOT contain [%s]\n"
-                          src dest  (eval_pe_str s) ;
+                          src dest (Var.get_string (eval_pe_str s)) ;
                         false
                   end
                   | TP_NotContains(s) -> begin
@@ -664,7 +664,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                       try
                         let _ = Str.search_forward my_regexp buff 0 in
                         log_only_modder "Not copying [%s] to [%s] because it DOES contain [%s]\n"
-                          src dest (eval_pe_str s) ;
+                          src dest (Var.get_string (eval_pe_str s)) ;
                         false
                       with _ ->
                         true
@@ -1728,22 +1728,22 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                     let my_regexp = Str.regexp_case_fold (Var.get_string (eval_pe_str s)) in
                     try let _ = Str.search_forward my_regexp buff 0 in
                     log_only "Appending cols to [%s] because it DOES contain [%s]\n"
-                      file (eval_pe_str s)  ;
+                      file (Var.get_string (eval_pe_str s))  ;
                     true
                     with _ ->
                       log_only "Not appending cols to [%s] because it does NOT contain [%s]\n"
-                        file (eval_pe_str s) ;
+                        file (Var.get_string (eval_pe_str s)) ;
                       false
                   end
                 | TP_NotContains(s) -> begin
                     let my_regexp = Str.regexp_case_fold (Var.get_string (eval_pe_str s)) in
                     try let _ = Str.search_forward my_regexp buff 0 in
                     log_only "Not appending cols to [%s] because it DOES contains [%s]\n"
-                      file (eval_pe_str s) ;
+                      file (Var.get_string (eval_pe_str s)) ;
                     false
                     with _ ->
                       log_only "Appending cols to [%s] because it does NOT contain [%s]\n"
-                        file (eval_pe_str s) ;
+                        file (Var.get_string (eval_pe_str s)) ;
                       true
                 end
                 | TP_IfSizeIs(size) -> String.length buff = size
@@ -1825,11 +1825,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                       (Var.get_string (eval_pe_str s)) in
                   try let _ = Str.search_forward my_regexp buff 0 in
                   log_only "Appending [%.10s...] to [%s] because it DOES contain [%s]\n"
-                    src file (eval_pe_str s)  ;
+                    src file (Var.get_string (eval_pe_str s))  ;
                   true
                   with _ ->
                     log_only "Not appending [%.10s...] to [%s] because it does NOT contain [%s]\n"
-                      src file (eval_pe_str s) ;
+                      src file (Var.get_string  (eval_pe_str s)) ;
                     false
                 end
               | TP_NotContains(s) -> begin
@@ -1837,11 +1837,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                       (Var.get_string (eval_pe_str s)) in
                   try let _ = Str.search_forward my_regexp buff 0 in
                   log_only "Not appending [%.10s...] to [%s] because it DOES contains [%s]\n"
-                    src file (eval_pe_str s) ;
+                    src file (Var.get_string (eval_pe_str s)) ;
                   false
                   with _ ->
                     log_only "Appending [%.10s...] to [%s] because it does NOT contain [%s]\n"
-                      src file (eval_pe_str s) ;
+                      src file (Var.get_string (eval_pe_str s)) ;
                     true
               end
               | TP_IfSizeIs(size) -> String.length buff = size
