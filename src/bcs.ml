@@ -1084,18 +1084,20 @@ let print_script_text game how what comments strhandle =
       bcs_printf "%sTriggerOverride(" (if t1.negated then "!" else "");
       print_obj t.t_5;
       bcs_printf ",";
-      if print_trigger {t1 with negated = false} > 0 then
+      if print_trigger {t1 with negated = false} false > 0 then
         failwith "OR() cannot be used inside NextTriggerObject / TriggerOverride";
-      bcs_printf ")\n";
+      bcs_printf ")";
+      print_trigger_comment game t1 ;
+      bcs_printf "\n" ;
       print_trigger_list tl compiling_to_dlg or_count
     | t :: tl ->
       let indent = 2 + if !or_count > 0 then (decr or_count ; 2) else 0 in
       bcs_printf "%*s" indent " " ;
-      or_count := !or_count + (print_trigger t) ;
+      or_count := !or_count + (print_trigger t comments) ;
       bcs_printf "\n";
       print_trigger_list tl compiling_to_dlg or_count
     | [] -> ()
-  and print_trigger t =
+  and print_trigger t comments =
     if (t.negated) then bcs_printf "!" ;
     let ids = best_ids_of_trigger game t in
     bcs_printf "%s(" ids.i_name ;
@@ -1103,19 +1105,22 @@ let print_script_text game how what comments strhandle =
     print_arg_list argl ids ;
     bcs_printf ")" ;
     if comments then begin
-      match ids.i_name with
-      | "PartyHasItem"
-      | "HasItem"
-        -> bcs_printf "  // %s" (name_of_res t.t_3 "ITM" 0xc)
-      | "Dead"
-        -> bcs_printf "  // %s" (name_of_res t.t_3 "CRE" 0xc)
-      | _ ->
-          if t.t_5.o_name <> "" then
-            bcs_printf "  // %s" (name_of_res t.t_5.o_name "CRE" 0xc)
+      print_trigger_comment game t ;
     end ;
     if String.uppercase ids.i_name = "OR" then
       (Int32.to_int t.t_1)
     else 0
+  and print_trigger_comment game t =
+    let ids = best_ids_of_trigger game t in
+    (match ids.i_name with
+    | "PartyHasItem"
+    | "HasItem"
+      -> bcs_printf "  // %s" (name_of_res t.t_3 "ITM" 0xc)
+    | "Dead"
+      -> bcs_printf "  // %s" (name_of_res t.t_3 "CRE" 0xc)
+    | _ ->
+        if t.t_5.o_name <> "" then
+          bcs_printf "  // %s" (name_of_res t.t_5.o_name "CRE" 0xc))
   and name_of_res r ext offset =
     try
       Load.skip_next_load_error := true ;
