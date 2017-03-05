@@ -307,7 +307,7 @@ let inst_button_position popup orig_mod_log tp2_file tp2_parsed lang components 
 ;;
 
 let inst_button_comps popup orig_mod_log tp2_file tp2_parsed lang =
-  let length = Tpstate.get_last_module_index tp2_parsed in
+  let length = Tpstate.get_last_module_number tp2_parsed.Tp.module_list in
   let shown_ht = Hashtbl.create 100 in
   let but_frm = Frame.create popup in
   let temp_undo = Button.create ~text:"Cancel" but_frm in

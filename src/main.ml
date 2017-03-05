@@ -618,7 +618,7 @@ let list_components list_comp list_comp_lang game =
       let tp2_ht = Hashtbl.create 511 in
       let tra_ht = Hashtbl.create 511 in
       let fake_log = ref [] in
-      for i = 0 to Tpstate.get_last_module_index tp2 + 1 do
+      for i = 0 to Tpstate.get_last_module_number tp2.Tp.module_list + 1 do
         try
           ignore (Tpstate.get_nth_module tp2 i false);
           fake_log := (x,lang,i,None,Tp.Installed) :: !fake_log;

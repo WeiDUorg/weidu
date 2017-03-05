@@ -72,7 +72,7 @@ let get_nth_module tp_file n print_why =
   in
   process lst
 
-let get_last_module_index tp_file =
+let get_last_module_number module_list =
   let last = ref 0 in
   List.fold_left (fun acc elt ->
     let this_one =
@@ -83,12 +83,12 @@ let get_last_module_index tp_file =
       in process elt.mod_flags
     in
     last := this_one ;
-    max !last acc) 0 tp_file.module_list
+    max !last acc) 0 module_list
 
 let get_id_of_label tp_file label =
   let ans = ref None in
   let has_label c = List.mem (TPM_Label label) c.mod_flags in
-  for i = 0 to get_last_module_index tp_file do
+  for i = 0 to get_last_module_number tp_file.Tp.module_list do
     try
       let c = get_nth_module tp_file i false in
       if has_label c then begin match !ans with
