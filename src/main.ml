@@ -627,8 +627,34 @@ let list_components list_comp list_comp_lang game =
       output_theout (Tpstate.sprintf_log game handle_tp2_filename
                        handle_tra_filename get_tra_list_filename
                        (List.rev !fake_log) tp2_ht tra_ht false false);
-  end;
-;;
+  end
+
+let list_components_json list_comp list_comp_lang game =
+  begin match list_comp with
+  | None -> ()
+  | Some(x) ->
+      let tp_file = handle_tp2_filename x in
+      let lang = list_comp_lang in
+      let comp_list = (List.filter (fun comp ->
+        not comp.Tp.deprecated) (Tpstate.get_component_list tp_file)) in
+      Dc.clear_state () ;
+      Dc.push_trans () ;
+      Var.var_clear_push () ;
+      (try
+        ignore (Tpstate.set_tp2_vars tp_file) ;
+        let tra_files = (try
+          List.nth tp_file.Tp.languages list_comp_lang
+        with _ -> List.nth tp_file.Tp.languages 0) in
+        ignore (List.iter (fun tra_file ->
+          Parsewrappers.handle_tra_filename (Var.get_string tra_file))
+                  tra_files.Tp.lang_tra_files) ;
+      with _ -> ()) ;
+      output_theout (Printf.sprintf "%s\n"
+                       (Json.stringify_component_list comp_list)) ;
+      Dc.clear_state () ;
+      Dc.pop_trans () ;
+      Var.var_pop () ;
+  end
 
 let save_component_name game =
   let old_tp_quick_log = !Tp.quick_log in
@@ -1228,6 +1254,7 @@ let main () =
 
   let list_lang = ref None in
   let list_comp = ref None in
+  let list_comp_json = ref None in
   let list_comp_lang = ref 0 in
   let save_comp_name = ref false in
 
@@ -1428,6 +1455,10 @@ let main () =
     Myarg.String (fun s -> list_comp := Some s);
     Myarg.Int (fun s -> list_comp_lang := s);
   ], "\tX Y lists all components in X using language Y";
+    "--list-components-json", Myarg.Tuple [
+    Myarg.String (fun s -> list_comp_json := Some s) ;
+    Myarg.Int (fun i -> list_comp_lang := i) ;
+  ], "\tX Y lists all components in X using language Y with JSON output EXPERIMENTAL!" ;
     "--save-components-name", Myarg.Set save_comp_name, "\trewrites weidu.log, printing every component name";
     "--change-log",Myarg.String (fun s -> change_log := s :: !change_log), "\tgenerates a changelog for the given resource (cumulative)";
     "--change-log-list",Myarg.List (Myarg.String (fun s -> change_log := s :: !change_log)), "\tgenerates a changelog for the given resource (cumulative)";
@@ -1769,6 +1800,10 @@ let main () =
   (* list components of a tp2 *)
   if !list_comp <> None then
     list_components !list_comp !list_comp_lang game ;
+
+
+  if !list_comp_json <> None then
+    list_components_json !list_comp_json !list_comp_lang game ;
 
 
   if !save_comp_name then

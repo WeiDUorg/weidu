@@ -90,6 +90,16 @@ and tp_mod_flag =
   | TPM_Group of Dlg.tlk_string * tp_patchexp
   | TPM_Label of string
 
+and component = {
+    index : int ;
+    number : int ;
+    deprecated : bool ;
+    forced : bool ;
+    name : Dlg.tlk_string ;
+    subgroup : Dlg.tlk_string option ;
+    group : Dlg.tlk_string list ;
+  }
+
 and tp_copy_args = {
     copy_get_existing    : bool ;  (* get from biffs? *)
     copy_use_regexp      : bool ;

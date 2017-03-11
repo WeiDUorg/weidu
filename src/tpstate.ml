@@ -85,6 +85,16 @@ let get_highest_module_number module_list =
     highest := current ;
     max !highest acc) 0 module_list
 
+let get_last_module_number module_list =
+  List.fold_left (fun acc tp_mod ->
+    let current =
+      let rec process lst = match lst with
+      | Tp.TPM_Designated(i) :: tl -> i
+      | hd :: tl -> process tl
+      | [] -> acc + 1
+      in process tp_mod.Tp.mod_flags in
+    current) 0 module_list
+
 let get_id_of_label tp_file label =
   let ans = ref None in
   let has_label c = List.mem (TPM_Label label) c.mod_flags in
@@ -105,6 +115,35 @@ let get_id_of_label tp_file label =
     log_and_print "WARNING: LABEL [%s] not found in tp2 file [%s]\n" label tp_file.tp_filename end;
   !ans
 
+let get_component_list tp_file =
+  List.mapi (fun index tp_mod ->
+    let (left, _) =
+      if index + 1 >= (List.length tp_file.Tp.module_list) then
+        (tp_file.Tp.module_list, [])
+      else
+        List.split_at (index + 1) tp_file.Tp.module_list in
+    let number = get_last_module_number left in
+    let deprecated = List.exists (fun f -> match f with
+    | Tp.TPM_Deprecated(_) -> true
+    | _ -> false) tp_mod.Tp.mod_flags in
+    let group = List.map (fun g -> match g with
+    | Tp.TPM_Group(ts, _) -> ts
+    | _ -> Dlg.TLK_Index(-1)) (List.filter (fun f -> match f with
+      | Tp.TPM_Group(_) -> true
+      | _ -> false) tp_mod.Tp.mod_flags) in
+    let subgroup = List.fold_left (fun acc f -> match f with
+    | Tp.TPM_SubComponents(ts, _, _) -> Some ts
+    | _ -> acc) None tp_mod.Tp.mod_flags in
+    let forced_subgroup = List.fold_left (fun acc f -> match f with
+    | Tp.TPM_SubComponents(_, _, p) -> p
+    | _ -> acc) false tp_mod.Tp.mod_flags in
+    let install_by_default = List.exists (fun f -> match f with
+    | Tp.TPM_InstallByDefault -> true
+    | _ -> false) tp_mod.Tp.mod_flags in
+    let forced = forced_subgroup || install_by_default in
+    { index = index ; name = tp_mod.mod_name ; number = number ;
+      deprecated = deprecated ; group = group ; subgroup = subgroup ;
+      forced = forced }) tp_file.Tp.module_list
 
 (************************************************************************
  * Evaluate a TP2 Patch Expression
