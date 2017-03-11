@@ -644,7 +644,7 @@ let rec handle_tp game this_tp2_filename tp =
                         | _ -> Tlk.is_bg2 := false)
   | _ -> ()) tp.flags ;
 
-  let last_module_index = get_last_module_number tp.Tp.module_list in
+  let last_module_index = get_highest_module_number tp.Tp.module_list in
   (* comp_num = number of user visible "component chunks", each of which
    * can have multiple sub-components *)
   let comp_num = count_comp_num tp in
