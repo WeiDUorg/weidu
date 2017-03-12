@@ -1,6 +1,8 @@
 let export_string ts =
-  String.escaped (Dc.single_string_of_tlk_string
-                    (Load.the_game ()) ts)
+  (* Can't use String.escaped because it messes up non-ASCII *)
+  let newlines = Str.regexp "[\n\r]" in
+  Str.global_replace newlines "" (Dc.single_string_of_tlk_string
+    (Load.the_game ()) ts)
 
 let stringify_component_group group =
   let body = String.concat "," (List.map (fun string ->
