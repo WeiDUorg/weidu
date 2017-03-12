@@ -11,9 +11,9 @@ let stringify_component_group group =
   String.concat "" [ "[" ; body ; "]" ]
 
 let stringify_component component =
-  let index = Printf.sprintf "\"index\":\"%d\"" component.Tp.index in
-  let number = Printf.sprintf "\"number\":\"%d\"" component.Tp.number in
-  let forced = Printf.sprintf "\"forced\":\"%B\"" component.Tp.forced in
+  let index = Printf.sprintf "\"index\":%d" component.Tp.index in
+  let number = Printf.sprintf "\"number\":%d" component.Tp.number in
+  let forced = Printf.sprintf "\"forced\":%B" component.Tp.forced in
   let name = Printf.sprintf "\"name\":\"%s\""
       (export_string component.Tp.name) in
   let subgroup = (match component.Tp.subgroup with
