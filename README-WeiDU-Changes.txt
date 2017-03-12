@@ -4,6 +4,8 @@ Version 241:
   * Add MODULO expression. Thanks, Argent77.
   * Fix unevaluated variable in some when-clauses.
   * Fix syntax error when decompiling NextObjectTrigger() with comments.
+  * BAF parser issues non-failing parse error over string arguments that
+    should be integers.
 
 Version 240:
   * GAME_INCLUDES supports SoD.

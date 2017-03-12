@@ -270,7 +270,11 @@ let rec verify_arg_list name al fl = match (al,fl) with
       | (BA_String s), Arg_Integer ->
           begin
             try Act_Integer(Int32.of_string s)
-            with _ -> Act_Integer(Int32.zero)
+            with _ -> (try parse_error
+                (Printf.sprintf
+                   "[%s] argument [%s] was expected to be an integer"
+                   name s)
+                with _ -> ()) ; Act_Integer(Int32.zero)
           end
 
       | (BA_String s), Arg_String -> Act_String(s)
