@@ -324,12 +324,8 @@ cleancaml:
 
 # If you have perl but not sed you can use this line instead. Don't you
 # wish we were using autoconf?
-#FIXDEPEND:=perl -e 'while(<>) { s%[^/\\ :]+[/\\]% %g; s%([^ :\\\n]+)%\$$(OBJDIR)/$$1%g; print $$_;}'
-ifdef WINDIR
-  FIXDEPEND:=sed -e '{ s%[^/\\ :][^/\\ :]*[/\\]% %g; s%\([^ :\\\n][^ :\\\n]*\)%$(OBJDIR)/\1%g; }' # -e 's.obj/x86_WIN32/[^o]*$$..g'
-else
-  FIXDEPEND:=sed -e '{ s%[^/\\ :][^/\\ :]*[/\\]% %g; s%\([^ :\\\n][^ :\\\n]*\)%$(OBJDIR)/\1%g; }'
-endif
+#FIXDEPEND:=perl -e 'while(<>) { s%[^/\\ :]+[/\\]% %g; s%([^ :\\\n\r]+)%$(OBJDIR)/$$1%g; print $$_;}'
+FIXDEPEND:=sed -e '{ s%[^/\\ :][^/\\ :]*[/\\]% %g; s%\([^ :\\\n\r][^ :\\\n\r]*\)%$(OBJDIR)/\1%g; }'
 
 # FIXDEPEND:=cat
 DEPINCLUDES= -I $(OBJDIR) $(SOURCEDIRS:%=-I %)
@@ -353,5 +349,3 @@ ifneq ($(MAKECMDGOALS),src_zip)
 endif
 endif
 endif
-
-
