@@ -1,8 +1,14 @@
 let export_string ts =
   (* Can't use String.escaped because it messes up non-ASCII *)
-  let newlines = Str.regexp "[\n\r]" in
-  Str.global_replace newlines "" (Dc.single_string_of_tlk_string
-    (Load.the_game ()) ts)
+  let quote = "\"" in
+  let esc_quote = "\\\"" in
+  let backslash = "\\\\" in
+  let esc_backslash = "\\\\\\\\" in
+  let newlines = "[\n\r]" in
+  (Str.global_replace (Str.regexp quote) esc_quote
+     (Str.global_replace (Str.regexp backslash) esc_backslash
+        (Str.global_replace (Str.regexp newlines) ""
+           (Dc.single_string_of_tlk_string (Load.the_game ()) ts))))
 
 let stringify_component_group group =
   let body = String.concat "," (List.map (fun string ->
