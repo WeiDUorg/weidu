@@ -8525,24 +8525,75 @@ This is a PATCH macro and function.
 \item SET \verb+insert_point+ to the position of the effect. If this variable is 0 the effect will be inserted as the first effect of the extended header. If this variable is negative or greater than the number of effects, the effect will be inserted as the last effect. The effect is added as the last effect by default.
 \end{itemize}
 
-\verb+ADD_ITEM_EFFECT+: adds an extended effect to an item.
+\verb+ADD_ITEM_EFFECT+: adds an extended effect to an item. All variables except \verb+probability1+, \verb+type+ and \verb+insert_point+ are 0 by default.
 This is a PATCH macro and function.
-\begin{list}{}{}
-\item Syntax is the same as of \verb+ADD_SPELL_EFFECT+
-\item Additionally: SET \verb+type+ to the type of header to which the effect should be added or 99 for all types. Defaults to 3 (magic).
-\end{list}
+\begin{itemize}
+\item SET \verb+opcode+ to opcode
+\item SET \verb+target+ to target type
+\item SET \verb+timing+ to timing type
+\item SET \verb+parameter1+ to first parameter
+\item SET \verb+parameter2+ to second parameter
+\item SET \verb+power+ to power
+\item SET \verb+resist_dispel+ to magic resistance/dispel type
+\item SET \verb+duration+ to duration
+\item SET \verb+probability1+ to probability 1 (default 100)
+\item SET \verb+probability2+ to probability 2
+\item SPRINT \verb+resource+ to resource (8 chars max)
+\item SET \verb+dicenumber+ to number of dices to be thrown
+\item SET \verb+dicesize+ to size of dices to be thrown
+\item SET \verb+savingthrow+ to type of savingthrow to be allowed against the effect
+\item SET \verb+savebonus+ to saving throw bonus
+\item SET \verb+special+ to the special parameter (only valid for functions; not macros)
+\item SET \verb+header+ to number of extended header (starting from 1) the effect should be added to (by default the effect is added to every header).
+\item SET \verb+type+ to the type of header to which the effect should be added or 99 for all types. Defaults to 3 (magic).
+\item SET \verb+insert_point+ to the position of the effect. If this variable is 0 the effect will be inserted as the first effect of the extended header. If this variable is negative or greater than the number of effects, the effect will be inserted as the last effect. The effect is added as the last effect by default.
+\end{itemize}
 
-\verb+ADD_ITEM_EQEFFECT+: adds an equipping effect to an item.
+\verb+ADD_ITEM_EQEFFECT+: adds an equipping effect to an item. All variables except \verb+probability1+ are 0 by default.
 This is a PATCH macro and function.
-\begin{list}{}{}
-\item Syntax is the same as of \verb+ADD_SPELL_EFFECT+
-\end{list}
+\begin{itemize}
+\item SET \verb+opcode+ to opcode
+\item SET \verb+target+ to target type
+\item SET \verb+timing+ to timing type
+\item SET \verb+parameter1+ to first parameter
+\item SET \verb+parameter2+ to second parameter
+\item SET \verb+power+ to power
+\item SET \verb+resist_dispel+ to magic resistance/dispel type
+\item SET \verb+duration+ to duration
+\item SET \verb+probability1+ to probability 1 (default 100)
+\item SET \verb+probability2+ to probability 2
+\item SPRINT \verb+resource+ to resource (8 chars max)
+\item SET \verb+dicenumber+ to number of dices to be thrown
+\item SET \verb+dicesize+ to size of dices to be thrown
+\item SET \verb+savingthrow+ to type of savingthrow to be allowed against the effect
+\item SET \verb+savebonus+ to saving throw bonus
+\item SET \verb+special+ to the special parameter (only valid for functions; not macros)
+\item SET \verb+header+ to number of extended header (starting from 1) the effect should be added to (by default the effect is added to every header).
+\item SET \verb+insert_point+ to the position of the effect. If this variable is 0 the effect will be inserted as the first effect of the extended header. If this variable is negative or greater than the number of effects, the effect will be inserted as the last effect. The effect is added as the first effect by default.
+\end{itemize}
 
-\verb+ADD_SPELL_CFEFFECT+: adds a casting-feature effect to a spell.
+\verb+ADD_SPELL_CFEFFECT+: adds a casting-feature effect to a spell. All variables except \verb+probability1+ are 0 by default.
 This is a PATCH macro and function.
-\begin{list}{}{}
-\item Syntax is the same as that of \verb+ADD_SPELL_EFFECT+
-\end{list}
+\begin{itemize}
+\item SET \verb+opcode+ to opcode
+\item SET \verb+target+ to target type
+\item SET \verb+timing+ to timing type
+\item SET \verb+parameter1+ to first parameter
+\item SET \verb+parameter2+ to second parameter
+\item SET \verb+power+ to power
+\item SET \verb+resist_dispel+ to magic resistance/dispel type
+\item SET \verb+duration+ to duration
+\item SET \verb+probability1+ to probability 1 (default 100)
+\item SET \verb+probability2+ to probability 2
+\item SPRINT \verb+resource+ to resource (8 chars max)
+\item SET \verb+dicenumber+ to number of dices to be thrown
+\item SET \verb+dicesize+ to size of dices to be thrown
+\item SET \verb+savingthrow+ to type of savingthrow to be allowed against the effect
+\item SET \verb+savebonus+ to saving throw bonus
+\item SET \verb+special+ to the special parameter (only valid for functions; not macros)
+\item SET \verb+header+ to number of extended header (starting from 1) the effect should be added to (by default the effect is added to every header).
+\item SET \verb+insert_point+ to the position of the effect. If this variable is 0 the effect will be inserted as the first effect of the extended header. If this variable is negative or greater than the number of effects, the effect will be inserted as the last effect. The effect is added as the first effect by default.
+\end{itemize}
 
 \verb+ADD_CRE_EFFECT+: adds an effect to a creature. All variables except probability1 are 0 by default.
 This is a PATCH macro and function.
