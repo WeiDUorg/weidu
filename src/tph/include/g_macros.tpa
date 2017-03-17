@@ -282,26 +282,35 @@ DEFINE_PATCH_MACRO ~ADD_ITEM_EQEFFECT~ BEGIN
     READ_SHORT 0x6e ___#eqfx_index
     READ_SHORT 0x70 ___#eqfx_num
 
-    INSERT_BYTES (___#fx_off + ___#eqfx_index) 0x30
+    /* If insert_point is defined and valid, use it,
+       if undefined, default to 0,
+       otherwise, insert at the end
+    */
+    ___#insert_point = IS_AN_INT insert_point AND
+                       insert_point >= 0 AND
+                       insert_point < ___#eqfx_num ?
+                       insert_point : !IS_AN_INT insert_point ? 0 : ___#eqfx_num
 
-    WRITE_SHORT  (___#fx_off + ___#eqfx_index) opcode
-    WRITE_BYTE  (___#fx_off + ___#eqfx_index + 0x02) target
+    INSERT_BYTES (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30) 0x30
 
-    WRITE_BYTE  (___#fx_off + ___#eqfx_index + 0x03) power
-    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x04) parameter1
-    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x08) parameter2
-    WRITE_BYTE   (___#fx_off + ___#eqfx_index + 0x0c) timing
-    WRITE_BYTE   (___#fx_off + ___#eqfx_index + 0x0d) resist_dispel
-    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x0e) duration
-    WRITE_BYTE   (___#fx_off + ___#eqfx_index + 0x12) probability1
-    WRITE_BYTE   (___#fx_off + ___#eqfx_index + 0x13) probability2
-    WRITE_EVALUATED_ASCII (___#fx_off + ___#eqfx_index + 0x14) ~%resource%~ #8
-    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x1c) dicenumber
-    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x20) dicesize
-    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x24) savingthrow
-    WRITE_LONG   (___#fx_off + ___#eqfx_index + 0x28) savebonus
+    WRITE_SHORT  (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30) opcode
+    WRITE_BYTE  (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x02) target
+
+    WRITE_BYTE  (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x03) power
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x04) parameter1
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x08) parameter2
+    WRITE_BYTE   (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x0c) timing
+    WRITE_BYTE   (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x0d) resist_dispel
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x0e) duration
+    WRITE_BYTE   (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x12) probability1
+    WRITE_BYTE   (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x13) probability2
+    WRITE_EVALUATED_ASCII (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x14) ~%resource%~ #8
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x1c) dicenumber
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x20) dicesize
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x24) savingthrow
+    WRITE_LONG   (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x28) savebonus
     PATCH_IF IS_AN_INT ___#special BEGIN
-      WRITE_LONG (___#fx_off + ___#eqfx_index + 0x2c) ___#special
+      WRITE_LONG (___#fx_off + ___#eqfx_index + ___#insert_point * 0x30 + 0x2c) ___#special
     END
 
     //correcting global effects number
