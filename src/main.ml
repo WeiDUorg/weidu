@@ -718,7 +718,8 @@ let make_biff_from_dir make_biff game =
       if !file_list <> [] then begin
         let data = if game.Load.script_style = Load.PST then "" else "data/" in
         let filename = "data/" ^ s ^ ".bif" in
-        let new_key = Biff.save_biff game.Load.key filename !file_list in
+        let new_key = Biff.save_biff game.Load.key filename
+            (Load.fix_biff_path filename) !file_list in
         let oc = open_for_writing "CHITIN.KEY" true in
         Key.save_key new_key oc ;
         close_out oc ;

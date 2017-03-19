@@ -352,7 +352,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           if !find_list <> [] then begin
             let data = if game.Load.script_style = Load.PST then "" else "data/" in
             let filename = data ^ dest ^ ".bif" in
-            let new_key = Biff.save_biff game.Load.key filename !find_list in
+            let new_key = Biff.save_biff game.Load.key filename
+                (Load.fix_biff_path filename) !find_list in
             if !debug_ocaml then log_and_print "MAKE_BIFF: Calculated new key\n";
             let oc = open_for_writing "CHITIN.KEY" true in
             Key.save_key new_key oc ;

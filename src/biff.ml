@@ -42,7 +42,7 @@ and biff = {
  * save the biff to the disk
  * returns an updated KEY _that can only be saved, cannot be used_
  *)
-let save_biff key filename components =
+let save_biff key filename keyname components =
   begin
     let all_components = List.flatten (List.map (fun file ->
       let size = file_size file in
@@ -183,11 +183,9 @@ let save_biff key filename components =
     let total_size = file_size filename in
 
     let new_biff_index = Array.length (key.biff) in
-    let filesep_regexp = Str.regexp "[:/\\]" in
     let new_biffs = Array.append key.biff [|
       { Key.length = total_size ;
-        Key.filename = Str.global_replace filesep_regexp
-          Arch.biff_path_separator filename ;
+        Key.filename = keyname ;
         Key.locations = 1;
       } |] in
     let ctr = ref (-1) in

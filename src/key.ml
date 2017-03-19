@@ -226,8 +226,6 @@ let bif_of_resource key name ext =
 
 let bif_exists_in_key key name =
   let result = ref false in
-  let name = Str.global_replace (Str.regexp "[\\/:]")
-      Arch.biff_path_separator name in
   Array.iter (fun b ->
     let b = String.uppercase b.filename in
     if String.compare (String.uppercase name) b = 0 then
@@ -332,3 +330,5 @@ let remove_files key file_lst =
    resource = new_resource;
  }
 
+let biff_path_separator eep =
+  if eep then "/" else Arch.biff_path_separator

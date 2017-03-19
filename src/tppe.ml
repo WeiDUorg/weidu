@@ -20,8 +20,7 @@ let bigg_file_exists file key =
   if Str.string_match (Str.regexp_case_fold "data.25.*\\.bif") file 0 then
     begin
 (*    log_and_print "\nbigg_file_exist special case\n" ; *)
-      test := Key.bif_exists_in_key key (Str.global_replace (Str.regexp "[\\/:]")
-					   Arch.biff_path_separator file)
+      test := Key.bif_exists_in_key key (Load.fix_biff_path file)
     end
   else begin
 (*    log_and_print "\nbigg_file_exist special case not triggered: %s\n" file ; *)

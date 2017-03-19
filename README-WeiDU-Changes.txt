@@ -10,6 +10,8 @@ Version 241:
   * USER_DIRECTORY et al. work on Linux.
   * Return values have been redefined. There is now a return value for
     INSTALLED WITH WARNINGS.
+  * All biffs added to the key file on EE-type games use slash as path
+    separator
 
 Version 240:
   * GAME_INCLUDES supports SoD.

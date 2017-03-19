@@ -786,3 +786,8 @@ let file_exists_in_game game f =
     with _ -> false) in
   allow_missing := old_allow_missing ;
   res
+
+let fix_biff_path filename =
+  let sep = (Str.regexp "[\\/:]") in
+  let biff_sep = Key.biff_path_separator (enhanced_edition_p (the_game ())) in
+  Str.global_replace sep biff_sep filename
