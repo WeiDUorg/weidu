@@ -10025,16 +10025,16 @@ non-zero on failure. Here is a concrete list of return values.
 
 \begin{itemize}
 \item 0. General Success. No other error on this list was noticed.
-\item 1. A \ttref{TP2} \ttref{Component} failed to install.
+\item 1. Invalid command-line argument.
+\item 2. A \ttref{TP2} \ttref{Component} failed to install.
     A failed installation is one that displays a message like
     ``\t{Stopping installation because of error}'' or
     ``\t{ERROR Installing [Component], rolling back to previous state}'' or
     ``\t{PLEASE email the file SETUP-MYMOD.DEBUG to AUTHOR}'' or
     ``\t{ERROR Re-Installing [MyMod] component 1}''.
-\item 2. Auto-Update Error.
-\item 3. Auto-Update Retry. The \t{WeiDU.exe} auto-update succeeded, but
-you must re-run \t{WeiDU.exe}.
-\item 4. Invalid command-line argument.
+\item 3. A \ttref{TP2} \ttref{Component} installed with warnings. A
+  warning is generally a non-terminal error that may, but need not
+  necessarily, indicate problems.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

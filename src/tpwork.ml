@@ -850,7 +850,7 @@ let rec handle_tp game this_tp2_filename tp =
               (get_trans (-1032))
               ((Tpstate.subcomp_str game m) ^ package_name) ;
             (* add this successful install to the log! *)
-            return_value := return_value_error_tp2_component_install ;
+            exit_status := StatusInstallFailure ;
             log_and_print "\n%s%s%s\n"
               (*  "\nERROR Installing [%s], rolling back to previous state\n" *)
               ((get_trans (-1017))) ((Tpstate.subcomp_str game m) ^ package_name) ((get_trans (-1018))) ;
@@ -886,7 +886,8 @@ let rec handle_tp game this_tp2_filename tp =
           record_tlk_path_info game tlkpath_backup_filename ;
           let return_code = match !errors_this_component with
           | false -> -1019
-          | true -> errors_this_component := false; -1033
+          | true -> errors_this_component := false ;
+              exit_status := StatusInstallWarning ; -1033
           in
           append_to_strings_to_print_at_exit
             (*  "\nSUCCESSFULLY INSTALLED [%s]\n"  *)
@@ -1025,7 +1026,7 @@ let rec handle_tp game this_tp2_filename tp =
   let handle_error_generic always_yes specified_specific_components
       finished package_name =
     (fun e ->
-      return_value := return_value_error_tp2_component_install ;
+      exit_status := StatusInstallFailure ;
       log_and_print "ERROR: %s\n" (printexc_to_string e) ;
       Dc.clear_state () ;
       (if (!log_file <> "") then
@@ -1514,7 +1515,7 @@ let rec handle_tp game this_tp2_filename tp =
             set_errors file line);
           log_and_print "ERROR Re-Installing [%s] component %d %s\nTry to re-install it manually.\n%s\n"
             a c (str_of_str_opt sopt) (printexc_to_string e) ;
-          return_value := return_value_error_tp2_component_install ;
+          exit_status := StatusInstallFailure ;
           (a,b,c,sopt,Permanently_Uninstalled) :: (process tl)
       end
   in

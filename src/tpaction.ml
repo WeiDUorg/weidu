@@ -2356,7 +2356,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
         (try assert false with Assert_failure(file,line,col) -> set_errors file line);
       end else begin
-        return_value := return_value_error_tp2_component_install ;
+        exit_status := StatusInstallFailure ;
         log_and_print "Stopping installation because of error.\n" ;
         raise e
       end)) ()

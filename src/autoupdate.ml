@@ -105,7 +105,7 @@ let verify_latest can_spawn = begin
 
         if (can_spawn) then begin
           let _ = Unix.execve not_this Sys.argv env in
-          exit return_value_success ;
+          exit (return_value StatusSuccess) ;
         end
       end
     end ;
@@ -155,4 +155,4 @@ let self () =
         "\n\n\t***********************************************************\n\tWeiDU has finished auto-updating all copies of itself\n\tin this directory. Please RE-RUN %s\n\tto actually install the mod.\n\t(sorry, I can't do it for you, Windows won't let me)\n" target ;
       (if not Myarg.good_terminal_p then (try ignore (read_line () ) with _ -> ()))
     end;
-    exit return_value_retry_autoupdate ;
+    exit (return_value StatusAutoUpdateRetry) ;

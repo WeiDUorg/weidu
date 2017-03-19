@@ -8,6 +8,8 @@ Version 241:
     should be integers.
   * Implement insert_point for ADD_ITEM_EQEFFECT and ADD_SPELL_CFEFFECT.
   * USER_DIRECTORY et al. work on Linux.
+  * Return values have been redefined. There is now a return value for
+    INSTALLED WITH WARNINGS.
 
 Version 240:
   * GAME_INCLUDES supports SoD.

@@ -798,13 +798,22 @@ let parse_file verbose what sort_of_file parse_lex_fun =
   parse_error_verbose := old_parse_error_verbose ;
   ans
 
-let return_value_success = 0
-let return_value_error_tp2_component_install = 1
-let return_value_error_autoupdate = 2
-let return_value_retry_autoupdate = 3
-let return_value_error_argument = 4
+type exit_status_t =
+  | StatusSuccess
+  | StatusArgumentInvalid
+  | StatusInstallFailure
+  | StatusInstallWarning
+  | StatusAutoUpdateRetry
 
-let return_value = ref return_value_success
+let exit_status = ref StatusSuccess
+
+let return_value status =
+  (match status with
+  | StatusSuccess -> 0
+  | StatusArgumentInvalid -> 1
+  | StatusInstallFailure -> 2
+  | StatusInstallWarning -> 3
+  | StatusAutoUpdateRetry -> 4)
 
 let bool_xor a b =
   ((a && not b) || (not a && b))

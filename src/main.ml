@@ -1379,7 +1379,6 @@ let main () =
       begin
         log_and_print "ERROR: Cannot perform auto-update, going ahead anyway!\n\t%s\n"
           (printexc_to_string e) ;
-          (* exit return_value_error_autoupdate *)
       end ) ;
     if List.exists (fun arg -> let a,b = split arg in (String.uppercase b) = "TP2")
         (Array.to_list Sys.argv) then
@@ -1588,7 +1587,7 @@ let main () =
   ] in
   let give_help () =
     Myarg.usage argDescr usageMsg ;
-    exit return_value_error_argument
+    exit (return_value StatusArgumentInvalid)
   in
   let handleArg str = begin
     let base,ext = split (String.uppercase str) in
@@ -1640,7 +1639,7 @@ let main () =
   if (!auto_update_all) then begin
     (if (Arch.do_auto_update) then
       Autoupdate.verify_latest true);
-    exit return_value_success ;
+    exit (return_value StatusSuccess) ;
   end ;
 
   (* see if SETUP is in our base name *)
@@ -1655,7 +1654,7 @@ let main () =
         flush_all () ;
         log_and_print "\nEnter arguments: " ;
         let mystr = read_line () in
-        if mystr = "" then exit return_value_error_argument
+        if mystr = "" then exit (return_value StatusArgumentInvalid)
         else exit ( Sys.command (Sys.executable_name ^ " " ^ mystr))
       end) ;
   end else
@@ -2002,9 +2001,10 @@ if file_exists "override/add_spell.ids" && not (file_exists "override/spell.ids.
 
 Util.log_channel := None;
 
-if not !no_exit_pause && (!pause_at_end || (!return_value <> return_value_success)) then begin
+if not !no_exit_pause && (!pause_at_end ||
+(!exit_status <> StatusSuccess)) then begin
   log_and_print "\nPress ENTER to exit.\n" ;
   try ignore (read_line () ) with _ -> ()
 end ;
 
-exit !return_value ;
+exit (return_value !exit_status) ;
