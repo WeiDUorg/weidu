@@ -67,7 +67,8 @@ let extract_journals_quests_section for_what buff =
     ignore (Str.search_forward (Str.regexp body_match_string) whole 0) ;
     Str.matched_string whole
   with Not_found -> failwith
-      (Printf.sprintf "%s was unable to match a journals_quests section in BGEE.SQL"
+      (Printf.sprintf
+         "%s was unable to match a journals_quests section in BGEE.SQL"
          for_what) ;)
 
 let make_quests_record id name strref sc state chapter ?(quest_MC1 = None) () =
@@ -214,8 +215,10 @@ let quests_to_string quests =
   let close_statement = ");" in
   let body = List.fold_left (fun acc r ->
     (acc ^ "\t" ^ (string_of_int r.quest_id) ^ ",'" ^ r.quest_name ^ "'," ^
-     (string_of_int r.quest_strref) ^ "," ^ (string_of_int r.quest_show_children) ^
-     "," ^ (string_of_int r.quest_state) ^ "," ^ (string_of_int r.quest_chapter) ^
+     (string_of_int r.quest_strref) ^ "," ^
+     (string_of_int r.quest_show_children) ^
+     "," ^ (string_of_int r.quest_state) ^ "," ^
+     (string_of_int r.quest_chapter) ^
      (match r.quest_MC1 with
      | None -> ""
      | Some i -> "," ^ (string_of_int i)) ^ ",\n")) "" quests in
@@ -225,7 +228,8 @@ let journals_to_string journals =
   let open_statement = "INSERT INTO journals_quests ROWS\n(\n" in
   let close_statement = ");" in
   let body = List.fold_left (fun acc r ->
-    (acc ^ "\t" ^ (string_of_int r.journal_id) ^ "," ^ (string_of_int r.journal_quest_id)
+    (acc ^ "\t" ^ (string_of_int r.journal_id) ^ "," ^
+     (string_of_int r.journal_quest_id)
      ^ "," ^ (string_of_int r.journal_state) ^
      (match r.journal_quest_group with
      | None -> ""
@@ -240,7 +244,8 @@ let journals_to_string journals =
 
 let swap_in_new buff quests journals =
   let buff = Str.global_replace (Str.regexp quests_match_string) quests buff in
-  let buff = Str.global_replace (Str.regexp journals_match_string) journals buff in
+  let buff = Str.global_replace (Str.regexp journals_match_string)
+      journals buff in
   let buff = normalise_newlines buff in
   buff
 
@@ -257,7 +262,8 @@ let set_quests_data (quests,journals_quests) =
         output_string chan new_buff ;
         close_out chan) () ;
     with e ->
-      failwith (Printf.sprintf "Unable to write to BGEE.SQL because: %s" (printexc_to_string e)))
+      failwith (Printf.sprintf "Unable to write to BGEE.SQL because: %s"
+                  (printexc_to_string e)))
   else
     log_only "BGEE.SQL was not saved because it did not change\n" ;
   ()
