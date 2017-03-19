@@ -11,19 +11,19 @@ open BatteriesInit
 (*
  * Bare-bones interface
  *)
-exception Good_exit;;
+exception Good_exit ;;
 let askfor func mess =
-  print_string mess;
+  print_string mess ;
   try
     while true do
-      print_string "[Y]es or [N]o\n";
+      print_string "[Y]es or [N]o\n" ;
       let x = read_line () in
       match String.uppercase x with
       | "Y" ->
-          func ();
-          raise Good_exit;
+          func () ;
+          raise Good_exit ;
       | "N" ->
-          raise Good_exit;
+          raise Good_exit ;
       | _ ->
           ()
     done
@@ -53,25 +53,27 @@ let rec find_and_lower cur_dir () =
         in
         let lowercase = element = (String.lowercase element) in
         (* Even if directory itself is already lowercased, it may contain
-           not-lowercased items and we consequently need to process it anyway. *)
-        if not implicit && not is_a_symlink && (not lowercase || is_a_dir) then begin
-          let exists = Hashtbl.mem done_ht (String.lowercase element) in
-          if exists && is_a_dir then begin
-            dirlist := (element, true) :: !dirlist;
-          end else begin
-            Unix.rename element (String.lowercase element);
-            if is_a_dir then begin
-              dirlist := (String.lowercase element, false) :: !dirlist;
+           not-lowercased items and we consequently need to process it anyway.
+         *)
+        if not implicit && not is_a_symlink && (not lowercase || is_a_dir) then
+          begin
+            let exists = Hashtbl.mem done_ht (String.lowercase element) in
+            if exists && is_a_dir then begin
+              dirlist := (element, true) :: !dirlist ;
+            end else begin
+              Unix.rename element (String.lowercase element) ;
+              if is_a_dir then begin
+                dirlist := (String.lowercase element, false) :: !dirlist ;
+              end
             end
-          end
-        end;
-        Hashtbl.add done_ht (String.lowercase element) true;
-      end;
+          end ;
+        Hashtbl.add done_ht (String.lowercase element) true ;
+      end ;
     done
   with End_of_file ->
-    Unix.closedir dh;
+    Unix.closedir dh ;
     List.iter (fun (x, do_del) ->
-      find_and_lower x ();
+      find_and_lower x () ;
       if do_del then Unix.rmdir x) !dirlist
 
 (*
@@ -108,13 +110,14 @@ let get_wine_cfg () =
               let path = Hashtbl.find allpaths (String.uppercase path) in
               let otherpart = Str.string_after this 2 in
               let newpath = path ^ otherpart in
-              let newpath = Str.global_replace (Str.regexp "\\\\") "/" newpath in
+              let newpath = Str.global_replace (Str.regexp "\\\\")
+                                                  "/" newpath in
               Printf.fprintf linuxini "CD1:=%s\n%!" newpath) (List.tl split)
-          end;
+          end ;
         done
-      with End_of_file -> ();
+      with End_of_file -> () ;
         close_in baldurini
-    end) (Sys.readdir ".");
+    end) (Sys.readdir ".") ;
   close_out linuxini
 ;;
 
@@ -123,6 +126,5 @@ let get_wine_cfg () =
  *)
 askfor (find_and_lower ".") "Do you want to lowercase everything?
   (run if you extracted some mods since the last time you ran this utility)\n" ;
-
 askfor get_wine_cfg "Do you want to generate linux.ini from baldur.ini?
-(needed once per installation)\n" ;
+(needed once per installation)\n"
