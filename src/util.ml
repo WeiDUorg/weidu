@@ -37,9 +37,9 @@ let dos2unix = Str.global_replace many_cr_regexp "\r"
 
 let errors_this_component = ref false
 
-let value_of_option x = match x with
+let value_of_option x = (match x with
 | Some(s) -> s
-| None -> failwith "value_of_option None"
+| None -> failwith "value_of_option None")
 
 let log_channel = ref None
 
@@ -51,54 +51,49 @@ let be_silent = ref false
 
 let log_or_print fmt =
   let k result =
-    match !log_channel with
-      None -> print_string result ; flush stdout
-    | Some(o) -> output_string o result ; flush o
-  in
+    (match !log_channel with
+    | None -> print_string result ; flush stdout
+    | Some(o) -> output_string o result ; flush o) in
   Printf.kprintf k fmt
 
 let log_or_print_modder fmt =
   let k result =
-    if !debug_modder then match !log_channel with
-      None -> print_string result ; flush stdout
-    | Some(o) -> output_string o result ; flush o
-  in
+    if !debug_modder then (match !log_channel with
+    | None -> print_string result ; flush stdout
+    | Some(o) -> output_string o result ; flush o) in
   Printf.kprintf k fmt
 
 let log_only fmt =
   let k result =
-    match !log_channel with
-      None -> ()
-    | Some(o) -> output_string o result ; flush o
-  in
+    (match !log_channel with
+    | None -> ()
+    | Some(o) -> output_string o result ; flush o) in
   Printf.kprintf k fmt
 
 let log_only_modder fmt =
   let k result =
-    if !debug_modder then match !log_channel with
-      None -> ()
-    | Some(o) -> output_string o result ; flush o
-  in
+    if !debug_modder then (match !log_channel with
+    | None -> ()
+    | Some(o) -> output_string o result ; flush o) in
   Printf.kprintf k fmt
 
 let log_and_print fmt =
   let k result = begin
-    if not !be_silent then (output_string stdout result ; flush stdout );
-    match !log_channel with
-      None -> ()
-    | Some(o) -> output_string o result ; flush o
-  end
-  in
+    if not !be_silent then (output_string stdout result ; flush stdout ) ;
+    (match !log_channel with
+    | None -> ()
+    | Some(o) -> output_string o result ; flush o)
+  end in
   Printf.kprintf k fmt
 
 let log_and_print_modder fmt =
   let k result = begin
-    if not !be_silent && !debug_modder then (output_string stdout result ; flush stdout );
-    if !debug_modder then match !log_channel with
-      None -> ()
-    | Some(o) -> output_string o result ; flush o
-  end
-  in
+    if not !be_silent && !debug_modder then (output_string stdout result ;
+                                             flush stdout ) ;
+    if !debug_modder then (match !log_channel with
+    | None -> ()
+    | Some(o) -> output_string o result ; flush o)
+  end in
   Printf.kprintf k fmt
 
 let print_backtrace = ref false
@@ -109,48 +104,41 @@ let printexc_to_string e =
     Printexc.get_backtrace()
   else
     Printexc.to_string e
-  
-let set_errors file line =
-  if !debug_ocaml then log_and_print "Warning at %s.%d\n" file line;
-  errors_this_component := true;
-;;
 
+let set_errors file line =
+  if !debug_ocaml then log_and_print "Warning at %s.%d\n" file line ;
+  errors_this_component := true
 
 let recursive_mkdir directory mode =
   let dir_split = Str.split (Str.regexp "[/\\]") directory in
   let added_up_dir = ref "" in
   let skip_first_slash = ref false in
-  if String.get directory 0 = '\\' || String.get directory 0 = '/' then skip_first_slash := true ;
-  List.iter ( fun part ->
-    added_up_dir := !added_up_dir ^ (if !skip_first_slash then "/" else "") ^ part ;
+  if String.get directory 0 = '\\' || String.get directory 0 = '/' then
     skip_first_slash := true ;
-(* 	  log_and_print "MKDIR %s\n" !added_up_dir; *)
-    try
-      Case_ins.unix_mkdir !added_up_dir mode;
-    with e -> (
-      match e with
-      | Unix.Unix_error(Unix.EEXIST,_,_) -> ()
-      | _ -> log_and_print "Problem %s on %s: util.ml\n" (printexc_to_string e) !added_up_dir ;
-     )
-	     ) dir_split
+  List.iter (fun part ->
+    added_up_dir := !added_up_dir ^ (if !skip_first_slash then "/" else "") ^
+      part ;
+    skip_first_slash := true ;
+(*        log_and_print "MKDIR %s\n" !added_up_dir ; *)
+    (try
+      Case_ins.unix_mkdir !added_up_dir mode ;
+    with e -> (match e with
+    | Unix.Unix_error(Unix.EEXIST,_,_) -> ()
+    | _ -> log_and_print "Problem %s on %s: util.ml\n"
+          (printexc_to_string e) !added_up_dir))) dir_split
 
 let inlined_files = Hashtbl.create 15
-;;
 
 let clear_inlined () =
   let arr_spec = Hashtbl.copy inlined_files in
-  Hashtbl.iter ( fun a b -> Hashtbl.remove inlined_files a
-		) arr_spec ;
-  Hashtbl.clear inlined_files;
-List.iter ( fun (name,contents) ->
-  Hashtbl.add inlined_files name contents
-	   ) Tph.builtin_inlined_files
+  Hashtbl.iter (fun a b -> Hashtbl.remove inlined_files a) arr_spec ;
+  Hashtbl.clear inlined_files ;
+  List.iter (fun (name,contents) ->
+    Hashtbl.add inlined_files name contents) Tph.builtin_inlined_files
 ;;
 
-List.iter ( fun (name,contents) ->
-  Hashtbl.add inlined_files name contents
-	   ) Tph.builtin_inlined_files
-;;
+List.iter (fun (name,contents) ->
+  Hashtbl.add inlined_files name contents) Tph.builtin_inlined_files
 
 let backup_ht = Hashtbl.create 511
 let backup_dir = ref None
@@ -160,56 +148,57 @@ let move_list_chn = ref None
 let other_list_chn = ref None
 
 let set_backup_dir str i =
-  let i = Printf.sprintf "%d" i in 
+  let i = Printf.sprintf "%d" i in
   let backup_dir_name = Printf.sprintf "%s/%s" str i in
-  recursive_mkdir backup_dir_name 511; (* 511 = octal 0777 = a+rwx *)
+  recursive_mkdir backup_dir_name 511 ; (* 511 = octal 0777 = a+rwx *)
   backup_dir := Some(backup_dir_name) ;
   (match !backup_list_chn with
-    Some(c) -> close_out c
-  | None -> ()) ; 
+  | Some(c) -> close_out c
+  | None -> ()) ;
   (match !mappings_list_chn with
-    Some(c) -> close_out c
-  | None -> ()) ; 
+  | Some(c) -> close_out c
+  | None -> ()) ;
   (match !move_list_chn with
-    Some(c) -> close_out c
-  | None -> ()) ; 
+  | Some(c) -> close_out c
+  | None -> ()) ;
   (match !other_list_chn with
-    Some(c) -> close_out c
-  | None -> ()) ; 
+  | Some(c) -> close_out c
+  | None -> ()) ;
   let backup_filename = (backup_dir_name ^ "/UNINSTALL." ^ i) in
   let mappings_filename = (backup_dir_name ^ "/MAPPINGS." ^ i) in
   let move_filename = (backup_dir_name ^ "/MOVE." ^ i) in
   let other_filename = (backup_dir_name ^ "/OTHER." ^ i) in
-  Hashtbl.clear backup_ht ; 
+  Hashtbl.clear backup_ht ;
   (try
-    backup_list_chn := Some(Case_ins.perv_open_out_bin backup_filename);
-    mappings_list_chn := Some(Case_ins.perv_open_out_bin mappings_filename);
-    move_list_chn := Some(Case_ins.perv_open_out_bin move_filename);
-    other_list_chn := Some(Case_ins.perv_open_out_bin other_filename);
-  with e -> 
+    backup_list_chn := Some(Case_ins.perv_open_out_bin backup_filename) ;
+    mappings_list_chn := Some(Case_ins.perv_open_out_bin mappings_filename) ;
+    move_list_chn := Some(Case_ins.perv_open_out_bin move_filename) ;
+    other_list_chn := Some(Case_ins.perv_open_out_bin other_filename) ;
+  with e ->
     log_and_print "WARNING: unable to open [%s]: %s
-      Will be unable to UNINSTALL later.\n" backup_filename (printexc_to_string e))
+      Will be unable to UNINSTALL later.\n"
+       backup_filename (printexc_to_string e))
 
-let log_file = ref "" 
-let append_to_log = ref false 
+let log_file = ref ""
+let append_to_log = ref false
 let log_extern = ref false
 
 let init_log version filename =
-  try
-    let out = 
-      if !append_to_log then 
-        Case_ins.perv_open_out_gen [ Open_append ; Open_creat ; Open_text ] 0o777 filename
-      else Case_ins.perv_open_out filename 
-    in
+  (try
+    let out =
+      if !append_to_log then
+        Case_ins.perv_open_out_gen [ Open_append ; Open_creat ; Open_text ]
+          0o777 filename
+      else Case_ins.perv_open_out filename in
     log_channel := Some(out) ;
     log_file := filename ;
     log_only "WeiDU v %s Log\n\n" version ;
     Array.iter (fun s -> log_only " %s" s) Sys.argv ;
-    log_only "\n"  
+    log_only "\n"
   with e ->
     Printf.printf "WARNING: unable to open log file [%s]: %s"
       filename (printexc_to_string e) ;
-    () 
+    ())
 
 let int32_of_str_off str off =
   let d = Int32.of_int (Char.code str.[off+0]) in
@@ -243,17 +232,16 @@ let byte_of_str_off str off =
   let d = Char.code str.[off] in
   d
 
-let signed_byte_of d = 
-  if d > 127 then 
-    d - 256 
+let signed_byte_of d =
+  if d > 127 then
+    d - 256
   else d
 
 let signed_short_of d =
-  if d > 32767 then 
+  if d > 32767 then
     d - 65536
   else
-    d 
-
+    d
 
 let short_of_str str = short_of_str_off str 0
 
@@ -270,7 +258,7 @@ let str_of_int32 i =
   result.[0] <- (Char.chr d) ;
   result.[1] <- (Char.chr c) ;
   result.[2] <- (Char.chr b) ;
-  result 
+  result
 
 let str_of_int i =
   str_of_int32 (Int32.of_int i)
@@ -282,7 +270,7 @@ let str_of_short i =
   let i = i lsr 8 in
   let result = String.make 2 (Char.chr d) in
   result.[1] <- (Char.chr c) ;
-  result 
+  result
 
 let str_of_byte i =
   let d = i land 255 in
@@ -296,80 +284,78 @@ let str_to_exact_size str size =
     if String.length str > size then
       size
     else
-      String.length str
-  in 
+      String.length str in
   String.blit str 0 dest 0 max ;
   dest
 
 let write_int buff off value =
-  String.blit (str_of_int (value)) 0 buff off 4  
+  String.blit (str_of_int (value)) 0 buff off 4
 let write_int32 buff off value =
-  String.blit (str_of_int32 (value)) 0 buff off 4  
+  String.blit (str_of_int32 (value)) 0 buff off 4
 let write_short buff off value =
-  String.blit (str_of_short (value)) 0 buff off 2  
+  String.blit (str_of_short (value)) 0 buff off 2
 let write_byte buff off value =
-  if value < 0 then 
+  if value < 0 then
     buff.[off] <- (Char.chr (256+value))
-  else 
-    buff.[off] <- (Char.chr value) 
+  else
+    buff.[off] <- (Char.chr value)
 let write_resref buff off str =
-  String.blit (str_to_exact_size str 8) 0 buff off 8  
+  String.blit (str_to_exact_size str 8) 0 buff off 8
 
 
 let get_string_of_size str off size =
   let almost = String.sub str off size in
-  try
+  (try
     let null_index = String.index almost '\000' in
     String.sub almost 0 null_index
-  with _ -> almost
+  with _ -> almost)
 
-let my_write size fd buff name = 
+let my_write size fd buff name =
   let sofar = ref 0 in
-  while !sofar < size do 
+  while !sofar < size do
     let this_chunk = Unix.write fd buff !sofar (size - !sofar) in
     if this_chunk = 0 then begin
       failwith (Printf.sprintf "write %d of %d bytes from [%s]"
-		  !sofar size name) 
-    end else 
+                  !sofar size name)
+    end else
       sofar := !sofar + this_chunk
-  done 
+  done
 
-let my_read size fd buff name = 
+let my_read size fd buff name =
   let sofar = ref 0 in
-  while !sofar < size do 
+  while !sofar < size do
     let this_chunk = Unix.read fd buff !sofar (size - !sofar) in
     if this_chunk = 0 then begin
       failwith (Printf.sprintf "read %d of %d bytes from [%s]"
-		  !sofar size name) 
-    end else 
+                  !sofar size name)
+    end else
       sofar := !sofar + this_chunk
-  done 
+  done
 
 
 let file_size name =
-  try 
+  (try
     let stats = Case_ins.unix_stat name in
-    stats.Unix.st_size 
-  with _ ->  -1
+    stats.Unix.st_size
+  with _ ->  -1)
 
-let file_exists name = (file_size name >= 0) 
+let file_exists name = (file_size name >= 0)
 
 let is_directory name =
-  try
+  (try
     let stats = Case_ins.unix_stat name in
     let res = stats.Unix.st_kind = Unix.S_DIR in
-    (* log_only "%s is a directory: %b\n" name res ;  *) 
-    res 
-  with _ -> false 
+    (* log_only "%s is a directory: %b\n" name res ;  *)
+    res
+  with _ -> false)
 
 let split name =
-  try
+  (try
     let base = Case_ins.filename_chop_extension name in
     let ext = String.sub name ((String.length base)+1)
-	((String.length name) - ((String.length base)+1))
-    in 
+        ((String.length name) - ((String.length base)+1)) in
     base,ext
-  with _ -> name,""
+  with _ -> name,"")
 
 let my_unlink file =
   begin
@@ -377,16 +363,16 @@ let my_unlink file =
       Case_ins.unix_unlink file
     with e ->
       log_only "Unable to Unlink [%s]: %s\n"
-	file (printexc_to_string e)
+        file (printexc_to_string e)
   end
-  
-let my_rmdir dir = 
+
+let my_rmdir dir =
   begin
     try
       Case_ins.unix_rmdir dir
     with e ->
       log_only "Unable to Rmdir [%s]: %s\n"
-	dir (printexc_to_string e)
+        dir (printexc_to_string e)
   end
 
 let handle_readonly filename =
@@ -405,48 +391,46 @@ let rec backup_if_extant filename =
     ()
   else begin
     if (String.uppercase filename) = "OVERRIDE/SPELL.IDS" ||
-	   (String.uppercase filename) = "OVERRIDE\\SPELL.IDS" then begin
-	  if not (file_exists "override/spell.ids.installed") then begin
-	    backup_if_extant "override/spell.ids.installed";
-		let out_chn = Case_ins.perv_open_out_bin "override/spell.ids.installed" in
-		output_string out_chn "spell.ids edits installed\n";
-		close_out out_chn;
-	  end
-	end;
+    (String.uppercase filename) = "OVERRIDE\\SPELL.IDS" then begin
+      if not (file_exists "override/spell.ids.installed") then begin
+        backup_if_extant "override/spell.ids.installed" ;
+        let out_chn = Case_ins.perv_open_out_bin
+            "override/spell.ids.installed" in
+        output_string out_chn "spell.ids edits installed\n" ;
+        close_out out_chn ;
+      end
+    end ;
     Hashtbl.add backup_ht
       (String.uppercase (native_separator filename)) true ;
-    (
-     match !backup_list_chn with
-     | Some(chn) -> output_string chn (filename ^ "\n") ; flush chn
-     | None -> ()
-    );
-    match !backup_dir with
-    | Some(dir) when file_exists filename -> (
-	let name = filename in
-	let out = dir ^ "/" ^ (Str.global_replace (Str.regexp "[\\/:]") "." filename) in
-	let out1 = dir ^ "/" ^ Case_ins.filename_basename filename in
-	let where = ref "" in
-	try
+    (match !backup_list_chn with
+    | Some(chn) -> output_string chn (filename ^ "\n") ; flush chn
+    | None -> ()) ;
+    (match !backup_dir with
+    | Some(dir) when file_exists filename -> begin
+        let name = filename in
+        let out = dir ^ "/" ^ (Str.global_replace (Str.regexp "[\\/:]")
+                                 "." filename) in
+        let out1 = dir ^ "/" ^ Case_ins.filename_basename filename in
+        let where = ref "" in
+        (try
           if file_exists out1 then
-	    where := out
-	  else
-	    where := out1
-		;
-	  (
-	   match !mappings_list_chn with
-	   | Some(chn) -> output_string chn (filename ^ log_line_separator ^ !where ^ "\n"); flush chn
-	   | None -> ()
-	  );
-	  copy_large_file name !where "creating a backup"
-	with e ->
+            where := out
+          else
+            where := out1 ;
+          (match !mappings_list_chn with
+          | Some(chn) -> output_string chn (filename ^ log_line_separator ^
+                                            !where ^ "\n") ; flush chn
+          | None -> ()) ;
+          copy_large_file name !where "creating a backup"
+        with e ->
           log_and_print "ERROR: error copying [%s]\n" name ;
-          raise e
-       )
-    | _ -> ()
+          raise e)
+       end
+    | _ -> ())
   end
 
 and copy_large_file name out reason =
-(*  log_or_print "Copying a large file: %s to %s\n" name out; *)
+(*  log_or_print "Copying a large file: %s to %s\n" name out ; *)
   try begin
     Stats.time "loading files" (fun () ->
       let stats = Case_ins.unix_stat name in
@@ -460,7 +444,8 @@ and copy_large_file name out reason =
       if file_exists out then my_unlink out ;
       begin
         let in_fd  = Case_ins.unix_openfile name [Unix.O_RDONLY] 0 in
-        let out_fd = Case_ins.unix_openfile out  [Unix.O_WRONLY ; Unix.O_CREAT] 511 in
+        let out_fd = Case_ins.unix_openfile out
+            [Unix.O_WRONLY ; Unix.O_CREAT] 511 in
         let chunk_size = 10240 in
         let chunk = String.create chunk_size in
         let sofar = ref 0 in
@@ -474,11 +459,11 @@ and copy_large_file name out reason =
           Unix.close in_fd ;
           Unix.close out_fd ;
         with e ->
-          log_and_print "ERROR: copy_large_file failed to close %s or %s\n" name out ;
+          log_and_print "ERROR: copy_large_file failed to close %s or %s\n"
+            name out ;
           raise e) ;
         log_only "%s copied to %s, %d bytes\n" name out size ;
-      end
-			       ) ()
+      end) ()
   end
   with e ->
     log_and_print "ERROR: error copying [%s]\n" name ;
@@ -490,67 +475,67 @@ let load_file name =
   else
     try begin
       Stats.time "loading files" (fun () ->
-	let stats = Case_ins.unix_stat name in
-	let size = stats.Unix.st_size in
-	if size = 0 then
-	  log_or_print_modder "WARNING: [%s] is a 0 byte file\n" name
-	else if size < 0 then begin
-	  log_and_print "ERROR: [%s] has reported size %d\n" name size ;
-	  failwith ("error loading " ^ name)
-	end else if size > Sys.max_string_length then begin
-	  log_and_print "ERROR: [%s] has size %d: TOO BIG FOR WEIDU (max %d)\n"
-            name size Sys.max_string_length;
-	  failwith ("error loading " ^ name)
-	end ;
-	let buff = String.make size '\000' in
-	let fd = Case_ins.unix_openfile name [Unix.O_RDONLY] 0 in
-	my_read size fd buff name ;
+        let stats = Case_ins.unix_stat name in
+        let size = stats.Unix.st_size in
+        if size = 0 then
+          log_or_print_modder "WARNING: [%s] is a 0 byte file\n" name
+        else if size < 0 then begin
+          log_and_print "ERROR: [%s] has reported size %d\n" name size ;
+          failwith ("error loading " ^ name)
+        end else if size > Sys.max_string_length then begin
+          log_and_print "ERROR: [%s] has size %d: TOO BIG FOR WEIDU (max %d)\n"
+            name size Sys.max_string_length ;
+          failwith ("error loading " ^ name)
+        end ;
+        let buff = String.make size '\000' in
+        let fd = Case_ins.unix_openfile name [Unix.O_RDONLY] 0 in
+        my_read size fd buff name ;
         (try
-	  Unix.close fd ;
+          Unix.close fd ;
         with e ->
           log_and_print "ERROR: load_file failed to close %s\n" name ;
           raise e) ;
-	log_only "[%s] loaded, %d bytes\n" name size ;
-	buff) ();
+        log_only "[%s] loaded, %d bytes\n" name size ;
+        buff) () ;
     end
     with e ->
       log_and_print "ERROR: error loading [%s]\n" name ;
       raise e
 
 let list_of_files_in_directory d =
-  let result = ref [] in 
+  let result = ref [] in
   (try
     let dh = Case_ins.unix_opendir d in
     begin
-      try 
+      try
         while true do
-          result := Unix.readdir dh :: !result 
-        done 
-      with _ -> () 
+          result := Unix.readdir dh :: !result
+        done
+      with _ -> ()
     end ;
-    Unix.closedir dh 
+    Unix.closedir dh
   with _ -> ()) ; !result
 
-let modder_check_file_exists : (string -> unit) ref = ref (fun s -> failwith "Util.modder_check_file_exists not initialized")
-  
+let modder_check_file_exists : (string -> unit) ref = ref (fun s ->
+  failwith "Util.modder_check_file_exists not initialized")
+
 let open_for_writing_internal backup filename binary =
-  !modder_check_file_exists filename;
-  if (backup) then backup_if_extant filename else 
-  (
-   match !other_list_chn with
+  !modder_check_file_exists filename ;
+  if (backup) then backup_if_extant filename else
+  (match !other_list_chn with
    | Some(chn) -> output_string chn (filename ^ "\n") ; flush chn
-   | None -> ()
-  );
+   | None -> ()) ;
   if file_exists filename then (* if it already exists *)
     begin (* handle read-only files! *)
-      try 
+      try
         Case_ins.unix_chmod filename 511 ; (* 511 = octal 0777 = a+rwx *)
-      with e -> () 
-          (* log_or_print "WARNING: chmod %s : %s\n" filename 
+      with e -> ()
+          (* log_or_print "WARNING: chmod %s : %s\n" filename
              (printexc_to_string e) *)
     end ;
-  let out_chn = (if binary then Case_ins.perv_open_out_bin else Case_ins.perv_open_out) filename in
-  out_chn 
+  let out_chn = (if binary then Case_ins.perv_open_out_bin else
+  Case_ins.perv_open_out) filename in
+  out_chn
 
 let open_for_writing = open_for_writing_internal true
 
@@ -565,18 +550,18 @@ let create_filter = function () ->
     let strlen = String.length str in
     let pos = ref 0 in
     while !pos < strlen do
-      match !mode with
-        Copy  ->
-          let newpos = try String.index_from str !pos '\r'
-          with Not_found -> strlen in
+      (match !mode with
+      | Copy  ->
+          let newpos = (try String.index_from str !pos '\r'
+          with Not_found -> strlen) in
           Buffer.add_substring buf str !pos (newpos - !pos) ;
           if newpos != strlen then mode := Strip ;
           pos := newpos
       | Strip ->
-          let newpos = try String.index_from str !pos '\n'
-          with Not_found -> strlen in
+          let newpos = (try String.index_from str !pos '\n'
+          with Not_found -> strlen) in
           if newpos != strlen then mode := Copy ;
-          pos := newpos
+          pos := newpos)
     done ;
     let res = Buffer.contents buf in
     Buffer.clear buf ;
@@ -597,7 +582,10 @@ let exec_command cmd exact =
             let read = input proc_stdout s 0 80 in
             if read = 0 then raise End_of_file ;
             let text = String.sub s 0 read in
-            if not !be_silent then begin output_string stdout text ; flush stdout end ;
+            if not !be_silent then begin
+              output_string stdout text ;
+              flush stdout
+            end ;
             log_only "%s" (filter text)
           done
         with _ -> ()
@@ -609,7 +597,7 @@ let exec_command cmd exact =
 type execute_at_exit_type =
 | Command of string * bool
 | Fn of (unit) Lazy.t
-  
+
 let execute_at_exit = ref ([] : (execute_at_exit_type) list)
 
 let weidu_version = ref ""
@@ -627,17 +615,20 @@ type input_context = {
 let context_stack = ref []
 let ignore_context_error = ref false
 let push_context filename lexbuf =
-  let new_context = { line = 1; col = 0; delta = 0;
-		      filename = filename ; lexbuf = lexbuf ; warn_only = false } in
+  let new_context = { line = 1 ; col = 0 ; delta = 0 ;
+                      filename = filename ; lexbuf = lexbuf ;
+                      warn_only = false } in
   context_stack := new_context :: !context_stack
-let pop_context () = match !context_stack with
-  [] -> if not !ignore_context_error then log_and_print "ERROR: no current parsing context to pop!\n" ; ()
+let pop_context () = (match !context_stack with
+| [] -> if not !ignore_context_error then
+    log_and_print "ERROR: no current parsing context to pop!\n" ; ()
 | hd::tl ->
-    context_stack := List.tl !context_stack
-let the_context () = match !context_stack with
-  hd :: tl -> hd
-| [] -> if not !ignore_context_error then log_and_print "ERROR: no current parsing context\n" ;
-    failwith "no current parsing context"
+    context_stack := List.tl !context_stack)
+let the_context () = (match !context_stack with
+| hd :: tl -> hd
+| [] -> if not !ignore_context_error then
+    log_and_print "ERROR: no current parsing context\n" ;
+    failwith "no current parsing context")
 
 let lex_init (file: string)
     (inchannel: in_channel) : Lexing.lexbuf =
@@ -649,8 +640,9 @@ let lex_init_from_internal_string (file: string)
     (buff: string) : Lexing.lexbuf =
   let lexbuf = Lexing.from_string buff in
   let ctx = the_context () in
-  let new_context = { line = ctx.line; col = ctx.col - ctx.delta;
-		      delta = 0; filename = file ; lexbuf = lexbuf ; warn_only = true } in
+  let new_context = { line = ctx.line ; col = ctx.col - ctx.delta ;
+                      delta = 0 ; filename = file ; lexbuf = lexbuf ;
+                      warn_only = true } in
   context_stack := new_context :: !context_stack ;
   lexbuf
 
@@ -658,21 +650,21 @@ let lex_init_from_string (file: string)
     (buff: string) : Lexing.lexbuf =
   let lexbuf = Lexing.from_string buff in
   push_context file lexbuf ;
-  lexbuf 
+  lexbuf
 
-let newline () = 
-  let c = the_context () in 
-  c.line <- c.line + 1;
-  c.col <- 1;
+let newline () =
+  let c = the_context () in
+  c.line <- c.line + 1 ;
+  c.col <- 1 ;
   c.delta <- 0
 
-let tab () = 
+let tab () =
   let c = the_context () in
   c.col <- c.col + 8 - (c.col mod 8)
 
 (* let adj lb =
    let c = the_context () in
-   c.lexbuf <- lb ; 
+   c.lexbuf <- lb ;
    c.delta <- (Lexing.lexeme_end lb) - (Lexing.lexeme_start lb) ;
    c.col <- c.col + c.delta  *)
 
@@ -683,7 +675,7 @@ let str_adj lb =
   for i = 0 to (String.length st) - 1 do
     if st.[i] = '\n' then newline ()
     else begin
-      c.col <- c.col + 1; c.delta <- c.delta + 1 ;
+      c.col <- c.col + 1 ; c.delta <- c.delta + 1 ;
     end
   done
 
@@ -701,15 +693,16 @@ let rec remove_trailing_space str =
   | ' ',_   -> remove_trailing_space (String.sub str 1 (len - 1))
   | _  ,' ' -> remove_trailing_space (String.sub str 0 (len - 1))
   | _  ,_   -> str
-  
-  
+
+
 let error_chn_ht = Hashtbl.create 11
 let error_chn_base = ref "errors"
 let get_error_chn sort =
   try
     Hashtbl.find error_chn_ht sort
   with Not_found ->
-    let oc = Case_ins.perv_open_out (Printf.sprintf "%s/%s" !error_chn_base sort) in
+    let oc = Case_ins.perv_open_out (Printf.sprintf "%s/%s"
+                                       !error_chn_base sort) in
     Hashtbl.add error_chn_ht sort oc ;
     oc
 
@@ -743,18 +736,18 @@ let input_error sort_msg msg =
 let lex_error msg = input_error "LEXER" msg
 let parse_error msg = input_error "PARSE" msg
 
-let my_int_of_string s = 
+let my_int_of_string s =
   try int_of_string s
   with e -> parse_error "Not An Integer"
 
-type parse_what	=
+type parse_what =
   | File of string
   | String of string * string
 
-(* big generic parsing function *) 
+(* big generic parsing function *)
 let parse_file verbose what sort_of_file parse_lex_fun =
   let old_parse_error_verbose = !parse_error_verbose in
-  parse_error_verbose := verbose;
+  parse_error_verbose := verbose ;
   let do_the_work filename lexbuf =
     let result = Stats.time sort_of_file
         (fun () -> parse_lex_fun lexbuf) () in
@@ -762,20 +755,20 @@ let parse_file verbose what sort_of_file parse_lex_fun =
     log_or_print_modder "[%s] parsed\n" filename ;
     result
   in
-  let ans = match what with
-    | File(filename) ->
+  let ans = (match what with
+  | File(filename) ->
       if Hashtbl.mem inlined_files filename then begin
         let str = Hashtbl.find inlined_files filename in
         let lexbuf : Lexing.lexbuf = lex_init_from_string filename str in
-        try
+        (try
           do_the_work filename lexbuf
         with e ->
           if verbose then log_and_print "ERROR: parsing [%s]: %s\n"
               filename (printexc_to_string e) ;
-          raise e
-            end else begin
+          raise e)
+      end else begin
         let inchan = Case_ins.perv_open_in filename in
-        try
+        (try
           begin
             let lexbuf : Lexing.lexbuf = lex_init filename inchan in
             let res = do_the_work filename lexbuf in
@@ -783,27 +776,26 @@ let parse_file verbose what sort_of_file parse_lex_fun =
             res
           end
         with e ->
-          (try input_error "" (printexc_to_string e) with _ -> () ) ;
+          (try input_error "" (printexc_to_string e) with _ -> ()) ;
           pop_context () ;
           if verbose then log_and_print "ERROR: parsing [%s]: %s\n"
               filename (printexc_to_string e) ;
-          parse_error_verbose := old_parse_error_verbose;
-          close_in inchan ; raise e
+          parse_error_verbose := old_parse_error_verbose ;
+          close_in inchan ; raise e)
       end
-    | String (filename,str) -> begin
+  | String (filename,str) -> begin
       let lexbuf : Lexing.lexbuf = lex_init_from_string filename str in
-      try
+      (try
         do_the_work filename lexbuf
       with e ->
-          (try input_error "" (printexc_to_string e) with _ -> () ) ;
-          pop_context () ;
+        (try input_error "" (printexc_to_string e) with _ -> ()) ;
+        pop_context () ;
         if verbose then log_and_print "ERROR: parsing [%s]: %s\n"
-          filename (printexc_to_string e) ;
-          parse_error_verbose := old_parse_error_verbose;
-          raise e
-      end;
-  in
-  parse_error_verbose := old_parse_error_verbose;
+            filename (printexc_to_string e) ;
+        parse_error_verbose := old_parse_error_verbose ;
+        raise e)
+  end) in
+  parse_error_verbose := old_parse_error_verbose ;
   ans
 
 let return_value_success = 0
@@ -819,10 +811,10 @@ let bool_xor a b =
 
 let eval_pe_warn = ref true
 
-let split_log_line line = 
-	let pieces = Str.split (Str.regexp log_line_separator) line in
-	if List.length pieces = 2 then pieces else
-		Str.split (Str.regexp " ") line
+let split_log_line line =
+  let pieces = Str.split (Str.regexp log_line_separator) line in
+  if List.length pieces = 2 then pieces else
+  Str.split (Str.regexp " ") line
 
 let attempt_to_load_bgee_lang_dir game_path =
   let conf = Arch.native_separator (game_path ^ "/weidu.conf") in
@@ -837,14 +829,15 @@ let attempt_to_load_bgee_lang_dir game_path =
   else None
 
 let write_bgee_lang_dir game_path dir =
-  try
+  (try
     let conf = Arch.native_separator (game_path ^ "/weidu.conf") in
     let chan = Case_ins.perv_open_out_bin conf in
     ignore (output_string chan (String.lowercase
                                   (Printf.sprintf "lang_dir = %s\n" dir))) ;
     ignore (close_out chan)
   with e ->
-    log_and_print "ERROR: unable to save weidu.conf because: %s\n" (printexc_to_string e)
+    log_and_print "ERROR: unable to save weidu.conf because: %s\n"
+      (printexc_to_string e))
 
 let deduplicate list =
   let table = Hashtbl.create (List.length list) in
@@ -859,7 +852,8 @@ let deduplicate list =
 let get_user_dir_from_lua file =
   if file_exists file then begin
     let buff = load_file file in
-    let regexp = (Str.regexp_case_fold "engine_name[ \t]+=[ \t]+\"\\(.*\\)\"") in
+    let regexp = (Str.regexp_case_fold
+                    "engine_name[ \t]+=[ \t]+\"\\(.*\\)\"") in
     (try
       ignore (Str.search_forward regexp buff 0) ;
       Some (Str.matched_group 1 buff)
@@ -868,14 +862,17 @@ let get_user_dir_from_lua file =
     None
 
 let get_ee_user_dir game_path default =
-  let path = get_user_dir_from_lua (Arch.native_separator (game_path ^ "/engine.lua")) in
+  let path = get_user_dir_from_lua (Arch.native_separator (game_path ^
+                                                           "/engine.lua")) in
   (match path with
-  | Some path -> Arch.native_separator ((Arch.get_user_dir game_path) ^ "/" ^ path)
-  | None -> Arch.native_separator ((Arch.get_user_dir game_path) ^ "/" ^ default))
+  | Some path -> Arch.native_separator ((Arch.get_user_dir game_path) ^
+                                        "/" ^ path)
+  | None -> Arch.native_separator ((Arch.get_user_dir game_path) ^
+                                   "/" ^ default))
 
 let get_user_dir game_path game_type =
-  match game_type with
+  (match game_type with
   | GENERIC -> "."
   | BGEE -> get_ee_user_dir game_path "Baldur's Gate - Enhanced Edition"
   | BG2EE -> get_ee_user_dir game_path "Baldur's Gate II - Enhanced Edition"
-  | IWDEE -> get_ee_user_dir game_path "Icewind Dale - Enhanced Edition"
+  | IWDEE -> get_ee_user_dir game_path "Icewind Dale - Enhanced Edition")
