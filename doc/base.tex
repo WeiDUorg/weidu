@@ -1085,9 +1085,9 @@ the default \t{override} directory. \\
 \DEFINE{--use-lang} \t{X} & On multi-language games (e.g., BGEE), use the files
 in lang/X/ instead of asking which lang/X/ to use. This answer is saved
 and --use-lang can override a previously saved answer.\\
-\DEFINE{--tlkin} \t{X}	& Semi-deprecated. \emph{Do not use this.} Use {\tt X} as {\tt DIALOG.}\ttref{TLK} (instead
+\DEFINE{--tlkin} \t{X} & Use {\tt X} as {\tt DIALOG.}\ttref{TLK} (instead
 of looking for \t{DIALOG.TLK} in the game directory). \\
-\DEFINE{--ftlkin} \t{X} & Semi-deprecated. \emph{Do not use this.} Use {\tt X} as {\tt DIALOGF.}\ttref{TLK} (instead
+\DEFINE{--ftlkin} \t{X} & Use {\tt X} as {\tt DIALOGF.}\ttref{TLK} (instead
 of looking for \t{DIALOGF.TLK} in the game directory). \\
 \tt{FILE.}\ttref{TLK} & Equivalent to \ttref{--tlkin} \t{X}. \\
 \DEFINE{--tlkmerge} \t{X}	& Merge strings from {\tt X} over the strings from any other loaded {\tt \t{DIALOG.}\ttref{TLK}.} \\
@@ -1103,8 +1103,8 @@ will place their output there.  Does not affect \ttref{TP2} processing. \\
 \DEFINE{--append} \t{X} & Like \ttref{--out}, but if \t{X} is an existing
 file then the result will be appended to it instead of overwriting it. \\
 \DEFINE{--backup} \t{X} &	Backup files to directory {\tt X} before overwriting. Does not affect \ttref{TP2} processing. \\
-\DEFINE{--tlkout} \t{X} & Semi-deprecated. \emph{Do not use this.} Redirect the output dialog to X. If any strings were added to or changed in the loaded \t{DIALOG.TLK}, emit \t{X} as an updated version that reflects those changes. Many operations (e.g., compiling \t{D} files, \ttref{--tlkmerge}, \ttref{STRING!SET}) can add to or modify \t{DIALOG.TLK}. If this option is not provided, the output dialog is the same as the input dialog. \\
-\DEFINE{--ftlkout} \t{X} & Semi-deprecated. \emph{Do not use this.} Redirect the output dialogf to X. If any strings were added to or changed in the
+\DEFINE{--tlkout} \t{X} & Redirect the output dialog to X. If any strings were added to or changed in the loaded \t{DIALOG.TLK}, emit \t{X} as an updated version that reflects those changes. Many operations (e.g., compiling \t{D} files, \ttref{--tlkmerge}, \ttref{STRING!SET}) can add to or modify \t{DIALOG.TLK}. If this option is not provided, the output dialog is the same as the input dialog. \\
+\DEFINE{--ftlkout} \t{X} & Redirect the output dialogf to X. If any strings were added to or changed in the
 loaded \t{DIALOGF.TLK}, emit \t{X} as an updated version that reflects
 those changes. If this options is not provided, the output dialogf is the same as the input dialogf. \\
 \DEFINE{--version} & Print version number and exit. \\
