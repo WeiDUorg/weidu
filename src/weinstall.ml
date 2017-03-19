@@ -12,17 +12,20 @@ let log_and_print fmt =
 
 let main () =
   if Array.length Sys.argv = 1 then begin
-    log_and_print "Usage: %s name-of-tp2 otheroptions\n" Sys.argv.(0);
+    log_and_print "Usage: %s name-of-tp2 otheroptions\n" Sys.argv.(0) ;
   end else begin
     let buff = Buffer.create 1000 in
-    Sys.argv.(1) <- String.lowercase Sys.argv.(1);
-    if Case_ins.filename_check_suffix Sys.argv.(1) ".tp2" then Sys.argv.(1) <- Case_ins.filename_chop_suffix Sys.argv.(1) ".tp2";
-    if Case_ins.filename_check_suffix Sys.argv.(1) "/" then Sys.argv.(1) <- Case_ins.filename_chop_suffix Sys.argv.(1) "/";
+    Sys.argv.(1) <- String.lowercase Sys.argv.(1) ;
+    if Case_ins.filename_check_suffix Sys.argv.(1) ".tp2" then
+      Sys.argv.(1) <- Case_ins.filename_chop_suffix Sys.argv.(1) ".tp2" ;
+    if Case_ins.filename_check_suffix Sys.argv.(1) "/" then
+      Sys.argv.(1) <- Case_ins.filename_chop_suffix Sys.argv.(1) "/" ;
     let debug_where = try
       let h = Unix.stat "debugs" in
-      if h.Unix.st_kind = Unix.S_DIR then Printf.sprintf "debugs/%s.debug" Sys.argv.(1)
-      else Printf.sprintf "setup-%s.debug" Sys.argv.(1);
-    with _ -> Printf.sprintf "setup-%s.debug" Sys.argv.(1);
+      if h.Unix.st_kind = Unix.S_DIR then
+        Printf.sprintf "debugs/%s.debug" Sys.argv.(1)
+      else Printf.sprintf "setup-%s.debug" Sys.argv.(1) ;
+    with _ -> Printf.sprintf "setup-%s.debug" Sys.argv.(1) ;
     in
     let we = Case_ins.weidu_executable in
     let fast = try
@@ -37,39 +40,36 @@ let main () =
       we ^ s ^ ".exe"
     with _ -> we in
     Buffer.add_string buff (Printf.sprintf "%s --log %s "
-                              weidu_executable debug_where);
+                              weidu_executable debug_where) ;
     let x = Sys.argv.(1) in
     let tp2s = List.filter Sys.file_exists
-        [ (x ^ "/" ^ x ^ ".tp2") ;
-          (x ^ "/" ^ "setup-" ^ x ^ ".tp2") ;
-          (x ^ ".tp2") ;
-          ("setup-" ^ x ^ ".tp2") ; ] in
-    let tp2 = (try List.hd tp2s with _ -> failwith "ERROR: TP2 file not found.") in
+        [(x ^ "/" ^ x ^ ".tp2") ;
+         (x ^ "/" ^ "setup-" ^ x ^ ".tp2") ;
+         (x ^ ".tp2") ;
+         ("setup-" ^ x ^ ".tp2")] in
+    let tp2 = (try List.hd tp2s with _ ->
+      failwith "ERROR: TP2 file not found.") in
     Buffer.add_string buff tp2 ;
     if (fast) then
-      Buffer.add_string buff " --quick-log --skip-at-view --safe-exit --no-exit-pause ";
+      Buffer.add_string buff
+        " --quick-log --skip-at-view --safe-exit --no-exit-pause " ;
     for i = 2 to Array.length Sys.argv - 1 do
-      Buffer.add_string buff (
-      match Sys.argv.(i) with
+      Buffer.add_string buff (match Sys.argv.(i) with
       | "--force-install" -> " --force-install-list "
       | "--force-uninstall" -> " --force-uninstall-list "
-      | x -> " " ^ x ^ " "
-     );
-    done;
+      | x -> " " ^ x ^ " ") ;
+    done ;
     let x = Buffer.contents buff in
-    print_endline x;
+    print_endline x ;
     let int_of_ps x = match x with
     | Unix.WEXITED(i)
     | Unix.WSIGNALED(i)
-    | Unix.WSTOPPED(i)
-      -> i
+    | Unix.WSTOPPED(i)-> i
     in
-    exit (int_of_ps (Unix.system x));
+    exit (int_of_ps (Unix.system x)) ;
   end
-
 ;;
 
 try
   main ()
 with e -> log_and_print "Error: %s\n" (Printexc.to_string e)
-;;
