@@ -38,6 +38,7 @@ else
 		endif
 		export WEIDU_OS = unix
 		export USEOPT = .opt
+		PROJECT_CMODULES = nix
 		export TKDIR = obj
 	else
 		ifeq "$(uname)" "Darwin"

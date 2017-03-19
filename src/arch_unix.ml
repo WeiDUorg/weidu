@@ -83,10 +83,10 @@ let get_version f =
   Unix.kill pid 9;
   version
 
-(* external get_user_personal_dir : unit -> string = "get_user_home_dir" *)
+external get_user_personal_dir : unit -> string = "get_user_home_dir"
 
 let get_user_dir game_path =
-  game_path
+  (get_user_personal_dir()) ^ "/.local/share"
 
 let game_path_by_type name =
   failwith "--game-by-path not available on this architecture"

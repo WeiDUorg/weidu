@@ -16,4 +16,3 @@ CAMLprim value get_user_home_dir(void)
 
   return copy_string(homeDir);
 }
-

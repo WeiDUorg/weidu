@@ -10186,19 +10186,42 @@ BIT31 0b10000000000000000000000000000000
 \verb+LNL "\n"+ // Linux/Unix/OSX new line\\
 \verb+TAB "\t"+ // tabulation character
 
-\verb+REGISTRY_BG1_PATH+ the path of BG1 (as read from the registry), or empty if not available.\\
+\verb+REGISTRY_BG1_PATH+ the path of BG1 (as read from the registry),
+or empty if not available.\\
+
 \verb+REGISTRY_BG2_PATH+ ditto for BG2.\\
 \verb+REGISTRY_PST_PATH+ ditto for PST.\\
 \verb+REGISTRY_IWD1_PATH+ ditto for IWD1.\\
 \verb+REGISTRY_IWD2_PATH+ ditto for IWD2.
 
-\verb+USER_DIRECTORY+ evaluates to the directory in which user files are kept. This is the game path on non-BG: EE games. On EE-type games, if the file engine.lua exists, WeiDU will attempt to read the game-specific directory from it. If the engine.lua does not exist or does not contain the necessary information, WeiDU will use the default paths. On Windows BG: EE games this is "\%PATH\%\backslash Baldur's Gate - Enhanced Edition". On OS X BG: EE games this is "\$HOME/Documents/Baldur's Gate - Enhanced Edition". On Windows BGII: EE games this is "\%PATH\%\backslash Baldur's Gate II - Enhanced Edition". On OS X BGII: EE games this is "\$HOME/Documents/Baldur's Gate II - Enhanced Edition".
+\verb+USER_DIRECTORY+ evaluates to the directory in which user files
+are kept. This is the game path on non-EE-type games. On EE-type
+games, the \verb+USER_DIRECTORY+ variable is constructed from two
+parts, the user directory and a game-specific directory. If the file
+engine.lua exists, WeiDU will attempt to read the game-specific
+directory from it. If the engine.lua does not exist or does not
+contain the necessary information, WeiDU will use default paths.  On
+Windows, the user directory is the user's personal directory, as read
+from the Windows registry. On macOS, the user directory is
+"\$HOME/Documents". On Linux, the user directory is
+"\$HOME/.local/share". In both cases, \$HOME is the user's home
+directory, as read from the pwd database. The default game-specific
+path for BG: EE is "Baldur's Gate - Enhanced Edition"; for BGII: EE it
+is "Baldur's Gate II - Enhanced Edition"; and for IWD: EE it is
+"Icewind Dale - Enhanced Edition".
 
-\verb+SAVE_DIRECTORY+ evaluates to the directory in which the current game type stores its saved games. This is "./save" on non-BG: EE games. On Windows BG: EE games this is "\%PATH\%\backslash Baldur's Gate - Enhanced Edition\backslash save", where PATH is the user's personal directory as read from the Windows registry. On OS X BG: EE games this is "\$HOME/Documents/Baldur's Gate - Enhanced Edition/save", where HOME is the user's home directory, as retrieved by uid from the user database. On Windows BGII: EE games this is "\%PATH\%\backslash Baldur's Gate II - Enhanced Edition\backslash save" and on OS X BGII: EE games, this is "\$HOME/Documents/Baldur's Gate II - Enhanced Edition/save".
+\verb+SAVE_DIRECTORY+ evaluates to the directory in which the current
+game type stores its saved games. This is
+"\%\verb+USER_DIRECTORY+\%/save".
 
-\verb+MPSAVE_DIRECTORY+ evaluates to the directory in which the current game type stores its multiplayer saved games. The determination is done the same way as with the save directory, but for the directory mpsave instead.
+\verb+MPSAVE_DIRECTORY+ evaluates to the directory in which the
+current game type stores its multiplayer saved games. The
+determination is done the same way as with the save directory, but for
+the directory mpsave instead.
 
-\verb+EE_LANGUAGE+ evaluates to the Enhanced Edition language directory the user has selected, for example, \verb+en_US+. This variable is undefined on non-EE games.
+\verb+EE_LANGUAGE+ evaluates to the Enhanced Edition language
+directory the user has selected, for example, \verb+en_US+. This
+variable is undefined on non-EE games.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Common File Formats}

@@ -7,6 +7,7 @@ Version 241:
   * BAF parser issues non-failing parse error over string arguments that
     should be integers.
   * Implement insert_point for ADD_ITEM_EQEFFECT and ADD_SPELL_CFEFFECT.
+  * USER_DIRECTORY et al. work on Linux.
 
 Version 240:
   * GAME_INCLUDES supports SoD.
