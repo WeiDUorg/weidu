@@ -127,6 +127,9 @@ let fixup_concat3 argl =
   let s3 = get_next_string argl in
   argl := (Arg_String,Act_String(s1)) :: (Arg_String,Act_String(colonise s3 s2)) :: !argl
 
+let low_word x =
+  Int32.logand x (Int32.of_int 0xFF)
+
 let assign_bracket x pos obj ss =
   match ss, pos with
   | Load.IWD2,0 -> obj.o_ea <- x
@@ -136,7 +139,7 @@ let assign_bracket x pos obj ss =
   | Load.IWD2,4 -> obj.o_specific <- x
   | Load.IWD2,5 -> obj.o_gender <- x
   | Load.IWD2,6 -> obj.o_alignment <- x
-  | Load.IWD2,7 -> obj.o_subrace <- x
+  | Load.IWD2,7 -> obj.o_subrace <- (low_word x)
   | Load.IWD2,8 -> obj.o_iwd2_1 <- x
   | Load.IWD2,9 -> obj.o_iwd2_2 <- x
 

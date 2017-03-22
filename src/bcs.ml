@@ -481,7 +481,7 @@ let save_bcs game how bcs =
             obj.o_specific
             obj.o_gender
             obj.o_alignment
-            obj.o_subrace (* NO CLUE JONES! THIS DOES NOT WORK *)
+            obj.o_subrace
             obj.o_identifiers obj.o_unknown1 obj.o_unknown2
             obj.o_unknown3 obj.o_unknown4
             w x y z
@@ -932,7 +932,10 @@ let print_script_text game how what comments strhandle =
          in
 
          let dotlst = match game.Load.script_style with
-         | Load.IWD2 -> [
+         | Load.IWD2 ->
+             let subrace = Int32.logor (Int32.shift_left obj.o_race 16)
+                 obj.o_subrace in
+             [
              obj.o_ea , "EA" ;
              obj.o_general , "GENERAL" ;
              obj.o_race , "RACE" ;
@@ -940,7 +943,7 @@ let print_script_text game how what comments strhandle =
              obj.o_specific , "SPECIFIC" ;
              obj.o_gender , "GENDER" ;
              obj.o_alignment , "ALIGNMNT" ;
-             obj.o_subrace , "SUBRACE" ;
+             subrace , "SUBRACE" ;
              obj.o_iwd2_1 , "AVCLASS" ;
              obj.o_iwd2_2 , "CLASSMSK"
            ]
