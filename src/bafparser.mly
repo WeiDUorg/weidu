@@ -74,7 +74,10 @@ let valid_var_area s =
 let valid_main_string s =
   String.length s <= 32
 
-let fixup_concat argl =
+let colonise l r =
+  l ^ ":" ^ r
+
+let fixup_concat ss argl =
   let s1 = get_next_string argl in
   let s2 = get_next_string argl in
   if not (valid_main_string s1) then
@@ -85,9 +88,12 @@ let fixup_concat argl =
     Modder.handle_deb "AREA_VARIABLES"
       (Printf.sprintf
          "This expression has a typo in the second part: Global(\"%s\",\"%s\")\n" s1 s2);
-  argl := (Arg_String,Act_String(s2^s1)) :: !argl
+  (match ss with
+  | Load.IWD1
+  | Load.IWD2 -> argl := (Arg_String,Act_String(colonise s2 s1)) :: !argl
+  | _ -> argl := (Arg_String,Act_String(s2^s1)) :: !argl)
 
-let fixup_concat2 argl =
+let fixup_concat2 ss argl =
   let s1 = get_next_string argl in
   let s2 = get_next_string argl in
   if not (valid_main_string s1) then
@@ -108,14 +114,18 @@ let fixup_concat2 argl =
     Modder.handle_deb "AREA_VARIABLES"
       (Printf.sprintf
          "This expression has a typo in the second part: *Global*(\"%s\",\"%s\")\n" s3 s4);
-  argl := (Arg_String,Act_String(s2^s1)) ::
-    (Arg_String,Act_String(s4^s3)) :: !argl
+  (match ss with
+  | Load.IWD1
+  | Load.IWD2 -> argl := (Arg_String,Act_String(colonise s2 s1)) ::
+      (Arg_String,Act_String(colonise s4 s3)) :: !argl
+  | _ -> argl := (Arg_String,Act_String(s2^s1)) ::
+      (Arg_String,Act_String(s4^s3)) :: !argl)
 
 let fixup_concat3 argl =
   let s1 = get_next_string argl in
   let s2 = get_next_string argl in
   let s3 = get_next_string argl in
-  argl := (Arg_String,Act_String(s1)) :: (Arg_String,Act_String(s2^s3)) :: !argl
+  argl := (Arg_String,Act_String(s1)) :: (Arg_String,Act_String(colonise s3 s2)) :: !argl
 
 let assign_bracket x pos obj ss =
   match ss, pos with
@@ -383,8 +393,8 @@ let rec verify_arg_list name al fl = match (al,fl) with
      let act_list = ref (verify_arg_list $2 $4 ids.i_args) in
      let ss = (the_game ()).Load.script_style in
      (match is_concat_string ss ids with
-     | 1 -> fixup_concat act_list
-     | 2 -> fixup_concat2 act_list
+     | 1 -> fixup_concat ss act_list
+     | 2 -> fixup_concat2 ss act_list
      | 3 -> fixup_concat3 act_list
      | _ -> ()) ;
      let t1 = get_next_int act_list in
@@ -550,8 +560,8 @@ let rec verify_arg_list name al fl = match (al,fl) with
      let act_list = ref (verify_arg_list $1 $3 ids.i_args) in
      let ss = (the_game ()).Load.script_style in
      (match is_concat_string ss ids with
-     | 1 -> fixup_concat act_list ;
-     | 2 -> fixup_concat2 act_list ;
+     | 1 -> fixup_concat ss act_list ;
+     | 2 -> fixup_concat2 ss act_list ;
      | 3 -> fixup_concat3 act_list
      | _ -> () ) ;
      let a1 = empty_object_param() in

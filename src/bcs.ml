@@ -712,10 +712,16 @@ let split6 s =
       let (name,scope) = (String.sub s 6 ((String.length s) - 6) ,
                           String.sub s 0 6 ) in
       (* if name.[0] = ':' then (String.sub name 1 ((String.length name) -1),scope) else (name,scope) *)
-          (name,scope)
+      (name,scope)
     end
   else
     "",s
+
+let split_colon s =
+  let splat = Str.split (Str.regexp ":") s in
+  (match splat with
+  | l :: r :: rest -> (r,l)
+  | _ -> (s,""))
 
 let rec best_ids_of_trigger game c =
   let ids = every_ids_of_int game "TRIGGER" c.trigger_id in
@@ -791,9 +797,23 @@ type print_what =
 let trigger_to_arg_list ss t ids game =
   match is_concat_string ss ids with
   | 3 (* FIXME *)
-  | 2 (* FIXME *)
+  | 2 ->
+      let a,b = split_colon t.t_3 in
+      let a',b' = split_colon t.t_4 in
+      [ (Arg_Integer,(Act_Integer t.t_1)) ;
+        (Arg_Integer,(Act_Integer t.t_2)) ;
+        (Arg_Integer,(Act_Integer t.unknown)) ;
+        (Arg_Point,(Act_Point t.t_coord)) ;
+        (Arg_String,(Act_String a)) ;
+        (Arg_String,(Act_String b)) ;
+        (Arg_String,(Act_String a')) ;
+        (Arg_String,(Act_String b')) ;
+        (Arg_Object,(Act_Object t.t_5)) ; ]
   | 1 ->
-      let a,b = split6 t.t_3 in
+      let a,b = (match ss with
+      | Load.IWD1
+      | Load.IWD2 -> split_colon t.t_3
+      | _ -> split6 t.t_3) in
       [ (Arg_Integer,(Act_Integer t.t_1)) ;
         (Arg_Integer,(Act_Integer t.t_2)) ;
         (Arg_Integer,(Act_Integer t.unknown)) ;
@@ -814,7 +834,10 @@ let trigger_to_arg_list ss t ids game =
 let action_to_arg_list ss a ids =
   match is_concat_string ss ids with
   | 1 ->
-      let aa,b = split6 a.a_8 in
+      let aa, b = (match ss with
+      | Load.IWD1
+      | Load.IWD2 -> split_colon a.a_8
+      | _ -> split6 a.a_8) in
       [ (Arg_Object,(Act_Object a.a_2)) ;
         (Arg_Object,(Act_Object a.a_3)) ;
         (* (Arg_Object,(Act_Object a.a_1)) ; *)
@@ -826,8 +849,14 @@ let action_to_arg_list ss a ids =
         (Arg_String,(Act_String b)) ;
         (Arg_String,(Act_String a.a_9)) ; ]
   | 2 ->
-      let aa,b = split6 a.a_8 in
-      let aa',b' = split6 a.a_9 in
+      let aa,b = (match ss with
+      | Load.IWD1
+      | Load.IWD2 -> split_colon a.a_8
+      | _ -> split6 a.a_8) in
+      let aa',b' = (match ss with
+      | Load.IWD1
+      | Load.IWD2 -> split_colon a.a_9
+      | _ -> split6 a.a_9) in
       [ (Arg_Object,(Act_Object a.a_2)) ;
         (Arg_Object,(Act_Object a.a_3)) ;
         (* (Arg_Object,(Act_Object a.a_1)) ; *)
@@ -840,6 +869,7 @@ let action_to_arg_list ss a ids =
         (Arg_String,(Act_String aa')) ;
         (Arg_String,(Act_String b')) ]
   | 3 ->
+      let aa,b = split_colon a.a_9 in
       [ (Arg_Object,(Act_Object a.a_2)) ;
         (Arg_Object,(Act_Object a.a_3)) ;
         (* (Arg_Object,(Act_Object a.a_1)) ; *)
@@ -848,8 +878,8 @@ let action_to_arg_list ss a ids =
         (Arg_Integer,(Act_Integer a.a_6)) ;
         (Arg_Integer,(Act_Integer a.a_7)) ;
         (Arg_String,(Act_String a.a_8)) ;
-        (Arg_String,(Act_String a.a_9)) ;
-        (Arg_String,(Act_String "")) ; ]
+        (Arg_String,(Act_String aa)) ;
+        (Arg_String,(Act_String b)) ; ]
   | _ ->
       [ (Arg_Object,(Act_Object a.a_2)) ;
         (Arg_Object,(Act_Object a.a_3)) ;

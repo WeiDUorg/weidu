@@ -12,6 +12,7 @@ Version 241:
     INSTALLED WITH WARNINGS.
   * All biffs added to the key file on EE-type games use slash as path
     separator
+  * Correctly handle colon-separated string arguments in IWD and IWD2 scripts.
 
 Version 240:
   * GAME_INCLUDES supports SoD.
