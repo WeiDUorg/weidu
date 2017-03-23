@@ -128,7 +128,7 @@ let fixup_concat3 argl =
   argl := (Arg_String,Act_String(s1)) :: (Arg_String,Act_String(colonise s3 s2)) :: !argl
 
 let low_word x =
-  Int32.logand x (Int32.of_int 0xFF)
+  Int32.logand x (Int32.of_int 0xFFFF)
 
 let assign_bracket x pos obj ss =
   match ss, pos with
