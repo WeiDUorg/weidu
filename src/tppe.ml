@@ -400,14 +400,20 @@ let rec eval_pe buff game p =
 	if_true (installed_after filename1 number1 filename2 number2)
 
   | PE_IdOfLabel(filename,name) ->
-	let filename = Var.get_string (eval_pe_str filename) in
-	let name = Var.get_string (eval_pe_str name) in
-	Int32.of_int (if file_exists filename then
-	match get_id_of_label (Parsewrappers.handle_tp2_filename filename) name with
-	  | None -> min_int
-	  | Some x -> x
-	else min_int)
-    
+      let filename = Var.get_string (eval_pe_str filename) in
+      let tp2s = List.filter Util.file_exists
+          (Util.all_possible_tp2s
+             (Util.tp2_name (Case_ins.filename_basename (try
+               Case_ins.filename_chop_extension filename with _ ->
+                 filename)))) in
+      let name = Var.get_string (eval_pe_str name) in
+      Int32.of_int (match tp2s with
+      | tp2 :: rest -> (match get_id_of_label
+            (Parsewrappers.handle_tp2_filename tp2) name with
+        | None -> min_int
+        | Some x -> x)
+      | [] -> min_int)
+
   | PE_GameIs(game_list,isGameCheck) -> begin
       let game_list = Str.split many_whitespace_regexp (Var.get_string game_list) in
       let f x = (eval_pe buff game (Pred_File_Exists_In_Game (PE_LiteralString x))) = 1l in

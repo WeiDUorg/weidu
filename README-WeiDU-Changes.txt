@@ -14,6 +14,8 @@ Version 241:
     separator
   * Correctly handle colon-separated string arguments in IWD and IWD2 scripts.
   * Correctly resolve subrace in script objects on IWD2.
+  * ID_OF_LABEL does not require you to know whether mymod.tp2 is called
+    mymod/mymod.tp2, setup-mymod.tp2, or the like.
 
 Version 240:
   * GAME_INCLUDES supports SoD.
