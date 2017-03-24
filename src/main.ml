@@ -1394,17 +1394,7 @@ let main () =
       | [] ->
           log_and_print "\n\n** ERROR ** [%s.TP2] not found.\nMake sure that you have unpacked the archive correctly and\nthat you are not trying to run this file from inside an archive." argv0_base
       in
-      let chunk_list = Str.split (Str.regexp "[-]") argv0_base in
-      let chunk = match chunk_list with
-      | a :: b :: [] -> b
-      | a :: b -> (String.concat "-" b)
-      | _ -> ""
-      in
-      try_it
-        [ (chunk ^ "/" ^ chunk ^ ".TP2") ;
-          (chunk ^ "/" ^ argv0_base ^ ".TP2") ;
-          (chunk ^ ".TP2") ;
-          (argv0_base ^ ".TP2") ; ]
+      try_it (Util.all_possible_tp2s (tp2_name argv0_base))
     end
   end in
 

@@ -885,3 +885,18 @@ let get_user_dir game_path game_type =
   | BGEE -> get_ee_user_dir game_path "Baldur's Gate - Enhanced Edition"
   | BG2EE -> get_ee_user_dir game_path "Baldur's Gate II - Enhanced Edition"
   | IWDEE -> get_ee_user_dir game_path "Icewind Dale - Enhanced Edition")
+
+let all_possible_tp2s filename =
+  [(filename ^ "/" ^ filename ^ ".TP2") ;
+   (filename ^ "/" ^ "SETUP-" ^ filename ^ ".TP2") ;
+   (filename ^ ".TP2") ;
+   ("SETUP-" ^ filename ^ ".TP2")]
+
+let tp2_name filename =
+  let chunk_list = Str.split (Str.regexp "[-]") filename in
+  (match chunk_list with
+  | a :: b when (String.uppercase a) = "SETUP" -> (match b with
+    | c :: [] -> c
+    | c -> (String.concat "-" c))
+  | a :: b -> (String.concat "-" (a :: b))
+  | _ -> filename)
