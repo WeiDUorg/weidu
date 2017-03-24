@@ -123,6 +123,9 @@ let get_component_list tp_file =
       else
         List.split_at (index + 1) tp_file.Tp.module_list in
     let number = get_last_module_number left in
+    let label = List.fold_left (fun acc f -> match f with
+    | Tp.TPM_Label(s) -> Some s
+    | _ -> acc) None tp_mod.Tp.mod_flags in
     let deprecated = List.exists (fun f -> match f with
     | Tp.TPM_Deprecated(_) -> true
     | _ -> false) tp_mod.Tp.mod_flags in
@@ -142,8 +145,8 @@ let get_component_list tp_file =
     | _ -> false) tp_mod.Tp.mod_flags in
     let forced = forced_subgroup || install_by_default in
     { index = index ; name = tp_mod.mod_name ; number = number ;
-      deprecated = deprecated ; group = group ; subgroup = subgroup ;
-      forced = forced }) tp_file.Tp.module_list
+      label = label ; deprecated = deprecated ; group = group ;
+      subgroup = subgroup ; forced = forced }) tp_file.Tp.module_list
 
 (************************************************************************
  * Evaluate a TP2 Patch Expression

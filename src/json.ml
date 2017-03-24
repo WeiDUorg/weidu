@@ -1,14 +1,20 @@
-let export_string ts =
+let quote = "\""
+let quote_regexp = (Str.regexp quote)
+let esc_quote = "\\\""
+let backslash = "\\\\"
+let backslash_regexp = (Str.regexp backslash)
+let esc_backslash = "\\\\\\\\"
+let newlines = "[\n\r]"
+let newlines_regexp = (Str.regexp newlines)
+
+let escape_string s =
   (* Can't use String.escaped because it messes up non-ASCII *)
-  let quote = "\"" in
-  let esc_quote = "\\\"" in
-  let backslash = "\\\\" in
-  let esc_backslash = "\\\\\\\\" in
-  let newlines = "[\n\r]" in
-  (Str.global_replace (Str.regexp quote) esc_quote
-     (Str.global_replace (Str.regexp backslash) esc_backslash
-        (Str.global_replace (Str.regexp newlines) ""
-           (Dc.single_string_of_tlk_string (Load.the_game ()) ts))))
+  (Str.global_replace quote_regexp esc_quote
+     (Str.global_replace backslash_regexp esc_backslash
+        (Str.global_replace newlines_regexp "" s)))
+
+let export_string ts =
+  escape_string (Dc.single_string_of_tlk_string (Load.the_game ()) ts)
 
 let stringify_component_group group =
   let body = String.concat "," (List.map (fun string ->
@@ -22,6 +28,9 @@ let stringify_component component =
   let forced = Printf.sprintf "\"forced\":%B" component.Tp.forced in
   let name = Printf.sprintf "\"name\":\"%s\""
       (export_string component.Tp.name) in
+  let label = (match component.Tp.label with
+  | Some s -> Printf.sprintf "\"label\":\"%s\"" (escape_string s)
+  | None -> "") in
   let subgroup = (match component.Tp.subgroup with
   | Some ts -> Printf.sprintf "\"subgroup\":\"%s\""
         (export_string ts)
@@ -30,7 +39,8 @@ let stringify_component component =
       (stringify_component_group component.Tp.group) in
 
   let body = String.concat "," (List.filter (fun string ->
-    string <> "") [ index ; number ; forced ; name ; subgroup ; group ]) in
+    string <> "") [ index ; number ; forced ; name ; label ;
+                    subgroup ; group ]) in
   String.concat "" ["{" ; body ; "}"]
 
 let stringify_component_list components =
