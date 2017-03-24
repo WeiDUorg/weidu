@@ -93,7 +93,7 @@ and tp_mod_flag =
 and component = {
     index : int ;
     number : int ;
-    label : string option ;
+    label : string list option ;
     deprecated : bool ;
     forced : bool ;
     name : Dlg.tlk_string ;

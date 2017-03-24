@@ -124,7 +124,9 @@ let get_component_list tp_file =
         List.split_at (index + 1) tp_file.Tp.module_list in
     let number = get_last_module_number left in
     let label = List.fold_left (fun acc f -> match f with
-    | Tp.TPM_Label(s) -> Some s
+    | Tp.TPM_Label(s) -> Some (s :: (match acc with
+      | Some a -> a
+      | None -> []))
     | _ -> acc) None tp_mod.Tp.mod_flags in
     let deprecated = List.exists (fun f -> match f with
     | Tp.TPM_Deprecated(_) -> true
