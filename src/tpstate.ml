@@ -104,7 +104,7 @@ let get_id_of_label tp_file label =
       if has_label c then begin match !ans with
       | None -> ans := Some i
       | Some j ->
-          ans := Some min_int;
+          ans := Some (Int32.to_int Int32.min_int) ;
           errors_this_component := true;
           log_and_print "WARNING: Duplicate LABEL [%s] in tp2 file [%s] (components %d and %d)\n" label tp_file.tp_filename i j
       end;

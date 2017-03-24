@@ -5320,10 +5320,10 @@ is the same as with \ttref {REQUIRE!COMPONENT}.  \\
 
 or & \DEFINE{ID!OF!LABEL} modTp2Name String &
   Returns the numerical identifier (component number) of the component
-  in modTp2Name which has the given \ttref{LABEL}. Returns min_int
-  (usually -2^30) if no such tp2 exists, said tp2 has no component
-  with that \ttref{LABEL}, or two or more components have that
-  \ttref{LABEL}. In the last two cases will print a WARNING. \\
+  in modTp2Name which has the given \ttref{LABEL}. Returns
+  -2\textsuperscript{31} if no such tp2 exists, said tp2 has no
+  component with that \ttref{LABEL}, or two or more components have
+  that \ttref{LABEL}. In the last two cases will print a WARNING. \\
 
 or & \DEFINE{STATE!WHICH!SAYS} \ttref{text} \t{FROM} \ttref{String} &
   String must be an in-game or in-override .dlg file. Returns:

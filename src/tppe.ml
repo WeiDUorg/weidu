@@ -410,9 +410,9 @@ let rec eval_pe buff game p =
       Int32.of_int (match tp2s with
       | tp2 :: rest -> (match get_id_of_label
             (Parsewrappers.handle_tp2_filename tp2) name with
-        | None -> min_int
+        | None -> Int32.to_int Int32.min_int
         | Some x -> x)
-      | [] -> min_int)
+      | [] -> Int32.to_int Int32.min_int)
 
   | PE_GameIs(game_list,isGameCheck) -> begin
       let game_list = Str.split many_whitespace_regexp (Var.get_string game_list) in

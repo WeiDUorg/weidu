@@ -16,6 +16,8 @@ Version 241:
   * Correctly resolve subrace in script objects on IWD2.
   * ID_OF_LABEL does not require you to know whether mymod.tp2 is called
     mymod/mymod.tp2, setup-mymod.tp2, or the like.
+  * ID_OF_LABEL returns the correct default value on 64-bit systems. Also
+    correct the corresponding part of the documentation.
 
 Version 240:
   * GAME_INCLUDES supports SoD.
