@@ -18,6 +18,7 @@ Version 241:
     mymod/mymod.tp2, setup-mymod.tp2, or the like.
   * ID_OF_LABEL returns the correct default value on 64-bit systems. Also
     correct the corresponding part of the documentation.
+  * Tolower will try to detect EE-type games and refuse to lowercase those.
 
 Version 240:
   * GAME_INCLUDES supports SoD.

@@ -33,6 +33,12 @@ let askfor func mess =
  * Turn all files to lowercase, recursively.
  *)
 let rec find_and_lower cur_dir () =
+  if Sys.file_exists (cur_dir ^ "/lang") &&
+    Sys.file_exists (cur_dir ^ "/BaldursGate") then begin
+    output_string stdout
+      "This looks like an EE-type game. Tolower would break it.\n" ;
+    failwith "EE"
+  end ;
   let dh = Unix.opendir cur_dir in
   let dirlist = ref [] in
   let done_ht = Hashtbl.create 5 in
