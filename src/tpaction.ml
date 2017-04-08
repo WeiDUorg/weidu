@@ -525,7 +525,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           } in
           process_action tp (TP_Copy(my_copy_args)) ;
           let file_list = ref [] in
-          let get_gam_list base_dir =
+          let get_file_list base_dir =
             let dlist = list_of_files_in_directory base_dir in
             List.iter (fun filename ->
               let filename = base_dir ^ "/" ^ filename in
@@ -537,13 +537,15 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                   [(filename ^ "/baldur.gam", filename ^ "/baldur.gam")] ;) dlist ;
             ()
           in
-          get_gam_list (Var.get_string "%SAVE_DIRECTORY%") ;
-          get_gam_list (Var.get_string "%MPSAVE_DIRECTORY%") ;
+          ignore (get_file_list (Var.get_string "%SAVE_DIRECTORY%")) ;
+          ignore (get_file_list (Var.get_string "%MPSAVE_DIRECTORY%")) ;
+          let gam_list = List.filter (fun (src, dst) ->
+            Sys.file_exists src) !file_list in
           let my_copy_args = {
             copy_get_existing = false;
             copy_use_regexp = false;
             copy_use_glob = false ;
-            copy_file_list = !file_list ;
+            copy_file_list = gam_list ;
             copy_patch_list = pl ;
             copy_constraint_list = wl ;
             copy_backup = false ;

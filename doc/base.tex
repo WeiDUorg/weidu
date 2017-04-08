@@ -5098,8 +5098,14 @@ or & \DEFINE{BUT!ONLY!IF!IT!CHANGES} & True only if the file is actually
 changed by patching actions. Unlike all other \ttref{when} clauses, this
 one is evaluated just before the result would be written out to the disk.
 You may use \DEFINE{BUT!ONLY} as a synonym for \ttref{BUT!ONLY!IF!IT!CHANGES}. \\
-or & \DEFINE{IF!EXISTS} & True only if the file exists. For \ttref{COPY}, this check is done with \ttref{FILE!EXISTS}. For \ttref{COPY!EXISTING}, \ttref{COPY!EXISTING!REGEXP}, \ttref{COPY!RANDOM}, \t{APPEND} and \ttref{APPEND!COL} this check is done with \ttref{FILE!EXISTS!IN!GAME}. This when clause does nothing for \ttref{COPY!ALL!GAM!FILES}.
-\\
+or & \DEFINE{IF!EXISTS} &
+
+True only if the file exists. For \ttref{COPY}, this check is done
+with \ttref{FILE!EXISTS}. For \ttref{COPY!EXISTING},
+\ttref{COPY!EXISTING!REGEXP}, \ttref{COPY!RANDOM}, \t{APPEND} and
+\ttref{APPEND!COL} this check is done with
+\ttref{FILE!EXISTS!IN!GAME}. For \ttref{COPY!ALL!GAM!FILES}, this when
+clause is redundant. \\
 
 \\
 

@@ -19,6 +19,8 @@ Version 241:
   * ID_OF_LABEL returns the correct default value on 64-bit systems. Also
     correct the corresponding part of the documentation.
   * Tolower will try to detect EE-type games and refuse to lowercase those.
+  * COPY_ALL_GAM_FILES does not assume the existence of GAM files in save
+    directories.
 
 Version 240:
   * GAME_INCLUDES supports SoD.
