@@ -21,6 +21,7 @@ Version 241:
   * Tolower will try to detect EE-type games and refuse to lowercase those.
   * COPY_ALL_GAM_FILES does not assume the existence of GAM files in save
     directories.
+  * Small speed optimisation to REFACTOR_TRIGGER.
 
 Version 240:
   * GAME_INCLUDES supports SoD.

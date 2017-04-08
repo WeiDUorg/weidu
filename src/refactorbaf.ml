@@ -103,12 +103,12 @@ let fix_or_internal pre post acc tl =
   let found = ref false in
   List.iter (fun t -> match t with
   | Or _ -> failwith "Nested OR()"
-  | Trigger (s,a) -> if find pre [t] && not !found then begin
+  | Trigger (s,a) -> if not !found && find pre [t] then begin
       found := true ;
       new_tl := List.append (sub pre post s a) !new_tl
   end
   else old_tl := t :: !old_tl
-  | NotTrigger (s,a) -> if find pre [t] && not !found then begin
+  | NotTrigger (s,a) -> if not !found && find pre [t] then begin
       found := true ;
       List.iter (invert new_tl old_tl) (sub pre post s a)
   end
