@@ -22,6 +22,11 @@ Version 241:
   * COPY_ALL_GAM_FILES does not assume the existence of GAM files in save
     directories.
   * Small speed optimisation to REFACTOR_TRIGGER.
+  * Preliminary/speculative compatibility with PST: EE.
+  * Add STO V1.1 support to ADD_STORE_ITEM and REMOVE_STORE_ITEM.
+  * Add STO V1.1 support to DELETE_STORE_ITEM and REPLACE_STORE_ITEM
+    patch functions and macros.
+  * Add support for MAZE key value.
 
 Version 240:
   * GAME_INCLUDES supports SoD.

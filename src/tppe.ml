@@ -435,13 +435,14 @@ let rec eval_pe buff game p =
       let bgee = f "oh1000.are"   in
       let bg2ee = f "oh6000.are"  in
       let iwdee = f "howparty.2da" in
+      let pstee = f "pstchar.2da" in
       let res = List.exists (fun this ->
         match String.uppercase this with
         | "BG2"
         | "SOA"        -> bg2 && not tutu && not tob && not ca && not iwdinbg2
         | "TOB"        -> bg2 && not tutu &&     tob && not ca && not iwdinbg2 && not bg2ee
         | "IWD2"       -> iwd2
-        | "PST"        -> pst
+        | "PST"        -> pst && not pstee
         | "BG1"        -> bg1 && not tosc && not bg2
         | "TOTSC"      -> bg1 &&     tosc && not bg2 && not iwd1 && not bgee
         | "IWD"
@@ -459,6 +460,7 @@ let rec eval_pe buff game p =
         | "BG2EE"      -> bg2ee && not eet
         | "BGEE"       -> bgee && not bg2ee && not eet
         | "IWDEE"      -> iwdee
+        | "PSTEE"      -> pstee
         | "EET"        -> eet
         | _ -> log_and_print "WARNING: No rule to identify %s\n" (String.uppercase this) ; false
       ) game_list in
@@ -470,7 +472,7 @@ let rec eval_pe buff game p =
       let totsc = ["TOTSC"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"; "SOD"] in
       let soa = ["SOA"; "TOB"; "BGT"; "BG2EE"; "EET"] in
       let tob = ["TOB"; "BGT"; "BG2EE"; "EET"] in
-      let pst = ["PST"] in
+      let pst = ["PST"; "PSTEE"] in
       let iwd = ["IWD"; "HOW"; "TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
       let how = ["HOW"; "TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
       let totlm = ["TOTLM"; "IWD_IN_BG2"; "IWDEE"] in

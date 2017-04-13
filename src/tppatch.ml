@@ -2375,7 +2375,12 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let item = Var.get_string item in
         let item = String.uppercase item in
 
-        let item_buff = String.make 28 '\000' in
+        let item_size =
+          (match (String.sub buff 0 8) with
+          | "STORV1.1" -> 88
+          | _ -> 28) in
+
+        let item_buff = String.make item_size '\000' in
         String.blit item 0 item_buff 0 (String.length item);
         let charge1 = Int32.to_int (eval_pe buff game charge1) in
         let charge2 = Int32.to_int (eval_pe buff game charge2) in
@@ -2443,10 +2448,10 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         if !debug_ocaml then
           log_and_print "Trying to String.sub buff %d %d\n"
             isaleoffset (ipurchasedoffset - isaleoffset);
-        let items_string = String.sub buff isaleoffset (numisale * 28) in
+        let items_string = String.sub buff isaleoffset (numisale * item_size) in
         if !debug_ocaml then log_and_print "Done String.sub\n" ;
         for i = 0 to numisale - 1 do
-          let item_check = String.sub items_string (i * 28) 8 in
+          let item_check = String.sub items_string (i * item_size) 8 in
           let item_check = get_string_of_size item_check 0 8 in
           items_list := item_check :: !items_list
         done;
@@ -2466,9 +2471,9 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
               (* Overwrite the item *)
 
-              str_before := Str.string_before buff (isaleoffset + (!i * 28));
+              str_before := Str.string_before buff (isaleoffset + (!i * item_size));
               str_after := Str.string_after buff (isaleoffset +
-                                                    (!i * 28) + 28);
+                                                    (!i * item_size) + item_size);
               new_buff := !str_before ^ item_buff ^ !str_after;
             end
             else
@@ -2488,13 +2493,13 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         else begin
           log_and_print "Patching %s.ITM into store...\n"
             (String.uppercase item);
-          (* Update the offsets by 28 bytes *)
+          (* Update the offsets by "item_size" bytes *)
           if ipurchasedoffset >= isaleoffset then
-            write_int buff 0x2c (ipurchasedoffset + 28);
+            write_int buff 0x2c (ipurchasedoffset + item_size);
           if cureoffset >= isaleoffset then
-            write_int buff 0x70 (cureoffset + 28);
+            write_int buff 0x70 (cureoffset + item_size);
           if drinksoffset >= isaleoffset then
-            write_int buff 0x4c (drinksoffset + 28);
+            write_int buff 0x4c (drinksoffset + item_size);
           (* Add 1 to the #items for sale *)
           write_int buff 0x38 (numisale + 1);
           let added = ref false in
@@ -2512,15 +2517,15 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
                   before_what_list in
               let item_reg = List.map Str.regexp_case_fold item_reg in
               let item_string = Str.string_after
-                  (Str.string_before buff (isaleoffset + 28 * numisale))
+                  (Str.string_before buff (isaleoffset + item_size * numisale))
                   isaleoffset in
-              let length = (String.length item_string) / 28 in
+              let length = (String.length item_string) / item_size in
               List.iter (fun this_test ->
                 if not !added then begin
                   let out_buff = ref "" in
                   for i = 0 to length - 1 do
                     let this_one_long = Str.string_before
-                        (Str.string_after item_string (i * 28)) 28 in
+                        (Str.string_after item_string (i * item_size)) item_size in
                     if not !added then begin
                       let this_one = Str.string_before (this_one_long) 8 in
                       if !debug_ocaml then
@@ -2559,13 +2564,13 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             else x in
           let after = Str.string_after buff (match !added, where with
           | (true,_)
-          | (false,TP_Store_Last) -> isaleoffset + 28 * numisale
-          | (false,TP_Store_At x) -> isaleoffset + 28 * (fix x)
+          | (false,TP_Store_Last) -> isaleoffset + item_size * numisale
+          | (false,TP_Store_At x) -> isaleoffset + item_size * (fix x)
           | _     -> isaleoffset) in
           if not !added then begin
             let before = Str.string_before buff (match where with
-            | TP_Store_Last -> isaleoffset + 28 * numisale
-            | TP_Store_At x -> isaleoffset + 28 * (fix x)
+            | TP_Store_Last -> isaleoffset + item_size * numisale
+            | TP_Store_At x -> isaleoffset + item_size * (fix x)
             | _ -> isaleoffset) in
             buff_ref := before ^ item_buff
           end ;
@@ -2593,16 +2598,21 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
         (* Grab all items *)
 
+        let item_size =
+          (match (String.sub buff 0 8) with
+          | "STORV1.1" -> 88
+          | _ -> 28) in
+
         if !debug_ocaml then
           log_and_print "Trying to String.sub buff %d %d\n"
             isaleoffset (ipurchasedoffset - isaleoffset);
-        let items_string = String.sub buff isaleoffset (numisale * 28) in
+        let items_string = String.sub buff isaleoffset (numisale * item_size) in
         if !debug_ocaml then log_and_print "Done String.sub\n" ;
         let str_before = ref (Str.string_before buff isaleoffset) in
-        let str_after = Str.string_after buff (isaleoffset + numisale * 28) in
+        let str_after = Str.string_after buff (isaleoffset + numisale * item_size) in
         let delta = ref 0 in
         for i = 0 to numisale - 1 do
-          let item_buff = String.sub items_string (i * 28) 28 in
+          let item_buff = String.sub items_string (i * item_size) item_size in
           let item_name = get_string_of_size item_buff 0 8 in
           if not (List.mem (String.uppercase item_name) items) then begin
             str_before := !str_before ^ item_buff
@@ -2613,13 +2623,13 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
         let buff = !str_before ^ str_after in
 
-        (* Update the offsets by 28 bytes *)
+        (* Update the offsets by "item_size" bytes *)
         if ipurchasedoffset > isaleoffset then
-          write_int buff 0x2c (ipurchasedoffset - 28 * !delta);
+          write_int buff 0x2c (ipurchasedoffset - item_size * !delta);
         if cureoffset > isaleoffset then
-          write_int buff 0x70 (cureoffset - 28 * !delta);
+          write_int buff 0x70 (cureoffset - item_size * !delta);
         if drinksoffset > isaleoffset then
-          write_int buff 0x4c (drinksoffset - 28 * !delta);
+          write_int buff 0x4c (drinksoffset - item_size * !delta);
         (* Add 1 to the #items for sale *)
         write_int buff 0x38 (numisale - !delta);
         buff

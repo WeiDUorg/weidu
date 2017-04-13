@@ -298,7 +298,7 @@ DEFINE_ACTION_FUNCTION FL#CREATE#DEFAULT_VERSION#ARE
     version
 BEGIN
   ACTION_MATCH "%version%" WITH
-    "" WHEN ENGINE_IS ~bg1 totsc soa tob pst iwd how totlm bgee bg2ee iwdee~
+    "" WHEN ENGINE_IS ~bg1 totsc soa tob pst iwd how totlm bgee bg2ee iwdee pstee~
     BEGIN
       OUTER_SPRINT version "V1.0"
     END
@@ -324,7 +324,7 @@ DEFINE_ACTION_FUNCTION FL#CREATE#DEFAULT_VERSION#CRE
     version
 BEGIN
   ACTION_MATCH "%version%" WITH
-    "" WHEN ENGINE_IS ~bg1 totsc soa tob bgee bg2ee iwdee~
+    "" WHEN ENGINE_IS ~bg1 totsc soa tob bgee bg2ee iwdee pstee~
     BEGIN
       OUTER_SPRINT version "V1.0"
     END
@@ -360,7 +360,7 @@ DEFINE_ACTION_FUNCTION FL#CREATE#DEFAULT_VERSION#ITM
     version
 BEGIN
   ACTION_MATCH "%version%" WITH
-    "" WHEN ENGINE_IS ~bg1 totsc soa tob iwd how totlm bgee bg2ee iwdee~
+    "" WHEN ENGINE_IS ~bg1 totsc soa tob iwd how totlm bgee bg2ee iwdee pstee~
     BEGIN
       OUTER_SPRINT version "V1  "
     END
@@ -391,7 +391,7 @@ DEFINE_ACTION_FUNCTION FL#CREATE#DEFAULT_VERSION#SPL
     version
 BEGIN
   ACTION_MATCH "%version%" WITH
-    "" WHEN ENGINE_IS ~bg1 totsc soa tob pst iwd how totlm bgee bg2ee iwdee~
+    "" WHEN ENGINE_IS ~bg1 totsc soa tob pst iwd how totlm bgee bg2ee iwdee pstee~
     BEGIN
       OUTER_SPRINT version "V1  "
     END
@@ -422,7 +422,7 @@ BEGIN
       OUTER_SPRINT version "V1.0"
     END
 
-    "" WHEN ENGINE_IS ~pst~
+    "" WHEN ENGINE_IS ~pst pstee~
     BEGIN
       OUTER_SPRINT version "V1.1"
     END

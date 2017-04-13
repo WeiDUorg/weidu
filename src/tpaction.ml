@@ -2142,7 +2142,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           (match game.Load.game_type with
           | Util.BGEE
           | Util.BG2EE
-          | Util.IWDEE -> begin
+          | Util.IWDEE
+          | Util.PSTEE -> begin
 
               log_and_print "Processing quests and journals\n" ;
 

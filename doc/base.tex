@@ -5263,7 +5263,7 @@ contains the second \ttref{regexp}. Thus \t{"AR1005" STRING!CONTAINS!REGEXP
 or & \DEFINE{GAME!IS} \ttref{String} & Returns true if the IE game variant
 is one of the entries in String, otherwise it returns false. String is a list of
 whitespace-separated entries, chosen from (case doesn't matter)
-\verb+bg2=soa, tob, iwd2, pst, bg1, totsc, iwd=iwd1, how, totlm, tutu, tutu_totsc, bgt, ca, iwd_in_bg2, bgee, bg2ee, eet, iwdee+.
+\verb+bg2=soa, tob, iwd2, pst, bg1, totsc, iwd=iwd1, how, totlm, tutu, tutu_totsc, bgt, ca, iwd_in_bg2, bgee, bg2ee, eet, iwdee, pstee+.
 In the list, \verb+bg2=soa+ means that \verb+bg2+ and \verb+soa+ are synonyms,
 and you can use whichever one you like. Please note that the items in the list are
 defined to be mutually exclusive (except \verb+tob+ will detect both plain ToB
@@ -10213,8 +10213,9 @@ from the Windows registry. On macOS, the user directory is
 "\$HOME/.local/share". In both cases, \$HOME is the user's home
 directory, as read from the pwd database. The default game-specific
 path for BG: EE is "Baldur's Gate - Enhanced Edition"; for BGII: EE it
-is "Baldur's Gate II - Enhanced Edition"; and for IWD: EE it is
-"Icewind Dale - Enhanced Edition".
+is "Baldur's Gate II - Enhanced Edition"; for IWD: EE it is
+"Icewind Dale - Enhanced Edition"; and for PST: EE it is
+"Planescape Torment - Enhanced Edition".
 
 \verb+SAVE_DIRECTORY+ evaluates to the directory in which the current
 game type stores its saved games. This is

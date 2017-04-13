@@ -807,17 +807,19 @@ END
 //deletes an item from a store. ~item_to_delete~ required
 DEFINE_PATCH_MACRO ~DELETE_STORE_ITEM~ BEGIN
   PATCH_IF (BUFFER_LENGTH > 0x9a) BEGIN
+    READ_ASCII 0x00 ___#sig (8)
     READ_LONG 0x34 ___#4sale_off
     READ_LONG 0x38 ___#4sale_num
     READ_LONG 0x2c ___#items_purchased_off
     READ_LONG 0x70 ___#cures_off
     SET ___#index1 = 0
     SET ___#delta = 0
+    SET ___#4sale_size = (~%___#sig%~ STRING_EQUAL ~STORV1.1~) ? 0x58 : 0x1c
 
     WHILE (___#index1 < ___#4sale_num) BEGIN //searching through items
-      READ_ASCII (___#4sale_off + (___#index1 * 0x1c)) ~item~
+      READ_ASCII (___#4sale_off + (___#index1 * ___#4sale_size)) ~item~
       PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%item_to_delete%~ = 0) BEGIN
-        DELETE_BYTES (___#4sale_off + (___#index1 * 0x1c)) 0x1c
+        DELETE_BYTES (___#4sale_off + (___#index1 * ___#4sale_size)) ___#4sale_size
         SET ___#delta = (___#delta + 1)
         SET ___#index1 = (___#index1 - 1) //step back
         SET ___#4sale_num = (___#4sale_num - 1)
@@ -833,7 +835,7 @@ DEFINE_PATCH_MACRO ~DELETE_STORE_ITEM~ BEGIN
     PATCH_FOR_EACH ___#offset IN 0x2c 0x70 BEGIN
       READ_LONG ___#offset ___#current_off
       PATCH_IF (___#current_off > ___#4sale_off) BEGIN
-        WRITE_LONG ___#offset (___#current_off - ___#delta * 0x1c)
+        WRITE_LONG ___#offset (___#current_off - ___#delta * ___#4sale_size)
       END
     END
 
@@ -905,19 +907,21 @@ END
 //replace item in .sto. variables ~old_item~ ~new_item~ required number_in_stock
 DEFINE_PATCH_MACRO ~REPLACE_STORE_ITEM~ BEGIN
   PATCH_IF (BUFFER_LENGTH > 0x9a) BEGIN
+    READ_ASCII 0x00 ___#sig (8)
     READ_LONG 0x34 ___#4sale_off
     READ_LONG 0x38 ___#4sale_num
+    SET ___#4sale_size = (~%___#sig%~ STRING_EQUAL ~STORV1.1~) ? 0x58 : 0x1c
 
     WHILE (___#4sale_num > 0) BEGIN
       SET ___#4sale_num = (___#4sale_num - 1)
-      READ_ASCII (___#4sale_off + (___#4sale_num * 0x1c)) ~item~
+      READ_ASCII (___#4sale_off + (___#4sale_num * ___#4sale_size)) ~item~
       PATCH_IF (~%item%~ STRING_MATCHES_REGEXP ~%old_item%~ = 0) BEGIN
-        WRITE_EVALUATED_ASCII (___#4sale_off + (___#4sale_num * 0x1c)) ~%new_item%~ #8 // replace item
+        WRITE_EVALUATED_ASCII (___#4sale_off + (___#4sale_num * ___#4sale_size)) ~%new_item%~ #8 // replace item
 
         //charges:
-        WRITE_SHORT (___#4sale_off + (___#4sale_num * 0x1c + 0xa)) charges1
-        WRITE_SHORT (___#4sale_off + (___#4sale_num * 0x1c + 0xc)) charges2
-        WRITE_SHORT (___#4sale_off + (___#4sale_num * 0x1c + 0xe)) charges3
+        WRITE_SHORT (___#4sale_off + (___#4sale_num * ___#4sale_size + 0xa)) charges1
+        WRITE_SHORT (___#4sale_off + (___#4sale_num * ___#4sale_size + 0xc)) charges2
+        WRITE_SHORT (___#4sale_off + (___#4sale_num * ___#4sale_size + 0xe)) charges3
 
         //flags
         SET ___#flags_to_set = 0
@@ -933,11 +937,11 @@ DEFINE_PATCH_MACRO ~REPLACE_STORE_ITEM~ BEGIN
         PATCH_IF (~%flags%~ STRING_CONTAINS_REGEXP ~undroppable~ = 0) BEGIN
           SET ___#flags_to_set = (___#flags_to_set BOR 0b00001000)
         END
-        WRITE_LONG (___#4sale_off + ___#4sale_num * 0x1c + 0x10) ___#flags_to_set
+        WRITE_LONG (___#4sale_off + ___#4sale_num * ___#4sale_size + 0x10) ___#flags_to_set
 
-        WRITE_BYTE (___#4sale_off + 0x14 + 0x1c * ___#4sale_num) number_in_stock
+        WRITE_BYTE (___#4sale_off + 0x14 + ___#4sale_size * ___#4sale_num) number_in_stock
 
-        WRITE_BYTE (___#4sale_off + 0x18 + 0x1c * ___#4sale_num) 0 // Set infinite flag to zero
+        WRITE_BYTE (___#4sale_off + 0x18 + ___#4sale_size * ___#4sale_num) 0 // Set infinite flag to zero
 
       END
     END

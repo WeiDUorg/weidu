@@ -5,7 +5,7 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   INT_VAR
 
   // these are internal variables, not to be used as input
-  is_bg2               = ENGINE_IS ~soa tob~ OR FILE_EXISTS_IN_GAME monkfist.2da
+  is_bg2               = ENGINE_IS ~soa tob pstee~ OR FILE_EXISTS_IN_GAME monkfist.2da
   is_pst               = ENGINE_IS pst
   is_id2               = ENGINE_IS iwd2
   fj_position          = 0x11c

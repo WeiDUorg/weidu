@@ -21,7 +21,7 @@ type local_string_entry = {
     lse_female_sound : string ;
   }
 
-type game_type = BGEE | BG2EE | IWDEE | GENERIC
+type game_type = BGEE | BG2EE | IWDEE | PSTEE | GENERIC
 
 let one_newline_regexp = Str.regexp "[\n]"
 let one_newline_or_cr_regexp = Str.regexp "[\r\n]"
@@ -884,7 +884,8 @@ let get_user_dir game_path game_type =
   | GENERIC -> "."
   | BGEE -> get_ee_user_dir game_path "Baldur's Gate - Enhanced Edition"
   | BG2EE -> get_ee_user_dir game_path "Baldur's Gate II - Enhanced Edition"
-  | IWDEE -> get_ee_user_dir game_path "Icewind Dale - Enhanced Edition")
+  | IWDEE -> get_ee_user_dir game_path "Icewind Dale - Enhanced Edition"
+  | PSTEE -> get_ee_user_dir game_path "Planescape Torment - Enhanced Edition")
 
 let all_possible_tp2s filename =
   [(filename ^ "/" ^ filename ^ ".TP2") ;

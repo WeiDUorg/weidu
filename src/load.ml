@@ -258,7 +258,8 @@ let enhanced_edition_p game =
   (match game.game_type with
   | BGEE
   | BG2EE
-  | IWDEE -> true
+  | IWDEE
+  | PSTEE -> true
   | GENERIC -> false)
 
 let load_dialog_pair path dpath dfpath =
@@ -436,6 +437,7 @@ let autodetect_game_type key =
                "FLYTHR01", "MVE", GENERIC, BG2 ;
                "OH1000", "ARE", BGEE, BG2 ;
                "OH6000", "ARE", BG2EE, BG2 ;
+               "PSTCHAR", "2DA", PSTEE, BG2 ;
                "HOWPARTY", "2DA", IWDEE, BG2] in
   let (game_type, script_style) = List.fold_left
       (fun acc (res, ext, game_type, script_style) ->
