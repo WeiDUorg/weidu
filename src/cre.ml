@@ -458,8 +458,8 @@ let string_to_slots str =
         | _ ->
             (try assert false with Assert_failure(file,line,col) ->
               set_errors file line) ;
-            log_and_print "WARNING: ADD_CRE_ITEM: Unknown slot %s.  Default to INV15 for placement.\n"
+            log_and_print "WARNING: ADD_CRE_ITEM: Unknown slot %s.  Default to INV19 for placement.\n"
               (String.uppercase str) ;
-            35) (Str.split many_whitespace_regexp item_slot)
+            43) (Str.split many_whitespace_regexp item_slot)
   in
   possible_slots

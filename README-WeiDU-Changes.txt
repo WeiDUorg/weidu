@@ -27,6 +27,7 @@ Version 241:
   * Add STO V1.1 support to DELETE_STORE_ITEM and REPLACE_STORE_ITEM
     patch functions and macros.
   * Add support for MAZE key value.
+  * Fix default PST inventory slot in ADD_CRE_ITEM.
   * Make adding quest entries to BGEE.LUA via ADD_JOURNAL more foolproof.
 
 Version 240:
