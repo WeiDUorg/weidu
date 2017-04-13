@@ -28,7 +28,16 @@
  *                    the array. (Note: This macro uses the value part of associative arrays.)
  */
 DEFINE_ACTION_MACRO fl#ADD_JOURNAL_LUA BEGIN
-  ACTION_IF (VARIABLE_IS_SET $entries(0)) BEGIN
+  // determining correct function signature
+  ACTION_IF (FILE_CONTAINS_EVALUATED (~bgee.lua~ ~createEntry[%TAB% ]*([%TAB% ]*[^,)]+[%TAB% ]*,[%TAB% ]*[^,)]+[%TAB% ]*,[%TAB% ]*[^,)]+[%TAB% ]*)~)) BEGIN
+    OUTER_SET signature = 1
+  END ELSE ACTION_IF (FILE_CONTAINS_EVALUATED (~bgee.lua~ ~createEntry[%TAB% ]*([%TAB% ]*[^,)]+[%TAB% ]*,[%TAB% ]*[^,)]+[%TAB% ]*,[%TAB% ]*[^,)]+[%TAB% ]*,[%TAB% ]*[^,)]+[%TAB% ]*,[%TAB% ]*[^,)]+[%TAB% ]*)~)) BEGIN
+    OUTER_SET signature = 2
+  END ELSE BEGIN
+    OUTER_SET signature = 0
+  END
+
+  ACTION_IF (signature > 0 AND VARIABLE_IS_SET $entries(0)) BEGIN
     // preparing journal title
     ACTION_PHP_EACH entries AS _ => strref BEGIN
       ACTION_IF (title < 0) BEGIN
@@ -73,15 +82,23 @@ DEFINE_ACTION_MACRO fl#ADD_JOURNAL_LUA BEGIN
         END
 
         // prepare associated quest entry
-        TEXT_SPRINT createEntry_var ~%createEntry_var%%newline%%TAB%createEntry    ( %title%, -1, %strref%, {}, nil )~
+        PATCH_IF (signature = 1) BEGIN
+          TEXT_SPRINT createEntry_var ~%createEntry_var%%newline%%TAB%createEntry    ( %title%, %strref%, {} )~
+        END ELSE PATCH_IF (signature = 2) BEGIN
+          TEXT_SPRINT createEntry_var ~%createEntry_var%%newline%%TAB%createEntry    ( %title%, -1, %strref%, {}, nil )~
+        END
 
       END
 
       // applying changes to BGEE.LUA
-      REPLACE_TEXTUALLY ~\(create\(Entry\|Quest\).+)\)[%WNL%%LNL%%MNL%%TAB% ]*end~
+      REPLACE_TEXTUALLY ~\(create\(Entry\|Quest\).+)\([%TAB% ]*--[^%WNL%]*\)?\)[%WNL%][%WNL%%TAB% ]*end~
                           ~\1%createQuest_var%%createEntry_var%%newline%end~
     BUT_ONLY
-  END ELSE WARN ~WARNING: ADD_JOURNAL received no quest entries~
+  END ELSE ACTION_IF (signature = 0) BEGIN
+    WARN ~WARNING: ADD_JOURNAL was not able to add quest entries~
+  END ELSE BEGIN
+    WARN ~WARNING: ADD_JOURNAL received no quest entries~
+  END
 END
 
 // Attempts to determine the new line sequence used in the specified string.
