@@ -10,7 +10,7 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 open BatteriesInit
-let version = "24000"
+let version = "24001"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
