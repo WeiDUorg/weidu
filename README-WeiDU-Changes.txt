@@ -4,6 +4,7 @@ Version 241:
   * Add MODULO expression. Thanks, Argent77.
   * Fix unevaluated variable in some when-clauses.
   * Fix syntax error when decompiling NextObjectTrigger() with comments.
+  * --list-components-json command-line argument.
   * BAF parser issues non-failing parse error over string arguments that
     should be integers.
   * Implement insert_point for ADD_ITEM_EQEFFECT and ADD_SPELL_CFEFFECT.
