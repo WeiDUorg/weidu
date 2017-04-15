@@ -322,10 +322,11 @@ cleancaml:
 # Dependencies for .mli files reside in corresponding .di files.
 #
 
-# If you have perl but not sed you can use this line instead. Don't you
-# wish we were using autoconf?
-#FIXDEPEND:=perl -e 'while(<>) { s%[^/\\ :]+[/\\]% %g; s%([^ :\\\n\r]+)%$(OBJDIR)/$$1%g; print $$_;}'
-FIXDEPEND:=sed -e '{ s%[^/\\ :][^/\\ :]*[/\\]% %g; s%\([^ :\\\n\r][^ :\\\n\r]*\)%$(OBJDIR)/\1%g; }'
+FIXDEPEND:=perl -e 'while(<>) { s%[^/\\ :]+[/\\]% %g; s%([^ :\\\n\r]+)%$(OBJDIR)/$$1%g; print $$_;}'
+
+# This sed substitution is valid for GNU sed but not for BSD sed (and
+# probably not POSIX). \r is not a recognised control character.
+# FIXDEPEND:=sed -e '{ s%[^/\\ :][^/\\ :]*[/\\]% %g; s%\([^ :\\\n\r][^ :\\\n\r]*\)%$(OBJDIR)/\1%g; }'
 
 # FIXDEPEND:=cat
 DEPINCLUDES= -I $(OBJDIR) $(SOURCEDIRS:%=-I %)
