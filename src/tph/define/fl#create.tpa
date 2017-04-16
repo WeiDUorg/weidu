@@ -47,13 +47,13 @@ DEFINE_ACTION_FUNCTION FL#CREATE#VALIDATE_RESREF
     ext = ""
 BEGIN
   ACTION_IF "%resref%" STRING_MATCHES_REGEXP ".+\.%ext%$" = 0 BEGIN
-    FAIL ~CREATE: resource refercence "%resref%" should not contain a file extension~
+    FAIL ~CREATE: resource reference "%resref%" should not contain a file extension~
   END
   ACTION_IF STRING_LENGTH "%resref%" > 8 BEGIN
     FAIL ~CREATE: the resource reference "%resref%" is longer than 8 characters~
   END
   ACTION_IF STRING_LENGTH "%resref%" = 0 BEGIN
-    FAIL ~CREATE: empty resousrce reference~
+    FAIL ~CREATE: empty resource reference~
   END
 END
 
