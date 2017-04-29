@@ -30,6 +30,7 @@ Version 241:
   * Add support for MAZE key value.
   * Fix default PST inventory slot in ADD_CRE_ITEM.
   * Make adding quest entries to BGEE.LUA via ADD_JOURNAL more foolproof.
+  * WeInstall quotes the name of the mod and should work with e.g., spaces.
 
 Version 240:
   * GAME_INCLUDES supports SoD.

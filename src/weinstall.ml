@@ -10,6 +10,9 @@ let log_and_print fmt =
   in
   Printf.kprintf k fmt
 
+let quote str =
+  Printf.sprintf "\"%s\"" str
+
 let main () =
   if Array.length Sys.argv = 1 then begin
     log_and_print "Usage: %s name-of-tp2 otheroptions\n" Sys.argv.(0) ;
@@ -23,9 +26,9 @@ let main () =
     let debug_where = try
       let h = Unix.stat "debugs" in
       if h.Unix.st_kind = Unix.S_DIR then
-        Printf.sprintf "debugs/%s.debug" Sys.argv.(1)
-      else Printf.sprintf "setup-%s.debug" Sys.argv.(1) ;
-    with _ -> Printf.sprintf "setup-%s.debug" Sys.argv.(1) ;
+        quote (Printf.sprintf "debugs/%s.debug" Sys.argv.(1))
+      else quote (Printf.sprintf "setup-%s.debug" Sys.argv.(1)) ;
+    with _ -> quote (Printf.sprintf "setup-%s.debug" Sys.argv.(1)) ;
     in
     let we = Case_ins.weidu_executable in
     let fast = try
@@ -49,7 +52,7 @@ let main () =
          ("setup-" ^ x ^ ".tp2")] in
     let tp2 = (try List.hd tp2s with _ ->
       failwith "ERROR: TP2 file not found.") in
-    Buffer.add_string buff tp2 ;
+    Buffer.add_string buff (quote tp2) ;
     if (fast) then
       Buffer.add_string buff
         " --quick-log --skip-at-view --safe-exit --no-exit-pause " ;
@@ -59,14 +62,14 @@ let main () =
       | "--force-uninstall" -> " --force-uninstall-list "
       | x -> " " ^ x ^ " ") ;
     done ;
-    let x = Buffer.contents buff in
-    print_endline x ;
+    let cmd = Buffer.contents buff in
+    print_endline cmd ;
     let int_of_ps x = match x with
     | Unix.WEXITED(i)
     | Unix.WSIGNALED(i)
     | Unix.WSTOPPED(i)-> i
     in
-    exit (int_of_ps (Unix.system x)) ;
+    exit (int_of_ps (Unix.system cmd)) ;
   end
 ;;
 
