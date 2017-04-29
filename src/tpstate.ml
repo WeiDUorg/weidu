@@ -93,7 +93,7 @@ let get_last_module_number module_list =
       | hd :: tl -> process tl
       | [] -> acc + 1
       in process tp_mod.Tp.mod_flags in
-    current) 0 module_list
+    current) (0 - 1) module_list
 
 let get_id_of_label tp_file label =
   let ans = ref None in
