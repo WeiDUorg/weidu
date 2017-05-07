@@ -7,7 +7,12 @@ DEFINE_ACTION_FUNCTION HANDLE_AUDIO
     sox_path = EVAL "%audio_path%"
     output_path = "override"
 BEGIN
-  ACTION_IF !FILE_EXISTS_IN_GAME monkfist.2da BEGIN
+  /* Early versions of BG:EE do not include bgee.lua and
+   * PST:EE does not include monkfist.2da
+   */
+  ACTION_IF !FILE_EXISTS_IN_GAME bgee.lua AND
+            !FILE_EXISTS_IN_GAME monkfist.2da
+  BEGIN
     ACTION_MATCH "%WEIDU_OS%" WITH
       win32
       BEGIN

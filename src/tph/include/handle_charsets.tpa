@@ -194,7 +194,12 @@ DEFINE_ACTION_FUNCTION HANDLE_CHARSETS
     noconvert_array = ~~
     reload_array = ~~
 BEGIN
-  ACTION_IF FILE_EXISTS_IN_GAME monkfist.2da BEGIN
+  /* Early versions of BG: EE do not include bgee.lua and
+   * PST: EE does not include monkfist.2da
+   */
+  ACTION_IF FILE_EXISTS_IN_GAME bgee.lua OR
+            FILE_EXISTS_IN_GAME monkfist.2da
+  BEGIN
     /*
      * Initial versions mistakenly called the variable infer_charset.
      * For reasons of backwards-compatibility, we use infer_charset
@@ -252,7 +257,7 @@ BEGIN
           ACTION_PHP_EACH "%reload_array%" AS _ => file BEGIN
             LOAD_TRA ~%tra_path%/%language%/%file%.tra~
           END
-          COPY_EXISTING sw1h01.itm ~%tra_path%/%language%/fl#utf8.mrk~
+          COPY_EXISTING bolt01.itm ~%tra_path%/%language%/fl#utf8.mrk~
         END
       END
     END ELSE BEGIN
