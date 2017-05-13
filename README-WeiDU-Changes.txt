@@ -31,6 +31,7 @@ Version 241:
   * Fix default PST inventory slot in ADD_CRE_ITEM.
   * Make adding quest entries to BGEE.LUA via ADD_JOURNAL more foolproof.
   * WeInstall quotes the name of the mod and should work with e.g., spaces.
+  * You can use \n back-references in the destination of COPY_EXISTING_REGEXP.
 
 Version 240:
   * GAME_INCLUDES supports SoD.

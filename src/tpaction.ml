@@ -588,7 +588,20 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                   let matches = ref [] in
                   List.iter (fun possible ->
                     if Str.string_match regexp possible 0 then begin
-                      matches := (possible, p ^ "/" ^ possible) :: !matches
+                      (try
+                        let dest = (Arch.backslash_to_slash
+                                      (Str.replace_matched p possible)) in
+                        let file_pattern = (Str.regexp ".+\\..+$") in
+                        if not (Str.string_match file_pattern dest 0) ||
+                        is_directory dest then begin
+                          matches :=
+                            (possible, dest ^ "/" ^ possible) :: !matches
+                        end else begin
+                          matches := (possible, dest) :: !matches
+                        end
+                      with | Failure s ->
+                        failwith (Printf.sprintf
+                                    "COPY_EXISTING_REGEXP failed: %s" s)) ;
                     end) files_in_chitin;
                   let matches = List.sort compare !matches in
                   if (matches = []) then

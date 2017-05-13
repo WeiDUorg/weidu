@@ -3011,13 +3011,16 @@ global option to your \ttref{TP2} file. \\
        the game \ttref{BIFF}s or \t{override} directory. This is useful for
        making changes to files that other mods may have changed as well.
        \\
-  or & \DEFINE{COPY!EXISTING!REGEXP} \ttref{optNoBackup} \ttref{optGlob} fromFileRegexp toDir ...
-       \ttref{patch} \Slist
+  or & \DEFINE{COPY!EXISTING!REGEXP} \ttref{optNoBackup} \ttref{optGlob}
+       fromFileRegexp toDirOrFile ... \ttref{patch} \Slist
        \ttref{when} \Slist &
        Behaves like \ttref{COPY!EXISTING} except that fromFileRegexp may
-       contain regular expressions (\ttref{regexp}s). All matching files in
-       the game \ttref{BIFF}s will be copied to the directory specified by
-       toDir.
+       contain regular expressions (\ttref{regexp}s). Additionally, toDirOrFile
+       may reference matched groups in fromFileRegexp with $\backslash$1,
+       $\backslash$2, etc. If toDirOrFile is an existing directory or lacks a
+       file extension, it will be treated as a directory and all matching files
+       in the game \ttref{BIFF}s will be copied there. Otherwise, toDirOrFile
+       will be treated as a file.
 
 
        If \ttref{GLOB} is specified, matching files in \t{override} will
