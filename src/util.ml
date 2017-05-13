@@ -525,6 +525,9 @@ let open_for_writing_internal backup filename binary =
   (match !other_list_chn with
    | Some(chn) -> output_string chn (filename ^ "\n") ; flush chn
    | None -> ()) ;
+  let dir = Filename.dirname filename in
+  if dir <> "" && not (is_directory dir) then
+    recursive_mkdir dir 511 ;
   if file_exists filename then (* if it already exists *)
     begin (* handle read-only files! *)
       try

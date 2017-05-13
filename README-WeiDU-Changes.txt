@@ -32,6 +32,8 @@ Version 241:
   * Make adding quest entries to BGEE.LUA via ADD_JOURNAL more foolproof.
   * WeInstall quotes the name of the mod and should work with e.g., spaces.
   * You can use \n back-references in the destination of COPY_EXISTING_REGEXP.
+  * Trying to copy files to a non-existent directory will result in the
+    directory being created instead of an installation failure.
 
 Version 240:
   * GAME_INCLUDES supports SoD.
