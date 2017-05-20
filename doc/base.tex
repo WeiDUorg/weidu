@@ -4603,13 +4603,29 @@ or & \DEFSYN{SET!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
   it is a single string (that is not a variable in scope) that string will
   be written at the new value.
   See
-  the \ttref{SET!2DA!ENTRY} tutorial for more information.  \\
-or & \DEFSYN{SET!2DA!ENTRY!LATER} string \ttref{value} \ttref{value} \ttref{value} &
-  Similar to \t{SET!2DA!ENTRY}, memorizes the 2da changes in the RAM without
-  flushing them to the file. See the \ttref{SET!2DA!ENTRY!LATER} tutorial. \\
-or & \DEFSYN{SET!2DA!ENTRIES!NOW} string \ttref{value} & To be used with
-  \t{SET!2DA!ENTRY!LATER}: flushes the file changes in one go. See the
-  \ttref{SET!2DA!ENTRIES!NOW} tutorial. \\
+  the \ttref{SET!2DA!ENTRY} tutorial for more information. \\
+
+  or & \DEFINE{SET!2DA!ENTRY!LATER} string \ttref{value} \ttref{value}
+  \ttref{value} &
+
+  Defines an change to a 2DA file to be made at some point in the
+  future. The change is stored is stored in variables derived from the
+  first parameter, string. The first two values are the row and column
+  of the 2DA table to be changed and the third value the new value of
+  the 2DA entry. Use \ttref{SET!2DA!ENTRIES!NOW} to flush the queued
+  changes and update the 2DA table. If you use
+  \ttref{SET!2DA!ENTRY!LATER} together with
+  \ttref{READ!2DA!ENTRY!FORMER} you must use different string
+  variables for the two. See the \t{SET!2DA!ENTRY!LATER} tutorial. \\
+
+  or & \DEFSYN{SET!2DA!ENTRIES!NOW} string \ttref{value} &
+
+  Flush the changes to the 2DA table that have been queued by
+  \ttref{SET!2DA!ENTRY!LATER}. The first parameter, string, should be
+  the same string you used for \ttref{SET!2DA!ENTRY!LATER}. The second
+  value is the required column count. Rows with fewer columns are
+  disregarded. See the \ttref{SET!2DA!ENTRIES!NOW} tutorial. \\
+
 or & \DEFINE{PRETTY!PRINT!2DA} & Indents the 3rd line in the current file (which
   should be a  2da file). \\
 or & \DEFSYN{PRETTY!PRINT!2DA} \ttref{value} & Indents the value'th line
@@ -4692,13 +4708,30 @@ or & \DEFINE{READ!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
   to the entry on the given column of the given row, but only column
   with at least as many columns as the required column count are
   considered. This is the reverse of \ttref{SET!2DA!ENTRY}. \\
-or & \DEFSYN{READ!2DA!ENTRIES!NOW} string \ttref{value} &
-  Reads in one go all the 2da in the RAM for \ttref{READ!2DA!ENTRY!FORMER}. See the
-  \ttref{READ!2DA!ENTRIES!NOW} tutorial. \\
-or & \DEFSYN{READ!2DA!ENTRY!FORMER} string \ttref{value} \ttref{value} \ttref{variable}
-  & Similar to \ttref{READ!2DA!ENTRY}, but reads from a prepared
-  \ttref{READ!2DA!ENTRIES!NOW} command rather than from the file.
-  See the \ttref{READ!2DA!ENTRY!FORMER} tutorial. \\
+
+  or & \DEFINE{READ!2DA!ENTRIES!NOW} string \ttref{value} &
+
+  The contents of the 2DA table is read in one go into an array
+  derived from the first parameter, string. The second parameter,
+  value, is the required column count. Rows with fewer columns are
+  disregarded. The parameter string is also used to set a variable
+  named after string that is set to the number of rows in the 2DA
+  table with the required number of columns. Retrieve values from the
+  constructed array with \ttref{READ!2DA!ENTRY!FORMER}. If you use
+  \ttref{READ!2DA!ENTRIES!NOW} together with
+  \ttref{SET!2DA!ENTRY!LATER} you must use different string variables
+  for the two. See the \t{READ!2DA!ENTRIES!NOW} tutorial. \\
+
+  or & \DEFINE{READ!2DA!ENTRY!FORMER} string \ttref{value} \ttref{value}
+  \ttref{variable} &
+
+  Retrieves values from an array constructed by
+  \ttref{READ!2DA!ENTRIES!NOW}. The first parameter, string, is the
+  name of the array. The following two values are the 2DA row and
+  column from which to read the entry. The value of the 2DA entry is
+  stored in the last parameter, variable. See the
+  \t{READ!2DA!ENTRY!FORMER} tutorial. \\
+
 or & \DEFINE{COUNT!2DA!ROWS} \ttref{value} \ttref{variable} &
   The first \ttref{value} is the required column count. This command
   counts the number of rows in the current file (which should be a
@@ -6224,7 +6257,7 @@ elegant way to do this via WeiDU (well, maybe there is, but I can't think
 of a way) so I'd just warn them.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{SET!2DA!ENTRY}}
+\subsection{\t{SET!2DA!ENTRY}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial was thoughtfully provided by Idobek.
@@ -7111,25 +7144,26 @@ warning, do not try to re-invent the WeiMorph wheel using a \ttref{TP2}
 script -- email Japheth instead.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{SET!2DA!ENTRY!LATER} and \DEFINE{SET!2DA!ENTRIES!NOW} (Last Update: v188)}
+\subsection{\t{SET!2DA!ENTRY!LATER} and \t{SET!2DA!ENTRIES!NOW} (Last Update: v241)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\ttref{SET!2DA!ENTRY!LATER} and \ttref{SET!2DA!ENTRIES!NOW} are an extension
-of the \ttref{SET!2DA!ENTRY} patch, so you are encouraged to study the
-\ttref{SET!2DA!ENTRY} tutorial by Idobek before reading this one.
+\ttref{SET!2DA!ENTRY!LATER} and \ttref{SET!2DA!ENTRIES!NOW} are
+extensions of the \ttref{SET!2DA!ENTRY} patch, so you should be
+familiar with \t{SET!2DA!ENTRY} before reading this tutorial. A
+tutorial for \t{SET!2DA!ENTRY} exists.
 
-The main difference between the standard \ttref{SET!2DA!ENTRY} and these new
-variants is that S!2!E changes the file each instance, while the LATER
-variant stores a list of changes in the memory and then the NOW part flushes
-them in one go, resulting faster processing than S!2!E. According to Weimer's
-calculations, using LATER/NOW gives an edge when 5 or more S!2!E are to be
-applied to the same file.
+The main difference between the standard \ttref{SET!2DA!ENTRY} and
+these variants is that \t{SET!2DA!ENTRY} changes the file each
+instance, while \t{SET!2DA!ENTRY!LATER} stores a list of changes in
+memory and relies on \t{SET!2DA!ENTRIES!NOW} to flush the changes and
+update the file. This can result in better performance than
+\t{SET!2DA!ENTRY}. According to Weimer's calculations, using the
+deferred approach gives an edge when 5 or more \t{SET!2DA!ENTRY} are
+to be applied to the same file.
 
-We'll begin with a side-by-side confrontation of the code, for a mod which
-allows Thieves, Cleric/Thieves and Mage/Thieves to use 3 proficiency points
-in Two Weapon Fighting:
-
-using S!2!E:
+To illustrate the differences, consider the following code, which allows
+for thieves, cleric/thieves and mage/thieves to put 3 proficiency
+points in Two-weapon fighting using \t{SET!2DA!ENTRY}:
 \begin{verbatim}
 COPY_EXISTING ~weapprof.2da~ ~override~
   SET_2DA_ENTRY 34 7  1 3
@@ -7137,7 +7171,8 @@ COPY_EXISTING ~weapprof.2da~ ~override~
   SET_2DA_ENTRY 34 40 1 3
 \end{verbatim}
 
-using S!2!E!L/N:
+Compare this with the equivalent code using \t{SET!2DA!ENTRY!LATER}
+and \t{SET!2DA!ENTRIES!NOW}:
 \begin{verbatim}
 COPY_EXISTING ~weapprof.2da~ ~override~
   SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 7  3
@@ -7146,124 +7181,82 @@ COPY_EXISTING ~weapprof.2da~ ~override~
   SET_2DA_ENTRIES_NOW ~_#_#_#weapprof~ 1
 \end{verbatim}
 
-The things to change are the following:
-\begin{itemize}
-\item you have to replace SET!2DA!ENTRY with SET!2DA!ENTRY!LATER
-\item in S!2!E!L you don't have to specify the required column count parameter
-(in the example, the '1')
-\item in S!2!E!L you have to specify a string (in the example,
-\verb+~_#_#_#weapprof~+) before other parameters.
-\item finally, after all your SET!2DA!ENTRY!LATER commands, you have to put
-SET!2DA!ENTRIES!NOW, the string you put after each S!2!E!L, and the required
-column count.
-\end{itemize}
+The first approach makes three self-contained changes to the 2DA table
+in weapprof.2da. Each \t{SET!2DA!ENTRY} loads the table, makes a
+change and saves the table.
 
-You can also split S!2!E!L sessions across multiple parts - but it is easy to shoot
-yourself in the foot:
-\begin{verbatim}
-// this is OK and works
-  COPY_EXISTING ~weapprof.2da~ ~override~
-    SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 7  3
-    SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 39 3
-  //do something else
-  COPY_EXISTING ~weapprof.2da~ ~override~
-    SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 40 3
-    SET_2DA_ENTRIES_NOW ~_#_#_#weapprof~ 1
-
-// this, however, is a bug:
-  COPY_EXISTING ~weapprof.2da~ ~override~
-    SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 7  3 /* (*) */
-  //do something else
-  COPY_EXISTING ~kitlist.2da~ ~override~
-    SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 40 3
-    SET_2DA_ENTRIES_NOW ~_#_#_#weapprof~ 1
-    // BUG: the (*) action is processed to kitlist.2da, not to weapprof.2da.
-    // you can use this to scare off newbies if you're mean.
-\end{verbatim}
-
-Now, the formalities - which could be useful to avoid hopelessly crashing of your tp2.
-
-\verb+SET_2DA_ENTRY_LATER ~string~ row col value+
-does the following variable associations (\t{\%i\%} is a counter which increases with
-each S!2!E!L instruction):
-\begin{itemize}
-\item \verb+SET string%i%r = row+
-\item \verb+SET string%i%c = col+
-\item \verb+SPRINT string%i%v value+
-\end{itemize}
-\verb+SET!2DA!ENTRIES!NOW ~string~ row_count+
-begins scanning all variables of the form string\t{\%i\%}r, string\t{\%i\%}c and
-string\t{\%i\%}v which I spoke about earlier, applies their changes and erases
-all those variables (so you can use the same string again).
-
-So it is possible to cheat and/or introduce bugs:
-\begin{verbatim}
-COPY_EXISTING ~weapprof.2da~ ~override~
-  SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 7  3
-  SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 39 3
-  SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 40 3
-  SET _#_#_#weapprof1v = 5
-  // BUG: you're doing SET_2DA_ENTRY_LATER ~_#_#_#weapprof~ 34 39 5 (and not 3)
-  SET_2DA_ENTRIES_NOW ~_#_#_#weapprof~ 1
-\end{verbatim}
-
-SUGGESTION: prefix your S!2!E!L/N strings (which can accept \t{\%variables\%},
-by the way) with a standard prefix (and don't use variables starting with that
-prefix), to avoid accidental overwrites. I like to use, as a string,
-\verb+_#_#_#FILE_NAME+ where FILE!NAME is the name of the file I'm editing.
+The second approach stores three changes to the 2DA table in memory
+with \t{SET!2DA!ENTRY!LATER}. Finally, \t{SET!2DA!ENTRIES!NOW} loads
+the 2DA table, makes the stored changes and saves the table. The
+string \verb+~_#_#_#weapprof~+ is used for storing the changes and
+whatever form it takes, it should only be used for
+\t{SET!2DA!ENTRY!LATER} and \t{SET!2DA!ENTRIES!NOW}. Avoid using
+variables with names containing the same string in other contexts. It
+is safe to use the same string in consecutive uses of
+\t{SET!2DA!ENTRY!LATER}, but not in parallel
+uses. \t{SET!2DA!ENTRIES!NOW} finalizes a series and makes the string
+safe to re-use. You can use \t{\%variables\%} in the string. One
+suggestion is to use a prefix specific to \t{SET!2DA!ENTRY!LATER} and
+onto that append the name of the file being edited, like
+\verb+~_#_#_#weapprof~+, where \verb+_#_#_#+ is the prefix and
+\verb+weapprof+ is the name of the file. It is specifically not safe
+to use the same string for \ttref{READ!2DA!ENTRY!FORMER} as you are
+using for \t{SET!2DA!ENTRY!LATER}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{READ!2DA!ENTRIES!NOW} and \DEFINE{READ!2DA!ENTRY!FORMER} (Last Update: v188)}
+\subsection{\t{READ!2DA!ENTRIES!NOW} and \t{READ!2DA!ENTRY!FORMER} (Last Update: v241)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-READ!2DA!ENTRIES!NOW and READ!2DA!ENTRY!FORMER are a derivation of
-\ttref{READ!2DA!ENTRY} pretty much the same way that \ttref{SET!2DA!ENTRY!LATER}
-and \ttref{SET!2DA!ENTRIES!NOW} are a derivation of \ttref{SET!2DA!ENTRY}, so
-you are advised to be familiar with how \ttref{READ!2DA!ENTRY},
-\ttref{SET!2DA!ENTRY!LATER}, and \ttref{SET!2DA!ENTRIES!NOW} work. Ready? Let's go!
+\ttref{READ!2DA!ENTRIES!NOW} and \ttref{READ!2DA!ENTRY!FORMER} are
+extensions of \ttref{READ!2DA!ENTRY}. You are advised to be familiar
+with how \ttref{READ!2DA!ENTRY} works before reading this
+tutorial.
 
-Here's a comparison of a R!2!E!N/F with R!2!E:
+Much like how \ttref{SET!2DA!ENTRY!LATER} and
+\ttref{SET!2DA!ENTRIES!NOW} offer a performance improvement over
+\ttref{SET!2DA!ENTRY} for a sufficiently large number of writes,
+\t{READ!2DA!ENTRIES!NOW} and \t{READ!2DA!ENTRY!FORMER} offer a
+performance improvement over \t{READ!2DA!ENTRY} for a sufficiently
+large number of reads.
 
-using R!2!E:
+To illustrate the differences, consider the following code, which reads
+values from a 2DA file using \t{READ!2DA!ENTRY}:
 \begin{verbatim}
 COPY_EXISTING ~kitlist.2da~ ~override~
-  READ_2DA_ENTRY 0 1 9 somevar
-  // somevar will be "RESERVE"
+  READ_2DA_ENTRY 0 1 9 somevar // somevar will be "RESERVE"
 \end{verbatim}
 
-using R!2!E!N/F:
+Compare this with the equivalent code using \t{READ!2DA!ENTRIES!NOW}
+and \t{READ!2DA!ENTRY!FORMER}:
 \begin{verbatim}
 COPY_EXISTING ~kitlist.2da~ ~override~
   READ_2DA_ENTRIES_NOW ~_#_#_#read_kitlist~ 9
-  READ_2DA_ENTRY_FORMER ~_#_#_#read_kitlist~ 0 1 somevar
-  // somevar will be "RESERVE"
+  READ_2DA_ENTRY_FORMER ~_#_#_#read_kitlist~ 0 1 somevar // somevar will be "RESERVE"
 \end{verbatim}
 
-If you have read the tutorial about \ttref{SET!2DA!ENTRY!LATER} and
-\ttref{SET!2DA!ENTRIES!NOW} you should already be familiar with the way to
-translate this, so I'll only explain the technicalities.
+In the first approach, each 2DA entry is read in a self-contained
+manner. Each time, the 2DA table is loaded and the entry from the given
+row and column is extracted and stored in the variable.
 
-\verb+READ_2DA_ENTRIES_NOW string col_count+
-will store inside the variable \verb+%string_row_col%+ the contents of the
-cell at row \t{\%row\%} and column \t{\%col\%}, for all rows
-with at least \verb+col_count+ items.
-The variable \verb+%string%+ will be set to the number of large enough
-rows (so, in effect, you also have processed \ttref{COUNT!2DA!ROWS} freely).
-
-\verb+READ_2DA_ENTRY_FORMER string row col variable+
-will store inside \verb+variable+ the contents of \verb+%string_row_col%+
-which should be the content of the cell \verb+row col col_count+ as defined
-by \ttref{READ!2DA!ENTRY}, unless the user edited the variable on his own.
- Here, \verb+col_count+ is defined by READ!2DA!ENTRIES!NOW.
-
-Differently from \ttref{SET!2DA!ENTRIES!NOW}, neither of these two patches
-will clear variables from former \ttref{READ!2DA!ENTRIES!NOW}, so be extra-careful
-in choosing the string to be unique.
-
-As you can see, I use \verb+_#_#_#read_FILE_NAME+ as a string (the \verb+read_+
-part is to proactively avoid possible overlappings with
-\ttref{SET!2DA!ENTRY!LATER}, while the WeiDU code also makes sure that these
-problems to not occur accidentally).
+The second approach loads the table once and stores it as an array of
+discrete values. Retrieving a value from the table is only a matter of
+getting the value of a variable. The names of the storage variables
+are derived from the string, \verb+~_#_#_#read_kitlist~+ in this
+case. Additionally, a variable \verb+%_#_#_#read_kitlist%+ is defined,
+with a value equalling the number of rows that have at least 9
+columns. In other words, using \t{READ!2DA!ENTRIES!NOW} additionally
+gives you the equivalent of \ttref{COUNT!2DA!ROWS}. It is not
+necessarily safe to make use of the same string in consecutive uses of
+\t{READ!2DA!ENTRIES!NOW}. If you have used the same string when
+reading from another 2DA table and you attempt to retrieve a value
+from a column greater than the required column count, the result is
+undefined. In is specifically not safe to use the same string you use
+for \t{READ!2DA!ENTRIES!NOW} as you are using for
+\ttref{SET!2DA!ENTRIES!LATER}. In this example, the string follows the
+same structure as in the \t{SET!2DA!ENTRY!LATER} and
+\t{SET!2DA!ENTRIES!NOW} tutorial, but with the string \verb+read_+
+prepended to the file name, to make sure the two strings can never be
+identical.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{DEFINE,LAUNCH,LOCAL and everything else about personal \DEFINE{macros} (Last Update: v188)}

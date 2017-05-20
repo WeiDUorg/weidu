@@ -34,6 +34,8 @@ Version 241:
   * You can use \n back-references in the destination of COPY_EXISTING_REGEXP.
   * Trying to copy files to a non-existent directory will result in the
     directory being created instead of an installation failure.
+  * Rewrite documentation of READ_2DA_ENTRIES_NOW/FORMER and
+    SET_2DA_ENTRY_LATER/NOW.
 
 Version 240:
   * GAME_INCLUDES supports SoD.
