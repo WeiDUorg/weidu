@@ -105,13 +105,14 @@ let lang_init our_lang =
     match our_lang with
     | None -> ()
     | Some(l) ->
-        Var.set_string "LANGUAGE" l.lang_dir_name ;
         log_and_print "%s [%s]\n" (get_trans (-1035)) l.lang_name ;
         log_or_print "[%s] has %d top-level TRA files\n"
           l.lang_name (List.length l.lang_tra_files) ;
         List.iter handle_tra_filename
           (List.map Arch.backslash_to_slash
-             (List.map Var.get_string l.lang_tra_files))
+             (List.map Var.get_string l.lang_tra_files)) ;
+        Var.set_string "LANGUAGE" l.lang_dir_name
+
   end
 
 let do_readme tp this_tp2_filename =
