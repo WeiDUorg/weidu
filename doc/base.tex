@@ -4617,7 +4617,7 @@ or & \DEFSYN{SET!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
   \ttref{value} &
 
   Defines an change to a 2DA file to be made at some point in the
-  future. The change is stored is stored in variables derived from the
+  future. The change is stored in variables derived from the
   first parameter, string. The first two values are the row and column
   of the 2DA table to be changed and the third value the new value of
   the 2DA entry. Use \ttref{SET!2DA!ENTRIES!NOW} to flush the queued
@@ -7258,9 +7258,9 @@ necessarily safe to make use of the same string in consecutive uses of
 \t{READ!2DA!ENTRIES!NOW}. If you have used the same string when
 reading from another 2DA table and you attempt to retrieve a value
 from a column greater than the required column count, the result is
-undefined. In is specifically not safe to use the same string you use
+undefined. It is specifically not safe to use the same string you use
 for \t{READ!2DA!ENTRIES!NOW} as you are using for
-\ttref{SET!2DA!ENTRIES!LATER}. In this example, the string follows the
+\ttref{SET!2DA!ENTRY!LATER}. In this example, the string follows the
 same structure as in the \t{SET!2DA!ENTRY!LATER} and
 \t{SET!2DA!ENTRIES!NOW} tutorial, but with the string \verb+read_+
 prepended to the file name, to make sure the two strings can never be
