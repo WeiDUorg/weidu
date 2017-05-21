@@ -36,6 +36,7 @@ Version 241:
     directory being created instead of an installation failure.
   * Rewrite documentation of READ_2DA_ENTRIES_NOW/FORMER and
     SET_2DA_ENTRY_LATER/NOW.
+  * Add TEXT option for APPEND_FILE.
 
 Version 240:
   * GAME_INCLUDES supports SoD.

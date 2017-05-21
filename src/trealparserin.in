@@ -99,6 +99,11 @@ nonterm(unit) Optional_Then {
   -> THEN [ () ]
 }
 
+nonterm(bool) Optional_Text_Mode {
+  -> [ false ]
+  -> TEXT [ true ]
+}
+
 nonterm(string) Lse_String {
   -> e1:STRING [ e1 ]
   -> e1:STRING STRING_CONCAT e2:Lse_String [ e1 ^ e2 ]
@@ -1136,8 +1141,8 @@ nonterm (Tp.tp_patch) Tp_Patch {
        [ Tp.TP_PatchGetOffsetArray2(e1,e2) ]
   -> WRITE_FILE e1:Patch_Exp e2:STRING [ Tp.TP_PatchWriteFile(e1,e2,false) ]
   -> INSERT_FILE e1:Patch_Exp e2:STRING [ Tp.TP_PatchWriteFile(e1,e2,true) ]
-  -> APPEND_FILE e1:STRING [ Tp.TP_PatchAppendFile(e1,false) ]
-  -> APPEND_FILE_EVALUATE e1:STRING [ Tp.TP_PatchAppendFile(e1,true) ]
+  -> APPEND_FILE e1:Optional_Text_Mode e2:STRING [ Tp.TP_PatchAppendFile(e2,e1,false) ]
+  -> APPEND_FILE_EVALUATE e1:Optional_Text_Mode e2:STRING [ Tp.TP_PatchAppendFile(e2,e1,true) ]
   -> WRITE_BYTE e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchByte(e1,e2) ]
   -> WRITE_SHORT e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchShort(e1,e2) ]
   -> WRITE_LONG e1:Patch_Exp e2:Patch_Exp [ Tp.TP_PatchLong(e1,e2) ]

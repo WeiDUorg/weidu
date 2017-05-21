@@ -4224,12 +4224,20 @@ or & \DEFINE{INSERT!FILE} \ttref{offset} filename &
   ``filename'' are inserted at \ttref{offset}, just as if you had done an
   \ttref{INSERT!BYTES} with the size of ``filename'' to that \ttref{offset}
   followed by a \ttref{WRITE!FILE} to that \ttref{offset}. \\
-or & \DEFINE{APPEND!FILE} filename &
-  Just like \ttref{INSERT!FILE} except that the entire contents of
-  ``filename'' are appended to the end of the current file. \\
-or & \DEFINE{APPEND!FILE!EVALUATE} filename &
-  Just like \ttref{APPEND!FILE} except that \verb+%variables%+ in the contents of
-  ``filename'' are evaluated before the appending. \\
+
+  or & \DEFINE{APPEND!FILE} \Ob \t{TEXT} \Oe filename &
+
+  Appends the contents of filename onto the current file. If \t{TEXT}
+  is specified, the contents of filename and the current file is
+  separated by a newline character (LF) unless the first character of
+  filename or the last character of the current file is a newline
+  character. \\
+
+  or & \DEFINE{APPEND!FILE!EVALUATE} \Ob \t{TEXT} \Oe filename &
+
+  Just like \ttref{APPEND!FILE} except that \verb+%variables%+ in the
+  contents of filename are evaluated before the appending. \\
+
 or & \DEFINE{REPLACE!BCS!BLOCK} \Ob \t{EVALUATE!BUFFER} \Oe \ttref{optcase}
      oldFile newFile \Ob \t{ON!MISMATCH} \ttref{patch} \Slist \t{END} \Oe &
   If the current file is a \ttref{BCS} file, the segment of it

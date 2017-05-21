@@ -826,8 +826,8 @@ optional_evaluate :
 | READ_LONG patch_exp STRING ELSE patch_exp { Tp.TP_PatchReadLong($2,Tp.PE_LiteralString $3,Some($5)) }
 | WRITE_FILE patch_exp STRING { Tp.TP_PatchWriteFile($2,$3,false) }
 | INSERT_FILE patch_exp STRING { Tp.TP_PatchWriteFile($2,$3,true) }
-| APPEND_FILE STRING { Tp.TP_PatchAppendFile($2,false) }
-| APPEND_FILE_EVALUATE STRING { Tp.TP_PatchAppendFile($2,true) }
+| APPEND_FILE STRING { Tp.TP_PatchAppendFile($2,false,false) }
+| APPEND_FILE_EVALUATE STRING { Tp.TP_PatchAppendFile($2,false,true) }
 | WRITE_BYTE patch_exp patch_exp { Tp.TP_PatchByte($2,$3) }
 | WRITE_SHORT patch_exp patch_exp { Tp.TP_PatchShort($2,$3) }
 | WRITE_LONG patch_exp patch_exp { Tp.TP_PatchLong($2,$3) }

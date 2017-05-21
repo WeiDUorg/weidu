@@ -408,7 +408,7 @@ and tp_patch =
   | TP_Remove_Cre_Items
   | TP_Extend_Mos of string * tp_patchexp
   | TP_PatchWriteFile of tp_patchexp * string * bool (* where, what, insert? *)
-  | TP_PatchAppendFile of string * bool (* evaluate the file to be appended? *)
+  | TP_PatchAppendFile of string * bool * bool (* text?, eval? *)
   | TP_CompileBAFtoBCS
   | TP_CompileBCStoBAF
   | TP_CompileDtoDLG

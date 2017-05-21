@@ -1167,11 +1167,14 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         String.blit str 0 buff where 4 ;
         buff
 
-    | TP_PatchAppendFile(filename, eval) ->
+    | TP_PatchAppendFile(filename, text_mode, eval) ->
         let filename = Arch.backslash_to_slash filename in
         let filename = Var.get_string filename in
         let file_buff = load_file filename in
-        buff ^ (if eval then Var.get_string file_buff else file_buff)
+        let separator = if text_mode && Str.first_chars file_buff 1 <> "\n" &&
+        Str.last_chars buff 1 <> "\n" then "\n" else "" in
+        buff ^ separator ^ (if eval then
+          Var.get_string file_buff else file_buff)
 
     | TP_PatchWriteFile(where,filename,insert) ->
         let filename = Arch.backslash_to_slash filename in
