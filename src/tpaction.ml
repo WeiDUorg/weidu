@@ -2360,6 +2360,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           begin
             run_patch (TP_PatchWithTra (tra_list, pl_of_al action_list))
           end
+
+      | TP_WithVarScope (action_list) ->
+          begin
+            run_patch (TP_PatchWithVarScope (pl_of_al action_list))
+          end
       );
       if !clear_memory then begin
         clear_memory := false;

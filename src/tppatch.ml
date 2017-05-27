@@ -2762,4 +2762,15 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             Dc.pop_trans () ;
             buff
           with e -> Dc.pop_trans () ; raise e
+        end
+
+    | TP_PatchWithVarScope(patch_list) ->
+        begin
+          Var.var_push () ;
+          (try
+            let buff = List.fold_left (fun acc patch ->
+              process_patch2 patch_filename game acc patch) buff patch_list in
+            Var.var_pop () ;
+            buff
+          with e -> Var.var_pop () ; raise e)
         end) () (* end: process_patch2 *)

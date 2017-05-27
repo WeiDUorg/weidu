@@ -3382,6 +3382,12 @@ END
     \ttref{WITH!TRA} exits, the new \t{TRA} scope is discarded, that
     is, all \t{TRA} changes made by \ttref{WITH!TRA} or any of its
     enclosed actions are forgotten. \\
+  or & \DEFINE{WITH!SCOPE} \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
+    Creates a new variable scope copied from the surrounding scope
+    and evaluates the \t{TP2 Action}s inside the new scope. When
+    \ttref{WITH!SCOPE} exits, the new scope is discarded, all
+    new variables defined inside the scope and all changes to existing variables
+    are forgotten. \\
   or & \DEFINE{UNINSTALL} modToUninstall modComponent &
     If the given component of the given mod is currently installed,
     uninstall it before proceeding. \emph{Do not use this action without
@@ -4599,6 +4605,12 @@ or & \DEFINE{PATCH!WITH!TRA} traName \Slist \t{BEGIN} \ttref{patch} \Slist \t{EN
     \ttref{PATCH!WITH!TRA} exits, the new \t{TRA} scope is discarded,
     that is, all \t{TRA} changes made by \ttref{PATCH!WITH!TRA} or any
     of its enclosed patches are forgotten. \\
+or & \DEFINE{PATCH!WITH!SCOPE} \t{BEGIN} \ttref{patch} \Slist \t{END} &
+    Creates a new variable scope copied from the surrounding scope
+    and evaluates the \t{patch}es inside the new scope. When
+    \ttref{PATCH!WITH!SCOPE} exits, the new scope is discarded, all
+    new variables defined inside the scope and all changes to existing variables
+    are forgotten. \\
 or & \DEFSYN{SET!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
 \ttref{value} &
   The first \ttref{value} is the row, the second is the column and the
