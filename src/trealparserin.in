@@ -894,13 +894,13 @@ nonterm(Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp * Tp.tp_patchexp *
        [ eight_patch_exp e1 0x6a 4 0x1e 2 0x20 2 0x30 ]
 
   -> e1:Patch_Exp WMP_NORTH_LINKS
-       [ eight_patch_exp e1 0x38 4 0x50 4 0x54 4 0xd8 ]
+       [ eight_patch_exp e1 0x38 4 0x54 4 0x50 4 0xd8 ]
   -> e1:Patch_Exp WMP_WEST_LINKS
-       [ eight_patch_exp e1 0x38 4 0x58 4 0x5c 4 0xd8 ]
+       [ eight_patch_exp e1 0x38 4 0x5c 4 0x58 4 0xd8 ]
   -> e1:Patch_Exp WMP_SOUTH_LINKS
-       [ eight_patch_exp e1 0x38 4 0x60 4 0x64 4 0xd8 ]
+       [ eight_patch_exp e1 0x38 4 0x64 4 0x60 4 0xd8 ]
   -> e1:Patch_Exp WMP_EAST_LINKS
-       [ eight_patch_exp e1 0x38 4 0x68 4 0x6c 4 0xd8 ]
+       [ eight_patch_exp e1 0x38 4 0x6c 4 0x68 4 0xd8 ]
 }
 
 nonterm (Tp.tp_patchexp) Patch_Exp_Safe {

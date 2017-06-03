@@ -38,6 +38,7 @@ Version 241:
     SET_2DA_ENTRY_LATER/NOW.
   * Add TEXT option for APPEND_FILE.
   * Add WITH_SCOPE and PATCH_WITH_SCOPE.
+  * Fix incorrect offsets in WMP_*_LINKS.
 
 Version 240:
   * GAME_INCLUDES supports SoD.
