@@ -370,7 +370,7 @@ let rec verify_arg_list name al fl = match (al,fl) with
 | trigger trigger_list { $1 :: $2 }
 | opt_not TRIGGEROVERRIDE LPAREN arg COMMA trigger RPAREN trigger_list {
   if (best_ids_of_trigger (the_game ()) $6).i_name = "OR" then
-    parse_error "OR() not allowed inside TriggerOverride() not allowed";
+    parse_error "OR() not allowed inside TriggerOverride()";
   if $6.negated then parse_error "inner trigger in TriggerOverride() is negated";
   let act_list =
     ref (verify_arg_list "TriggerOverride" [$4]
