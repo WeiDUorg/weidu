@@ -39,6 +39,7 @@ Version 241:
   * Add TEXT option for APPEND_FILE.
   * Add WITH_SCOPE and PATCH_WITH_SCOPE.
   * Fix incorrect offsets in WMP_*_LINKS.
+  * Correct documentation of TriggerOverride().
 
 Version 240:
   * GAME_INCLUDES supports SoD.

@@ -884,7 +884,7 @@ is & \Ob !\Oe\ttref{Infinity Engine trigger} &
   \ahref{\url{http://gibberlings3.net/iesdp/scripting/triggers/index.htm}}{IESDP}.
   A preceding exclamation mark negates the trigger. \\
 
-or & \t{TriggerOverride}(\ttref{Infinity Engine object},\Ob !\Oe\ttref{Infinity Engine trigger}) &
+or & \Ob !\Oe\t{TriggerOverride}(\ttref{Infinity Engine object},\ttref{Infinity Engine trigger}) &
 
   \t{TriggerOverride}() is a form of syntactical sugar enabled by
   WeiDU. It does not constitute a trigger of itself, does not exist in
@@ -895,7 +895,7 @@ or & \t{TriggerOverride}(\ttref{Infinity Engine object},\Ob !\Oe\ttref{Infinity 
   into \t{TriggerOverride}(). Use of \t{TriggerOverride}() is
   semantically identical to use of \t{NextObjectTrigger}() but may be
   a syntactically preferable short-hand. An exclamation mark before
-  the trigger negates it.
+  \t{TriggerOverride} negates the trigger.
 
   What constitutes an \DEFINE{Infinity Engine object} varies between
   different versions of the Infinity Engine and will not be documented
