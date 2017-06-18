@@ -10,7 +10,7 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 open BatteriesInit
-let version = "24002"
+let version = "24100"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
@@ -244,4 +244,7 @@ let version = "24002"
 (* 235 let comment = "No time for this now" *)
 (* 236 let comment = "Your daily WTF" *)
 (* 237 let comment = "Something about the lateness" *)
-let comment = "d41d8cd98f00b204e9800998ecf8427e"
+(* 238 let comment = "d41d8cd98f00b204e9800998ecf8427e" *)
+(* 239 let comment = "d41d8cd98f00b204e9800998ecf8427e" *)
+(* 240 let comment = "d41d8cd98f00b204e9800998ecf8427e" *)
+let comment = "Heralding the second coming of GUI"
