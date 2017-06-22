@@ -1120,7 +1120,9 @@ let print_script_text game how what comments strhandle =
       if print_trigger {t1 with negated = false} false > 0 then
         failwith "OR() cannot be used inside NextTriggerObject / TriggerOverride";
       bcs_printf ")";
-      print_trigger_comment game t1 ;
+      if comments then begin
+        print_trigger_comment game t1
+      end ;
       bcs_printf "\n" ;
       print_trigger_list tl compiling_to_dlg or_count
     | t :: tl ->
