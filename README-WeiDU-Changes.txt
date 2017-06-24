@@ -1,3 +1,6 @@
+Version 242:
+  * Fix regression when decompiling NextObjectTrigger() with(out) comments.
+
 Version 241:
   * You can use MOD_FOLDER in LANGUAGE statements.
   * Fix incorrect debug messages in fj_are_structure. Thanks, Argent77.
