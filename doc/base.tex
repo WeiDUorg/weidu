@@ -4288,11 +4288,11 @@ or & \DEFINE{READ!SSHORT} \ttref{offset} \ttref{variable} \Ob \t{ELSE}
   As \ttref{READ!SHORT}, but the value is interpreted as signed. \\
 or & \DEFINE{READ!LONG} \ttref{offset} \ttref{variable} \Ob \t{ELSE}
 \ttref{value} \Oe &
-  A signed 32-bit value is read from the file at the given \ttref{offset}
+  A 32-bit value is read from the file at the given \ttref{offset}
   and is stored in the given \ttref{variable}. See \ttref{READ!BYTE}. \\
 or & \DEFINE{READ!SLONG} \ttref{offset} \ttref{variable} \Ob \t{ELSE}
 \ttref{value} \Oe &
-  As \ttref{READ!SLONG}, but the value is interpreted as signed. \\
+  As \ttref{READ!LONG}, but the value is interpreted as signed. \\
 or & \DEFINE{READ!ASCII} \ttref{offset} \ttref{variable} \Ob \t{ELSE}
   \t{string} \Oe \Ob \t{(} \ttref{value} \t{)} \Ob \t{NULL} \Oe \Oe &
     A nul-terminated string is read from the file at
