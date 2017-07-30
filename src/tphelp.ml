@@ -224,6 +224,7 @@ let action_to_str a = match a with
 | TP_Create _ -> "CREATE"
 | TP_WithTra (_, _) -> "WITH_TRA"
 | TP_WithVarScope (_) -> "WITH_SCOPE"
+| TP_ActionTime(_, _) -> "ACTION_TIME"
 
 
 (************************************************************************

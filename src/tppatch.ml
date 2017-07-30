@@ -2773,4 +2773,14 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             Var.var_pop () ;
             buff
           with e -> Var.var_pop () ; raise e)
-        end) () (* end: process_patch2 *)
+        end
+
+    | TP_PatchTime(name, patch_list) ->
+        begin
+          let name = (Var.get_string (eval_pe_str name)) in
+          Stats.inclusive_time name (fun () ->
+            let buff = List.fold_left (fun acc patch ->
+              process_patch2 patch_filename game acc patch) buff patch_list in
+            buff) ()
+        end
+                              ) () (* end: process_patch2 *)

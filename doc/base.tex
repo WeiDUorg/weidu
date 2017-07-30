@@ -3941,6 +3941,12 @@ or & \DEFINE{LAUNCH!ACTION!FUNCTION} \ttref{String}
   Launch an action function. Refer to the \ttref{Functions} section for
   additional information. You may use \DEFINE{LAF} as a synonym for
   \ttref{LAUNCH!ACTION!FUNCTION}.\\
+or & \DEFINE{ACTION!TIME} \ttref{String} \t{BEGIN} \ttref{TP2 Action}
+     \Slist \t{END} &
+  Measure the time taken to execute the \ttref{TP2 Action}s and report
+  it under the label \ttref{String} together with the other time
+  measurements at the end of the mod's debug file.\\
+
 \\
 
 \DEFINE{optNoBackup} & &
@@ -5138,6 +5144,12 @@ or & \DEFINE{LAUNCH!PATCH!FUNCTION} \ttref{String}
         Launch a patch function. Refer to the \ttref{Functions} section for
         additional information. You may use \DEFINE{LPF} as a synonym
         for \ttref{LAUNCH!PATCH!FUNCTION}.
+\\
+or & \DEFINE{PATCH!TIME} \ttref{String} \t{BEGIN} \ttref{patch}
+     \Slist \t{END} &
+  Measure the time taken to execute the \ttref{patch}es and report
+  it under the label \ttref{String} together with the other time
+  measurements at the end of the mod's debug file.
 \\
 \\
 
