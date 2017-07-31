@@ -50,19 +50,7 @@ let create_process_env = Unix.create_process_env
 
 let biff_path_separator = "\\\\" (* backslash_to_slash hopefully sorts this out *)
 
-(* On OSX, TOB baldur.ini has:
-   [Alias]
-   CD5:=:CD5:
-   HD0:=:
-   CD1:=:CD1:
-   CD2:=:CD2:
-   CD3:=:CD3:
-   CD4:=:CD4:
- *)
-
-let cd_regexp = Str.regexp "\\(CD[0-9]\\)"
-(* doesn't work:
-   let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)"  *)
+let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)"
 
 let is_weidu_executable f =
   try
