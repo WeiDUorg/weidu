@@ -1,3 +1,12 @@
+Version 243:
+  * Fix errors in the documentation of READ_LONG and READ_SLONG.
+  * Fix incorrect variable name in HANDLE_TILESETS tutorial.
+  * SUPPORT is an alias for AUTHOR.
+  * Add (ACTION|PATCH)_TIME.
+  * Fix finding of biff files on mac OS for games that do not use
+    the baldur.ini format of the old OS 9 ports of the games.
+  * Fix regression in script handling affecting IWD and IWD2.
+
 Version 242:
   * Fix regression when decompiling NextObjectTrigger() with(out) comments.
 
