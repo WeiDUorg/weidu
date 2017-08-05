@@ -660,16 +660,19 @@ let is_concat_string ss ids =
   | Load.PST, 0x4080l (* GlobalBAND(S:Name*,S:Area*,I:Value *)
   | Load.PST, 0x4095l (* Xor(S:Name*,S:Area*,I:Value*)
   | Load.PST, 0x409Cl (* StuffGlobalRandom(S:Name*,S:Area*,I:Range*)
-  | Load.IWD2, 247l   (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
-  | Load.IWD2, 0x40A5l (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
-  | Load.IWD2, 306l    (* SetGlobalRandom(S:Name*,S:Area*,I:Min*,I:Max*)
-  | Load.IWD2, 307l    (* SetGlobalTimerRandom(S:Name*,S:Area*,I:Min*,I:Max*)
   | Load.IWD2, 308l (*SetGlobalTimerOnce(S:Name*,S:Area*,I:Time*GTimes) *)
   | Load.IWD1, 141l (* GivePartyGoldGlobal(S:Name*,S:Area) *)
   | Load.IWD1, 165l (* AddexperiencePartyGlobal(S:Name*,S:Area) *)
+    -> (1, "")
+
+  | Load.IWD2, 306l    (* SetGlobalRandom(S:Name*,S:Area*,I:Min*,I:Max*)
+  | Load.IWD2, 307l    (* SetGlobalTimerRandom(S:Name*,S:Area*,I:Min*,I:Max*)
+  | Load.IWD2, 247l   (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
+  | Load.IWD2, 0x40A5l (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
   | Load.IWD1, 247l   (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
   | Load.IWD1, 0x40A5l (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
-    -> 1
+    -> (1, ":")
+
   | Load.PST, 233l (* GlobalSetGlobal(S:Name1*,S:Area1*,S:Name2*,S:Area2 *)
   | Load.PST, 234l (* GlobalAddGlobal(S:Name1*,S:Area1*,S:Name2*,S:Area2 *)
   | Load.PST, 235l (* GlobalSubGlobal(S:Name1*,S:Area1*,S:Name2*,S:Area2 *)
@@ -692,17 +695,19 @@ let is_concat_string ss ids =
   | Load.IWD1, 243l   (* IncrementGlobalOnce(S:Name1*,S:Area1*,S:Name2*,S:Area2*,I:Val*)
   | Load.IWD2, 243l   (* IncrementGlobalOnce(S:Name1*,S:Area1*,S:Name2*,S:Area2*,I:Val*)
   | Load.PST, 202l    (* IncrementGlobalOnce(S:Name1*,S:Area1*,S:Name2*,S:Area2*,I:Val*)
+    -> (2, "")
+
   | Load.IWD2, 248l   (* GlobalBitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
   | Load.IWD2, 0x40A6l (* GlobalBitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
   | Load.IWD1, 248l   (* GlobalBitGlobal(S:String1*,S:String2*,S:String3*,S:String4*,I:Mode*BitMode) *)
   | Load.IWD1, 0x40A6l (* GlobalBitGlobal(S:String1*,S:String2*,S:String3*,S:String4*,I:Mode*BitMode) *)
-    -> 2
+    -> (2, ":")
 
   | Load.IWD2, 289l   (* SpellCastEffect(O:Source*,S:Voice*,S:Sound1*,S:Sound2*,I:Animation*sceffect,I:Speed*,I:Sequence*Sequence) *)
-    -> 3
+    -> (3, ":")
 
   | Load.NONE,_ -> failwith "No scripting style specified."
-  | _ -> 0
+  | _ -> (0, "")
 
 
 
@@ -796,10 +801,12 @@ type print_what =
 
 let trigger_to_arg_list ss t ids game =
   match is_concat_string ss ids with
-  | 3 (* FIXME *)
-  | 2 ->
-      let a,b = split_colon t.t_3 in
-      let a',b' = split_colon t.t_4 in
+  | (3, interposer) (* FIXME *)
+  | (2, interposer) ->
+      let a,b = if interposer <> "" then split_colon t.t_3
+      else split6 t.t_3 in
+      let a',b' = if interposer <> "" then split_colon t.t_4
+      else split6 t.t_4 in
       [ (Arg_Integer,(Act_Integer t.t_1)) ;
         (Arg_Integer,(Act_Integer t.t_2)) ;
         (Arg_Integer,(Act_Integer t.unknown)) ;
@@ -809,11 +816,9 @@ let trigger_to_arg_list ss t ids game =
         (Arg_String,(Act_String a')) ;
         (Arg_String,(Act_String b')) ;
         (Arg_Object,(Act_Object t.t_5)) ; ]
-  | 1 ->
-      let a,b = (match ss with
-      | Load.IWD1
-      | Load.IWD2 -> split_colon t.t_3
-      | _ -> split6 t.t_3) in
+  | (1, interposer) ->
+      let a,b = if interposer <> "" then split_colon t.t_3
+          else split6 t.t_3 in
       [ (Arg_Integer,(Act_Integer t.t_1)) ;
         (Arg_Integer,(Act_Integer t.t_2)) ;
         (Arg_Integer,(Act_Integer t.unknown)) ;
@@ -822,7 +827,7 @@ let trigger_to_arg_list ss t ids game =
         (Arg_String,(Act_String b));
         (Arg_String,(Act_String t.t_4));
         (Arg_Object,(Act_Object t.t_5)) ; ]
-  | _ ->
+  | (_, _) ->
       [ (Arg_Integer,(Act_Integer t.t_1)) ;
         (Arg_Integer,(Act_Integer t.t_2)) ;
         (Arg_Integer,(Act_Integer t.unknown)) ;
@@ -833,11 +838,9 @@ let trigger_to_arg_list ss t ids game =
 
 let action_to_arg_list ss a ids =
   match is_concat_string ss ids with
-  | 1 ->
-      let aa, b = (match ss with
-      | Load.IWD1
-      | Load.IWD2 -> split_colon a.a_8
-      | _ -> split6 a.a_8) in
+  | (1, interposer) ->
+      let aa, b = if interposer <> "" then split_colon a.a_8
+      else split6 a.a_8 in
       [ (Arg_Object,(Act_Object a.a_2)) ;
         (Arg_Object,(Act_Object a.a_3)) ;
         (* (Arg_Object,(Act_Object a.a_1)) ; *)
@@ -848,15 +851,11 @@ let action_to_arg_list ss a ids =
         (Arg_String,(Act_String aa)) ;
         (Arg_String,(Act_String b)) ;
         (Arg_String,(Act_String a.a_9)) ; ]
-  | 2 ->
-      let aa,b = (match ss with
-      | Load.IWD1
-      | Load.IWD2 -> split_colon a.a_8
-      | _ -> split6 a.a_8) in
-      let aa',b' = (match ss with
-      | Load.IWD1
-      | Load.IWD2 -> split_colon a.a_9
-      | _ -> split6 a.a_9) in
+  | (2, interposer) ->
+      let aa,b = if interposer <> "" then split_colon a.a_8
+      else split6 a.a_8 in
+      let aa',b' = if interposer <> "" then split_colon a.a_9
+      else split6 a.a_9 in
       [ (Arg_Object,(Act_Object a.a_2)) ;
         (Arg_Object,(Act_Object a.a_3)) ;
         (* (Arg_Object,(Act_Object a.a_1)) ; *)
@@ -868,7 +867,7 @@ let action_to_arg_list ss a ids =
         (Arg_String,(Act_String b)) ;
         (Arg_String,(Act_String aa')) ;
         (Arg_String,(Act_String b')) ]
-  | 3 ->
+  | (3, interposer) ->
       let aa,b = split_colon a.a_9 in
       [ (Arg_Object,(Act_Object a.a_2)) ;
         (Arg_Object,(Act_Object a.a_3)) ;
@@ -880,7 +879,7 @@ let action_to_arg_list ss a ids =
         (Arg_String,(Act_String a.a_8)) ;
         (Arg_String,(Act_String aa)) ;
         (Arg_String,(Act_String b)) ; ]
-  | _ ->
+  | (_, _) ->
       [ (Arg_Object,(Act_Object a.a_2)) ;
         (Arg_Object,(Act_Object a.a_3)) ;
         (* (Arg_Object,(Act_Object a.a_1)) ; *)
