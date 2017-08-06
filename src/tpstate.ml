@@ -258,6 +258,7 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
             Dc.push_trans ();
             Var.var_clear_push () ;
             ignore (set_tp2_vars tp2) ;
+            ignore (Arch2.associate_these ()) ;
             let a_dir = Case_ins.filename_dirname a in
             (try
               let l = List.nth tp2.languages b in
