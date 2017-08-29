@@ -8534,6 +8534,7 @@ This is a PATCH macro and function.
 \begin{itemize}
 \item SET \verb+type+ to the header type to copy the effect from (use 99 to specify 'all types').
 \item SET \verb+header+ to number of extended header the effect should be copied from (use 99 to specify 'every header').
+\item SET \verb+insert_point+ to the index into the spell file at which the effects should be inserted. A value of 0 will have the effects inserted as the first effects of the spell. Effects are inserted as the last effects by default.
 \item SPRINT \verb+new_itm_spl+ to a spell you want to copy effects to.
 \end{itemize}
 

@@ -32,8 +32,10 @@ DEFINE_PATCH_MACRO ~ITEM_EFFECT_TO_SPELL~ BEGIN
             READ_SHORT  0x68 ___#abil_num2
             READ_LONG   0x6a ___#fx_off2
             READ_SHORT  (___#abil_off2 + 0x1e + (0 * 0x28)) ___#abil_fx_num2
-            INSERT_BYTES (___#fx_off2 + ___#abil_fx_num2 * 0x30) (0x30 * ___#abil_fx_num)
-            WRITE_EVALUATED_ASCII (___#fx_off2 + ___#abil_fx_num2 * 0x30) ~%___#effects%~ //copy effect
+            ___#insert_point = !IS_AN_INT insert_point OR insert_point < 0 OR
+              insert_point > ___#abil_fx_num2 ? ___#abil_fx_num2 : insert_point
+            INSERT_BYTES (___#fx_off2 + ___#insert_point * 0x30) (0x30 * ___#abil_fx_num)
+            WRITE_EVALUATED_ASCII (___#fx_off2 + ___#insert_point * 0x30) ~%___#effects%~ //copy effect
             WRITE_SHORT  (___#abil_off2 + 0x1e + (0 * 0x28)) (___#abil_fx_num2 + ___#abil_fx_num)
           //no offsets to correct
         END
