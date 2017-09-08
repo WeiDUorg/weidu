@@ -1,0 +1,21 @@
+1 VERSIONINFO
+FILEVERSION		242,1,0,0
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "040904E4"
+		BEGIN
+			VALUE "CompanyName", "WeiDU.org"
+			VALUE "FileDescription", "Weimer Dialogue Utilities"
+			VALUE "FileVersion", "242.01"
+			VALUE "LegalCopyright", "GPL Westley Weimer, Valerio Bigiani, Fredrik Lindgren"
+			VALUE "OriginalFilename", "weidu.exe"
+			VALUE "ProductName", "WeiDU"
+			VALUE "ProductVersion", "242.01"
+		END
+	END
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0x409, 1252
+	END
+END
