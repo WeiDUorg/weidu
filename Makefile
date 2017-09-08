@@ -61,15 +61,21 @@ PROJECT_CMODULES   += crc32 compress deflate trees
 
 PROJECT_OCAML_LIBS = unix str #OCaml changed libstr into libcamlstr and "you are not supposed to link with -lstr"
 PROJECT_LIBS       = unix camlstr
+
+PROJECT_RESOURCES = weidu_resources
+
 .PHONY: weidu
 weidu:  $(PROJECT_EXECUTABLE)
 $(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                         $(PROJECT_CMODULES:%=$(OBJDIR)/%.$(OBJEXT))
 	@$(NARRATIVE) Linking $(COMPILETOWHAT) $@
+	i686-w64-mingw32-windres.exe -i windows_resources/weidu_resources.rc -o $(OBJDIR)/weidu_resources.o
+
 	$(CAMLLINK) -o $@ \
                     $(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
                     $(PROJECT_LIBS:%=-cclib -l%) \
                     $(PROJECT_CLIBS:%=-cclib %) \
+					$(PROJECT_RESOURCES:%=$(OBJDIR)/%.$(OBJEXT)) \
                     $^
 	cp $(PROJECT_EXECUTABLE) .
 
