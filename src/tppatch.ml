@@ -1800,7 +1800,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
     | TP_PatchTextSprint (var,str) ->
         let var = eval_pe_str var in
         let str = Var.get_string (eval_pe_str str) in
-        Var.add_local_string var str ;
+        Var.set_string var str ;
         buff
 
     | TP_SourceBiff (var, res) ->
