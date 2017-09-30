@@ -101,7 +101,7 @@ let automate game dir_l min o =
         while true do
           let s = Unix.readdir d_h in
           let full = dir ^ "/" ^ s in
-          if file_size full > 0 then begin
+          if file_exists full then begin
             let src = Printf.sprintf "~%s~" full in
             let dst = Printf.sprintf "~override/%s~" s in
             o (Printf.sprintf "\nCOPY %-30s %-30s\n" src dst) ;

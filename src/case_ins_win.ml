@@ -9,6 +9,7 @@ let perv_open_in_bin s = open_in_bin s ;;
 
 let unix_openfile s a b = Unix.openfile s a b ;;
 let unix_stat s = Unix.stat s ;;
+let unix_stat64 s = Unix.LargeFile.stat s ;;
 let unix_chmod s p = Unix.chmod s p ;;
 let unix_unlink s = Unix.unlink s ;;
 let unix_mkdir s p = Unix.mkdir s p ;;

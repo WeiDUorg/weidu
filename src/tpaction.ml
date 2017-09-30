@@ -299,11 +299,10 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Require_File(file,error_msg) ->
           log_and_print "Checking for required files ...\n" ;
           let file = Arch.backslash_to_slash file in
-          let size = file_size file in
           let test = ref false in
           test := bigg_file_exists file game.Load.key ;
           if !test then begin
-            log_or_print "[%s] found: %d bytes\n" file size;
+            log_or_print "[%s] found\n" file ;
           end
           else begin
             log_and_print "[%s] not found\n" file ;
@@ -376,11 +375,10 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Forbid_File(file,error_msg) ->
           log_and_print "Checking for forbidden files ...\n" ;
           let file = Arch.backslash_to_slash file in
-          let size = file_size file in
           let test = ref false in
           test := bigg_file_exists file game.Load.key ;
           if !test then begin
-            log_and_print "[%s] found: %d bytes\n" file size ;
+            log_and_print "[%s] found\n" file ;
             log_and_print "\n%s\n" (Dc.single_string_of_tlk_string game
                                       error_msg) ;
             failwith file

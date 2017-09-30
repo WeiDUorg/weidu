@@ -671,6 +671,20 @@ let load_resource for_what game override_allowed name ext =
   else
     (a,b)
 
+let exists_in_overrides game res ext =
+  List.fold_left (fun acc dir ->
+    if file_exists (dir ^ "/" ^ res ^ "." ^ ext) then
+      true
+    else acc) false (if (String.uppercase ext) = "IDS" then
+      game.ids_path_list else game.override_path_list)
+
+let resource_exists game res ext =
+  let name = res ^ "." ^ ext in
+  if (Case_ins.filename_is_implicit res) then begin
+    exists_in_overrides game res ext || Key.resource_exists game.key res ext
+  end else
+    file_contains_data name
+
 open Key
 
 type effect = {
