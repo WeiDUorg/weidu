@@ -419,7 +419,7 @@ let inst_button_tp2 orig_mod_log () =
         let x = Unix.readdir dh in
         let y = Case_ins.unix_stat x in
         let check_and_do file =
-          if file_size file >= 0 then Listbox.insert ~index:`End ~texts:[file] temp_mod_log;
+          if file_exists file then Listbox.insert ~index:`End ~texts:[file] temp_mod_log;
         in
         match y.Unix.st_kind with
         | Unix.S_REG -> if (String.uppercase(snd (split x))) = "TP2" then check_and_do x;

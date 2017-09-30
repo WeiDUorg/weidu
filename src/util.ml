@@ -339,7 +339,17 @@ let file_size name =
     stats.Unix.st_size
   with _ ->  -1)
 
-let file_exists name = (file_size name >= 0)
+let file_exists name =
+  (try
+    let stats = Case_ins.unix_stat64 name in
+    stats.Unix.LargeFile.st_size >= Int64.zero
+  with _ -> false)
+
+let file_contains_data name =
+  (try
+    let stats = Case_ins.unix_stat64 name in
+    stats.Unix.LargeFile.st_size > Int64.zero
+  with _ -> false)
 
 let is_directory name =
   (try

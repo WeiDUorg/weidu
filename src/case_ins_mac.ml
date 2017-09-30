@@ -13,6 +13,7 @@ let perv_open_in_bin s = open_in_bin (backslash_to_slash s) ;;
 
 let unix_openfile s a b = Unix.openfile (backslash_to_slash s) a b ;;
 let unix_stat s = Unix.stat (backslash_to_slash s) ;;
+let unix_stat64 s = Unix.LargeFile.stat (backslash_to_slash s) ;;
 let unix_chmod s p = Unix.chmod (backslash_to_slash s) p ;;
 let unix_unlink s = Unix.unlink (backslash_to_slash s) ;;
 let unix_mkdir s p = Unix.mkdir (backslash_to_slash s) p ;;

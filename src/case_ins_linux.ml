@@ -16,6 +16,7 @@ let perv_open_in_bin s = open_in_bin (String.lowercase (backslash_to_slash s)) ;
 
 let unix_openfile s a b = Unix.openfile (String.lowercase (backslash_to_slash s)) a b ;;
 let unix_stat s = Unix.stat (String.lowercase (backslash_to_slash s)) ;;
+let unix_stat64 s = Unix.LargeFile.stat (String.lowercase (backslash_to_slash s)) ;;
 let unix_chmod s p = Unix.chmod (String.lowercase (backslash_to_slash s)) p ;;
 let unix_unlink s = Unix.unlink (String.lowercase (backslash_to_slash s)) ;;
 let unix_mkdir s p = Unix.mkdir (String.lowercase (backslash_to_slash s)) p ;;
@@ -36,4 +37,3 @@ let filename_dirname s = Filename.dirname (backslash_to_slash s) ;;
 let filename_is_implicit s = Filename.is_implicit (backslash_to_slash s) ;;
 
 let fix_name s = String.lowercase (backslash_to_slash s);;
-

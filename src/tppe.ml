@@ -16,17 +16,10 @@ open Tphelp
  * w/ multiple installs.
  ************************************************************************)
 let bigg_file_exists file key =
-  let test = ref false in
   if Str.string_match (Str.regexp_case_fold "data.25.*\\.bif") file 0 then
-    begin
-(*    log_and_print "\nbigg_file_exist special case\n" ; *)
-      test := Key.bif_exists_in_key key (Load.fix_biff_path file)
-    end
-  else begin
-(*    log_and_print "\nbigg_file_exist special case not triggered: %s\n" file ; *)
-    test := file_size file >= 0
-  end ;
-  !test
+    Key.bif_exists_in_key key (Load.fix_biff_path file)
+  else
+    file_exists file
 
 let is_true i = i <> 0l
 (* (Int32.compare i 0l) <> 0 *)
@@ -283,9 +276,14 @@ let rec eval_pe buff game p =
     )
 
   | Pred_File_Exists_In_Game(f) -> if_true  (
-      let f = eval_pe_str f in
+      let f = Var.get_string (eval_pe_str f) in
+      let res,ext = split f in
+      (try
+        Load.resource_exists game res ext
+      with _ -> false))
+
+(*
       let old_allow_missing = !Load.allow_missing in
-      let f = Var.get_string f in
       Load.allow_missing := [] ;
       let res =
 	(try
@@ -299,6 +297,7 @@ let rec eval_pe buff game p =
 	) in
       Load.allow_missing := old_allow_missing ;
       res )
+*)
   | Pred_File_Size(f,s) ->
       let f = eval_pe_str f in 
       if_true (file_size (Var.get_string f) = s)
