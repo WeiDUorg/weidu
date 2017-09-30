@@ -25,7 +25,6 @@ include Configuration
 # Just a target to be used by default
 .PHONY: weidu doc all
 all : weidu
-# "make weigui" if you want weigui
 # "make weinstall" if you want weinstall
 
 ####
@@ -72,10 +71,6 @@ $(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                     $(PROJECT_CLIBS:%=-cclib %) \
                     $^
 	cp $(PROJECT_EXECUTABLE) .
-
-# compile weigui with the Labltk bindings!
-weigui: FORCE
-	$(MAKE) -f Makefile-tk weigui
 
 # rule for tolower
 
@@ -125,7 +120,6 @@ clean:
 	src/tlexer.mll src/trealparserin.gr  \
 	src/toldlexer.mll src/tph.ml
 	find obj -exec rm {} \; || true
-	$(MAKE) -f Makefile-tk clean
 
 
 ###
