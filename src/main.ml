@@ -11,7 +11,7 @@
 
 open BatteriesInit
 open Util
-open Xdiff
+open Myxdiff
 open Version
 open Parsewrappers
 
