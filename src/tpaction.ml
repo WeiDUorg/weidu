@@ -1208,7 +1208,10 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           process_action tp (TP_Add_Kit(copy_kit))
 
       | TP_Add_Kit(k) -> begin
-          log_and_print "Adding %s Kit ...\n" (Var.get_string k.kit_name) ;
+          let k = { k with
+                    kit_name = (Var.get_string k.kit_name) ;
+                  } in
+          log_and_print "Adding %s Kit ...\n" k.kit_name ;
 
           if is_true (eval_pe "" game
                         (PE_FileContainsEvaluated
@@ -1283,7 +1286,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let abbr = Printf.sprintf  "%s               %s" k.kit_name k.tob_abbr in
             let a9 = TP_Append("LUABBR.2DA",abbr,[],true,false,0) in
             let a10 = TP_Set_Col("25STWEAP.2DA",
-                                 ("" :: "" :: (Var.get_string k.kit_name) ::
+                                 ("" :: "" :: k.kit_name ::
                                   (List.map Var.get_string k.tob_start)),
                                  this_kit_prof_number+1) in
             let a11 = TP_Append("KIT.IDS",
@@ -1384,7 +1387,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             process_action tp fix2da2a;
             Load.allow_missing := old_allow_missing ;
             Var.set_int32 (k.kit_name) (Int32.of_int this_kit_number) ;
-            log_and_print "Added %s Kit\n" (Var.get_string k.kit_name) ;
+            log_and_print "Added %s Kit\n" k.kit_name ;
             Bcs.clear_ids_map game ;
           end
       end
