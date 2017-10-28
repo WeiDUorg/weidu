@@ -284,7 +284,7 @@ $(OBJDIR)/%.$(CMO): %.ml
              # They appear to be left in the current directory
 $(OBJDIR)/%.$(OBJEXT): %.c
 	@$(NARRATIVE) Compiling C file $<
-	$(AT)$(CAMLC) -verbose $(CAMLFLAGS) -c $< -o $@
+	$(AT)$(CAMLC) -verbose $(CAMLFLAGS) -c $<
 	$(AT)mv -f $(basename $(notdir $<)).$(OBJEXT) $(OBJDIR)
 
       # This is a generic function that builds your project
