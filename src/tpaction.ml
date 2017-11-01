@@ -194,7 +194,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 end
             end
           in
-          delete (List.map (fun x -> Var.get_string (eval_pe_str x)) filelist) ;
+          delete (List.map (fun x ->
+            Case_ins.fix_name (Var.get_string (eval_pe_str x))) filelist) ;
           List.iter (fun dir -> Case_ins.unix_rmdir dir) !directories
 
       | TP_Move(filelist, do_backup) ->
