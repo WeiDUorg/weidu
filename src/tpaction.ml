@@ -2041,8 +2041,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
       | TP_At_Interactive_Exit(str,exact) ->
           if !interactive then process_action tp (TP_At_Exit(str,exact))
-      | TP_At_Interactive_Now(str,exact) ->
-          if !interactive then process_action tp (TP_At_Now(str,exact))
+      | TP_At_Interactive_Now(retvar,str,exact) ->
+          if !interactive then process_action tp (TP_At_Now(retvar,str,exact))
 
       | TP_At_Exit(str,exact) ->
           begin
@@ -2058,15 +2058,25 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                   execute_at_exit := (Command (str,exact)) :: !execute_at_exit
           end
 
-      | TP_At_Now(str,exact) ->
+      | TP_At_Now(retvar,str,exact) ->
           begin
+            let retvar = match retvar with
+            | None -> None
+            | Some str -> Some (Var.get_string (eval_pe_str str)) in
             let str = Var.get_string str in
             let a,b = split (String.uppercase str) in
             match b with
             | "TP2" -> (enqueue_tp2_filename) str
             | _ ->
                 let str = if exact then str else Arch.handle_view_command str !skip_at_view in
-                ignore (exec_command str exact)
+                (match retvar with
+                | None -> ignore (exec_command str exact)
+                | Some var ->
+                    let retval = match exec_command str exact with
+                    | WEXITED i -> i
+                    | WSIGNALED i -> i
+                    | WSTOPPED i -> i in
+                    Var.set_int var retval)
           end
 
       | TP_At_Interactive_Uninstall(_)

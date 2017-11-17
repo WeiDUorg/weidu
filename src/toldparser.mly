@@ -521,8 +521,8 @@ optional_evaluate :
      Tp.TP_RandomSeed($2)
    }
 | COMPILE optional_evaluate string_list optional_using { Tp.TP_Compile($2,$3,[],$4) }
-| AT_NOW STRING { Tp.TP_At_Now($2,false) }
-| AT_INTERACTIVE_NOW STRING { Tp.TP_At_Now($2,false) }
+| AT_NOW STRING { Tp.TP_At_Now(None,$2,false) }
+| AT_INTERACTIVE_NOW STRING { Tp.TP_At_Now(None,$2,false) }
 | BIFF STRING BEGIN str_reg_list END { Tp.TP_Biff($2,$4) }
 | INLINED_FILE { Tp.TP_Inlined_File($1) }
 | DEFINE_ACTION_MACRO STRING BEGIN tp_local_declaration_list tp_action_list END

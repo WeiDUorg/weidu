@@ -324,6 +324,11 @@ nonterm(bool option) Optional_Glob {
   -> NOGLOB [ Some false ]
 }
 
+nonterm(Tp.tp_pe_string option) Optional_Patch_String_Right {
+  -> { None }
+  -> e1:Patch_String_Right { Some e1 }
+}
+
 nonterm(Tp.tp_patchexp) String_Ref_Or_Pe {
   -> e1:STRING_REF [ Tp.PE_String(Tp.PE_LiteralString(string_of_int e1)) ]
   -> LPAREN e1:Patch_Exp RPAREN [ e1 ]
@@ -401,8 +406,8 @@ nonterm(Tp.tp_action) Tp_Action {
        [ Tp.TP_RandomSeed e1 ]
   -> COMPILE e1:Optional_Evaluate e2:Nonempty_String_List e3:Tp_Patch_List e4:Optional_Using
        [ Tp.TP_Compile(e1,e2,e3,e4) ]
-  -> AT_NOW e1:STRING e2:Optional_Exact [ Tp.TP_At_Now (e1,e2) ]
-  -> AT_INTERACTIVE_NOW e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Now (e1,e2) ]
+  -> AT_NOW e1:Optional_Patch_String_Right e2:STRING e3:Optional_Exact [ Tp.TP_At_Now (e1,e2,e3) ]
+  -> AT_INTERACTIVE_NOW e1:Optional_Patch_String_Right e2:STRING e3:Optional_Exact [ Tp.TP_At_Interactive_Now (e1,e2,e3) ]
   -> BIFF e1:STRING BEGIN e2:Str_Reg_List END [ Tp.TP_Biff(e1,e2) ]
   -> e1:INLINED_FILE [ Tp.TP_Inlined_File(e1) ]
   -> GET_FILE_ARRAY e1:Patch_String_Left e2:Patch_String_Right e3:Patch_String_Right

@@ -3359,12 +3359,15 @@ END
   or & \DEFINE{AT!INTERACTIVE!UNINSTALL!EXIT} commandToRun \Ob \t{EXACT} \Oe &
     As \ttref{AT!UNINSTALL!EXIT}, but only whenever the user specifically asks for this
     \ttref{component} to be removed. \\
-  or & \DEFINE{AT!NOW} commandToRun \Ob \t{EXACT} \Oe &
-    As \ttref{AT!EXIT}, but commandToRun is executed when found, rather than
-    at the end of the installation. Use with oggdec, tisunpack, wav2acm...
-    but not with readmes (you'll create dozens of windows), nor with --make-biff
-    (you'll crash the installation).\\
-  or & \DEFINE{AT!INTERACTIVE!NOW} commandToRun \Ob \t{EXACT} \Oe &
+  or & \DEFINE{AT!NOW} \Ob \ttref{variable} \Oe commandToRun \Ob \t{EXACT} \Oe &
+    As \ttref{AT!EXIT}, but commandToRun is executed when found,
+    rather than at the end of the installation. Use with oggdec,
+    tisunpack, wav2acm...  but not with readmes (you'll create dozens
+    of windows), nor with --make-biff (you'll crash the
+    installation). If the optional \ttref{variable} is provided, a TP2
+    variable is of that name is assigned the return value of
+    commandToRun. \\
+  or & \DEFINE{AT!INTERACTIVE!NOW} \Ob \ttref{variable} \Oe commandToRun \Ob \t{EXACT} \Oe &
     As \ttref{AT!NOW}, but commandToRun is executed only if the installation is
     run interactively.\\
   or & \DEFINE{MAKE!BIFF} name-of-biff \t{BEGIN} \ttref{directory-file-regexp} \Slist \t{END} &
