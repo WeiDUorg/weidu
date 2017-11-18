@@ -3703,8 +3703,7 @@ or & \DEFINE{ALTER!TLK!LIST} \t{BEGIN} \ttref{value} \Slist \t{END} \t{BEGIN} \t
 or & \DEFINE{OUTER!TEXT!SPRINT} \ttref{variable} stringWithVars &
   Any WeiDU variables (enclosed in \t{\%}s) inside stringWithVars are
   replaced by their values and the resulting string (constructed at
-  mod-installation time!) is assigned to the variable \t{variable}.
-  This works somewhat like \t{sprintf()} but it not as cool. \\
+  mod-installation time!) is assigned to the variable \t{variable}. \\
 or & \DEFINE{OUTER!SPRINT} \ttref{variable} stringWithVars &
   Like \ttref{OUTER!TEXT!SPRINT}, but stringWithVars can be an @reference, and will
   break --traify. Use \ttref{OUTER!TEXT!SPRINT} instead. \\
@@ -4104,9 +4103,7 @@ or & \DEFINE{TO!LOWER} \ttref{variable} &
 or & \DEFINE{TEXT!SPRINT} \ttref{variable} stringWithVars &
   Any WeiDU variables (enclosed in \t{\%}s) inside stringWithVars are
   replaced by their values and the resulting string (constructed at
-  mod-installation time!) is assigned to the variable \t{variable}.
-  This works somewhat like \t{sprintf()} but it not as cool. Currently this
-  is the only way to assign a string value to a variable. \\
+  mod-installation time!) is assigned to the variable \t{variable}. \\
 or & \DEFINE{SPRINT} \ttref{variable} stringWithVars &
   Like \ttref{TEXT!SPRINT}, but stringWithVars can be an @reference, and will
   break --traify. Use \ttref{TEXT!SPRINT} instead. \\
