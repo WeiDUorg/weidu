@@ -4101,13 +4101,14 @@ or & \DEFINE{SPRINT} \ttref{variable} stringWithVars &
   Like \ttref{TEXT!SPRINT}, but stringWithVars can be an @reference, and will
   break --traify. Use \ttref{TEXT!SPRINT} instead. \\
 
-or & \DEFINE{SNPRINT} \ttref{value} \ttref{variable} stringWithVars &
-  As \ttref{SPRINT}, but only the first \t{N} characters are stored in
-  the \ttref{variable}, where \t{N} is the result of evaluating the
-  \ttref{value}. This works somewhat like \t{snprintf()}. Thus:
+  or & \DEFINE{SNPRINT} \ttref{value} \ttref{variable} stringWithVars &
+  If \ttref{value} evaluates to zero or a positive number, N, the first
+  N characters of the evaluated contents of stringWithVars are
+  assigned to \ttref{variable}. If \ttref{value} evaluates to a
+  negative number, N, it's instead the last N characters. Thus:
 \begin{verbatim}
-SPRINT "author" "Jason"
-SNPRINT 3 "myvar" "1:%author%"
+SPRINT author Jason
+SNPRINT 3 myvar "1:%author%"
 \end{verbatim}
   ... assigns \t{1:J} to \t{myvar}.  \\
 or & \DEFINE{SOURCE!BIFF} \ttref{variable} filename &

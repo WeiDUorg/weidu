@@ -1845,8 +1845,10 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let wanted_size = Int32.to_int (eval_pe buff game size) in
         let actual_size = String.length value in
         let substr =
-          if actual_size > wanted_size then
+          if wanted_size >= 0 && actual_size > wanted_size then
             Str.first_chars value wanted_size
+          else if wanted_size < 0 && actual_size > (abs wanted_size) then
+            Str.last_chars value (abs wanted_size)
           else
             value in
         Var.set_string name substr ;
