@@ -200,6 +200,7 @@ let action_to_str a = match a with
 | TP_Outer_Set _ -> "OUTER_SET"
 | TP_Outer_Sprint _ -> "OUTER_SPRINT"
 | TP_Outer_Text_Sprint _ -> "OUTER_TEXT_SPRINT"
+| TP_Outer_Snprint _ -> "OUTER_SNPRINT"
 | TP_ActionDefineAssociativeArray _ -> "ACTION_DEFINE_ASSOCIATIVE_ARRAY"
 | TP_Outer_While _ -> "OUTER_WHILE"
 | TP_Launch_Action_Macro _ -> "LAUNCH_ACTION_MACRO"

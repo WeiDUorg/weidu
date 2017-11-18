@@ -174,6 +174,7 @@ and tp_action =
   | TP_Outer_Set of tp_pe_string * tp_patchexp
   | TP_Outer_Sprint of tp_pe_string * tp_pe_tlk_string
   | TP_Outer_Text_Sprint of tp_pe_string * tp_pe_string
+  | TP_Outer_Snprint of tp_patchexp * tp_pe_string * tp_pe_tlk_string
   | TP_ActionDefineAssociativeArray of tp_pe_string * ((tp_pe_string list) * tp_pe_string) list
   | TP_Outer_While of tp_patchexp * (tp_action list)
   | TP_Require_File of string * (Dlg.tlk_string)

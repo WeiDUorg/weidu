@@ -3708,6 +3708,16 @@ or & \DEFINE{OUTER!TEXT!SPRINT} \ttref{variable} stringWithVars &
 or & \DEFINE{OUTER!SPRINT} \ttref{variable} stringWithVars &
   Like \ttref{OUTER!TEXT!SPRINT}, but stringWithVars can be an @reference, and will
   break --traify. Use \ttref{OUTER!TEXT!SPRINT} instead. \\
+or & \DEFINE{OUTER!SNPRINT} \ttref{value} \ttref{variable} stringWithVars &
+  If \ttref{value} evaluates to zero or a positive number, N, the first
+  N characters of the evaluated contents of stringWithVars are
+  assigned to \ttref{variable}. If \ttref{value} evaluates to a
+  negative number, N, it's instead the last N characters. Thus:
+\begin{verbatim}
+SPRINT author Jason
+SNPRINT 3 myvar "1:%author%"
+\end{verbatim}
+  ... assigns \t{1:J} to \t{myvar}.  \\
 or & \DEFINE{OUTER!SET} \ttref{variable} \t{=} \ttref{value} &
   Update \ttref{variable} so that it is equal to \ttref{value}. \\
 or & \ttref{OUTER!SET} \ttref{variable} \t{+=} \ttref{value} &
