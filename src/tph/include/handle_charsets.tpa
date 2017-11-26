@@ -5,7 +5,7 @@ DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#WHICH#INFER
     charset
 BEGIN
   ACTION_MATCH "%language%" WITH
-    ".*schinese.*"
+    ".*schinese.*" ".*zh_CN.*"
     BEGIN
       OUTER_SPRINT charset "CP936"
     END
@@ -25,52 +25,52 @@ BEGIN
       OUTER_SPRINT charset "CP950"
     END
 
-    ".*czech.*"
+    ".*czech.*" ".*cs_CZ.*"
     BEGIN
       OUTER_SPRINT charset "CP1250"
     END
 
-    ".*english.*" ".*american.*"
+    ".*english.*" ".*american.*" ".*en_US.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
 
-    ".*french.*" ".*francais.*"
+    ".*french.*" ".*francais.*" ".*fr_FR.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
 
-    ".*german.*" ".*deutsch.*"
+    ".*german.*" ".*deutsch.*" ".*de_DE.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
 
-    ".*italian.*" ".*italiano.*"
+    ".*italian.*" ".*italiano.*" ".*it_IT.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
 
-    ".*japanese.*"
+    ".*japanese.*" ".*ja_JP.*"
     BEGIN
       OUTER_SPRINT charset "CP932"
     END
 
-    ".*korean.*"
+    ".*korean.*" ".*ko_KR.*"
     BEGIN
       OUTER_SPRINT charset "CP949"
     END
 
-    ".*polish.*" ".*polski.*"
+    ".*polish.*" ".*polski.*" ".*pl_PL.*"
     BEGIN
       OUTER_SPRINT charset "CP1250"
     END
 
-    ".*russian.*"
+    ".*russian.*" ".*ru_RU.*"
     BEGIN
       OUTER_SPRINT charset "CP1251"
     END
 
-    ".*spanish.*" ".*castilian.*" ".*espanol.*" ".*castellano.*"
+    ".*spanish.*" ".*castilian.*" ".*espanol.*" ".*castellano.*" ".*es_ES.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
