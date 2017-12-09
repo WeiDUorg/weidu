@@ -4118,6 +4118,20 @@ SPRINT author Jason
 SNPRINT 3 myvar "1:%author%"
 \end{verbatim}
   ... assigns \t{1:J} to \t{myvar}.  \\
+
+or & \DEFINE{SPRINTF} \ttref{variable} stringWithVars
+\t{(} \ttref{variable} or \ttref{value}  \Slist \t{)} &
+In stringWithVars, any instance of \t{\%s}, \t{\%d} and \t{\%x} will consume
+one variable of the list of variables and format the contents of the variable
+as a string, decimal number or hexadecimal number, respectively. Any normal text
+in stringWithVars is reproduced verbatim. Variables enclosed in \t{\%} are not
+evaluated. The result is stored in the variable given as the first argument.
+\begin{verbatim}
+SET ten = 10
+SPRINTF foo "%s %d %x quux" ("bar" 10 ten)
+\end{verbatim}
+will set the variable \t{foo} to the string \verb+~bar 10 0xa quux~+ \\
+
 or & \DEFINE{SOURCE!BIFF} \ttref{variable} filename &
   If filename is in a biff (whether it is also in the override or not), sets
   variable to the name of the containing biff (the name is printed as E.G.
