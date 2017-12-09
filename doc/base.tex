@@ -3440,11 +3440,12 @@ unusabilities
     \ahrefurl{\url{http://gibberlings3.net/forums/index.php?showtopic=584}}
     for information on how to do this.
 
-    \ttref{ADD!KIT} sets the variable \t{\%internalKitName\%} to the number
-    your kit occupies in \t{kitlist.2da}. This value is exactly 0x4000 less
-    than the number your kit is assigned in \t{kit.ids}. Also observe that
-    the kit DWORD in the \t{CRE} file format is big-endian, unlike all
-    other fields in the \t{CRE} file format.
+    \ttref{ADD!KIT} sets the variable \t{\%internalKitName\%} to the
+    number your kit occupies in \t{kitlist.2da}. This value is exactly
+    0x4000 less than the number your kit is assigned in
+    \t{kit.ids}. Also observe that the kit DWORD in the \t{CRE} file
+    format uses a reversed WORD order, unlike all other fields in the
+    \t{CRE} file format.
 
     Most arguments to \ttref{ADD!KIT} are strings to be appended verbatim to
     \t{2DA} files, detailed as follows:
