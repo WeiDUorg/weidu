@@ -2076,9 +2076,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 | None -> ignore (exec_command str exact)
                 | Some var ->
                     let retval = match exec_command str exact with
-                    | WEXITED i -> i
-                    | WSIGNALED i -> i
-                    | WSTOPPED i -> i in
+                    | Unix.WEXITED i
+                    | Unix.WSIGNALED i
+                    | Unix.WSTOPPED i -> i in
                     Var.set_int var retval)
           end
 
