@@ -18,7 +18,7 @@ Version 243:
   * DELETE properly accepts filenames of any case on Linux.
   * AT_NOW makes available the return value of the inferior process.
   * SNPRINT can return the N last characters instead of just the first ones.
-  * ADD OUTER_SNPRINT.
+  * Add OUTER_SNPRINT.
   * HANDLE_CHARSETS can infer charsets based on the language code in
     addition to the language name.
   * Document SPRINTF.
