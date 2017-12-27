@@ -278,8 +278,8 @@ PATCH_IF is_pst BEGIN
   TEXT_SPRINT $struct(0xc8 0xcc 0x04 0x214) note
 END ELSE BEGIN
   TEXT_SPRINT $struct(0xc4 0xc8 0x04 0x034) note
+  TEXT_SPRINT $struct(0xcc 0xd0 0x04 0x01c) projectile
 END
-TEXT_SPRINT $struct(0xcc 0xd0 0x04 0x01c) projectile
 PHP_EACH struct AS key => value BEGIN
   PATCH_IF ~%value%~ STRING_EQUAL_CASE ~%fj_structure_type%~ BEGIN
     SET fj_structure_type = key_0
