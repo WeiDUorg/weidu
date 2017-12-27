@@ -6,6 +6,24 @@ Version 243:
   * Fix finding of biff files on mac OS for games that do not use
     the baldur.ini format of the old OS 9 ports of the games.
   * Fix regression in script handling affecting IWD and IWD2.
+  * The variables WEIDU_ARCH, WEIDU_OS and WEIDU_VER are defined when
+    the log file is written.
+  * Optimisation to ITEM_EFFECT_TO_SPELL: much less copying of files.
+  * Add insert_point variable to ITEM_EFFECT_TO_SPELL.
+  * Certain file-existence checks do not return false for files which
+    exist but which are too large for the size to be expressible with
+    a 32-bit integer.
+  * TEXT_SPRINT works like SPRINT instead of like LOCAL_SPRINT.
+  * Fix variable-evaluation bugs in ADD_KIT.
+  * DELETE properly accepts filenames of any case on Linux.
+  * AT_NOW makes available the return value of the inferior process.
+  * SNPRINT can return the N last characters instead of just the first ones.
+  * ADD OUTER_SNPRINT.
+  * HANDLE_CHARSETS can infer charsets based on the language code in
+    addition to the language name.
+  * Document SPRINTF.
+  * Fix documentation of the kit value in the CRE format.
+  * Fix corruption issue in fj_are_structure affecting PST.
 
 Version 242:
   * Fix regression when decompiling NextObjectTrigger() with(out) comments.
