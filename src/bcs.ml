@@ -697,6 +697,7 @@ let is_concat_string ss ids =
   | Load.PST, 202l    (* IncrementGlobalOnce(S:Name1*,S:Area1*,S:Name2*,S:Area2*,I:Val*)
     -> (2, "")
 
+  (* EE special: IncrementGlobalOnce(S:Name1*,S:Area1*,S:Name2*,S:Area2*,I:Val*)
   | Load.BG2, 446l when ids.i_name <> "IncrementGlobalOnceEx"
     -> (2, "")
 
