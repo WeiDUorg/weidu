@@ -697,6 +697,9 @@ let is_concat_string ss ids =
   | Load.PST, 202l    (* IncrementGlobalOnce(S:Name1*,S:Area1*,S:Name2*,S:Area2*,I:Val*)
     -> (2, "")
 
+  | Load.BG2, 446l when ids.i_name <> "IncrementGlobalOnceEx"
+    -> (2, "")
+
   | Load.IWD2, 248l   (* GlobalBitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
   | Load.IWD2, 0x40A6l (* GlobalBitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
   | Load.IWD1, 248l   (* GlobalBitGlobal(S:String1*,S:String2*,S:String3*,S:String4*,I:Mode*BitMode) *)
