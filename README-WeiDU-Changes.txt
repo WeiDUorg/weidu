@@ -6,8 +6,9 @@ Version 243:
   * Fix finding of biff files on mac OS for games that do not use
     the baldur.ini format of the old OS 9 ports of the games.
   * Fix regression in script handling affecting IWD and IWD2.
-  * The variables WEIDU_ARCH, WEIDU_OS and WEIDU_VER are defined when
-    the log file is written.
+  * Fix WeiDU being unable to load TRA files when writing the log
+    file, if the TRA file name included the variables WEIDU_OS,
+    WEIDU_ARCH or WEIDU_VER.
   * Optimisation to ITEM_EFFECT_TO_SPELL: much less copying of files.
   * Add insert_point variable to ITEM_EFFECT_TO_SPELL.
   * Certain file-existence checks do not return false for files which
