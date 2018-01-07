@@ -25,6 +25,9 @@ Version 243:
   * Document SPRINTF.
   * Fix documentation of the kit value in the CRE format.
   * Fix corruption issue in fj_are_structure affecting PST.
+  * fj_are_structure can set region dialogs on PSTEE.
+  * Add support for other known PST/EE region fields.
+  * Compile IncrementGlobalOnce() correctly on PSTEE.
 
 Version 242:
   * Fix regression when decompiling NextObjectTrigger() with(out) comments.
