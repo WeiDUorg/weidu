@@ -23,6 +23,10 @@ v7: heavy-handed editing by Wisp
   rename a bunch of fields for increased clarity and consistency, real or imaginary
   ALTER_*_EFFECT cannot be used to alter number or index of extended effects
   condense pairs of item/spell functions to reduce repetition and retain the old functions as shell functions
+v8: multi-platform coding
+  functions now read version info from file and account for differences between various file formats
+  between games, e.g. iwd2's area format and every game's different cre files.   
+
 */
 
 
@@ -37,8 +41,14 @@ DEFINE_PATCH_FUNCTION ALTER_AREA_ENTRANCE
   STR_VAR entrance_name = "" // required, needs to match ascii name at 0x00
 BEGIN
 
-  READ_LONG  0x68 ent_off
-  READ_LONG  0x6c ent_num
+  READ_ASCII 0x04 version (4)
+  PATCH_IF ("%version%" STRING_COMPARE_CASE "V9.1" = 0) BEGIN // iwd2, are v9.1
+    READ_LONG  0x78 ent_off
+    READ_LONG  0x7c ent_num
+  END ELSE BEGIN
+    READ_LONG  0x68 ent_off
+    READ_LONG  0x6c ent_num
+  END
   FOR (index = 0 ; index < ent_num ; ++index) BEGIN
     READ_ASCII (ent_off + (index * 0x68)) ent_name (32) NULL
     PATCH_IF ("%ent_name%" STRING_COMPARE_CASE  "%entrance_name%" = 0) BEGIN
@@ -49,6 +59,7 @@ BEGIN
   END
 
 END
+
 DEFINE_PATCH_FUNCTION ALTER_AREA_REGION
   INT_VAR type        = "-1" // region type at 0x20; negative values mean no change
           cursor      = "-1" // cursor type at 0x34; negative values mean no change
@@ -87,8 +98,15 @@ DEFINE_PATCH_FUNCTION ALTER_AREA_REGION
           region_script = EVAL"%door_script%" // resref of region script at 0x7c; "same" means no change
 BEGIN
 
-  READ_SHORT 0x5a trig_num
-  READ_LONG  0x5c trig_off
+
+  READ_ASCII 0x04 version (4)
+  PATCH_IF ("%version%" STRING_COMPARE_CASE "V9.1" = 0) BEGIN // iwd2, are v9.1
+    READ_SHORT 0x6a trig_num
+    READ_LONG  0x6c trig_off
+  END ELSE BEGIN
+    READ_SHORT 0x5a trig_num
+    READ_LONG  0x5c trig_off
+  END
   FOR (index = 0 ; index < trig_num ; ++index) BEGIN
     READ_ASCII (trig_off + (index * 0xc4)) trig_name_file (32) NULL
     PATCH_IF ("%region_name%" STRING_COMPARE_CASE  "%trig_name_file%" = 0) BEGIN
@@ -200,8 +218,14 @@ DEFINE_PATCH_FUNCTION ALTER_AREA_ACTOR
           cre_file         = "same" // changes creature file at 0x80; "same" means no change
 BEGIN
 
-  READ_LONG  0x54 cre_off
-  READ_SHORT 0x58 cre_num
+  READ_ASCII 0x04 version (4)
+  PATCH_IF ("%version%" STRING_COMPARE_CASE "V9.1" = 0) BEGIN // iwd2, are v9.1
+    READ_LONG  0x64 cre_off
+    READ_SHORT 0x68 cre_num
+  END ELSE BEGIN
+    READ_LONG  0x54 cre_off
+    READ_SHORT 0x58 cre_num
+  END
   FOR (index = 0 ; index < cre_num ; ++index) BEGIN
     READ_ASCII (cre_off + (index * 0x110)) actor_name_file (32) NULL
     PATCH_IF ("%actor_name%" STRING_COMPARE_CASE "%actor_name_file%" = 0) BEGIN
@@ -338,8 +362,14 @@ DEFINE_PATCH_FUNCTION ALTER_AREA_CONTAINER
           container_key    = "same" // changes container key 0x78; "same" means no change
 BEGIN
 
-  READ_LONG  0x70 cont_off
-  READ_SHORT 0x74 cont_num
+  READ_ASCII 0x04 version (4)
+  PATCH_IF ("%version%" STRING_COMPARE_CASE "V9.1" = 0) BEGIN // iwd2, are v9.1
+    READ_LONG  0x80 cont_off
+    READ_SHORT 0x84 cont_num
+  END ELSE BEGIN
+    READ_LONG  0x70 cont_off
+    READ_SHORT 0x74 cont_num
+  END
   FOR (index = 0 ; index < cont_num ; ++index) BEGIN
     READ_ASCII (cont_off + (index * 0xc0)) cont_name_file (32) NULL
     PATCH_IF ("%container_name%" STRING_COMPARE_CASE "%cont_name_file%" = 0) BEGIN
@@ -429,8 +459,14 @@ DEFINE_PATCH_FUNCTION ALTER_AREA_DOOR
           dialogue       = "same"
 BEGIN
 
-  READ_LONG 0xa4 door_num
-  READ_LONG 0xa8 door_off
+  READ_ASCII 0x04 version (4)
+  PATCH_IF ("%version%" STRING_COMPARE_CASE "V9.1" = 0) BEGIN // iwd2, are v9.1
+    READ_LONG 0xb4 door_num
+    READ_LONG 0xb8 door_off
+  END ELSE BEGIN
+    READ_LONG 0xa4 door_num
+    READ_LONG 0xa8 door_off
+  END
   FOR (index = 0 ; index < door_num ; ++index) BEGIN
     READ_ASCII (door_off + (index * 0xc8)) door_name_file (32) NULL
     PATCH_IF ("%door_name%" STRING_COMPARE_CASE "%door_name_file%" = 0) BEGIN
@@ -1098,43 +1134,75 @@ DEFINE_PATCH_FUNCTION CLONE_EFFECT
           insert              = "above"
 
 BEGIN
+  PATCH_IF ("%version%" STRING_COMPARE_CASE "V9.1" = 0) BEGIN // iwd2, are v9.1
+    READ_LONG  0x78 ent_off
+    READ_LONG  0x7c ent_num
+  END ELSE BEGIN
+    READ_LONG  0x68 ent_off
+    READ_LONG  0x6c ent_num
+  END
 
   // set variables and offsets based on the file type
   SET new_fx = 0
   READ_ASCII 0 sig ELSE "fail" (4)
+  READ_ASCII 0x04 version (4)
   PATCH_MATCH "%sig%" WITH
     "SPL "
     BEGIN
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V2.0" = 0) BEGIN // iwd2, spl 2.0
+        SET min_size       = 0x82
+      END ELSE BEGIN
+        SET min_size       = 0x72
+      END
       READ_LONG   0x6a fx_off   ELSE 0
       SET counter_offset = 0x70
       SET abil_length    = 0x28
       SET fx_type        = 0
-      SET min_size       = 0x72
       READ_LONG   0x64 abil_off ELSE 0
       READ_SHORT  0x68 abil_num ELSE 0
     END
 
     "ITM "
     BEGIN
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.1" = 0) BEGIN // pst, itm v1.1
+        SET min_size       = 0x9a
+      END ELSE BEGIN
+        SET min_size       = 0x72
+      END
       READ_LONG   0x6a fx_off   ELSE 0
       SET counter_offset = 0x70
       SET abil_length    = 0x38
       SET fx_type        = 0
-      SET min_size       = 0x72
       READ_LONG   0x64 abil_off ELSE 0
       READ_SHORT  0x68 abil_num ELSE 0
     END
 
     "CRE "
     BEGIN
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.2" = 0) BEGIN // pst, cre v1.2
+        SET min_size       = 0x378
+        READ_LONG  0x368 fx_off ELSE 0
+        SET counter_offset = 0x36c
+      END ELSE
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V2.2" = 0) BEGIN // iwd2, cre v2.2
+        SET min_size       = 0x634
+        READ_LONG  0x61e fx_off ELSE 0
+        SET counter_offset = 0x622
+      END ELSE
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V9.0" = 0) BEGIN // iwd, cre v9.0
+        SET min_size       = 0x33c
+        READ_LONG  0x61e fx_off ELSE 0
+        SET counter_offset = 0x622
+      END ELSE BEGIN                                               // everything else, cre v1.0
+        SET min_size = 0x2d4
+        READ_LONG  0x32c fx_off ELSE 0
+        SET counter_offset = 0x330
+      END
       SET abil_off = 0 // basically prevents the ability effect loop
       SET abil_num = 0
-      READ_LONG  0x2c4 fx_off ELSE 0
-      SET counter_offset = 0x2c8
       SET abil_length = 0
-      READ_BYTE 0x33 fx_type ELSE 2
-      SET min_size = 0x2d4
       SET check_globals = 1
+      READ_BYTE 0x33 fx_type ELSE 2
     END
 
     "fail"
@@ -1263,10 +1331,47 @@ BEGIN
   // now adjust offsets for creature files
   PATCH_IF (("%sig%" STRING_EQUAL "CRE ") AND (new_fx > 0)) BEGIN // fix offsets for cre files if fx inserted
     SET inserted = ((0x30 + (0xd8 * fx_type)) * new_fx)
-    PATCH_FOR_EACH offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
-      READ_LONG offset off
-      PATCH_IF (fx_off < off) BEGIN
-        WRITE_LONG offset (off + inserted)
+    PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.2" = 0) BEGIN // pst, cre v1.2
+      PATCH_FOR_EACH offset IN 0x294 0x344 0x34c 0x354 0x35c 0x360 BEGIN
+        READ_LONG offset off
+        PATCH_IF (fx_off < off) BEGIN
+          WRITE_LONG offset (off + inserted)
+        END
+      END
+    END ELSE
+    PATCH_IF ("%version%" STRING_COMPARE_CASE "V2.2" = 0) BEGIN // iwd2, cre v2.2
+      PATCH_FOR_EACH offset IN 0x5fa 0x602 0x60a 0x612 0x616 BEGIN
+        READ_LONG offset off
+        PATCH_IF (fx_off < off) BEGIN
+          WRITE_LONG offset (off + inserted)
+        END
+      END
+      FOR (offset = 0x3ba ; offset < 0x4b3 ; offset = offset + 0x04) BEGIN // all of the spell offsets
+        READ_LONG offset off
+        PATCH_IF (fx_off < off) BEGIN
+          WRITE_LONG offset (off + inserted)
+        END
+      END
+      FOR (offset = 0x5b2 ; offset < 0x5d3 ; offset = offset + 0x04) BEGIN // domain spell offsets
+        READ_LONG offset off
+        PATCH_IF (fx_off < off) BEGIN
+          WRITE_LONG offset (off + inserted)
+        END
+      END
+    END ELSE
+    PATCH_IF ("%version%" STRING_COMPARE_CASE "V9.0" = 0) BEGIN // iwd, cre v9.0
+      PATCH_FOR_EACH offset IN 0x308 0x310 0x318 0x320 0x324 BEGIN
+        READ_LONG offset off
+        PATCH_IF (fx_off < off) BEGIN
+          WRITE_LONG offset (off + inserted)
+        END
+      END
+    END ELSE BEGIN                                               // everything else, cre v1.0
+      PATCH_FOR_EACH offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
+        READ_LONG offset off
+        PATCH_IF (fx_off < off) BEGIN
+          WRITE_LONG offset (off + inserted)
+        END
       END
     END
   END
@@ -1321,39 +1426,64 @@ BEGIN
   // set variables and offsets based on the file type
   SET new_fx = 0
   READ_ASCII 0 sig ELSE "fail" (4)
+  READ_ASCII 0x04 version (4)
   PATCH_MATCH "%sig%" WITH
     "SPL "
     BEGIN
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V2.0" = 0) BEGIN // iwd2, spl 2.0
+        SET min_size       = 0x82
+      END ELSE BEGIN
+        SET min_size       = 0x72
+      END
       READ_LONG   0x6a fx_off   ELSE 0
       SET counter_offset = 0x70
       SET abil_length    = 0x28
       SET fx_type        = 0
-      SET min_size       = 0x72
       READ_LONG   0x64 abil_off ELSE 0
       READ_SHORT  0x68 abil_num ELSE 0
     END
 
     "ITM "
     BEGIN
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.1" = 0) BEGIN // pst, itm v1.1
+        SET min_size       = 0x9a
+      END ELSE BEGIN
+        SET min_size       = 0x72
+      END
       READ_LONG   0x6a fx_off   ELSE 0
       SET counter_offset = 0x70
       SET abil_length    = 0x38
       SET fx_type        = 0
-      SET min_size       = 0x72
       READ_LONG   0x64 abil_off ELSE 0
       READ_SHORT  0x68 abil_num ELSE 0
     END
 
-    "CRE " // creature effects treated like they're a single, global loop
+    "CRE "
     BEGIN
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.2" = 0) BEGIN // pst, cre v1.2
+        SET min_size       = 0x378
+        READ_LONG  0x368 fx_off ELSE 0
+        SET counter_offset = 0x36c
+      END ELSE
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V2.2" = 0) BEGIN // iwd2, cre v2.2
+        SET min_size       = 0x634
+        READ_LONG  0x61e fx_off ELSE 0
+        SET counter_offset = 0x622
+      END ELSE
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V9.0" = 0) BEGIN // iwd, cre v9.0
+        SET min_size       = 0x33c
+        READ_LONG  0x61e fx_off ELSE 0
+        SET counter_offset = 0x622
+      END ELSE BEGIN                                               // everything else, cre v1.0
+        SET min_size = 0x2d4
+        READ_LONG  0x32c fx_off ELSE 0
+        SET counter_offset = 0x330
+      END
       SET abil_off = 0 // basically prevents the ability effect loop
       SET abil_num = 0
-      READ_LONG  0x2c4 fx_off ELSE 0
-      SET counter_offset = 0x2c8
       SET abil_length = 0
-      READ_BYTE 0x33 fx_type ELSE 2
-      SET min_size = 0x2d4
       SET check_globals = 1
+      READ_BYTE 0x33 fx_type ELSE 2
     END
 
     "fail"
@@ -1441,12 +1571,49 @@ BEGIN
   END // end ability loop
 
   // now adjust offsets for creature files
-  PATCH_IF (("%sig%" STRING_EQUAL "CRE ") AND (new_fx != 0)) BEGIN // fix offsets for cre files if fx deleted
-    SET deleted = ((0x30 + (0xd8 * fx_type)) * new_fx)
-    PATCH_FOR_EACH offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
-      READ_LONG offset off
-      PATCH_IF (fx_off < off) BEGIN
-        WRITE_LONG offset (off + deleted)
+  PATCH_IF (("%sig%" STRING_EQUAL "CRE ") AND (new_fx > 0)) BEGIN // fix offsets for cre files if fx inserted
+    SET inserted = ((0x30 + (0xd8 * fx_type)) * new_fx)
+    PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.2" = 0) BEGIN // pst, cre v1.2
+      PATCH_FOR_EACH offset IN 0x294 0x344 0x34c 0x354 0x35c 0x360 BEGIN
+        READ_LONG offset off
+        PATCH_IF (fx_off < off) BEGIN
+          WRITE_LONG offset (off + inserted)
+        END
+      END
+    END ELSE
+    PATCH_IF ("%version%" STRING_COMPARE_CASE "V2.2" = 0) BEGIN // iwd2, cre v2.2
+      PATCH_FOR_EACH offset IN 0x5fa 0x602 0x60a 0x612 0x616 BEGIN
+        READ_LONG offset off
+        PATCH_IF (fx_off < off) BEGIN
+          WRITE_LONG offset (off + inserted)
+        END
+      END
+      FOR (offset = 0x3ba ; offset < 0x4b3 ; offset = offset + 0x04) BEGIN // all of the spell offsets
+        READ_LONG offset off
+        PATCH_IF (fx_off < off) BEGIN
+          WRITE_LONG offset (off + inserted)
+        END
+      END
+      FOR (offset = 0x5b2 ; offset < 0x5d3 ; offset = offset + 0x04) BEGIN // domain spell offsets
+        READ_LONG offset off
+        PATCH_IF (fx_off < off) BEGIN
+          WRITE_LONG offset (off + inserted)
+        END
+      END
+    END ELSE
+    PATCH_IF ("%version%" STRING_COMPARE_CASE "V9.0" = 0) BEGIN // iwd, cre v9.0
+      PATCH_FOR_EACH offset IN 0x308 0x310 0x318 0x320 0x324 BEGIN
+        READ_LONG offset off
+        PATCH_IF (fx_off < off) BEGIN
+          WRITE_LONG offset (off + inserted)
+        END
+      END
+    END ELSE BEGIN                                               // everything else, cre v1.0
+      PATCH_FOR_EACH offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
+        READ_LONG offset off
+        PATCH_IF (fx_off < off) BEGIN
+          WRITE_LONG offset (off + inserted)
+        END
       END
     END
   END
@@ -1514,19 +1681,24 @@ DEFINE_PATCH_FUNCTION ALTER_EFFECT
   STR_VAR match_resource      = "SAME"
           resource            = "SAME"
 
-BEGIN
+BEGIN  
 
   // set variables and offsets based on the file type
   SET alter = 0
   READ_ASCII 0 sig ELSE "fail" (4)
+  READ_ASCII 0x04 version (4)
   PATCH_MATCH "%sig%" WITH
     "SPL "
     BEGIN
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V2.0" = 0) BEGIN // iwd2, spl 2.0
+        SET min_size       = 0x82
+      END ELSE BEGIN
+        SET min_size       = 0x72
+      END
       READ_LONG   0x6a fx_off   ELSE 0
       SET counter_offset = 0x70
       SET abil_length    = 0x28
       SET fx_type        = 0
-      SET min_size       = 0x72
       PATCH_IF (check_headers = 0) BEGIN
         SET abil_num = 0
       END ELSE BEGIN
@@ -1537,11 +1709,15 @@ BEGIN
 
     "ITM "
     BEGIN
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.1" = 0) BEGIN // pst, itm v1.1
+        SET min_size       = 0x9a
+      END ELSE BEGIN
+        SET min_size       = 0x72
+      END
       READ_LONG   0x6a fx_off   ELSE 0
       SET counter_offset = 0x70
       SET abil_length    = 0x38
       SET fx_type        = 0
-      SET min_size       = 0x72
       PATCH_IF (check_headers = 0) BEGIN
         SET abil_num = 0
       END ELSE BEGIN
@@ -1550,16 +1726,32 @@ BEGIN
       END
     END
 
-    "CRE " // creature effects treated like they're a single, global loop
+    "CRE "
     BEGIN
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.2" = 0) BEGIN // pst, cre v1.2
+        SET min_size       = 0x378
+        READ_LONG  0x368 fx_off ELSE 0
+        SET counter_offset = 0x36c
+      END ELSE
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V2.2" = 0) BEGIN // iwd2, cre v2.2
+        SET min_size       = 0x634
+        READ_LONG  0x61e fx_off ELSE 0
+        SET counter_offset = 0x622
+      END ELSE
+      PATCH_IF ("%version%" STRING_COMPARE_CASE "V9.0" = 0) BEGIN // iwd, cre v9.0
+        SET min_size       = 0x33c
+        READ_LONG  0x61e fx_off ELSE 0
+        SET counter_offset = 0x622
+      END ELSE BEGIN                                               // everything else, cre v1.0
+        SET min_size = 0x2d4
+        READ_LONG  0x32c fx_off ELSE 0
+        SET counter_offset = 0x330
+      END
       SET abil_off = 0 // basically prevents the ability effect loop
       SET abil_num = 0
-      READ_LONG  0x2c4 fx_off ELSE 0
-      SET counter_offset = 0x2c8
       SET abil_length = 0
-      READ_BYTE 0x33 fx_type ELSE 2
-      SET min_size = 0x2d4
       SET check_globals = 1
+      READ_BYTE 0x33 fx_type ELSE 2
     END
 
     "fail"
