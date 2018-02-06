@@ -38,7 +38,9 @@ let loaded_tph: (string,tp_action list)Hashtbl.t = Hashtbl.create 5
 let loaded_tpp: (string,tp_patch list)Hashtbl.t = Hashtbl.create 5
 let macros: ((string*bool),tp_local_declaration list * tp_patch list)Hashtbl.t = Hashtbl.create 10
 let functions: ((string*bool),(tp_pe_string * tp_patchexp) list *
-                  (tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_patch list) Hashtbl.t = Hashtbl.create 10
+                  (tp_pe_string * tp_pe_string) list * tp_pe_string list *
+                  tp_pe_string list * tp_patch list)
+    Hashtbl.t = Hashtbl.create 10
 let readln_strings: string list ref = ref []
 
 let clear_codes () =

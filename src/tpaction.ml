@@ -136,14 +136,14 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Define_Patch_Macro(str,decl,al) ->
           Hashtbl.replace macros (str,true) (decl, al)
 
-      | TP_Define_Action_Function (str,a,b,c,d) ->
-          Hashtbl.replace functions (str,false) (a,b,c,pl_of_al d)
+      | TP_Define_Action_Function (name,ints,strs,rets,retas,body) ->
+          Hashtbl.replace functions (name,false) (ints,strs,rets,retas,pl_of_al body)
 
-      | TP_Define_Patch_Function (str,a,b,c,d) ->
-          Hashtbl.replace functions (str,true) (a,b,c,d)
+      | TP_Define_Patch_Function (name,ints,strs,rets,retas,body) ->
+          Hashtbl.replace functions (name,true) (ints,strs,rets,retas,body)
 
-      | TP_Launch_Action_Function (a,b,c,d) ->
-          run_patch (TP_Launch_Patch_Function (a,false,b,c,d))
+      | TP_Launch_Action_Function (name,ints,strs,rets,retas) ->
+          run_patch (TP_Launch_Patch_Function (name,false,ints,strs,rets,retas))
 
       | TP_Launch_Action_Macro(str) ->
           run_patch (TP_Launch_Patch_Macro (str,false))

@@ -3930,14 +3930,18 @@ or & \DEFINE{DEFINE!PATCH!MACRO} \ttref{String} \t{BEGIN}
 or & \DEFINE{DEFINE!ACTION!FUNCTION} \ttref{String}
      \Ob \t{INT!VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
      \Ob \t{STR!VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe
-     \Ob \t{RET} \ttref{variable} ... \Oe \t{BEGIN} \ttref{TP2 Action} \Slist
+     \Ob \t{RET} \ttref{variable} ... \Oe
+     \Ob \t{RET!ARRAY} \ttref{variable} ... \Oe
+     \t{BEGIN} \ttref{TP2 Action} \Slist
      \t{END} &
   Define an action function. Refer to the \ttref{Functions} section for
   additional information. \\
 or & \DEFINE{DEFINE!PATCH!FUNCTION} \ttref{String}
      \Ob \t{INT!VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
      \Ob \t{STR!VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe
-     \Ob \t{RET} \ttref{variable} ... \Oe \t{BEGIN} \ttref{patch} \Slist
+     \Ob \t{RET} \ttref{variable} ... \Oe
+     \Ob \t{RET!ARRAY} \ttref{variable} ... \Oe
+     \t{BEGIN} \ttref{patch} \Slist
      \t{END} &
   Define a patch function. Refer to the \ttref{Functions} section for
   additional information. \\
@@ -3950,6 +3954,7 @@ or & \DEFINE{LAUNCH!ACTION!FUNCTION} \ttref{String}
      \Ob \t{STR!VAR} \ttref{variable} \Ob \t{=} \Ob \ttref{EVALUATE!BUFFER}
      \Oe \ttref{String} \Oe ... \Oe
      \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
+     \Ob \t{RET!ARRAY} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
      \t{END} &
   Launch an action function. Refer to the \ttref{Functions} section for
   additional information. You may use \DEFINE{LAF} as a synonym for
@@ -5166,6 +5171,7 @@ or & \DEFINE{LAUNCH!PATCH!FUNCTION} \ttref{String}
      \Ob \t{STR!VAR} \ttref{variable} \Ob \t{=} \Ob \ttref{EVALUATE!BUFFER}
      \Oe \ttref{String} \Oe ... \Oe
      \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
+     \Ob \t{RET!ARRAY} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
      \t{END} &
         Launch a patch function. Refer to the \ttref{Functions} section for
         additional information. You may use \DEFINE{LPF} as a synonym
@@ -7966,6 +7972,35 @@ You can do this in the RET part of the function definition (\verb+RET num+).
 When you launch the function you can use these variables to import the value
 into your current variable environment (\verb+RET lvl1_wizard = num+).
 Separate the variables with a space character if you have multiple return values.
+
+As of V244, you can return whole arrays with the \verb+RET_ARRAY+
+keyword. Like with \verb+RET+, you can optionally assign the array to
+a different name by using assignment when launching the function.
+
+\begin{verbatim}
+DEFINE_ACTION_FUNCTION foobar
+  RET_ARRAY
+    foo
+    bar
+BEGIN
+  ACTION_DEFINE_ARRAY foo BEGIN 1 2 3 END
+  ACTION_DEFINE_ARRAY bar BEGIN a b c END
+END
+
+LAF foobar RET_ARRAY foo baz = bar END
+
+// After the function has returned, the arrays foo and baz will exist
+// The array baz will be derived from the array bar
+
+ACTION_PHP_EACH foo AS _ => v BEGIN
+  PRINT "%v%" // will print 1, 2 and 3
+END
+
+ACTION_PHP_EACH baz AS _ => v BEGIN
+  PRINT "%v%" // will print a, b and c
+END
+
+\end{verbatim}
 
 If you don't need certain features simply omit them:
 \begin{verbatim}

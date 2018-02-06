@@ -154,7 +154,9 @@ and tp_action =
   | TP_Compile of bool * (string list) * (tp_patch list) * (string list) (* eval, DLG, TRA *)
   | TP_Launch_Action_Macro of string
   | TP_Launch_Action_Function of string * (tp_pe_string * tp_patchexp) list *
-	(tp_pe_string * tp_pe_string) list * (tp_pe_string * tp_pe_string) list
+	(tp_pe_string * tp_pe_string) list *
+        (tp_pe_string * tp_pe_string) list *
+        (tp_pe_string * tp_pe_string) list
   | TP_Reinclude of string list
   | TP_Include of string list
   | TP_Load_Tra of string list
@@ -163,9 +165,11 @@ and tp_action =
   | TP_Define_Action_Macro of string * tp_local_declaration list * tp_action list
   | TP_Define_Patch_Macro of string * tp_local_declaration list * tp_patch list
   | TP_Define_Patch_Function of string * (tp_pe_string * tp_patchexp) list *
-	(tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_patch list
+	(tp_pe_string * tp_pe_string) list * tp_pe_string list *
+        tp_pe_string list * tp_patch list
   | TP_Define_Action_Function of string * (tp_pe_string * tp_patchexp) list *
-	(tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_action list
+	(tp_pe_string * tp_pe_string) list * tp_pe_string list *
+        tp_pe_string list * tp_action list
   | TP_Biff of string * ((string * (bool option) * string) list)
   | TP_Mkdir of string list
   | TP_Outer_For of (tp_patch list) * tp_patchexp * (tp_patch list) * (tp_action list)
@@ -335,8 +339,10 @@ and tp_patch =
   | TP_PatchGetOffsetArray2 of tp_pe_string * (tp_patchexp * tp_patchexp * tp_patchexp
 						 * tp_patchexp * tp_patchexp * tp_patchexp * tp_patchexp * tp_patchexp)
   | TP_Launch_Patch_Macro of string * bool
-  | TP_Launch_Patch_Function of string * bool * (tp_pe_string * tp_patchexp) list *
-	(tp_pe_string * tp_pe_string) list * (tp_pe_string * tp_pe_string) list
+  | TP_Launch_Patch_Function of string * bool *
+        (tp_pe_string * tp_patchexp) list * (tp_pe_string * tp_pe_string) list *
+        (tp_pe_string * tp_pe_string) list *
+        (tp_pe_string * tp_pe_string) list
   | TP_Add_Known_Spell of string * tp_patchexp * string
   | TP_Add_Memorized_Spell of string * tp_patchexp * string * tp_patchexp
   | TP_Read2DA of tp_patchexp * tp_patchexp * tp_patchexp * tp_pe_string
