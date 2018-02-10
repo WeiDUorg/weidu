@@ -678,10 +678,18 @@ let exists_in_overrides game res ext =
     else acc) false (if (String.uppercase ext) = "IDS" then
       game.ids_path_list else game.override_path_list)
 
+let resource_exists_legacy_check name =
+  (* FILE_EXISTS_IN_GAME used to be implemented through load_resource
+     This function corresponds to the control-flow
+     load_resource > exn > with _ > not ok_missing >
+     and aims to preserve legacy behaviour, nonsense though it may be *)
+  file_exists name
+
 let resource_exists game res ext =
   let name = res ^ "." ^ ext in
   if (Case_ins.filename_is_implicit res) then begin
-    exists_in_overrides game res ext || Key.resource_exists game.key res ext
+    exists_in_overrides game res ext || Key.resource_exists game.key res ext ||
+    resource_exists_legacy_check name
   end else
     file_contains_data name
 
