@@ -5578,6 +5578,20 @@ fileName are evaluated. fileName can be a file on the local file system or an
 inlined file.
 \\
 
+or & \DEFINE{VALID!SCRIPT!ACTIONS} \ttref{variable} &
+
+Variable can be an array construct and should be or evaluate to a
+string of whitespace-separated \ttref{Infinity Engine action}s.
+Returns true if the string compiles into BCS without
+unrecoverable errors, otherwise false.\\
+
+or & \DEFINE{VALID!SCRIPT!TRIGGERS} \ttref{variable} &
+
+Variable can be an array construct and should be or evaluate to a
+string of whitespace-separated \ttref{Infinity Engine trigger}s.
+Returns true of the string compiles into BCS without
+unrecoverable errors, otherwise false.\\
+
 or & \t{\%}\ttref{variable}\t{\%}   &
     The value of the \ttref{variable} is used. \\
 

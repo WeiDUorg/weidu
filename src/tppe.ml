@@ -634,6 +634,20 @@ let rec eval_pe buff game p =
   end
 
   | PE_NextStrref -> Int32.of_int !Dc.cur_index
+  | PE_ValidScriptActions(buff) -> begin
+      let buff = Var.get_string (eval_pe_str buff) in
+      (try
+        let _ = Parsewrappers.handle_script_al buff in
+        1l
+      with _ -> 0l)
+  end
+  | PE_ValidScriptTriggers(buff) -> begin
+      let buff = Var.get_string (eval_pe_str buff) in
+      (try
+        let _ = Parsewrappers.handle_script_tl buff in
+        1l
+      with _ -> 0l)
+  end
 
 let eval_pe buff game pe =
   let res = Stats.time "eval_pe" (fun () -> eval_pe buff game pe) () in

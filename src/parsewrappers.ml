@@ -42,6 +42,10 @@ let handle_script_al buffer =
   let result = parse_file false (String("",buffer)) "parsing .baf files"
       (Bafparser.action_list Baflexer.initial) in
   result
+
+let handle_script_tl buffer =
+  parse_file false (String("",buffer)) "parsing .baf files"
+    (Bafparser.trigger_list Baflexer.initial)
 ;;
 
 Bcs.parse_al := handle_script_al
