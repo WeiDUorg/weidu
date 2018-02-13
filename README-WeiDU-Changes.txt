@@ -1,3 +1,7 @@
+Version 244:
+  * FILE_EXISTS_IN_GAME is FILE_EXISTS for implicit files
+    that are not resources, again.
+
 Version 243:
   * Fix errors in the documentation of READ_LONG and READ_SLONG.
   * Fix incorrect variable name in HANDLE_TILESETS tutorial.
