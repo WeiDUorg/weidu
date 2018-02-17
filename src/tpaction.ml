@@ -235,10 +235,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                       flush chn
                   | None -> ());
                 if !ok then
-                  (match !other_list_chn with
-                  | Some(chn) -> output_string chn (src ^ "\n") ; output_string chn (dst ^ "\n") ;
-                      flush chn
-                  | None -> ()); end
+                  ignore (List.iter record_other_file_op [src;dst]) end
             else log_and_print "MOVE [%s] [%s]: source is a directory\n" src dst;
           in
           List.iter (fun (src,dst) ->
@@ -345,9 +342,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                       Unix.S_REG) && (Str.string_match reg next 0) then
                     (if !debug_ocaml then log_and_print "  match!\n";
                      find_list := (String.uppercase (directory ^ "/" ^ next)) :: !find_list;
-                     match !other_list_chn with
-                     | Some(chn) -> output_string chn ("override/" ^ next ^ "\n") ; flush chn
-                     | None -> ());
+                     ignore (record_other_file_op ("override/" ^ next))) ;
                 done
               with End_of_file -> ());
               Unix.closedir dh ;

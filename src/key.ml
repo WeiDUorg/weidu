@@ -307,9 +307,10 @@ let remove_files key file_lst =
   Array.iter (fun item ->
     if Hashtbl.mem file_hsh (item.res_name, (ext_of_key item.res_type)) then begin
       log_only "DISABLE_FROM_KEY [%s.%s]: success\n" item.res_name (ext_of_key item.res_type) ;
-      (match !other_list_chn with
-       | Some(chn) -> output_string chn ("override/" ^ item.res_name ^ "." ^ (ext_of_key item.res_type) ^ "\n") ; flush chn
-       | None -> ());
+      ignore (record_other_file_op
+                (String.concat ""
+                   ["override/"; item.res_name; ".";
+                    (ext_of_key item.res_type)])) ;
       Hashtbl.remove file_hsh (item.res_name, (ext_of_key item.res_type));
       decr new_file_count
     end) key.resource;
