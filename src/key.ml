@@ -315,7 +315,7 @@ let remove_files key file_lst =
       decr new_file_count
     end) key.resource;
   Hashtbl.iter (fun (a,b) _ ->
-    log_only "DISABLE_FROM_KEY [%s.%s]: file does not exit\n" a b) file_hsh;
+    log_only "DISABLE_FROM_KEY [%s.%s]: file does not exist\n" a b) file_hsh;
   let index = ref 0 in
   let new_resource = Array.init !new_file_count (fun _ ->
     let item = ref (key.resource.(!index)) in
