@@ -552,6 +552,10 @@ let open_for_writing_internal backup filename binary =
 
 let open_for_writing = open_for_writing_internal true
 
+let record_other_file_op filename =
+  match !other_list_chn with
+  | Some chn -> output_string chn (filename ^ "\n") ; flush chn
+  | None -> ()
 
 (* filter to avoid logging progress bars from external programs *)
 type filter_mode = Copy | Strip ;;
