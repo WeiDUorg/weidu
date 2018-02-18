@@ -180,8 +180,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             | head :: tail -> begin
                 if file_exists head && not (is_directory head) then begin
                   if do_backup then
-                    backup_if_extant head
-                  else (record_other_file_op head) ;
+                    backup_if_extant head ;
+                  ignore (record_other_file_op head) ;
                   Sys.remove head ;
                   delete tail
                 end else if is_directory head then begin
