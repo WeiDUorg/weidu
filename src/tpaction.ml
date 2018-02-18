@@ -870,7 +870,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 process_action tp (TP_Copy(copy_args))
               end else begin
                 if make_a_backup then
-                  backup_if_extant dest ;
+                  backup_if_extant dest
+                else
+                  record_other_file_op dest ;
                 copy_large_file src dest "doing a COPY_LARGE" ;
                 if make_a_backup then
                   log_only "Copied [%s] to [%s]\n" src dest
