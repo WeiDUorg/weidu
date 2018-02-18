@@ -1033,7 +1033,7 @@ let rec handle_tp game this_tp2_filename tp =
       (if (!log_file <> "") then
         log_and_print "%s %s %s %s\n" ((get_trans (-1004))) !log_file
           (get_trans (-1005)) tp.author) ;
-      (* log_and_print "PLEASE email the file %s to %s\n" !log_file tp.author;*)
+      (* log_and_print "Please make backup of the file: %s and look for support at: %s\n" !log_file tp.author;*)
       if !always_yes || !specified_specific_components then begin
         log_and_print "Automatically Skipping [%s] because of error.\n"
           package_name ;
