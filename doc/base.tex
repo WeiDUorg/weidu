@@ -3292,6 +3292,11 @@ P Q R 3
     \t{DEFAULT} \ttref{TP2 Action} \Slist \t{END} &
     If evaluating the action list results in an error, the error is matched, as per \ttref{ACTION!MATCH}.
 
+    \textbf{N.B.} \t{TRY} is generally \emph{not safe} to use because
+    many errors are intended to be fatal and if the mod installation
+    were to proceed anyway, it might do so in an inconsistent state,
+    with resource leaks or with other errors.
+
     See the \ttref{MATCH and TRY} tutorial for additional information.
   \\
   or & \DEFINE{ACTION!RERAISE} &
@@ -4615,6 +4620,11 @@ or & \DEFINE{PATCH!IF} \ttref{value} \Ob \t{THEN} \Oe \t{BEGIN}
     \t{BEGIN} \ttref{patch} \Slist \t{END} \Oe
     ... \t{DEFAULT} \ttref{patch} \Slist \t{END} &
     If evaluating the patch list results in an error, the error is matched, as per \ttref{PATCH!MATCH}.
+
+    \textbf{N.B.} \t{TRY} is generally \emph{not safe} to use because
+    many errors are intended to be fatal and if the mod installation
+    were to proceed anyway, it might do so in an inconsistent state,
+    with resource leaks or with other errors.
 
     See the \ttref{MATCH and TRY} tutorial for additional information.
   \\
@@ -8085,7 +8095,7 @@ BUT_ONLY
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{MATCH and TRY} (last edit: 225)}
+\subsection{\DEFINE{MATCH and TRY} (last edit: 245)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \verb+MATCH+ is the equivalent of switch..case in mainstream languages (except
@@ -8094,6 +8104,11 @@ selection control statement whose purpose is to allow the value of a variable
 or expression to control the flow of program execution via a multiway branch.
 The main reasons for using this type of statement include improving clarity
 and reducing otherwise repetitive coding.
+
+\textbf{N.B.} \t{TRY} is generally \emph{not safe} to use because
+many errors are intended to be fatal and if the mod installation
+were to proceed anyway, it might do so in an inconsistent state,
+with resource leaks or with other errors.
 
 \verb+TRY+ is used to detect TP2 failures (= anything that blocks the installation
 and prints "NOT INSTALLED DUE TO ERRORS") and allows the modder to run custom
