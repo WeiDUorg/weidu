@@ -73,7 +73,7 @@ let biff_path_separator = "\\\\"
 let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)"
 
 let is_weidu_executable f =
-  Str.string_match (Str.regexp_case_fold "setup-.*exe") f 0
+  Str.string_match (Str.regexp_case_fold "setup-.*\.exe$") f 0
 
 let get_version f =
   let newstdin, newstdin' = Unix.pipe () in
