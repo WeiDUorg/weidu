@@ -22,8 +22,8 @@
 @-1002= "What should be done with all components that are NOT YET installed?\n[I]nstall them, [S]kip them, [A]sk about each one? "
 @-1003= "What should be done with all components that are ALREADY installed?\n[R]e-install them, [U]ninstall them, [S]kip them, [A]sk about each one? "
 
-@-1004= "PLEASE email the file"
-@-1005= "to"
+@-1004= "Please make backup of the file:"
+@-1005= "and look for support at:"
 
 @-1006= "Install Component ["
 @-1007= "]?\n[R]e-Install, [N]o Change or [U]ninstall or [Q]uit? "
