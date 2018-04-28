@@ -918,3 +918,12 @@ let tp2_name filename =
     | c -> (String.concat "-" c))
   | a :: b -> (String.concat "-" (a :: b))
   | _ -> filename)
+
+let read_lines file =
+  let chan = Case_ins.perv_open_in file in
+  let read chan = try Some (input_line chan) with End_of_file -> None in
+  let rec loop list =
+    match read chan with
+    | Some line -> loop (line :: list)
+    | None -> close_in chan ; List.rev list in
+  loop []
