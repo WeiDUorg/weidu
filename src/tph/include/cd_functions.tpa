@@ -1571,7 +1571,7 @@ BEGIN
   END // end ability loop
 
   // now adjust offsets for creature files
-  PATCH_IF (("%sig%" STRING_EQUAL "CRE ") AND (new_fx > 0)) BEGIN // fix offsets for cre files if fx inserted
+  PATCH_IF (("%sig%" STRING_EQUAL "CRE ") AND (new_fx != 0)) BEGIN // fix offsets for cre files if #fx changed
     SET inserted = ((0x30 + (0xd8 * fx_type)) * new_fx)
     PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.2" = 0) BEGIN // pst, cre v1.2
       PATCH_FOR_EACH offset IN 0x294 0x344 0x34c 0x354 0x35c 0x360 BEGIN
