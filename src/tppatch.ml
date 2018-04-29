@@ -1788,6 +1788,10 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         log_and_print "FAILURE:\n%s\n" str ;
         failwith str
 
+    | TP_PatchAbort(msg) ->
+        let str = Var.get_string (Dc.single_string_of_tlk_string game msg) in
+        raise (Abort str)
+
     | TP_PatchReraise -> raise !current_exception
 
     | TP_PatchSprint(name,msg) ->

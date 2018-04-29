@@ -186,6 +186,7 @@ let action_to_str a = match a with
 | TP_Alter_TLK_List _ -> "TP_ALTER_TLK_*"
 | TP_Reraise -> "ACTION_RERAISE"
 | TP_Fail _ -> "FAIL"
+| TP_Abort _ -> "ABORT"
 | TP_Warn _ -> "WARN"
 | TP_Print _ -> "PRINT"
 | TP_Log _ -> "LOG"
@@ -332,6 +333,9 @@ let init_default_strings () =
   will not be remembered.\n" ;
   add (-1061) "\nUsing" ;
   add (-1062) " and " ;
+  add (-1063) "INSTALLATION ABORTED" ;
+  add (-1064) "Aborting installation of [" ;
+  add (-1065) "], rolling back to previous state" ;
   ()
 
 let get_trans i =

@@ -34,6 +34,8 @@ let has_if_eval_bug = ref true
 let continue_on_error = ref false
 let debug_pe = ref false
 
+exception Abort of string
+
 type tp_flag =
   | Version of Dlg.tlk_string
   | Auto_Tra of string
@@ -223,6 +225,7 @@ and tp_action =
   | TP_String_Set_Range of tp_patchexp * tp_patchexp * string
   | TP_Reraise
   | TP_Fail of Dlg.tlk_string
+  | TP_Abort of Dlg.tlk_string
   | TP_Warn of Dlg.tlk_string
   | TP_Print of Dlg.tlk_string
   | TP_Log of Dlg.tlk_string
@@ -355,6 +358,7 @@ and tp_patch =
   | TP_PatchLog of Dlg.tlk_string
   | TP_PatchReraise
   | TP_PatchFail of Dlg.tlk_string
+  | TP_PatchAbort of Dlg.tlk_string
   | TP_PatchWarn of Dlg.tlk_string
   | TP_PatchSprint of tp_pe_string * tp_pe_tlk_string
   | TP_PatchSprintf of tp_pe_string * tp_pe_tlk_string * tp_patchexp list

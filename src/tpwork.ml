@@ -616,7 +616,33 @@ let ask_about_groups tp groups module_defaults last_module_index using_quickmenu
         (Dc.single_string_of_tlk_string_safe
            (Load.the_game ()) this_grp) (get_trans (-1037))) !groups
 
-
+let rollback_component game tp this_tp2_filename strset_backup_filename
+    tlkpath_backup_filename our_lang_index i m =
+  Dc.clear_state () ;
+  record_strset_uninstall_info game strset_backup_filename ;
+  record_tlk_path_info game tlkpath_backup_filename ;
+  (match !backup_list_chn with
+  | Some(chn) -> close_out chn ; backup_list_chn := None
+  | None -> ()) ;
+  (match !move_list_chn with
+  | Some(chn) -> close_out chn ; move_list_chn := None
+  | None -> ()) ;
+  (match !mappings_list_chn with
+  | Some(chn) -> close_out chn ; mappings_list_chn := None
+  | None -> ()) ;
+  let lang_name =
+    (try
+      let l = List.nth tp.languages !our_lang_index in
+      l.lang_dir_name ;
+    with _ -> "" ) in
+  uninstall_tp2_component game tp this_tp2_filename i !interactive lang_name;
+  print_log () ;
+  if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] && !safe_exit then begin
+    let old_tp_quick_log = !Tp.quick_log in
+    Tp.quick_log := true;
+    Tpstate.save_log game handle_tp2_filename handle_tra_filename get_tra_list_filename;
+    Tp.quick_log := old_tp_quick_log;
+  end
 
 (*************************************************************************
  *************************************************************************
@@ -844,43 +870,38 @@ let rec handle_tp game this_tp2_filename tp =
             end ;
             readln_strings := [] ;
             be_silent := false ;
-          with e -> begin
-            be_silent := false ;
-            append_to_strings_to_print_at_exit
-              (*  "\nNOT INSTALLED: ERRORS [%s]\n"  *)
-              (get_trans (-1032))
-              ((Tpstate.subcomp_str game m) ^ package_name) ;
-            (* add this successful install to the log! *)
-            exit_status := StatusInstallFailure ;
-            log_and_print "\n%s%s%s\n"
-              (*  "\nERROR Installing [%s], rolling back to previous state\n" *)
-              ((get_trans (-1017))) ((Tpstate.subcomp_str game m) ^ package_name) ((get_trans (-1018))) ;
-            Dc.clear_state () ;
-            record_strset_uninstall_info game strset_backup_filename ;
-            record_tlk_path_info game tlkpath_backup_filename ;
-            (match !backup_list_chn with
-            | Some(chn) -> close_out chn ; backup_list_chn := None
-            | None -> ()) ;
-            (match !move_list_chn with
-            | Some(chn) -> close_out chn ; move_list_chn := None
-            | None -> ()) ;
-            (match !mappings_list_chn with
-            | Some(chn) -> close_out chn ; mappings_list_chn := None
-            | None -> ()) ;
-            let lang_name =
-              (try
-                let l = List.nth tp.languages !our_lang_index in
-                l.lang_dir_name ;
-              with _ -> "" ) in
-            uninstall_tp2_component game tp this_tp2_filename i !interactive lang_name;
-            print_log () ;
-            if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] && !safe_exit then begin
-              let old_tp_quick_log = !Tp.quick_log in
-              Tp.quick_log := true;
-              Tpstate.save_log game handle_tp2_filename handle_tra_filename get_tra_list_filename;
-              Tp.quick_log := old_tp_quick_log;
-            end ;
-            raise e
+          with
+          | Abort msg ->
+              be_silent := false ;
+              append_to_strings_to_print_at_exit
+                (* INSTALLATION ABORTED *)
+                (get_trans (-1063))
+                ((Tpstate.subcomp_str game m) ^ package_name) ;
+              exit_status := StatusInstallAborted ;
+              log_and_print "\n%s%s%s\n"
+                (get_trans (-1064)) ((Tpstate.subcomp_str game m) ^ package_name)
+                (get_trans (-1065)) ;
+              rollback_component game tp this_tp2_filename
+                strset_backup_filename tlkpath_backup_filename
+                our_lang_index i m ;
+              raise (Abort msg)
+          | e -> begin
+              be_silent := false ;
+              append_to_strings_to_print_at_exit
+                (*  "\nNOT INSTALLED: ERRORS [%s]\n"  *)
+                (get_trans (-1032))
+                ((Tpstate.subcomp_str game m) ^ package_name) ;
+              (* add this successful install to the log! *)
+              exit_status := StatusInstallFailure ;
+              log_and_print "\n%s%s%s\n"
+                (*  "\nERROR Installing [%s], rolling back to previous state\n" *)
+                ((get_trans (-1017)))
+                ((Tpstate.subcomp_str game m) ^ package_name)
+                ((get_trans (-1018))) ;
+              rollback_component game tp this_tp2_filename
+                strset_backup_filename tlkpath_backup_filename
+                our_lang_index i m ;
+              raise e
           end );
           log_and_print "\n\n" ;
           record_strset_uninstall_info game strset_backup_filename ;
@@ -1027,19 +1048,32 @@ let rec handle_tp game this_tp2_filename tp =
   let handle_error_generic always_yes specified_specific_components
       finished package_name =
     (fun e ->
-      exit_status := StatusInstallFailure ;
-      log_and_print "ERROR: %s\n" (printexc_to_string e) ;
-      Dc.clear_state () ;
-      (if (!log_file <> "") then
-        log_and_print "%s %s %s %s\n" ((get_trans (-1004))) !log_file
-          (get_trans (-1005)) tp.author) ;
-      (* log_and_print "Please make backup of the file: %s and look for support at: %s\n" !log_file tp.author;*)
-      if !always_yes || !specified_specific_components then begin
-        log_and_print "Automatically Skipping [%s] because of error.\n"
-          package_name ;
-        finished := true
-      end ;
-      lang_init !our_lang)
+      (match e with
+      | Abort msg ->
+          exit_status := StatusInstallAborted ;
+          log_and_print "ABORT: %s\n" msg ;
+          Dc.clear_state () ;
+          if !always_yes || !specified_specific_components then begin
+            log_and_print
+              "Automatically skipping [%s] because it was aborted.\n"
+              package_name ;
+            finished := true
+          end ;
+          lang_init !our_lang
+      | e ->
+          exit_status := StatusInstallFailure ;
+          log_and_print "ERROR: %s\n" (printexc_to_string e) ;
+          Dc.clear_state () ;
+          (if (!log_file <> "") then
+            log_and_print "%s %s %s %s\n" ((get_trans (-1004))) !log_file
+              (get_trans (-1005)) tp.author) ;
+          (* log_and_print "Please make backup of the file: %s and look for support at: %s\n" !log_file tp.author;*)
+          if !always_yes || !specified_specific_components then begin
+            log_and_print "Automatically Skipping [%s] because of error.\n"
+              package_name ;
+            finished := true
+          end ;
+          lang_init !our_lang))
   in
 
   let asked_about_comp = Hashtbl.create 255 in

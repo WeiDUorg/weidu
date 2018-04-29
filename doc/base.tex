@@ -3692,6 +3692,8 @@ or & \DEFINE{ALTER!TLK!LIST} \t{BEGIN} \ttref{value} \Slist \t{END} \t{BEGIN} \t
   or & \DEFINE{FAIL} warningString &
     If this \ttref{TP2 Action} is executed, warningString is displayed and
     the \ttref{component} fails to install. \\
+  or & \DEFINE{ABORT} string &
+    Like \ttref{FAIL} but no error is implied. \\
   or & \DEFINE{WARN} displayString &
     The string DisplayString is echoed to the user. Useful for debugging or
     status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}
@@ -4070,6 +4072,8 @@ is & \DEFSYN{SAY} \ttref{offset} \ttref{String} &
   or & \DEFINE{PATCH!FAIL} warningString &
     If this \ttref{TP2 Action} is execution, warningString is displayed and
     the \ttref{component} fails to install. \\
+  or & \DEFINE{PATCH!ABORT} string &
+    Like \ttref{PATCH!FAIL} but no error is implied. \\
   or & \DEFINE{PATCH!WARN} displayString &
     The string DisplayString is echoed to the user. Useful for debugging or
     status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}

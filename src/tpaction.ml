@@ -118,6 +118,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Fail(msg) ->
           run_patch(TP_PatchFail(msg))
 
+      | TP_Abort(msg) ->
+          run_patch(TP_PatchAbort(msg))
+
       | TP_Reraise ->
           run_patch(TP_PatchReraise)
 
