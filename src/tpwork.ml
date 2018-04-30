@@ -877,13 +877,13 @@ let rec handle_tp game this_tp2_filename tp =
                 (* INSTALLATION ABORTED *)
                 (get_trans (-1063))
                 ((Tpstate.subcomp_str game m) ^ package_name) ;
-              exit_status := StatusInstallAborted ;
               log_and_print "\n%s%s%s\n"
                 (get_trans (-1064)) ((Tpstate.subcomp_str game m) ^ package_name)
                 (get_trans (-1065)) ;
               rollback_component game tp this_tp2_filename
                 strset_backup_filename tlkpath_backup_filename
                 our_lang_index i m ;
+              finished := true ;
               raise (Abort msg)
           | e -> begin
               be_silent := false ;
@@ -1050,7 +1050,6 @@ let rec handle_tp game this_tp2_filename tp =
     (fun e ->
       (match e with
       | Abort msg ->
-          exit_status := StatusInstallAborted ;
           log_and_print "ABORT: %s\n" msg ;
           Dc.clear_state () ;
           if !always_yes || !specified_specific_components then begin

@@ -2394,7 +2394,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
         process_action tp TP_ClearMemory;
         clear_memory := true;
       end;
-    with e -> (* from: let rec process_action = try *)
+      with
+     | Abort msg -> raise (Abort msg)
+     | e -> (* from: let rec process_action = try *)
       (if !continue_on_error then begin
         log_and_print "WARNING: Continuing despite [%s]\n"
           (printexc_to_string e);
