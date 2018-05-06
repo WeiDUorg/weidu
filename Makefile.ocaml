@@ -119,7 +119,7 @@
 CAMLLEX = $(OCAMLDIR)/ocamllex
 CAMLYACC= $(OCAMLDIR)/ocamlyacc
 CAMLDEP = $(OCAMLDIR)/ocamldep
-ELKHOUND= $(shell which elkhound)
+ELKHOUND= $(shell which $(ELKHOUND_BIN))
 
 CAMLFLAGS    =-I $(OBJDIR)
 

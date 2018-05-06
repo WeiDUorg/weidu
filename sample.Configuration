@@ -6,12 +6,20 @@
 ifdef WINDIR
 	# (0) X86 / Windows / Cygwin, using MINGW as the C compiler
 	export ARCHOS    = x86_WIN32
-	export OCAMLDIR  = C:\\ocaml\\bin
 	export OBJEXT    = o
 	export ARCH_FILE = arch_mingw
 	export CASE_FILE = case_ins_win
 	export ARCH_C_FILES = createprocess_win32
-	export WEIDU_ARCH = x86
+	# Selects on the bitness of the Cygwin environment
+	ifeq "$(shell uname -m)" "x86_64"
+		export OCAMLDIR  = C:\\ocaml64\\bin
+		export WEIDU_ARCH = amd64
+		export ELKHOUND_BIN = elkhound64
+	else
+		export OCAMLDIR  = C:\\ocaml\\bin
+		export WEIDU_ARCH = x86
+		export ELKHOUND_BIN = elkhound
+	endif
 	export WEIDU_OS = win32
 	PROJECT_CMODULES   = reg
 	PROJECT2_CMODULES  = reg
@@ -36,6 +44,7 @@ else
 			export WEIDU_ARCH = x86
 		endif
 		export WEIDU_OS = unix
+		export ELKHOUND_BIN = elkhound
 		export USEOPT = .opt
 		PROJECT_CMODULES = nix
 	else
@@ -58,6 +67,7 @@ else
 				export ARCH_FILE = arch_legacy_osx
 			endif
 			export WEIDU_OS = osx
+			export ELKHOUND_BIN = elkhound
 			export USEOPT = .opt
 			PROJECT_CMODULES = nix
 		endif
