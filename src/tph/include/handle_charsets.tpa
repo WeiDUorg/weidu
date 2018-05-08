@@ -166,7 +166,10 @@ BEGIN
    * messier code. noconvert_array is very likely to be short.
    */
   ACTION_PHP_EACH "%noconvert_array%" AS _ => noconvert_file BEGIN
-    ACTION_IF "%noconvert_file%.tra" STRING_EQUAL_CASE "%file%" BEGIN
+    ACTION_IF "%noconvert_file%" STRING_MATCHES_REGEXP ".+\.tra$" = 0 BEGIN
+      OUTER_SPRINT match "%noconvert_file%"
+    END ELSE OUTER_SPRINT match "%noconvert_file%.tra"
+    ACTION_IF "%match%" STRING_EQUAL_CASE "%file%" BEGIN
       OUTER_SET convert = 0
     END
   END
@@ -238,12 +241,15 @@ BEGIN
           END
           ACTION_IF VARIABLE_IS_SET $EVAL "%convert_array%"(0) BEGIN
             ACTION_PHP_EACH "%convert_array%" AS _ => filename BEGIN
+              ACTION_IF "%filename%" STRING_MATCHES_REGEXP ".+\.tra$" = 0 BEGIN
+                OUTER_SPRINT file "%filename%"
+              END ELSE OUTER_SPRINT file "%filename%.tra"
               LAF fl#HANDLE_CHARSETS#CONVERT
                 STR_VAR
                   iconv
                   quote
                   path = EVAL ~%tra_path%/%language%~
-                  file = EVAL ~%filename%.tra~
+                  file
                   from_charset
               END
             END
@@ -256,7 +262,9 @@ BEGIN
             END
           END
           ACTION_PHP_EACH "%reload_array%" AS _ => file BEGIN
-            LOAD_TRA ~%tra_path%/%language%/%file%.tra~
+            ACTION_IF "%file%" STRING_MATCHES_REGEXP ".+\.tra$" = 0 BEGIN
+              LOAD_TRA ~%tra_path%/%language%/%file%~
+            END ELSE LOAD_TRA ~%tra_path%/%language%/%file%.tra~
           END
           COPY_EXISTING bolt01.itm ~%tra_path%/%language%/fl#utf8.mrk~
         END
