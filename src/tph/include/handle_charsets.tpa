@@ -124,8 +124,9 @@ BEGIN
      */
     AT_NOW ~%iconv% %c_option% -f %from_charset% -t %to_charset% %quote%%infile%%quote% > %quote%%outfile%%quote%~
     COPY "%outfile%" "%infile%"
-      REPLACE_TEXTUALLY ~-\*-[%TAB% ]*coding:[%TAB% ]*%from_charset%[%TAB% ]*-\*-~
-                        ~-*- coding: %to_charset% -*-~
+      REPLACE_TEXTUALLY
+        ~-\*-[%TAB% ]*\(en\)?coding:[%TAB% ]*%from_charset%[%TAB% ]*-\*-~
+        ~-*- \1coding: %to_charset% -*-~
   WITH
     DEFAULT
       PRINT "ERROR: unable to convert %infile% from %from_charset% into %to_charset%"
