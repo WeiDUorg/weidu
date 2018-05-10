@@ -59,7 +59,7 @@ let is_weidu_executable f =
   with _ -> false
 
 let get_version f =
-  ignore (Unix.access f [ X_OK ]) ;
+  ignore (Unix.access f [ Unix.X_OK ]) ;
   let newstdin, newstdin' = Unix.pipe () in
   let newstdout, newstdout' = Unix.pipe () in
   let newstderr, newstderr' = Unix.pipe () in

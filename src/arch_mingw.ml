@@ -76,7 +76,7 @@ let is_weidu_executable f =
   Str.string_match (Str.regexp_case_fold "setup-.*\.exe$") f 0
 
 let get_version f =
-  ignore (Unix.access f [ X_OK ]) ;
+  ignore (Unix.access f [ Unix.X_OK ]) ;
   let newstdin, newstdin' = Unix.pipe () in
   let newstdout, newstdout' = Unix.pipe () in
   let newstderr, newstderr' = Unix.pipe () in

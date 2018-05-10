@@ -61,7 +61,7 @@ let is_weidu_executable f =
   with _ -> false
 
 let get_version f =
-  ignore (Unix.access f [ X_OK ]) ;
+  ignore (Unix.access f [ Unix.X_OK ]) ;
   let exec = Printf.sprintf "./%s --exit" f in
   Printf.printf "{%s} queried%!" f;
   let ic,oc,ec = Unix.open_process_full exec (Unix.environment()) in
