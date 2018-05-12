@@ -1,3 +1,30 @@
+Version 245:
+  * CamDawg's ALTER, DELETE and CLONE functions work across the full
+    range of file-format versions.
+  * Keyword RET_ARRAY allows functions to return arrays.
+  * TP2 values VALID_SCRIPT_ACTIONS and VALID_SCRIPT_TRIGGERS return
+    true for script segments that compile without errors.
+  * Autoupdate on Windows is a bit stricter about what it tries to
+    auto-update.
+  * The instructions that follow an installation error have been
+    updated.
+  * Add functions for adding and removing store substructures. Full
+    documentation is still in the works.
+  * --change-log has been rewritten. Among other things, it will no
+    longer omit changes that can be undone by deleting the file from
+    the game folder it's in (specifically, information recorded in
+    the UNINSTALL file).
+  * ABORT action and patch allows the installation of a component to
+    be rolled back with no implication an error has occurred.
+  * Autoupdate does not stop on inexecutable files.
+  * WeiDU on Windows should no longer prompt you for your password
+    when you run it. (This depends on who, how and when the binary is
+    built.)
+  * The .tra file extension for files to HANDLE_CHARSETS is optional.
+  * Add SORT_ARRAY_INDICES action and patch.
+  * Fix situation where REFACTOR_TRIGGER could enter into an infinite
+    loop.
+
 Version 244:
   * FILE_EXISTS_IN_GAME is FILE_EXISTS for implicit files
     that are not resources, again.
