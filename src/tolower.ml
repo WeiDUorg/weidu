@@ -12,6 +12,9 @@ open BatteriesInit
  * Bare-bones interface
  *)
 exception Good_exit ;;
+
+let force = ref false
+
 let askfor func mess =
   print_string mess ;
   try
@@ -24,6 +27,10 @@ let askfor func mess =
           raise Good_exit ;
       | "N" ->
           raise Good_exit ;
+      | "Y!" ->
+          force := true ;
+          func () ;
+          raise Good_exit ;
       | _ ->
           ()
     done
@@ -33,7 +40,7 @@ let askfor func mess =
  * Turn all files to lowercase, recursively.
  *)
 let rec find_and_lower cur_dir () =
-  if Sys.file_exists (cur_dir ^ "/lang") &&
+  if not !force && Sys.file_exists (cur_dir ^ "/lang") &&
     Sys.file_exists (cur_dir ^ "/BaldursGate") then begin
     output_string stdout
       "This looks like an EE-type game. Tolower would break it.\n" ;
