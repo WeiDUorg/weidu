@@ -255,7 +255,7 @@ let init_default_strings () =
   installed?\n[R]e-install them, [U]ninstall them, [S]kip them, \
   [A]sk about each one? " ;
 
-  add (-1004) "Please make backup of the file:" ;
+  add (-1004) "Please make a backup of the file:" ;
   add (-1005) "and look for support at:" ;
 
   add (-1006) "Install Component [" ;
