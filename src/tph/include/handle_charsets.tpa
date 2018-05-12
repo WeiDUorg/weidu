@@ -126,7 +126,7 @@ BEGIN
     COPY "%outfile%" "%infile%"
       REPLACE_TEXTUALLY
         ~-\*-[%TAB% ]*\(en\)?coding:[%TAB% ]*%from_charset%[%TAB% ]*-\*-~
-        ~-*- \1coding: %to_charset% -*-~
+        ~-*- coding: %to_charset% -*-~
   WITH
     DEFAULT
       PRINT "ERROR: unable to convert %infile% from %from_charset% into %to_charset%"
