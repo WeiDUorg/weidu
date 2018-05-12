@@ -3787,6 +3787,13 @@ or & \DEFINE{ACTION!BASH!FOR} \ttref{directory-file-regexp} \t{BEGIN} \ttref{TP2
 or & \DEFINE{ACTION!DEFINE!ARRAY} \t{\ttref{String}1 BEGIN \ttref{String}2} \Slist \t{END} &
 	Sets the array \verb+$string1(0)+,\verb+$string1(1)+ etc. to the various elements in string2.
 \\
+or & \DEFINE{ACTION!SORT!ARRAY!INDICES} \t{\ttref{String}
+  \ttref{ArrayIndicesSortType}} &
+
+  Sorts the indices of the array given by String according to the
+  order \ttref{ArrayIndicesSortType}. String is evaluated for
+  variables and you can use the array construct.\\
+
 or & \DEFINE{GET!FILE!ARRAY} \ttref{String} path \ttref{regexp} &
   The array \verb+$string(0)+, \verb+$string{1}+ etc is set to the file names, including path, that match regexp in path. The path is relative to the installation directory (e.g. save/000000000-Auto-Save).\\
 or & \DEFINE{GET!DIRECTORY!ARRAY} \ttref{String} path \ttref{regexp} &
@@ -4062,6 +4069,22 @@ or & \DEFINE{EVALUATE!REGEXP} & matching is evaluated following the usual regexp
       conventions. \\
 
 \\
+
+\\
+
+\DEFINE{ArrayIndicesSortType} && Allows you to select how the indices
+in an array to be sorted are to be interpreted. \\
+
+is && The default sort is lexicographic, see \ttref{LEXICOGRAPHICALLY}.\\
+
+or & \DEFINE{LEXICOGRAPHICALLY} & The sorting is in ascending
+lexicographical order. This means each row of indices are interpreted
+as a string and that, for example, 10 is sorted before 2.\\
+
+or & \DEFINE{NUMERICALLY} & The sorting is in ascending numerical
+order. This requires that the first column of indices can be
+interpreted as numbers; any strings will raise a warning and the sort
+order will be undefined. \\
 
 \\
 
@@ -4570,6 +4593,9 @@ or & \DEFINE{PATCH!DEFINE!ARRAY} \t{\ttref{String}1 BEGIN \ttref{String}2 \Slist
 	Same as \ttref{DEFINE!ARRAY}.
 \\
 
+or & \DEFINE{SORT!ARRAY!INDICES} \t{\ttref{String}} &
+
+  Semantically identical to \ttref{ACTION!SORT!ARRAY!INDICES}\\
 
 or & \DEFINE{PATCH!FOR!EACH} \t{\ttref{String}1 IN \ttref{String}} \Slist
                              \t{BEGIN} \ttref{patch} \Slist \t{END} &

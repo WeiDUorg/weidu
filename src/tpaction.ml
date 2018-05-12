@@ -76,6 +76,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_ActionDefineAssociativeArray(arr,vals) ->
           run_patch (TP_DefineAssociativeArray(arr,vals))
 
+      | TP_ActionSortArrayIndices(array,sort_type) ->
+          run_patch (TP_PatchSortArrayIndices(array,sort_type))
+
       | TP_Action_For_Each(var,sl,al) ->
           run_patch (TP_PatchForEach(var,sl,pl_of_al al))
 

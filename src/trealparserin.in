@@ -343,6 +343,12 @@ nonterm((string*bool option *string) list) Str_Reg_List {
   -> e4:Str_Reg_List_Rev [ List.rev e4 ]
 }
 
+nonterm(Tp.array_indices_sort_type) Array_Indices_Sort_Type {
+  -> { Tp.TP_Lexicographically }
+  -> LEXICOGRAPHICALLY { Tp.TP_Lexicographically }
+  -> NUMERICALLY { Tp.TP_Numerically }
+}
+
 nonterm(Tp.tp_action) Tp_Action {
   -> ACTION_BASH_FOR e1:Str_Reg_List BEGIN e2:Tp_Action_List END
        [ Tp.TP_ActionBashFor(e1,e2) ]
@@ -506,6 +512,8 @@ nonterm(Tp.tp_action) Tp_Action {
   -> ALTER_TLK_RANGE e1:Patch_Exp e2:Patch_Exp BEGIN e3:Tp_Patch_List END { Tp.TP_Alter_TLK_Range(e1,e2,e3) }
   -> ALTER_TLK_LIST BEGIN e1:Patch_Exp_List END BEGIN e2:Tp_Patch_List END { Tp.TP_Alter_TLK_List(e1,e2) }
   -> ACTION_DEFINE_ARRAY e1:Patch_String_Left BEGIN e2:String_List END [ Tp.TP_ActionDefineArray(e1,e2) ]
+  -> ACTION_SORT_ARRAY_INDICES e1:Patch_String_Left e2:Array_Indices_Sort_Type
+     [ Tp.TP_ActionSortArrayIndices(e1,e2) ]
   -> UNINSTALL e1:STRING e2:Patch_Exp [ Tp.TP_Uninstall_Now(e1,e2) ]
   -> VERBOSE [ Tp.TP_Verbose ]
   -> COPY_KIT e1:STRING e2:STRING LPAREN e3:Str_Str_List RPAREN [ Tp.TP_CopyKit(e1,e2,e3) ]
@@ -1238,6 +1246,8 @@ nonterm (Tp.tp_patch) Tp_Patch {
        [ Tp.TP_PatchDefineArray(e1,e2) ]
   -> DEFINE_ASSOCIATIVE_ARRAY e1:Patch_String_Left BEGIN e2:Associative_String_List END
        [ Tp.TP_DefineAssociativeArray(e1,e2) ]
+  -> SORT_ARRAY_INDICES e1:Patch_String_Left e2:Array_Indices_Sort_Type
+     [Tp.TP_PatchSortArrayIndices(e1,e2) ]
   -> PATCH_FOR_EACH e1:Patch_String_Right IN e2:String_List BEGIN e3:Tp_Patch_List END
        [ Tp.TP_PatchForEach(e1,e2,e3) ]
   -> PATCH_PHP_EACH e1:Patch_String_Left AS e2:Patch_String_Left EQUALSGREATER

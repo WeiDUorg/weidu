@@ -678,6 +678,38 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             (Var.get_string (eval_pe_str y));) vals;
         buff
 
+    | TP_PatchSortArrayIndices(array,sort_type) ->
+        let array = Var.get_string (eval_pe_str array) in
+        let indices = (try Hashtbl.find !Var.arrays array with _ -> []) in
+        let sort_fodder = (match sort_type with
+        | TP_Lexicographically ->
+            List.map (fun var ->
+              let var = List.map get_pe_string var in
+              eval_pe_str (PE_Dollars(PE_LiteralString array,var,false,false)))
+              indices
+        | TP_Numerically ->
+            (try List.map (fun var ->
+              List.hd var) indices with
+            | _ -> log_and_print
+                  "WARNING: array [%s], to be sorted numerically was not of the expected form\n"
+                  array ; errors_this_component := true ; [])) in
+        let pairs = List.mapi (fun i var ->
+          (var, List.nth indices i)) sort_fodder in
+        let sorted = List.sort (fun (lx,li) (rx,ri) ->
+          (match sort_type with
+          | TP_Lexicographically ->
+              compare lx rx
+          | TP_Numerically ->
+              (try compare (int_of_string lx) (int_of_string rx) with
+              | _ -> log_and_print
+                    "WARNING: array [%s], to be sorted numerically was not of the expcted form\n"
+                    array; errors_this_component := true ; 0))) pairs in
+        let sorted_indices = List.map (fun (_,var) ->
+          var) sorted in
+        if List.length sorted_indices > 0 then
+          ignore (Hashtbl.add !Var.arrays array (List.rev sorted_indices)) ;
+        buff
+
     | TP_PatchForEach(var,sl,pl) ->
         let var = eval_pe_str var in
         let sl = List.map Var.get_string sl in

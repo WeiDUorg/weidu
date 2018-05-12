@@ -196,6 +196,7 @@ let action_to_str a = match a with
 | TP_Uninstall_Now _ -> "UNINSTALL"
 | TP_ActionBashFor _ -> "ACTION_BASH_FOR"
 | TP_ActionDefineArray _ -> "ACTION_DEFINE_ARRAY"
+| TP_ActionSortArrayIndices _ -> "ACTION_SORT_ARRAY_INDICES"
 | TP_ActionPHPEach _ -> "ACTION_PHP_EACH"
 | TP_Action_For_Each _ -> "ACTION_FOR_EACH"
 | TP_Biff _ -> "BIFF"

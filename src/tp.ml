@@ -131,10 +131,14 @@ and file_or_directory_regexp =
 | TP_File of string
 | TP_Directory_Regexp of string * (bool option) * string
 
+and array_indices_sort_type =
+| TP_Lexicographically
+| TP_Numerically
 
 and tp_action =
   | TP_ActionBashFor of ((string * (bool option) * string) list) * (tp_action list)
   | TP_ActionDefineArray of tp_pe_string * string list
+  | TP_ActionSortArrayIndices of tp_pe_string * array_indices_sort_type
   | TP_ActionPHPEach of tp_pe_string * tp_pe_string * tp_pe_string * tp_action list
   | TP_Action_For_Each of tp_pe_string * string list * tp_action list
   | TP_Action_ReadLN of tp_pe_string
@@ -314,6 +318,7 @@ and tp_patch =
   | TP_PatchClearArray of tp_pe_string
   | TP_PatchDefineArray of tp_pe_string * string list
   | TP_DefineAssociativeArray of tp_pe_string * ((tp_pe_string list) * tp_pe_string) list
+  | TP_PatchSortArrayIndices of tp_pe_string * array_indices_sort_type
   | TP_PatchPHPEach of tp_pe_string * tp_pe_string * tp_pe_string * tp_patch list
   | TP_PatchForEach of tp_pe_string * string list * tp_patch list
   | TP_PatchStrRef of tp_patchexp * Dlg.tlk_string (* offset + text *)
