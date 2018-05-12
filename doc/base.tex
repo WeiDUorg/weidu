@@ -3295,7 +3295,10 @@ P Q R 3
     \textbf{N.B.} \t{TRY} is generally \emph{not safe} to use because
     many errors are intended to be fatal and if the mod installation
     were to proceed anyway, it might do so in an inconsistent state,
-    with resource leaks or with other errors.
+    with resource leaks or with other errors. \ttref{ACTION!RERAISE}
+    mitigates or eliminates these risks, since the unsafe part is
+    allowing the installation to continue and re-raising the error
+    allows it to fail, like intended.
 
     See the \ttref{MATCH and TRY} tutorial for additional information.
   \\
@@ -4656,7 +4659,10 @@ or & \DEFINE{PATCH!IF} \ttref{value} \Ob \t{THEN} \Oe \t{BEGIN}
     \textbf{N.B.} \t{TRY} is generally \emph{not safe} to use because
     many errors are intended to be fatal and if the mod installation
     were to proceed anyway, it might do so in an inconsistent state,
-    with resource leaks or with other errors.
+    with resource leaks or with other errors. \ttref{PATCH!RERAISE}
+    mitigates or eliminates these risks, since the unsafe part is
+    allowing the installation to continue and re-raising the error
+    allows it to fail, like intended.
 
     See the \ttref{MATCH and TRY} tutorial for additional information.
   \\
@@ -8137,10 +8143,13 @@ or expression to control the flow of program execution via a multiway branch.
 The main reasons for using this type of statement include improving clarity
 and reducing otherwise repetitive coding.
 
-\textbf{N.B.} \t{TRY} is generally \emph{not safe} to use because
-many errors are intended to be fatal and if the mod installation
-were to proceed anyway, it might do so in an inconsistent state,
-with resource leaks or with other errors.
+\textbf{N.B.} \t{TRY} is generally \emph{not safe} to use because many
+errors are intended to be fatal and if the mod installation were to
+proceed anyway, it might do so in an inconsistent state, with resource
+leaks or with other errors. \ttref{ACTION!RERAISE} and
+\ttref{PATCH!RERAISE} mitigates or eliminates these risks, since the
+unsafe part is allowing the installation to continue and re-raising
+the error allows it to fail, like intended.
 
 \verb+TRY+ is used to detect TP2 failures (= anything that blocks the installation
 and prints "NOT INSTALLED DUE TO ERRORS") and allows the modder to run custom
