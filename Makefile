@@ -144,7 +144,7 @@ windows_zip : weidu weinstall tolower
 	cp README* ../WeiDU-Windows
 	cp COPYING ../WeiDU-Windows
 	cp -r examples ../WeiDU-Windows
-	cp windows_manifests/*.manifest ../WeiDU-Windows
+	#cp windows_manifests/*.manifest ../WeiDU-Windows
 	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU-Windows)
 src_zip : clean
 	(cd .. ; zip -9r WeiDU-Src-$(VER).zip weidu/* -x weidu/*.exe -x weidu/*.dll -x */.DS_Store; )
