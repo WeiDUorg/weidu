@@ -33,6 +33,7 @@ let set_refactor x = do_refactor := match x with
         let is_neg = s.[0] = '!' in
         let s = if is_neg then Str.string_after s 1 else s in
         if Str.string_match a_reg s 0 && Str.matched_string s = s then begin
+          (* Variable any is technically redundant now; but ... *)
           any := true ;
           (if is_neg then "!" else "") ^ spacer ^ s
         end else (if is_neg then "!" else "") ^ s) parts in
@@ -92,7 +93,7 @@ let rec enforce_actor tl a =
         failwith msg) tl
 
 let sub pre post s a =
-  let tl = !parse_triggers (Str.global_replace pre post s) in
+  let tl = !parse_triggers (Str.global_replace pre (spacer ^ post) s) in
   match a with
   | None -> tl
   | Some x -> enforce_actor tl a
@@ -151,5 +152,6 @@ let refactor tl = match !do_refactor with
 | Some(pre, post, any) -> begin
     let acc = ref [] in
     let tl = subst pre post acc (List.rev tl) in
-    if any then remove_spacer !acc else !acc
+    (* Used to check any instead of always being true *)
+    if true then remove_spacer !acc else !acc
 end
