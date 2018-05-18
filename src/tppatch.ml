@@ -487,83 +487,86 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
       end
 
     | TP_Launch_Patch_Function (str,is_patch,int_var,str_var,rets,retas) ->
-        let str = Var.get_string str in
-        let (f_int_args,f_str_args,f_rets,f_retas,f_code) = try
-          Hashtbl.find functions (str, is_patch)
-        with _ -> failwith (Printf.sprintf "Unknown function: %s" str)
-        in
-        let i_did_pop = ref false in
-        begin try
-          Var.var_push();
-          let done_var_ht = Hashtbl.create 5 in
-          List.iter (fun (a,b) ->
-            let a = eval_pe_str a in
-            Hashtbl.add done_var_ht a true;
-            Var.set_int32 a (eval_pe buff game b)) int_var;
-          List.iter (fun (a,b) ->
-            let a = eval_pe_str a in
-            Hashtbl.add done_var_ht a true;
-            let b = eval_pe_str b in
-            check_missing_eval ("STR_VAR \"" ^ a ^ "\" = \"" ^ b ^
-                                "\" for LAUNCH_PATCH_FUNCTION \"" ^
-                                str ^ "\"") b;
-            Var.set_string a b) str_var;
-          List.iter (fun (a,b) ->
-            let a = eval_pe_str a in
-            if not (Hashtbl.mem done_var_ht a) then
-              Var.set_int32 a (eval_pe buff game b)) f_int_args;
-          List.iter (fun (a,b) ->
-            let a = eval_pe_str a in
-            if not (Hashtbl.mem done_var_ht a)
-            then Var.set_string a (eval_pe_str b)) f_str_args;
-          let buff = List.fold_left (fun acc elt ->
-            process_patch2 patch_filename game acc elt) buff f_code in
-          let final_ret_arrays = Hashtbl.create 5 in
-          List.iter (fun s ->
-            let s = Var.get_string (eval_pe_str s) in
-            let v = (try Hashtbl.find !Var.arrays s
-            with Not_found ->
-              failwith (Printf.sprintf "Uninitialised return array: %s" s)) in
-            Hashtbl.add final_ret_arrays s v) f_retas ;
-          let final_returns = Hashtbl.create 5 in
-          let f_rets = Hashtbl.fold (fun name vars acc ->
-            let name = PE_LiteralString name in
-            let vars = List.map (fun var ->
-              let var = List.map get_pe_string var in
-              PE_Dollars(name,var,false,false)) vars in
-            List.append acc vars) final_ret_arrays f_rets in
-          List.iter (fun a ->
-            let a = eval_pe_str a in
-            let v = (try Var.get_string_exact ("%" ^ a ^ "%") with
-              Not_found -> failwith
-                  (Printf.sprintf "Uninitialised return value: %s" a)) in
-            Hashtbl.add final_returns a v;) f_rets;
-          Var.var_pop();
-          i_did_pop := true;
-          List.iter (fun (want,is) ->
-            let is = Var.get_string (eval_pe_str is) in
-            let want = Var.get_string (eval_pe_str want) in
-            let v = (try Hashtbl.find final_ret_arrays is
-            with Not_found ->
-              failwith (Printf.sprintf "Unknown return array: %s" is)) in
-            Hashtbl.add !Var.arrays want v) retas ;
-          let rets = List.fold_left (fun acc (want,was) ->
-            let was = Var.get_string (eval_pe_str was) in
-            let want = Var.get_string (eval_pe_str want) in
-            let vars = List.map (fun var ->
-              let var = List.map get_pe_string var in
-              let wasvar = PE_Dollars(PE_LiteralString was,var,false,false) in
-              let wantvar = PE_Dollars(PE_LiteralString want,var,false,false) in
-              (wantvar,wasvar)) (Hashtbl.find !Var.arrays want) in
-            List.append acc vars) rets retas in
-          List.iter (fun (a,b) ->
-            let a = eval_pe_str a in
-            let b = eval_pe_str b in
-            Var.set_string a (try Hashtbl.find final_returns b with
-              Not_found -> failwith
-                  (Printf.sprintf "Unknown return value: %s" b));) rets;
-          buff
-        with e -> (if not !i_did_pop then Var.var_pop(); raise e); end
+        let the_buff = ref buff in
+        Stats.time "function overhead" (fun () ->
+          let str = Var.get_string str in
+          let (f_int_args,f_str_args,f_rets,f_retas,f_code) = try
+            Hashtbl.find functions (str, is_patch)
+          with _ -> failwith (Printf.sprintf "Unknown function: %s" str)
+          in
+          let i_did_pop = ref false in
+          begin try
+            Var.var_push();
+            let done_var_ht = Hashtbl.create 5 in
+            List.iter (fun (a,b) ->
+              let a = eval_pe_str a in
+              Hashtbl.add done_var_ht a true;
+              Var.set_int32 a (eval_pe buff game b)) int_var;
+            List.iter (fun (a,b) ->
+              let a = eval_pe_str a in
+              Hashtbl.add done_var_ht a true;
+              let b = eval_pe_str b in
+              check_missing_eval ("STR_VAR \"" ^ a ^ "\" = \"" ^ b ^
+                                  "\" for LAUNCH_PATCH_FUNCTION \"" ^
+                                  str ^ "\"") b;
+              Var.set_string a b) str_var;
+            List.iter (fun (a,b) ->
+              let a = eval_pe_str a in
+              if not (Hashtbl.mem done_var_ht a) then
+                Var.set_int32 a (eval_pe buff game b)) f_int_args;
+            List.iter (fun (a,b) ->
+              let a = eval_pe_str a in
+              if not (Hashtbl.mem done_var_ht a)
+              then Var.set_string a (eval_pe_str b)) f_str_args;
+            let buff = List.fold_left (fun acc elt ->
+              process_patch2 patch_filename game acc elt) buff f_code in
+            the_buff := buff ;
+            let final_ret_arrays = Hashtbl.create 5 in
+            List.iter (fun s ->
+              let s = Var.get_string (eval_pe_str s) in
+              let v = (try Hashtbl.find !Var.arrays s
+              with Not_found ->
+                failwith (Printf.sprintf "Uninitialised return array: %s" s)) in
+              Hashtbl.add final_ret_arrays s v) f_retas ;
+            let final_returns = Hashtbl.create 5 in
+            let f_rets = Hashtbl.fold (fun name vars acc ->
+              let name = PE_LiteralString name in
+              let vars = List.map (fun var ->
+                let var = List.map get_pe_string var in
+                PE_Dollars(name,var,false,false)) vars in
+              List.append acc vars) final_ret_arrays f_rets in
+            List.iter (fun a ->
+              let a = eval_pe_str a in
+              let v = (try Var.get_string_exact ("%" ^ a ^ "%") with
+                Not_found -> failwith
+                    (Printf.sprintf "Uninitialised return value: %s" a)) in
+              Hashtbl.add final_returns a v;) f_rets;
+            Var.var_pop();
+            i_did_pop := true;
+            List.iter (fun (want,is) ->
+              let is = Var.get_string (eval_pe_str is) in
+              let want = Var.get_string (eval_pe_str want) in
+              let v = (try Hashtbl.find final_ret_arrays is
+              with Not_found ->
+                failwith (Printf.sprintf "Unknown return array: %s" is)) in
+              Hashtbl.add !Var.arrays want v) retas ;
+            let rets = List.fold_left (fun acc (want,was) ->
+              let was = Var.get_string (eval_pe_str was) in
+              let want = Var.get_string (eval_pe_str want) in
+              let vars = List.map (fun var ->
+                let var = List.map get_pe_string var in
+                let wasvar = PE_Dollars(PE_LiteralString was,var,false,false) in
+                let wantvar = PE_Dollars(PE_LiteralString want,var,false,false) in
+                (wantvar,wasvar)) (Hashtbl.find !Var.arrays want) in
+              List.append acc vars) rets retas in
+            List.iter (fun (a,b) ->
+              let a = eval_pe_str a in
+              let b = eval_pe_str b in
+              Var.set_string a (try Hashtbl.find final_returns b with
+                Not_found -> failwith
+                    (Printf.sprintf "Unknown return value: %s" b))) rets ;
+              !the_buff
+          with e -> (if not !i_did_pop then Var.var_pop(); raise e); end) ()
 
     | TP_Launch_Patch_Macro(str, is_patch) ->
         let (decl, actions) =
