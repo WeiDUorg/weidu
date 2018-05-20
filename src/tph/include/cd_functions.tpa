@@ -1734,18 +1734,18 @@ BEGIN
         SET counter_offset = 0x36c
       END ELSE
       PATCH_IF ("%version%" STRING_COMPARE_CASE "V2.2" = 0) BEGIN // iwd2, cre v2.2
-        SET min_size       = 0x634
+        SET min_size       = 0x62e
         READ_LONG  0x61e fx_off ELSE 0
         SET counter_offset = 0x622
       END ELSE
       PATCH_IF ("%version%" STRING_COMPARE_CASE "V9.0" = 0) BEGIN // iwd, cre v9.0
         SET min_size       = 0x33c
-        READ_LONG  0x61e fx_off ELSE 0
-        SET counter_offset = 0x622
-      END ELSE BEGIN                                               // everything else, cre v1.0
-        SET min_size = 0x2d4
         READ_LONG  0x32c fx_off ELSE 0
         SET counter_offset = 0x330
+      END ELSE BEGIN                                               // everything else, cre v1.0
+        SET min_size = 0x2d4
+        READ_LONG  0x2c4 fx_off ELSE 0
+        SET counter_offset = 0x2c8
       END
       SET abil_off = 0 // basically prevents the ability effect loop
       SET abil_num = 0
