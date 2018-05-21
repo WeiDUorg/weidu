@@ -3,6 +3,7 @@
 
 (* Disjoint Timings *)
 open BatteriesInit
+open Hashtblinit
 
 type t = { mutable start : float;
            mutable above_me : float ;

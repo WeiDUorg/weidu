@@ -11,6 +11,7 @@
 
 (* Mac OSX Arch-Specific Definitions *)
 open BatteriesInit
+open Hashtblinit
 
 let registry_paths = ref [ "\\BGII - SoA\\" ]
 

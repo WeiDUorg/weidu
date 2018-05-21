@@ -7,6 +7,7 @@
  *)
 
 open BatteriesInit
+open Hashtblinit
 
 (*
  * Bare-bones interface

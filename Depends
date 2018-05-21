@@ -1,7 +1,7 @@
 
 # First stuff that makes the executable
 # to add later:
-WEIDU_BASE_MODULES := batList batteriesInit \
+WEIDU_BASE_MODULES := batList batteriesInit myhashtbl hashtblinit \
 	case_ins stats arch version parsing tph util modder var arch2 xor \
 	key cbif biff tlk load cre \
 	ids idslexer idslexer2 idsparser \
@@ -17,7 +17,7 @@ WEIDU_BASE_MODULES := batList batteriesInit \
 WEIDU_MODULES = $(WEIDU_BASE_MODULES) myarg autoupdate main
 
 MODULES = $(WEIDU_MODULES) myarg weinstall tolower
-SOURCEDIRS := src zlib glob xdiff elkhound batteries-lite
+SOURCEDIRS := src zlib glob xdiff elkhound batteries-lite hashtbl-4.03.0
 MLLS := dlexer.mll idslexer.mll idslexer2.mll bcslexer.mll baflexer.mll tlexer.mll toldlexer.mll refactorbaflexer.mll refactordlexer.mll
 MLYS := dparser.mly idsparser.mly bcsparser.mly bafparser.mly toldparser.mly refactorbafparser.mly refactordparser.mly
 GRS := trealparserin.gr

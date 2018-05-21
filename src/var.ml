@@ -14,6 +14,7 @@
  *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
 
 let debug_assign = ref false

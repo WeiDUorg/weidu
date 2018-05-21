@@ -1,4 +1,5 @@
 open BatteriesInit
+open Hashtblinit
 open Util
 
 exception Modder_error of string

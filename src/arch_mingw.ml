@@ -11,6 +11,7 @@
 
 (* MinGW Arch-Specific Definitions *)
 open BatteriesInit
+open Hashtblinit
 
 (* Query the Windows Registry to find out about Infinity Engine games. *)
 

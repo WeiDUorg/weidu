@@ -4,6 +4,7 @@
 (* Kit Extraction Code *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
 
 let lines buffer = Str.split (Str.regexp "[\r\n]+") buffer

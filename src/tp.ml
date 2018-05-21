@@ -14,6 +14,7 @@
 
 (* Talk-Patcher / Installer *)
 open BatteriesInit
+open Hashtblinit
 open Util
 
 let always_yes = ref false

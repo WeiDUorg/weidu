@@ -2,6 +2,7 @@
    starting from 18 December 2012 and WeiDU 231.06. *)
 
 open BatteriesInit
+open Hashtblinit
 (* Pervasives FS calls *)
 let backslash_to_slash s =
   let s = Str.global_replace (Str.regexp "\\\\") "/" s in

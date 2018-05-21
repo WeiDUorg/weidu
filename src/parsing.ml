@@ -21,6 +21,7 @@
 (* The parsing engine *)
 
 open BatteriesInit
+open Hashtblinit
 open Lexing
 
 (* Internal interface to the parsing engine *)

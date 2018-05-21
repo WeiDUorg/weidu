@@ -10,6 +10,7 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 open BatteriesInit
+open Hashtblinit
 let version = "24500"
 
 (* Historical Comments: *)

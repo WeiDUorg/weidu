@@ -1,5 +1,6 @@
 (* Diff routines using xdiff library *)
 open BatteriesInit
+open Hashtblinit
 open Util
 open Myxdiff
 open Str

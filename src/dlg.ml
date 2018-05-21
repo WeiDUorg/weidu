@@ -3,6 +3,7 @@
 
 (* Infinity Engine [DLG] *)
 open BatteriesInit
+open Hashtblinit
 open Util
 
 let emit_from = ref true

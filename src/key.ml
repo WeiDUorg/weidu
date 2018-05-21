@@ -12,6 +12,7 @@
 (* Infinity Engine [KEY] *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
 
 type key_biff = {

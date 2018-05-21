@@ -1,5 +1,6 @@
 (* list which mod components make changes to the given files *)
 open BatteriesInit
+open Hashtblinit
 open Util
 
 type result = {

@@ -5,6 +5,7 @@
  *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
 open Tp
 open Parsewrappers

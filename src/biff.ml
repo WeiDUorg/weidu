@@ -11,6 +11,7 @@
 
 (* Infinity Engine [BIF] *)
 open BatteriesInit
+open Hashtblinit
 open Util
 open Key
 open Cbif

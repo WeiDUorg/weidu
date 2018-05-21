@@ -12,6 +12,7 @@
 (* generic utilities *)
 
 open BatteriesInit
+open Hashtblinit
 open Arch
 
 type local_string_entry = {
