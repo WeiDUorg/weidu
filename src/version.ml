@@ -11,7 +11,7 @@
 
 open BatteriesInit
 open Hashtblinit
-let version = "24500"
+let version = "24600"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
@@ -252,4 +252,5 @@ let version = "24500"
 (* 242 let comment = "No comment" *)
 (* 243 let comment = "243 is not a prime number" *)
 (* 244 let comment = "No Thrills" *)
-  let comment = "Medieval Steel"
+(* 245 let comment = "Medieval Steel" *)
+let comment = "Land of Confusion"

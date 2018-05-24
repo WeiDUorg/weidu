@@ -1,3 +1,7 @@
+Version 246:
+  * New WeiDU timing: function overhead.
+  * Fix regression in ALTER_EFFECT.
+
 Version 245:
   * CamDawg's ALTER, DELETE and CLONE functions work across the full
     range of file-format versions.
