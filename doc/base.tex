@@ -500,11 +500,11 @@ All other keywords are symbolic. Notes:
 
   \\
 
-  or & \DEFSYN{ALTER!TRANS} filename
+  or & \DEFINE{ALTER!TRANS} filename
     \t{BEGIN} \ttref{stateNumber} \Slist \t{END}
     \t{BEGIN} \ttref{transNumber} \Slist \t{END}
     \t{BEGIN} changeWhat changeInto \Slist \t{END} &
-  Fine altering of a single transition. See the \ttref{ALTER!TRANS} tutorial.
+  Fine altering of a single transition. See the \ahrefloc{sec-alter-trans}{ALTER!TRANS tutorial}.
 
   \\
 
@@ -855,7 +855,7 @@ Other keywords are symbolic, with the exception of \t{TriggerOverride} which is 
 \end{itemize}
 
 \begin{tabular}{cp{10in}|p{10in}}
-\DEFINE{BAF File} & &
+\DEFINE{BAF File}\label{BAF} & &
 
   A \ttref{BAF File} is a text file that contains zero or more script
   blocks. \ttref{BAF File}s are compiled into \t{BCS} files, either by
@@ -2603,7 +2603,7 @@ So, all you have to remember to do is escape the square brackets with a
 backslash so WeiDU doesn't confuse them with a regular expression.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{ALTER!TRANS} (Last Update: 204.)}
+\subsection{ALTER!TRANS (Last Update: 204.)}\label{sec-alter-trans}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial was thoughtfully provided by CamDawg.
 
@@ -2822,10 +2822,10 @@ global option to your \ttref{TP2} file. \\
 		your mod might start printing warnings three years down the line if
 		a new uninstall action is coded.
   \\
-  or & \DEFSYN{MODDER} String \Slist &
+  or & \DEFINE{MODDER} String \Slist &
        Enable additional debug info. By default, these messages are verbose but do
-       not halt the installation. Some options are configurable, see the \ttref{MODDER}
-       in-depth description.
+       not halt the installation. Some options are configurable, see the \ahrefloc{sec-modder}
+       {in-depth description}.
        \\
   or & \DEFINE{VERSION} String &
   		"String" (variables evaluated) will be appended to every component's name in the
@@ -4776,7 +4776,7 @@ or & \DEFINE{PATCH!READLN} \ttref{variable} &
   \ttref{READLN} tutorial. \\
 or & \DEFINE{PATCH!RANDOM!SEED} \ttref{value} &
   See \ttref{RANDOM!SEED}. \\
-or & \DEFSYN{ADD!STORE!ITEM} \Ob \t{+} \Oe itemName \Ob position \Oe
+or & \DEFINE{ADD!STORE!ITEM} \Ob \t{+} \Oe itemName \Ob position \Oe
   charge1 charge2 charge3 flags stack \Ob unlimited \Oe &
 
   Add the item itemName to the current STO file. An optional \t{+}
@@ -4801,7 +4801,7 @@ or & \DEFSYN{ADD!STORE!ITEM} \Ob \t{+} \Oe itemName \Ob position \Oe
   \t{)}. The optional argument unlimited should be one of the strings
   \t{limited} or \t{unlimited} and controls whether the store should
   carry an inexhaustible stack of the new item, or not. \t{limited} is
-  the default behaviour. See the \ttref{ADD!STORE!ITEM} tutorial for
+  the default behaviour. See the \ahrefloc{sec-add-store-item}{ADD!STORE!ITEM tutorial} for
   more information.\\
 
 or & \DEFINE{REMOVE!STORE!ITEM} itmName \Slist &
@@ -4965,8 +4965,8 @@ COPY ~nice.baf~ ~mean.baf~
   with \t{Take(15)}.  optcase allows you to decide if the matching is
   case-sensitive or not. Matching is case-sensitive by default.  \\
 
-  or & \DEFSYN{ADD!GAM!NPC} npcCRE npcARE xCoord yCoord &
-    See the \ttref{ADD!GAM!NPC} tutorial for more information about this
+  or & \DEFINE{ADD!GAM!NPC} npcCRE npcARE xCoord yCoord &
+    See the \ahrefloc{sec-add-gam-npc}{ADD!GAM!NPC tutorial} for more information about this
     action, which is used when adding NPCs to Baldur's Gate 1. BG2 mods
     should not use this command.  \\
 
@@ -6205,7 +6205,7 @@ above, it can be quite powerful as well.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{ADD!STORE!ITEM} (Last Update: v211)}
+\subsection{ADD!STORE!ITEM (Last Update: v211)}\label{sec-add-store-item}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial and this feature were thoughtfully provided by Japheth.
 
@@ -6303,7 +6303,7 @@ we add the new item BEFORE or AFTER the first item that is present in the list.
 As of 211, you can specify a (zero-based) hardcoded position via \verb+AT position+.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{ADD!GAM!NPC}}
+\subsection{ADD!GAM!NPC}\label{sec-add-gam-npc}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial and this feature were thoughtfully provided by Japheth.
 
@@ -7745,7 +7745,7 @@ PRINT "The second letter is %letter%" // Will print "b"
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{MODDER} (Last update: v230)}
+\subsection{MODDER (Last update: v230)}\label{sec-modder}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The MODDER flag allows for more debugging info to be reported. It is suggested to
