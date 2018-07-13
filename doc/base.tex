@@ -434,7 +434,7 @@ All other keywords are symbolic. Notes:
   adding extra conditions to an existing dialogue \ttref{state}. \\
 
   or & \DEFINE{ADD!TRANS!TRIGGER} filename \ttref{stateNumber}
-    \ttref{transTriggerString} \Ob \ttref{moreStateNumbers} \Slist \Oe
+    \ttref{transTriggerString} \Ob \ahrefloc{stateNumber}{moreStateNumbers} \Slist \Oe
     \Ob \t{DO} \ttref{transNumber} \Slist \Oe \ttref{dActionWhen} \Slist
     &
   This instructs WeiDU to add the \ttref{transTriggerString} to all
@@ -2876,7 +2876,7 @@ global option to your \ttref{TP2} file. \\
        language.  \\
 \\
 
-\DEFINE{Component} & &
+\DEFINE{Component}\label{component} & &
   A \ttref{Component} is a contiguous group of files and actions that a
   user can install, uninstall or upgrade. \\
 
@@ -3002,7 +3002,7 @@ global option to your \ttref{TP2} file. \\
        \ttref{patch}es.
 
 
-       See the \ttref{Module Distribution} section for information about
+       See the \ahrefloc{sec-module-distribution}{Module Distribution} section for information about
        finding a good unique prefix for your mod-created resources.
        \\
   or & \DEFINE{COPY!EXISTING} \ttref{optNoBackup} fromFile toFile ...
@@ -5319,7 +5319,7 @@ is 0. See \ttref{STRING!COMPARE} for comparing \ttref{String}s. Synonym:
 \\
 or & \DEFINE{NOT} \ttref{value} & Negation. If the value is 0, the result is 1.
 Otherwise the result is 0. \\
-or & \DEFINE{ABS} \ttref{Value} & Absolute value. If the value is >= 0, the result
+or & \DEFINE{ABS} \ttref{value} & Absolute value. If the value is >= 0, the result
 is x. Otherwise the result is -x. \\
 or & \ttref{value} \DEFINE{\textexcl=} \ttref{value} & \emph{Integer} Inequality. If
 the two values evaluate to equal integers, the result is 0. Otherwise the
@@ -5658,7 +5658,7 @@ PATCH_PRINT "y is %y% ; z is %z%"
     \t{FILE!SIZE "myfile" "\%\%indirection\%\%"}. Be very careful with this
     feature. \\
 or & \verb+$array(index list)+ &
-    The so-called \ttref{array construct}. See the tutorial.
+    The so-called \emph{array construct}. See the \ahrefloc{sec-array-construct}{tutorial}.
 \\
 
 or & \t{\%}\DEFINE{WEIDU!ARCH}\t{\%} & The special variable \t{WEIDU!ARCH}
@@ -7385,7 +7385,7 @@ prepended to the file name, to make sure the two strings can never be
 identical.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{DEFINE,LAUNCH,LOCAL and everything else about personal \DEFINE{macros} (Last Update: v188)}
+\label{macros}\subsection{\t{DEFINE,LAUNCH,LOCAL} and everything else about personal \DEFINE{macros} (Last Update: v188)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Macros were originally intended as a way to repeat a certain tp2 block
@@ -7527,13 +7527,13 @@ PATCH_PRINT ~%tb#factorial_index%! = %tb#factorial_result%~
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 For your convenience, WeiDU includes some standard macros for you to use.
-See \ttref{Macros Listing} for a listing of all macros and how to invoke
+See \ahrefloc{sec-macros-listing}{Macros Listing} for a listing of all macros and how to invoke
 them in detail. Here I'll describe the standard syntax.
 
 In our example, we'll use the tb\#factorial macro (which is the same as the
 last example in the preceding tutorial).
 
-Description (from \ttref{Macros Listing}):
+Description (from \ahrefloc{sec-macros-listing}{Macros Listing}):
 \verb+tb#factorial+: computes the factorial of a number. \\
 This is a PATCH macro.
 \begin{itemize}
@@ -7672,7 +7672,7 @@ non-GROUPed components will always be presented.
 ASK!EVERY!COMPONENT tp2 flag.
 \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{array construct}}
+\label{sec-array-construct}\subsection{\t{array construct}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The array construct is a facile way of constructing multi-component
@@ -8606,7 +8606,7 @@ END
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\DEFINE{Macros Listing}}
+\label{sec-macros-listing}\section{Macros Listing}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 These macros are automatically shipped with WeiDU.
 
@@ -10150,7 +10150,7 @@ END
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\DEFINE{Module Distribution}: \t{Setup-MyMod.exe}}
+\label{sec-module-distribution}\section{\DEFINE{Module Distribution}: \t{Setup-MyMod.exe}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 If you rename \t{WeiDU.EXE} to something of the form \t{Setup-MyMod.exe},
