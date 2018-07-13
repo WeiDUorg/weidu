@@ -4459,7 +4459,7 @@ WMP_AREAS (0x34 4 0x30 4 0 0 0xf0)
 WMP_LINKS (0x38 4 0x3c 4 0 0 0xd8)
 \end{verbatim}
 
-\t{GET!OFFSET!ARRAY} performs "Iterations" number of reads and sets the array \verb+$string(0)+, \verb+$string(1)+ etc to the result of these reads. A more detailed explanation can be had in the \ahrefloc{sec-get-offset-array12}{\ttGET!OFFSET!ARRAY and \ttGET!OFFSET!ARRAY2 tutorial}.\\
+\t{GET!OFFSET!ARRAY} performs "Iterations" number of reads and sets the array \verb+$string(0)+, \verb+$string(1)+ etc to the result of these reads. A more detailed explanation can be had in the \ahrefloc{sec-get-offset-array12}{\tt{GET!OFFSET!ARRAY} and \tt{GET!OFFSET!ARRAY2} tutorial}.\\
 
 or & \DEFINE{GET!OFFSET!ARRAY2} \ttref{String} \t{eight \ttref{value}s} &
   The eight values are:
@@ -4497,7 +4497,7 @@ WMP_EAST_LINKS (0x38 4 0x6c 4 0x68 4 0xd8)
 \end{verbatim}
 As you can see, the value for Offset2 isn't included in the sets, since it varies.
 
-"Offset2" corresponds to the result from \ttref{GET!OFFSET!ARRAY}. "Offset" is read from the start of the file. "Iterations" and "Index" are read from Offset2 + value. Apart from that \t{GET!OFFSET!ARRAY2} functions like \ttref{GET!OFFSET!ARRAY}. A more detailed explanation can be had in the \ttref{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} tutorial.\\
+"Offset2" corresponds to the result from \ttref{GET!OFFSET!ARRAY}. "Offset" is read from the start of the file. "Iterations" and "Index" are read from Offset2 + value. Apart from that \t{GET!OFFSET!ARRAY2} functions like \ttref{GET!OFFSET!ARRAY}. A more detailed explanation can be had in the \ahrefloc{sec-get-offset-array12}{\tt{GET!OFFSET!ARRAY} and \tt{GET!OFFSET!ARRAY2} tutorial}.\\
 
 or & \DEFINE{DEFINE!ASSOCIATIVE!ARRAY} \t{\ttref{String} BEGIN key1 \Ob , key2 ... \Oe => result1} \Slist \t{END} &
   Sets the array \verb+$string+, indexed by the keys, to the corresponding results. The results can either be \ttref{String}s or \ttref{value}s.
