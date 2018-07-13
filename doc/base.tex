@@ -4696,7 +4696,7 @@ or & \DEFINE{PATCH!WITH!SCOPE} \t{BEGIN} \ttref{patch} \Slist \t{END} &
     \ttref{PATCH!WITH!SCOPE} exits, the new scope is discarded, all
     new variables defined inside the scope and all changes to existing variables
     are forgotten. \\
-or & \DEFSYN{SET!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
+or & \DEFINE{SET!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
 \ttref{value} &
   The first \ttref{value} is the row, the second is the column and the
   third is the \emph{required column count}. The entry on the given column
@@ -4708,7 +4708,7 @@ or & \DEFSYN{SET!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
   it is a single string (that is not a variable in scope) that string will
   be written at the new value.
   See
-  the \ttref{SET!2DA!ENTRY} tutorial for more information. \\
+  the \ahrefloc{sec-set-2da-entry}{\tt{SET!2DA!ENTRY} tutorial} for more information. \\
 
   or & \DEFINE{SET!2DA!ENTRY!LATER} string \ttref{value} \ttref{value}
   \ttref{value} &
@@ -4721,15 +4721,15 @@ or & \DEFSYN{SET!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
   changes and update the 2DA table. If you use
   \ttref{SET!2DA!ENTRY!LATER} together with
   \ttref{READ!2DA!ENTRY!FORMER} you must use different string
-  variables for the two. See the \t{SET!2DA!ENTRY!LATER} tutorial. \\
+  variables for the two. See the \ahrefloc{sec-set-2da-entry-later-now}{\tt{SET!2DA!ENTRY!LATER} tutorial}. \\
 
-  or & \DEFSYN{SET!2DA!ENTRIES!NOW} string \ttref{value} &
+  or & \DEFINE{SET!2DA!ENTRIES!NOW} string \ttref{value} &
 
   Flush the changes to the 2DA table that have been queued by
   \ttref{SET!2DA!ENTRY!LATER}. The first parameter, string, should be
   the same string you used for \ttref{SET!2DA!ENTRY!LATER}. The second
   value is the required column count. Rows with fewer columns are
-  disregarded. See the \ttref{SET!2DA!ENTRIES!NOW} tutorial. \\
+  disregarded. See the \ahrefloc{sec-set-2da-entry-later-now}{\tt{SET!2DA!ENTRIES!NOW} tutorial}. \\
 
 or & \DEFINE{PRETTY!PRINT!2DA} & Indents the 3rd line in the current file (which
   should be a  2da file). \\
@@ -6383,7 +6383,7 @@ elegant way to do this via WeiDU (well, maybe there is, but I can't think
 of a way) so I'd just warn them.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\t{SET!2DA!ENTRY}}
+\label{sec-set-2da-entry}\subsection{\t{SET!2DA!ENTRY}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial was thoughtfully provided by Idobek.
@@ -7270,13 +7270,13 @@ warning, do not try to re-invent the WeiMorph wheel using a \ttref{TP2}
 script -- email Japheth instead.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\t{SET!2DA!ENTRY!LATER} and \t{SET!2DA!ENTRIES!NOW} (Last Update: v241)}
+\label{sec-set-2da-entry-later-now}\subsection{\t{SET!2DA!ENTRY!LATER} and \t{SET!2DA!ENTRIES!NOW} (Last Update: v241)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \ttref{SET!2DA!ENTRY!LATER} and \ttref{SET!2DA!ENTRIES!NOW} are
 extensions of the \ttref{SET!2DA!ENTRY} patch, so you should be
 familiar with \t{SET!2DA!ENTRY} before reading this tutorial. A
-tutorial for \t{SET!2DA!ENTRY} exists.
+\ahrefloc{sec-set-2da-entry}{tutorial} for \t{SET!2DA!ENTRY} exists.
 
 The main difference between the standard \ttref{SET!2DA!ENTRY} and
 these variants is that \t{SET!2DA!ENTRY} changes the file each
@@ -9490,7 +9490,7 @@ The function will fail with an error if the file being patched does not have a s
 
 % HeVeA forces me to use rawhtml of ~ here. \hspace{1 pc} may also be an option.
 
-This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games, including BG:EE. If the game is not BG:EE, the audio will be decompressed and the resulting .wav files will be \ttref{MOVE}d to the override. If the game is BG:EE, the .ogg files are copied into the override and renamed into .wav files. Refer to the \ttref{HANDLE!AUDIO and HANDLE!TILESETS} tutorial for usage examples and a more practical explanation.
+This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games, including BG:EE. If the game is not BG:EE, the audio will be decompressed and the resulting .wav files will be \ttref{MOVE}d to the override. If the game is BG:EE, the .ogg files are copied into the override and renamed into .wav files. Refer to the \ahrefloc{sec-handle-audio-and-handle-tilesets}{\tt{HANDLE!AUDIO} and \tt{HANDLE!TILESETS} tutorial} for usage examples and a more practical explanation.
 
 If the audio files need to be decompressed, this function will use oggdec.exe on Windows, which is by default expected to be found in \verb+audio_path+. The most recent version of oggdec can be downloaded \ahref{\url{http://downloads.xiph.org/releases/vorbis/vorbis-tools-win32-bin.7z}}{here} (direct link). On OS\begin{rawhtml}&nbsp;\end{rawhtml}X, SoX will be used, which is by default also expected to be found in \verb+audio_path+. SoX compiled for OS\begin{rawhtml}&nbsp;\end{rawhtml}X can be downloaded \ahref{\url{http://sourceforge.net/projects/sox/files/sox/14.4.1/sox-14.4.1-macosx.zip/download}}{here}. On GNU/Linux, oggdec will be used, but it is expected to be found on the system path and the user should install it him/herself. If you provide installation instructions for GNU/Linux, just include something to the effect of ``install oggdec, which is usually part of the package vorbis-tools''.
 
@@ -9507,7 +9507,7 @@ If the decompression utility cannot be found, the user is warned that the audio 
 
 \DEFINE{\verb+HANDLE_TILESETS+}: install TISpack-compressed tilesets in a safe and easy manner. This is an ACTION function.
 
-This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games that support the \t{\ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/tis_v1.htm}}{TIS V1}} file format. The program tisunpack, part of \ahref{\url{http://www.pocketplane.net/mambo/index.php?option=com_content&task=blogcategory&id=137&Itemid=96}}{TISpack}, is used to decompress the provided .tiz files and the resulting .tis files are placed in the override. Refer to the \ttref{HANDLE!AUDIO and HANDLE!TILESETS} tutorial for usage examples and a more practical explanation.
+This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games that support the \t{\ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/tis_v1.htm}}{TIS V1}} file format. The program tisunpack, part of \ahref{\url{http://www.pocketplane.net/mambo/index.php?option=com_content&task=blogcategory&id=137&Itemid=96}}{TISpack}, is used to decompress the provided .tiz files and the resulting .tis files are placed in the override. Refer to the \ahrefloc{sec-handle-audio-and-handle-tilesets}{\tt{HANDLE!AUDIO} and \tt{HANDLE!TILESETS} tutorial} for usage examples and a more practical explanation.
 
 This function expects to find tisunpack for one or more of Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X or GNU/Linux in a common directory under the subdirectories \t{win32}, \t{osx}, and \t{unix}, respectively. For example, in \t{mymod/tiz/win32}, \t{mymod/tiz/osx} and \t{mymod/tiz/unix}, the common directory is \t{mymod/tiz} and \t{mymod/tiz/win32/tisunpack.exe} should be a valid file. For GNU/Linux, this function also supports tisunpack being located on the system path (something the user would take care of). If you choose to leave tisunpack to the user, you should mention this requirement in any installation instructions you provide.
 
