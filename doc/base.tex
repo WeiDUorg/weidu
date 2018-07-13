@@ -368,7 +368,7 @@ All other keywords are symbolic. Notes:
   Behaves like \ttref{CHAIN} except that all of the \ttref{chainText} is
   additionally guarded by the \ttref{transition} predicate {\tt Global("globalVariable","GLOBAL",0)} and accompanied by the action {\tt SetGlobal("globalVariable","GLOBAL",1)}. If you pick {\tt globalVariable } to be unique, this will ensure that the \ttref{chainText} is only ever seen once per game. This is useful for making interjections. \\
 
-  or & \DEFSYN{INTERJECT!COPY!TRANS} \Ob \t{SAFE} \Oe entryFilename
+  or & \DEFINE{INTERJECT!COPY!TRANS} \Ob \t{SAFE} \Oe entryFilename
   entryLabel {\tt globalVariable} \ttref{chainText} \Slist &
   This behaves just like \ttref{INTERJECT} except that the
   exitFilename and exitLabel are not present. Instead, whenever the
@@ -377,19 +377,19 @@ All other keywords are symbolic. Notes:
   \ttref{stateLabel} originally. This is convenient for making quick
   interjections from NPCs that do not actually change the true flow of
   the conversation. See the \ttref{transition} \ttref{COPY!TRANS} and
-  the \ttref{INTERJECT!COPY!TRANS} tutorial for more information about
+  the \ahrefloc{sec-interject-copy-trans}{INTERJECT!COPY!TRANS tutorial} for more information about
   this idea. If \t{SAFE} is specified, \ttref{INTERJECT!COPY!TRANS}
   will not warn about potentially unsafe uses (use this if you know it
   is safe).
   \\
 
-  or & \DEFSYN{INTERJECT!COPY!TRANS2} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
+  or & \DEFINE{INTERJECT!COPY!TRANS2} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
   globalVariable} \ttref{chainText} \Slist &
   This works just like \ttref{INTERJECT!COPY!TRANS}, except that any
   actions taken in the transitions of the state specified by entryFilename
   and entryLabel are preserved and kept with the speaker associated with
   entryFilename (rather than being mistakenly performed by your new
-  speaker). See the \ttref{INTERJECT!COPY!TRANS2} tutorial.
+  speaker). See the \ahrefloc{sec-interject-copy-trans2}{INTERJECT!COPY!TRANS2 tutorial}.
   \\
 
   or & \DEFINE{INTERJECT!COPY!TRANS3} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
@@ -2129,7 +2129,7 @@ the equation, by making the NPC say something that forces immediate action,
 for instance), don't \ttref{INTERJECT} into a state that has player options
 (\ttref{REPLY}s).
 
-\subsection{\DEFINE{INTERJECT!COPY!TRANS}}
+\label{sec-interject-copy-trans}\subsection{\tt{INTERJECT!COPY!TRANS}}
 This tutorial was thoughtfully provided by Jason Compton.
 
 \ttref{INTERJECT} is good for creating interjections where none already
@@ -2176,7 +2176,7 @@ GOTO blah}. That is, as long as you plan to proceed to the original
 destination. It saves you the trouble of having to look up and input the
 destination.
 
-\subsection{\DEFINE{INTERJECT!COPY!TRANS2}}
+\label{interject-copy-trans2}\subsection{\tt{INTERJECT!COPY!TRANS2}}
 This tutorial was thoughtfully provided by Rastor.
 
 There seems to be a great deal of confusion among the members of the modding
@@ -2603,7 +2603,7 @@ So, all you have to remember to do is escape the square brackets with a
 backslash so WeiDU doesn't confuse them with a regular expression.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label(sec-alter-trans)\subsection{\tt{ALTER!TRANS} (Last Update: 204.)}
+\label{sec-alter-trans}\subsection{\tt{ALTER!TRANS} (Last Update: 204.)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial was thoughtfully provided by CamDawg.
 
@@ -2921,14 +2921,13 @@ global option to your \ttref{TP2} file. \\
       This component can only be installed if the \ttref{value}
       evaluates to true (non-zero). \\
 
-  or & \DEFSYN{SUBCOMPONENT} \ttref{String} \Ob \ttref{value} \Oe &
+  or & \DEFINE{SUBCOMPONENT} \ttref{String} \Ob \ttref{value} \Oe &
       At most one component of the given subcomponent group can be
       installed at any time. All subcomponents of the same group are
-      listed together for the user. See the \ttref{SUBCOMPONENT}
-      tutorial. \\
+      listed together for the user. See the \ahrefloc{sec-subomponent}{SUBCOMPONENT tutorial}. \\
 
   or & \DEFINE{FORCED!SUBCOMPONENT} \ttref{String} \Ob \ttref{value} \Oe &
-      See the \ttref{SUBCOMPONENT} tutorial. \\
+      See the \ahrefloc{sec-subcomponent}{SUBCOMPONENT tutorial}. \\
 
   or & \DEFSYN{GROUP} \ttref{String}\Ob \ttref{value} \Oe & Used for grouping components; the user
       will be asked to display these or not. See the \ttref{GROUP} tutorial. \\
@@ -3284,7 +3283,7 @@ P Q R 3
     needs to evaluate to true for the values to match. If none
     of the values match, the \t{DEFAULT} action list is executed.
 
-    See the \ttref{MATCH and TRY} tutorial for additional information.
+    See the \ahrefloc{sec-match-and-try}{MATCH and TRY tutorial} for additional information.
   \\
   or & \DEFINE{ACTION!TRY} \ttref{TP2 Action} \Slist \t{WITH} \Ob guard\ttref{value} ...
     \Ob \t{WHEN} condition\ttref{value} \Oe
@@ -3300,12 +3299,12 @@ P Q R 3
     allowing the installation to continue and re-raising the error
     allows it to fail, like intended.
 
-    See the \ttref{MATCH and TRY} tutorial for additional information.
+    See the \ahrefloc{sec-match-and-try}{MATCH and TRY tutorial} for additional information.
   \\
   or & \DEFINE{ACTION!RERAISE} &
      When used inside an \ttref{ACTION!TRY}, the matched error is re-raised.
 
-     See the \ttref{MATCH and TRY} tutorial for additional information.
+     See the \ahrefloc{sec-match-and-try}{MATCH and TRY tutorial} for additional information.
   \\
   or & \DEFINE{AT!EXIT} commandToRun \Ob \t{EXACT} \Oe &
     Whenever this \ttref{component} attempts to be installed, commandToRun
@@ -4460,7 +4459,7 @@ WMP_AREAS (0x34 4 0x30 4 0 0 0xf0)
 WMP_LINKS (0x38 4 0x3c 4 0 0 0xd8)
 \end{verbatim}
 
-\t{GET!OFFSET!ARRAY} performs "Iterations" number of reads and sets the array \verb+$string(0)+, \verb+$string(1)+ etc to the result of these reads. A more detailed explanation can be had in the \ttref{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} tutorial.\\
+\t{GET!OFFSET!ARRAY} performs "Iterations" number of reads and sets the array \verb+$string(0)+, \verb+$string(1)+ etc to the result of these reads. A more detailed explanation can be had in the \ahrefloc{sec-get-offset-array12}{\ttGET!OFFSET!ARRAY and \ttGET!OFFSET!ARRAY2 tutorial}.\\
 
 or & \DEFINE{GET!OFFSET!ARRAY2} \ttref{String} \t{eight \ttref{value}s} &
   The eight values are:
@@ -4648,7 +4647,7 @@ or & \DEFINE{PATCH!IF} \ttref{value} \Ob \t{THEN} \Oe \t{BEGIN}
     needs to evaluate to true for the values to match. If none
     of the values match, the \t{DEFAULT} patch list is executed.
 
-    See the \ttref{MATCH and TRY} tutorial for additional information.
+    See the \ahrefloc{sec-match-and-try}{MATCH and TRY tutorial} for additional information.
   \\
   or & \DEFINE{PATCH!TRY} \ttref{patch} \Slist \t{WITH} \Ob pattern\ttref{value} ...
     \Ob \t{WHEN} guard\ttref{value} \Oe
@@ -4664,12 +4663,12 @@ or & \DEFINE{PATCH!IF} \ttref{value} \Ob \t{THEN} \Oe \t{BEGIN}
     allowing the installation to continue and re-raising the error
     allows it to fail, like intended.
 
-    See the \ttref{MATCH and TRY} tutorial for additional information.
+    See the \ahrefloc{sec-match-and-try}{MATCH and TRY tutorial} for additional information.
   \\
   or & \DEFINE{PATCH!RERAISE} &
      When used inside a \ttref{PATCH!TRY}, the matched error is re-raised.
 
-     See the \ttref{MATCH and TRY} tutorial for additional information.
+     See the \ahrefloc{sec-match-and-try}{MATCH and TRY tutorial} for additional information.
   \\
 or & \DEFINE{PATCH!INCLUDE} \t{\ttref{String}} \Slist &
     loads the file string as if it were a list of tp2 patches and executes it (as if
@@ -6830,7 +6829,7 @@ Also, \t{IWD1} and \t{IWD2} have different rules for parsing certain IDS files,
 which contain spaces and/or commas in the tokens.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{TP2 \DEFINE{SUBCOMPONENT} Groups (Last Update: v192)}
+\label{sec-subcomponent}\subsection{TP2 \tt{SUBCOMPONENT} Groups (Last Update: v192)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial was thoughtfully provided by CamDawg, and edited by the Bigg
@@ -7109,7 +7108,7 @@ collect the player's response. You cannot change the \t{Copying one file}
 and \t{Compiling dialogues} (and the similar) text.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label(sec-inner-action)\subsection{\tt{INNER!ACTION}}
+\label{sec-inner-action}\subsection{\tt{INNER!ACTION}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Normally I would start off with \emph{do not use this feature}, but since
@@ -7809,7 +7808,7 @@ An important note: if a tp2 sets MODDER, the debugging mode might propagate to
 other mods. As such, \emph{REMEMBER TO TURN MODDER OFF WHEN YOU RELEASE YOUR MOD.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label(sec-readln)\subsection{\tt{READLN} (Last update: v203)}
+\label{sec-readln}\subsection{\tt{READLN} (Last update: v203)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial has been brought to you by plainab.
@@ -8088,7 +8087,7 @@ LAUNCH_ACTION_FUNCTION xyz INT_VAR y END // synonym for INT_VAR y = y
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} (last edit: 218)}
+\label{sec-get-offset-array12}\subsection{\tt{GET!OFFSET!ARRAY} and \tt{GET!OFFSET!ARRAY2} (last edit: 218)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Many thanks to Wisp for providing this tutorial.
@@ -8133,7 +8132,7 @@ BUT_ONLY
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{MATCH and TRY} (last edit: 245)}
+\label{sec-match-and-try}\subsection{\tt{MATCH} and \tt{TRY} (last edit: 245)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \verb+MATCH+ is the equivalent of switch..case in mainstream languages (except
@@ -8393,7 +8392,7 @@ development of your mod using --yes and the like.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{HANDLE!AUDIO and HANDLE!TILESETS}}
+\label{sec-handle-audio-and-handle-tilesets}\subsection{\tt{HANDLE!AUDIO} and \tt{HANDLE!TILESETS}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \ttref{HANDLE!AUDIO} and \ttref{HANDLE!TILESETS} are convenience
