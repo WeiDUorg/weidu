@@ -313,8 +313,8 @@ All other keywords are symbolic. Notes:
 \begin{tabular}{cp{10in}|p{10in}}
 
 \DEFINE{D File} & &
-  A \ttref{D file} is a text file that contains a number of \ttref{D
-  Actions}. \ttref{D File}s tell WeiDU how to create and modify Infinity
+  A \ttref{D File} is a text file that contains a number of \ttref{D Action}s.
+  \ttref{D File}s tell WeiDU how to create and modify Infinity
   Engine \ttref{DLG} files.  \\
 
   is & \ttref{D Action} \Slist &
@@ -2737,7 +2737,7 @@ Here is the context-free grammar syntax for the \ttref{TP2} file format:
 
 \begin{tabular}{cp{10in}|p{10in}}
 
-\DEFINE{TP2 File} & &
+\DEFINE{TP2 File}\label{TP2} & &
   A \ttref{TP2 File} is a text file that contains a number of
   mod \ttref{Component}s. \ttref{TP2 File}s tell WeiDU how to install
   various parts of your mod on an end-user's computer. \\
@@ -2929,8 +2929,8 @@ global option to your \ttref{TP2} file. \\
   or & \DEFINE{FORCED!SUBCOMPONENT} \ttref{String} \Ob \ttref{value} \Oe &
       See the \ahrefloc{sec-subcomponent}{SUBCOMPONENT tutorial}. \\
 
-  or & \DEFSYN{GROUP} \ttref{String}\Ob \ttref{value} \Oe & Used for grouping components; the user
-      will be asked to display these or not. See the \ttref{GROUP} tutorial. \\
+  or & \DEFINE{GROUP} \ttref{String}\Ob \ttref{value} \Oe & Used for grouping components; the user
+      will be asked to display these or not. See the \ahrefloc{sec-group}{\t{GROUP}} tutorial. \\
 
   or & \DEFINE{INSTALL!BY!DEFAULT} &
       If WeiDU would ask the user whether to install this component or not,
@@ -3763,7 +3763,7 @@ or & \DEFINE{OUTER!WHILE} \ttref{value} \t{BEGIN}
   If \ttref{value} is non-zero, execute the given \ttref{TP2 Action} \Slist and
   then repeat, re-evaluating the \ttref{value}.
   {\em Be very careful when using this command. } You can easily describe
-  an infinite loop. See the \ttref{WHILE} loop tutorial for more
+  an infinite loop. See the \ahrefloc{sec-while}{\t{WHILE}} loop tutorial for more
   information.
   \\
 or & \DEFINE{OUTER!FOR} \t{(} \ttref{patch} \Slist \t{;}
@@ -4559,12 +4559,12 @@ or & \Ob \ttref{SET} \Oe \ttref{variable} \t{<<=} \ttref{value} &
 or & \Ob \ttref{SET} \Oe \ttref{variable} \t{>>=} \ttref{value} &
   Equivalent to \t{SET variable = variable BLSR value}. \\
 
-or & \DEFSYN{WHILE} \ttref{value} \t{BEGIN}
+or & \DEFINE{WHILE} \ttref{value} \t{BEGIN}
   \ttref{patch} \Slist \t{END} &
   If \ttref{value} is non-zero, execute the given \ttref{patch} \Slist and
   then repeat, re-evaluating the \ttref{value}.
   {\em Be very careful when using this command. } You can easily describe
-  an infinite loop. See the \ttref{WHILE} loop tutorial for more
+  an infinite loop. See the \ahrefloc{sec-while}{\t{WHILE}} loop tutorial for more
   information.
   \\
 or & \DEFINE{FOR} \t{(} \ttref{patch} \Slist \t{;}
@@ -6515,7 +6515,7 @@ Finally, if \t{newEntry} is a string that contains any
 That's the end of this tutorial.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{WHILE} Loops (Last update: v232)}
+\label{sec-while}\subsection{\t{WHILE} Loops (Last update: v232)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial was thoughtfully provided by Idobek, and shamelessly edited
@@ -7576,7 +7576,7 @@ LAUNCH_ACTION_MACRO ~tb#fix_file_size~
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{GROUP} (Last update: V221)}
+\label{sec-group}\subsection{\t{GROUP} (Last update: V221)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The GROUP flag came about in discussing component management with an
