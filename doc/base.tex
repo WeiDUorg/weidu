@@ -2844,9 +2844,9 @@ global option to your \ttref{TP2} file. \\
     work with this action in the TP2 - use \ttref{PATCH!IF} and
     \ttref{BUT!ONLY!IF!IT!CHANGES} instead. \\
 
-  or & \DEFSYN{QUICK!MENU} lots of parameters &
+  or & \DEFINE{QUICK!MENU} lots of parameters &
     Used to specify one or more groups of components that can be installed in
-    a single step. See the \ttref{QUICK!MENU} tutorial for syntax, usage
+    a single step. See the \ahrefloc{sec-quick-menu}{QUICK!MENU tutorial} for syntax, usage
     instructions, and caveats. \\
 
   or & \DEFINE{AUTO!EVAL!STRINGS} &
@@ -3179,7 +3179,7 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
   or & \DEFINE{ACTION!READLN} \ttref{variable} &
       Waits for the user to provided an enter-terminated string and store it in
       variable. Said string will be stored and re-used during non-interactive reinstalls. See the
-      \ttref{READLN} tutorial. \\
+      \ahrefloc{sec-readln}{READLN tutorial}. \\
 or & \DEFSYN{APPEND} \ttref{optNoBackup} filename newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe  &
       If there are no \ttref{when} conditions or they are all true, the
       ASCII text newText is appended to the existing file filename (which
@@ -5141,8 +5141,8 @@ PATCH_PRINT "myvar is %myvar%"
   This sequence will always print \t{myvar is 84} (since 84 is the ASCII
   code for \t{T} and \ttref{SW1H01.ITM} starts with \t{ITM}). \\
 
-or & \DEFSYN{INNER!ACTION} \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
-  See the \ttref{INNER!ACTION} tutorial, but loosely the current
+or & \DEFINE{INNER!ACTION} \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
+  See the \ahrefloc{sec-inner-action}{INNER!ACTION tutorial}, but loosely the current
   \ttref{COPY} is paused, the given \ttref{TP2 Actions} are executed, and
   then the current \ttref{COPY} is resumed. \emph{Note that an
   \ttref{INNER!ACTION} should never modify a file that is being modified by
@@ -7109,7 +7109,7 @@ collect the player's response. You cannot change the \t{Copying one file}
 and \t{Compiling dialogues} (and the similar) text.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{INNER!ACTION}}
+\label(sec-inner-action)\subsection{\tt{INNER!ACTION}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Normally I would start off with \emph{do not use this feature}, but since
@@ -7809,7 +7809,7 @@ An important note: if a tp2 sets MODDER, the debugging mode might propagate to
 other mods. As such, \emph{REMEMBER TO TURN MODDER OFF WHEN YOU RELEASE YOUR MOD.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{READLN} (Last update: v203)}
+\label(sec-readln)\subsection{\tt{READLN} (Last update: v203)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial has been brought to you by plainab.
@@ -8334,7 +8334,7 @@ which would cause you headaches when nesting multiple \verb+TRY+s).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{QUICK!MENU} (last edit: 227)}
+\label{sec-quick-menu}\subsection{\tt{QUICK!MENU} (last edit: 227)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tp2 flag is used to define groups of components that the user will be
