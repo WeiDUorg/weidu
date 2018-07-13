@@ -2393,7 +2393,7 @@ and \t{d} were given weights but \t{b} was not (because it had an empty
 trigger)).  Thus, you should avoid using \ttref{ADD!STATE!TRIGGER} on
 states with empty triggers unless you know what you are doing.
 
-\subsection{\DEFINE{TRA} Translation Files}
+\label{TRA}\subsection{\t{TRA} Translation Files}
 
 If you are writing a mod and you would like to make it easier to translate
 it into another language you can use "translation files" (much like BGII
@@ -3951,7 +3951,7 @@ or & \DEFINE{DEFINE!ACTION!FUNCTION} \ttref{String}
      \Ob \t{RET!ARRAY} \ttref{variable} ... \Oe
      \t{BEGIN} \ttref{TP2 Action} \Slist
      \t{END} &
-  Define an action function. Refer to the \ttref{Functions} section for
+  Define an action function. Refer to the \ahrefloc{sec-functions}{\t{Functions}} section for
   additional information. \\
 or & \DEFINE{DEFINE!PATCH!FUNCTION} \ttref{String}
      \Ob \t{INT!VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
@@ -3960,7 +3960,7 @@ or & \DEFINE{DEFINE!PATCH!FUNCTION} \ttref{String}
      \Ob \t{RET!ARRAY} \ttref{variable} ... \Oe
      \t{BEGIN} \ttref{patch} \Slist
      \t{END} &
-  Define a patch function. Refer to the \ttref{Functions} section for
+  Define a patch function. Refer to the \ahrefloc{sec-functions}{\t{Functions}} section for
   additional information. \\
 or & \DEFINE{LAUNCH!ACTION!MACRO} \ttref{String} &
   Launch an action macro. Refer to the \ttref{macros} section for
@@ -3973,7 +3973,7 @@ or & \DEFINE{LAUNCH!ACTION!FUNCTION} \ttref{String}
      \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
      \Ob \t{RET!ARRAY} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
      \t{END} &
-  Launch an action function. Refer to the \ttref{Functions} section for
+  Launch an action function. Refer to the \ahrefloc{sec-functions}{\t{Functions}} section for
   additional information. You may use \DEFINE{LAF} as a synonym for
   \ttref{LAUNCH!ACTION!FUNCTION}.\\
 or & \DEFINE{ACTION!TIME} \ttref{String} \t{BEGIN} \ttref{TP2 Action}
@@ -4090,7 +4090,7 @@ order will be undefined. \\
 
 \\
 
-\DEFINE{patch} & & A \ttref{patch} tells WeiDU how to modify a file.  \\
+\DEFINE{patch}\label{TP2 Patch} & & A \ttref{patch} tells WeiDU how to modify a file.  \\
 is & \DEFSYN{SAY} \ttref{offset} \ttref{String} &
   The string-ref associated with \ttref{String} is written at
   \ttref{offset}. This is commonly used to change the name or
@@ -5142,7 +5142,7 @@ PATCH_PRINT "myvar is %myvar%"
 
 or & \DEFINE{INNER!ACTION} \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
   See the \ahrefloc{sec-inner-action}{INNER!ACTION tutorial}, but loosely the current
-  \ttref{COPY} is paused, the given \ttref{TP2 Actions} are executed, and
+  \ttref{COPY} is paused, the given \ttref{TP2 Action}s are executed, and
   then the current \ttref{COPY} is resumed. \emph{Note that an
   \ttref{INNER!ACTION} should never modify a file that is being modified by
   the current action. For example, never put \t{APPEND ~foo.2da~} inside of
@@ -5220,7 +5220,7 @@ or & \DEFINE{LAUNCH!PATCH!FUNCTION} \ttref{String}
      \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
      \Ob \t{RET!ARRAY} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
      \t{END} &
-        Launch a patch function. Refer to the \ttref{Functions} section for
+        Launch a patch function. Refer to the \ahrefloc{sec-functions}{\t{Functions}} section for
         additional information. You may use \DEFINE{LPF} as a synonym
         for \ttref{LAUNCH!PATCH!FUNCTION}.
 \\
@@ -6157,7 +6157,7 @@ COPY_EXISTING ~acolyte1.cre~ ~override~
 BUT_ONLY_IF_IT_CHANGES
 \end{verbatim}
 
-Note that you can use the \ttref{PRINT} action in a \ttref{tp2} to debug
+Note that you can use the \ttref{PRINT} action in a \ttref{TP2} to debug
 your code as well.  Like this:
 
 \begin{verbatim}
@@ -7982,7 +7982,7 @@ is causing the problem, especially if the player has forgotten which choices the
 This could be solved by creating your own log file, but that is another tutorial...
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{Functions} (Last update: V210)}
+\label{sec-functions}\subsection{\t{Functions} (Last update: V210)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Macros can have unintended side effects because they change the global variable environment.
