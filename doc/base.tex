@@ -137,7 +137,7 @@ information on obtaining a copy of WeiDU that works under OS X.
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\ttref{D} and \DEFINE{DLG} File Concepts}
+\label{DLG}\section{\ttref{D} and \DEFINE{DLG} File Concepts}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This section is a gentle introduction to how Infinity Engine \ttref{DLG}
@@ -546,7 +546,7 @@ All other keywords are symbolic. Notes:
   or & \DEFINE{REPLACE!TRIGGER!TEXT!REGEXP} filenameRegexp oldText newText
  \ttref{dActionWhen} \Slist  &
   Just like \ttref{REPLACE!TRIGGER!TEXT} but the filename is a
-  \ttref{regexp}. The \ttref{.DLG} is implied. \\
+  \ttref{regexp}. The .\ttref{DLG} is implied. \\
 
   or & \DEFINE{REPLACE!ACTION!TEXT} filename oldText newText
     \Ob moreFilenames \Oe  \ttref{dActionWhen} \Slist &
@@ -559,7 +559,7 @@ All other keywords are symbolic. Notes:
   or & \DEFINE{REPLACE!ACTION!TEXT!REGEXP} filenameRegexp oldText newText
     \Ob moreFilenameRegexps \Oe  \ttref{dActionWhen} \Slist &
   Just like \ttref{REPLACE!ACTION!TEXT} but the filenames are
-  \ttref{regexp}s. The \ttref{.DLG} is implied, do not include it in your
+  \ttref{regexp}s. The .\ttref{DLG} is implied, do not include it in your
   \ttref{regexp}s. \\
 
   or & \DEFINE{REPLACE!ACTION!TEXT!PROCESS} filename oldText newText
@@ -579,7 +579,7 @@ All other keywords are symbolic. Notes:
     filenameRegexp oldText newText
     \Ob moreFilenameRegexps \Oe \ttref{dActionWhen} \Slist &
   Just like \ttref{REPLACE!ACTION!TEXT!PROCESS}, but the filenames are
-  \ttref{regexp}s. The \ttref{.DLG} is implied. R!A!T!P!R is
+  \ttref{regexp}s. The .\ttref{DLG} is implied. R!A!T!P!R is
   shorthand for REPLACE!ACTION!TEXT!PROCESS!REGEXP (to avoid undue scrollbars
   in the readme on a 1024x768 monitor). \\
 
@@ -1140,7 +1140,7 @@ when using \ttref{--trans}. \\
 \DEFINE{--make-tlk} \t{X} & Create a \ttref{TLK} file from \ttref{TRA} file X (cumulative, see \ttref{--tlkout}). \\
 \DEFINE{--testtrans} &	Test all specified \ttref{TRA} translation files to
 see if any of them use text that is already in the loaded
-\ttref{DIALOG.TLK}. If they do you can save translation effort by using
+\t{DIALOG.}\ttref{TLK}. If they do you can save translation effort by using
 string references instead. \\
 \DEFINE{--forceify} \t{X} & Convert the given \ttref{D} file to use forced
 strrefs (see \ttref{--out}, \ttref{SAY}, \ttref{Forced String Reference}). \\
@@ -1165,7 +1165,7 @@ preceded by \ttref{--biff-get}, with the -list exception. Use this command to ex
 different files (or \ttref{regexp}s) at once. \\
 \DEFINE{--biff-str} \t{X}&	Search all game \ttref{BIFF}s for files
 containing \t{X} (\ttref{regexp} allowed). \\
-\DEFINE{--biff-value} \t{X} &   Search all game \ttref{BIFFs} for files
+\DEFINE{--biff-value} \t{X} &   Search all game \ttref{BIFF}s for files
 containing value \t{X} at offset \t{ADDR}. Must be used with
 \ttref{--biff-value-at}. \\
 \DEFINE{--biff-value-at} \t{ADDR} & Gives the offset address for a
@@ -10409,6 +10409,19 @@ reference is
 or file information. Kits, music, weapon proficiencies and experience point
 caps are all controlled by 2DA files.
 
+\item \DEFINE{ARE}. The ARE file format describes the content of an area
+(rather than its visual representation). ARE files contain the list of actors,
+items, entrances and exits, spawn points and other area-associated info.
+The ARE file may contain references to other files, e.g. the list of items
+in a container is stored in the ARE file, however the files themselves are
+not embedded in the ARE file.
+
+\item \DEFINE{BAM}. This file format describes animated graphics. Such files
+are used for animations (both creature animations, item and spell animations)
+and interactive GUI elements (e.g. buttons) and for logical collections of
+images (e.g. fonts). BAM files can contain multiple sequences of animations,
+up to a limit of 255.
+
 \item \DEFINE{BIFF}. A BIFF file is like a big ZIP file that contains other
 files. Basically every file used by an Infinity Engine game is either in a
 BIFF somewhere or in the \t{override} folder.
@@ -10418,9 +10431,19 @@ the actions of creatures and areas. They are basically big lists of
 \t{IF}s. \ttref{D} files (and also \ttref{DLG} files) use the same
 predicate and action syntax as BCS files.
 
+\item \DEFINE{CRE}. This file format describes a "creature". Creatures can
+move, have an animation, hold items, run scripts, cast spells and initiate
+dialog. Creatures have several stats (some visible through the game UI) which
+are generally mapped to IDS or 2DA files.
+
 \item \DEFINE{EFF}. An Infinity Engine effect file. These are sometimes used
 by \ttref{ITM}s or \ttref{SPL}s to do one specific thing. You probably
 won't use them.
+
+\item \DEFINE{GAM}. This file format is used to hold game information in save
+games. The GAM file does not store area, creature or item information, instead,
+it stores information on the party members and the global variables which affect
+party members.
 
 \item \DEFINE{ITM}. An Infinity Engine item definition file. Notably,
 \ttref{ITM} files have identified and unidentified names that are often set
