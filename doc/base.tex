@@ -377,7 +377,7 @@ All other keywords are symbolic. Notes:
   \ttref{stateLabel} originally. This is convenient for making quick
   interjections from NPCs that do not actually change the true flow of
   the conversation. See the \ttref{transition} \ttref{COPY!TRANS} and
-  the \ahrefloc{sec-interject-copy-trans}{INTERJECT!COPY!TRANS tutorial} for more information about
+  the \ahrefloc{sec-interject-copy-trans}{\t{INTERJECT!COPY!TRANS} tutorial} for more information about
   this idea. If \t{SAFE} is specified, \ttref{INTERJECT!COPY!TRANS}
   will not warn about potentially unsafe uses (use this if you know it
   is safe).
@@ -389,7 +389,7 @@ All other keywords are symbolic. Notes:
   actions taken in the transitions of the state specified by entryFilename
   and entryLabel are preserved and kept with the speaker associated with
   entryFilename (rather than being mistakenly performed by your new
-  speaker). See the \ahrefloc{sec-interject-copy-trans2}{INTERJECT!COPY!TRANS2 tutorial}.
+  speaker). See the \ahrefloc{sec-interject-copy-trans2}{\t{INTERJECT!COPY!TRANS2} tutorial}.
   \\
 
   or & \DEFINE{INTERJECT!COPY!TRANS3} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
@@ -504,7 +504,7 @@ All other keywords are symbolic. Notes:
     \t{BEGIN} \ttref{stateNumber} \Slist \t{END}
     \t{BEGIN} \ttref{transNumber} \Slist \t{END}
     \t{BEGIN} changeWhat changeInto \Slist \t{END} &
-  Fine altering of a single transition. See the \ahrefloc{sec-alter-trans}{ALTER!TRANS tutorial}.
+  Fine altering of a single transition. See the \ahrefloc{sec-alter-trans}{\t{ALTER!TRANS} tutorial}.
 
   \\
 
@@ -2130,7 +2130,7 @@ the equation, by making the NPC say something that forces immediate action,
 for instance), don't \ttref{INTERJECT} into a state that has player options
 (\ttref{REPLY}s).
 
-\label{sec-interject-copy-trans}\subsection{\tt{INTERJECT!COPY!TRANS}}
+\label{sec-interject-copy-trans}\subsection{\t{INTERJECT!COPY!TRANS}}
 This tutorial was thoughtfully provided by Jason Compton.
 
 \ttref{INTERJECT} is good for creating interjections where none already
@@ -2177,7 +2177,7 @@ GOTO blah}. That is, as long as you plan to proceed to the original
 destination. It saves you the trouble of having to look up and input the
 destination.
 
-\label{sec-interject-copy-trans2}\subsection{\tt{INTERJECT!COPY!TRANS2}}
+\label{sec-interject-copy-trans2}\subsection{\t{INTERJECT!COPY!TRANS2}}
 This tutorial was thoughtfully provided by Rastor.
 
 There seems to be a great deal of confusion among the members of the modding
@@ -2604,7 +2604,7 @@ So, all you have to remember to do is escape the square brackets with a
 backslash so WeiDU doesn't confuse them with a regular expression.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-alter-trans}\subsection{\tt{ALTER!TRANS} (Last Update: 204.)}
+\label{sec-alter-trans}\subsection{\t{ALTER!TRANS} (Last Update: 204.)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial was thoughtfully provided by CamDawg.
 
@@ -2847,7 +2847,7 @@ global option to your \ttref{TP2} file. \\
 
   or & \DEFINE{QUICK!MENU} lots of parameters &
     Used to specify one or more groups of components that can be installed in
-    a single step. See the \ahrefloc{sec-quick-menu}{QUICK!MENU tutorial} for syntax, usage
+    a single step. See the \ahrefloc{sec-quick-menu}{\t{QUICK!MENU} tutorial} for syntax, usage
     instructions, and caveats. \\
 
   or & \DEFINE{AUTO!EVAL!STRINGS} &
@@ -2925,10 +2925,10 @@ global option to your \ttref{TP2} file. \\
   or & \DEFINE{SUBCOMPONENT} \ttref{String} \Ob \ttref{value} \Oe &
       At most one component of the given subcomponent group can be
       installed at any time. All subcomponents of the same group are
-      listed together for the user. See the \ahrefloc{sec-subcomponent}{SUBCOMPONENT tutorial}. \\
+      listed together for the user. See the \ahrefloc{sec-subcomponent}{\t{SUBCOMPONENT} tutorial}. \\
 
   or & \DEFINE{FORCED!SUBCOMPONENT} \ttref{String} \Ob \ttref{value} \Oe &
-      See the \ahrefloc{sec-subcomponent}{SUBCOMPONENT tutorial}. \\
+      See the \ahrefloc{sec-subcomponent}{\t{SUBCOMPONENT} tutorial}. \\
 
   or & \DEFINE{GROUP} \ttref{String}\Ob \ttref{value} \Oe & Used for grouping components; the user
       will be asked to display these or not. See the \ahrefloc{sec-group}{\t{GROUP}} tutorial. \\
@@ -3179,7 +3179,7 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
   or & \DEFINE{ACTION!READLN} \ttref{variable} &
       Waits for the user to provided an enter-terminated string and store it in
       variable. Said string will be stored and re-used during non-interactive reinstalls. See the
-      \ahrefloc{sec-readln}{READLN tutorial}. \\
+      \ahrefloc{sec-readln}{\t{READLN} tutorial}. \\
 or & \DEFSYN{APPEND} \ttref{optNoBackup} filename newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe  &
       If there are no \ttref{when} conditions or they are all true, the
       ASCII text newText is appended to the existing file filename (which
@@ -3284,7 +3284,7 @@ P Q R 3
     needs to evaluate to true for the values to match. If none
     of the values match, the \t{DEFAULT} action list is executed.
 
-    See the \ahrefloc{sec-match-and-try}{MATCH and TRY tutorial} for additional information.
+    See the \ahrefloc{sec-match-and-try}{\t{MATCH} and \t{TRY} tutorial} for additional information.
   \\
   or & \DEFINE{ACTION!TRY} \ttref{TP2 Action} \Slist \t{WITH} \Ob guard\ttref{value} ...
     \Ob \t{WHEN} condition\ttref{value} \Oe
@@ -3300,12 +3300,12 @@ P Q R 3
     allowing the installation to continue and re-raising the error
     allows it to fail, like intended.
 
-    See the \ahrefloc{sec-match-and-try}{MATCH and TRY tutorial} for additional information.
+    See the \ahrefloc{sec-match-and-try}{\t{MATCH} and \t{TRY} tutorial} for additional information.
   \\
   or & \DEFINE{ACTION!RERAISE} &
      When used inside an \ttref{ACTION!TRY}, the matched error is re-raised.
 
-     See the \ahrefloc{sec-match-and-try}{MATCH and TRY tutorial} for additional information.
+     See the \ahrefloc{sec-match-and-try}{\t{MATCH} and \t{TRY} tutorial} for additional information.
   \\
   or & \DEFINE{AT!EXIT} commandToRun \Ob \t{EXACT} \Oe &
     Whenever this \ttref{component} attempts to be installed, commandToRun
@@ -4460,7 +4460,7 @@ WMP_AREAS (0x34 4 0x30 4 0 0 0xf0)
 WMP_LINKS (0x38 4 0x3c 4 0 0 0xd8)
 \end{verbatim}
 
-\t{GET!OFFSET!ARRAY} performs "Iterations" number of reads and sets the array \verb+$string(0)+, \verb+$string(1)+ etc to the result of these reads. A more detailed explanation can be had in the \ahrefloc{sec-get-offset-array12}{\tt{GET!OFFSET!ARRAY} and \tt{GET!OFFSET!ARRAY2} tutorial}.\\
+\t{GET!OFFSET!ARRAY} performs "Iterations" number of reads and sets the array \verb+$string(0)+, \verb+$string(1)+ etc to the result of these reads. A more detailed explanation can be had in the \ahrefloc{sec-get-offset-array12}{\t{GET!OFFSET!ARRAY} and \t{GET!OFFSET!ARRAY2} tutorial}.\\
 
 or & \DEFINE{GET!OFFSET!ARRAY2} \ttref{String} \t{eight \ttref{value}s} &
   The eight values are:
@@ -4498,7 +4498,7 @@ WMP_EAST_LINKS (0x38 4 0x6c 4 0x68 4 0xd8)
 \end{verbatim}
 As you can see, the value for Offset2 isn't included in the sets, since it varies.
 
-"Offset2" corresponds to the result from \ttref{GET!OFFSET!ARRAY}. "Offset" is read from the start of the file. "Iterations" and "Index" are read from Offset2 + value. Apart from that \t{GET!OFFSET!ARRAY2} functions like \ttref{GET!OFFSET!ARRAY}. A more detailed explanation can be had in the \ahrefloc{sec-get-offset-array12}{\tt{GET!OFFSET!ARRAY} and \tt{GET!OFFSET!ARRAY2} tutorial}.\\
+"Offset2" corresponds to the result from \ttref{GET!OFFSET!ARRAY}. "Offset" is read from the start of the file. "Iterations" and "Index" are read from Offset2 + value. Apart from that \t{GET!OFFSET!ARRAY2} functions like \ttref{GET!OFFSET!ARRAY}. A more detailed explanation can be had in the \ahrefloc{sec-get-offset-array12}{\t{GET!OFFSET!ARRAY} and \t{GET!OFFSET!ARRAY2} tutorial}.\\
 
 or & \DEFINE{DEFINE!ASSOCIATIVE!ARRAY} \t{\ttref{String} BEGIN key1 \Ob , key2 ... \Oe => result1} \Slist \t{END} &
   Sets the array \verb+$string+, indexed by the keys, to the corresponding results. The results can either be \ttref{String}s or \ttref{value}s.
@@ -4648,7 +4648,7 @@ or & \DEFINE{PATCH!IF} \ttref{value} \Ob \t{THEN} \Oe \t{BEGIN}
     needs to evaluate to true for the values to match. If none
     of the values match, the \t{DEFAULT} patch list is executed.
 
-    See the \ahrefloc{sec-match-and-try}{MATCH and TRY tutorial} for additional information.
+    See the \ahrefloc{sec-match-and-try}{\t{MATCH} and \t{TRY} tutorial} for additional information.
   \\
   or & \DEFINE{PATCH!TRY} \ttref{patch} \Slist \t{WITH} \Ob pattern\ttref{value} ...
     \Ob \t{WHEN} guard\ttref{value} \Oe
@@ -4664,12 +4664,12 @@ or & \DEFINE{PATCH!IF} \ttref{value} \Ob \t{THEN} \Oe \t{BEGIN}
     allowing the installation to continue and re-raising the error
     allows it to fail, like intended.
 
-    See the \ahrefloc{sec-match-and-try}{MATCH and TRY tutorial} for additional information.
+    See the \ahrefloc{sec-match-and-try}{\t{MATCH} and \t{TRY} tutorial} for additional information.
   \\
   or & \DEFINE{PATCH!RERAISE} &
      When used inside a \ttref{PATCH!TRY}, the matched error is re-raised.
 
-     See the \ahrefloc{sec-match-and-try}{MATCH and TRY tutorial} for additional information.
+     See the \ahrefloc{sec-match-and-try}{\t{MATCH} and \t{TRY} tutorial} for additional information.
   \\
 or & \DEFINE{PATCH!INCLUDE} \t{\ttref{String}} \Slist &
     loads the file string as if it were a list of tp2 patches and executes it (as if
@@ -4709,7 +4709,7 @@ or & \DEFINE{SET!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
   it is a single string (that is not a variable in scope) that string will
   be written at the new value.
   See
-  the \ahrefloc{sec-set-2da-entry}{\tt{SET!2DA!ENTRY} tutorial} for more information. \\
+  the \ahrefloc{sec-set-2da-entry}{\t{SET!2DA!ENTRY} tutorial} for more information. \\
 
   or & \DEFINE{SET!2DA!ENTRY!LATER} string \ttref{value} \ttref{value}
   \ttref{value} &
@@ -4773,7 +4773,7 @@ or & \DEFINE{REMOVE!2DA!ROW} \t{\ttref{value}1 \ttref{value}2} &
 or & \DEFINE{PATCH!READLN} \ttref{variable} &
   Waits for the user to provided an enter-terminated string and store it in
   variable. Said string will be stored and re-used during non-interactive reinstalls. See the
-  \ahrefloc{sec-readln}{READLN tutorial}. \\
+  \ahrefloc{sec-readln}{\t{READLN} tutorial}. \\
 or & \DEFINE{PATCH!RANDOM!SEED} \ttref{value} &
   See \ttref{RANDOM!SEED}. \\
 or & \DEFINE{ADD!STORE!ITEM} \Ob \t{+} \Oe itemName \Ob position \Oe
@@ -4801,7 +4801,7 @@ or & \DEFINE{ADD!STORE!ITEM} \Ob \t{+} \Oe itemName \Ob position \Oe
   \t{)}. The optional argument unlimited should be one of the strings
   \t{limited} or \t{unlimited} and controls whether the store should
   carry an inexhaustible stack of the new item, or not. \t{limited} is
-  the default behaviour. See the \ahrefloc{sec-add-store-item}{ADD!STORE!ITEM tutorial} for
+  the default behaviour. See the \ahrefloc{sec-add-store-item}{\t{ADD!STORE!ITEM} tutorial} for
   more information.\\
 
 or & \DEFINE{REMOVE!STORE!ITEM} itmName \Slist &
@@ -4966,7 +4966,7 @@ COPY ~nice.baf~ ~mean.baf~
   case-sensitive or not. Matching is case-sensitive by default.  \\
 
   or & \DEFINE{ADD!GAM!NPC} npcCRE npcARE xCoord yCoord &
-    See the \ahrefloc{sec-add-gam-npc}{ADD!GAM!NPC tutorial} for more information about this
+    See the \ahrefloc{sec-add-gam-npc}{\t{ADD!GAM!NPC} tutorial} for more information about this
     action, which is used when adding NPCs to Baldur's Gate 1. BG2 mods
     should not use this command.  \\
 
@@ -5071,7 +5071,7 @@ will make the creature have the weapon selected. The optional argument
 in the shield slot to be unequipped. The optional argument \t{NOMOVE}
 will cause the new item to be added to the specified slot(s) only if
 there is an empty slot, otherwise the new item is placed in the
-inventory. See \ahrefloc{sec-add-cre-item}{ADD!CRE!ITEM tutorial}. \\
+inventory. See \ahrefloc{sec-add-cre-item}{\t{ADD!CRE!ITEM} tutorial}. \\
 
 or & \DEFINE{REPLACE!CRE!ITEM} itmName \t{\#}charge1 \t{\#}charge2 \t{\#}charge3 flags slot \Ob
 \t{EQUIP} \Oe \Ob \t{TWOHANDED} \Oe &
@@ -5142,7 +5142,7 @@ PATCH_PRINT "myvar is %myvar%"
   code for \t{T} and \t{SW1H01.ITM} starts with \t{ITM}). \\
 
 or & \DEFINE{INNER!ACTION} \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
-  See the \ahrefloc{sec-inner-action}{INNER!ACTION tutorial}, but loosely the current
+  See the \ahrefloc{sec-inner-action}{\t{INNER!ACTION} tutorial}, but loosely the current
   \ttref{COPY} is paused, the given \ttref{TP2 Action}s are executed, and
   then the current \ttref{COPY} is resumed. \emph{Note that an
   \ttref{INNER!ACTION} should never modify a file that is being modified by
@@ -6205,7 +6205,7 @@ above, it can be quite powerful as well.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-add-store-item}\subsection{\tt{ADD!STORE!ITEM} (Last Update: v211)}
+\label{sec-add-store-item}\subsection{\t{ADD!STORE!ITEM} (Last Update: v211)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial and this feature were thoughtfully provided by Japheth.
 
@@ -6303,7 +6303,7 @@ we add the new item BEFORE or AFTER the first item that is present in the list.
 As of 211, you can specify a (zero-based) hardcoded position via \verb+AT position+.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-add-gam-npc}\subsection{\tt{ADD!GAM!NPC}}
+\label{sec-add-gam-npc}\subsection{\t{ADD!GAM!NPC}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial and this feature were thoughtfully provided by Japheth.
 
@@ -6830,7 +6830,7 @@ Also, \t{IWD1} and \t{IWD2} have different rules for parsing certain IDS files,
 which contain spaces and/or commas in the tokens.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-subcomponent}\subsection{TP2 \tt{SUBCOMPONENT} Groups (Last Update: v192)}
+\label{sec-subcomponent}\subsection{TP2 \t{SUBCOMPONENT} Groups (Last Update: v192)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial was thoughtfully provided by CamDawg, and edited by the Bigg
@@ -6927,7 +6927,7 @@ install one of them. This could be useful if you want to ask the user if he want
 biffing of wav files or not (as you need different actions for either choice).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-add-cre-item}\subsection{\tt{ADD!CRE!ITEM} (Last Update: v240)}
+\label{sec-add-cre-item}\subsection{\t{ADD!CRE!ITEM} (Last Update: v240)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial was thoughtfully provided by Japheth.
 
@@ -7109,7 +7109,7 @@ collect the player's response. You cannot change the \t{Copying one file}
 and \t{Compiling dialogues} (and the similar) text.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-inner-action}\subsection{\tt{INNER!ACTION}}
+\label{sec-inner-action}\subsection{\t{INNER!ACTION}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Normally I would start off with \emph{do not use this feature}, but since
@@ -7745,7 +7745,7 @@ PRINT "The second letter is %letter%" // Will print "b"
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-modder}\subsection{\tt{MODDER} (Last update: v230)}
+\label{sec-modder}\subsection{\t{MODDER} (Last update: v230)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The MODDER flag allows for more debugging info to be reported. It is suggested to
@@ -7809,7 +7809,7 @@ An important note: if a tp2 sets MODDER, the debugging mode might propagate to
 other mods. As such, \emph{REMEMBER TO TURN MODDER OFF WHEN YOU RELEASE YOUR MOD.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-readln}\subsection{\tt{READLN} (Last update: v203)}
+\label{sec-readln}\subsection{\t{READLN} (Last update: v203)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial has been brought to you by plainab.
@@ -8088,7 +8088,7 @@ LAUNCH_ACTION_FUNCTION xyz INT_VAR y END // synonym for INT_VAR y = y
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-get-offset-array12}\subsection{\tt{GET!OFFSET!ARRAY} and \tt{GET!OFFSET!ARRAY2} (last edit: 218)}
+\label{sec-get-offset-array12}\subsection{\t{GET!OFFSET!ARRAY} and \t{GET!OFFSET!ARRAY2} (last edit: 218)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Many thanks to Wisp for providing this tutorial.
@@ -8133,7 +8133,7 @@ BUT_ONLY
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-match-and-try}\subsection{\tt{MATCH} and \tt{TRY} (last edit: 245)}
+\label{sec-match-and-try}\subsection{\t{MATCH} and \t{TRY} (last edit: 245)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \verb+MATCH+ is the equivalent of switch..case in mainstream languages (except
@@ -8334,7 +8334,7 @@ which would cause you headaches when nesting multiple \verb+TRY+s).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-quick-menu}\subsection{\tt{QUICK!MENU} (last edit: 227)}
+\label{sec-quick-menu}\subsection{\t{QUICK!MENU} (last edit: 227)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tp2 flag is used to define groups of components that the user will be
@@ -8393,7 +8393,7 @@ development of your mod using --yes and the like.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-handle-audio-and-handle-tilesets}\subsection{\tt{HANDLE!AUDIO} and \tt{HANDLE!TILESETS}}
+\label{sec-handle-audio-and-handle-tilesets}\subsection{\t{HANDLE!AUDIO} and \t{HANDLE!TILESETS}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \ttref{HANDLE!AUDIO} and \ttref{HANDLE!TILESETS} are convenience
