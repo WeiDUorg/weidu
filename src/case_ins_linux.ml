@@ -3,29 +3,37 @@
 
 open BatteriesInit
 open Hashtblinit
+
+let case_exact = ref false
+
+let case_transform s =
+  if not !case_exact then
+    String.lowercase s
+  else s
+
 (* Pervasives FS calls *)
 let backslash_to_slash s =
   let s = Str.global_replace (Str.regexp "\\\\") "/" s in
 				s
 
-let perv_open_out s = open_out (String.lowercase (backslash_to_slash s)) ;;
-let perv_open_out_gen m i s = open_out_gen m i (String.lowercase (backslash_to_slash s)) ;;
-let perv_open_out_bin s = open_out_bin (String.lowercase (backslash_to_slash s)) ;;
-let perv_open_in s = open_in (String.lowercase (backslash_to_slash s)) ;;
-let perv_open_in_gen m i s = open_in_gen m i (String.lowercase (backslash_to_slash s)) ;;
-let perv_open_in_bin s = open_in_bin (String.lowercase (backslash_to_slash s)) ;;
+let perv_open_out s = open_out (case_transform (backslash_to_slash s)) ;;
+let perv_open_out_gen m i s = open_out_gen m i (case_transform (backslash_to_slash s)) ;;
+let perv_open_out_bin s = open_out_bin (case_transform (backslash_to_slash s)) ;;
+let perv_open_in s = open_in (case_transform (backslash_to_slash s)) ;;
+let perv_open_in_gen m i s = open_in_gen m i (case_transform (backslash_to_slash s)) ;;
+let perv_open_in_bin s = open_in_bin (case_transform (backslash_to_slash s)) ;;
 
-let unix_openfile s a b = Unix.openfile (String.lowercase (backslash_to_slash s)) a b ;;
-let unix_stat s = Unix.stat (String.lowercase (backslash_to_slash s)) ;;
-let unix_stat64 s = Unix.LargeFile.stat (String.lowercase (backslash_to_slash s)) ;;
-let unix_chmod s p = Unix.chmod (String.lowercase (backslash_to_slash s)) p ;;
-let unix_unlink s = Unix.unlink (String.lowercase (backslash_to_slash s)) ;;
-let unix_mkdir s p = Unix.mkdir (String.lowercase (backslash_to_slash s)) p ;;
-let unix_opendir s = Unix.opendir (String.lowercase (backslash_to_slash s)) ;;
-let unix_rename s d = Unix.rename (String.lowercase (backslash_to_slash s)) (String.lowercase (backslash_to_slash d));;
-let unix_rmdir s = Unix.rmdir (String.lowercase (backslash_to_slash s));;
+let unix_openfile s a b = Unix.openfile (case_transform (backslash_to_slash s)) a b ;;
+let unix_stat s = Unix.stat (case_transform (backslash_to_slash s)) ;;
+let unix_stat64 s = Unix.LargeFile.stat (case_transform (backslash_to_slash s)) ;;
+let unix_chmod s p = Unix.chmod (case_transform (backslash_to_slash s)) p ;;
+let unix_unlink s = Unix.unlink (case_transform (backslash_to_slash s)) ;;
+let unix_mkdir s p = Unix.mkdir (case_transform (backslash_to_slash s)) p ;;
+let unix_opendir s = Unix.opendir (case_transform (backslash_to_slash s)) ;;
+let unix_rename s d = Unix.rename (case_transform (backslash_to_slash s)) (case_transform (backslash_to_slash d));;
+let unix_rmdir s = Unix.rmdir (case_transform (backslash_to_slash s));;
 
-let sys_readdir s = Sys.readdir (String.lowercase (backslash_to_slash s));;
+let sys_readdir s = Sys.readdir (case_transform (backslash_to_slash s));;
 
 let weidu_executable = "weidu" ;;
 
