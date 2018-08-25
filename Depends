@@ -23,7 +23,7 @@ MLYS := dparser.mly idsparser.mly bcsparser.mly bafparser.mly toldparser.mly ref
 GRS := trealparserin.gr
 
 src/tph.ml : src/tph/include/* src/tph/define/* scripts/make_tph.ml
-	ocaml str.cma unix.cma -w p scripts/make_tph.ml
+	ocaml str.cma unix.cma -w p -unsafe-string scripts/make_tph.ml
 
 $(OBJDIR)/trealparser.ml : $(OBJDIR)/trealparserin.ml scripts/make_par.ml scripts/make_compr_parser.ml
 	ocaml str.cma unix.cma -w p scripts/make_compr_parser.ml $(OBJDIR)/trealparserin.ml $(OBJDIR)/trealparser.ml

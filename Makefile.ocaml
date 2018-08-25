@@ -168,7 +168,7 @@ else
 ifdef NATIVECAML
  #foo := $(shell echo "I am in NATIVECAML mode" >&2; echo whatever)
  CAMLC          = $(OCAMLDIR)/ocamlopt$(USEOPT) -compact $(COMPILEFLAGS)
- CAMLLINK       = $(OCAMLDIR)/ocamlopt$(USEOPT) -compact $(LINKFLAGS)
+ CAMLLINK       = $(OCAMLDIR)/ocamlopt$(USEOPT) -compact -unsafe-string $(LINKFLAGS)
  CMO            = cmx
  CMXA           = cmxa
  EXEEXT         = .asm
