@@ -409,7 +409,7 @@ let rec eval_pe buff game p =
       let name = Var.get_string (eval_pe_str name) in
       Int32.of_int (match tp2s with
       | tp2 :: rest -> (match get_id_of_label
-            (Parsewrappers.handle_tp2_filename tp2) name with
+            (Parsewrappers.handle_tp2_filename_caching tp2 true) name with
         | None -> Int32.to_int Int32.min_int
         | Some x -> x)
       | [] -> Int32.to_int Int32.min_int)

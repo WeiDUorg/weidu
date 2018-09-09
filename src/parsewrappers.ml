@@ -5,6 +5,8 @@ open BatteriesInit
 open Hashtblinit
 open Util
 
+let tp2_cache = Hashtbl.create 5
+
 let load_log () =
   try
     let result = parse_file true (File Tp.log_name) "parsing .log files"
@@ -109,11 +111,18 @@ let handle_d_buffer game filename buffer =
     Dc.clear_state () ;
     raise e
 
+let handle_tp2_filename_caching filename can_cache =
+  if can_cache && Hashtbl.mem tp2_cache filename then
+    Hashtbl.find tp2_cache filename
+  else
+    let res = Tparser.parse_tp2_file (File filename) in
+    res.Tp.tp_filename <- filename ;
+    if can_cache then
+      Hashtbl.add tp2_cache filename res ;
+    res
 
 let handle_tp2_filename filename =
-  let res = Tparser.parse_tp2_file (File filename) in
-  res.Tp.tp_filename <- filename ;
-  res
+  handle_tp2_filename_caching filename false
 
 let handle_tph_filename filename =
   Tparser.parse_tpa_file (File filename)
