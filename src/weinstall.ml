@@ -2,7 +2,6 @@
    starting from 18 December 2012 and WeiDU 231.06. *)
 
 open BatteriesInit
-open Hashtblinit
 
 let log_and_print fmt =
   let k result = begin
