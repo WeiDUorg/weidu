@@ -147,6 +147,9 @@ DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#RECURSE
     type = ""
     function = ""
 BEGIN
+  ACTION_IF verbose BEGIN
+    PRINT "#RECURSE is calling terminal function on %in_path% with out_path: %out_path%"
+  END
   ACTION_BASH_FOR "%in_path%" ".+\.%type%$" BEGIN
     LAF "%function%"
       STR_VAR
@@ -164,6 +167,9 @@ BEGIN
           filespec = EVAL "%in_path%"
         RET
           directory = res
+      END
+      ACTION_IF verbose BEGIN
+        PRINT "#RECURSE is recursing through %in_path% with out_path: %out_path%/%directory%"
       END
       LAF fl#HANDLE_CHARSETS#RECURSE
         STR_VAR
@@ -195,6 +201,9 @@ BEGIN
     END
   END
   ACTION_IF convert BEGIN
+    ACTION_IF verbose BEGIN
+      PRINT "Converting %in_path%/%file% to %out_path%/%file%"
+    END
     LAF fl#HANDLE_CHARSETS#CONVERT
       STR_VAR
         iconv // from the calling environment (curse the lack of closures)
@@ -210,6 +219,7 @@ END
 DEFINE_ACTION_FUNCTION HANDLE_CHARSETS
   INT_VAR
     infer_charsets = 0
+    verbose = 0
   STR_VAR
     tra_path = ~~
     out_path = EVAL ~%tra_path%~
@@ -227,6 +237,10 @@ BEGIN
   ACTION_IF FILE_EXISTS_IN_GAME bgee.lua OR
             FILE_EXISTS_IN_GAME monkfist.2da
   BEGIN
+    ACTION_IF verbose BEGIN
+      PRINT "tra_path: %tra_path%"
+      PRINT "out_path: %out_path%"
+    END
     /*
      * Initial versions mistakenly called the variable infer_charset.
      * For reasons of backwards-compatibility, we use infer_charset
@@ -265,11 +279,17 @@ BEGIN
             RET
               from_charset = charset
           END
+          ACTION_IF verbose BEGIN
+            PRINT "from_charset identified as %from_charset%"
+          END
           ACTION_IF VARIABLE_IS_SET $EVAL "%convert_array%"(0) BEGIN
             ACTION_PHP_EACH "%convert_array%" AS _ => filename BEGIN
               ACTION_IF "%filename%" STRING_MATCHES_REGEXP ".+\.tra$" = 0 BEGIN
                 OUTER_SPRINT file "%filename%"
               END ELSE OUTER_SPRINT file "%filename%.tra"
+              ACTION_IF verbose BEGIN
+                PRINT "convert_array: %file%"
+              END
               LAF fl#HANDLE_CHARSETS#CONVERT
                 STR_VAR
                   iconv
@@ -281,6 +301,9 @@ BEGIN
               END
             END
           END ELSE BEGIN
+            ACTION_IF verbose BEGIN
+              PRINT "Recursing through %tra_path%/%language%"
+            END
             LAF fl#HANDLE_CHARSETS#RECURSE
               STR_VAR
                 in_path = EVAL ~%tra_path%/%language%~
@@ -290,6 +313,9 @@ BEGIN
             END
           END
           ACTION_PHP_EACH "%reload_array%" AS _ => file BEGIN
+            ACTION_IF verbose BEGIN
+              PRINT "reload_array: %file%"
+            END
             ACTION_IF "%file%" STRING_MATCHES_REGEXP ".+\.tra$" = 0 BEGIN
               LOAD_TRA ~%out_path%/%language%/%file%~
             END ELSE LOAD_TRA ~%out_path%/%language%/%file%.tra~
