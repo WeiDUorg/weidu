@@ -212,6 +212,7 @@ BEGIN
         out_path
         file
         from_charset // from the calling environment
+        to_charset // from the calling environment
     END
   END
 END
@@ -220,6 +221,7 @@ DEFINE_ACTION_FUNCTION HANDLE_CHARSETS
   INT_VAR
     infer_charsets = 0
     verbose = 0
+    from_utf8 = 0
   STR_VAR
     tra_path = ~~
     out_path = EVAL ~%tra_path%~
@@ -234,8 +236,12 @@ BEGIN
   /* Early versions of BG: EE do not include bgee.lua and
    * PST: EE does not include monkfist.2da
    */
-  ACTION_IF FILE_EXISTS_IN_GAME bgee.lua OR
-            FILE_EXISTS_IN_GAME monkfist.2da
+  ACTION_IF ((FILE_EXISTS_IN_GAME bgee.lua OR
+            FILE_EXISTS_IN_GAME monkfist.2da) AND
+            !from_utf8) OR
+            (!FILE_EXISTS_IN_GAME bgee.lua AND
+            !FILE_EXISTS_IN_GAME monkfist.2da AND
+            from_utf8)
   BEGIN
     ACTION_IF verbose BEGIN
       PRINT "tra_path: %tra_path%"
@@ -277,10 +283,19 @@ BEGIN
               language
               charset_table
             RET
-              from_charset = charset
+              charset
+          END
+          ACTION_IF !from_utf8 BEGIN
+            OUTER_SPRINT from_charset "%charset%"
+            OUTER_SPRINT to_charset "UTF-8"
+          END ELSE BEGIN
+            OUTER_SPRINT from_charset "UTF-8"
+            OUTER_SPRINT to_charset "%charset%"
           END
           ACTION_IF verbose BEGIN
+            PRINT "Conversion is from unicode?: %from_utf8%"
             PRINT "from_charset identified as %from_charset%"
+            PRINT "to_charset identifed as %to_charset%"
           END
           ACTION_IF VARIABLE_IS_SET $EVAL "%convert_array%"(0) BEGIN
             ACTION_PHP_EACH "%convert_array%" AS _ => filename BEGIN
@@ -298,6 +313,7 @@ BEGIN
                   out_path = EVAL ~%out_path%/%language%~
                   file
                   from_charset
+                  to_charset
               END
             END
           END ELSE BEGIN
