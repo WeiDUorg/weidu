@@ -177,6 +177,9 @@ and tp_action =
   | TP_Define_Action_Function of string * (tp_pe_string * tp_patchexp) list *
 	(tp_pe_string * tp_pe_string) list * tp_pe_string list *
         tp_pe_string list * tp_action list
+  | TP_Define_Dimorphic_Function of string * (tp_pe_string * tp_patchexp) list *
+        (tp_pe_string * tp_pe_string) list * tp_pe_string list *
+        tp_pe_string list * tp_action list
   | TP_Biff of string * ((string * (bool option) * string) list)
   | TP_Mkdir of string list
   | TP_Outer_For of (tp_patch list) * tp_patchexp * (tp_patch list) * (tp_action list)

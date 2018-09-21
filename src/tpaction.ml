@@ -146,6 +146,10 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Define_Action_Function (name,ints,strs,rets,retas,body) ->
           Hashtbl.replace functions (name,false) (ints,strs,rets,retas,pl_of_al body)
 
+      | TP_Define_Dimorphic_Function (name,ints,strs,rets,retas,body) ->
+          Hashtbl.replace functions (name,false) (ints,strs,rets,retas,pl_of_al body) ;
+          Hashtbl.replace functions (name,true) (ints,strs,rets,retas,pl_of_al body)
+
       | TP_Define_Patch_Function (name,ints,strs,rets,retas,body) ->
           Hashtbl.replace functions (name,true) (ints,strs,rets,retas,body)
 

@@ -428,6 +428,8 @@ nonterm(Tp.tp_action) Tp_Action {
        BEGIN e6:Tp_Patch_List END [ Tp.TP_Define_Patch_Function(e1,e2,e3,e4,e5,e6) ]
   -> DEFINE_ACTION_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:DefineFunctionRet e5:DefineFunctionRetArray
        BEGIN e6:Tp_Action_List END [ Tp.TP_Define_Action_Function(e1,e2,e3,e4,e5,e6) ]
+  -> DEFINE_DIMORPHIC_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:DefineFunctionRet e5:DefineFunctionRetArray
+       BEGIN e6:Tp_Action_List END [ Tp.TP_Define_Dimorphic_Function(e1,e2,e3,e4,e5,e6) ]
   -> LAUNCH_ACTION_MACRO e1:STRING [ Tp.TP_Launch_Action_Macro e1 ]
   -> LAUNCH_ACTION_FUNCTION e1:STRING e2:LaunchFunctionIntVar
      e3:LaunchFunctionStrVar e4:LaunchFunctionRet e5:LaunchFunctionRetArray END

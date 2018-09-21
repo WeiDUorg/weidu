@@ -3954,6 +3954,18 @@ or & \DEFINE{DEFINE!ACTION!FUNCTION} \ttref{String}
      \t{END} &
   Define an action function. Refer to the \ahrefloc{sec-functions}{\t{Functions}} section for
   additional information. \\
+
+or & \DEFINE{DEFINE!DIMORPHIC!FUNCTION} \ttref{String}
+     \Ob \t{INT!VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
+     \Ob \t{STR!VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe
+     \Ob \t{RET} \ttref{variable} ... \Oe
+     \Ob \t{RET!ARRAY} \ttref{variable} ... \Oe
+     \t{BEGIN} \ttref{TP2 Action} \Slist
+     \t{END} &
+
+     As \ttref{DEFINE!ACTION!FUNCTION}, except the function is additionally
+     defined as a PATCH function. \\
+
 or & \DEFINE{DEFINE!PATCH!FUNCTION} \ttref{String}
      \Ob \t{INT!VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
      \Ob \t{STR!VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe

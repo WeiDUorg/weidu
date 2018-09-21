@@ -217,6 +217,7 @@ let action_to_str a = match a with
 | TP_Define_Action_Macro _ -> "DEFINE_ACTION_MACRO"
 | TP_Define_Patch_Macro _ -> "DEFINE_PATCH_MACRO"
 | TP_Define_Action_Function _ -> "DEFINE_ACTION_FUNCTION"
+| TP_Define_Dimorphic_Function _ -> "DEFINE_DIMORPHIC_FUNCTION"
 | TP_Define_Patch_Function _ -> "DEFINE_PATCH_FUNCTION"
 | TP_Silent -> "SILENT"
 | TP_Verbose -> "VERBOSE"
