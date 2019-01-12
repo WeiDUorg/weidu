@@ -4335,6 +4335,7 @@ or & \DEFINE{REPLACE!BCS!BLOCK} \Ob \t{EVALUATE!BUFFER} \Oe \ttref{optcase}
      oldFile newFile \Ob \t{ON!MISMATCH} \ttref{patch} \Slist \t{END} \Oe &
   If the current file is a \ttref{BCS} file, the segment of it
   corresponding to oldFile is replaced with the contents of newFile.
+  Multiple blocks can be replaced if they are contiguous and in order.
   oldFile and newFile may be \ttref{BCS} or \ttref{BAF} files. If they
   are \ttref{BAF} files they will not get the benefit of \ttref{AUTO!TRA}.
 
