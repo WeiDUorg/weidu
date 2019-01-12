@@ -2829,9 +2829,12 @@ global option to your \ttref{TP2} file. \\
        {in-depth description}.
        \\
   or & \DEFINE{VERSION} String &
-  		"String" (variables evaluated) will be appended to every component's name in the
-  		weidu.log file.
-			\\
+
+  "String" (variables evaluated) will be appended to every component's
+  name in the weidu.log file. The \ttref{variable}
+  \DEFINE{MOD!VERSION} evaluates to the string set by \ttref{VERSION}
+  or to the empty string if the \ttref{VERSION} flag is not present. \\
+
   or & \DEFINE{SCRIPT!STYLE} style &
        This flag determines how WeiDU will read in \ttref{BAF} and
        \ttref{BCS} files and

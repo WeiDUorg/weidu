@@ -30,7 +30,11 @@ let set_tp2_vars tp =
   Var.set_string "TP2_BASE_NAME" (Var.get_tp2_base_name tp.tp_filename) ;
   (match Var.get_mod_folder tp.backup with
   | Some s -> Var.set_string "MOD_FOLDER" s
-  | None -> ())
+  | None -> ()) ;
+  Var.set_string "MOD_VERSION" (List.fold_left (fun acc flag ->
+    (match flag with
+    | Version s -> (Dc.single_string_of_tlk_string (Load.the_game ()) s)
+    | _ -> acc)) "" tp.flags)
 
 (************************************************************************
  * Common hashtables.
