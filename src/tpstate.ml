@@ -24,11 +24,18 @@ let rec get_menu_style fl = match fl with
 | Menu_Style(i) :: tl -> int_of_string i
 | hd :: tl -> get_menu_style tl
 
+let mod_folder tp =
+  (match Var.get_mod_folder tp.tp_filename with
+  | Some s -> Some s
+  | None -> (match Var.get_mod_folder tp.backup with
+    | Some s -> Some s
+    | None -> None))
+
 let set_tp2_vars tp =
   Var.set_string "TP2_AUTHOR" tp.author ;
   Var.set_string "TP2_FILE_NAME" tp.tp_filename ;
   Var.set_string "TP2_BASE_NAME" (Var.get_tp2_base_name tp.tp_filename) ;
-  (match Var.get_mod_folder tp.backup with
+  (match mod_folder tp with
   | Some s -> Var.set_string "MOD_FOLDER" s
   | None -> ()) ;
   Var.set_string "MOD_VERSION" (List.fold_left (fun acc flag ->

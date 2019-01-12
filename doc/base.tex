@@ -2766,10 +2766,9 @@ Here is the context-free grammar syntax for the \ttref{TP2} file format:
        \ttref{variable} is set to the name of the tp2, excluding any initial
        ``setup-''. For ``setup-mymod.tp2'', \t{TP2!FILE!NAME} is set to
        ``setup-mymod.tp2'', while \t{TP2!BASE!NAME} is set to ``mymod.tp2''.
-       The \DEFINE{MOD!FOLDER} \ttref{variable} is set to the root directory
-       of directoryName. If directoryName is
-       ``mymod/thisIsUnconventional/backup'', \t{MOD!FOLDER} is set to
-       ``mymod''.
+       The \DEFINE{MOD!FOLDER} \ttref{variable} is set to the
+       directory containing the TP2 file, if there is one, otherwise
+       it is set to the root directory of directoryName.
        \ttref{TP2 Flag}s set global options.
        \ttref{Language}s are
        the various languages in which your mod is available. The
