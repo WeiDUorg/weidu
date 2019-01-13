@@ -27,9 +27,7 @@ let rec get_menu_style fl = match fl with
 let mod_folder tp =
   (match Var.get_mod_folder tp.tp_filename with
   | Some s -> Some s
-  | None -> (match Var.get_mod_folder tp.backup with
-    | Some s -> Some s
-    | None -> None))
+  | None -> Var.get_mod_folder tp.backup)
 
 let set_tp2_vars tp =
   Var.set_string "TP2_AUTHOR" tp.author ;
