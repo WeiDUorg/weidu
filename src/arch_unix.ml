@@ -40,7 +40,7 @@ let handle_view_command s skip =
     end) [Str.regexp_case_fold "^VIEW[ \t]*" ; Str.regexp_case_fold "^NOTEPAD[ \t]*" ;
           Str.regexp_case_fold "^EXPLORER[ \t]*"];
   if skip && (s <> !result) then result := "";
-  let s = String.lowercase !result in
+  let s = String.lowercase_ascii !result in
   s
 
 let glob str fn = failwith "no globbing support"
@@ -54,7 +54,7 @@ let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)"
 let is_weidu_executable f =
   try
     let i = Case_ins.perv_open_in_bin f in
-    let buff = String.create 4 in
+    let buff = Bytes.create 4 in
     let signature = input i buff 0 4 in
     Str.string_match (Str.regexp_case_fold "setup-.*") f 0 && buff = "\x7fELF"
   with _ -> false
