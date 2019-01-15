@@ -33,6 +33,10 @@ all : weidu
 # Debugging. Set ECHO= to debug this Makefile
 # ECHO := @
 
+# fix:
+# Error: This expression has type string but an expression was expected of type bytes 
+export OCAMLPARAM = safe-string=0,_
+
 RELEASE    := 1
 NATIVECAML := 1
 # UNSAFE     := 1
