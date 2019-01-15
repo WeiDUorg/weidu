@@ -167,7 +167,7 @@ ifdef PROFILE
 else
 ifdef NATIVECAML
  #foo := $(shell echo "I am in NATIVECAML mode" >&2; echo whatever)
- CAMLC          = $(OCAMLDIR)/ocamlopt$(USEOPT) -compact $(COMPILEFLAGS)
+ CAMLC          = $(OCAMLDIR)/ocamlopt$(USEOPT) -compact -unsafe-string $(COMPILEFLAGS)
  CAMLLINK       = $(OCAMLDIR)/ocamlopt$(USEOPT) -compact -unsafe-string $(LINKFLAGS)
  CMO            = cmx
  CMXA           = cmxa
