@@ -248,7 +248,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let old_file = Var.get_string old_file in
         let new_file = Var.get_string new_file in
         let bcs_buff_of_baf_or_bcs file =
-          let a,b = split (String.uppercase file) in
+          let a,b = split (String.uppercase_ascii file) in
           if b = "BAF" then begin
             try
               let contents = if eval then Var.get_string (load_file file)
@@ -631,7 +631,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
                   if ((Case_ins.unix_stat
                          (directory ^ "/" ^ next)).Unix.st_kind =
                       Unix.S_REG) && (Str.string_match reg next 0) then
-                    find_list := (String.uppercase
+                    find_list := (String.uppercase_ascii
                                     (directory ^ "/" ^ next)) :: !find_list
                 done
               with End_of_file -> ());
@@ -1454,7 +1454,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         (* Create the non-party NPC entry *)
 
         let npc_entry_buff = String.make 352 '\000' in
-        String.blit (String.uppercase cre_name) 0 npc_entry_buff 0xc
+        String.blit (String.uppercase_ascii cre_name) 0 npc_entry_buff 0xc
           (String.length cre_name);
         String.blit area 0 npc_entry_buff 0x18 (String.length area);
         let x = (Int32.to_int (eval_pe buff game x)) in
@@ -1462,10 +1462,10 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         write_short npc_entry_buff 0x20 x;
         write_short npc_entry_buff 0x22 y;
         for i = 140 to 147 do
-          npc_entry_buff.[i] <- Char.chr 0xFF
+          Bytes.set npc_entry_buff i (Char.chr 0xFF)
         done;
         for i = 180 to 185 do
-          npc_entry_buff.[i] <- Char.chr 0xFF
+          Bytes.set npc_entry_buff i (Char.chr 0xFF)
         done;
 
         (* Update all offsets *)
@@ -1496,22 +1496,22 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
     | TP_Remove_Known_Spell(sp_list) ->
         let sp_list = List.map (fun x ->
-          String.uppercase(Var.get_string x)) sp_list in
+          String.uppercase_ascii(Var.get_string x)) sp_list in
         let cre = Cre.cre_of_string buff in
         let known_spells = List.filter (fun (sp_name, sp_lvl, sp_type) ->
-          not (List.mem (String.uppercase sp_name) sp_list))
+          not (List.mem (String.uppercase_ascii sp_name) sp_list))
             cre.Cre.known_spells in
         Cre.string_of_cre {cre with Cre.known_spells = known_spells}
 
     | TP_Remove_Memorized_Spell(sp_list) ->
         let sp_list = List.map (fun x ->
-          String.uppercase (Var.get_string x)) sp_list in
+          String.uppercase_ascii (Var.get_string x)) sp_list in
         let cre = Cre.cre_of_string buff in
         let memorized_info = List.map
             (fun (level, count, count2, spell_type, mlist) ->
               (level, count, count2, spell_type,
                List.filter (fun (spell_name, memorized) ->
-                 not (List.mem (String.uppercase spell_name) sp_list)) mlist))
+                 not (List.mem (String.uppercase_ascii spell_name) sp_list)) mlist))
             cre.Cre.memorized_info in
         Cre.string_of_cre {cre with Cre.memorized_info = memorized_info}
 
@@ -1521,7 +1521,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let level = (Int32.to_int (eval_pe buff game level)) in
         let known_spells = cre.Cre.known_spells in
         let new_type =
-          (match (String.uppercase (Var.get_string sp_type)) with
+          (match (String.uppercase_ascii (Var.get_string sp_type)) with
           | "PRIEST" -> 0
           | "INNATE" -> 2
           | "WIZARD" -> 1
@@ -1531,12 +1531,12 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               log_and_print
                 "WARNING: ADD_NEW_SPELL: Unknown flag %s. \
                 Defaulting to INNATE for spell type.\n"
-                (String.uppercase sp_type);
+                (String.uppercase_ascii sp_type);
               2) in
         let this = (Var.get_string spell, level, new_type) in
         let known_spells = if not (List.exists (fun cur ->
           let (ospell, olevel, otype) = cur in
-          (String.uppercase ospell = String.uppercase spell) && olevel = level
+          (String.uppercase_ascii ospell = String.uppercase_ascii spell) && olevel = level
             && otype = new_type) known_spells) then
           this :: known_spells else known_spells in
         if !debug_ocaml then log_and_print "Added the spell.\n";
@@ -1546,11 +1546,11 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
     | TP_Remove_Cre_Item(items) ->
         if !debug_ocaml then log_and_print "Attempting to REMOVE_CRE_ITEM\n";
         let cre = Cre.cre_of_string buff in
-        let items = List.map String.uppercase (List.map Var.get_string items) in
+        let items = List.map String.uppercase_ascii (List.map Var.get_string items) in
         let new_cre_items = ref [] in
         List.iter (fun item ->
           let name,_ = item in
-          if not (List.mem (String.uppercase name) items) then
+          if not (List.mem (String.uppercase_ascii name) items) then
             new_cre_items := item :: !new_cre_items;) cre.Cre.items;
         if !debug_ocaml then log_and_print "Added the spell.\n";
         let out = Cre.string_of_cre {cre with Cre.items = !new_cre_items} in
@@ -1587,7 +1587,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               match name with
               | PE_String(x) ->
                   Bcs.int_of_sym game "STATS"
-                    (String.uppercase (Var.get_string (eval_pe_str x)))
+                    (String.uppercase_ascii (Var.get_string (eval_pe_str x)))
               | _ -> failwith "go ahead"
             end
           with _ ->
@@ -1647,7 +1647,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let spell = Var.get_string spell in
         let stype = Var.get_string stype in
         let new_type =
-          (match (String.uppercase stype) with
+          (match (String.uppercase_ascii stype) with
           | "PRIEST" -> 0
           | "INNATE" -> 2
           | "WIZARD" -> 1
@@ -1657,7 +1657,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               log_and_print
                 "WARNING: ADD_NEW_SPELL: Unknown flag %s. \
                 Defaulting to INNATE for spell type.\n"
-                (String.uppercase stype);
+                (String.uppercase_ascii stype);
               2) in
         for j = 1 to spcount do
           memorized_info := List.map (fun (level,count,count2, spell_type, mlist)->
@@ -1688,10 +1688,10 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             Queue.push {Sav.filename = current.Sav.filename;
                         Sav.contents = result}  nsav;
           end else begin
-            let cur_file = String.uppercase current.Sav.filename in
+            let cur_file = String.uppercase_ascii current.Sav.filename in
             let new_files, found = List.fold_left (
               fun (files, found) file ->
-                let maybe_file = String.uppercase (eval_pe_str file) in
+                let maybe_file = String.uppercase_ascii (eval_pe_str file) in
                 if maybe_file = cur_file then (files, true)
                   else (file :: files, found)
             ) ([], false) !files in
@@ -1709,7 +1709,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         done;
         if (create) then begin
           List.iter (fun file ->
-            let file = String.uppercase(eval_pe_str file) in
+            let file = String.uppercase_ascii(eval_pe_str file) in
             Var.set_string "SAV_FILE" file;
             let res, ext = split file in
             let buff, path =
@@ -1732,7 +1732,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         (* Turn the colours into something usable *)
 
         let colour_flags =
-          (match (String.uppercase (Var.get_string m.colour)) with
+          (match (String.uppercase_ascii (Var.get_string m.colour)) with
           | "GRAY" -> 0
           | "VIOLET" -> 1
           | "GREEN" -> 2
@@ -1747,7 +1747,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               log_and_print
                 "WARNING: ADD_MAP_NOTE: Unknown flag %s. \
                 Defaulting to GRAY for flags.\n"
-                (String.uppercase m.colour);
+                (String.uppercase_ascii m.colour);
               0) in
 
         (* Create the new automap *)
@@ -1897,13 +1897,13 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
     | TP_PatchToLower(name) ->
         let name = eval_pe_str name in
         let value = Var.get_string_exact ("%" ^ name ^ "%") in
-        Var.set_string name (String.lowercase value) ;
+        Var.set_string name (String.lowercase_ascii value) ;
         buff
 
     | TP_PatchToUpper(name) ->
         let name = eval_pe_str name in
         let value = Var.get_string_exact ("%" ^ name ^ "%") in
-        Var.set_string name (String.uppercase value) ;
+        Var.set_string name (String.uppercase_ascii value) ;
         buff
 
     | TP_PatchSnprint(size,name,msg) ->
@@ -1924,7 +1924,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
     | TP_Add_Cre_Item(i) ->
         let i = {i with
-                 item_name = String.uppercase (Var.get_string i.item_name);
+                 item_name = String.uppercase_ascii (Var.get_string i.item_name);
                  item_slot = Var.get_string i.item_slot ;
                  i_flags = Var.get_string i.i_flags ;
                } in
@@ -1937,7 +1937,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let possible_slots = Cre.string_to_slots i.item_slot in
 
         (* Make the flags into something useable *)
-        let new_flags = match (String.uppercase i.i_flags) with
+        let new_flags = match (String.uppercase_ascii i.i_flags) with
         | "NONE" -> 0
         | "IDENTIFIED" -> 1
         | "UNSTEALABLE" -> 2
@@ -1956,7 +1956,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             log_and_print
               "WARNING: ADD_CRE_ITEM: Unknown flag %s. \
               Defaulting to NONE for flags.\n"
-              (String.uppercase i.i_flags) ;
+              (String.uppercase_ascii i.i_flags) ;
             0 in
 
         begin try
@@ -2145,7 +2145,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
     | TP_Replace_Cre_Item(i) ->
         let i = {i with
-                 item_name = String.uppercase (Var.get_string i.item_name);
+                 item_name = String.uppercase_ascii (Var.get_string i.item_name);
                  item_slot = Var.get_string i.item_slot ;
                  i_flags = Var.get_string i.i_flags ;
                } in
@@ -2158,7 +2158,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let possible_slots = Cre.string_to_slots i.item_slot in
 
         (* Make the flags into something useable *)
-        let new_flags = match (String.uppercase i.i_flags) with
+        let new_flags = match (String.uppercase_ascii i.i_flags) with
         | "NONE" -> 0
         | "IDENTIFIED" -> 1
         | "UNSTEALABLE" -> 2
@@ -2177,7 +2177,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             log_and_print
               "WARNING: REPLACE_CRE_ITEM: Unknown flag %s. \
               Defaulting to NONE for flags.\n"
-              (String.uppercase i.i_flags) ;
+              (String.uppercase_ascii i.i_flags) ;
             0 in
 
         let cre = Cre.cre_of_string buff in
@@ -2258,7 +2258,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
           Buffer.contents out_buff
         with e ->
           Dc.ok_to_resolve_strings_while_loading := old_ok;
-          if List.mem (String.uppercase patch_filename)
+          if List.mem (String.uppercase_ascii patch_filename)
               ["RDOG.BCS"; "RDWARF.BCS";
                "RETTER.BCS"; "RGIBBLER.BCS"; "RHALFLIN.BCS"; "RHOBGOBA.BCS";
                "RHOBGOBF.BCS"; "RKOBOLD.BCS"; "ROGRE.BCS"; "RSIREN.BCS";
@@ -2277,7 +2277,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             (Bcs.BCS_Print_Script(bcs)) false None ;
           Buffer.contents out_buff
         with e ->
-          if List.mem (String.uppercase patch_filename)
+          if List.mem (String.uppercase_ascii patch_filename)
               ["RDOG.BCS"; "RDWARF.BCS";
                "RETTER.BCS"; "RGIBBLER.BCS"; "RHALFLIN.BCS"; "RHOBGOBA.BCS";
                "RHOBGOBF.BCS"; "RKOBOLD.BCS"; "ROGRE.BCS"; "RSIREN.BCS";
@@ -2296,7 +2296,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
     | TP_DecompileAndPatch pl ->
         let (dec,com) =
-          let base,ext = split (String.lowercase patch_filename) in
+          let base,ext = split (String.lowercase_ascii patch_filename) in
           match ext with
           | "bcs"
           | "bs" ->
@@ -2328,7 +2328,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
           let (fn,name) =
             let base,ext = match which with
             | Some x -> "", x
-            | None -> split (String.lowercase patch_filename)
+            | None -> split (String.lowercase_ascii patch_filename)
             in
             match ext with
             | "bs"
@@ -2446,7 +2446,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
         (* Create the new item *)
         let item = Var.get_string item in
-        let item = String.uppercase item in
+        let item = String.uppercase_ascii item in
 
         let item_size =
           (match (String.sub buff 0 8) with
@@ -2463,7 +2463,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         write_short item_buff 0xe charge3;
 
         let new_flags =
-          (match (String.uppercase (Var.get_string flags)) with
+          (match (String.uppercase_ascii (Var.get_string flags)) with
           | "NONE" -> 0
           | "IDENTIFIED" -> 1
           | "UNSTEALABLE" -> 2
@@ -2476,12 +2476,12 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               log_and_print
                 "WARNING: ADD_STORE_ITEM: Unknown flag %s. \
                 Defaulting to 0 for flags.\n"
-                (String.uppercase (Var.get_string flags));
+                (String.uppercase_ascii (Var.get_string flags));
               0) in
 
         let supply_tog = match supply with
         | None -> 0
-        | Some(str) -> match (String.uppercase (Var.get_string str)) with
+        | Some(str) -> match (String.uppercase_ascii (Var.get_string str)) with
           | "LIMITED" -> 0
           | "UNLIMITED" -> 1
           | _ ->
@@ -2490,7 +2490,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               log_and_print
                 "WARNING: ADD_STORE_ITEM: Unknown value %s. \
                 Defaulting to 0 (limited) for supply.\n"
-                (String.uppercase str) ; 0 in
+                (String.uppercase_ascii str) ; 0 in
 
         let stock = if supply_tog = 1 then 1
         else (Int32.to_int (eval_pe buff game stock)) in
@@ -2565,7 +2565,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
         else begin
           log_and_print "Patching %s.ITM into store...\n"
-            (String.uppercase item);
+            (String.uppercase_ascii item);
           (* Update the offsets by "item_size" bytes *)
           if ipurchasedoffset >= isaleoffset then
             write_int buff 0x2c (ipurchasedoffset + item_size);
@@ -2655,7 +2655,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
         (* Create the new item *)
         let items = List.map Var.get_string items in
-        let items = List.map String.uppercase items in
+        let items = List.map String.uppercase_ascii items in
 
         (* Read in the offsets that we need to update *)
 
@@ -2687,7 +2687,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         for i = 0 to numisale - 1 do
           let item_buff = String.sub items_string (i * item_size) item_size in
           let item_name = get_string_of_size item_buff 0 8 in
-          if not (List.mem (String.uppercase item_name) items) then begin
+          if not (List.mem (String.uppercase_ascii item_name) items) then begin
             str_before := !str_before ^ item_buff
           end else begin
             incr delta
@@ -2752,7 +2752,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
     | TP_Extend_Mos(where,howMuch) ->
         begin
           let howMuch = Int32.to_int (eval_pe buff game howMuch) in
-          let where = String.uppercase (Var.get_string where) in
+          let where = String.uppercase_ascii (Var.get_string where) in
           let (buff',xSizeP,ySizeP) = Mos.size_of_str buff in
           let first,duplicate = where.[0], Str.string_after where 1 in
           let isdup,duplicate = try true, int_of_string duplicate with _ ->
@@ -2774,7 +2774,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             if !debug_ocaml then
               log_and_print "Extend_mos %s %d to a %dx%d (%c %b)\n"
                 where howMuch xSizeP ySizeP first isdup;
-            let startPos = match String.uppercase where with
+            let startPos = match String.uppercase_ascii where with
             | "TOP" -> (0,nySizeP - ySizeP)
             | "BOTTOM" -> (0,0)
             | "VCENT" -> (0,(nySizeP - ySizeP)/2)

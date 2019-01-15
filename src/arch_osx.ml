@@ -55,7 +55,7 @@ let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)"
 let is_weidu_executable f =
   try
     let i = Case_ins.perv_open_in_bin f in
-    let buff = String.create 4 in
+    let buff = Bytes.create 4 in
     let signature = input i buff 0 4 in
     Str.string_match (Str.regexp_case_fold "setup-.*") f 0 && buff = "\xfe\xed\xfa\xce"
   with _ -> false

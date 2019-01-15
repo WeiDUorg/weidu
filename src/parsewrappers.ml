@@ -9,7 +9,7 @@ let load_log () =
     let result = parse_file true (File Tp.log_name) "parsing .log files"
         (Dparser.log_file Dlexer.initial) in
     Tp.the_log := List.map (fun (a,b,c,d) ->
-      ((String.uppercase a),b,c,d,Tp.Installed)) result
+      ((String.uppercase_ascii a),b,c,d,Tp.Installed)) result
   with e ->
     log_or_print "WARNING: parsing log [%s]: %s\n" Tp.log_name
       (printexc_to_string e) ;
@@ -32,7 +32,7 @@ let compile_baf_filename game filename =
        filename (printexc_to_string e) ; raise e)
 
 let handle_script_buffer filename buffer =
-  match split (String.uppercase filename) with
+  match split (String.uppercase_ascii filename) with
   | _,"BAF" -> parse_file true (String(filename,buffer)) "parsing .baf files"
         (Bafparser.baf_file Baflexer.initial)
   | _,_ -> parse_file true (String(filename,buffer)) "parsing .bcs files"
