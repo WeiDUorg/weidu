@@ -136,7 +136,7 @@ let save_key key outchan =
       Buffer.add_string biff_buff (str_of_short b.locations)) key.biff ;
 
     let res_offset = base_name_offset + (Buffer.length biff_name_buff) in
-    Buffer.add_string buff (str_of_int (res_offset));
+    Buffer.add_string buff (str_of_int (res_offset)) ;
 
     Array.iter (fun r ->
       let res_name = str_to_exact_size r.res_name 8 in
@@ -187,7 +187,7 @@ let load_key filename buff =
           res_type = short_of_str_off buff (off + 8) ;
           other_index = Int32.to_int
             (Int32.logand bitfield (Int32.of_int 16383)) ;
-          bif_index = Int32.to_int (Int32.shift_right bitfield 20);
+          bif_index = Int32.to_int (Int32.shift_right bitfield 20) ;
           tis_index = Int32.to_int
             (Int32.logand (Int32.shift_right bitfield 14)
                (Int32.of_int 63)) ;
@@ -302,35 +302,39 @@ let remove_files key file_lst =
   let file_hsh = Hashtbl.create 5 in
   List.iter (fun file ->
     let (name,ext) = split file in
-    Hashtbl.remove new_resfind (name,ext);
-    Hashtbl.add file_hsh (name,ext) true) file_lst;
+    Hashtbl.remove new_resfind (name,ext) ;
+    Hashtbl.add file_hsh (name,ext) true) file_lst ;
   let new_file_count = ref (Array.length key.resource) in
   Array.iter (fun item ->
-    if Hashtbl.mem file_hsh (item.res_name, (ext_of_key item.res_type)) then begin
-      log_only "DISABLE_FROM_KEY [%s.%s]: success\n" item.res_name (ext_of_key item.res_type) ;
-      ignore (record_other_file_op
-                (String.concat ""
-                   ["override/"; item.res_name; ".";
-                    (ext_of_key item.res_type)])) ;
-      Hashtbl.remove file_hsh (item.res_name, (ext_of_key item.res_type));
-      decr new_file_count
-    end) key.resource;
+    if Hashtbl.mem file_hsh (item.res_name, (ext_of_key item.res_type)) then
+      begin
+        log_only "DISABLE_FROM_KEY [%s.%s]: success\n" item.res_name
+          (ext_of_key item.res_type) ;
+        ignore (record_other_file_op
+                  (String.concat ""
+                     ["override/" ; item.res_name ; "." ;
+                      (ext_of_key item.res_type)])) ;
+        Hashtbl.remove file_hsh (item.res_name, (ext_of_key item.res_type)) ;
+        decr new_file_count
+      end) key.resource ;
   Hashtbl.iter (fun (a,b) _ ->
-    log_only "DISABLE_FROM_KEY [%s.%s]: file does not exist\n" a b) file_hsh;
+    log_only "DISABLE_FROM_KEY [%s.%s]: file does not exist\n" a b) file_hsh ;
   let index = ref 0 in
   let new_resource = Array.init !new_file_count (fun _ ->
     let item = ref (key.resource.(!index)) in
-    while not (Hashtbl.mem new_resfind (!item.res_name, (ext_of_key !item.res_type))) do
-      incr index;
+    let memres = Hashtbl.mem new_resfind in
+    while not (memres (!item.res_name, (ext_of_key !item.res_type))) do
+      incr index ;
       item := key.resource.(!index)
-    done;
-    incr index;
+    done ;
+    incr index ;
     !item) in
-  assert (!index - List.length file_lst + Hashtbl.length file_hsh = !new_file_count);
+  assert (!index - List.length file_lst +
+            Hashtbl.length file_hsh = !new_file_count) ;
   {
    key with
-   resfind = new_resfind;
-   resource = new_resource;
+   resfind = new_resfind ;
+   resource = new_resource ;
  }
 
 let biff_path_separator eep =
