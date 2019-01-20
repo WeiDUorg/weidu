@@ -2973,14 +2973,17 @@ global option to your \ttref{TP2} file. \\
                      \ttref{optGlob} fromFile toFile ...
        \ttref{patch} \Slist
        \ttref{when} \Slist &
+
        You may specify as many fromFile-toFile pairs as you like. Each
-       fromFile is copied to its associated toFile. If there are any WeiDU
-       variables inside explicit \t{\%}s in toFile or fromFile, they are
-       replaced by their values. All of the
-       \ttref{patch}es are applied. If there are any \ttref{when}
-       conditions and any of them are false, the copy does not happen.
-       A typical example is \t{COPY "mymod/sword.itm"
-       "override/m\#sword.itm"}.
+       fromFile is copied to its associated toFile. If there are any
+       WeiDU variables inside explicit \t{\%}s in toFile or fromFile,
+       they are replaced by their values. All of the \ttref{patch}es
+       are applied. If there are any \ttref{when} conditions and any
+       of them are false, the copy does not happen. If fromFile is a
+       directory, toFile is also taken to be a directory and all files
+       (but not subdirectories) in fromFile are copied to toFile.  A
+       typical example is \t{COPY "mymod/sword.itm"
+         "override/m\#sword.itm"}.
 
 
        \ttref{COPY} commands set the user-defined \DEFINE{SOURCE!DIRECTORY},
