@@ -468,8 +468,8 @@ let rec eval_pe buff game p =
   end
 
   | PE_GameIncludes(game_set) -> begin
-      let bg1 = ["BG1"; "TOTSC"; "TUTU"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"; "SOD"] in
-      let totsc = ["TOTSC"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"; "SOD"] in
+      let bg1 = ["BG1"; "TOTSC"; "TUTU"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"] in
+      let totsc = ["TOTSC"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"] in
       let soa = ["SOA"; "TOB"; "BGT"; "BG2EE"; "EET"] in
       let tob = ["TOB"; "BGT"; "BG2EE"; "EET"] in
       let pst = ["PST"; "PSTEE"] in
