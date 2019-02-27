@@ -5,6 +5,7 @@
  *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
 open Tp
 
@@ -117,6 +118,10 @@ let rec pe_to_str pe = "(" ^ (match pe with
 | PE_IsSilent -> "IS_SILENT"
 | PE_IsAnInt(x) -> Printf.sprintf "IS_AN_INT %s" (pe_str_str x)
 | PE_NextStrref -> "NEXT_STRREF"
+| PE_ValidScriptActions s -> Printf.sprintf "VALID_SCRIPT_ACTIONS %s"
+      (pe_str_str s)
+| PE_ValidScriptTriggers s -> Printf.sprintf "VALID_SCRIPT_TRIGGERS %s"
+      (pe_str_str s)
                              ) ^ ")"
 
 and pe_str_str s = match s with
@@ -182,6 +187,7 @@ let action_to_str a = match a with
 | TP_Alter_TLK_List _ -> "TP_ALTER_TLK_*"
 | TP_Reraise -> "ACTION_RERAISE"
 | TP_Fail _ -> "FAIL"
+| TP_Abort _ -> "ABORT"
 | TP_Warn _ -> "WARN"
 | TP_Print _ -> "PRINT"
 | TP_Log _ -> "LOG"
@@ -191,6 +197,7 @@ let action_to_str a = match a with
 | TP_Uninstall_Now _ -> "UNINSTALL"
 | TP_ActionBashFor _ -> "ACTION_BASH_FOR"
 | TP_ActionDefineArray _ -> "ACTION_DEFINE_ARRAY"
+| TP_ActionSortArrayIndices _ -> "ACTION_SORT_ARRAY_INDICES"
 | TP_ActionPHPEach _ -> "ACTION_PHP_EACH"
 | TP_Action_For_Each _ -> "ACTION_FOR_EACH"
 | TP_Biff _ -> "BIFF"
@@ -200,6 +207,7 @@ let action_to_str a = match a with
 | TP_Outer_Set _ -> "OUTER_SET"
 | TP_Outer_Sprint _ -> "OUTER_SPRINT"
 | TP_Outer_Text_Sprint _ -> "OUTER_TEXT_SPRINT"
+| TP_Outer_Snprint _ -> "OUTER_SNPRINT"
 | TP_ActionDefineAssociativeArray _ -> "ACTION_DEFINE_ASSOCIATIVE_ARRAY"
 | TP_Outer_While _ -> "OUTER_WHILE"
 | TP_Launch_Action_Macro _ -> "LAUNCH_ACTION_MACRO"
@@ -209,6 +217,7 @@ let action_to_str a = match a with
 | TP_Define_Action_Macro _ -> "DEFINE_ACTION_MACRO"
 | TP_Define_Patch_Macro _ -> "DEFINE_PATCH_MACRO"
 | TP_Define_Action_Function _ -> "DEFINE_ACTION_FUNCTION"
+| TP_Define_Dimorphic_Function _ -> "DEFINE_DIMORPHIC_FUNCTION"
 | TP_Define_Patch_Function _ -> "DEFINE_PATCH_FUNCTION"
 | TP_Silent -> "SILENT"
 | TP_Verbose -> "VERBOSE"
@@ -248,8 +257,8 @@ let init_default_strings () =
   installed?\n[R]e-install them, [U]ninstall them, [S]kip them, \
   [A]sk about each one? " ;
 
-  add (-1004) "PLEASE email the file" ;
-  add (-1005) "to" ;
+  add (-1004) "Please make a backup of the file:" ;
+  add (-1005) "and look for support at:" ;
 
   add (-1006) "Install Component [" ;
   add (-1007) "]?\n[R]e-Install, [N]o Change or [U]ninstall or [Q]uit? " ;
@@ -327,6 +336,9 @@ let init_default_strings () =
   will not be remembered.\n" ;
   add (-1061) "\nUsing" ;
   add (-1062) " and " ;
+  add (-1063) "INSTALLATION ABORTED" ;
+  add (-1064) "Aborting installation of [" ;
+  add (-1065) "], rolling back to previous state" ;
   ()
 
 let get_trans i =

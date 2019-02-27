@@ -178,7 +178,7 @@ nonterm (Tp.tp_flag) Tp_Flag {
        Tp.Menu_Style "1" ]
   -> ALLOW_MISSING e1:Upper_String_List [ Tp.Allow_Missing e1 ]
   -> SCRIPT_STYLE e1:STRING
-       [ let n = match (String.uppercase e1) with
+       [ let n = match (String.uppercase_ascii e1) with
          | "BG"
          | "BG2" -> Load.BG2
          | "BG1" -> Load.BG1
@@ -191,11 +191,11 @@ nonterm (Tp.tp_flag) Tp_Flag {
          Tp.Script_Style(n) ]
   -> README e1:String_List [ Tp.Readme e1 ]
   -> UNINSTALL_ORDER e1:String_List [
-       List.iter (fun x -> match String.uppercase x with
+       List.iter (fun x -> match String.uppercase_ascii x with
                  | "MOVE" | "COPY" | "STRSET" | "AT" -> ()
                  | _ -> failwith (Printf.sprintf "%s not allowed in UNINSTALL_ORDER" x);
                  ) e1;
-                 Tp.Uninstall_Order (List.map String.uppercase e1) ]
+                 Tp.Uninstall_Order (List.map String.uppercase_ascii e1) ]
   -> QUICK_MENU ALWAYS_ASK e0:String_List END e1:Menu_List END [ Tp.Quick_Menu (e1,List.map int_of_string e0) ]
   -> AUTO_EVAL_STRINGS [ Tp.Auto_Eval_Strings ]
 }
@@ -211,7 +211,7 @@ nonterm((Dlg.tlk_string * int list) list) Menu_List_Rev {
 
 nonterm(string list) Upper_String_List_Rev {
   -> { [] }
-  -> e1:Upper_String_List_Rev e2:STRING [ String.uppercase e2 :: e1 ]
+  -> e1:Upper_String_List_Rev e2:STRING [ String.uppercase_ascii e2 :: e1 ]
 }
 
 nonterm(string list) Upper_String_List {
@@ -324,6 +324,11 @@ nonterm(bool option) Optional_Glob {
   -> NOGLOB [ Some false ]
 }
 
+nonterm(Tp.tp_pe_string option) Optional_Patch_String_Right {
+  -> { None }
+  -> e1:Patch_String_Right { Some e1 }
+}
+
 nonterm(Tp.tp_patchexp) String_Ref_Or_Pe {
   -> e1:STRING_REF [ Tp.PE_String(Tp.PE_LiteralString(string_of_int e1)) ]
   -> LPAREN e1:Patch_Exp RPAREN [ e1 ]
@@ -336,6 +341,12 @@ nonterm((string*bool option *string) list) Str_Reg_List_Rev {
 
 nonterm((string*bool option *string) list) Str_Reg_List {
   -> e4:Str_Reg_List_Rev [ List.rev e4 ]
+}
+
+nonterm(Tp.array_indices_sort_type) Array_Indices_Sort_Type {
+  -> { Tp.TP_Lexicographically }
+  -> LEXICOGRAPHICALLY { Tp.TP_Lexicographically }
+  -> NUMERICALLY { Tp.TP_Numerically }
 }
 
 nonterm(Tp.tp_action) Tp_Action {
@@ -401,8 +412,8 @@ nonterm(Tp.tp_action) Tp_Action {
        [ Tp.TP_RandomSeed e1 ]
   -> COMPILE e1:Optional_Evaluate e2:Nonempty_String_List e3:Tp_Patch_List e4:Optional_Using
        [ Tp.TP_Compile(e1,e2,e3,e4) ]
-  -> AT_NOW e1:STRING e2:Optional_Exact [ Tp.TP_At_Now (e1,e2) ]
-  -> AT_INTERACTIVE_NOW e1:STRING e2:Optional_Exact [ Tp.TP_At_Interactive_Now (e1,e2) ]
+  -> AT_NOW e1:Optional_Patch_String_Right e2:STRING e3:Optional_Exact [ Tp.TP_At_Now (e1,e2,e3) ]
+  -> AT_INTERACTIVE_NOW e1:Optional_Patch_String_Right e2:STRING e3:Optional_Exact [ Tp.TP_At_Interactive_Now (e1,e2,e3) ]
   -> BIFF e1:STRING BEGIN e2:Str_Reg_List END [ Tp.TP_Biff(e1,e2) ]
   -> e1:INLINED_FILE [ Tp.TP_Inlined_File(e1) ]
   -> GET_FILE_ARRAY e1:Patch_String_Left e2:Patch_String_Right e3:Patch_String_Right
@@ -413,13 +424,16 @@ nonterm(Tp.tp_action) Tp_Action {
        [ Tp.TP_Define_Action_Macro(e1,e2,e3) ]
   -> DEFINE_PATCH_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Patch_List END
        [ Tp.TP_Define_Patch_Macro(e1,e2,e3) ]
-  -> DEFINE_PATCH_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:DefineFunctionRet
-       BEGIN e5:Tp_Patch_List END [ Tp.TP_Define_Patch_Function(e1,e2,e3,e4,e5) ]
-  -> DEFINE_ACTION_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:DefineFunctionRet
-       BEGIN e5:Tp_Action_List END [ Tp.TP_Define_Action_Function(e1,e2,e3,e4,e5) ]
+  -> DEFINE_PATCH_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:DefineFunctionRet e5:DefineFunctionRetArray
+       BEGIN e6:Tp_Patch_List END [ Tp.TP_Define_Patch_Function(e1,e2,e3,e4,e5,e6) ]
+  -> DEFINE_ACTION_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:DefineFunctionRet e5:DefineFunctionRetArray
+       BEGIN e6:Tp_Action_List END [ Tp.TP_Define_Action_Function(e1,e2,e3,e4,e5,e6) ]
+  -> DEFINE_DIMORPHIC_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:DefineFunctionRet e5:DefineFunctionRetArray
+       BEGIN e6:Tp_Action_List END [ Tp.TP_Define_Dimorphic_Function(e1,e2,e3,e4,e5,e6) ]
   -> LAUNCH_ACTION_MACRO e1:STRING [ Tp.TP_Launch_Action_Macro e1 ]
-  -> LAUNCH_ACTION_FUNCTION e1:STRING e2:LaunchFunctionIntVar e3:LaunchFunctionStrVar e4:LaunchFunctionRet END
-       [ Tp.TP_Launch_Action_Function(e1,e2,e3,e4) ]
+  -> LAUNCH_ACTION_FUNCTION e1:STRING e2:LaunchFunctionIntVar
+     e3:LaunchFunctionStrVar e4:LaunchFunctionRet e5:LaunchFunctionRetArray END
+       [ Tp.TP_Launch_Action_Function(e1,e2,e3,e4,e5) ]
   -> INCLUDE e1:String_List [ Tp.TP_Include e1 ]
   -> REINCLUDE e1:String_List [ Tp.TP_Reinclude e1 ]
   -> LOAD_TRA e1:String_List [ Tp.TP_Load_Tra e1 ]
@@ -451,6 +465,7 @@ nonterm(Tp.tp_action) Tp_Action {
   -> OUTER_SET MINUS_MINUS e1:Patch_String_Left [ Tp.TP_Outer_Set(e1,(Tp.PE_Sub(Tp.PE_String e1, Tp.get_pe_int "1"))) ]
   -> OUTER_SPRINT e1:Patch_String_Left e2:Dlg_Or_Patch_String_Right [ Tp.TP_Outer_Sprint(e1,e2) ]
   -> OUTER_TEXT_SPRINT e1:Patch_String_Left e2:Patch_String_Right [ Tp.TP_Outer_Text_Sprint(e1,e2) ]
+  -> OUTER_SNPRINT e1:Patch_Exp e2:Patch_String_Left e3:Dlg_Or_Patch_String_Right [ Tp.TP_Outer_Snprint(e1,e2,e3) ]
   -> ACTION_DEFINE_ASSOCIATIVE_ARRAY e1:Patch_String_Left BEGIN e2:Associative_String_List END
        [ Tp.TP_ActionDefineAssociativeArray(e1,e2) ]
   -> OUTER_WHILE e1:Patch_Exp BEGIN e2:Tp_Action_List END [ Tp.TP_Outer_While(e1,e2) ]
@@ -499,6 +514,8 @@ nonterm(Tp.tp_action) Tp_Action {
   -> ALTER_TLK_RANGE e1:Patch_Exp e2:Patch_Exp BEGIN e3:Tp_Patch_List END { Tp.TP_Alter_TLK_Range(e1,e2,e3) }
   -> ALTER_TLK_LIST BEGIN e1:Patch_Exp_List END BEGIN e2:Tp_Patch_List END { Tp.TP_Alter_TLK_List(e1,e2) }
   -> ACTION_DEFINE_ARRAY e1:Patch_String_Left BEGIN e2:String_List END [ Tp.TP_ActionDefineArray(e1,e2) ]
+  -> ACTION_SORT_ARRAY_INDICES e1:Patch_String_Left e2:Array_Indices_Sort_Type
+     [ Tp.TP_ActionSortArrayIndices(e1,e2) ]
   -> UNINSTALL e1:STRING e2:Patch_Exp [ Tp.TP_Uninstall_Now(e1,e2) ]
   -> VERBOSE [ Tp.TP_Verbose ]
   -> COPY_KIT e1:STRING e2:STRING LPAREN e3:Str_Str_List RPAREN [ Tp.TP_CopyKit(e1,e2,e3) ]
@@ -526,6 +543,7 @@ nonterm(Tp.tp_action) Tp_Action {
            })]
   -> ACTION_RERAISE [ Tp.TP_Reraise ]
   -> FAIL e1:Lse [ Tp.TP_Fail e1 ]
+  -> ABORT e1:Lse [ Tp.TP_Abort e1 ]
   -> WARN e1:Lse [ Tp.TP_Warn e1 ]
   -> PRINT e1:Lse [ Tp.TP_Print e1 ]
   -> LOG e1:Lse [ Tp.TP_Log e1 ]
@@ -640,6 +658,11 @@ nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) LaunchFunctionStrVar {
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) LaunchFunctionRet {
   -> { [] }
   -> RET e1:PeStr_PeStrMaybeLit_List { e1 }
+}
+
+nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) LaunchFunctionRetArray {
+  -> { [] }
+  -> RET_ARRAY e1:PeStr_PeStrMaybeLit_List { e1 }
 }
 
 nonterm((Tp.tp_pe_string * Tp.tp_pe_string) list) PeStr_PeStr_List {
@@ -789,6 +812,11 @@ nonterm(Tp.tp_pe_string list) Patch_String_Left_List {
 nonterm(Tp.tp_pe_string list) DefineFunctionRet {
   -> { [] }
   -> RET e1:Patch_String_Left_List { e1 }
+}
+
+nonterm(Tp.tp_pe_string list) DefineFunctionRetArray {
+  -> { [] }
+  -> RET_ARRAY e1:Patch_String_Left_List { e1 }
 }
 
 nonterm(Tp.tp_pe_string list) Patch_String_Right_List_Rev {
@@ -1008,6 +1036,8 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
   -> LPAREN e1:Patch_Exp RPAREN [ e1 ]
   -> IS_SILENT [ Tp.PE_IsSilent ]
   -> NEXT_STRREF [Tp.PE_NextStrref]
+  -> VALID_SCRIPT_ACTIONS e1:Patch_String_Right [ Tp.PE_ValidScriptActions e1 ]
+  -> VALID_SCRIPT_TRIGGERS e1:Patch_String_Right [ Tp.PE_ValidScriptTriggers e1 ]
 }
 
 nonterm (Tp.tp_store_position) Optional_Store_Position {
@@ -1078,8 +1108,9 @@ nonterm (Tp.tp_patch) Tp_Patch {
   -> SAY e1:Patch_Exp e2:Lse [ Tp.TP_PatchStrRef(e1,e2) ]
   -> SAY_EVALUATED e1:Patch_Exp e2:STRING [ Tp.TP_PatchStrRefEvaluated(e1,e2) ]
   -> LAUNCH_PATCH_MACRO e1:STRING [ Tp.TP_Launch_Patch_Macro (e1,true) ]
-  -> LAUNCH_PATCH_FUNCTION e1:STRING e2:LaunchFunctionIntVar e3:LaunchFunctionStrVar e4:LaunchFunctionRet END
-       [ Tp.TP_Launch_Patch_Function(e1,true,e2,e3,e4) ]
+  -> LAUNCH_PATCH_FUNCTION e1:STRING e2:LaunchFunctionIntVar
+     e3:LaunchFunctionStrVar e4:LaunchFunctionRet e5:LaunchFunctionRetArray END
+       [ Tp.TP_Launch_Patch_Function(e1,true,e2,e3,e4,e5) ]
   -> REPLACE e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:Lse
        [ Tp.TP_PatchString(e1,e2,e3,e4) ]
   -> REPLACE_TEXTUALLY e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:STRING
@@ -1217,6 +1248,8 @@ nonterm (Tp.tp_patch) Tp_Patch {
        [ Tp.TP_PatchDefineArray(e1,e2) ]
   -> DEFINE_ASSOCIATIVE_ARRAY e1:Patch_String_Left BEGIN e2:Associative_String_List END
        [ Tp.TP_DefineAssociativeArray(e1,e2) ]
+  -> SORT_ARRAY_INDICES e1:Patch_String_Left e2:Array_Indices_Sort_Type
+     [Tp.TP_PatchSortArrayIndices(e1,e2) ]
   -> PATCH_FOR_EACH e1:Patch_String_Right IN e2:String_List BEGIN e3:Tp_Patch_List END
        [ Tp.TP_PatchForEach(e1,e2,e3) ]
   -> PATCH_PHP_EACH e1:Patch_String_Left AS e2:Patch_String_Left EQUALSGREATER
@@ -1246,6 +1279,7 @@ nonterm (Tp.tp_patch) Tp_Patch {
   -> PATCH_PRINT e1:Lse [ Tp.TP_PatchPrint(e1) ]
   -> PATCH_RERAISE [ Tp.TP_PatchReraise ]
   -> PATCH_FAIL e1:Lse [ Tp.TP_PatchFail(e1) ]
+  -> PATCH_ABORT e1:Lse [ Tp.TP_PatchAbort(e1) ]
   -> PATCH_WARN e1:Lse [ Tp.TP_PatchWarn(e1) ]
   -> PATCH_LOG e1:Lse [ Tp.TP_PatchLog(e1) ]
   -> TO_LOWER e1:Patch_String_Right [ Tp.TP_PatchToLower e1 ]

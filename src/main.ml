@@ -10,8 +10,9 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
-open Xdiff
+open Myxdiff
 open Version
 open Parsewrappers
 
@@ -46,7 +47,7 @@ type output_info = {
       | ".", _ -> if !debug_ocaml then log_and_print "--out a_file: %s\n"  theout.file
       | _ -> if !debug_ocaml then log_and_print "You're a pervert, decide where to put your stuff!\n"
       end ;
-      let ext_chop = List.map String.uppercase ext_chop in
+      let ext_chop = List.map String.uppercase_ascii ext_chop in
       let directory,(name,ext) = (Case_ins.filename_dirname file,split(Case_ins.filename_basename file)) in
       let fullname = match theout.dir, theout.file with
       | ".", "" -> file
@@ -60,7 +61,7 @@ type output_info = {
       in
       let base,ext = split fullname in
       let result =
-        if List.mem (String.uppercase ext) ext_chop then
+        if List.mem (String.uppercase_ascii ext) ext_chop then
           Case_ins.filename_chop_extension fullname
         else
           fullname
@@ -113,7 +114,7 @@ let forceify_file forceify game =
   (match forceify with
     Some(file) -> begin
       try
-        let name,ext = split (String.uppercase file) in
+        let name,ext = split (String.uppercase_ascii file) in
         Dlg.local_string_ht := Some([]) ;
         begin
           match ext with
@@ -383,7 +384,7 @@ let cmp_bcs_file bcmp_dest bcmp_src game =
           print_theout "<<<<<<<< %s\n%s>>>>>>>>\n" out_name res;
           print_theout "// TP2 patch to turn %s into %s. For example using:\n" s d;
           if bcmp_src = None then
-            if String.uppercase e = "BS" then
+            if String.uppercase_ascii e = "BS" then
               print_theout "COPY ~scripts/%s~ ~scripts~\n" s
             else
               print_theout "COPY_EXISTING ~%s~ ~override~\n" s
@@ -406,7 +407,7 @@ let rcmp_file game rcmp_src rcmp_dest =
       let load file =
         let a,b = split (Filename.basename file) in
         let buff = try load_file file with e -> fst (Load.load_resource "--rcmp" game true a b) in
-        match String.uppercase b with
+        match String.uppercase_ascii b with
         | "DLG" -> buff
         | "BCS"
         | "BS" -> buff
@@ -469,8 +470,8 @@ let cmp_tlk_file tlkcmp_src tlkcmp_dest tlkcmp_strings user_min user_max =
       | None -> (min (Array.length stlk) (Array.length dtlk)) - 1
       in
       print_theout "<<<<<<<< .../tlkcmp.tra\n" ;
-      let stlk_cmp = Array.map (fun entry -> {entry with Tlk.sound_name = String.uppercase entry.Tlk.sound_name}) stlk in
-      let dtlk_cmp = Array.map (fun entry -> {entry with Tlk.sound_name = String.uppercase entry.Tlk.sound_name}) dtlk in
+      let stlk_cmp = Array.map (fun entry -> {entry with Tlk.sound_name = String.uppercase_ascii entry.Tlk.sound_name}) stlk in
+      let dtlk_cmp = Array.map (fun entry -> {entry with Tlk.sound_name = String.uppercase_ascii entry.Tlk.sound_name}) dtlk in
       for i = my_min to my_max do
         if (stlk_cmp.(i).Tlk.text <> dtlk_cmp.(i).Tlk.text) ||
         (stlk_cmp.(i).Tlk.sound_name <> dtlk_cmp.(i).Tlk.sound_name) then
@@ -668,7 +669,7 @@ let biff_get bg_list game =
   let files_in_chitin = Key.list_of_key_resources game.Load.key false in
   let try_to_load str = begin
     try begin
-      let base,ext = split (String.uppercase str) in
+      let base,ext = split (String.uppercase_ascii str) in
       let path = theout.dir ^ "/" ^ str in
       let out = open_for_writing path true in
       if ext <> "IDS" && ext <> "2DA" then begin
@@ -853,7 +854,7 @@ let traify_file game traify traify_num traify_comment traify_old_tra =
   (match traify with
   | Some(file) -> begin
       try
-        let name,ext = split (String.uppercase file) in
+        let name,ext = split (String.uppercase_ascii file) in
 
         let buf = ref (load_file file) in
 
@@ -861,7 +862,7 @@ let traify_file game traify traify_num traify_comment traify_old_tra =
             ["d"; "tra"; "tp2"; "baf"; "tpa"; "tpp"; "tph"] in
         if !debug_ocaml then
           log_and_print "I'm trying to save to %s.%s and %s.tra\n\n"
-            base (String.lowercase ext) base ;
+            base (String.lowercase_ascii ext) base ;
         let transout_name = base ^ ".tra" in
         let dout_name = base ^ "." ^ ext in
 
@@ -1155,9 +1156,9 @@ let do_script process_script pause_at_end game =
     Tp.specified_specific_components := true;
     let toproc = ref [] in
     Array.iteri (fun i s -> if i > 1 then begin
-      match String.uppercase s with
+      match String.uppercase_ascii s with
       | "U"
-      | "I" -> action := String.uppercase s
+      | "I" -> action := String.uppercase_ascii s
       | _ -> begin
           let num = int_of_string s in
           match !action with
@@ -1207,7 +1208,7 @@ let decompile_bcs bcs_list game =
     try
       let buff, _ =
         if file_exists str then (load_file str),"" else
-        Load.load_resource "decompile BCS command" game true b (String.uppercase e)
+        Load.load_resource "decompile BCS command" game true b (String.uppercase_ascii e)
       in
       let script = handle_script_buffer str buff in
       let base = Case_ins.filename_basename b in
@@ -1229,7 +1230,7 @@ let decompile_bcs bcs_list game =
 let merge_tlk tlk_merge game =
   if_bgee_check_lang_or_fail game ;
   List.iter (fun str ->
-    let name,ext = split (String.uppercase str) in
+    let name,ext = split (String.uppercase_ascii str) in
     let tlk = Tlk.load_tlk str in
     let dialog = Load.get_active_dialog game in
     let max =
@@ -1360,7 +1361,7 @@ let main () =
 
   let ee_use_lang = ref None in
 
-  let argv0_base, argv0_ext = split (String.uppercase (Case_ins.filename_basename Sys.argv.(0))) in
+  let argv0_base, argv0_ext = split (String.uppercase_ascii (Case_ins.filename_basename Sys.argv.(0))) in
 
   let auto () = begin
     pause_at_end := true ;
@@ -1381,7 +1382,7 @@ let main () =
         log_and_print "ERROR: Cannot perform auto-update, going ahead anyway!\n\t%s\n"
           (printexc_to_string e) ;
       end ) ;
-    if List.exists (fun arg -> let a,b = split arg in (String.uppercase b) = "TP2")
+    if List.exists (fun arg -> let a,b = split arg in (String.uppercase_ascii b) = "TP2")
         (Array.to_list Sys.argv) then
       () (* setup-solaufein.exe foo.tp2
           * runs foo.tp2, not setup-solaufein.tp2 *)
@@ -1412,7 +1413,7 @@ let main () =
     "--search-ids", Myarg.String Load.add_ids_path, "X\tlook in X for input IDS files (cumulative)" ;
     "--tlkin", Myarg.String Load.set_dialog_tlk_path,"X\tuse X as DIALOG.TLK" ;
     "--ftlkin", Myarg.String Load.set_dialogf_tlk_path,"X\tuse X as DIALOGF.TLK";
-    "--use-lang", Myarg.String (fun s -> ee_use_lang := Some (String.lowercase s)), "X\ton games with multiple languages, use files in lang/X/";
+    "--use-lang", Myarg.String (fun s -> ee_use_lang := Some (String.lowercase_ascii s)), "X\ton games with multiple languages, use files in lang/X/";
     "--tlkmerge", Myarg.String (fun s -> tlk_merge := !tlk_merge @ [s]; test_output_tlk_p := true),
     "X\tmerge X into loaded DIALOG.TLK" ;
     "--yes", Myarg.Set Tp.always_yes,"\tanswer all TP2 questions with 'Yes'";
@@ -1463,6 +1464,7 @@ let main () =
     "\tX Y... X, Y... will be stored in the %argvx% variables (cumulative)";
     "--args-list", Myarg.List (Myarg.String (fun s -> Var.set_string ("argv[" ^ (string_of_int !counter) ^ "]") s; incr counter)),
     "\tX Y... X, Y... will be stored in the %argvx% variables (cumulative)";
+    "--case-exact", Myarg.Unit (fun () -> Case_ins.case_exact := true), "\tapply no case transformations to file-system IO" ;
     "--print-backtrace", Myarg.Unit (fun () -> print_backtrace := true; Printexc.record_backtrace true),"\tprints OCaml stack trace when reporting an exception (rarely of interest to end-users)";
     "--debug-ocaml", Myarg.Set Util.debug_ocaml,"\tenables random debugging information for the Ocaml source (rarely of interest to end-users)" ;
     "--debug-boiic", Myarg.Set Tp.debug_boiic,"\tprints out which files have been changed by BUT_ONLY_IF_IT_CHANGES" ;
@@ -1470,7 +1472,7 @@ let main () =
     "--modder", Myarg.List (Myarg.TwoStrings (fun a b -> Modder.set_modder [a, b, 10])), "\tX Y... enables the MODDER mode and sets the MODDER option X to Y (cumulative)";
     "--clear-memory", Myarg.Set Tpstate.clear_memory,"\tcalls CLEAR_MEMORY after every action evaluation.";
     "--script-style", Myarg.String (fun s ->
-      let n = match String.uppercase s with
+      let n = match String.uppercase_ascii s with
       | "BG"
       | "BG2" -> Load.BG2
       | "BG1" -> Load.BG1
@@ -1522,7 +1524,7 @@ let main () =
 
     "--list-biffs", Myarg.Set list_biff, "\tenumerate all BIFF files in CHITIN.KEY" ;
     "--list-files", Myarg.Set list_files, "\tenumerate all resource files in CHITIN.KEY";
-    "--biff", Myarg.String (fun s -> bc_list := (String.uppercase s) :: !bc_list), "X\tenumerate contents of BIFF file X (cumulative)" ;
+    "--biff", Myarg.String (fun s -> bc_list := (String.uppercase_ascii s) :: !bc_list), "X\tenumerate contents of BIFF file X (cumulative)" ;
     "--biff-type", Myarg.String (fun s -> bs_type_list := s :: !bs_type_list), "X\texamine all BIFF resources of extension X ... (cumulative)" ;
     "--biff-str", Myarg.String (fun s -> bs_str_list := s :: !bs_str_list), "X\t... and list those containing X (cumulative, regexp allowed)" ;
     "--biff-name", Myarg.Int (fun i -> Load.content_name_offset := Some(i)),
@@ -1581,7 +1583,7 @@ let main () =
     exit (return_value StatusArgumentInvalid)
   in
   let handleArg str = begin
-    let base,ext = split (String.uppercase str) in
+    let base,ext = split (String.uppercase_ascii str) in
     match ext with
     | "D" -> test_output_tlk_p := true ; d_list := str :: !d_list
     | "DLG" -> dlg_list := (base,ext) :: !dlg_list

@@ -25,7 +25,6 @@ include Configuration
 # Just a target to be used by default
 .PHONY: weidu doc all
 all : weidu
-# "make weigui" if you want weigui
 # "make weinstall" if you want weinstall
 
 ####
@@ -79,10 +78,6 @@ $(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                     $^
 	cp $(PROJECT_EXECUTABLE) .
 
-# compile weigui with the Labltk bindings!
-weigui: FORCE
-	$(MAKE) -f Makefile-tk weigui
-
 # rule for tolower
 
 PROJECT3_EXECUTABLE = $(OBJDIR)/tolower$(EXE)
@@ -131,7 +126,6 @@ clean:
 	src/tlexer.mll src/trealparserin.gr  \
 	src/toldlexer.mll src/tph.ml
 	find obj -exec rm {} \; || true
-	$(MAKE) -f Makefile-tk clean
 
 
 ###
@@ -156,7 +150,7 @@ windows_zip : weidu weinstall tolower
 	cp README* ../WeiDU-Windows
 	cp COPYING ../WeiDU-Windows
 	cp -r examples ../WeiDU-Windows
-	cp windows_manifests/*.manifest ../WeiDU-Windows
+	#cp windows_manifests/*.manifest ../WeiDU-Windows
 	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU-Windows)
 src_zip : clean
 	(cd .. ; zip -9r WeiDU-Src-$(VER).zip weidu/* -x weidu/*.exe -x weidu/*.dll -x */.DS_Store; )

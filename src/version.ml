@@ -10,7 +10,8 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 open BatteriesInit
-let version = "24201"
+open Hashtblinit
+let version = "24600"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
@@ -248,4 +249,8 @@ let version = "24201"
 (* 239 let comment = "d41d8cd98f00b204e9800998ecf8427e" *)
 (* 240 let comment = "d41d8cd98f00b204e9800998ecf8427e" *)
 (* 241 let comment = "Heralding the second coming of GUI" *)
-let comment = "No comment"
+(* 242 let comment = "No comment" *)
+(* 243 let comment = "243 is not a prime number" *)
+(* 244 let comment = "No Thrills" *)
+(* 245 let comment = "Medieval Steel" *)
+let comment = "Land of Confusion"

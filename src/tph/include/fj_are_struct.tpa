@@ -61,6 +61,9 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   fj_trap_status       = 0
   fj_alt_x             = 0
   fj_alt_y             = 0
+  fj_talk_loc_x        = 0 // only for PST
+  fj_talk_loc_y        = 0 // only for PST
+  fj_speaker_strref    = ` 0 // only for PST
 
   // spawns
   fj_spawn_num         = 0
@@ -187,6 +190,7 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   fj_destination_name  = ~~
   fj_key_resref        = ~~
   fj_reg_script        = ~~
+  fj_sound             = ~~ // only for PST
   fj_dialog            = ~~ // only for PST
 
   // spawns
@@ -278,8 +282,8 @@ PATCH_IF is_pst BEGIN
   TEXT_SPRINT $struct(0xc8 0xcc 0x04 0x214) note
 END ELSE BEGIN
   TEXT_SPRINT $struct(0xc4 0xc8 0x04 0x034) note
+  TEXT_SPRINT $struct(0xcc 0xd0 0x04 0x01c) projectile
 END
-TEXT_SPRINT $struct(0xcc 0xd0 0x04 0x01c) projectile
 PHP_EACH struct AS key => value BEGIN
   PATCH_IF ~%value%~ STRING_EQUAL_CASE ~%fj_structure_type%~ BEGIN
     SET fj_structure_type = key_0
@@ -625,9 +629,11 @@ PHP_EACH struct AS key => value BEGIN
       WRITE_ASCIIE fj_return_offset + 0x7c ~%fj_reg_script%~ #8
       WRITE_SHORT  fj_return_offset + 0x84 fj_alt_x
       WRITE_SHORT  fj_return_offset + 0x86 fj_alt_y
-      PATCH_IF is_pst BEGIN
-        WRITE_ASCIIE fj_return_offset + 0xbc ~%fj_dialog%~ #8
-      END
+      WRITE_ASCIIE fj_return_offset + 0xac ~%fj_sound%~ #8
+      WRITE_SHORT  fj_return_offset + 0xb4 fj_talk_loc_x
+      WRITE_SHORT  fj_return_offset + 0xb6 fj_talk_loc_y
+      WRITE_LONG   fj_return_offset + 0xb8 fj_speaker_strref
+      WRITE_ASCIIE fj_return_offset + 0xbc ~%fj_dialog%~ #8
       PHP_EACH fj_vertex AS key1 => value1 BEGIN
         WRITE_SHORT fj_return_offset + 0x2a THIS + 0x01
       END

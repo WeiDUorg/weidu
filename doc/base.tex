@@ -137,7 +137,7 @@ information on obtaining a copy of WeiDU that works under OS X.
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\ttref{D} and \DEFINE{DLG} File Concepts}
+\label{DLG}\section{\ttref{D} and \DEFINE{DLG} File Concepts}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This section is a gentle introduction to how Infinity Engine \ttref{DLG}
@@ -313,8 +313,8 @@ All other keywords are symbolic. Notes:
 \begin{tabular}{cp{10in}|p{10in}}
 
 \DEFINE{D File} & &
-  A \ttref{D file} is a text file that contains a number of \ttref{D
-  Actions}. \ttref{D File}s tell WeiDU how to create and modify Infinity
+  A \ttref{D File} is a text file that contains a number of \ttref{D Action}s.
+  \ttref{D File}s tell WeiDU how to create and modify Infinity
   Engine \ttref{DLG} files.  \\
 
   is & \ttref{D Action} \Slist &
@@ -368,7 +368,7 @@ All other keywords are symbolic. Notes:
   Behaves like \ttref{CHAIN} except that all of the \ttref{chainText} is
   additionally guarded by the \ttref{transition} predicate {\tt Global("globalVariable","GLOBAL",0)} and accompanied by the action {\tt SetGlobal("globalVariable","GLOBAL",1)}. If you pick {\tt globalVariable } to be unique, this will ensure that the \ttref{chainText} is only ever seen once per game. This is useful for making interjections. \\
 
-  or & \DEFSYN{INTERJECT!COPY!TRANS} \Ob \t{SAFE} \Oe entryFilename
+  or & \DEFINE{INTERJECT!COPY!TRANS} \Ob \t{SAFE} \Oe entryFilename
   entryLabel {\tt globalVariable} \ttref{chainText} \Slist &
   This behaves just like \ttref{INTERJECT} except that the
   exitFilename and exitLabel are not present. Instead, whenever the
@@ -377,19 +377,19 @@ All other keywords are symbolic. Notes:
   \ttref{stateLabel} originally. This is convenient for making quick
   interjections from NPCs that do not actually change the true flow of
   the conversation. See the \ttref{transition} \ttref{COPY!TRANS} and
-  the \ttref{INTERJECT!COPY!TRANS} tutorial for more information about
+  the \ahrefloc{sec-interject-copy-trans}{\t{INTERJECT!COPY!TRANS} tutorial} for more information about
   this idea. If \t{SAFE} is specified, \ttref{INTERJECT!COPY!TRANS}
   will not warn about potentially unsafe uses (use this if you know it
   is safe).
   \\
 
-  or & \DEFSYN{INTERJECT!COPY!TRANS2} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
+  or & \DEFINE{INTERJECT!COPY!TRANS2} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
   globalVariable} \ttref{chainText} \Slist &
   This works just like \ttref{INTERJECT!COPY!TRANS}, except that any
   actions taken in the transitions of the state specified by entryFilename
   and entryLabel are preserved and kept with the speaker associated with
   entryFilename (rather than being mistakenly performed by your new
-  speaker). See the \ttref{INTERJECT!COPY!TRANS2} tutorial.
+  speaker). See the \ahrefloc{sec-interject-copy-trans2}{\t{INTERJECT!COPY!TRANS2} tutorial}.
   \\
 
   or & \DEFINE{INTERJECT!COPY!TRANS3} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
@@ -434,7 +434,7 @@ All other keywords are symbolic. Notes:
   adding extra conditions to an existing dialogue \ttref{state}. \\
 
   or & \DEFINE{ADD!TRANS!TRIGGER} filename \ttref{stateNumber}
-    \ttref{transTriggerString} \Ob \ttref{moreStateNumbers} \Slist \Oe
+    \ttref{transTriggerString} \Ob \ahrefloc{stateNumber}{moreStateNumbers} \Slist \Oe
     \Ob \t{DO} \ttref{transNumber} \Slist \Oe \ttref{dActionWhen} \Slist
     &
   This instructs WeiDU to add the \ttref{transTriggerString} to all
@@ -500,11 +500,11 @@ All other keywords are symbolic. Notes:
 
   \\
 
-  or & \DEFSYN{ALTER!TRANS} filename
+  or & \DEFINE{ALTER!TRANS} filename
     \t{BEGIN} \ttref{stateNumber} \Slist \t{END}
     \t{BEGIN} \ttref{transNumber} \Slist \t{END}
     \t{BEGIN} changeWhat changeInto \Slist \t{END} &
-  Fine altering of a single transition. See the \ttref{ALTER!TRANS} tutorial.
+  Fine altering of a single transition. See the \ahrefloc{sec-alter-trans}{\t{ALTER!TRANS} tutorial}.
 
   \\
 
@@ -521,8 +521,8 @@ All other keywords are symbolic. Notes:
   be used to patch or workaround existing dialogues. Never use
   \ttref{SET!WEIGHT} if you can help it.  \\
 
-  or & \DEFINE{REPLACE!SAY} filename \ttref{stateLabel} \ttref{sayString} &
-  This instructs WeiDU to destructively change the \ttref{sayString} of the
+  or & \DEFINE{REPLACE!SAY} filename \ttref{stateLabel} \ttref{sayText} &
+  This instructs WeiDU to destructively change the \ttref{sayText} of the
   given \ttref{state} in \t{filename.}\ttref{DLG} (which must exist). This should only
   be used to patch or workaround existing dialogues. Never use
   \ttref{REPLACE!SAY} if you can help it. \\
@@ -546,7 +546,7 @@ All other keywords are symbolic. Notes:
   or & \DEFINE{REPLACE!TRIGGER!TEXT!REGEXP} filenameRegexp oldText newText
  \ttref{dActionWhen} \Slist  &
   Just like \ttref{REPLACE!TRIGGER!TEXT} but the filename is a
-  \ttref{regexp}. The \ttref{.DLG} is implied. \\
+  \ttref{regexp}. The .\ttref{DLG} is implied. \\
 
   or & \DEFINE{REPLACE!ACTION!TEXT} filename oldText newText
     \Ob moreFilenames \Oe  \ttref{dActionWhen} \Slist &
@@ -559,7 +559,7 @@ All other keywords are symbolic. Notes:
   or & \DEFINE{REPLACE!ACTION!TEXT!REGEXP} filenameRegexp oldText newText
     \Ob moreFilenameRegexps \Oe  \ttref{dActionWhen} \Slist &
   Just like \ttref{REPLACE!ACTION!TEXT} but the filenames are
-  \ttref{regexp}s. The \ttref{.DLG} is implied, do not include it in your
+  \ttref{regexp}s. The .\ttref{DLG} is implied, do not include it in your
   \ttref{regexp}s. \\
 
   or & \DEFINE{REPLACE!ACTION!TEXT!PROCESS} filename oldText newText
@@ -579,7 +579,7 @@ All other keywords are symbolic. Notes:
     filenameRegexp oldText newText
     \Ob moreFilenameRegexps \Oe \ttref{dActionWhen} \Slist &
   Just like \ttref{REPLACE!ACTION!TEXT!PROCESS}, but the filenames are
-  \ttref{regexp}s. The \ttref{.DLG} is implied. R!A!T!P!R is
+  \ttref{regexp}s. The .\ttref{DLG} is implied. R!A!T!P!R is
   shorthand for REPLACE!ACTION!TEXT!PROCESS!REGEXP (to avoid undue scrollbars
   in the readme on a 1024x768 monitor). \\
 
@@ -621,7 +621,7 @@ is & {\tt IF} \Ob \DEFINE{WEIGHT} \t{\#weightNumber} \Oe \DEFINE{stateTriggerStr
   in order of increasing \ttref{WEIGHT} and selects the first one it finds
   for which the \ttref{stateTriggerString} is both true and not empty.
   The creature then says all of the associated \ttref{sayText}. Finally,
-  the \ttref{transitions} are evaluated in bottom-up (i.e., reverse) order.
+  the \ttref{transition}s are evaluated in bottom-up (i.e., reverse) order.
   If a \ttref{transition} is found with a \ttref{transTriggerString} that
   evaluates to True and no \ttref{replyText}, that \ttref{transition} is
   immediately executed. Otherwise, all of the \ttref{transition}s are
@@ -801,7 +801,7 @@ or & \t{( AT {\bf{"}}var{\bf{"}} )} & The last definition of the translation str
 
 \\
 
-\DEFINE{String} & & This is how you tell WeiDU what text you want shown
+\DEFINE{String}\label{string} & & This is how you tell WeiDU what text you want shown
 to the player. For international mods or international translations, you
 may use any encoding you like (that is, you are not restricted to 7-bit
 characters or Latin-1 or anything like that). \\
@@ -842,7 +842,7 @@ The Infinity Engine uses scripts in a bytecode format, known as
 for turning \t{BAF} scripts into \t{BCS} scripts and a decompiler for
 the reverse transformation. The \t{BCS} format will not be documented
 here, but the format is described by the
-\ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/bcs.htm}}{IESDP}.
+\ahref{\url{https://gibberlings3.github.io/iesdp/file_formats/ie_formats/bcs.htm}}{IESDP}.
 
 The \t{BAF} format accepted by WeiDU's compiler is documented here in an extended context-free grammar notation.
 
@@ -855,7 +855,7 @@ Other keywords are symbolic, with the exception of \t{TriggerOverride} which is 
 \end{itemize}
 
 \begin{tabular}{cp{10in}|p{10in}}
-\DEFINE{BAF File} & &
+\DEFINE{BAF File}\label{BAF} & &
 
   A \ttref{BAF File} is a text file that contains zero or more script
   blocks. \ttref{BAF File}s are compiled into \t{BCS} files, either by
@@ -869,8 +869,8 @@ is & \ttref{script block} \Slist & \\
 
 is & \t{IF} \ttref{script trigger} ... \t{THEN} \ttref{script response} ... \t{END} &
 
-  If the \ttref{script trigger}(s) are true, the \ttref{script
-  response}(s) are evaluated. \\
+  If the \ttref{script trigger}(s) are true, the \ttref{script response}(s)
+  are evaluated. \\
 
 \\
 
@@ -881,7 +881,7 @@ is & \Ob !\Oe\ttref{Infinity Engine trigger} &
   What constitutes an \DEFINE{Infinity Engine trigger} (trigger)
   varies between different versions of the Infinity Engine and will
   not be documented here. Refer to the right section of the
-  \ahref{\url{http://gibberlings3.net/iesdp/scripting/triggers/index.htm}}{IESDP}.
+  \ahref{\url{https://gibberlings3.github.io/iesdp/scripting/triggers/index.htm}}{IESDP}.
   A preceding exclamation mark negates the trigger. \\
 
 or & \Ob !\Oe\t{TriggerOverride}(\ttref{Infinity Engine object},\ttref{Infinity Engine trigger}) &
@@ -913,7 +913,7 @@ is & \t{RESPONSE} \t{#}weight \ttref{Infinity Engine action} ... &
   \DEFINE{Infinity Engine action} (action) varies between different
   versions of the Infinity Engine and will not be documented
   here. Refer to the right section of the
-  \ahref{\url{http://gibberlings3.net/iesdp/scripting/actions/index.htm}}{IESDP}.
+  \ahref{\url{https://gibberlings3.github.io/iesdp/scripting/actions/index.htm}}{IESDP}.
   Any time an Infinity Engine String Reference (strref) is expected by
   an action, you can use \ttref{text}. When the script is compiled,
   WeiDU will add the text as a string and insert the corresponding
@@ -1096,7 +1096,7 @@ of looking for \t{DIALOGF.TLK} in the game directory). \\
 \DEFINE{--out} \t{X} &	Emit most output files generated by command-line
 options (e.g., \ttref{D}, \ttref{DLG}, kits, \ttref{--biff-get},
 \ttref{BAF}, \ttref{BCS}, \ttref{--automate}, \ttref{--traify-tlk},
-\ttref{--extract-kits}, \ttref{--list-biff}, \ttref{--cmp-from},
+\ttref{--extract-kits}, \ttref{--list-biffs}, \ttref{--cmp-from},
 \ttref{--dcmp-from}, etc.) to file {\tt X}. If \t{X} is a directory,
 certain commands (e.g., \ttref{D}, \ttref{DLG}, \ttref{--biff-get}, etc.)
 will place their output there.  Does not affect \ttref{TP2} processing. \\
@@ -1127,6 +1127,7 @@ states with non-empty triggers. \\
 \DEFINE{--traify-old-tra} \t{X} & Assumes file X to contain strings already in .tra format.
 Use this over \t{--traify\#} for merging new strings in an already traified \ttref{D} or \ttref{TP2} or \ttref{BAF} file.
 \\
+\DEFINE{--traify-comment} & output @1 /* ~Hello~ */ rather than @1 when traifying \\
 \DEFINE{--untraify-d} \t{X} & convert .D file X to use hardcoded strings... \\
 \DEFINE{--untraify-tra} \t{X} & ...from TRA file X. Please note that the outcoming file
   could not work properly (if baf code embedded in a d file contains @ references, or if a string contains
@@ -1139,7 +1140,7 @@ when using \ttref{--trans}. \\
 \DEFINE{--make-tlk} \t{X} & Create a \ttref{TLK} file from \ttref{TRA} file X (cumulative, see \ttref{--tlkout}). \\
 \DEFINE{--testtrans} &	Test all specified \ttref{TRA} translation files to
 see if any of them use text that is already in the loaded
-\ttref{DIALOG.TLK}. If they do you can save translation effort by using
+\t{DIALOG.}\ttref{TLK}. If they do you can save translation effort by using
 string references instead. \\
 \DEFINE{--forceify} \t{X} & Convert the given \ttref{D} file to use forced
 strrefs (see \ttref{--out}, \ttref{SAY}, \ttref{Forced String Reference}). \\
@@ -1164,7 +1165,7 @@ preceded by \ttref{--biff-get}, with the -list exception. Use this command to ex
 different files (or \ttref{regexp}s) at once. \\
 \DEFINE{--biff-str} \t{X}&	Search all game \ttref{BIFF}s for files
 containing \t{X} (\ttref{regexp} allowed). \\
-\DEFINE{--biff-value} \t{X} &   Search all game \ttref{BIFFs} for files
+\DEFINE{--biff-value} \t{X} &   Search all game \ttref{BIFF}s for files
 containing value \t{X} at offset \t{ADDR}. Must be used with
 \ttref{--biff-value-at}. \\
 \DEFINE{--biff-value-at} \t{ADDR} & Gives the offset address for a
@@ -1187,7 +1188,7 @@ all of its resources from \t{CHITIN.KEY}. \emph{Do not use this feature.} \\
 \DEFINE{--cmp-to}   \t{X}&	... into this one. \\
 \DEFINE{--dcmp-from}\t{X}&	Emit \ttref{REPLACE}s to turn this \ttref{DLG} file ... \\
 \DEFINE{--dcmp-to}  \t{X}&	... into this one. \\
-\DEFINE{--tcmp-from}\t{X}&	Compare this \ttref{TRA} file (or directory of \ttref{TRA }files)... \\
+\DEFINE{--tcmp-from}\t{X}&	Compare this \ttref{TRA} file (or directory of \ttref{TRA} files)... \\
 \DEFINE{--tcmp-to}  \t{X}&	... with this one (or this directory). \\
 \DEFINE{--tlkcmp-from}\t{X}&	Emit \ttref{STRING!SET}s to convert this \ttref{TLK} file ... \\
 \DEFINE{--tlkcmp-to}\t{X}&	... into this one. \\
@@ -2129,7 +2130,7 @@ the equation, by making the NPC say something that forces immediate action,
 for instance), don't \ttref{INTERJECT} into a state that has player options
 (\ttref{REPLY}s).
 
-\subsection{\DEFINE{INTERJECT!COPY!TRANS}}
+\label{sec-interject-copy-trans}\subsection{\t{INTERJECT!COPY!TRANS}}
 This tutorial was thoughtfully provided by Jason Compton.
 
 \ttref{INTERJECT} is good for creating interjections where none already
@@ -2176,7 +2177,7 @@ GOTO blah}. That is, as long as you plan to proceed to the original
 destination. It saves you the trouble of having to look up and input the
 destination.
 
-\subsection{\DEFINE{INTERJECT!COPY!TRANS2}}
+\label{sec-interject-copy-trans2}\subsection{\t{INTERJECT!COPY!TRANS2}}
 This tutorial was thoughtfully provided by Rastor.
 
 There seems to be a great deal of confusion among the members of the modding
@@ -2393,7 +2394,7 @@ and \t{d} were given weights but \t{b} was not (because it had an empty
 trigger)).  Thus, you should avoid using \ttref{ADD!STATE!TRIGGER} on
 states with empty triggers unless you know what you are doing.
 
-\subsection{\DEFINE{TRA} Translation Files}
+\label{TRA}\subsection{\t{TRA} Translation Files}
 
 If you are writing a mod and you would like to make it easier to translate
 it into another language you can use "translation files" (much like BGII
@@ -2603,7 +2604,7 @@ So, all you have to remember to do is escape the square brackets with a
 backslash so WeiDU doesn't confuse them with a regular expression.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{ALTER!TRANS} (Last Update: 204.)}
+\label{sec-alter-trans}\subsection{\t{ALTER!TRANS} (Last Update: 204.)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial was thoughtfully provided by CamDawg.
 
@@ -2737,7 +2738,7 @@ Here is the context-free grammar syntax for the \ttref{TP2} file format:
 
 \begin{tabular}{cp{10in}|p{10in}}
 
-\DEFINE{TP2 File} & &
+\DEFINE{TP2 File}\label{TP2} & &
   A \ttref{TP2 File} is a text file that contains a number of
   mod \ttref{Component}s. \ttref{TP2 File}s tell WeiDU how to install
   various parts of your mod on an end-user's computer. \\
@@ -2765,10 +2766,9 @@ Here is the context-free grammar syntax for the \ttref{TP2} file format:
        \ttref{variable} is set to the name of the tp2, excluding any initial
        ``setup-''. For ``setup-mymod.tp2'', \t{TP2!FILE!NAME} is set to
        ``setup-mymod.tp2'', while \t{TP2!BASE!NAME} is set to ``mymod.tp2''.
-       The \DEFINE{MOD!FOLDER} \ttref{variable} is set to the root directory
-       of directoryName. If directoryName is
-       ``mymod/thisIsUnconventional/backup'', \t{MOD!FOLDER} is set to
-       ``mymod''.
+       The \DEFINE{MOD!FOLDER} \ttref{variable} is set to the
+       directory containing the TP2 file, if there is one, otherwise
+       it is set to the root directory of directoryName.
        \ttref{TP2 Flag}s set global options.
        \ttref{Language}s are
        the various languages in which your mod is available. The
@@ -2822,15 +2822,18 @@ global option to your \ttref{TP2} file. \\
 		your mod might start printing warnings three years down the line if
 		a new uninstall action is coded.
   \\
-  or & \DEFSYN{MODDER} String \Slist &
+  or & \DEFINE{MODDER} String \Slist &
        Enable additional debug info. By default, these messages are verbose but do
-       not halt the installation. Some options are configurable, see the \ttref{MODDER}
-       in-depth description.
+       not halt the installation. Some options are configurable, see the \ahrefloc{sec-modder}
+       {in-depth description}.
        \\
   or & \DEFINE{VERSION} String &
-  		"String" (variables evaluated) will be appended to every component's name in the
-  		weidu.log file.
-			\\
+
+  "String" (variables evaluated) will be appended to every component's
+  name in the weidu.log file. The \ttref{variable}
+  \DEFINE{MOD!VERSION} evaluates to the string set by \ttref{VERSION}
+  or to the empty string if the \ttref{VERSION} flag is not present. \\
+
   or & \DEFINE{SCRIPT!STYLE} style &
        This flag determines how WeiDU will read in \ttref{BAF} and
        \ttref{BCS} files and
@@ -2844,9 +2847,9 @@ global option to your \ttref{TP2} file. \\
     work with this action in the TP2 - use \ttref{PATCH!IF} and
     \ttref{BUT!ONLY!IF!IT!CHANGES} instead. \\
 
-  or & \DEFSYN{QUICK!MENU} lots of parameters &
+  or & \DEFINE{QUICK!MENU} lots of parameters &
     Used to specify one or more groups of components that can be installed in
-    a single step. See the \ttref{QUICK!MENU} tutorial for syntax, usage
+    a single step. See the \ahrefloc{sec-quick-menu}{\t{QUICK!MENU} tutorial} for syntax, usage
     instructions, and caveats. \\
 
   or & \DEFINE{AUTO!EVAL!STRINGS} &
@@ -2876,7 +2879,7 @@ global option to your \ttref{TP2} file. \\
        language.  \\
 \\
 
-\DEFINE{Component} & &
+\DEFINE{Component}\label{component} & &
   A \ttref{Component} is a contiguous group of files and actions that a
   user can install, uninstall or upgrade. \\
 
@@ -2921,17 +2924,16 @@ global option to your \ttref{TP2} file. \\
       This component can only be installed if the \ttref{value}
       evaluates to true (non-zero). \\
 
-  or & \DEFSYN{SUBCOMPONENT} \ttref{String} \Ob \ttref{value} \Oe &
+  or & \DEFINE{SUBCOMPONENT} \ttref{String} \Ob \ttref{value} \Oe &
       At most one component of the given subcomponent group can be
       installed at any time. All subcomponents of the same group are
-      listed together for the user. See the \ttref{SUBCOMPONENT}
-      tutorial. \\
+      listed together for the user. See the \ahrefloc{sec-subcomponent}{\t{SUBCOMPONENT} tutorial}. \\
 
   or & \DEFINE{FORCED!SUBCOMPONENT} \ttref{String} \Ob \ttref{value} \Oe &
-      See the \ttref{SUBCOMPONENT} tutorial. \\
+      See the \ahrefloc{sec-subcomponent}{\t{SUBCOMPONENT} tutorial}. \\
 
-  or & \DEFSYN{GROUP} \ttref{String}\Ob \ttref{value} \Oe & Used for grouping components; the user
-      will be asked to display these or not. See the \ttref{GROUP} tutorial. \\
+  or & \DEFINE{GROUP} \ttref{String}\Ob \ttref{value} \Oe & Used for grouping components; the user
+      will be asked to display these or not. See the \ahrefloc{sec-group}{\t{GROUP}} tutorial. \\
 
   or & \DEFINE{INSTALL!BY!DEFAULT} &
       If WeiDU would ask the user whether to install this component or not,
@@ -2971,14 +2973,17 @@ global option to your \ttref{TP2} file. \\
                      \ttref{optGlob} fromFile toFile ...
        \ttref{patch} \Slist
        \ttref{when} \Slist &
+
        You may specify as many fromFile-toFile pairs as you like. Each
-       fromFile is copied to its associated toFile. If there are any WeiDU
-       variables inside explicit \t{\%}s in toFile or fromFile, they are
-       replaced by their values. All of the
-       \ttref{patch}es are applied. If there are any \ttref{when}
-       conditions and any of them are false, the copy does not happen.
-       A typical example is \t{COPY "mymod/sword.itm"
-       "override/m\#sword.itm"}.
+       fromFile is copied to its associated toFile. If there are any
+       WeiDU variables inside explicit \t{\%}s in toFile or fromFile,
+       they are replaced by their values. All of the \ttref{patch}es
+       are applied. If there are any \ttref{when} conditions and any
+       of them are false, the copy does not happen. If fromFile is a
+       directory, toFile is also taken to be a directory and all files
+       (but not subdirectories) in fromFile are copied to toFile.  A
+       typical example is \t{COPY "mymod/sword.itm"
+         "override/m\#sword.itm"}.
 
 
        \ttref{COPY} commands set the user-defined \DEFINE{SOURCE!DIRECTORY},
@@ -2998,12 +3003,12 @@ global option to your \ttref{TP2} file. \\
 
 
        This is generally only useful if you have enabled globbing. Any
-       user-defined \ttref{variables} in toFile are replaced with their
-       values. You may also reference these \ttref{variables} in
+       user-defined \ttref{variable}s in toFile are replaced with their
+       values. You may also reference these \ttref{variable}s in
        \ttref{patch}es.
 
 
-       See the \ttref{Module Distribution} section for information about
+       See the \ahrefloc{sec-module-distribution}{Module Distribution} section for information about
        finding a good unique prefix for your mod-created resources.
        \\
   or & \DEFINE{COPY!EXISTING} \ttref{optNoBackup} fromFile toFile ...
@@ -3179,7 +3184,7 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
   or & \DEFINE{ACTION!READLN} \ttref{variable} &
       Waits for the user to provided an enter-terminated string and store it in
       variable. Said string will be stored and re-used during non-interactive reinstalls. See the
-      \ttref{READLN} tutorial. \\
+      \ahrefloc{sec-readln}{\t{READLN} tutorial}. \\
 or & \DEFSYN{APPEND} \ttref{optNoBackup} filename newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe  &
       If there are no \ttref{when} conditions or they are all true, the
       ASCII text newText is appended to the existing file filename (which
@@ -3284,7 +3289,7 @@ P Q R 3
     needs to evaluate to true for the values to match. If none
     of the values match, the \t{DEFAULT} action list is executed.
 
-    See the \ttref{MATCH and TRY} tutorial for additional information.
+    See the \ahrefloc{sec-match-and-try}{\t{MATCH} and \t{TRY} tutorial} for additional information.
   \\
   or & \DEFINE{ACTION!TRY} \ttref{TP2 Action} \Slist \t{WITH} \Ob guard\ttref{value} ...
     \Ob \t{WHEN} condition\ttref{value} \Oe
@@ -3292,12 +3297,20 @@ P Q R 3
     \t{DEFAULT} \ttref{TP2 Action} \Slist \t{END} &
     If evaluating the action list results in an error, the error is matched, as per \ttref{ACTION!MATCH}.
 
-    See the \ttref{MATCH and TRY} tutorial for additional information.
+    \textbf{N.B.} \t{TRY} is generally \emph{not safe} to use because
+    many errors are intended to be fatal and if the mod installation
+    were to proceed anyway, it might do so in an inconsistent state,
+    with resource leaks or with other errors. \ttref{ACTION!RERAISE}
+    mitigates or eliminates these risks, since the unsafe part is
+    allowing the installation to continue and re-raising the error
+    allows it to fail, like intended.
+
+    See the \ahrefloc{sec-match-and-try}{\t{MATCH} and \t{TRY} tutorial} for additional information.
   \\
   or & \DEFINE{ACTION!RERAISE} &
      When used inside an \ttref{ACTION!TRY}, the matched error is re-raised.
 
-     See the \ttref{MATCH and TRY} tutorial for additional information.
+     See the \ahrefloc{sec-match-and-try}{\t{MATCH} and \t{TRY} tutorial} for additional information.
   \\
   or & \DEFINE{AT!EXIT} commandToRun \Ob \t{EXACT} \Oe &
     Whenever this \ttref{component} attempts to be installed, commandToRun
@@ -3359,12 +3372,15 @@ END
   or & \DEFINE{AT!INTERACTIVE!UNINSTALL!EXIT} commandToRun \Ob \t{EXACT} \Oe &
     As \ttref{AT!UNINSTALL!EXIT}, but only whenever the user specifically asks for this
     \ttref{component} to be removed. \\
-  or & \DEFINE{AT!NOW} commandToRun \Ob \t{EXACT} \Oe &
-    As \ttref{AT!EXIT}, but commandToRun is executed when found, rather than
-    at the end of the installation. Use with oggdec, tisunpack, wav2acm...
-    but not with readmes (you'll create dozens of windows), nor with --make-biff
-    (you'll crash the installation).\\
-  or & \DEFINE{AT!INTERACTIVE!NOW} commandToRun \Ob \t{EXACT} \Oe &
+  or & \DEFINE{AT!NOW} \Ob \ttref{variable} \Oe commandToRun \Ob \t{EXACT} \Oe &
+    As \ttref{AT!EXIT}, but commandToRun is executed when found,
+    rather than at the end of the installation. Use with oggdec,
+    tisunpack, wav2acm...  but not with readmes (you'll create dozens
+    of windows), nor with --make-biff (you'll crash the
+    installation). If the optional \ttref{variable} is provided, a TP2
+    variable is of that name is assigned the return value of
+    commandToRun. \\
+  or & \DEFINE{AT!INTERACTIVE!NOW} \Ob \ttref{variable} \Oe commandToRun \Ob \t{EXACT} \Oe &
     As \ttref{AT!NOW}, but commandToRun is executed only if the installation is
     run interactively.\\
   or & \DEFINE{MAKE!BIFF} name-of-biff \t{BEGIN} \ttref{directory-file-regexp} \Slist \t{END} &
@@ -3437,11 +3453,12 @@ unusabilities
     \ahrefurl{\url{http://gibberlings3.net/forums/index.php?showtopic=584}}
     for information on how to do this.
 
-    \ttref{ADD!KIT} sets the variable \t{\%internalKitName\%} to the number
-    your kit occupies in \t{kitlist.2da}. This value is exactly 0x4000 less
-    than the number your kit is assigned in \t{kit.ids}. Also observe that
-    the kit DWORD in the \t{CRE} file format is big-endian, unlike all
-    other fields in the \t{CRE} file format.
+    \ttref{ADD!KIT} sets the variable \t{\%internalKitName\%} to the
+    number your kit occupies in \t{kitlist.2da}. This value is exactly
+    0x4000 less than the number your kit is assigned in
+    \t{kit.ids}. Also observe that the kit DWORD in the \t{CRE} file
+    format uses a reversed WORD order, unlike all other fields in the
+    \t{CRE} file format.
 
     Most arguments to \ttref{ADD!KIT} are strings to be appended verbatim to
     \t{2DA} files, detailed as follows:
@@ -3683,6 +3700,9 @@ or & \DEFINE{ALTER!TLK!LIST} \t{BEGIN} \ttref{value} \Slist \t{END} \t{BEGIN} \t
   or & \DEFINE{FAIL} warningString &
     If this \ttref{TP2 Action} is executed, warningString is displayed and
     the \ttref{component} fails to install. \\
+  or & \DEFINE{ABORT} string &
+    The string is displayed and installation of the component is undone.
+    No error is implied. \\
   or & \DEFINE{WARN} displayString &
     The string DisplayString is echoed to the user. Useful for debugging or
     status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}
@@ -3700,11 +3720,20 @@ or & \DEFINE{ALTER!TLK!LIST} \t{BEGIN} \ttref{value} \Slist \t{END} \t{BEGIN} \t
 or & \DEFINE{OUTER!TEXT!SPRINT} \ttref{variable} stringWithVars &
   Any WeiDU variables (enclosed in \t{\%}s) inside stringWithVars are
   replaced by their values and the resulting string (constructed at
-  mod-installation time!) is assigned to the variable \t{variable}.
-  This works somewhat like \t{sprintf()} but it not as cool. \\
+  mod-installation time!) is assigned to the variable \t{variable}. \\
 or & \DEFINE{OUTER!SPRINT} \ttref{variable} stringWithVars &
   Like \ttref{OUTER!TEXT!SPRINT}, but stringWithVars can be an @reference, and will
   break --traify. Use \ttref{OUTER!TEXT!SPRINT} instead. \\
+or & \DEFINE{OUTER!SNPRINT} \ttref{value} \ttref{variable} stringWithVars &
+  If \ttref{value} evaluates to zero or a positive number, N, the first
+  N characters of the evaluated contents of stringWithVars are
+  assigned to \ttref{variable}. If \ttref{value} evaluates to a
+  negative number, N, it's instead the last N characters. Thus:
+\begin{verbatim}
+SPRINT author Jason
+SNPRINT 3 myvar "1:%author%"
+\end{verbatim}
+  ... assigns \t{1:J} to \t{myvar}.  \\
 or & \DEFINE{OUTER!SET} \ttref{variable} \t{=} \ttref{value} &
   Update \ttref{variable} so that it is equal to \ttref{value}. \\
 or & \ttref{OUTER!SET} \ttref{variable} \t{+=} \ttref{value} &
@@ -3740,7 +3769,7 @@ or & \DEFINE{OUTER!WHILE} \ttref{value} \t{BEGIN}
   If \ttref{value} is non-zero, execute the given \ttref{TP2 Action} \Slist and
   then repeat, re-evaluating the \ttref{value}.
   {\em Be very careful when using this command. } You can easily describe
-  an infinite loop. See the \ttref{WHILE} loop tutorial for more
+  an infinite loop. See the \ahrefloc{sec-while}{\t{WHILE}} loop tutorial for more
   information.
   \\
 or & \DEFINE{OUTER!FOR} \t{(} \ttref{patch} \Slist \t{;}
@@ -3766,6 +3795,13 @@ or & \DEFINE{ACTION!BASH!FOR} \ttref{directory-file-regexp} \t{BEGIN} \ttref{TP2
 or & \DEFINE{ACTION!DEFINE!ARRAY} \t{\ttref{String}1 BEGIN \ttref{String}2} \Slist \t{END} &
 	Sets the array \verb+$string1(0)+,\verb+$string1(1)+ etc. to the various elements in string2.
 \\
+or & \DEFINE{ACTION!SORT!ARRAY!INDICES} \t{\ttref{String}
+  \ttref{ArrayIndicesSortType}} &
+
+  Sorts the indices of the array given by String according to the
+  order \ttref{ArrayIndicesSortType}. String is evaluated for
+  variables and you can use the array construct.\\
+
 or & \DEFINE{GET!FILE!ARRAY} \ttref{String} path \ttref{regexp} &
   The array \verb+$string(0)+, \verb+$string{1}+ etc is set to the file names, including path, that match regexp in path. The path is relative to the installation directory (e.g. save/000000000-Auto-Save).\\
 or & \DEFINE{GET!DIRECTORY!ARRAY} \ttref{String} path \ttref{regexp} &
@@ -3815,7 +3851,7 @@ or & \DEFINE{ACTION!REINCLUDE} \t{\ttref{String}} \Slist &
     (That's eight (8) angle brackets on each side.)
     For the purposes of copying and compiling files, WeiDU will pretend
     that fileName is a real file with contents fileBody. This allows you to
-    define \DEFINE{inlined} files inside your TP2 file. Such definitions
+    define \DEFINE{inlined}\label{inlined} files inside your TP2 file. Such definitions
     must be executed before the \ttref{inlined} file is used. Other operations
     on fileName (such as \ttref{FILE!EXISTS}, \ttref{FILE!MD5} or
     \ttref{FILE!SIZE}) are undefined. Inlined files will be skipped by
@@ -3853,9 +3889,9 @@ END
 COMPILE ~.../mymod-inlined/myfile.baf~
 \end{verbatim}
   This inclusion method is eight-bit clean, so if you are very careful you
-  can \ttref{inline} a binary file (e.g., a \ttref{CRE} or \ttref{BAM}) with
+  can \ahrefloc{inlined}{inline} a binary file (e.g., a \ttref{CRE} or \ttref{BAM}) with
   this method. Be careful to shave off the newline before the \t{>>>>>>>>}
-  in such cases. Finally, note that \ttref{inline}d files have the same
+  in such cases. Finally, note that \ttref{inlined} files have the same
   maximum size as other (non-BIFF) WeiDU files and strings (usually about
   16 megs).
 \\
@@ -3917,16 +3953,32 @@ or & \DEFINE{DEFINE!PATCH!MACRO} \ttref{String} \t{BEGIN}
 or & \DEFINE{DEFINE!ACTION!FUNCTION} \ttref{String}
      \Ob \t{INT!VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
      \Ob \t{STR!VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe
-     \Ob \t{RET} \ttref{variable} ... \Oe \t{BEGIN} \ttref{TP2 Action} \Slist
+     \Ob \t{RET} \ttref{variable} ... \Oe
+     \Ob \t{RET!ARRAY} \ttref{variable} ... \Oe
+     \t{BEGIN} \ttref{TP2 Action} \Slist
      \t{END} &
-  Define an action function. Refer to the \ttref{Functions} section for
+  Define an action function. Refer to the \ahrefloc{sec-functions}{\t{Functions}} section for
   additional information. \\
+
+or & \DEFINE{DEFINE!DIMORPHIC!FUNCTION} \ttref{String}
+     \Ob \t{INT!VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
+     \Ob \t{STR!VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe
+     \Ob \t{RET} \ttref{variable} ... \Oe
+     \Ob \t{RET!ARRAY} \ttref{variable} ... \Oe
+     \t{BEGIN} \ttref{TP2 Action} \Slist
+     \t{END} &
+
+     As \ttref{DEFINE!ACTION!FUNCTION}, except the function is additionally
+     defined as a PATCH function. \\
+
 or & \DEFINE{DEFINE!PATCH!FUNCTION} \ttref{String}
      \Ob \t{INT!VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
      \Ob \t{STR!VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe
-     \Ob \t{RET} \ttref{variable} ... \Oe \t{BEGIN} \ttref{patch} \Slist
+     \Ob \t{RET} \ttref{variable} ... \Oe
+     \Ob \t{RET!ARRAY} \ttref{variable} ... \Oe
+     \t{BEGIN} \ttref{patch} \Slist
      \t{END} &
-  Define a patch function. Refer to the \ttref{Functions} section for
+  Define a patch function. Refer to the \ahrefloc{sec-functions}{\t{Functions}} section for
   additional information. \\
 or & \DEFINE{LAUNCH!ACTION!MACRO} \ttref{String} &
   Launch an action macro. Refer to the \ttref{macros} section for
@@ -3937,8 +3989,9 @@ or & \DEFINE{LAUNCH!ACTION!FUNCTION} \ttref{String}
      \Ob \t{STR!VAR} \ttref{variable} \Ob \t{=} \Ob \ttref{EVALUATE!BUFFER}
      \Oe \ttref{String} \Oe ... \Oe
      \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
+     \Ob \t{RET!ARRAY} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
      \t{END} &
-  Launch an action function. Refer to the \ttref{Functions} section for
+  Launch an action function. Refer to the \ahrefloc{sec-functions}{\t{Functions}} section for
   additional information. You may use \DEFINE{LAF} as a synonym for
   \ttref{LAUNCH!ACTION!FUNCTION}.\\
 or & \DEFINE{ACTION!TIME} \ttref{String} \t{BEGIN} \ttref{TP2 Action}
@@ -4039,7 +4092,23 @@ or & \DEFINE{EVALUATE!REGEXP} & matching is evaluated following the usual regexp
 
 \\
 
-\DEFINE{patch} & & A \ttref{patch} tells WeiDU how to modify a file.  \\
+\DEFINE{ArrayIndicesSortType} && Allows you to select how the indices
+in an array to be sorted are to be interpreted. \\
+
+is && The default sort is lexicographic, see \ttref{LEXICOGRAPHICALLY}.\\
+
+or & \DEFINE{LEXICOGRAPHICALLY} & The sorting is in ascending
+lexicographical order. This means each row of indices are interpreted
+as a string and that, for example, 10 is sorted before 2.\\
+
+or & \DEFINE{NUMERICALLY} & The sorting is in ascending numerical
+order. This requires that the first column of indices can be
+interpreted as numbers; any strings will raise a warning and the sort
+order will be undefined. \\
+
+\\
+
+\DEFINE{patch}\label{TP2 Patch} & & A \ttref{patch} tells WeiDU how to modify a file.  \\
 is & \DEFSYN{SAY} \ttref{offset} \ttref{String} &
   The string-ref associated with \ttref{String} is written at
   \ttref{offset}. This is commonly used to change the name or
@@ -4047,6 +4116,9 @@ is & \DEFSYN{SAY} \ttref{offset} \ttref{String} &
   or & \DEFINE{PATCH!FAIL} warningString &
     If this \ttref{TP2 Action} is execution, warningString is displayed and
     the \ttref{component} fails to install. \\
+  or & \DEFINE{PATCH!ABORT} string &
+    The string is displayed and installation of the component is undone.
+    No error is implied. \\
   or & \DEFINE{PATCH!WARN} displayString &
     The string DisplayString is echoed to the user. Useful for debugging or
     status reports. If displayString contains \t{\%}\ttref{variable}\t{\%}
@@ -4091,22 +4163,35 @@ or & \DEFINE{TO!LOWER} \ttref{variable} &
 or & \DEFINE{TEXT!SPRINT} \ttref{variable} stringWithVars &
   Any WeiDU variables (enclosed in \t{\%}s) inside stringWithVars are
   replaced by their values and the resulting string (constructed at
-  mod-installation time!) is assigned to the variable \t{variable}.
-  This works somewhat like \t{sprintf()} but it not as cool. Currently this
-  is the only way to assign a string value to a variable. \\
+  mod-installation time!) is assigned to the variable \t{variable}. \\
 or & \DEFINE{SPRINT} \ttref{variable} stringWithVars &
   Like \ttref{TEXT!SPRINT}, but stringWithVars can be an @reference, and will
   break --traify. Use \ttref{TEXT!SPRINT} instead. \\
 
-or & \DEFINE{SNPRINT} \ttref{value} \ttref{variable} stringWithVars &
-  As \ttref{SPRINT}, but only the first \t{N} characters are stored in
-  the \ttref{variable}, where \t{N} is the result of evaluating the
-  \ttref{value}. This works somewhat like \t{snprintf()}. Thus:
+  or & \DEFINE{SNPRINT} \ttref{value} \ttref{variable} stringWithVars &
+  If \ttref{value} evaluates to zero or a positive number, N, the first
+  N characters of the evaluated contents of stringWithVars are
+  assigned to \ttref{variable}. If \ttref{value} evaluates to a
+  negative number, N, it's instead the last N characters. Thus:
 \begin{verbatim}
-SPRINT "author" "Jason"
-SNPRINT 3 "myvar" "1:%author%"
+SPRINT author Jason
+SNPRINT 3 myvar "1:%author%"
 \end{verbatim}
   ... assigns \t{1:J} to \t{myvar}.  \\
+
+or & \DEFINE{SPRINTF} \ttref{variable} stringWithVars
+\t{(} \ttref{variable} or \ttref{value}  \Slist \t{)} &
+In stringWithVars, any instance of \t{\%s}, \t{\%d} and \t{\%x} will consume
+one variable of the list of variables and format the contents of the variable
+as a string, decimal number or hexadecimal number, respectively. Any normal text
+in stringWithVars is reproduced verbatim. Variables enclosed in \t{\%} are not
+evaluated. The result is stored in the variable given as the first argument.
+\begin{verbatim}
+SET ten = 10
+SPRINTF foo "%s %d %x quux" ("bar" 10 ten)
+\end{verbatim}
+will set the variable \t{foo} to the string \verb+~bar 10 0xa quux~+ \\
+
 or & \DEFINE{SOURCE!BIFF} \ttref{variable} filename &
   If filename is in a biff (whether it is also in the override or not), sets
   variable to the name of the containing biff (the name is printed as E.G.
@@ -4255,6 +4340,7 @@ or & \DEFINE{REPLACE!BCS!BLOCK} \Ob \t{EVALUATE!BUFFER} \Oe \ttref{optcase}
      oldFile newFile \Ob \t{ON!MISMATCH} \ttref{patch} \Slist \t{END} \Oe &
   If the current file is a \ttref{BCS} file, the segment of it
   corresponding to oldFile is replaced with the contents of newFile.
+  Multiple blocks can be replaced if they are contiguous and in order.
   oldFile and newFile may be \ttref{BCS} or \ttref{BAF} files. If they
   are \ttref{BAF} files they will not get the benefit of \ttref{AUTO!TRA}.
 
@@ -4392,7 +4478,7 @@ WMP_AREAS (0x34 4 0x30 4 0 0 0xf0)
 WMP_LINKS (0x38 4 0x3c 4 0 0 0xd8)
 \end{verbatim}
 
-\t{GET!OFFSET!ARRAY} performs "Iterations" number of reads and sets the array \verb+$string(0)+, \verb+$string(1)+ etc to the result of these reads. A more detailed explanation can be had in the \ttref{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} tutorial.\\
+\t{GET!OFFSET!ARRAY} performs "Iterations" number of reads and sets the array \verb+$string(0)+, \verb+$string(1)+ etc to the result of these reads. A more detailed explanation can be had in the \ahrefloc{sec-get-offset-array12}{\t{GET!OFFSET!ARRAY} and \t{GET!OFFSET!ARRAY2} tutorial}.\\
 
 or & \DEFINE{GET!OFFSET!ARRAY2} \ttref{String} \t{eight \ttref{value}s} &
   The eight values are:
@@ -4430,7 +4516,7 @@ WMP_EAST_LINKS (0x38 4 0x6c 4 0x68 4 0xd8)
 \end{verbatim}
 As you can see, the value for Offset2 isn't included in the sets, since it varies.
 
-"Offset2" corresponds to the result from \ttref{GET!OFFSET!ARRAY}. "Offset" is read from the start of the file. "Iterations" and "Index" are read from Offset2 + value. Apart from that \t{GET!OFFSET!ARRAY2} functions like \ttref{GET!OFFSET!ARRAY}. A more detailed explanation can be had in the \ttref{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} tutorial.\\
+"Offset2" corresponds to the result from \ttref{GET!OFFSET!ARRAY}. "Offset" is read from the start of the file. "Iterations" and "Index" are read from Offset2 + value. Apart from that \t{GET!OFFSET!ARRAY2} functions like \ttref{GET!OFFSET!ARRAY}. A more detailed explanation can be had in the \ahrefloc{sec-get-offset-array12}{\t{GET!OFFSET!ARRAY} and \t{GET!OFFSET!ARRAY2} tutorial}.\\
 
 or & \DEFINE{DEFINE!ASSOCIATIVE!ARRAY} \t{\ttref{String} BEGIN key1 \Ob , key2 ... \Oe => result1} \Slist \t{END} &
   Sets the array \verb+$string+, indexed by the keys, to the corresponding results. The results can either be \ttref{String}s or \ttref{value}s.
@@ -4492,12 +4578,12 @@ or & \Ob \ttref{SET} \Oe \ttref{variable} \t{<<=} \ttref{value} &
 or & \Ob \ttref{SET} \Oe \ttref{variable} \t{>>=} \ttref{value} &
   Equivalent to \t{SET variable = variable BLSR value}. \\
 
-or & \DEFSYN{WHILE} \ttref{value} \t{BEGIN}
+or & \DEFINE{WHILE} \ttref{value} \t{BEGIN}
   \ttref{patch} \Slist \t{END} &
   If \ttref{value} is non-zero, execute the given \ttref{patch} \Slist and
   then repeat, re-evaluating the \ttref{value}.
   {\em Be very careful when using this command. } You can easily describe
-  an infinite loop. See the \ttref{WHILE} loop tutorial for more
+  an infinite loop. See the \ahrefloc{sec-while}{\t{WHILE}} loop tutorial for more
   information.
   \\
 or & \DEFINE{FOR} \t{(} \ttref{patch} \Slist \t{;}
@@ -4528,6 +4614,9 @@ or & \DEFINE{PATCH!DEFINE!ARRAY} \t{\ttref{String}1 BEGIN \ttref{String}2 \Slist
 	Same as \ttref{DEFINE!ARRAY}.
 \\
 
+or & \DEFINE{SORT!ARRAY!INDICES} \t{\ttref{String}} &
+
+  Semantically identical to \ttref{ACTION!SORT!ARRAY!INDICES}\\
 
 or & \DEFINE{PATCH!FOR!EACH} \t{\ttref{String}1 IN \ttref{String}} \Slist
                              \t{BEGIN} \ttref{patch} \Slist \t{END} &
@@ -4577,7 +4666,7 @@ or & \DEFINE{PATCH!IF} \ttref{value} \Ob \t{THEN} \Oe \t{BEGIN}
     needs to evaluate to true for the values to match. If none
     of the values match, the \t{DEFAULT} patch list is executed.
 
-    See the \ttref{MATCH and TRY} tutorial for additional information.
+    See the \ahrefloc{sec-match-and-try}{\t{MATCH} and \t{TRY} tutorial} for additional information.
   \\
   or & \DEFINE{PATCH!TRY} \ttref{patch} \Slist \t{WITH} \Ob pattern\ttref{value} ...
     \Ob \t{WHEN} guard\ttref{value} \Oe
@@ -4585,12 +4674,20 @@ or & \DEFINE{PATCH!IF} \ttref{value} \Ob \t{THEN} \Oe \t{BEGIN}
     ... \t{DEFAULT} \ttref{patch} \Slist \t{END} &
     If evaluating the patch list results in an error, the error is matched, as per \ttref{PATCH!MATCH}.
 
-    See the \ttref{MATCH and TRY} tutorial for additional information.
+    \textbf{N.B.} \t{TRY} is generally \emph{not safe} to use because
+    many errors are intended to be fatal and if the mod installation
+    were to proceed anyway, it might do so in an inconsistent state,
+    with resource leaks or with other errors. \ttref{PATCH!RERAISE}
+    mitigates or eliminates these risks, since the unsafe part is
+    allowing the installation to continue and re-raising the error
+    allows it to fail, like intended.
+
+    See the \ahrefloc{sec-match-and-try}{\t{MATCH} and \t{TRY} tutorial} for additional information.
   \\
   or & \DEFINE{PATCH!RERAISE} &
      When used inside a \ttref{PATCH!TRY}, the matched error is re-raised.
 
-     See the \ttref{MATCH and TRY} tutorial for additional information.
+     See the \ahrefloc{sec-match-and-try}{\t{MATCH} and \t{TRY} tutorial} for additional information.
   \\
 or & \DEFINE{PATCH!INCLUDE} \t{\ttref{String}} \Slist &
     loads the file string as if it were a list of tp2 patches and executes it (as if
@@ -4618,7 +4715,7 @@ or & \DEFINE{PATCH!WITH!SCOPE} \t{BEGIN} \ttref{patch} \Slist \t{END} &
     \ttref{PATCH!WITH!SCOPE} exits, the new scope is discarded, all
     new variables defined inside the scope and all changes to existing variables
     are forgotten. \\
-or & \DEFSYN{SET!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
+or & \DEFINE{SET!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
 \ttref{value} &
   The first \ttref{value} is the row, the second is the column and the
   third is the \emph{required column count}. The entry on the given column
@@ -4630,7 +4727,7 @@ or & \DEFSYN{SET!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
   it is a single string (that is not a variable in scope) that string will
   be written at the new value.
   See
-  the \ttref{SET!2DA!ENTRY} tutorial for more information. \\
+  the \ahrefloc{sec-set-2da-entry}{\t{SET!2DA!ENTRY} tutorial} for more information. \\
 
   or & \DEFINE{SET!2DA!ENTRY!LATER} string \ttref{value} \ttref{value}
   \ttref{value} &
@@ -4643,15 +4740,15 @@ or & \DEFSYN{SET!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
   changes and update the 2DA table. If you use
   \ttref{SET!2DA!ENTRY!LATER} together with
   \ttref{READ!2DA!ENTRY!FORMER} you must use different string
-  variables for the two. See the \t{SET!2DA!ENTRY!LATER} tutorial. \\
+  variables for the two. See the \ahrefloc{sec-set-2da-entry-later-now}{\tt{SET!2DA!ENTRY!LATER} tutorial}. \\
 
-  or & \DEFSYN{SET!2DA!ENTRIES!NOW} string \ttref{value} &
+  or & \DEFINE{SET!2DA!ENTRIES!NOW} string \ttref{value} &
 
   Flush the changes to the 2DA table that have been queued by
   \ttref{SET!2DA!ENTRY!LATER}. The first parameter, string, should be
   the same string you used for \ttref{SET!2DA!ENTRY!LATER}. The second
   value is the required column count. Rows with fewer columns are
-  disregarded. See the \ttref{SET!2DA!ENTRIES!NOW} tutorial. \\
+  disregarded. See the \ahrefloc{sec-set-2da-entry-later-now}{\tt{SET!2DA!ENTRIES!NOW} tutorial}. \\
 
 or & \DEFINE{PRETTY!PRINT!2DA} & Indents the 3rd line in the current file (which
   should be a  2da file). \\
@@ -4694,10 +4791,10 @@ or & \DEFINE{REMOVE!2DA!ROW} \t{\ttref{value}1 \ttref{value}2} &
 or & \DEFINE{PATCH!READLN} \ttref{variable} &
   Waits for the user to provided an enter-terminated string and store it in
   variable. Said string will be stored and re-used during non-interactive reinstalls. See the
-  \ttref{READLN} tutorial. \\
+  \ahrefloc{sec-readln}{\t{READLN} tutorial}. \\
 or & \DEFINE{PATCH!RANDOM!SEED} \ttref{value} &
   See \ttref{RANDOM!SEED}. \\
-or & \DEFSYN{ADD!STORE!ITEM} \Ob \t{+} \Oe itemName \Ob position \Oe
+or & \DEFINE{ADD!STORE!ITEM} \Ob \t{+} \Oe itemName \Ob position \Oe
   charge1 charge2 charge3 flags stack \Ob unlimited \Oe &
 
   Add the item itemName to the current STO file. An optional \t{+}
@@ -4722,7 +4819,7 @@ or & \DEFSYN{ADD!STORE!ITEM} \Ob \t{+} \Oe itemName \Ob position \Oe
   \t{)}. The optional argument unlimited should be one of the strings
   \t{limited} or \t{unlimited} and controls whether the store should
   carry an inexhaustible stack of the new item, or not. \t{limited} is
-  the default behaviour. See the \ttref{ADD!STORE!ITEM} tutorial for
+  the default behaviour. See the \ahrefloc{sec-add-store-item}{\t{ADD!STORE!ITEM} tutorial} for
   more information.\\
 
 or & \DEFINE{REMOVE!STORE!ITEM} itmName \Slist &
@@ -4886,8 +4983,8 @@ COPY ~nice.baf~ ~mean.baf~
   with \t{Take(15)}.  optcase allows you to decide if the matching is
   case-sensitive or not. Matching is case-sensitive by default.  \\
 
-  or & \DEFSYN{ADD!GAM!NPC} npcCRE npcARE xCoord yCoord &
-    See the \ttref{ADD!GAM!NPC} tutorial for more information about this
+  or & \DEFINE{ADD!GAM!NPC} npcCRE npcARE xCoord yCoord &
+    See the \ahrefloc{sec-add-gam-npc}{\t{ADD!GAM!NPC} tutorial} for more information about this
     action, which is used when adding NPCs to Baldur's Gate 1. BG2 mods
     should not use this command.  \\
 
@@ -4951,7 +5048,7 @@ or & \DEFINE{SET!BG2!PROFICIENCY} String \ttref{value} &
 	String (relative to Stats.ids). After that, if value is different from zero, add an effect
 	to set said proficiency to value. \\
 
-or & \DEFSYN{ADD!CRE!ITEM} itmName charge1 charge2 charge3 flags slot \Ob
+or & \DEFINE{ADD!CRE!ITEM} itmName charge1 charge2 charge3 flags slot \Ob
 \t{EQUIP} \Oe \Ob \t{TWOHANDED} \Oe \Ob \t{NOMOVE} \Oe &
 
 Add the item itmName to the current CRE file, with the number of
@@ -4992,7 +5089,7 @@ will make the creature have the weapon selected. The optional argument
 in the shield slot to be unequipped. The optional argument \t{NOMOVE}
 will cause the new item to be added to the specified slot(s) only if
 there is an empty slot, otherwise the new item is placed in the
-inventory. See the \ttref{ADD!CRE!ITEM} tutorial. \\
+inventory. See \ahrefloc{sec-add-cre-item}{\t{ADD!CRE!ITEM} tutorial}. \\
 
 or & \DEFINE{REPLACE!CRE!ITEM} itmName \t{\#}charge1 \t{\#}charge2 \t{\#}charge3 flags slot \Ob
 \t{EQUIP} \Oe \Ob \t{TWOHANDED} \Oe &
@@ -5060,11 +5157,11 @@ END
 PATCH_PRINT "myvar is %myvar%"
 \end{verbatim}
   This sequence will always print \t{myvar is 84} (since 84 is the ASCII
-  code for \t{T} and \ttref{SW1H01.ITM} starts with \t{ITM}). \\
+  code for \t{T} and \t{SW1H01.ITM} starts with \t{ITM}). \\
 
-or & \DEFSYN{INNER!ACTION} \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
-  See the \ttref{INNER!ACTION} tutorial, but loosely the current
-  \ttref{COPY} is paused, the given \ttref{TP2 Actions} are executed, and
+or & \DEFINE{INNER!ACTION} \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
+  See the \ahrefloc{sec-inner-action}{\t{INNER!ACTION} tutorial}, but loosely the current
+  \ttref{COPY} is paused, the given \ttref{TP2 Action}s are executed, and
   then the current \ttref{COPY} is resumed. \emph{Note that an
   \ttref{INNER!ACTION} should never modify a file that is being modified by
   the current action. For example, never put \t{APPEND ~foo.2da~} inside of
@@ -5140,8 +5237,9 @@ or & \DEFINE{LAUNCH!PATCH!FUNCTION} \ttref{String}
      \Ob \t{STR!VAR} \ttref{variable} \Ob \t{=} \Ob \ttref{EVALUATE!BUFFER}
      \Oe \ttref{String} \Oe ... \Oe
      \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
+     \Ob \t{RET!ARRAY} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
      \t{END} &
-        Launch a patch function. Refer to the \ttref{Functions} section for
+        Launch a patch function. Refer to the \ahrefloc{sec-functions}{\t{Functions}} section for
         additional information. You may use \DEFINE{LPF} as a synonym
         for \ttref{LAUNCH!PATCH!FUNCTION}.
 \\
@@ -5240,7 +5338,7 @@ is 0. See \ttref{STRING!COMPARE} for comparing \ttref{String}s. Synonym:
 \\
 or & \DEFINE{NOT} \ttref{value} & Negation. If the value is 0, the result is 1.
 Otherwise the result is 0. \\
-or & \DEFINE{ABS} \ttref{Value} & Absolute value. If the value is >= 0, the result
+or & \DEFINE{ABS} \ttref{value} & Absolute value. If the value is >= 0, the result
 is x. Otherwise the result is -x. \\
 or & \ttref{value} \DEFINE{\textexcl=} \ttref{value} & \emph{Integer} Inequality. If
 the two values evaluate to equal integers, the result is 0. Otherwise the
@@ -5546,6 +5644,20 @@ fileName are evaluated. fileName can be a file on the local file system or an
 inlined file.
 \\
 
+or & \DEFINE{VALID!SCRIPT!ACTIONS} \ttref{variable} &
+
+Variable can be an array construct and should be or evaluate to a
+string of whitespace-separated \ttref{Infinity Engine action}s.
+Returns true if the string compiles into BCS without
+unrecoverable errors, otherwise false.\\
+
+or & \DEFINE{VALID!SCRIPT!TRIGGERS} \ttref{variable} &
+
+Variable can be an array construct and should be or evaluate to a
+string of whitespace-separated \ttref{Infinity Engine trigger}s.
+Returns true of the string compiles into BCS without
+unrecoverable errors, otherwise false.\\
+
 or & \t{\%}\ttref{variable}\t{\%}   &
     The value of the \ttref{variable} is used. \\
 
@@ -5565,7 +5677,7 @@ PATCH_PRINT "y is %y% ; z is %z%"
     \t{FILE!SIZE "myfile" "\%\%indirection\%\%"}. Be very careful with this
     feature. \\
 or & \verb+$array(index list)+ &
-    The so-called \ttref{array construct}. See the tutorial.
+    The so-called \emph{array construct}. See the \ahrefloc{sec-array-construct}{tutorial}.
 \\
 
 or & \t{\%}\DEFINE{WEIDU!ARCH}\t{\%} & The special variable \t{WEIDU!ARCH}
@@ -5589,7 +5701,7 @@ or & \ttref{variable} &
   In a \ttref{patch} \ttref{value}, you may use either \t{\%myvar\%} or
   \t{myvar} to get the value of a variable, provided that your variable's
   name is not the same as a WeiDU syntactic keyword or known
-  \ttref{constant}. Also note that while it is common to ``call out''
+  \ahrefloc{sec-constant}{constant}. Also note that while it is common to ``call out''
   variables by putting quotation marks around them, this is not necessary
   if the variable is unambiguous. Thus the following three \ttref{patch}es
   are all equivalent:
@@ -5763,7 +5875,7 @@ READ_SHORT 0x1c type
 \end{verbatim}
 
 I found the offset by looking at the file format for items in the IESDP:
-\ahrefurl{\url{http://gibberlings3.net/iesdp/}}. The
+\ahrefurl{\url{https://gibberlings3.github.io/iesdp/index.htm}}. The
 variable "type" can really be anything, it's just what I've chosen.
 
 We should edit the item only if the item is really a longsword:
@@ -6064,7 +6176,7 @@ COPY_EXISTING ~acolyte1.cre~ ~override~
 BUT_ONLY_IF_IT_CHANGES
 \end{verbatim}
 
-Note that you can use the \ttref{PRINT} action in a \ttref{tp2} to debug
+Note that you can use the \ttref{PRINT} action in a \ttref{TP2} to debug
 your code as well.  Like this:
 
 \begin{verbatim}
@@ -6111,7 +6223,7 @@ above, it can be quite powerful as well.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{ADD!STORE!ITEM} (Last Update: v211)}
+\label{sec-add-store-item}\subsection{\t{ADD!STORE!ITEM} (Last Update: v211)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial and this feature were thoughtfully provided by Japheth.
 
@@ -6209,7 +6321,7 @@ we add the new item BEFORE or AFTER the first item that is present in the list.
 As of 211, you can specify a (zero-based) hardcoded position via \verb+AT position+.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{ADD!GAM!NPC}}
+\label{sec-add-gam-npc}\subsection{\t{ADD!GAM!NPC}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial and this feature were thoughtfully provided by Japheth.
 
@@ -6290,7 +6402,7 @@ elegant way to do this via WeiDU (well, maybe there is, but I can't think
 of a way) so I'd just warn them.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\t{SET!2DA!ENTRY}}
+\label{sec-set-2da-entry}\subsection{\t{SET!2DA!ENTRY}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial was thoughtfully provided by Idobek.
@@ -6422,7 +6534,7 @@ Finally, if \t{newEntry} is a string that contains any
 That's the end of this tutorial.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{WHILE} Loops (Last update: v232)}
+\label{sec-while}\subsection{\t{WHILE} Loops (Last update: v232)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial was thoughtfully provided by Idobek, and shamelessly edited
@@ -6702,7 +6814,7 @@ Thanks especially to Smoketest for helping me with this, Japheth for the
 tutorial that inspired this and the help given, and the IESDP team.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Scripting Styles (Last Update: v232)}\label{sec-scripting-styles}
+\label{sec-scripting-styles}\subsection{Scripting Styles (Last Update: v232)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 While the \ttref{BCS} and \ttref{BAF} script formats are common to all
@@ -6736,7 +6848,7 @@ Also, \t{IWD1} and \t{IWD2} have different rules for parsing certain IDS files,
 which contain spaces and/or commas in the tokens.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{TP2 \DEFINE{SUBCOMPONENT} Groups (Last Update: v192)}
+\label{sec-subcomponent}\subsection{TP2 \t{SUBCOMPONENT} Groups (Last Update: v192)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial was thoughtfully provided by CamDawg, and edited by the Bigg
@@ -6833,7 +6945,7 @@ install one of them. This could be useful if you want to ask the user if he want
 biffing of wav files or not (as you need different actions for either choice).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{ADD!CRE!ITEM} (Last Update: v240)}
+\label{sec-add-cre-item}\subsection{\t{ADD!CRE!ITEM} (Last Update: v240)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 This tutorial was thoughtfully provided by Japheth.
 
@@ -7015,7 +7127,7 @@ collect the player's response. You cannot change the \t{Copying one file}
 and \t{Compiling dialogues} (and the similar) text.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{INNER!ACTION}}
+\label{sec-inner-action}\subsection{\t{INNER!ACTION}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Normally I would start off with \emph{do not use this feature}, but since
@@ -7177,13 +7289,13 @@ warning, do not try to re-invent the WeiMorph wheel using a \ttref{TP2}
 script -- email Japheth instead.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\t{SET!2DA!ENTRY!LATER} and \t{SET!2DA!ENTRIES!NOW} (Last Update: v241)}
+\label{sec-set-2da-entry-later-now}\subsection{\t{SET!2DA!ENTRY!LATER} and \t{SET!2DA!ENTRIES!NOW} (Last Update: v241)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \ttref{SET!2DA!ENTRY!LATER} and \ttref{SET!2DA!ENTRIES!NOW} are
 extensions of the \ttref{SET!2DA!ENTRY} patch, so you should be
 familiar with \t{SET!2DA!ENTRY} before reading this tutorial. A
-tutorial for \t{SET!2DA!ENTRY} exists.
+\ahrefloc{sec-set-2da-entry}{tutorial} for \t{SET!2DA!ENTRY} exists.
 
 The main difference between the standard \ttref{SET!2DA!ENTRY} and
 these variants is that \t{SET!2DA!ENTRY} changes the file each
@@ -7292,7 +7404,7 @@ prepended to the file name, to make sure the two strings can never be
 identical.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{DEFINE,LAUNCH,LOCAL and everything else about personal \DEFINE{macros} (Last Update: v188)}
+\label{macros}\subsection{\t{DEFINE,LAUNCH,LOCAL} and everything else about personal \DEFINE{macros} (Last Update: v188)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Macros were originally intended as a way to repeat a certain tp2 block
@@ -7434,13 +7546,13 @@ PATCH_PRINT ~%tb#factorial_index%! = %tb#factorial_result%~
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 For your convenience, WeiDU includes some standard macros for you to use.
-See \ttref{Macros Listing} for a listing of all macros and how to invoke
+See \ahrefloc{sec-macros-listing}{Macros Listing} for a listing of all macros and how to invoke
 them in detail. Here I'll describe the standard syntax.
 
 In our example, we'll use the tb\#factorial macro (which is the same as the
 last example in the preceding tutorial).
 
-Description (from \ttref{Macros Listing}):
+Description (from \ahrefloc{sec-macros-listing}{Macros Listing}):
 \verb+tb#factorial+: computes the factorial of a number. \\
 This is a PATCH macro.
 \begin{itemize}
@@ -7483,7 +7595,7 @@ LAUNCH_ACTION_MACRO ~tb#fix_file_size~
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{GROUP} (Last update: V221)}
+\label{sec-group}\subsection{\t{GROUP} (Last update: V221)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The GROUP flag came about in discussing component management with an
@@ -7579,7 +7691,7 @@ non-GROUPed components will always be presented.
 ASK!EVERY!COMPONENT tp2 flag.
 \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{array construct}}
+\label{sec-array-construct}\subsection{\t{array construct}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The array construct is a facile way of constructing multi-component
@@ -7651,7 +7763,7 @@ PRINT "The second letter is %letter%" // Will print "b"
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{MODDER} (Last update: v230)}
+\label{sec-modder}\subsection{\t{MODDER} (Last update: v230)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The MODDER flag allows for more debugging info to be reported. It is suggested to
@@ -7715,7 +7827,7 @@ An important note: if a tp2 sets MODDER, the debugging mode might propagate to
 other mods. As such, \emph{REMEMBER TO TURN MODDER OFF WHEN YOU RELEASE YOUR MOD.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{READLN} (Last update: v203)}
+\label{sec-readln}\subsection{\t{READLN} (Last update: v203)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tutorial has been brought to you by plainab.
@@ -7889,7 +8001,7 @@ is causing the problem, especially if the player has forgotten which choices the
 This could be solved by creating your own log file, but that is another tutorial...
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{Functions} (Last update: V210)}
+\label{sec-functions}\subsection{\t{Functions} (Last update: V210)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Macros can have unintended side effects because they change the global variable environment.
@@ -7941,6 +8053,35 @@ When you launch the function you can use these variables to import the value
 into your current variable environment (\verb+RET lvl1_wizard = num+).
 Separate the variables with a space character if you have multiple return values.
 
+As of V244, you can return whole arrays with the \verb+RET_ARRAY+
+keyword. Like with \verb+RET+, you can optionally assign the array to
+a different name by using assignment when launching the function.
+
+\begin{verbatim}
+DEFINE_ACTION_FUNCTION foobar
+  RET_ARRAY
+    foo
+    bar
+BEGIN
+  ACTION_DEFINE_ARRAY foo BEGIN 1 2 3 END
+  ACTION_DEFINE_ARRAY bar BEGIN a b c END
+END
+
+LAF foobar RET_ARRAY foo baz = bar END
+
+// After the function has returned, the arrays foo and baz will exist
+// The array baz will be derived from the array bar
+
+ACTION_PHP_EACH foo AS _ => v BEGIN
+  PRINT "%v%" // will print 1, 2 and 3
+END
+
+ACTION_PHP_EACH baz AS _ => v BEGIN
+  PRINT "%v%" // will print a, b and c
+END
+
+\end{verbatim}
+
 If you don't need certain features simply omit them:
 \begin{verbatim}
 DEFINE_ACTION_FUNCTION xyz INT_VAR x = 1 y = 2 z = 3 BEGIN
@@ -7965,7 +8106,7 @@ LAUNCH_ACTION_FUNCTION xyz INT_VAR y END // synonym for INT_VAR y = y
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{GET!OFFSET!ARRAY and GET!OFFSET!ARRAY2} (last edit: 218)}
+\label{sec-get-offset-array12}\subsection{\t{GET!OFFSET!ARRAY} and \t{GET!OFFSET!ARRAY2} (last edit: 218)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Many thanks to Wisp for providing this tutorial.
@@ -8010,7 +8151,7 @@ BUT_ONLY
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{MATCH and TRY} (last edit: 225)}
+\label{sec-match-and-try}\subsection{\t{MATCH} and \t{TRY} (last edit: 245)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \verb+MATCH+ is the equivalent of switch..case in mainstream languages (except
@@ -8019,6 +8160,14 @@ selection control statement whose purpose is to allow the value of a variable
 or expression to control the flow of program execution via a multiway branch.
 The main reasons for using this type of statement include improving clarity
 and reducing otherwise repetitive coding.
+
+\textbf{N.B.} \t{TRY} is generally \emph{not safe} to use because many
+errors are intended to be fatal and if the mod installation were to
+proceed anyway, it might do so in an inconsistent state, with resource
+leaks or with other errors. \ttref{ACTION!RERAISE} and
+\ttref{PATCH!RERAISE} mitigates or eliminates these risks, since the
+unsafe part is allowing the installation to continue and re-raising
+the error allows it to fail, like intended.
 
 \verb+TRY+ is used to detect TP2 failures (= anything that blocks the installation
 and prints "NOT INSTALLED DUE TO ERRORS") and allows the modder to run custom
@@ -8203,7 +8352,7 @@ which would cause you headaches when nesting multiple \verb+TRY+s).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{QUICK!MENU} (last edit: 227)}
+\label{sec-quick-menu}\subsection{\t{QUICK!MENU} (last edit: 227)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This tp2 flag is used to define groups of components that the user will be
@@ -8262,7 +8411,7 @@ development of your mod using --yes and the like.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\DEFINE{HANDLE!AUDIO and HANDLE!TILESETS}}
+\label{sec-handle-audio-and-handle-tilesets}\subsection{\t{HANDLE!AUDIO} and \t{HANDLE!TILESETS}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \ttref{HANDLE!AUDIO} and \ttref{HANDLE!TILESETS} are convenience
@@ -8476,7 +8625,7 @@ END
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\DEFINE{Macros Listing}}
+\label{sec-macros-listing}\section{Macros Listing}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 These macros are automatically shipped with WeiDU.
 
@@ -9360,7 +9509,7 @@ The function will fail with an error if the file being patched does not have a s
 
 % HeVeA forces me to use rawhtml of ~ here. \hspace{1 pc} may also be an option.
 
-This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games, including BG:EE. If the game is not BG:EE, the audio will be decompressed and the resulting .wav files will be \ttref{MOVE}d to the override. If the game is BG:EE, the .ogg files are copied into the override and renamed into .wav files. Refer to the \ttref{HANDLE!AUDIO and HANDLE!TILESETS} tutorial for usage examples and a more practical explanation.
+This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games, including BG:EE. If the game is not BG:EE, the audio will be decompressed and the resulting .wav files will be \ttref{MOVE}d to the override. If the game is BG:EE, the .ogg files are copied into the override and renamed into .wav files. Refer to the \ahrefloc{sec-handle-audio-and-handle-tilesets}{\tt{HANDLE!AUDIO} and \tt{HANDLE!TILESETS} tutorial} for usage examples and a more practical explanation.
 
 If the audio files need to be decompressed, this function will use oggdec.exe on Windows, which is by default expected to be found in \verb+audio_path+. The most recent version of oggdec can be downloaded \ahref{\url{http://downloads.xiph.org/releases/vorbis/vorbis-tools-win32-bin.7z}}{here} (direct link). On OS\begin{rawhtml}&nbsp;\end{rawhtml}X, SoX will be used, which is by default also expected to be found in \verb+audio_path+. SoX compiled for OS\begin{rawhtml}&nbsp;\end{rawhtml}X can be downloaded \ahref{\url{http://sourceforge.net/projects/sox/files/sox/14.4.1/sox-14.4.1-macosx.zip/download}}{here}. On GNU/Linux, oggdec will be used, but it is expected to be found on the system path and the user should install it him/herself. If you provide installation instructions for GNU/Linux, just include something to the effect of ``install oggdec, which is usually part of the package vorbis-tools''.
 
@@ -9377,7 +9526,7 @@ If the decompression utility cannot be found, the user is warned that the audio 
 
 \DEFINE{\verb+HANDLE_TILESETS+}: install TISpack-compressed tilesets in a safe and easy manner. This is an ACTION function.
 
-This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games that support the \t{\ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/tis_v1.htm}}{TIS V1}} file format. The program tisunpack, part of \ahref{\url{http://www.pocketplane.net/mambo/index.php?option=com_content&task=blogcategory&id=137&Itemid=96}}{TISpack}, is used to decompress the provided .tiz files and the resulting .tis files are placed in the override. Refer to the \ttref{HANDLE!AUDIO and HANDLE!TILESETS} tutorial for usage examples and a more practical explanation.
+This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X, GNU/Linux and all IE games that support the \t{\ahref{\url{http://gibberlings3.net/iesdp/file_formats/ie_formats/tis_v1.htm}}{TIS V1}} file format. The program tisunpack, part of \ahref{\url{http://www.pocketplane.net/mambo/index.php?option=com_content&task=blogcategory&id=137&Itemid=96}}{TISpack}, is used to decompress the provided .tiz files and the resulting .tis files are placed in the override. Refer to the \ahrefloc{sec-handle-audio-and-handle-tilesets}{\tt{HANDLE!AUDIO} and \tt{HANDLE!TILESETS} tutorial} for usage examples and a more practical explanation.
 
 This function expects to find tisunpack for one or more of Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X or GNU/Linux in a common directory under the subdirectories \t{win32}, \t{osx}, and \t{unix}, respectively. For example, in \t{mymod/tiz/win32}, \t{mymod/tiz/osx} and \t{mymod/tiz/unix}, the common directory is \t{mymod/tiz} and \t{mymod/tiz/win32/tisunpack.exe} should be a valid file. For GNU/Linux, this function also supports tisunpack being located on the system path (something the user would take care of). If you choose to leave tisunpack to the user, you should mention this requirement in any installation instructions you provide.
 
@@ -9390,26 +9539,29 @@ If tisunpack for the user's platform could not be found, the installation fails.
 \end{itemize}
 \\
 
-\DEFINE{\verb+HANDLE_CHARSETS+}: runtime-convert \t{TRA} files into \t{UTF-8} in a safe and easy manner. This is an ACTION function.
+\DEFINE{\verb+HANDLE_CHARSETS+}: runtime-convert \t{TRA} files to/from \t{UTF-8} in a safe and easy manner. This is an ACTION function.
 
-This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X and GNU/Linux. If the game is BG: EE or BGII: EE, \t{TRA} files are encoded into \t{UTF-8} so the text can be installed without causing problems. \verb+HANDLE_CHARSETS+ needs to be used before any text is installed and is compatible with \ttref{AUTO!TRA} and all other methods of loading \t{TRA} files.
+This function supports Windows, OS\begin{rawhtml}&nbsp;\end{rawhtml}X and GNU/Linux. This function can run in two modes: let's call them forward and reverse. The forward mode is used for converting \t{TRA} files from legacy ``ANSI'' character sets into UTF-8 for use by EE-type games. The reverse mode converts UTF-8 into the legacy ``ANSI'' character sets used by the original game editions. The variable \verb+from_utf8+ controls whether the function runs in forward or reverse. \verb+HANDLE_CHARSETS+ needs to be used before any text is installed and is compatible with \ttref{AUTO!TRA} and all other methods of loading \t{TRA} files, unless the option \verb+out_path+ is used.
 
 Conversion is handled by the program \t{iconv}. The program is available as part of the base system on OS\begin{rawhtml}&nbsp;\end{rawhtml}X and GNU/Linux but a Windows version needs to be included in your mod. A Windows version can be downloaded \ahref{\url{http://gnuwin32.sourceforge.net/packages/libiconv.htm}}{here}.
 
-In order to function, \verb+HANDLE_CHARSETS+ needs to know a few things. First, you need to specify where you keep your \t{TRA} files. You do this with the variable \verb+tra_path+. Second, \verb+HANDLE_CHARSETS+ needs to know where the Windows version of \t{iconv} is located. You do this with the variable \verb+iconv_path+. Third, \verb+HANDLE_CHARSETS+ needs to know which character set the \t{TRA} files are in. Note that they can only be converted into \t{UTF-8} and cannot already be in \t{UTF-8}. You provide this information with \verb+charset_table+ or tell \verb+HANDLE_CHARSETS+ to try to infer this by itself with \verb+infer_charsets+. Lastly, \verb+HANDLE_CHARSETS+ needs to know which \t{TRA} files to convert and whether any of them should be reloaded. You can do this with \verb+noconvert_array+, \verb+convert_array+ and \verb+reload_array+.
+In order to function, \verb+HANDLE_CHARSETS+ needs to know a few things. First, you need to specify where you keep your \t{TRA} files. You do this with the variable \verb+tra_path+. Second, \verb+HANDLE_CHARSETS+ needs to know where the Windows version of \t{iconv} is located. You do this with the variable \verb+iconv_path+. Third, \verb+HANDLE_CHARSETS+ needs to know which character set the \t{TRA} files are in and which character set they should be converted into. For this, the function needs to know whether to run in forward or reverse mode; you specify this with the variable \verb+from_utf8+. If the variable is 0 (default), files are converted from a language-dependent character set into UTF-8 and cannot already be in UTF-8. If the variable is 1, files are converted from UTF-8 into a language-dependent character set. Which language-dependent character set should be used in the conversion process is specified with \verb+charset_table+ or, or you can tell \verb+HANDLE_CHARSETS+ to try to infer this by itself with \verb+infer_charsets+. Lastly, \verb+HANDLE_CHARSETS+ needs to know which \t{TRA} files to convert and whether any of them should be reloaded. You can do this with \verb+noconvert_array+, \verb+convert_array+ and \verb+reload_array+.
 
 Unless \verb+convert_array+ is specified, \verb+HANDLE_CHARSETS+ will recursively convert all \t{TRA} files in \verb+tra_path+ except those listed in \verb+noconvert_array+. If \verb+convert_array+ is specified, only those \t{TRA} files listed in the array will be converted. \verb+convert_array+ may contain references to \t{TRA} files in subdirectories of \verb+tra_path+.
 
 \begin{itemize}
-\item INT_VAR \verb+infer_charsets+ to whether \verb+HANDLE_CHARSETS+ should try to infer which character set the \t{TRA} files are encoded in. It uses the contents of the \t{\%language\%} variable (\textit{vide infra}). If the contents of the variable can be recognised, \verb+HANDLE_CHARSETS+ will use the character set used by the localised version of BG2 for this language. If the contents of the variable cannot be recognised, or if the \t{TRA} files use a different character set than the expected one, \verb+HANDLE_CHARSETS+ will fail. Refer to the compatibility matrix below for additional information. \verb+infer_charsets+ overrides \verb+charset_table+. Defaults to 0.
+\item INT_VAR \verb+infer_charsets+ to whether \verb+HANDLE_CHARSETS+ should try to infer which language-dependent character set is used by the language in which the mod is being installed. It uses the contents of the \t{\%language\%} variable (\textit{vide infra}). If the contents of the variable can be recognised, \verb+HANDLE_CHARSETS+ will use the character set used by the localised version of BG2 for this language. If the contents of the variable cannot be recognised, or if the \t{TRA} files use a different character set than the expected one, \verb+HANDLE_CHARSETS+ will fail. Refer to the compatibility matrix below for additional information. \verb+infer_charsets+ overrides \verb+charset_table+. Defaults to 0.
+\item INT_VAR \verb+from_utf8+ to whether the function should assume the source \t{TRA} files are in UTF-8 or not. The default value is 0, that is, the function assumes the \t{TRA} files use language-dependent charater sets and should be converted into UTF-8 when the mod is installed on EE-type games; the function produces no results on the original editions of the games. If set to 1, the source \t{TRA} files are assumed to be in UTF-8 and are to be converted into language-dependent character sets when the mod is installed on original editions of the games; the function produces no results when installed on EE-type games.
+\item INT_VAR \verb+verbose+ to whether the function should print debug information. Defaults to 0.
 \item STR_VAR \verb+language+ to the name of the language directory you wish to convert. The default value of this variable is \verb+\%LANGUAGE\%+, in other words, the directory corresponding to the language the user selected at the start of the installation. You should never need to alter the value of this variable.
 \item STR_VAR \verb+default_language+ to the name of the directory used by the default language of your mod, if your mod has one. The default language is typically one for which the translation is always complete and up to date and which you use to guard against incomplete translations. \verb+HANDLE_CHARSETS+ will convert the \t{TRA} files of the default language in addition to those of the user-selected language. Should these two languages be the same, the \t{TRA} files will only be converted once. Additionally, any \t{TRA} files listed in the \verb+reload_array+ (\textit{vide infra}) will be reloaded for the default language before they are reloaded for the user-selected language. The default value of this variable is \verb+~~+ (the empty string).
 \item STR_VAR \verb+tra_path+ to the path where your mod's language directories are located. \verb+%tra_path%/%language%+ should be a valid directory containing \t{TRA} files.
+\item STR_VAR \verb+out_path+ to the path to which the converted files should be directed. The default value of this variable is \verb+%tra_path%+, that is, the converted files reversibly overwrite the originals and the conversion is transparent to the rest of your mod. Note that if \verb+%tra_path+ and \verb+out_path+ are the same directory, the conversion will naturally happen only once regardless of how many times \verb+HANDLE_CHARSETS+ are invoked, but if the directories are different, the conversion will happen for every invocation (notably, if \verb+HANDLE_CHARSETS+ is invoked among the \ttref{ALWAYS} actions).
 \item STR_VAR \verb+iconv_path+ to the path where iconv.exe is located. Defaults to \verb+%tra_path%/iconv+.
 \item STR_VAR \verb+charset_table+ to the name of an associative array where the keys are the names of your language directories and the corresponding values are the character sets used by the respective language. The keys must be entirely in lowercase. \verb+charset_table+ is not used if you also specify \verb+infer_charsets+.
-\item STR_VAR \verb+noconvert_array+ to the name of an array indexed by monotonically increasing integers starting from 0. The values should be the names of \t{TRA} files that should not be converted into \t{UTF-8}. All \t{TRA} files in the language directory and its subdirectories except the ones listed in \verb+noconvert_array+ will be converted. The .tra file extension is implied and should not be explicitly provided. This variable should not be provided if you also provide \verb+convert_array+.
-\item STR_VAR \verb+convert_array+ to the name of an array indexed by monotonically increasing integers starting from 0. The values should be the names of \t{TRA} files that should be converted into \t{UTF-8}. Only those \t{TRA} files in the language directory or its subdirectories which are listed in \verb+convert_array+ will be converted. The .tra file extension is implied and should not be explicitly provided. If this variable is provided, \verb+noconvert_array+ will not be used.
-\item STR_VAR \verb+reload_array+ to the name of an array indexed by monotonically increasing integers starting from 0. The values should be the names of \t{TRA} files which should be reloaded after they have been converted. You should use this variable for reloading those \t{TRA} files loaded by \ttref{LANGUAGE} which should also be converted.
+\item STR_VAR \verb+noconvert_array+ to the name of an array indexed by monotonically increasing integers starting from 0. The values should be the names of \t{TRA} files that should not be converted into \t{UTF-8}. All \t{TRA} files in the language directory and its subdirectories except the ones listed in \verb+noconvert_array+ will be converted. The .tra file extension is optional. This variable should not be provided if you also provide \verb+convert_array+.
+\item STR_VAR \verb+convert_array+ to the name of an array indexed by monotonically increasing integers starting from 0. The values should be the names of \t{TRA} files that should be converted into \t{UTF-8}. Only those \t{TRA} files in the language directory or its subdirectories which are listed in \verb+convert_array+ will be converted. The .tra file extension is optional. If this variable is provided, \verb+noconvert_array+ will not be used.
+\item STR_VAR \verb+reload_array+ to the name of an array indexed by monotonically increasing integers starting from 0. The values should be the names of \t{TRA} files which should be reloaded after they have been converted. The .tra file extension is optional. You should use this variable for reloading those \t{TRA} files loaded by \ttref{LANGUAGE} which should also be converted.
 \end{itemize}
 
 Compatibility matrix for \verb+infer_charsets+.
@@ -9417,18 +9569,18 @@ Compatibility matrix for \verb+infer_charsets+.
 \hline
 Language & \verb+%LANGUAGE%+ contains & Inferred character set \\
 \hline
-Simplified Chinese & schinese & CP936 \\
+Simplified Chinese & schinese, zh_CN & CP936 \\
 Traditional Chinese & tchinese & CP950 \\
-Czech & czech & CP1250 \\
-English & english, american & CP1252 \\
-French & french, francais & CP1252 \\
-German & german, deutsch & CP1252 \\
-Italian & italian, italiano & CP1252 \\
-Japanese & japanese & CP932 \\
-Korean & korean & CP949 \\
-Polish & polish, polski & CP1250 \\
-Russian & russian & CP1251 \\
-Spanish & spanish, castilian, espanol, castellano & CP1252 \\
+Czech & czech, cs_CZ & CP1250 \\
+English & english, american, en_US & CP1252 \\
+French & french, francais, fr_FR & CP1252 \\
+German & german, deutsch, de_DE & CP1252 \\
+Italian & italian, italiano, it_IT & CP1252 \\
+Japanese & japanese, ja_JP & CP932 \\
+Korean & korean, ko_KR & CP949 \\
+Polish & polish, polski, pl_PL & CP1250 \\
+Russian & russian, ru_RU & CP1251 \\
+Spanish & spanish, castilian, espanol, castellano, es_ES & CP1252 \\
 \hline
 \end{tabular}
 \\
@@ -9589,6 +9741,10 @@ Region structure variables:
 \item STR_VAR \verb+fj_reg_script+ to the region script;
 \item INT_VAR \verb+fj_alt_x+ to the activation point X coordinate;
 \item INT_VAR \verb+fj_alt_y+ to the activation point Y coordinate;
+\item STR_VAR \verb+fj_sound+ to the sound resource reference (ONLY for PST);
+\item INT_VAR \verb+fj_talk_loc_x+ to the talk location point X coordinate (ONLY for PST);
+\item INT_VAR \verb+fj_talk_loc_y+ to the talk location point Y coordinate (ONLY for PST);
+\item INT_VAR \verb+fj_speaker_strref+ to the speaker's name string reference (default -1; ONLY for PST);
 \item STR_VAR \verb+fj_dialog+ to the region's dialogue file (ONLY for PST);
 \item INT_VAR \verb+fj_vertex_0+ to (X coordinate + (Y coordinate << 16)) for each vertex pair*;
 \end{itemize}
@@ -9772,7 +9928,7 @@ Map note structure variables:
 \item INT_VAR \verb+fj_color+ to the map marker color (0-7);
 \item INT_VAR \verb+fj_note_id+ to the note ID;
 \end{itemize}
-Projectile trap structure variables:
+Projectile trap structure variables (not available on PST):
 \begin{itemize}
 \item STR_VAR \verb+fj_name+ to the projectile filename*;
 \item INT_VAR \verb+fj_eff_off+ to the effect block offset;
@@ -10016,7 +10172,7 @@ END
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\DEFINE{Module Distribution}: \t{Setup-MyMod.exe}}
+\label{sec-module-distribution}\section{\DEFINE{Module Distribution}: \t{Setup-MyMod.exe}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 If you rename \t{WeiDU.EXE} to something of the form \t{Setup-MyMod.exe},
@@ -10110,7 +10266,7 @@ So spe.* matches "sper01.itm" and "sper.eff" and "special".
 Hopefully this is understandable to most people.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{WeiDU \DEFINE{constant}s}
+\label{sec-constant}\section{WeiDU \DEFINE{constant}s}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The following keywords can be used in \t{value}s and evaluate to the given
@@ -10274,6 +10430,19 @@ reference is
 or file information. Kits, music, weapon proficiencies and experience point
 caps are all controlled by 2DA files.
 
+\item \DEFINE{ARE}. The ARE file format describes the content of an area
+(rather than its visual representation). ARE files contain the list of actors,
+items, entrances and exits, spawn points and other area-associated info.
+The ARE file may contain references to other files, e.g. the list of items
+in a container is stored in the ARE file, however the files themselves are
+not embedded in the ARE file.
+
+\item \DEFINE{BAM}. This file format describes animated graphics. Such files
+are used for animations (both creature animations, item and spell animations)
+and interactive GUI elements (e.g. buttons) and for logical collections of
+images (e.g. fonts). BAM files can contain multiple sequences of animations,
+up to a limit of 255.
+
 \item \DEFINE{BIFF}. A BIFF file is like a big ZIP file that contains other
 files. Basically every file used by an Infinity Engine game is either in a
 BIFF somewhere or in the \t{override} folder.
@@ -10283,9 +10452,19 @@ the actions of creatures and areas. They are basically big lists of
 \t{IF}s. \ttref{D} files (and also \ttref{DLG} files) use the same
 predicate and action syntax as BCS files.
 
+\item \DEFINE{CRE}. This file format describes a "creature". Creatures can
+move, have an animation, hold items, run scripts, cast spells and initiate
+dialog. Creatures have several stats (some visible through the game UI) which
+are generally mapped to IDS or 2DA files.
+
 \item \DEFINE{EFF}. An Infinity Engine effect file. These are sometimes used
 by \ttref{ITM}s or \ttref{SPL}s to do one specific thing. You probably
 won't use them.
+
+\item \DEFINE{GAM}. This file format is used to hold game information in save
+games. The GAM file does not store area, creature or item information, instead,
+it stores information on the party members and the global variables which affect
+party members.
 
 \item \DEFINE{ITM}. An Infinity Engine item definition file. Notably,
 \ttref{ITM} files have identified and unidentified names that are often set
@@ -10325,7 +10504,7 @@ able to modify the source code.
 
 Building WeiDU on Windows requires OCaml 4.01 or more recent, Cygwin and the
 elkhound program. The OCaml installer can install the required Cygwin
-packages. Building WeiGUI additionally requires OCaml-provided Tcl/Tk.
+packages.
 
 WeiDU can also be built on x86/x86-64 GNU/Linux and PPC OS X. The exact status
 on building WeiDU on x86/x86-64 OS X is not known, but there have been reports

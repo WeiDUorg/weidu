@@ -1,4 +1,5 @@
 open BatteriesInit
+open Hashtblinit
 open Util
 
 type sav = sav_file Queue.t

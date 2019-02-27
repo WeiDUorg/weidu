@@ -5,7 +5,7 @@ DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#WHICH#INFER
     charset
 BEGIN
   ACTION_MATCH "%language%" WITH
-    ".*schinese.*"
+    ".*schinese.*" ".*zh_CN.*"
     BEGIN
       OUTER_SPRINT charset "CP936"
     END
@@ -25,52 +25,52 @@ BEGIN
       OUTER_SPRINT charset "CP950"
     END
 
-    ".*czech.*"
+    ".*czech.*" ".*cs_CZ.*"
     BEGIN
       OUTER_SPRINT charset "CP1250"
     END
 
-    ".*english.*" ".*american.*"
+    ".*english.*" ".*american.*" ".*en_US.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
 
-    ".*french.*" ".*francais.*"
+    ".*french.*" ".*francais.*" ".*fr_FR.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
 
-    ".*german.*" ".*deutsch.*"
+    ".*german.*" ".*deutsch.*" ".*de_DE.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
 
-    ".*italian.*" ".*italiano.*"
+    ".*italian.*" ".*italiano.*" ".*it_IT.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
 
-    ".*japanese.*"
+    ".*japanese.*" ".*ja_JP.*"
     BEGIN
       OUTER_SPRINT charset "CP932"
     END
 
-    ".*korean.*"
+    ".*korean.*" ".*ko_KR.*"
     BEGIN
       OUTER_SPRINT charset "CP949"
     END
 
-    ".*polish.*" ".*polski.*"
+    ".*polish.*" ".*polski.*" ".*pl_PL.*"
     BEGIN
       OUTER_SPRINT charset "CP1250"
     END
 
-    ".*russian.*"
+    ".*russian.*" ".*ru_RU.*"
     BEGIN
       OUTER_SPRINT charset "CP1251"
     END
 
-    ".*spanish.*" ".*castilian.*" ".*espanol.*" ".*castellano.*"
+    ".*spanish.*" ".*castilian.*" ".*espanol.*" ".*castellano.*" ".*es_ES.*"
     BEGIN
       OUTER_SPRINT charset "CP1252"
     END
@@ -105,7 +105,8 @@ DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#CONVERT
   STR_VAR
     iconv = ~iconv~
     quote = ~"~
-    path = ~~
+    in_path = ~~
+    out_path = ~~
     file = ~~
     from_charset = ~123fakecharset~
     to_charset = ~UTF-8~
@@ -115,17 +116,23 @@ BEGIN
    * produce invalid output, so may as well provide the -c option.
    */
   OUTER_SPRINT c_option "-c"
-  OUTER_SPRINT infile ~%path%/%file%~
-  OUTER_SPRINT outfile ~%path%/fl#utf8_%file%~
+  OUTER_SPRINT infile ~%in_path%/%file%~
+  ACTION_IF ~%in_path%~ STR_EQ ~%out_path%~ BEGIN
+    OUTER_SPRINT outfile ~%in_path%/fl#utf8_%file%~
+  END ELSE OUTER_SPRINT outfile ~%out_path%/%file%~
   ACTION_TRY
-    COPY "%infile%" "%outfile%"
+    COPY "%infile%" "%outfile%" // so outfile is uninstalled
     /*
      * The -o option does not appear to be supported by all implementations
      */
     AT_NOW ~%iconv% %c_option% -f %from_charset% -t %to_charset% %quote%%infile%%quote% > %quote%%outfile%%quote%~
-    COPY "%outfile%" "%infile%"
-      REPLACE_TEXTUALLY ~-\*-[%TAB% ]*coding:[%TAB% ]*%from_charset%[%TAB% ]*-\*-~
-                        ~-*- coding: %to_charset% -*-~
+    ACTION_IF ~%in_path%~ STR_EQ ~%out_path%~ BEGIN
+      OUTER_SPRINT dest ~%infile%~
+    END ELSE OUTER_SPRINT dest ~%outfile%~
+    COPY "%outfile%" "%dest%"
+      REPLACE_TEXTUALLY
+        ~-\*-[%TAB% ]*\(en\)?coding:[%TAB% ]*%from_charset%[%TAB% ]*-\*-~
+        ~-*- coding: %to_charset% -*-~
   WITH
     DEFAULT
       PRINT "ERROR: unable to convert %infile% from %from_charset% into %to_charset%"
@@ -135,22 +142,42 @@ END
 
 DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#RECURSE
   STR_VAR
-    path = ""
+    in_path = ""
+    out_path = ""
     type = ""
     function = ""
 BEGIN
-  ACTION_BASH_FOR "%path%" ".+\.%type%$" BEGIN
+  ACTION_IF verbose BEGIN
+    PRINT "#RECURSE is calling terminal function on %in_path% with out_path: %out_path%"
+  END
+  ACTION_BASH_FOR "%in_path%" ".+\.%type%$" BEGIN
     LAF "%function%"
       STR_VAR
         file = EVAL "%BASH_FOR_FILE%"
-        path = EVAL "%BASH_FOR_DIRECTORY%"
+        in_path = EVAL "%BASH_FOR_DIRECTORY%"
+        out_path
     END
   END
   ACTION_CLEAR_ARRAY dir_array
-  GET_DIRECTORY_ARRAY dir_array "%path%" ".+"
-  ACTION_PHP_EACH EVAL dir_array AS _ => path BEGIN
-    ACTION_IF "%path%" STRING_MATCHES_REGEXP ".*\.$" BEGIN
-      LAF fl#HANDLE_CHARSETS#RECURSE STR_VAR path type function END
+  GET_DIRECTORY_ARRAY dir_array "%in_path%" ".+"
+  ACTION_PHP_EACH EVAL dir_array AS _ => in_path BEGIN
+    ACTION_IF "%in_path%" STRING_MATCHES_REGEXP ".*\.$" BEGIN
+      LAF RES_OF_FILESPEC
+        STR_VAR
+          filespec = EVAL "%in_path%"
+        RET
+          directory = res
+      END
+      ACTION_IF verbose BEGIN
+        PRINT "#RECURSE is recursing through %in_path% with out_path: %out_path%/%directory%"
+      END
+      LAF fl#HANDLE_CHARSETS#RECURSE
+        STR_VAR
+          in_path
+          out_path = EVAL "%out_path%/%directory%"
+          type
+          function
+      END
     END
   END
 END
@@ -158,25 +185,34 @@ END
 DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#RECURSE#TERMINAL
   STR_VAR
     file = ""
-    path = ""
+    in_path = ""
+    out_path = ""
 BEGIN
   OUTER_SET convert = 1
   /* This makes for a more consistent interface, albeit slightly
    * messier code. noconvert_array is very likely to be short.
    */
   ACTION_PHP_EACH "%noconvert_array%" AS _ => noconvert_file BEGIN
-    ACTION_IF "%noconvert_file%.tra" STRING_EQUAL_CASE "%file%" BEGIN
+    ACTION_IF "%noconvert_file%" STRING_MATCHES_REGEXP ".+\.tra$" = 0 BEGIN
+      OUTER_SPRINT match "%noconvert_file%"
+    END ELSE OUTER_SPRINT match "%noconvert_file%.tra"
+    ACTION_IF "%match%" STRING_EQUAL_CASE "%file%" BEGIN
       OUTER_SET convert = 0
     END
   END
   ACTION_IF convert BEGIN
+    ACTION_IF verbose BEGIN
+      PRINT "Converting %in_path%/%file% to %out_path%/%file%"
+    END
     LAF fl#HANDLE_CHARSETS#CONVERT
       STR_VAR
         iconv // from the calling environment (curse the lack of closures)
         quote // from the calling environment
-        path
+        in_path
+        out_path
         file
         from_charset // from the calling environment
+        to_charset // from the calling environment
     END
   END
 END
@@ -184,8 +220,11 @@ END
 DEFINE_ACTION_FUNCTION HANDLE_CHARSETS
   INT_VAR
     infer_charsets = 0
+    verbose = 0
+    from_utf8 = 0
   STR_VAR
     tra_path = ~~
+    out_path = EVAL ~%tra_path%~
     default_language = ~~
     language = EVAL ~%LANGUAGE%~
     iconv_path = EVAL ~%tra_path%/iconv~
@@ -197,9 +236,17 @@ BEGIN
   /* Early versions of BG: EE do not include bgee.lua and
    * PST: EE does not include monkfist.2da
    */
-  ACTION_IF FILE_EXISTS_IN_GAME bgee.lua OR
-            FILE_EXISTS_IN_GAME monkfist.2da
+  ACTION_IF ((FILE_EXISTS_IN_GAME bgee.lua OR
+            FILE_EXISTS_IN_GAME monkfist.2da) AND
+            !from_utf8) OR
+            (!FILE_EXISTS_IN_GAME bgee.lua AND
+            !FILE_EXISTS_IN_GAME monkfist.2da AND
+            from_utf8)
   BEGIN
+    ACTION_IF verbose BEGIN
+      PRINT "tra_path: %tra_path%"
+      PRINT "out_path: %out_path%"
+    END
     /*
      * Initial versions mistakenly called the variable infer_charset.
      * For reasons of backwards-compatibility, we use infer_charset
@@ -224,6 +271,9 @@ BEGIN
     ACTION_IF ("%WEIDU_OS%" STRING_EQUAL_CASE "win32" AND FILE_EXISTS "%iconv%") OR
               ("%WEIDU_OS%" STRING_EQUAL_CASE "osx" OR "%WEIDU_OS%" STRING_EQUAL_CASE "unix")
     BEGIN
+      ACTION_IF "%default_language%" STR_EQ "%language%" BEGIN
+        OUTER_SPRINT default_language "" // do not process twice
+      END
       ACTION_FOR_EACH language IN "%default_language%" "%language%" BEGIN
         ACTION_IF "%language%" STR_CMP "" AND !FILE_EXISTS ~%tra_path%/%language%/fl#utf8.mrk~ BEGIN
           LAF fl#HANDLE_CHARSETS#WHICH
@@ -233,31 +283,62 @@ BEGIN
               language
               charset_table
             RET
-              from_charset = charset
+              charset
+          END
+          ACTION_IF !from_utf8 BEGIN
+            OUTER_SPRINT from_charset "%charset%"
+            OUTER_SPRINT to_charset "UTF-8"
+          END ELSE BEGIN
+            OUTER_SPRINT from_charset "UTF-8"
+            OUTER_SPRINT to_charset "%charset%"
+          END
+          ACTION_IF verbose BEGIN
+            PRINT "Conversion is from unicode?: %from_utf8%"
+            PRINT "from_charset identified as %from_charset%"
+            PRINT "to_charset identifed as %to_charset%"
           END
           ACTION_IF VARIABLE_IS_SET $EVAL "%convert_array%"(0) BEGIN
             ACTION_PHP_EACH "%convert_array%" AS _ => filename BEGIN
+              ACTION_IF "%filename%" STRING_MATCHES_REGEXP ".+\.tra$" = 0 BEGIN
+                OUTER_SPRINT file "%filename%"
+              END ELSE OUTER_SPRINT file "%filename%.tra"
+              ACTION_IF verbose BEGIN
+                PRINT "convert_array: %file%"
+              END
               LAF fl#HANDLE_CHARSETS#CONVERT
                 STR_VAR
                   iconv
                   quote
-                  path = EVAL ~%tra_path%/%language%~
-                  file = EVAL ~%filename%.tra~
+                  in_path = EVAL ~%tra_path%/%language%~
+                  out_path = EVAL ~%out_path%/%language%~
+                  file
                   from_charset
+                  to_charset
               END
             END
           END ELSE BEGIN
+            ACTION_IF verbose BEGIN
+              PRINT "Recursing through %tra_path%/%language%"
+            END
             LAF fl#HANDLE_CHARSETS#RECURSE
               STR_VAR
-                path = EVAL ~%tra_path%/%language%~
+                in_path = EVAL ~%tra_path%/%language%~
+                out_path = EVAL ~%out_path%/%language%~
                 type = ~tra~
                 function = ~fl#HANDLE_CHARSETS#RECURSE#TERMINAL~
             END
           END
           ACTION_PHP_EACH "%reload_array%" AS _ => file BEGIN
-            LOAD_TRA ~%tra_path%/%language%/%file%.tra~
+            ACTION_IF verbose BEGIN
+              PRINT "reload_array: %file%"
+            END
+            ACTION_IF "%file%" STRING_MATCHES_REGEXP ".+\.tra$" = 0 BEGIN
+              LOAD_TRA ~%out_path%/%language%/%file%~
+            END ELSE LOAD_TRA ~%out_path%/%language%/%file%.tra~
           END
-          COPY_EXISTING bolt01.itm ~%tra_path%/%language%/fl#utf8.mrk~
+          ACTION_IF ~%tra_path%~ STR_EQ ~%out_path%~ BEGIN
+            COPY_EXISTING bolt01.itm ~%tra_path%/%language%/fl#utf8.mrk~
+          END
         END
       END
     END ELSE BEGIN

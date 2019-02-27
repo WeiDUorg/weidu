@@ -14,6 +14,7 @@
 
 (* Talk-Patcher / Installer *)
 open BatteriesInit
+open Hashtblinit
 open Util
 
 let always_yes = ref false
@@ -33,6 +34,8 @@ let debug_change = ref false
 let has_if_eval_bug = ref true
 let continue_on_error = ref false
 let debug_pe = ref false
+
+exception Abort of string
 
 type tp_flag =
   | Version of Dlg.tlk_string
@@ -129,10 +132,14 @@ and file_or_directory_regexp =
 | TP_File of string
 | TP_Directory_Regexp of string * (bool option) * string
 
+and array_indices_sort_type =
+| TP_Lexicographically
+| TP_Numerically
 
 and tp_action =
   | TP_ActionBashFor of ((string * (bool option) * string) list) * (tp_action list)
   | TP_ActionDefineArray of tp_pe_string * string list
+  | TP_ActionSortArrayIndices of tp_pe_string * array_indices_sort_type
   | TP_ActionPHPEach of tp_pe_string * tp_pe_string * tp_pe_string * tp_action list
   | TP_Action_For_Each of tp_pe_string * string list * tp_action list
   | TP_Action_ReadLN of tp_pe_string
@@ -154,7 +161,9 @@ and tp_action =
   | TP_Compile of bool * (string list) * (tp_patch list) * (string list) (* eval, DLG, TRA *)
   | TP_Launch_Action_Macro of string
   | TP_Launch_Action_Function of string * (tp_pe_string * tp_patchexp) list *
-	(tp_pe_string * tp_pe_string) list * (tp_pe_string * tp_pe_string) list
+	(tp_pe_string * tp_pe_string) list *
+        (tp_pe_string * tp_pe_string) list *
+        (tp_pe_string * tp_pe_string) list
   | TP_Reinclude of string list
   | TP_Include of string list
   | TP_Load_Tra of string list
@@ -163,9 +172,14 @@ and tp_action =
   | TP_Define_Action_Macro of string * tp_local_declaration list * tp_action list
   | TP_Define_Patch_Macro of string * tp_local_declaration list * tp_patch list
   | TP_Define_Patch_Function of string * (tp_pe_string * tp_patchexp) list *
-	(tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_patch list
+	(tp_pe_string * tp_pe_string) list * tp_pe_string list *
+        tp_pe_string list * tp_patch list
   | TP_Define_Action_Function of string * (tp_pe_string * tp_patchexp) list *
-	(tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_action list
+	(tp_pe_string * tp_pe_string) list * tp_pe_string list *
+        tp_pe_string list * tp_action list
+  | TP_Define_Dimorphic_Function of string * (tp_pe_string * tp_patchexp) list *
+        (tp_pe_string * tp_pe_string) list * tp_pe_string list *
+        tp_pe_string list * tp_action list
   | TP_Biff of string * ((string * (bool option) * string) list)
   | TP_Mkdir of string list
   | TP_Outer_For of (tp_patch list) * tp_patchexp * (tp_patch list) * (tp_action list)
@@ -174,6 +188,7 @@ and tp_action =
   | TP_Outer_Set of tp_pe_string * tp_patchexp
   | TP_Outer_Sprint of tp_pe_string * tp_pe_tlk_string
   | TP_Outer_Text_Sprint of tp_pe_string * tp_pe_string
+  | TP_Outer_Snprint of tp_patchexp * tp_pe_string * tp_pe_tlk_string
   | TP_ActionDefineAssociativeArray of tp_pe_string * ((tp_pe_string list) * tp_pe_string) list
   | TP_Outer_While of tp_patchexp * (tp_action list)
   | TP_Require_File of string * (Dlg.tlk_string)
@@ -201,8 +216,8 @@ and tp_action =
   | TP_At_Interactive_Uninstall of string * bool
   | TP_At_Uninstall_Exit of string * bool
   | TP_At_Interactive_Uninstall_Exit of string * bool
-  | TP_At_Now of string * bool
-  | TP_At_Interactive_Now of string * bool
+  | TP_At_Now of tp_pe_string option * string * bool
+  | TP_At_Interactive_Now of tp_pe_string option * string * bool
   | TP_Add_Kit of tp_add_kit
   | TP_CopyKit of string * string * (string* string) list
 	(* old kit, new kit, changes *)
@@ -218,6 +233,7 @@ and tp_action =
   | TP_String_Set_Range of tp_patchexp * tp_patchexp * string
   | TP_Reraise
   | TP_Fail of Dlg.tlk_string
+  | TP_Abort of Dlg.tlk_string
   | TP_Warn of Dlg.tlk_string
   | TP_Print of Dlg.tlk_string
   | TP_Log of Dlg.tlk_string
@@ -306,6 +322,7 @@ and tp_patch =
   | TP_PatchClearArray of tp_pe_string
   | TP_PatchDefineArray of tp_pe_string * string list
   | TP_DefineAssociativeArray of tp_pe_string * ((tp_pe_string list) * tp_pe_string) list
+  | TP_PatchSortArrayIndices of tp_pe_string * array_indices_sort_type
   | TP_PatchPHPEach of tp_pe_string * tp_pe_string * tp_pe_string * tp_patch list
   | TP_PatchForEach of tp_pe_string * string list * tp_patch list
   | TP_PatchStrRef of tp_patchexp * Dlg.tlk_string (* offset + text *)
@@ -334,8 +351,10 @@ and tp_patch =
   | TP_PatchGetOffsetArray2 of tp_pe_string * (tp_patchexp * tp_patchexp * tp_patchexp
 						 * tp_patchexp * tp_patchexp * tp_patchexp * tp_patchexp * tp_patchexp)
   | TP_Launch_Patch_Macro of string * bool
-  | TP_Launch_Patch_Function of string * bool * (tp_pe_string * tp_patchexp) list *
-	(tp_pe_string * tp_pe_string) list * (tp_pe_string * tp_pe_string) list
+  | TP_Launch_Patch_Function of string * bool *
+        (tp_pe_string * tp_patchexp) list * (tp_pe_string * tp_pe_string) list *
+        (tp_pe_string * tp_pe_string) list *
+        (tp_pe_string * tp_pe_string) list
   | TP_Add_Known_Spell of string * tp_patchexp * string
   | TP_Add_Memorized_Spell of string * tp_patchexp * string * tp_patchexp
   | TP_Read2DA of tp_patchexp * tp_patchexp * tp_patchexp * tp_pe_string
@@ -348,6 +367,7 @@ and tp_patch =
   | TP_PatchLog of Dlg.tlk_string
   | TP_PatchReraise
   | TP_PatchFail of Dlg.tlk_string
+  | TP_PatchAbort of Dlg.tlk_string
   | TP_PatchWarn of Dlg.tlk_string
   | TP_PatchSprint of tp_pe_string * tp_pe_tlk_string
   | TP_PatchSprintf of tp_pe_string * tp_pe_tlk_string * tp_patchexp list
@@ -518,6 +538,8 @@ and tp_patchexp =
   | PE_Resolve_Str_Ref of Dlg.tlk_string
   | PE_SizeOfFile of tp_pe_string
   | PE_NextStrref
+  | PE_ValidScriptActions of tp_pe_string
+  | PE_ValidScriptTriggers of tp_pe_string
 
   | Pred_File_MD5 of tp_pe_string * tp_pe_string
   | Pred_File_Exists of tp_pe_string

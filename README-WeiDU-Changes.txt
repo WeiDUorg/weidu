@@ -1,3 +1,38 @@
+Version 246:
+  * New WeiDU timing: function overhead.
+  * Fix regression in ALTER_EFFECT.
+
+Version 245:
+  * CamDawg's ALTER, DELETE and CLONE functions work across the full
+    range of file-format versions.
+  * Keyword RET_ARRAY allows functions to return arrays.
+  * TP2 values VALID_SCRIPT_ACTIONS and VALID_SCRIPT_TRIGGERS return
+    true for script segments that compile without errors.
+  * Autoupdate on Windows is a bit stricter about what it tries to
+    auto-update.
+  * The instructions that follow an installation error have been
+    updated.
+  * Add functions for adding and removing store substructures. Full
+    documentation is still in the works.
+  * --change-log has been rewritten. Among other things, it will no
+    longer omit changes that can be undone by deleting the file from
+    the game folder it's in (specifically, information recorded in
+    the UNINSTALL file).
+  * ABORT action and patch allows the installation of a component to
+    be rolled back with no implication an error has occurred.
+  * Autoupdate does not stop on inexecutable files.
+  * WeiDU on Windows should no longer prompt you for your password
+    when you run it. (This depends on who, how and when the binary is
+    built.)
+  * The .tra file extension for files to HANDLE_CHARSETS is optional.
+  * Add SORT_ARRAY_INDICES action and patch.
+  * Fix situation where REFACTOR_TRIGGER could enter into an infinite
+    loop.
+
+Version 244:
+  * FILE_EXISTS_IN_GAME is FILE_EXISTS for implicit files
+    that are not resources, again.
+
 Version 243:
   * Fix errors in the documentation of READ_LONG and READ_SLONG.
   * Fix incorrect variable name in HANDLE_TILESETS tutorial.
@@ -6,6 +41,28 @@ Version 243:
   * Fix finding of biff files on mac OS for games that do not use
     the baldur.ini format of the old OS 9 ports of the games.
   * Fix regression in script handling affecting IWD and IWD2.
+  * Fix WeiDU being unable to load TRA files when writing the log
+    file, if the TRA file name included the variables WEIDU_OS,
+    WEIDU_ARCH or WEIDU_VER.
+  * Optimisation to ITEM_EFFECT_TO_SPELL: much less copying of files.
+  * Add insert_point variable to ITEM_EFFECT_TO_SPELL.
+  * Certain file-existence checks do not return false for files which
+    exist but which are too large for the size to be expressible with
+    a 32-bit integer.
+  * TEXT_SPRINT works like SPRINT instead of like LOCAL_SPRINT.
+  * Fix variable-evaluation bugs in ADD_KIT.
+  * DELETE properly accepts filenames of any case on Linux.
+  * AT_NOW makes available the return value of the inferior process.
+  * SNPRINT can return the N last characters instead of just the first ones.
+  * Add OUTER_SNPRINT.
+  * HANDLE_CHARSETS can infer charsets based on the language code in
+    addition to the language name.
+  * Document SPRINTF.
+  * Fix documentation of the kit value in the CRE format.
+  * Fix corruption issue in fj_are_structure affecting PST.
+  * fj_are_structure can set region dialogs on PSTEE.
+  * Add support for other known PST/EE region fields.
+  * Compile IncrementGlobalOnce() correctly on PSTEE.
 
 Version 242:
   * Fix regression when decompiling NextObjectTrigger() with(out) comments.

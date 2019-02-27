@@ -2,6 +2,7 @@
    starting from 18 December 2012 and WeiDU 231.06. *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
 open Diff
 open Tp
@@ -76,6 +77,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_ActionDefineAssociativeArray(arr,vals) ->
           run_patch (TP_DefineAssociativeArray(arr,vals))
 
+      | TP_ActionSortArrayIndices(array,sort_type) ->
+          run_patch (TP_PatchSortArrayIndices(array,sort_type))
+
       | TP_Action_For_Each(var,sl,al) ->
           run_patch (TP_PatchForEach(var,sl,pl_of_al al))
 
@@ -103,6 +107,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Outer_Text_Sprint (var,str) ->
           run_patch (TP_PatchTextSprint(var,str))
 
+      | TP_Outer_Snprint(size,name,msg) ->
+          run_patch (TP_PatchSnprint(size,name,msg))
+
       | TP_Print(msg) ->
           run_patch(TP_PatchPrint(msg))
 
@@ -114,6 +121,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
       | TP_Fail(msg) ->
           run_patch(TP_PatchFail(msg))
+
+      | TP_Abort(msg) ->
+          run_patch(TP_PatchAbort(msg))
 
       | TP_Reraise ->
           run_patch(TP_PatchReraise)
@@ -133,14 +143,18 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Define_Patch_Macro(str,decl,al) ->
           Hashtbl.replace macros (str,true) (decl, al)
 
-      | TP_Define_Action_Function (str,a,b,c,d) ->
-          Hashtbl.replace functions (str,false) (a,b,c,pl_of_al d)
+      | TP_Define_Action_Function (name,ints,strs,rets,retas,body) ->
+          Hashtbl.replace functions (name,false) (ints,strs,rets,retas,pl_of_al body)
 
-      | TP_Define_Patch_Function (str,a,b,c,d) ->
-          Hashtbl.replace functions (str,true) (a,b,c,d)
+      | TP_Define_Dimorphic_Function (name,ints,strs,rets,retas,body) ->
+          Hashtbl.replace functions (name,false) (ints,strs,rets,retas,pl_of_al body) ;
+          Hashtbl.replace functions (name,true) (ints,strs,rets,retas,pl_of_al body)
 
-      | TP_Launch_Action_Function (a,b,c,d) ->
-          run_patch (TP_Launch_Patch_Function (a,false,b,c,d))
+      | TP_Define_Patch_Function (name,ints,strs,rets,retas,body) ->
+          Hashtbl.replace functions (name,true) (ints,strs,rets,retas,body)
+
+      | TP_Launch_Action_Function (name,ints,strs,rets,retas) ->
+          run_patch (TP_Launch_Patch_Function (name,false,ints,strs,rets,retas))
 
       | TP_Launch_Action_Macro(str) ->
           run_patch (TP_Launch_Patch_Macro (str,false))
@@ -178,6 +192,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 if file_exists head && not (is_directory head) then begin
                   if do_backup then
                     backup_if_extant head ;
+                  ignore (record_other_file_op head) ;
                   Sys.remove head ;
                   delete tail
                 end else if is_directory head then begin
@@ -194,7 +209,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 end
             end
           in
-          delete (List.map (fun x -> Var.get_string (eval_pe_str x)) filelist) ;
+          delete (List.map (fun x ->
+            Case_ins.fix_name (Var.get_string (eval_pe_str x))) filelist) ;
           List.iter (fun dir -> Case_ins.unix_rmdir dir) !directories
 
       | TP_Move(filelist, do_backup) ->
@@ -230,10 +246,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                       flush chn
                   | None -> ());
                 if !ok then
-                  (match !other_list_chn with
-                  | Some(chn) -> output_string chn (src ^ "\n") ; output_string chn (dst ^ "\n") ;
-                      flush chn
-                  | None -> ()); end
+                  ignore (List.iter record_other_file_op [src;dst]) end
             else log_and_print "MOVE [%s] [%s]: source is a directory\n" src dst;
           in
           List.iter (fun (src,dst) ->
@@ -271,7 +284,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                     let next = Unix.readdir dh in
                     if ((Case_ins.unix_stat (dir ^ "/" ^ next)).Unix.st_kind = Unix.S_REG) &&
                       (Str.string_match reg next 0) then begin
-                        let file = (String.uppercase (dir ^ "/" ^ next)) in
+                        let file = (String.uppercase_ascii (dir ^ "/" ^ next)) in
                         let filespec = Case_ins.filename_basename file in
                         move file (dst ^ "/" ^ filespec)
                       end
@@ -281,7 +294,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
       | TP_DisableFromKey(file_lst) ->
           let file_lst = List.map Var.get_string (List.map eval_pe_str file_lst) in
-          let file_lst = List.map String.uppercase file_lst in
+          let file_lst = List.map String.uppercase_ascii file_lst in
           let new_key = Key.remove_files game.Load.key file_lst in
           let oc = open_for_writing "CHITIN.KEY" true in
           Key.save_key new_key oc ;
@@ -299,11 +312,10 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Require_File(file,error_msg) ->
           log_and_print "Checking for required files ...\n" ;
           let file = Arch.backslash_to_slash file in
-          let size = file_size file in
           let test = ref false in
           test := bigg_file_exists file game.Load.key ;
           if !test then begin
-            log_or_print "[%s] found: %d bytes\n" file size;
+            log_or_print "[%s] found\n" file ;
           end
           else begin
             log_and_print "[%s] not found\n" file ;
@@ -340,10 +352,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                   if ((Case_ins.unix_stat (directory ^ "/" ^ next)).Unix.st_kind =
                       Unix.S_REG) && (Str.string_match reg next 0) then
                     (if !debug_ocaml then log_and_print "  match!\n";
-                     find_list := (String.uppercase (directory ^ "/" ^ next)) :: !find_list;
-                     match !other_list_chn with
-                     | Some(chn) -> output_string chn ("override/" ^ next ^ "\n") ; flush chn
-                     | None -> ());
+                     find_list := (String.uppercase_ascii (directory ^ "/" ^ next)) :: !find_list;
+                     ignore (record_other_file_op ("override/" ^ next))) ;
                 done
               with End_of_file -> ());
               Unix.closedir dh ;
@@ -376,11 +386,10 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Forbid_File(file,error_msg) ->
           log_and_print "Checking for forbidden files ...\n" ;
           let file = Arch.backslash_to_slash file in
-          let size = file_size file in
           let test = ref false in
           test := bigg_file_exists file game.Load.key ;
           if !test then begin
-            log_and_print "[%s] found: %d bytes\n" file size ;
+            log_and_print "[%s] found\n" file ;
             log_and_print "\n%s\n" (Dc.single_string_of_tlk_string game
                                       error_msg) ;
             failwith file
@@ -438,6 +447,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           let temp_name = Var.get_string "%TP2_FILE_NAME%" in
           let temp_bname = Var.get_string "%TP2_BASE_NAME%" in
           let temp_modf = Var.get_string "%MOD_FOLDER%" in
+          let temp_modv = Var.get_string "%MOD_VERSION%" in
           let temp_num = Var.get_string "%COMPONENT_NUMBER%" in
           let temp_save = Var.get_string "%SAVE_DIRECTORY%" in
           let temp_mpsave = Var.get_string "%MPSAVE_DIRECTORY%" in
@@ -450,6 +460,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           Var.set_string "TP2_FILE_NAME" temp_name ;
           Var.set_string "TP2_BASE_NAME" temp_bname ;
           Var.set_string "MOD_FOLDER" temp_modf ;
+          Var.set_string "MOD_VERSION" temp_modv ;
           Var.set_string "COMPONENT_NUMBER" temp_num ;
           Var.set_string "SAVE_DIRECTORY" temp_save ;
           Var.set_string "MPSAVE_DIRECTORY" temp_mpsave ;
@@ -642,7 +653,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                   src
                 else
                   Var.get_string src in
-              if String.uppercase src = "DIALOG.TLK" then
+              if String.uppercase_ascii src = "DIALOG.TLK" then
                 log_and_print_modder "\n\nUse COPY_LARGE rather than COPY on dialog.tlk!\n\n\n" ;
 
               let buff =
@@ -850,7 +861,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 dest ^ "/" ^ (Case_ins.filename_basename src)
               else
                 dest in
-            (match String.uppercase (snd (split dest)) with
+            (match String.uppercase_ascii (snd (split dest)) with
             | ".IDS" -> Bcs.clear_ids_map game
             | _ -> ()) ;
             ignore (set_copy_vars src dest None) ;
@@ -872,7 +883,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 process_action tp (TP_Copy(copy_args))
               end else begin
                 if make_a_backup then
-                  backup_if_extant dest ;
+                  backup_if_extant dest
+                else
+                  record_other_file_op dest ;
                 copy_large_file src dest "doing a COPY_LARGE" ;
                 if make_a_backup then
                   log_only "Copied [%s] to [%s]\n" src dest
@@ -1116,7 +1129,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let cells = List.map (Str.split many_whitespace_regexp) lines in
             let headers = List.nth cells 2 in
             let rec get_where lst cnt = match lst with
-            | hd :: tl -> if String.uppercase hd = String.uppercase oldString then cnt else get_where tl (cnt + 1)
+            | hd :: tl -> if String.uppercase_ascii hd = String.uppercase_ascii oldString then cnt else get_where tl (cnt + 1)
             | [] -> failwith (Printf.sprintf "Unknown kit: %s" oldString)
             in
             let column = get_where headers 1 in
@@ -1147,7 +1160,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             "override/" ^ which ^ ".2da"
           in
           let patches = Hashtbl.create 5 in
-          List.iter (fun (a,b) -> Hashtbl.add patches (String.lowercase a) b)
+          List.iter (fun (a,b) -> Hashtbl.add patches (String.lowercase_ascii a) b)
             patches_list;
           let get_clasweap file =
             try get_line file
@@ -1210,7 +1223,10 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           process_action tp (TP_Add_Kit(copy_kit))
 
       | TP_Add_Kit(k) -> begin
-          log_and_print "Adding %s Kit ...\n" k.kit_name;
+          let k = { k with
+                    kit_name = (Var.get_string k.kit_name) ;
+                  } in
+          log_and_print "Adding %s Kit ...\n" k.kit_name ;
 
           if is_true (eval_pe "" game
                         (PE_FileContainsEvaluated
@@ -1230,7 +1246,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let a_e1 = TP_Append("ABCLSMOD.2DA",k.abclsmod,[],true,false,0) in
             let a_e2 = TP_Append("DUALCLAS.2DA",k.dualclas,[],true,false,0) in
             let a6 = TP_Append("ALIGNMNT.2DA",k.alignmnt,[],true,false,0) in
-            let abil_file = String.uppercase (Case_ins.filename_basename k.ability_file) in
+            let abil_file = String.uppercase_ascii (Case_ins.filename_basename k.ability_file) in
             if !debug_ocaml then log_and_print "%s\n" abil_file;
             let abil_file_no_ext = Case_ins.filename_chop_extension abil_file in
             let dest_abil_file = "override/" ^ abil_file in
@@ -1285,7 +1301,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let abbr = Printf.sprintf  "%s               %s" k.kit_name k.tob_abbr in
             let a9 = TP_Append("LUABBR.2DA",abbr,[],true,false,0) in
             let a10 = TP_Set_Col("25STWEAP.2DA",
-                                 ("" :: "" :: k.kit_name :: k.tob_start),this_kit_prof_number+1) in
+                                 ("" :: "" :: k.kit_name ::
+                                  (List.map Var.get_string k.tob_start)),
+                                 this_kit_prof_number+1) in
             let a11 = TP_Append("KIT.IDS",
                                 (Printf.sprintf "0x%x %s" (0x4000 + this_kit_number)
                                    k.kit_name),[],true,false,0) in
@@ -1384,7 +1402,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             process_action tp fix2da2a;
             Load.allow_missing := old_allow_missing ;
             Var.set_int32 (k.kit_name) (Int32.of_int this_kit_number) ;
-            log_and_print "Added %s Kit\n" k.kit_name;
+            log_and_print "Added %s Kit\n" k.kit_name ;
             Bcs.clear_ids_map game ;
           end
       end
@@ -1551,7 +1569,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           let numd = ref 0 in
           let nums = ref 0 in
           let handle_one_d_file filespec = match split
-              (String.uppercase filespec) with
+              (String.uppercase_ascii filespec) with
           | _,"BAF" -> incr nums
           | _,"D" -> incr numd
           | _,_ -> ()
@@ -1628,7 +1646,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               end;
               (if Modder.enabled "MISSING_EVAL" then
                 check_missing_eval ("COMPILE " ^ d) (load_file newd1);
-               match split (String.uppercase (Case_ins.filename_basename d)) with
+               match split (String.uppercase_ascii (Case_ins.filename_basename d)) with
                | _,"BAF" -> compile_baf_filename game newd1
                | _,"D" -> handle_d_filename newd1
                | _,_ -> ())
@@ -1667,7 +1685,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
       | TP_Set_Col(file,new_col_list,col_num) ->
           log_and_print_modder "Setting game text column-wise ...\n" ;
-          let eight,three = split (String.uppercase file) in
+          let eight,three = split (String.uppercase_ascii file) in
           let buff,loaded_path = Load.load_resource "SET_COLUMN" game true eight three in
           if buff = "" then
             log_or_print "[%s]: empty or does not exist\n" file
@@ -1728,7 +1746,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let src_list = prepend count_prepend src_list in
             log_and_print "Appending to files column-wise ...\n" ;
             let buff = if frombif then
-              let eight,three = split (String.uppercase file) in
+              let eight,three = split (String.uppercase_ascii file) in
               let buff,loaded_path =
                 Load.load_resource "APPEND_COLUMN" game true eight three in
               buff
@@ -1821,13 +1839,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Append(file,src,con_l,frombif,keep_crlf,do_backup) ->
           let file = Arch.backslash_to_slash file in
           if when_exists file con_l frombif game then begin
-            if Case_ins.filename_check_suffix(String.lowercase file) "ids" then
+            if Case_ins.filename_check_suffix(String.lowercase_ascii file) "ids" then
               Bcs.clear_ids_map game ;
             log_and_print "Appending to files ...\n" ;
             let file = Var.get_string file in
             let src = Var.get_string src in
             let buff = if frombif then begin
-              let eight,three = split (String.uppercase file) in
+              let eight,three = split (String.uppercase_ascii file) in
               let the_buff,loaded_path =
                 Load.load_resource "APPEND" game true eight three in
               the_buff
@@ -1884,7 +1902,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                     if !debug_ocaml then log_and_print "%s\n" buff;
                     if String.length buff < 2 || Str.last_chars buff 2 <> "\r\n" then
                       fn "\r\n";
-                    let src = if String.lowercase dest = "quests.ini" &&
+                    let src = if String.lowercase_ascii dest = "quests.ini" &&
                       Arch.view_command = "start" then
                       (Str.global_replace (Str.regexp "\\([^\r]\\)\n") "\\1\r\n" src)
                     else src in
@@ -1996,7 +2014,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 raise e
               end) ; in
           List.iter (fun dest ->
-            let base,ext = split (String.uppercase dest) in
+            let base,ext = split (String.uppercase_ascii dest) in
             let dest_script =
               let old_a_m = !Load.allow_missing in
               Load.allow_missing := dest :: old_a_m ;
@@ -2037,13 +2055,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
       | TP_At_Interactive_Exit(str,exact) ->
           if !interactive then process_action tp (TP_At_Exit(str,exact))
-      | TP_At_Interactive_Now(str,exact) ->
-          if !interactive then process_action tp (TP_At_Now(str,exact))
+      | TP_At_Interactive_Now(retvar,str,exact) ->
+          if !interactive then process_action tp (TP_At_Now(retvar,str,exact))
 
       | TP_At_Exit(str,exact) ->
           begin
             let str = Var.get_string str in
-            let a,b = split (String.uppercase str) in
+            let a,b = split (String.uppercase_ascii str) in
             match b with
             | "TP2" -> (enqueue_tp2_filename) str
             | _ ->
@@ -2054,15 +2072,25 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                   execute_at_exit := (Command (str,exact)) :: !execute_at_exit
           end
 
-      | TP_At_Now(str,exact) ->
+      | TP_At_Now(retvar,str,exact) ->
           begin
+            let retvar = match retvar with
+            | None -> None
+            | Some str -> Some (Var.get_string (eval_pe_str str)) in
             let str = Var.get_string str in
-            let a,b = split (String.uppercase str) in
+            let a,b = split (String.uppercase_ascii str) in
             match b with
             | "TP2" -> (enqueue_tp2_filename) str
             | _ ->
                 let str = if exact then str else Arch.handle_view_command str !skip_at_view in
-                ignore (exec_command str exact)
+                (match retvar with
+                | None -> ignore (exec_command str exact)
+                | Some var ->
+                    let retval = match exec_command str exact with
+                    | Unix.WEXITED i
+                    | Unix.WSIGNALED i
+                    | Unix.WSTOPPED i -> i in
+                    Var.set_int var retval)
           end
 
       | TP_At_Interactive_Uninstall(_)
@@ -2085,7 +2113,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             else path ^ "/" in
           let biff_path_list = List.sort_unique compare
               (List.flatten (List.map (fun s ->
-                let s = String.lowercase s in
+                let s = String.lowercase_ascii s in
                 if file_exists s then begin
                   log_and_print "WARNING: giving biffs as %s to \
                     DECOMPRESS_BIFF is deprecated\n" s ;
@@ -2121,7 +2149,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             biff in
           let decompress biff =
             let fd = Case_ins.unix_openfile biff [Unix.O_RDONLY] 0 in
-            let buff = String.create 8 in
+            let buff = Bytes.create 8 in
             ignore (Unix.read fd buff 0 8) ;
             ignore (Unix.close fd) ;
             (match buff with
@@ -2376,7 +2404,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
         process_action tp TP_ClearMemory;
         clear_memory := true;
       end;
-    with e -> (* from: let rec process_action = try *)
+      with
+     | Abort msg -> raise (Abort msg)
+     | e -> (* from: let rec process_action = try *)
       (if !continue_on_error then begin
         log_and_print "WARNING: Continuing despite [%s]\n"
           (printexc_to_string e);

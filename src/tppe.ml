@@ -5,6 +5,7 @@
  *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
 open Tp
 open Parsewrappers
@@ -16,17 +17,10 @@ open Tphelp
  * w/ multiple installs.
  ************************************************************************)
 let bigg_file_exists file key =
-  let test = ref false in
   if Str.string_match (Str.regexp_case_fold "data.25.*\\.bif") file 0 then
-    begin
-(*    log_and_print "\nbigg_file_exist special case\n" ; *)
-      test := Key.bif_exists_in_key key (Load.fix_biff_path file)
-    end
-  else begin
-(*    log_and_print "\nbigg_file_exist special case not triggered: %s\n" file ; *)
-    test := file_size file >= 0
-  end ;
-  !test
+    Key.bif_exists_in_key key (Load.fix_biff_path file)
+  else
+    file_exists file
 
 let is_true i = i <> 0l
 (* (Int32.compare i 0l) <> 0 *)
@@ -39,8 +33,8 @@ let rec eval_pe_str s = match s with
 	| true -> Var.get_string s)
 | PE_GetVar(p) -> (try Var.get_string_exact ("%" ^ eval_pe_str p ^ "%") with _ -> eval_pe_str p)
 | PE_Evaluate(p) -> Var.get_string (eval_pe_str p)
-| PE_Uppercase(s) -> String.uppercase (eval_pe_str s)
-| PE_Lowercase(s) -> String.lowercase (eval_pe_str s)
+| PE_Uppercase(s) -> String.uppercase_ascii (eval_pe_str s)
+| PE_Lowercase(s) -> String.lowercase_ascii (eval_pe_str s)
 | PE_Dollars(s,a,do_eval,do_add) ->
     let a = List.map (fun x -> Var.get_string (eval_pe_str x)) a in
     let s = Var.get_string (eval_pe_str s) in
@@ -221,7 +215,7 @@ let rec eval_pe buff game p =
 	let filename = Var.get_string filename in
 	let reg = Var.get_string reg in
 	let old_allow_missing = !Load.allow_missing in 
-	Load.allow_missing := [String.uppercase filename] ; 
+	Load.allow_missing := [String.uppercase_ascii filename] ; 
 	let answer = 
 	  try
 	    let buf = 
@@ -251,7 +245,7 @@ let rec eval_pe buff game p =
         let digest = Digest.file f in
         let hex = Digest.to_hex digest in
         log_only "File [%s] has MD5 checksum [%s]\n" f hex ;
-        (String.uppercase hex) = (String.uppercase s)
+        (String.uppercase_ascii hex) = (String.uppercase_ascii s)
       end else begin
         false
       end)
@@ -283,9 +277,14 @@ let rec eval_pe buff game p =
     )
 
   | Pred_File_Exists_In_Game(f) -> if_true  (
-      let f = eval_pe_str f in
+      let f = Var.get_string (eval_pe_str f) in
+      let res,ext = split f in
+      (try
+        Load.resource_exists game res ext
+      with _ -> false))
+
+(*
       let old_allow_missing = !Load.allow_missing in
-      let f = Var.get_string f in
       Load.allow_missing := [] ;
       let res =
 	(try
@@ -299,6 +298,7 @@ let rec eval_pe buff game p =
 	) in
       Load.allow_missing := old_allow_missing ;
       res )
+*)
   | Pred_File_Size(f,s) ->
       let f = eval_pe_str f in 
       if_true (file_size (Var.get_string f) = s)
@@ -334,8 +334,8 @@ let rec eval_pe buff game p =
       let s1 = Var.get_string s1 in
       let s2 = Var.get_string s2 in 
       let comparison = if ignore_case then 
-        (fun s1 s2 -> String.compare (String.uppercase s1)
-            (String.uppercase s2)) else String.compare
+        (fun s1 s2 -> String.compare (String.uppercase_ascii s1)
+            (String.uppercase_ascii s2)) else String.compare
       in
       let result = Int32.of_int (comparison s1 s2) in
       let bigg_make_bool () =
@@ -409,7 +409,7 @@ let rec eval_pe buff game p =
       let name = Var.get_string (eval_pe_str name) in
       Int32.of_int (match tp2s with
       | tp2 :: rest -> (match get_id_of_label
-            (Parsewrappers.handle_tp2_filename tp2) name with
+            (Parsewrappers.handle_tp2_filename_caching tp2 true) name with
         | None -> Int32.to_int Int32.min_int
         | Some x -> x)
       | [] -> Int32.to_int Int32.min_int)
@@ -437,7 +437,7 @@ let rec eval_pe buff game p =
       let iwdee = f "howparty.2da" in
       let pstee = f "pstchar.2da" in
       let res = List.exists (fun this ->
-        match String.uppercase this with
+        match String.uppercase_ascii this with
         | "BG2"
         | "SOA"        -> bg2 && not tutu && not tob && not ca && not iwdinbg2
         | "TOB"        -> bg2 && not tutu &&     tob && not ca && not iwdinbg2 && not bg2ee
@@ -462,14 +462,14 @@ let rec eval_pe buff game p =
         | "IWDEE"      -> iwdee
         | "PSTEE"      -> pstee
         | "EET"        -> eet
-        | _ -> log_and_print "WARNING: No rule to identify %s\n" (String.uppercase this) ; false
+        | _ -> log_and_print "WARNING: No rule to identify %s\n" (String.uppercase_ascii this) ; false
       ) game_list in
       if res then 1l else 0l;
   end
 
   | PE_GameIncludes(game_set) -> begin
-      let bg1 = ["BG1"; "TOTSC"; "TUTU"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"; "SOD"] in
-      let totsc = ["TOTSC"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"; "SOD"] in
+      let bg1 = ["BG1"; "TOTSC"; "TUTU"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"] in
+      let totsc = ["TOTSC"; "TUTU_TOTSC"; "BGT"; "BGEE"; "EET"] in
       let soa = ["SOA"; "TOB"; "BGT"; "BG2EE"; "EET"] in
       let tob = ["TOB"; "BGT"; "BG2EE"; "EET"] in
       let pst = ["PST"; "PSTEE"] in
@@ -478,12 +478,12 @@ let rec eval_pe buff game p =
       let totlm = ["TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
       let iwd2 = ["IWD2"] in
       let ca = ["CA"] in
-      (match String.uppercase game_set with
+      (match String.uppercase_ascii game_set with
       | "SOD" -> eval_pe "" game (PE_FileContainsEvaluated
                                     (PE_LiteralString "CAMPAIGN.2DA",
                                      PE_LiteralString "SOD"))
       | _ -> begin
-          let list = (match String.uppercase game_set with
+          let list = (match String.uppercase_ascii game_set with
           | "BG1" -> bg1
           | "TOTSC" -> totsc
           | "BG2"
@@ -496,7 +496,7 @@ let rec eval_pe buff game p =
           | "TOTLM" -> totlm
           | "IWD2" -> iwd2
           | "CA" -> ca
-          | _ -> log_and_print "WARNING: GAME_INCLUDES has no rule for %s\n" (String.uppercase game_set) ; [(String.uppercase game_set)]) in
+          | _ -> log_and_print "WARNING: GAME_INCLUDES has no rule for %s\n" (String.uppercase_ascii game_set) ; [(String.uppercase_ascii game_set)]) in
           eval_pe buff game (PE_GameIs((String.concat " " list), true))
       end)
   end
@@ -635,6 +635,20 @@ let rec eval_pe buff game p =
   end
 
   | PE_NextStrref -> Int32.of_int !Dc.cur_index
+  | PE_ValidScriptActions(buff) -> begin
+      let buff = Var.get_string (eval_pe_str buff) in
+      (try
+        let _ = Parsewrappers.handle_script_al buff in
+        1l
+      with _ -> 0l)
+  end
+  | PE_ValidScriptTriggers(buff) -> begin
+      let buff = Var.get_string (eval_pe_str buff) in
+      (try
+        let _ = Parsewrappers.handle_script_tl buff in
+        1l
+      with _ -> 0l)
+  end
 
 let eval_pe buff game pe =
   let res = Stats.time "eval_pe" (fun () -> eval_pe buff game pe) () in

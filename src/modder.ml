@@ -1,4 +1,5 @@
 open BatteriesInit
+open Hashtblinit
 open Util
 
 exception Modder_error of string
@@ -9,7 +10,7 @@ type modder_level =
   | None
 
 let level_of_string s2 =
-  match String.uppercase s2 with
+  match String.uppercase_ascii s2 with
   | "NONE" -> None
   | "WARN" -> Warn
   | "FAIL" -> Fail
@@ -36,7 +37,7 @@ let set_modder str_l =
   end ;
   List.iter (fun (s1,s2,prio) ->
     let s2 = level_of_string s2 in
-    let s1 = String.uppercase s1 in
+    let s1 = String.uppercase_ascii s1 in
     let old_prio = try
       snd (Hashtbl.find mode s1) ;
     with
@@ -50,7 +51,7 @@ let set_modder str_l =
     if prio <= old_prio then Hashtbl.replace mode s1 (s2, prio)) str_l
 
 let get x = if !debug_modder then try
-  fst (Hashtbl.find mode (String.uppercase x))
+  fst (Hashtbl.find mode (String.uppercase_ascii x))
 with _ -> Warn else None
 
 let handle_deb test str =

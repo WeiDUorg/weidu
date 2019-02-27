@@ -12,6 +12,7 @@
 (* generic utilities *)
 
 open BatteriesInit
+open Hashtblinit
 open Arch
 
 type local_string_entry = {
@@ -255,9 +256,9 @@ let str_of_int32 i =
   let a = Int32.to_int (Int32.logand i 255l) in
   let i = Int32.shift_right_logical i 8 in
   let result = String.make 4 (Char.chr a) in
-  result.[0] <- (Char.chr d) ;
-  result.[1] <- (Char.chr c) ;
-  result.[2] <- (Char.chr b) ;
+  Bytes.set result 0 (Char.chr d) ;
+  Bytes.set result 1 (Char.chr c);
+  Bytes.set result 2 (Char.chr b) ;
   result
 
 let str_of_int i =
@@ -269,7 +270,7 @@ let str_of_short i =
   let c = i land 255 in
   let i = i lsr 8 in
   let result = String.make 2 (Char.chr d) in
-  result.[1] <- (Char.chr c) ;
+  Bytes.set result 1 (Char.chr c) ;
   result
 
 let str_of_byte i =
@@ -296,9 +297,9 @@ let write_short buff off value =
   String.blit (str_of_short (value)) 0 buff off 2
 let write_byte buff off value =
   if value < 0 then
-    buff.[off] <- (Char.chr (256+value))
+    Bytes.set buff off (Char.chr (256+value))
   else
-    buff.[off] <- (Char.chr value)
+    Bytes.set buff off (Char.chr value)
 let write_resref buff off str =
   String.blit (str_to_exact_size str 8) 0 buff off 8
 
@@ -339,7 +340,17 @@ let file_size name =
     stats.Unix.st_size
   with _ ->  -1)
 
-let file_exists name = (file_size name >= 0)
+let file_exists name =
+  (try
+    let stats = Case_ins.unix_stat64 name in
+    stats.Unix.LargeFile.st_size >= Int64.zero
+  with _ -> false)
+
+let file_contains_data name =
+  (try
+    let stats = Case_ins.unix_stat64 name in
+    stats.Unix.LargeFile.st_size > Int64.zero
+  with _ -> false)
 
 let is_directory name =
   (try
@@ -387,11 +398,11 @@ let handle_readonly filename =
 
 let rec backup_if_extant filename =
   if Hashtbl.mem backup_ht
-      (String.uppercase (native_separator filename)) then
+      (String.uppercase_ascii (native_separator filename)) then
     ()
   else begin
-    if (String.uppercase filename) = "OVERRIDE/SPELL.IDS" ||
-    (String.uppercase filename) = "OVERRIDE\\SPELL.IDS" then begin
+    if (String.uppercase_ascii filename) = "OVERRIDE/SPELL.IDS" ||
+    (String.uppercase_ascii filename) = "OVERRIDE\\SPELL.IDS" then begin
       if not (file_exists "override/spell.ids.installed") then begin
         backup_if_extant "override/spell.ids.installed" ;
         let out_chn = Case_ins.perv_open_out_bin
@@ -401,7 +412,7 @@ let rec backup_if_extant filename =
       end
     end ;
     Hashtbl.add backup_ht
-      (String.uppercase (native_separator filename)) true ;
+      (String.uppercase_ascii (native_separator filename)) true ;
     (match !backup_list_chn with
     | Some(chn) -> output_string chn (filename ^ "\n") ; flush chn
     | None -> ()) ;
@@ -447,7 +458,7 @@ and copy_large_file name out reason =
         let out_fd = Case_ins.unix_openfile out
             [Unix.O_WRONLY ; Unix.O_CREAT] 511 in
         let chunk_size = 10240 in
-        let chunk = String.create chunk_size in
+        let chunk = Bytes.create chunk_size in
         let sofar = ref 0 in
         while !sofar < size do
           let chunk_size = min (size - !sofar) chunk_size in
@@ -542,6 +553,10 @@ let open_for_writing_internal backup filename binary =
 
 let open_for_writing = open_for_writing_internal true
 
+let record_other_file_op filename =
+  match !other_list_chn with
+  | Some chn -> output_string chn (filename ^ "\n") ; flush chn
+  | None -> ()
 
 (* filter to avoid logging progress bars from external programs *)
 type filter_mode = Copy | Strip ;;
@@ -577,7 +592,7 @@ let exec_command cmd exact =
     begin
       (* copy stdout + stderr to logfile *)
       let proc_stdout = Unix.open_process_in (cmd ^ " 2>&1") in
-      let s = String.create 80 in
+      let s = Bytes.create 80 in
       let filter = create_filter () in
       begin
         try
@@ -835,7 +850,7 @@ let attempt_to_load_bgee_lang_dir game_path =
     let regexp = (Str.regexp_case_fold "lang_dir[ \t]+=[ \t]+\\([a-z_]+\\)") in
     (try
       ignore (Str.search_forward regexp buff 0) ;
-      Some (String.lowercase (Str.matched_group 1 buff))
+      Some (String.lowercase_ascii (Str.matched_group 1 buff))
     with Not_found -> None)
   end
   else None
@@ -844,7 +859,7 @@ let write_bgee_lang_dir game_path dir =
   (try
     let conf = Arch.native_separator (game_path ^ "/weidu.conf") in
     let chan = Case_ins.perv_open_out_bin conf in
-    ignore (output_string chan (String.lowercase
+    ignore (output_string chan (String.lowercase_ascii
                                   (Printf.sprintf "lang_dir = %s\n" dir))) ;
     ignore (close_out chan)
   with e ->
@@ -899,8 +914,17 @@ let all_possible_tp2s filename =
 let tp2_name filename =
   let chunk_list = Str.split (Str.regexp "[-]") filename in
   (match chunk_list with
-  | a :: b when (String.uppercase a) = "SETUP" -> (match b with
+  | a :: b when (String.uppercase_ascii a) = "SETUP" -> (match b with
     | c :: [] -> c
     | c -> (String.concat "-" c))
   | a :: b -> (String.concat "-" (a :: b))
   | _ -> filename)
+
+let read_lines file =
+  let chan = Case_ins.perv_open_in file in
+  let read chan = try Some (input_line chan) with End_of_file -> None in
+  let rec loop list =
+    match read chan with
+    | Some line -> loop (line :: list)
+    | None -> close_in chan ; List.rev list in
+  loop []

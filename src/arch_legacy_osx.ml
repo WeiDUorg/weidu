@@ -11,6 +11,7 @@
 
 (* Mac OSX Arch-Specific Definitions *)
 open BatteriesInit
+open Hashtblinit
 
 let registry_paths = ref [ "\\BGII - SoA\\" ]
 
@@ -66,12 +67,13 @@ let cd_regexp = Str.regexp "\\(CD[0-9]\\)"
 let is_weidu_executable f =
   try
     let i = Case_ins.perv_open_in_bin f in
-    let buff = String.create 4 in
+    let buff = Bytes.create 4 in
     let signature = input i buff 0 4 in
     Str.string_match (Str.regexp_case_fold "setup-.*") f 0 && buff = "\xfe\xed\xfa\xce"
   with _ -> false
 
 let get_version f =
+  ignore (Unix.access f [ Unix.X_OK ]) ;
   let exec = Printf.sprintf "./%s --exit" f in
   Printf.printf "{%s} queried%!" f;
   let ic,oc,ec = Unix.open_process_full exec (Unix.environment()) in

@@ -23,6 +23,7 @@
 (***********************************************************************)
 
 open BatteriesInit
+open Hashtblinit
 (* $Id: arg.ml,v 1.16 2001/12/07 13:40:48 xleroy Exp $ *)
 
 type spec =

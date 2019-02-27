@@ -119,7 +119,7 @@
 CAMLLEX = $(OCAMLDIR)/ocamllex
 CAMLYACC= $(OCAMLDIR)/ocamlyacc
 CAMLDEP = $(OCAMLDIR)/ocamldep
-ELKHOUND= $(shell which elkhound)
+ELKHOUND= $(shell which $(ELKHOUND_BIN))
 
 CAMLFLAGS    =-I $(OBJDIR)
 
@@ -167,8 +167,8 @@ ifdef PROFILE
 else
 ifdef NATIVECAML
  #foo := $(shell echo "I am in NATIVECAML mode" >&2; echo whatever)
- CAMLC          = $(OCAMLDIR)/ocamlopt$(USEOPT) -compact $(COMPILEFLAGS)
- CAMLLINK       = $(OCAMLDIR)/ocamlopt$(USEOPT) -compact $(LINKFLAGS)
+ CAMLC          = $(OCAMLDIR)/ocamlopt$(USEOPT) -unsafe-string $(COMPILEFLAGS)
+ CAMLLINK       = $(OCAMLDIR)/ocamlopt$(USEOPT) -unsafe-string $(LINKFLAGS)
  CMO            = cmx
  CMXA           = cmxa
  EXEEXT         = .asm
@@ -192,7 +192,7 @@ endif
 endif
 
 ifdef UNSAFE 
- CAMLC          := $(CAMLC) -unsafe -noassert -compact
+ CAMLC          := $(CAMLC) -unsafe -noassert
 endif
 
 
@@ -284,7 +284,7 @@ $(OBJDIR)/%.$(CMO): %.ml
              # They appear to be left in the current directory
 $(OBJDIR)/%.$(OBJEXT): %.c
 	@$(NARRATIVE) Compiling C file $<
-	$(AT)$(CAMLC) -verbose $(CAMLFLAGS) -c $< -o $@
+	$(AT)$(CAMLC) -verbose $(CAMLFLAGS) -c $<
 	$(AT)mv -f $(basename $(notdir $<)).$(OBJEXT) $(OBJDIR)
 
       # This is a generic function that builds your project
@@ -331,8 +331,7 @@ FIXDEPEND:=perl -e 'while(<>) { s%[^/\\ :]+[/\\]% %g; s%([^ :\\\n\r]+)%$(OBJDIR)
 # FIXDEPEND:=cat
 DEPINCLUDES= -I $(OBJDIR) $(SOURCEDIRS:%=-I %)
 $(DEPENDDIR)/%.d: %.ml
-	@mkdir -p obj/.depend obj/x86_LINUX obj/X86_WIN32 obj/X86_CYGWIN obj-tk/.depend \
-  obj-tk/x86_LINUX obj-tk/X86_WIN32 obj-tk/X86_CYGWIN
+	@mkdir -p obj/.depend obj/x86_LINUX obj/X86_WIN32
 	@$(NARRATIVE) Generating dependency information for $<
 	@$(COMMAND) $(CAMLDEP) $(DEPINCLUDES) $<
 	$(ECHO)$(CAMLDEP) $(DEPINCLUDES) $< | $(FIXDEPEND) > $@

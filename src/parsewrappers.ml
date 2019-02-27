@@ -2,14 +2,17 @@
    starting from 18 December 2012 and WeiDU 231.06. *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
+
+let tp2_cache = Hashtbl.create 5
 
 let load_log () =
   try
     let result = parse_file true (File Tp.log_name) "parsing .log files"
         (Dparser.log_file Dlexer.initial) in
     Tp.the_log := List.map (fun (a,b,c,d) ->
-      ((String.uppercase a),b,c,d,Tp.Installed)) result
+      ((String.uppercase_ascii a),b,c,d,Tp.Installed)) result
   with e ->
     log_or_print "WARNING: parsing log [%s]: %s\n" Tp.log_name
       (printexc_to_string e) ;
@@ -32,7 +35,7 @@ let compile_baf_filename game filename =
        filename (printexc_to_string e) ; raise e)
 
 let handle_script_buffer filename buffer =
-  match split (String.uppercase filename) with
+  match split (String.uppercase_ascii filename) with
   | _,"BAF" -> parse_file true (String(filename,buffer)) "parsing .baf files"
         (Bafparser.baf_file Baflexer.initial)
   | _,_ -> parse_file true (String(filename,buffer)) "parsing .bcs files"
@@ -42,6 +45,10 @@ let handle_script_al buffer =
   let result = parse_file false (String("",buffer)) "parsing .baf files"
       (Bafparser.action_list Baflexer.initial) in
   result
+
+let handle_script_tl buffer =
+  parse_file false (String("",buffer)) "parsing .baf files"
+    (Bafparser.trigger_list Baflexer.initial)
 ;;
 
 Bcs.parse_al := handle_script_al
@@ -104,11 +111,18 @@ let handle_d_buffer game filename buffer =
     Dc.clear_state () ;
     raise e
 
+let handle_tp2_filename_caching filename can_cache =
+  if can_cache && Hashtbl.mem tp2_cache filename then
+    Hashtbl.find tp2_cache filename
+  else
+    let res = Tparser.parse_tp2_file (File filename) in
+    res.Tp.tp_filename <- filename ;
+    if can_cache then
+      Hashtbl.add tp2_cache filename res ;
+    res
 
 let handle_tp2_filename filename =
-  let res = Tparser.parse_tp2_file (File filename) in
-  res.Tp.tp_filename <- filename ;
-  res
+  handle_tp2_filename_caching filename false
 
 let handle_tph_filename filename =
   Tparser.parse_tpa_file (File filename)
