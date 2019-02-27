@@ -1,5 +1,5 @@
 1 VERSIONINFO
-FILEVERSION		242,1,0,0
+FILEVERSION		246,00,0,0
 BEGIN
 	BLOCK "StringFileInfo"
 	BEGIN
@@ -7,11 +7,11 @@ BEGIN
 		BEGIN
 			VALUE "CompanyName", "WeiDU.org"
 			VALUE "FileDescription", "Weimer Dialogue Utilities"
-			VALUE "FileVersion", "242.01"
+			VALUE "FileVersion", "246.00"
 			VALUE "LegalCopyright", "GPL Westley Weimer, Valerio Bigiani, Fredrik Lindgren"
 			VALUE "OriginalFilename", "weidu.exe"
 			VALUE "ProductName", "WeiDU"
-			VALUE "ProductVersion", "242.01"
+			VALUE "ProductVersion", "246.00"
 		END
 	END
 	BLOCK "VarFileInfo"
