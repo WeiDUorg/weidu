@@ -20,3 +20,4 @@ diffs/*
 .paths
 .settings/
 /Configuration
+windows_resources/weidu_resources.rc.backup
