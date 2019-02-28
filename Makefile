@@ -33,8 +33,12 @@ all : weidu
 # Debugging. Set ECHO= to debug this Makefile
 # ECHO := @
 
+
 RELEASE    := 1
 NATIVECAML := 1
+VERSION_MAJOR := $(shell grep 'version =' src/version.ml | cut -d'"' -f2 -z | cut -c-3)
+VERSION_MINOR := $(shell grep 'version =' src/version.ml | cut -d'"' -f2 -z | cut -c4-)
+
 # UNSAFE     := 1
 
 # Put here all the byproducts of make
@@ -64,24 +68,40 @@ PROJECT_LIBS       = unix camlstr
 PROJECT_RESOURCES = weidu_resources
 
 .PHONY: weidu
-weidu:  $(PROJECT_EXECUTABLE)
+weidu: $(PROJECT_EXECUTABLE)
+
 $(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                         $(PROJECT_CMODULES:%=$(OBJDIR)/%.$(OBJEXT))
 	@$(NARRATIVE) Linking $(COMPILETOWHAT) $@
-	
-ifeq (,$(filter $(uname),"Linux" "Darwin"))
+
+ifeq ( $(shell uname -s),"Linux")
 	$(CAMLLINK) -o $@ \
 		$(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
 		$(PROJECT_LIBS:%=-cclib -l%) \
 		$(PROJECT_CLIBS:%=-cclib %) \
 		$^
 		cp $(PROJECT_EXECUTABLE) .
-else
-	cat windows_resources/weidu_resources.rc | sed -e "s/FILEVERSION\W\+[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+/FILEVERSION\t\t$(grep 'version = ' src/version.ml | cut -d'"' -f2 -z | cut -c-3),$(grep 'version = ' src/version.ml | cut -d'"' -f2 -z | cut -c4-),0,0/gI" > windows_resources/weidu_resources.rc
-	cat windows_resources/weidu_resources.rc | sed "s/\"FileVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"FileVersion\",\ \"$(grep 'version = ' src/version.ml | cut -d'"' -f2 -z | cut -c-3).$(grep 'version = ' src/version.ml | cut -d'"' -f2 -z | cut -c4-)\"/gI" > windows_resources/weidu_resources.rc	
-	cat windows_resources/weidu_resources.rc | sed "s/\"ProductVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"ProductVersion\",\ \"$(grep 'version = ' src/version.ml | cut -d'"' -f2 -z | cut -c-3).$(grep 'version = ' src/version.ml | cut -d'"' -f2 -z | cut -c4-)\"/gI" > windows_resources/weidu_resources.rc	
+endif
 
-	i686-w64-mingw32-windres.exe -i windows_resources/weidu_resources.rc -o $(OBJDIR)/weidu_resources.o
+ifeq ( $(shell uname -s),"Darwin")
+	$(CAMLLINK) -o $@ \
+		$(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
+		$(PROJECT_LIBS:%=-cclib -l%) \
+		$(PROJECT_CLIBS:%=-cclib %) \
+		$^
+		cp $(PROJECT_EXECUTABLE) .
+endif
+
+ifeq ($(OS),Windows_NT)
+
+	@echo VERSION_MAJOR IS $(VERSION_MAJOR)
+	@echo VERSION_MINOR IS $(VERSION_MINOR)
+
+	sed -i.backup "s/FILEVERSION\W\+[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+/FILEVERSION\t\t$(VERSION_MAJOR),$(VERSION_MINOR),0,0/gI" windows_resources/weidu_resources.rc
+	sed -i.backup "s/\"FileVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"FileVersion\",\ \"$(VERSION_MAJOR).$(VERSION_MINOR)\"/gI" windows_resources/weidu_resources.rc
+	sed -i.backup "s/\"ProductVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"ProductVersion\",\ \"$(VERSION_MAJOR).$(VERSION_MINOR)\"/gI" windows_resources/weidu_resources.rc
+
+	x86_64-w64-mingw32-windres -i windows_resources/weidu_resources.rc -o $(OBJDIR)/weidu_resources.o
 
 	$(CAMLLINK) -o $@ \
 		$(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
