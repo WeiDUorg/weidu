@@ -97,9 +97,9 @@ ifeq ($(OS),Windows_NT)
 	@echo VERSION_MAJOR IS $(VERSION_MAJOR)
 	@echo VERSION_MINOR IS $(VERSION_MINOR)
 
-	sed -i.backup "s/FILEVERSION\W\+[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+/FILEVERSION\t\t$(VERSION_MAJOR),$(VERSION_MINOR),0,0/gI" windows_resources/weidu_resources.rc
-	sed -i.backup "s/\"FileVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"FileVersion\",\ \"$(VERSION_MAJOR).$(VERSION_MINOR)\"/gI" windows_resources/weidu_resources.rc
-	sed -i.backup "s/\"ProductVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"ProductVersion\",\ \"$(VERSION_MAJOR).$(VERSION_MINOR)\"/gI" windows_resources/weidu_resources.rc
+	sed -i "s/FILEVERSION\W\+[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+/FILEVERSION\t\t$(VERSION_MAJOR),$(VERSION_MINOR),0,0/gI" windows_resources/weidu_resources.rc
+	sed -i "s/\"FileVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"FileVersion\",\ \"$(VERSION_MAJOR).$(VERSION_MINOR)\"/gI" windows_resources/weidu_resources.rc
+	sed -i "s/\"ProductVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"ProductVersion\",\ \"$(VERSION_MAJOR).$(VERSION_MINOR)\"/gI" windows_resources/weidu_resources.rc
 
 	x86_64-w64-mingw32-windres -i windows_resources/weidu_resources.rc -o $(OBJDIR)/weidu_resources.o
 
