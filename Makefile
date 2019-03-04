@@ -49,7 +49,7 @@ include Depends
 
 CAMLFLAGS      += -I zlib -I xdiff
 
-   # Now the rule to make WeiDU
+# Now the rule to make WeiDU
 
 PROJECT_EXECUTABLE = $(OBJDIR)/weidu$(EXE)
 PROJECT_MODULES    = $(WEIDU_MODULES)
@@ -101,7 +101,7 @@ ifeq ($(OS),Windows_NT)
 	sed -i "s/\"FileVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"FileVersion\",\ \"$(VERSION_MAJOR).$(VERSION_MINOR)\"/gI" windows_resources/weidu_resources.rc
 	sed -i "s/\"ProductVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"ProductVersion\",\ \"$(VERSION_MAJOR).$(VERSION_MINOR)\"/gI" windows_resources/weidu_resources.rc
 
-	x86_64-w64-mingw32-windres -i windows_resources/weidu_resources.rc -o $(OBJDIR)/weidu_resources.o
+	$(WINDRES_BIN) -i windows_resources/weidu_resources.rc -o $(OBJDIR)/weidu_resources.o
 
 	$(CAMLLINK) -o $@ \
 		$(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
