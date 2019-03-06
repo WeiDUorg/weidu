@@ -643,6 +643,7 @@ let list_components_json list_comp list_comp_lang game =
       Var.var_clear_push () ;
       (try
         ignore (Tpstate.set_tp2_vars tp_file) ;
+        ignore (Arch2.associate_these ());
         let tra_files = (try
           List.nth tp_file.Tp.languages list_comp_lang
         with _ -> List.nth tp_file.Tp.languages 0) in
