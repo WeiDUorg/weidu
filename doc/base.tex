@@ -9367,7 +9367,14 @@ The next batch of variables sets the function boundaries on matching an effect t
 \item STR_VAR \verb+match_resource+ to the resource of effects to be matched (default "SAME").
 \end{itemize}
 
-Once a matching effect is found, a new effect is created (STR_VAR \verb+insert+ determines its placement) with all of the same specifications as the matched effect. The next series of variables allows the function to change the fields to new values in the newly-created effect. Any variables not set in this batch will simply inherit their values from the matched effect.
+Once a matching effect is found, a new effect is created (STR_VAR
+\verb+insert+ determines its placement) with all of the same
+specifications as the matched effect. The next series of variables
+allows the function to change the fields to new values in the
+newly-created effect. All integer variables have the default value -1,
+except savebonus which defaults to -11. If the value of a variable is
+less than or equal to the default value, the new effect inherits the
+corresponding value of the matched effect.
 
 \begin{itemize}
 \item INT_VAR \verb+opcode+ to the value the of the new effect's opcode.
@@ -9461,7 +9468,12 @@ The next batch of variables sets the function boundaries on matching an effect t
 \item STR_VAR \verb+match_resource+ to the resource of effects to be matched (default is "SAME").
 \end{itemize}
 
-Once a matching effect is found, the next series of variables allows the function to change the fields to these new values in the matched effect. Any variables not set in this batch will keep their existing values.
+Once a matching effect is found, the next series of variables allows
+the function to change the fields to these new values in the matched
+effect. All integer variables have the default value -1, except
+savebonus which defaults to -11. The function does not change the
+fields if the value of the corresponding value is less than or equal
+to the default value.
 
 \begin{itemize}
 \item INT_VAR \verb+opcode+ to the value the of the altered effect's opcode.
