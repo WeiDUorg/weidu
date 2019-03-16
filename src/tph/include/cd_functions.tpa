@@ -689,6 +689,8 @@ DEFINE_PATCH_FUNCTION ALTER_ITMSPL_HEADER
     // flag_ vars affect flags starting at 0x26; 0 means remove flag, 1 means add flag, -1 no change
     flag_strength      = "-1" // add strength bonus, bit0
     flag_break         = "-1" // breakable, bit1
+    flag_strength_damage = "-1" // EE, damage strength bonus, bit2
+    flag_strength_thac0 = "-1" // EE, damage strength THAC0, bit3
     flag_hostile       = "-1" // hostile, bit10
     flag_recharge      = "-1" // recharge after resting, bit11
     flag_bypass        = "-1" // bypass armor, bit16
@@ -743,6 +745,8 @@ BEGIN
       PATCH_IF (bullet >= 0)             BEGIN WRITE_SHORT (ip + 0x36) bullet             END
       PATCH_IF (flag_strength = 0)       BEGIN WRITE_BYTE  (ip + 0x26) THIS & `BIT0       END
       PATCH_IF (flag_break = 0)          BEGIN WRITE_BYTE  (ip + 0x26) THIS & `BIT1       END
+      PATCH_IF (flag_strength_damage = 0) BEGIN WRITE_BYTE (ip + 0x26) THIS & `BIT2       END
+      PATCH_IF (flag_strength_thac0 = 0) BEGIN WRITE_BYTE  (ip + 0x26) THIS & `BIT3       END
       PATCH_IF (flag_hostile = 0)        BEGIN WRITE_BYTE  (ip + 0x27) THIS & `BIT2       END
       PATCH_IF (flag_recharge = 0)       BEGIN WRITE_BYTE  (ip + 0x27) THIS & `BIT3       END
       PATCH_IF (flag_bypass = 0)         BEGIN WRITE_BYTE  (ip + 0x28) THIS & `BIT0       END
@@ -751,6 +755,8 @@ BEGIN
       PATCH_IF (flag_noinvisible = 0)    BEGIN WRITE_BYTE  (ip + 0x29) THIS & `BIT2       END
       PATCH_IF (flag_strength = 1)       BEGIN WRITE_BYTE  (ip + 0x26) THIS | BIT0        END
       PATCH_IF (flag_break = 1)          BEGIN WRITE_BYTE  (ip + 0x26) THIS | BIT1        END
+      PATCH_IF (flag_strength_damage = 1) BEGIN WRITE_BYTE (ip + 0x26) THIS | BIT2        END
+      PATCH_IF (flag_strength_thac0 = 1) BEGIN WRITE_BYTE  (ip + 0x26) THIS | BIT3        END
       PATCH_IF (flag_hostile = 1)        BEGIN WRITE_BYTE  (ip + 0x27) THIS | BIT2        END
       PATCH_IF (flag_recharge = 1)       BEGIN WRITE_BYTE  (ip + 0x27) THIS | BIT3        END
       PATCH_IF (flag_bypass = 1)         BEGIN WRITE_BYTE  (ip + 0x28) THIS | BIT0        END
@@ -893,6 +899,8 @@ DEFINE_PATCH_FUNCTION ALTER_ITEM_HEADER
           // flag_ vars affect flags starting at 0x26; 0 means remove flag, 1 means add flag, -1 no change
           flag_strength      = "-1" // add strength bonus, bit0
           flag_break         = "-1" // breakable, bit1
+          flag_strength_damage = "-1" // EE, damage strength bonus, bit2
+          flag_strength_thac0 = "-1" // EE, damage strength THAC0, bit3
           flag_hostile       = "-1" // hostile, bit10
           flag_recharge      = "-1" // recharge after resting, bit11
           flag_bypass        = "-1" // bypass armor, bit16
@@ -932,6 +940,8 @@ BEGIN
       bullet
       flag_strength
       flag_break
+      flag_strength_damage
+      flag_strength_thac0
       flag_hostile
       flag_recharge
       flag_bypass
