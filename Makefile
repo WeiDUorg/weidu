@@ -33,8 +33,12 @@ all : weidu
 # Debugging. Set ECHO= to debug this Makefile
 # ECHO := @
 
+
 RELEASE    := 1
 NATIVECAML := 1
+VERSION_MAJOR := $(shell grep 'version =' src/version.ml | cut -d'"' -f2 -z | cut -c-3)
+VERSION_MINOR := $(shell grep 'version =' src/version.ml | cut -d'"' -f2 -z | cut -c4-)
+
 # UNSAFE     := 1
 
 # Put here all the byproducts of make
@@ -45,7 +49,7 @@ include Depends
 
 CAMLFLAGS      += -I zlib -I xdiff
 
-   # Now the rule to make WeiDU
+# Now the rule to make WeiDU
 
 PROJECT_EXECUTABLE = $(OBJDIR)/weidu$(EXE)
 PROJECT_MODULES    = $(WEIDU_MODULES)
@@ -60,17 +64,53 @@ PROJECT_CMODULES   += crc32 compress deflate trees
 
 PROJECT_OCAML_LIBS = unix str #OCaml changed libstr into libcamlstr and "you are not supposed to link with -lstr"
 PROJECT_LIBS       = unix camlstr
+
+PROJECT_RESOURCES = weidu_resources
+
 .PHONY: weidu
-weidu:  $(PROJECT_EXECUTABLE)
+weidu: $(PROJECT_EXECUTABLE)
+
 $(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                         $(PROJECT_CMODULES:%=$(OBJDIR)/%.$(OBJEXT))
 	@$(NARRATIVE) Linking $(COMPILETOWHAT) $@
+
+ifeq ( $(shell uname -s),"Linux")
 	$(CAMLLINK) -o $@ \
-                    $(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
-                    $(PROJECT_LIBS:%=-cclib -l%) \
-                    $(PROJECT_CLIBS:%=-cclib %) \
-                    $^
-	cp $(PROJECT_EXECUTABLE) .
+		$(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
+		$(PROJECT_LIBS:%=-cclib -l%) \
+		$(PROJECT_CLIBS:%=-cclib %) \
+		$^
+		cp $(PROJECT_EXECUTABLE) .
+endif
+
+ifeq ( $(shell uname -s),"Darwin")
+	$(CAMLLINK) -o $@ \
+		$(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
+		$(PROJECT_LIBS:%=-cclib -l%) \
+		$(PROJECT_CLIBS:%=-cclib %) \
+		$^
+		cp $(PROJECT_EXECUTABLE) .
+endif
+
+ifeq ($(OS),Windows_NT)
+
+	@echo VERSION_MAJOR IS $(VERSION_MAJOR)
+	@echo VERSION_MINOR IS $(VERSION_MINOR)
+
+	sed -i "s/FILEVERSION\W\+[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+/FILEVERSION\t\t$(VERSION_MAJOR),$(VERSION_MINOR),0,0/gI" windows_resources/weidu_resources.rc
+	sed -i "s/\"FileVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"FileVersion\",\ \"$(VERSION_MAJOR).$(VERSION_MINOR)\"/gI" windows_resources/weidu_resources.rc
+	sed -i "s/\"ProductVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"ProductVersion\",\ \"$(VERSION_MAJOR).$(VERSION_MINOR)\"/gI" windows_resources/weidu_resources.rc
+
+	$(WINDRES_BIN) -i windows_resources/weidu_resources.rc -o $(OBJDIR)/weidu_resources.o
+
+	$(CAMLLINK) -o $@ \
+		$(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
+		$(PROJECT_LIBS:%=-cclib -l%) \
+		$(PROJECT_CLIBS:%=-cclib %) \
+		$(PROJECT_RESOURCES:%=$(OBJDIR)/%.$(OBJEXT)) \
+		$^
+		cp $(PROJECT_EXECUTABLE) .
+endif
 
 # rule for tolower
 
