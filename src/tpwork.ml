@@ -1554,9 +1554,9 @@ let rec handle_tp game this_tp2_filename tp =
           (a,b,c,sopt,Permanently_Uninstalled) :: (process tl)
       end
   in
-  let result = (process !the_log) @ !re_installed in
+  let result = process !the_log in
 
-  the_log := result ;
+  the_log := result @ !re_installed ;
 
   save_log game handle_tp2_filename handle_tra_filename get_tra_list_filename ;
 
