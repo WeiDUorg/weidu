@@ -74,28 +74,30 @@ $(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                         $(PROJECT_CMODULES:%=$(OBJDIR)/%.$(OBJEXT))
 	@$(NARRATIVE) Linking $(COMPILETOWHAT) $@
 
-ifeq ( $(shell uname -s),"Linux")
+ifeq ($(shell uname -s),Linux)
+	@$(NARRATIVE) Linking Linux executable
 	$(CAMLLINK) -o $@ \
-		$(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
-		$(PROJECT_LIBS:%=-cclib -l%) \
-		$(PROJECT_CLIBS:%=-cclib %) \
-		$^
-		cp $(PROJECT_EXECUTABLE) .
+                $(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
+                $(PROJECT_LIBS:%=-cclib -l%) \
+                $(PROJECT_CLIBS:%=-cclib %) \
+                $^
+	cp $(PROJECT_EXECUTABLE) .
 endif
 
-ifeq ( $(shell uname -s),"Darwin")
+ifeq ($(shell uname -s),Darwin)
+@$(NARRATIVE) Linking Darwin executable
 	$(CAMLLINK) -o $@ \
-		$(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
-		$(PROJECT_LIBS:%=-cclib -l%) \
-		$(PROJECT_CLIBS:%=-cclib %) \
-		$^
-		cp $(PROJECT_EXECUTABLE) .
+                $(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
+                $(PROJECT_LIBS:%=-cclib -l%) \
+                $(PROJECT_CLIBS:%=-cclib %) \
+                $^
+	cp $(PROJECT_EXECUTABLE) .
 endif
 
 ifeq ($(OS),Windows_NT)
-
-	@echo VERSION_MAJOR IS $(VERSION_MAJOR)
-	@echo VERSION_MINOR IS $(VERSION_MINOR)
+	@$(NARRATIVE) Linking Windows executable
+	@$(NARRATIVE) VERSION_MAJOR is $(VERSION_MAJOR)
+	@$(NARRATIVE) VERSION_MINOR is $(VERSION_MINOR)
 
 	sed -i "s/FILEVERSION\W\+[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+/FILEVERSION\t\t$(VERSION_MAJOR),$(VERSION_MINOR),0,0/gI" windows_resources/weidu_resources.rc
 	sed -i "s/\"FileVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"FileVersion\",\ \"$(VERSION_MAJOR).$(VERSION_MINOR)\"/gI" windows_resources/weidu_resources.rc
@@ -104,12 +106,12 @@ ifeq ($(OS),Windows_NT)
 	$(WINDRES_BIN) -i windows_resources/weidu_resources.rc -o $(OBJDIR)/weidu_resources.o
 
 	$(CAMLLINK) -o $@ \
-		$(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
-		$(PROJECT_LIBS:%=-cclib -l%) \
-		$(PROJECT_CLIBS:%=-cclib %) \
-		$(PROJECT_RESOURCES:%=$(OBJDIR)/%.$(OBJEXT)) \
-		$^
-		cp $(PROJECT_EXECUTABLE) .
+                $(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
+                $(PROJECT_LIBS:%=-cclib -l%) \
+                $(PROJECT_CLIBS:%=-cclib %) \
+                $(PROJECT_RESOURCES:%=$(OBJDIR)/%.$(OBJEXT)) \
+                $^
+	cp $(PROJECT_EXECUTABLE) .
 endif
 
 # rule for tolower
