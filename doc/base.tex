@@ -7763,7 +7763,7 @@ PRINT "The second letter is %letter%" // Will print "b"
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-modder}\subsection{\t{MODDER} (Last update: v230)}
+\label{sec-modder}\subsection{\t{MODDER} (Last update: v247)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The MODDER flag allows for more debugging info to be reported. It is suggested to
@@ -7821,6 +7821,8 @@ near the beta status).
      \item arrays
      \end{itemize}
 \item overwriting_file: you are writing to a file that exists (physically and/or in biffs).
+\item fun_args: functions are launched with \verb+INT_VAR+s or \verb+STR_VAR+s
+  that and not included in the function's definition.
 \end{itemize}
 
 An important note: if a tp2 sets MODDER, the debugging mode might propagate to
