@@ -29,6 +29,10 @@ let options = ["SETUP_TRA" ; "AREA_VARIABLES" ; "MISSING_EXTERN" ;
                "MISSING_EVAL" ; "OVERWRITING_FILE" ;
                "FUN_ARGS"]
 
+let print_msg str =
+  let old_be_silent = !be_silent in
+  be_silent := false ; log_and_print "%s" str ; be_silent := old_be_silent
+
 let set_modder str_l =
   if not !debug_modder then begin
     debug_modder := true ;
@@ -56,15 +60,15 @@ let get x = if !debug_modder then try
 with _ -> Warn else None
 
 let handle_deb test str =
-  if get test <> None then (let old_be_silent = !be_silent in
-  be_silent := false ; log_and_print "%s" str ; be_silent := old_be_silent) ;
-  if get test =  Warn then (try assert false with
-  | Assert_failure(file,line,col) -> set_errors file line) ;
-  if get test =  Fail then raise (Modder_error str)
+  (match get test with
+  | None -> ()
+  | Warn -> print_msg ("WARNING: " ^ str) ;
+      (try assert false with
+      | Assert_failure(file,line,col) -> set_errors file line)
+  | Fail -> print_msg ("ERROR: " ^ str) ; raise (Modder_error str))
 
 let handle_msg test str =
-  if get test <> None then (let old_be_silent = !be_silent in
-  be_silent := false ; log_and_print "%s" str ; be_silent := old_be_silent)
+  if get test <> None then print_msg str
 
 let enabled test =
   get test <> None
