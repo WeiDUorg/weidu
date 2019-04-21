@@ -26,7 +26,8 @@ let mode = Hashtbl.create 5
 
 let options = ["SETUP_TRA" ; "AREA_VARIABLES" ; "MISSING_EXTERN" ;
                "MISSING_RESREF" ; "ICT2_ACTIONS" ;
-               "MISSING_EVAL" ; "OVERWRITING_FILE"]
+               "MISSING_EVAL" ; "OVERWRITING_FILE" ;
+               "FUN_ARGS"]
 
 let set_modder str_l =
   if not !debug_modder then begin

@@ -500,7 +500,15 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             Var.var_push();
             let done_var_ht = Hashtbl.create 5 in
             List.iter (fun (a,b) ->
+              (* eval_pe_str needs to be called in this iterative fashion
+                 because each loop modifies variable state *)
               let a = eval_pe_str a in
+              if Modder.enabled "FUN_ARGS" &&
+                not (List.mem a (List.map (fun (a,b) ->
+                  eval_pe_str a) f_int_args)) then
+                Modder.handle_deb "FUN_ARGS"
+                  (Printf.sprintf "Function argument [%s] is not part of \
+                   function definition\n" a) ;
               Hashtbl.add done_var_ht a true;
               Var.set_int32 a (eval_pe buff game b)) int_var;
             List.iter (fun (a,b) ->
@@ -510,6 +518,12 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               check_missing_eval ("STR_VAR \"" ^ a ^ "\" = \"" ^ b ^
                                   "\" for LAUNCH_PATCH_FUNCTION \"" ^
                                   str ^ "\"") b;
+              if Modder.enabled "FUN_ARGS" &&
+                not (List.mem a (List.map (fun (a,b) ->
+                  eval_pe_str a) f_str_args)) then
+                Modder.handle_deb "FUN_ARGS"
+                  (Printf.sprintf "Function argument [%s] is not part of \
+                     function definition\n" a) ;
               Var.set_string a b) str_var;
             List.iter (fun (a,b) ->
               let a = eval_pe_str a in
