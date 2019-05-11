@@ -31,7 +31,7 @@ let mod_folder tp =
 
 let set_tp2_vars tp =
   Var.set_string "TP2_AUTHOR" tp.author ;
-  Var.set_string "TP2_FILE_NAME" tp.tp_filename ;
+  Var.set_string "TP2_FILE_NAME" (Case_ins.filename_basename tp.tp_filename) ;
   Var.set_string "TP2_BASE_NAME"
     (Util.tp2_name (Case_ins.filename_basename tp.tp_filename)) ;
   (match mod_folder tp with
