@@ -317,9 +317,6 @@ let set_game_vars game_path game_type =
 let set_ee_language_var lang_dir =
   set_string "EE_LANGUAGE" lang_dir
 
-let get_tp2_base_name dir =
-  (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" dir)
-
 let get_mod_folder dir =
   (try
     Some (String.sub dir 0
