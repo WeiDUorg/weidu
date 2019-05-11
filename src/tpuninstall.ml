@@ -236,11 +236,14 @@ let validate_uninstall_order tp2 =
     log_and_print "\nWARNING: some UNINSTALL_ORDER commands are not specified\n\n";
   order
 
+let spell_ids_marker tp2 i =
+  Printf.sprintf "override/spell.ids.%s.%d.marker"
+    (String.lowercase_ascii (Util.tp2_name (Case_ins.filename_basename tp2))) i
+
 let check_pre_hooks game tp2 i interactive override_filename =
   if (String.uppercase_ascii override_filename) = "OVERRIDE/SPELL.IDS" ||
   (String.uppercase_ascii override_filename) = "OVERRIDE\\SPELL.IDS" then begin try
-    let tp2_basename = String.lowercase_ascii (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp2.tp_filename) in
-    let marker = Printf.sprintf "override/spell.ids.%s.%d.marker" tp2_basename i in
+    let marker = spell_ids_marker tp2.tp_filename i in
     let out_chn = Case_ins.perv_open_out_bin marker in
     output_string out_chn "spell.ids edits installed\n";
     close_out out_chn;
@@ -403,8 +406,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 
 
 let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
-  let tp2_basename = String.lowercase_ascii (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp2) in
-  let marker = Printf.sprintf "override/spell.ids.%s.%d.marker" tp2_basename i in
+  let marker = spell_ids_marker tp2 i in
   my_unlink marker;
   let rec is_installed lst = match lst with
   | [] -> []
