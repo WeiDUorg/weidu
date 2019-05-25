@@ -26,17 +26,17 @@ let rec get_menu_style fl = match fl with
 
 let mod_folder tp =
   (match Var.get_mod_folder tp.tp_filename with
-  | Some s -> Some s
-  | None -> Var.get_mod_folder tp.backup)
+  | Some s -> s
+  | None -> (match Var.get_mod_folder tp.backup with
+    | Some s -> s
+    | None -> tp.backup))
 
 let set_tp2_vars tp =
   Var.set_string "TP2_AUTHOR" tp.author ;
   Var.set_string "TP2_FILE_NAME" (Case_ins.filename_basename tp.tp_filename) ;
   Var.set_string "TP2_BASE_NAME"
     (Util.tp2_name (Case_ins.filename_basename tp.tp_filename)) ;
-  (match mod_folder tp with
-  | Some s -> Var.set_string "MOD_FOLDER" s
-  | None -> ()) ;
+  Var.set_string "MOD_FOLDER" (mod_folder tp) ;
   Var.set_string "MOD_VERSION" (List.fold_left (fun acc flag ->
     (match flag with
     | Version s -> (Dc.single_string_of_tlk_string (Load.the_game ()) s)
