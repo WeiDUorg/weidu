@@ -665,6 +665,7 @@ DEFINE_PATCH_FUNCTION ALTER_ITMSPL_HEADER
     identify           = "-1" // identify to use? at 0x01; negative values mean no change
     location           = "-1" // ability location at 0x02; negative values mean no change
     target             = "-1" // target at 0x0c; negative values mean no change
+    target_count       = "-1" // target count at 0x0d; negative values mean no change
     range              = "-1" // range at 0x0e; negative values mean no change
     launcher_or_level  = "-1" // launcher (item) or min level (spell) required at 0x10; negative values mean no change
     speed              = "-1" // speed at 0x12; negative values mean no change
@@ -722,6 +723,7 @@ BEGIN
       PATCH_IF (identify >= 0)           BEGIN WRITE_BYTE  (ip + 0x01) identify           END
       PATCH_IF (location >= 0)           BEGIN WRITE_BYTE  (ip + 0x02) location           END
       PATCH_IF (target >= 0)             BEGIN WRITE_BYTE  (ip + 0x0c) target             END
+      PATCH_IF (target_count >= 0)       BEGIN WRITE_BYTE  (ip + 0x0d) target_count       END
       PATCH_IF (range >= 0)              BEGIN WRITE_SHORT (ip + 0x0e) range              END
       PATCH_IF (launcher_or_level >= 0)  BEGIN WRITE_BYTE  (ip + 0x10) launcher_or_level  END
       PATCH_IF (speed >= 0)              BEGIN WRITE_BYTE  (ip + 0x12) speed              END
@@ -875,6 +877,7 @@ DEFINE_PATCH_FUNCTION ALTER_ITEM_HEADER
           identify           = "-1" // identify to use? at 0x01; negative values mean no change
           location           = "-1" // ability location at 0x02; negative values mean no change
           target             = "-1" // target at 0x0c; negative values mean no change
+          target_coun        = "-1" // target count at 0x0d; negative values mean no change
           range              = "-1" // range at 0x0e; negative values mean no change
           launcher           = "-1" // launcher required at 0x10; negative values mean no change
           speed              = "-1" // speed at 0x12; negative values mean no change
@@ -919,6 +922,7 @@ BEGIN
       identify
       location
       target
+      target_count
       range
       launcher_or_level = launcher
       speed
@@ -1036,6 +1040,7 @@ DEFINE_PATCH_FUNCTION ALTER_SPELL_HEADER
           new_header_type = "-1" // change the type at 0x00 to this value; negative values mean no change
           location        = "-1" // ability location at 0x02; negative values mean no change
           target          = "-1" // target at 0x0c; negative values mean no change
+          target_count    = "-1" // target count at 0x0d; negative values mean no change
           range           = "-1" // range at 0x0e; negative values mean no change
           min_level       = "-1" // minimum level at 0x10; negative values mean no change
           speed           = "-1" // speed at 0x12; negative values mean no change
@@ -1059,6 +1064,7 @@ BEGIN
       new_header_type
       location
       target
+      target_count
       range
       launcher_or_level = min_level
       speed
