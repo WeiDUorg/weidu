@@ -15,7 +15,7 @@ let escape_string s =
            (Str.global_replace newlines_regexp "" s))))
 
 let export_string ts =
-  escape_string (Dc.single_string_of_tlk_string (Load.the_game ()) ts)
+  escape_string (Dc.single_string_of_tlk_string_safe (Load.the_game ()) ts)
 
 let stringify_labels labels =
   let body = String.concat "," (List.map (fun string ->
