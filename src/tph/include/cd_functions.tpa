@@ -877,7 +877,7 @@ DEFINE_PATCH_FUNCTION ALTER_ITEM_HEADER
           identify           = "-1" // identify to use? at 0x01; negative values mean no change
           location           = "-1" // ability location at 0x02; negative values mean no change
           target             = "-1" // target at 0x0c; negative values mean no change
-          target_coun        = "-1" // target count at 0x0d; negative values mean no change
+          target_count       = "-1" // target count at 0x0d; negative values mean no change
           range              = "-1" // range at 0x0e; negative values mean no change
           launcher           = "-1" // launcher required at 0x10; negative values mean no change
           speed              = "-1" // speed at 0x12; negative values mean no change
