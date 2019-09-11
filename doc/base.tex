@@ -435,7 +435,7 @@ All other keywords are symbolic. Notes:
 
   or & \DEFINE{ADD!TRANS!TRIGGER} filename \ttref{stateNumber}
     \ttref{transTriggerString} \Ob \ahrefloc{stateNumber}{moreStateNumbers} \Slist \Oe
-    \Ob \t{DO} \ttref{transNumber} \Slist \Oe \ttref{dActionWhen} \Slist
+    \Ob \t{DO} \t{transNumber} \Slist \Oe \ttref{dActionWhen} \Slist
     &
   This instructs WeiDU to add the \ttref{transTriggerString} to all
   of the \ttref{transition}s in all of the \ttref{state}s with the given
@@ -445,7 +445,7 @@ All other keywords are symbolic. Notes:
   \ttref{ADD!TRANS!TRIGGER} to add the negation of some predicate to all of
   the existing \ttref{transition}s, then use \ttref{EXTEND!BOTTOM} to add a
   \ttref{transition} with that predicate to that \ttref{state}.
-  If a list of \ttref{transNumber}s is specified, only those transitions
+  If a list of \t{transNumber}s is specified, only those transitions
   will have \ttref{transTriggerString} added to them. If such a list is not
   specified, every transition in every specified state will be modified.
   Note that the ``first'' transition is number 0.
@@ -453,9 +453,9 @@ All other keywords are symbolic. Notes:
 
   or & \DEFINE{ADD!TRANS!ACTION} filename
     \t{BEGIN} \ttref{stateNumber} \Slist \t{END}
-    \t{BEGIN} \ttref{transNumber} \Slist \t{END}
-    \ttref{transActionString} \ttref{dActionWhen} \Slist &
-  This instructs WeiDU to add the \ttref{transActionString} to all
+    \t{BEGIN} \t{transNumber} \Slist \t{END}
+    \t{transActionString} \ttref{dActionWhen} \Slist &
+  This instructs WeiDU to add the \t{transActionString} to all
   of the actions in all the \ttref{transition}s in all of the \ttref{state}s specified by the
   \t{stateNumber} list and the \t{transNumber} list. You may use
   state labels in the \t{stateNumber} list. If the \t{transNumber} list
@@ -471,7 +471,7 @@ All other keywords are symbolic. Notes:
 
   or & \DEFINE{REPLACE!TRANS!ACTION} filename
     \t{BEGIN} \ttref{stateNumber} \Slist \t{END}
-    \t{BEGIN} \ttref{transNumber} \Slist \t{END}
+    \t{BEGIN} \t{transNumber} \Slist \t{END}
     oldText newText \ttref{dActionWhen} \Slist &
   This instructs WeiDU to replace all instances of oldText in newText to all
   of the actions in all the \ttref{transition}s in all of the \ttref{state}s specified by the
@@ -486,7 +486,7 @@ All other keywords are symbolic. Notes:
   \\
   or & \DEFINE{REPLACE!TRANS!TRIGGER} filename
     \t{BEGIN} \ttref{stateNumber} \Slist \t{END}
-    \t{BEGIN} \ttref{transNumber} \Slist \t{END}
+    \t{BEGIN} \t{transNumber} \Slist \t{END}
     oldText newText \ttref{dActionWhen} \Slist &
   This instructs WeiDU to replace all instances of oldText in newText to all
   of the triggers in all of the \ttref{transition}s in all of the \ttref{state}s specified by the
@@ -502,7 +502,7 @@ All other keywords are symbolic. Notes:
 
   or & \DEFINE{ALTER!TRANS} filename
     \t{BEGIN} \ttref{stateNumber} \Slist \t{END}
-    \t{BEGIN} \ttref{transNumber} \Slist \t{END}
+    \t{BEGIN} \t{transNumber} \Slist \t{END}
     \t{BEGIN} changeWhat changeInto \Slist \t{END} &
   Fine altering of a single transition. See the \ahrefloc{sec-alter-trans}{\t{ALTER!TRANS} tutorial}.
 
