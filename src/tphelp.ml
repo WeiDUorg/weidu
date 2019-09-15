@@ -438,9 +438,7 @@ let check_enhanced_engine game allow_tobhacks allow_tobex allow_gemrb allow_bgee
     Hashtbl.find checks_passed (allow_tobhacks, allow_tobex, allow_gemrb, allow_bgee)
   else begin
     let any_ok = ref false in
-    let ans = if (match allow_bgee with
-    | None -> false
-    | Some bool -> (Load.enhanced_edition_p game) && bool) then
+    let ans = if allow_bgee && (Load.enhanced_edition_p game) then
       true
     else if allow_gemrb && Util.file_exists "gemrb_path.txt" then
       true
