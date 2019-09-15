@@ -23,10 +23,6 @@ let registry_game_paths () =
 
 let game_paths = ref []
 
-let add_game_path path =
-  game_paths := (Str.global_replace (Str.regexp "[\\\\/]*$")
-                   "" path) :: !game_paths
-
 let override_paths = ref [
   (* compton wants this gone *)
   (* "." ; *)
@@ -38,6 +34,27 @@ let allow_missing = ref []
 
 let cbifs_to_rem = Queue.create ()
 
+let add_game_path path =
+  game_paths := (Str.global_replace (Str.regexp "[\\\\/]*$")
+                   "" path) :: !game_paths
+
+let add_override_path path = override_paths := !override_paths @ [path]
+let add_ids_path path = ids_paths := !ids_paths @ [path]
+
+let add_gemrb_path file =
+  let lines = Util.read_lines file in
+  ignore (List.iter (fun line ->
+    let parts = List.map String.trim (String.split_on_char '=' line) in
+    (match parts with
+    | left :: right :: [] when String.equal left "GemRB_Data_Path" ->
+        let path = Case_ins.fix_name right in
+        if (Util.is_directory path) then begin
+          log_only "Adding GemRB data path: [%s]\n" path ;
+          add_override_path path
+        end else
+          log_and_print "WARNING: GemRB path is not a directory: [%s]\n" path ;
+    | _ -> ())) lines)
+
 let ok_missing file =
   let file = String.uppercase_ascii file in
   let rec check lst = match lst with
@@ -45,9 +62,6 @@ let ok_missing file =
   | hd :: tl -> if (String.uppercase_ascii hd) = file then true else
     check tl
   in check !allow_missing
-
-let add_override_path path = override_paths := !override_paths @ [path]
-let add_ids_path path = ids_paths := !ids_paths @ [path]
 
 type tlk = {
     mutable contents : Tlk.tlk ;
@@ -467,6 +481,8 @@ let load_game () =
   let cd_paths = read_cd_paths gp in
   if not (is_directory "override") && (file_exists "chitin.key") then
     Case_ins.unix_mkdir "override" 511 ;
+  if (Util.file_exists "gemrb_path.txt") then
+    ignore (add_gemrb_path "gemrb_path.txt") ;
   let game_type, script_style = autodetect_game_type key in
   let result =
     {
