@@ -437,7 +437,6 @@ let check_enhanced_engine game allow_tobhacks allow_tobex allow_gemrb allow_bgee
   if Hashtbl.mem checks_passed (allow_tobhacks, allow_tobex, allow_gemrb, allow_bgee) then
     Hashtbl.find checks_passed (allow_tobhacks, allow_tobex, allow_gemrb, allow_bgee)
   else begin
-    let any_ok = ref false in
     let ans = if allow_bgee && (Load.enhanced_edition_p game) then
       true
     else if allow_gemrb && Util.file_exists "gemrb_path.txt" then
