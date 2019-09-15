@@ -447,7 +447,7 @@ let check_enhanced_engine game allow_tobhacks allow_tobex allow_gemrb allow_bgee
       | Some cmp_version ->
           if file_exists "tobex_ini/tobexver.txt" then begin
             let tobex_version =
-              int_of_string (load_file "tobex_ini/tobexver.txt") in
+              int_of_string (String.trim (load_file "tobex_ini/tobexver.txt")) in
             tobex_version >= cmp_version
           end else false) then
       true
