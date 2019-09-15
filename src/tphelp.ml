@@ -442,14 +442,7 @@ let check_enhanced_engine game allow_tobhacks allow_tobex allow_gemrb allow_bgee
     | None -> false
     | Some bool -> (Load.enhanced_edition_p game) && bool) then
       true
-    else if
-      (match allow_gemrb with
-      | None -> false
-      | Some cmp_version ->
-          if file_exists "gemrb_version.txt" then begin
-            let gemrb_version = load_file "gemrb_version.txt" in
-            version_greater gemrb_version cmp_version
-          end else false) then
+    else if allow_gemrb && Util.file_exists "gemrb_path.txt" then
       true
     else if
       (match allow_tobex with
