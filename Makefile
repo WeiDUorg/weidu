@@ -36,8 +36,8 @@ all : weidu
 
 RELEASE    := 1
 NATIVECAML := 1
-VERSION_MAJOR := $(shell grep 'version =' src/version.ml | cut -d'"' -f2 -z | cut -c-3)
-VERSION_MINOR := $(shell grep 'version =' src/version.ml | cut -d'"' -f2 -z | cut -c4-)
+VERSION_MAJOR := $(shell grep 'version =' src/version.ml | cut -d'"' -f2 | cut -c-3)
+VERSION_MINOR := $(shell grep 'version =' src/version.ml | cut -d'"' -f2 | cut -c4-)
 
 # UNSAFE     := 1
 
@@ -85,7 +85,7 @@ ifeq ($(shell uname -s),Linux)
 endif
 
 ifeq ($(shell uname -s),Darwin)
-@$(NARRATIVE) Linking Darwin executable
+	@$(NARRATIVE) Linking Darwin executable
 	$(CAMLLINK) -o $@ \
                 $(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
                 $(PROJECT_LIBS:%=-cclib -l%) \
