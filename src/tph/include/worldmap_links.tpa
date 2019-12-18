@@ -82,6 +82,7 @@ BEGIN
           PATCH_IF "%target_name%" STRING_EQUAL_CASE "%to_area%" BEGIN
             DELETE_BYTES llo 0xd8
             --number
+            --j
           END
         END
       END
