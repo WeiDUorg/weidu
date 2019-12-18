@@ -951,7 +951,11 @@ PHP_EACH struct AS key => value BEGIN
     PHP_EACH are_container AS key => value BEGIN
       CLEAR_ARRAY EVAL ~are_container_%key%_itm~
     END
-  END ELSE
+  END
+  // after existing and new items have been added, index new containers
+  PATCH_IF( fj_structure_type == 0x70 && fj_delete_mode == ` 0 )BEGIN
+    WRITE_LONG fj_return_offset + 0x40 fj_itm_idx
+  END
 
   // add vertices
   PATCH_IF( key_0 == 0x7c )BEGIN
