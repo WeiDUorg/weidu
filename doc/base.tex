@@ -8005,7 +8005,7 @@ is causing the problem, especially if the player has forgotten which choices the
 This could be solved by creating your own log file, but that is another tutorial...
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec-functions}\subsection{\t{Functions} (Last update: V210)}
+\label{sec-functions}\subsection{\t{Functions} (Last update: V247)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Macros can have unintended side effects because they change the global variable environment.
@@ -8029,25 +8029,26 @@ DEFINE_PATCH_FUNCTION count_spells INT_VAR level = 1 STR_VAR type = "WI" RET num
 END
 \end{verbatim}
 
+The function is defined with default values for the variables
+\verb+level+ and \verb+type+. These default values override any values
+the corresponding variables may have in the environment of the
+function's caller, unless other values are provided as part of calling
+the function (\textit{vide infra}).
+
 After that you can LAUNCH it:
 \begin{verbatim}
 COPY_EXISTING ~my.cre~ ~override~
     // count number of level 1 wizard spells (default arguments of the function)
     LAUNCH_PATCH_FUNCTION count_spells RET lvl1_wizard = num END
     // and now the level 5 priest spells
-    SET level = 5
-    SPRINT type = "PR"
-    LAUNCH_PATCH_FUNCTION count_spells RET lvl5_priest = num END
+    LAUNCH_PATCH_FUNCTION count_spells INT_VAR level = 5 STR_VAR type = "PR" RET lvl5_priest = num END
 
     PATCH_PRINT ~This CRE has %lvl1_wizard% level 1 wizard spells and %lvl5_priest% level 5 priest spells~
 \end{verbatim}
 
-Notice that arguments are passed indirectly to the function.
-It inherits the variable environment from the caller. So when you launch it,
-all variables that are visible at that point are also visible from within the function.
-
-You can provide default values for variables with INT!VAR (integers) and STR!VAR (strings).
-If the variable was not defined in the caller's environment the default value is used.
+The first time the function is called, the definition's default values
+for \verb+level+ and \verb+type+ are used. The second time, the values
+of the variables are given when the function is called.
 
 Any variables you change inside the function will revert back to their old value
 after the function finishes.
