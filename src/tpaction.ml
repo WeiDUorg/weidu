@@ -1837,12 +1837,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           end else log_or_print "Not appending to [%s] because the file does not exist\n" file
 
       | TP_Append(file,src,con_l,frombif,keep_crlf,do_backup) ->
-          let file = Arch.backslash_to_slash file in
+          let file = Arch.backslash_to_slash (Var.get_string file) in
           if when_exists file con_l frombif game then begin
             if Case_ins.filename_check_suffix(String.lowercase_ascii file) "ids" then
               Bcs.clear_ids_map game ;
             log_and_print "Appending to files ...\n" ;
-            let file = Var.get_string file in
             let src = Var.get_string src in
             let buff = if frombif then begin
               let eight,three = split (String.uppercase_ascii file) in
