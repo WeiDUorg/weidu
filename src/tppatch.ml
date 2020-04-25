@@ -165,7 +165,7 @@ let rec process_patch1 patch_filename game buff p =
           | [], _ ->
               begin
                 log_and_print
-                  "ERROR: Cannot find %d rows with at least %d columns."
+                  "ERROR: Cannot find %d rows with at least %d columns.\n"
                   row req_col ;
                 failwith "Cannot Read 2DA Entry"
               end
@@ -1000,7 +1000,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
           | [], _ ->
               begin
                 log_and_print
-                  "ERROR: Cannot find %d rows with at least %d columns."
+                  "ERROR: Cannot find %d rows with at least %d columns.\n"
                   row req_col ;
                 failwith "Cannot Set 2DA Entry"
               end
