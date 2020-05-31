@@ -50,7 +50,8 @@ let add_gemrb_path file =
         let path = Case_ins.fix_name right in
         if (Util.is_directory path) then begin
           log_only "Adding GemRB data path: [%s]\n" path ;
-          add_override_path path
+          add_override_path path ;
+          add_override_path (path ^ "/../shared/")
         end else
           log_and_print "WARNING: GemRB path is not a directory: [%s]\n" path ;
     | _ -> ())) lines)
