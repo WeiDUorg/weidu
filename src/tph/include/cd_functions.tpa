@@ -1237,7 +1237,7 @@ BEGIN
         SET abil_fx_idx = 0  // start with effect 0 since we're in the global loop
         SET abil_type = "-1" // basically, ignore header type checks for global loop
       END ELSE BEGIN // otherwise normal ability
-        READ_SHORT  (abil_off +        (abil_length * index)) abil_type
+        READ_BYTE   (abil_off +        (abil_length * index)) abil_type
         SET counter_offset = (abil_off + 0x1e + (abil_length * index))
         WRITE_SHORT (abil_off + 0x20 + (abil_length * index)) (THIS + new_fx) // update index with previously added effects
         READ_SHORT  (abil_off + 0x20 + (abil_length * index)) abil_fx_idx
@@ -1518,7 +1518,7 @@ BEGIN
         SET abil_fx_idx = 0  // start with effect 0 since we're in the global loop
         SET abil_type = "-1" // basically, ignore header type checks for global loop
       END ELSE BEGIN // otherwise normal ability
-        READ_SHORT  (abil_off +        (abil_length * index)) abil_type
+        READ_BYTE   (abil_off +        (abil_length * index)) abil_type
         SET counter_offset = (abil_off + 0x1e + (abil_length * index))
         WRITE_SHORT (abil_off + 0x20 + (abil_length * index)) (THIS + new_fx) // update index with previously added effects
         READ_SHORT  (abil_off + 0x20 + (abil_length * index)) abil_fx_idx
@@ -1786,7 +1786,7 @@ BEGIN
         SET abil_fx_idx = 0  // start with effect 0 since we're in the global loop
         SET abil_type = "-1" // basically, ignore header type checks for global loop
       END ELSE BEGIN // otherwise normal ability
-        READ_SHORT  (abil_off +        (abil_length * index)) abil_type
+        READ_BYTE   (abil_off +        (abil_length * index)) abil_type
         SET counter_offset = (abil_off + 0x1e + (abil_length * index))
         READ_SHORT  (abil_off + 0x20 + (abil_length * index)) abil_fx_idx
       END
