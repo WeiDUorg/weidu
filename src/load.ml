@@ -437,11 +437,11 @@ let read_cd_paths gp =
       end ;
       !sofar
     with _ -> [gp ^ "/CD1" ; gp ^ "/CD2" ; gp ^ "/CD3" ;
-               gp ^ "/CD4" ; gp ^ "/CD5" ; gp ^ "/CD6"])
+               gp ^ "/CD4" ; gp ^ "/CD5" ; gp ^ "/CD6" ; gp])
   in
   if Sys.os_type = "Unix" then
     paths @ [gp ^ "/CD1" ; gp ^ "/CD2" ; gp ^ "/CD3" ;
-             gp ^ "/CD4" ; gp ^ "/CD5" ; gp ^ "/CD6"]
+             gp ^ "/CD4" ; gp ^ "/CD5" ; gp ^ "/CD6"; gp]
   else
     paths
 
