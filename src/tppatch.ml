@@ -419,8 +419,6 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
                     let a,b = split filename in
                     let new_buff, path =
                       Load.load_resource "INNER_PATCH_FILE" game true a b in
-                    let filename = Printf.sprintf "INNER_PATCH_FILE %S"
-                        buff_var in
                     let result = List.fold_left (fun acc elt ->
                       process_patch2 filename game acc elt) new_buff pl
                     in
