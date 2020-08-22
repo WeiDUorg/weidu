@@ -5622,17 +5622,28 @@ the searching should begin (instead of \ttref{BUFFER!LENGTH}).
 or & \DEFINE{STRING!LENGTH} \ttref{String} &
 Returns the length of the argument \ttref{String} (after variable evaluation). \\
 
-or & \DEFINE{FILE!CONTAINS} fileName \ttref{regexp} & Evaluates to 1 if
-the file \t{fileName} contains the regular expression \ttref{regexp}
-and 0 otherwise. Case is ignored. \\
+or & \DEFINE{FILE!CONTAINS} fileName \ttref{regexp} &
+
+  Evaluates to 1 if the file \t{fileName} contains the regular
+  expression \ttref{regexp} and 0 otherwise. Case is ignored. Use
+  \ttref{RESOURCE!CONTAINS} if you want to search game resources;
+  \t{FILE!CONTAINS} looks in the file system and does not search biff
+  files. \\
 
 or & \DEFINE{FILE!CONTAINS!EVALUATED} \t{(} fileName varsRegexp \t{)} &
+
   First, all WeiDU variables enclosed in \t{\%}s in \t{varsRegexp} and
-  \t{fileName} are
-  substituted. The expression is 1 if the resulting \ttref{regexp} occurs
-  in \t{fileName} and 0 otherwise. If \t{fileName} does not exist or has
-  size 0, the result is 0. The comparison ignores case.  See also
-  \ttref{FILE!CONTAINS}. Example:
+  \t{fileName} are substituted. The expression is 1 if the resulting
+  \ttref{regexp} occurs in \t{fileName} and 0 otherwise. If
+  \t{fileName} does not exist or has size 0, the result is 0. The
+  comparison ignores case.  See also \ttref{FILE!CONTAINS}. Use
+  \ttref{RESOURCE!CONTAINS} if you want to search game
+  resources. \t{FILE!CONTAINS!EVALUATED} will first search the file
+  system and only load game resources if the file was not found in the
+  file system.
+
+  Example usage:
+
 \begin{verbatim}
 COPY_EXISTING_REGEXP ~.*\.CRE~ ~override~
   READ_BYTE   0x273 class
