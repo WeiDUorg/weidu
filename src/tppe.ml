@@ -501,7 +501,7 @@ let rec eval_pe buff game p =
       let iwd2 = ["IWD2"] in
       let ca = ["CA"] in
       (match String.uppercase_ascii game_set with
-      | "SOD" -> eval_pe "" game (PE_FileContainsEvaluated
+      | "SOD" -> eval_pe "" game (PE_ResourceContains
                                     (PE_LiteralString "CAMPAIGN.2DA",
                                      PE_LiteralString "SOD"))
       | _ -> begin

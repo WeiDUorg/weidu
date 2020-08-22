@@ -915,7 +915,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           let mus_base_file = Case_ins.filename_basename mus_file in
           let mus_name = Var.get_string m.music_name in
           if is_true (eval_pe "" game
-                        (PE_FileContainsEvaluated
+                        (PE_ResourceContains
                            (PE_LiteralString "SONGLIST.2DA",
                             PE_LiteralString
                               ("[ %TAB%%LNL%%WNL%]" ^ mus_base_file ^ "[ %TAB%%LNL%%WNL%]"))))
@@ -961,7 +961,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Add_AreaType(flag) -> begin
           let flag = Var.get_string (eval_pe_str flag) in
           if is_true (eval_pe "" game
-                        (PE_FileContainsEvaluated
+                        (PE_ResourceContains
                            (PE_LiteralString "AREATYPE.iDS",
                             PE_LiteralString
                               ("[ \t\n\r]" ^ flag ^ "[ \t\n\r]"))))
@@ -977,7 +977,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 failwith (Printf.sprintf "No space in areatype.ids for %s" flag);
               let number = 1 lsl i in
               if is_true (eval_pe "" game
-                            (PE_FileContainsEvaluated
+                            (PE_ResourceContains
                                (PE_LiteralString "AREATYPE.iDS",
                                 PE_LiteralString
                                   ("[ \t\n\r]" ^ string_of_int number ^ "[ \t\n\r]"))))
@@ -997,7 +997,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Add_2DA(f,s,r) -> begin
           let s = Var.get_string (eval_pe_str s) in
           if is_true (eval_pe "" game
-                        (PE_FileContainsEvaluated
+                        (PE_ResourceContains
                            (PE_LiteralString f,
                             PE_LiteralString
                               ("[ \t\n\r]" ^ s ^ "[ \t\n\r]"))))
@@ -1031,7 +1031,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             Case_ins.filename_chop_extension
               (Case_ins.filename_basename p.pro_file) in
           if is_true (eval_pe "" game
-                        (PE_FileContainsEvaluated
+                        (PE_ResourceContains
                            (PE_LiteralString "PROJECTL.IDS",
                             PE_LiteralString
                               ("[ %TAB%%LNL%%WNL%]" ^ this_pro_name ^ "[ %TAB%%LNL%%WNL%]"))))
@@ -1188,7 +1188,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               (newString ^ " ") o
           in
           if not (is_true (eval_pe "" game
-                        (PE_FileContainsEvaluated
+                        (PE_ResourceContains
                            (PE_LiteralString "kitlist.2da",
                             PE_LiteralString
                               ("[ %TAB%%LNL%%WNL%]" ^ oldString ^ "[ %TAB%%LNL%%WNL%]")))))
@@ -1229,7 +1229,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           log_and_print "Adding %s Kit ...\n" k.kit_name ;
 
           if is_true (eval_pe "" game
-                        (PE_FileContainsEvaluated
+                        (PE_ResourceContains
                            (PE_LiteralString "kitlist.2da",
                             PE_LiteralString
                               ("[ %TAB%%LNL%%WNL%]" ^ k.kit_name ^ "[ %TAB%%LNL%%WNL%]"))))
@@ -2246,7 +2246,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                         Var.set_int32 "title" (Int32.of_int strref) ;
                         if not existing &&
                           is_true (eval_pe "" game
-                                     (PE_FileContainsEvaluated
+                                     (PE_ResourceContains
                                         ((PE_LiteralString "bgee.lua"),
                                          (PE_LiteralString
                                             (Printf.sprintf "createQuest[ %%TAB%%]*([ %%TAB%%]*%d[ %%TAB%%]*)" strref)))))
