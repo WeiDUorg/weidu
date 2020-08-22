@@ -5650,6 +5650,15 @@ the party. Notably it excludes Aerie
 since she has the death variable \t{Aerie} and \t{pdialog.2da} contains
 \t{AERIE}.  \\
 
+or & \DEFINE{RESOURCE!CONTAINS} fileName varsRegexp &
+
+fileName and varsRegexp are evaluated for variables. fileName is
+loaded as a game resource (searching only the biffs and the override
+directories) and a \ttref{regexp} search is performed on the file
+contents. The result is 1 if the regexp varsRegexp occurs within
+fileName, or otherwise 0. The comparison ignores case. If fileName
+does not exist or has a file size 0, the result is 0. \\
+
 is & \DEFINE{FILE!EXISTS} fileName & Evaluates to 1 if the file exists in the
 filesystem (or the bif file is referenced inside
 the chitin.key) and evaluates to 0 otherwise.

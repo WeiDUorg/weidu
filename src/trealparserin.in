@@ -977,6 +977,8 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
   -> RINDEX_BUFFER LPAREN e1:Optional_Case_Sensitive e2:Optional_Match_Exact e4:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ Tp.PE_Index(true,e1,e2,e4,e3,None) ]
   -> FILE_CONTAINS_EVALUATED LPAREN e1:Patch_String_Right e2:Patch_String_Right RPAREN
        [ Tp.PE_FileContainsEvaluated(e1,e2) ]
+  -> RESOURCE_CONTAINS e1:Patch_String_Right e2: Patch_String_Right
+       [ Tp.PE_ResourceContains(e1,e2) ]
   -> FILE_EXISTS e1:Patch_String_Right [ Tp.Pred_File_Exists e1 ]
   -> DIRECTORY_EXISTS e1:Patch_String_Right [Tp.Pred_Directory_Exists e1 ]
   -> BIFF_IS_COMPRESSED e1:Patch_String_Right [ Tp.Pred_Biff_Is_Compressed e1 ]

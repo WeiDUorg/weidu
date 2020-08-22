@@ -98,6 +98,9 @@ let rec pe_to_str pe = "(" ^ (match pe with
     Printf.sprintf "FILE_CONTAINS_EVALUATED(%s %s)"
       (pe_str_str s1) (pe_str_str s2)
 
+| PE_ResourceContains(s1, s2) ->
+    Printf.sprintf "RESOURCE_CONTAINS %s %s" (pe_str_str s1) (pe_str_str s2)
+
 | PE_If(e1,e2,e3) -> Printf.sprintf "%s ? %s : %s"
       (pe_to_str e1) (pe_to_str e2) (pe_to_str e3)
 

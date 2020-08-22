@@ -238,6 +238,26 @@ let rec eval_pe buff game p =
 	answer
       end
 
+  | PE_ResourceContains(filename, regexp) ->
+      let filename = Var.get_string (eval_pe_str filename) in
+      let regexp = Var.get_string (eval_pe_str regexp) in
+      let res, ext = split filename in
+      let old_allow_missing = !Load.allow_missing in
+      Load.allow_missing := [ String.uppercase_ascii filename ] ;
+      let result =
+        (try
+          Load.skip_next_load_error := true ;
+          let buff, _ = Load.load_resource "RESOURCE_CONTAINS"
+              game true res ext in
+          if buff = "" then 0l
+          else
+            let regexp = Str.regexp_case_fold regexp in
+            let _ = Str.search_forward regexp buff 0 in
+            1l
+        with Not_found -> 0l) in
+      Load.allow_missing := old_allow_missing ;
+      result
+
   | Pred_File_MD5(f,s) -> if_true (
       let f = eval_pe_str f in
       let s = eval_pe_str s in
