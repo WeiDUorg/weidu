@@ -4864,11 +4864,14 @@ or & \DEFINE{ADD!STORE!ITEM} \Ob \t{+} \Oe itemName \Ob position \Oe
   \t{limited} or \t{unlimited} and controls whether the store should
   carry an inexhaustible stack of the new item, or not. \t{limited} is
   the default behaviour. See the \ahrefloc{sec-add-store-item}{\t{ADD!STORE!ITEM} tutorial} for
-  more information.\\
+  more information. \textbf{Note:} The patch function \ttref{ADD_STORE_ITEM_EX}
+  offers similar functionality. \\
 
 or & \DEFINE{REMOVE!STORE!ITEM} itmName \Slist &
   Remove the listed items from the current store. Does nothing if an item is not for sale.
-	Multiple instances are removed. \\
+	Multiple instances are removed. \textbf{Note:} The patch function
+  \ttref{REMOVE_STORE_ITEM_EX} offers similar functionality. \\
+
 or & \DEFINE{READ!2DA!ENTRY} \ttref{value} \ttref{value} \ttref{value}
 \ttref{variable} &
   The first \ttref{value} is the row, the second is the column and the
@@ -9762,6 +9765,145 @@ This function attempts to find the first available free \t{PVRZ} index of a cont
 \begin{itemize}
 \item STR_VAR \verb+filespec+ to the file specification, which must include an identifiable resource extension, or a warning will be raised.
 \item RET \verb+ext+ returns the resource extension of the file specification.
+\end{itemize}
+\\
+
+\DEFINE{\verb+ADD_STORE_ITEM_EX+}: adds an item to the current STO file. This is a PATCH function.
+
+\begin{itemize}
+\item INT_VAR \verb+charge1+ to the number of charges of the 1st ability or quantity for stackables. (Default: 0)
+\item INT_VAR \verb+charge2+ to the number of charges of the 2nd ability. (Default: 0)
+\item INT_VAR \verb+charge3+ to the number of charges of the 3rd ability. (Default: 0)
+\item INT_VAR \verb+stack+ to the number of item instances the store carries in the stack. (Default: 1)
+\item INT_VAR \verb+unlimited+ to non-zero if the store should carry an inexhaustible stack of the new item. (Default: 0)
+\item INT_VAR \verb+overwrite+ to non-zero to overwrite any instances of an existing sale entry of matching item resref when found. (Default: 0)
+\item INT_VAR \verb+expiration+ to the item's expiration time, when it will be replaced with the drained item. (Default: 0)
+\item STR_VAR \verb+item_name+ to the resource name (resref) of the item to add.
+\item STR_VAR \verb+position+ to the desired position of the item in the list of sale entries. The following syntax is supported:
+\begin{verbatim}
+AFTER resref    Will place the new item directly behind the item given by "resref".
+                You can list more than one resref, separated by space. The new item will be
+                added after the entry of the first matching resref.
+BEFORE resref   Will place the new item directly before the item given by "resref".
+                You can list more than one resref, separated by space. The new item will be
+                added before the entry of the first matching resref.
+LAST            Will place the new item after all existing items.
+FIRST           Will place the new item before all existing items.
+AT value        Will place the new item at the position given by the number "value".
+                Use negative values to place the new item relative to the last item position
+                in reverse order.
+\end{verbatim}
+(Default: FIRST)
+\item STR_VAR \verb+flags+ to numeric values or the following constants: \verb+none+, \verb+identified+, \verb+unstealable+, \verb+stolen+. Constants can be combined by using ampersand (\&) or space as separators (e.g. \verb+identified&unstealable+). (Default: \verb+none+)
+\item STR_VAR \verb+sale_trigger+ Availability trigger (STO V1.1 only). The following syntax is supported:
+\begin{verbatim}
+Trigger string          Example: GlobalGT("MyCondition","GLOBAL",0)
+Strref value            Example: #1234
+Translation reference   Example: @1000
+\end{verbatim}
+(Default: #-1)
+\item RET \verb+index+ returns the index of the added item or the last matching index when overwriting items. Returns -1 if the item could not be added or updated.
+\item RET \verb+offset+ returns the offset of the added item or the last matching offset when overwriting items. Returns -1 if the item could not be added or updated.
+\end{itemize}
+
+\DEFINE{\verb+ADD_STORE_DRINK+}: adds a drink to the current STO file. This is a PATCH function.
+
+\begin{itemize}
+\item INT_VAR \verb+price+ to the price of the drink.
+\item INT_VAR \verb+rate+ to the rate (\%) of displaying a rumor.
+\item INT_VAR \verb+overwrite+ to non-zero to overwrite any instances of an existing drink of matching \verb+drink_name+ when found. (Default: 0)
+\item STR_VAR \verb+drink_name+ to the name of the drink.
+The following syntax is supported:
+\begin{verbatim}
+Literal string          Example: Elminster's Choice Beer
+Strref value            Example: #1234
+Translation reference   Example: @1000
+\end{verbatim}
+\item STR_VAR \verb+position+ to the desired position in the list of drinks. Refer to the table below for supported expressions. The following syntax is supported:
+\begin{verbatim}
+AFTER name      Will place the new drink directly behind the drink given by "name". Name can
+                either be a strref value (e.g. #1234) or a translation reference (e.g. @1000).
+                You can list more than one name, separated by space. The new drink will be
+                added after the entry of the first matching name.
+BEFORE name     Will place the new drink directly before the drink given by "name". Name can
+                either be a strref value (e.g. #1234) or a translation reference (e.g. @1000).
+                You can list more than one name, separated by space. The new drink will be
+                added before the entry of the first matching name.
+LAST            Will place the new drink after all existing drinks.
+FIRST           Will place the new drink before all existing drinks.
+AT value        Will place the new drink at the position given by the number "value".
+                Use negative values to place the new drink relative to the last drink position
+                in reverse order.
+\end{verbatim}
+(Default: FIRST)
+\item RET \verb+index+ returns the index of the added drink or the last matching index when overwriting drinks. Returns -1 if the drink could not be added or updated.
+\item RET \verb+offset+ returns the offset of the added drink or the last matching offset when overwriting drinks. Returns -1 if the drink could not be added or updated.
+\end{itemize}
+
+\DEFINE{\verb+ADD_STORE_CURE+}: adds a cure to the current STO file. This is a PATCH function.
+
+\begin{itemize}
+\item INT_VAR \verb+price+ to the spell price.
+\item INT_VAR \verb+overwrite+ to non-zero to overwrite any instances of an existing cure entry of matching spell resref when found. (Default: 0)
+\item STR_VAR \verb+spell_name+ to the resource name (resref) of the spell to add.
+\item STR_VAR \verb+position+ to the desired position in the list of cures. Refer to the table below for supported expressions. The following syntax is supported:
+\begin{verbatim}
+AFTER resref    Will place the new spell directly behind the spell given by "resref".
+                You can list more than one resref, separated by space. The new spell will be
+                added after the entry of the first matching resref.
+BEFORE resref   Will place the new spell directly before the spell given by "resref".
+                You can list more than one resref, separated by space. The new spell will be
+                added before the entry of the first matching resref.
+LAST            Will place the new spell after all existing cures.
+FIRST           Will place the new spell before all existing cures.
+AT value        Will place the new spell at the position given by the number "value".
+                Use negative values to place the new spell relative to the last spell position
+                in reverse order.
+\end{verbatim}
+(Default: FIRST)
+\item RET \verb+index+ returns the index of the added cure or the last matching index when overwriting cure entries. Returns -1 if the spell could not be added or updated.
+\item RET \verb+offset+ returns the offset of the added cure or the last matching offset when overwriting cures. Returns -1 if the spell could not be added or updated.
+\end{itemize}
+
+\DEFINE{\verb+ADD_STORE_PURCHASE+}: adds one or more item categories the store will buy to the current STO file. Existing categories will be skipped.
+\begin{itemize}
+\item INT_VAR \verb+category+ to the item category to add. A nearly complete list of supported item category codes can be found \ahref{\url{https://gibberlings3.github.io/iesdp/file_formats/ie_formats/sto_v1.htm#tableItemType}}{here}.
+\item RET \verb+index+ returns the index of the added purchase. Returns -1 if the purchase could not be added.
+\item RET \verb+offset+ returns the offset of the added purchase. Returns -1 if the purchase could not be added.
+\end{itemize}
+
+\DEFINE{\verb+REMOVE_STORE_ITEM_EX+}: removes all sale instances matching the specified item name from the current STO file. This is a patch function.
+\begin{itemize}
+\item STR_VAR \verb+item_name+ to the resource name (resref) of the item to remove. Regular expression syntax is supported.
+\item RET \verb+index+ returns the index of the first removed entry matching the item name, returns -1 otherwise.
+\item RET \verb+offset+ returns the offset of the first removed entry matching the item name, returns -1 otherwise.
+\end{itemize}
+
+\DEFINE{\verb+REMOVE_STORE_DRINK+}: removes all drink instances matching the specified drink name from the current STO file. This is a patch function.
+\begin{itemize}
+\item STR_VAR \verb+drink_name+ to the name of the drink to remove. The following syntax is supported:
+\begin{verbatim}
+Literal string          Example: Elminster's Choice Beer
+Strref value            Example: #1234
+Translation reference   Example: @1000
+\end{verbatim}
+Note: Regular expression syntax is supported for literal strings.
+\item RET \verb+index+ returns the index of the first removed entry matching the drink name, returns -1 otherwise.
+\item RET \verb+offset+ returns the offset of the first removed entry matching the drink name, returns -1 otherwise.
+\end{itemize}
+
+\DEFINE{\verb+REMOVE_STORE_CURE+}: removes all cure instances matching the specified spell name from the current STO file. This is a patch function.
+\begin{itemize}
+\item STR_VAR \verb+spell_name+ to the resource name (resref) of the spell to remove. Regular expression syntax is supported.
+\item RET \verb+index+ returns the index of the first removed entry matching the spell name, returns -1 otherwise.
+\item RET \verb+offset+ returns the offset of the first removed entry matching the spell name, returns -1 otherwise.
+\end{itemize}
+
+\DEFINE{\verb+REMOVE_STORE_PURCHASE+}: removes the specified item category from the current STO file. This is a patch function.
+\begin{itemize}
+\item INT_VAR \verb+category+ to the item category to remove. A nearly complete list of supported item category codes can be found \ahref{\url{https://gibberlings3.github.io/iesdp/file_formats/ie_formats/sto_v1.htm#tableItemType}}{here}.
+\item RET \verb+index+ returns the index of the first removed entry matching the category, returns -1 otherwise.
+\item RET \verb+offset+ returns the offset of the first removed entry matching the category, returns -1 otherwise.
 \end{itemize}
 
 \subsection{\DEFINE{fj_are_structure}}
