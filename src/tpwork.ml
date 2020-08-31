@@ -1093,7 +1093,7 @@ let rec handle_tp game this_tp2_filename tp =
           let choice_num = ref 1 in
           let choice_ht = Hashtbl.create 255 in
           let already_ht = Hashtbl.create 255 in
-          let uninstalled_because_preditate = ref false in
+          let uninstalled_because_predicate = ref false in
           let is_forced = ref false in
           let at_least_one_OK = ref false in
           for i = 0 to last_module_index do
@@ -1104,7 +1104,7 @@ let rec handle_tp game this_tp2_filename tp =
                 already_installed this_tp2_filename i ->
                 let can_uninstall = already_installed this_tp2_filename i in
                 let temp_uninst   = temporarily_uninstalled this_tp2_filename i in
-                uninstalled_because_preditate := true ;
+                uninstalled_because_predicate := true ;
                 let package_name = Dc.single_string_of_tlk_string_safe
                     (Load.the_game ()) m.mod_name in
                 log_and_print "Uninstalling the component %s because its predicate is no longer true.\n"
@@ -1117,7 +1117,7 @@ let rec handle_tp game this_tp2_filename tp =
                 | _ -> ()
             with Not_found -> ()
           done ;
-          let any_already = any_already && not !uninstalled_because_preditate in
+          let any_already = any_already && not !uninstalled_because_predicate in
           if !at_least_one_OK then begin
             (if (any_already) then begin
               if not !is_forced then
