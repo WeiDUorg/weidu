@@ -3593,15 +3593,17 @@ ADD_PROJECTILE      ~MyMod/MYDXP.PRO~
 COPY ~MyMod/MYDART.ITM~ ~override/MYDART.ITM~
   WRITE_SHORT   0x09c ~%MYDXP%~
 \end{verbatim}
-    \\
-  or & \DEFINE{ADD!SPELL} newSPLfile type level idsName \ttref{patch} \Slist
-       \Ob \t{IF!EXISTING} \ttref{patch} \Slist \t{END} \Oe
-		\Ob \t{ON!DISABLE} \ttref{patch} \Slist \t{END} \Oe	   &
-    adds newSPLfile as a spell of type and level into the game (IE, SPPR102 or
-    whatnot), in the first empty slot possible, appends the idsName to
-    spell.ids, and sets \verb+%idsName%+
-    to the 4-digit code associated with idsName in Spell.ids. While you copy
-    newSPLfile to the override, you also apply the patches listed.
+  \\
+
+  or & \DEFINE{ADD!SPELL} modpath/newSPLfile.SPL type level idsName
+  \ttref{patch} \Slist \Ob \t{IF!EXISTING} \ttref{patch} \Slist
+  \t{END} \Oe \Ob \t{ON!DISABLE} \ttref{patch} \Slist \t{END} \Oe &
+
+  adds newSPLfile as a spell of type and level into the game (IE, SPPR102
+  or whatnot), in the first empty slot possible, appends the idsName
+  to spell.ids, and sets \verb+%idsName%+ to the 4-digit code
+  associated with idsName in Spell.ids. While you copy newSPLfile to
+  the override, you also apply the patches listed.
 
 
 
