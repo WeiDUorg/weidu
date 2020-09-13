@@ -16,6 +16,7 @@ all: ../README-WeiDU.html clean
 		(hevea article.hva fancysection.hva -fix -O README.tex) 2>&1 | grep -v "occuring outside math mode"
 	cat README.html | sed -e "s/&ndash;/--/g" -e's/&#X2013;/--/g' -e 's/–/--/g' > README-WeiDU.html
 	perl -pi -e "s/^a:.+//g" README-WeiDU.html # HeVeA colors a elements green; we don't want that
+	perl -pi -e "s/flnumber/#/g" README-WeiDU.html # For some reason this breaks with an escaped symbol
 	mv README-WeiDU.html ..
 
 clean:
