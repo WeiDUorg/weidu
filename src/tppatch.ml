@@ -537,17 +537,22 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             let final_ret_arrays = Hashtbl.create 5 in
             List.iter (fun s ->
               let s = Var.get_string (eval_pe_str s) in
-              let v = (try Hashtbl.find !Var.arrays s
-              with Not_found ->
-                failwith (Printf.sprintf "Uninitialised return array: %s" s)) in
-              Hashtbl.add final_ret_arrays s v) f_retas ;
+              if (Hashtbl.mem !Var.arrays s) then
+                Hashtbl.add final_ret_arrays s
+                  (Some (Hashtbl.find !Var.arrays s))
+              else
+                (* to differentiate uninitialised arrays from unknown ones *)
+                Hashtbl.add final_ret_arrays s None) f_retas ;
             let final_returns = Hashtbl.create 5 in
             let f_rets = Hashtbl.fold (fun name vars acc ->
               let name = PE_LiteralString name in
-              let vars = List.map (fun var ->
-                let var = List.map get_pe_string var in
-                PE_Dollars(name,var,false,false)) vars in
-              List.append acc vars) final_ret_arrays f_rets in
+              (match vars with
+                Some vars ->
+                  let vars = List.map (fun var ->
+                    let var = List.map get_pe_string var in
+                    PE_Dollars(name,var,false,false)) vars in
+                  List.append acc vars
+              | None -> acc)) final_ret_arrays f_rets in
             List.iter (fun a ->
               let a = eval_pe_str a in
               let v = (try Var.get_string_exact ("%" ^ a ^ "%") with
@@ -562,16 +567,21 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               let v = (try Hashtbl.find final_ret_arrays is
               with Not_found ->
                 failwith (Printf.sprintf "Unknown return array: %s" is)) in
-              Hashtbl.add !Var.arrays want v) retas ;
+              ignore (match v with
+                Some a -> Hashtbl.add !Var.arrays want a
+              | None -> ())) retas ;
             let rets = List.fold_left (fun acc (want,was) ->
               let was = Var.get_string (eval_pe_str was) in
               let want = Var.get_string (eval_pe_str want) in
-              let vars = List.map (fun var ->
-                let var = List.map get_pe_string var in
-                let wasvar = PE_Dollars(PE_LiteralString was,var,false,false) in
-                let wantvar = PE_Dollars(PE_LiteralString want,var,false,false) in
-                (wantvar,wasvar)) (Hashtbl.find !Var.arrays want) in
-              List.append acc vars) rets retas in
+              if (Hashtbl.mem !Var.arrays want) then
+                let vars = List.map (fun var ->
+                  let var = List.map get_pe_string var in
+                  let wasvar = PE_Dollars(PE_LiteralString was,var,false,false) in
+                  let wantvar = PE_Dollars(PE_LiteralString want,var,false,false) in
+                  (wantvar,wasvar)) (Hashtbl.find !Var.arrays want) in
+                List.append acc vars
+              else
+                acc) rets retas in
             List.iter (fun (a,b) ->
               let a = eval_pe_str a in
               let b = eval_pe_str b in
