@@ -821,6 +821,7 @@ type exit_status_t =
   | StatusArgumentInvalid
   | StatusInstallFailure
   | StatusInstallWarning
+  | StatusParseError
   | StatusAutoUpdateRetry
 
 let exit_status = ref StatusSuccess
@@ -831,7 +832,8 @@ let return_value status =
   | StatusArgumentInvalid -> 1
   | StatusInstallFailure -> 2
   | StatusInstallWarning -> 3
-  | StatusAutoUpdateRetry -> 4)
+  | StatusParseError -> 4
+  | StatusAutoUpdateRetry -> 5)
 
 let bool_xor a b =
   ((a && not b) || (not a && b))

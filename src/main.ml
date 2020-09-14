@@ -1133,6 +1133,7 @@ let do_tp2_files tp_list force_install_these_main force_uninstall_these_main pau
     with e ->
       log_and_print "ERROR: problem parsing TP file [%s]: %s\n" tp_file
         (printexc_to_string e) ;
+      exit_status := StatusParseError ;
       raise e
   done
 ;;
