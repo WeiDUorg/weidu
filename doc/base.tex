@@ -1108,6 +1108,9 @@ file then the result will be appended to it instead of overwriting it. \\
 loaded \t{DIALOGF.TLK}, emit \t{X} as an updated version that reflects
 those changes. If this options is not provided, the output dialogf is the same as the input dialogf. \\
 \DEFINE{--version} & Print version number and exit. \\
+\DEFINE{--parse-check} \t{X} \t{Y} & Parses file \t{Y} as file type
+\t{X} and returns 0 if the file was parsed without errors. \t{X} must
+be one of \t{D}, \t{BAF}, \t{TP2}, \t{TPA}, or \t{TPP}. \\
 \\
 \multicolumn{2}{c}{ \color{red} Dialogue Text File (\ttref{D}) Options} \\
 \DEFINE{--noheader} &	Do not emit \ttref{D} header comments. \\

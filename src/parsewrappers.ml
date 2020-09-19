@@ -95,10 +95,13 @@ let handle_dlg_buffer game filename buffer =
   Dlg.emit_text := emit_text ;
   Buffer.contents out_buff
 
+let parse_d_buffer filename buffer =
+  parse_file true (String(filename,buffer)) "parsing .d files"
+    (Dparser.d_file Dlexer.initial)
+
 let handle_d_buffer game filename buffer =
   try
-    let result = parse_file true (String(filename,buffer)) "parsing .d files"
-        (Dparser.d_file Dlexer.initial) in
+    let result = parse_d_buffer filename buffer in
     (match result with
     | [Dc.Create(dlg) as act] ->
         Dc.dc game [(filename,act)] ;

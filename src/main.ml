@@ -1248,6 +1248,36 @@ let merge_tlk tlk_merge game =
         ) tlk_merge ;
 ;;
 
+let parse_check file kind =
+  no_exit_pause := true ;
+  if (not (file_exists file)) then
+    failwith (Printf.sprintf "[%s] No such file" file) ;
+  (try
+    (match (String.uppercase_ascii kind) with
+    | "D" ->
+        let buff = load_file file in
+        ignore (Parsewrappers.parse_d_buffer file buff) ;
+    | "BAF" ->
+        let buff = load_file file in
+        ignore (Parsewrappers.handle_script_buffer file buff) ;
+    | "TP2" ->
+        ignore (Parsewrappers.handle_tp2_filename file) ;
+    | "TPA" ->
+        ignore (Parsewrappers.handle_tph_filename file) ;
+    | "TPP" ->
+        ignore (Parsewrappers.handle_tpp_filename file) ;
+    | _ -> exit_status := StatusArgumentInvalid ;
+        log_and_print
+          "--parse-check does not know what to do with files of type [%s]\n"
+          kind ;
+        failwith "Unknown file type") ;
+    log_or_print "File [%s] was successfully parsed as type [%s]\n"
+      file kind ;
+  with Parsing.Parse_error -> exit_status := StatusParseError ;
+    log_or_print "ERROR: File [%s] was NOT successfully parsed as type [%s]\n"
+      file kind ;
+    raise Parsing.Parse_error)
+
 let main () =
 
   let user_min = ref None in
@@ -1362,6 +1392,9 @@ let main () =
   let no_auto_tp2 = ref false in
 
   let ee_use_lang = ref None in
+
+  let parse_check_file = ref "" in
+  let parse_check_kind = ref "" in
 
   let argv0_base, argv0_ext = split (String.uppercase_ascii (Case_ins.filename_basename Sys.argv.(0))) in
 
@@ -1486,6 +1519,9 @@ let main () =
       in forced_script_style := n),"X\tuse BCS/BAF style X (BG, PST, IWD1, IWD2)" ;
     "--min", Myarg.Int (fun i -> user_min := Some(i)), "X\tlower range for some commands (like --tlkcmp)" ;
     "--max", Myarg.Int (fun i -> user_max := Some(i)), "X\tupper range for some commands (like --string)" ;
+    "--parse-check", Myarg.TwoStrings (fun kind file ->
+      parse_check_kind := kind; parse_check_file := file),
+    "\tX Y parses file Y as file type X and returns 0 if the file was parsed without errors; X must be one of D, BAF, TP2, TPA or TPP" ;
 
     "", Myarg.Unit (fun a -> a), "\nGeneral Output Options:\n" ;
 
@@ -1899,6 +1935,10 @@ let main () =
         let destination = Printf.sprintf "%s/%s" theout.dir new_name in
         copy_large_file source destination "--change-log") result.Changelog.backup_files) results) ;
   end ;
+
+
+  if !parse_check_file <> "" && !parse_check_kind <> "" then
+    parse_check !parse_check_file !parse_check_kind ;
 
 
   (* Handle BCS files *)
