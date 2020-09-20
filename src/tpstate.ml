@@ -161,11 +161,15 @@ let get_component_list tp_file =
     let forced = forced_subgroup || install_by_default in
     let metadata = List.fold_left (fun acc f ->
       (match f with
-      | Tp.TPM_Metadata(s) -> Some s
+      | Tp.TPM_Metadata(s) -> Some (s :: (match acc with
+        | Some l -> l
+        | None -> []))
       | _ -> acc)) None tp_mod.Tp.mod_flags in
     { index = index ; name = tp_mod.mod_name ; number = number ;
       label = label ; deprecated = deprecated ; group = group ;
-      subgroup = subgroup ; forced = forced; metadata = metadata })
+      subgroup = subgroup ; forced = forced; metadata = (match metadata with
+      | Some l -> Some (List.rev l)
+      | None -> None)})
     tp_file.Tp.module_list
 
 (************************************************************************

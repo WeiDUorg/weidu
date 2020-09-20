@@ -103,7 +103,7 @@ and component = {
     name : Dlg.tlk_string ;
     subgroup : Dlg.tlk_string option ;
     group : Dlg.tlk_string list ;
-    metadata : string option
+    metadata : string list option
   }
 
 and tp_copy_args = {
