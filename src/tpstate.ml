@@ -159,9 +159,14 @@ let get_component_list tp_file =
     | Tp.TPM_InstallByDefault -> true
     | _ -> false) tp_mod.Tp.mod_flags in
     let forced = forced_subgroup || install_by_default in
+    let metadata = List.fold_left (fun acc f ->
+      (match f with
+      | Tp.TPM_Metadata(s) -> Some s
+      | _ -> acc)) None tp_mod.Tp.mod_flags in
     { index = index ; name = tp_mod.mod_name ; number = number ;
       label = label ; deprecated = deprecated ; group = group ;
-      subgroup = subgroup ; forced = forced }) tp_file.Tp.module_list
+      subgroup = subgroup ; forced = forced; metadata = metadata })
+    tp_file.Tp.module_list
 
 (************************************************************************
  * Evaluate a TP2 Patch Expression

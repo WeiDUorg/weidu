@@ -92,6 +92,7 @@ and tp_mod_flag =
   | TPM_InstallByDefault
   | TPM_Group of Dlg.tlk_string * tp_patchexp
   | TPM_Label of string
+  | TPM_Metadata of string
 
 and component = {
     index : int ;
@@ -102,6 +103,7 @@ and component = {
     name : Dlg.tlk_string ;
     subgroup : Dlg.tlk_string option ;
     group : Dlg.tlk_string list ;
+    metadata : string option
   }
 
 and tp_copy_args = {

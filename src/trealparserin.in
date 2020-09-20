@@ -267,6 +267,7 @@ nonterm(Tp.tp_mod_flag) Tp_Mod_Flag {
   -> GROUP e1:Lse e2:Patch_Exp [ Tp.TPM_Group (e1,e2) ]
   -> GROUP e1:Lse [ Tp.TPM_Group (e1,Tp.Pred_True) ]
   -> LABEL e1:STRING [ Tp.TPM_Label e1 ]
+  -> METADATA e1:STRING [Tp.TPM_Metadata e1 ]
 }
 
 nonterm(Tp.tp_action list) Tp_Action_List_Rev {

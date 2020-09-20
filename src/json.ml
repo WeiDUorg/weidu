@@ -41,10 +41,13 @@ let stringify_component component =
   | None -> "") in
   let group = Printf.sprintf "\"group\":%s"
       (stringify_component_group component.Tp.group) in
+  let metadata = (match component.Tp.metadata with
+  | Some s -> Printf.sprintf "\"metadata\":%s" (escape_string s)
+  | None -> "") in
 
   let body = String.concat "," (List.filter (fun string ->
     string <> "") [ index ; number ; forced ; name ; label ;
-                    subgroup ; group ]) in
+                    subgroup ; group; metadata ]) in
   String.concat "" ["{" ; body ; "}"]
 
 let stringify_component_list components =

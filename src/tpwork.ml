@@ -1332,7 +1332,8 @@ let rec handle_tp game this_tp2_filename tp =
       | TPM_Designated(_)
       | TPM_InstallByDefault
       | TPM_Group _
-      | TPM_NotInLog -> ()) m.mod_flags ;
+      | TPM_NotInLog
+      | TPM_Metadata(_) -> ()) m.mod_flags ;
       if not (module_groups_ok m) then
         preproc_fail "SKIPPING"
           (Dlg.Local_String {
