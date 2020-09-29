@@ -1,3 +1,58 @@
+Version 247:
+  * ID_OF_LABEL caches parsed TP2s for better performance.
+  * Add out_path option to HANDLE_CHARSETS.
+  * HANDLE_CHARSETS can convert from UTF-8 into local encodings.
+  * Add DEFINE_DIMORPHIC_FUNCTION action.
+  * Add MOD_VERSION variable.
+  * MOD_FOLDER variable is preferably set to the directory containing
+    the TP2 file.
+  * GAME_INCLUDES does not result in a warning about SoD when asked
+    about bg1 or totsc.
+  * Windows builds include Windows-specific metadata in the binary and
+    building WeiDU on Windows requires the windres utility.
+  * The values of the variables WEIDU_ARCH, WEIDU_OS and WEIDU_VER are
+    available to --list-components-json.
+  * If --list-components-json encounters an undefined TRA reference,
+    it continues despite errors.
+  * Add flag_strength_damage and flag_strength_thac0 parameters to
+    ALTER_ITEM_HEADER.
+  * Add FUN_ARGS option to MODDER.
+  * MODDER warnings and errors are clearly labelled as such (for
+    better searchability).
+  * TP2_BASE_NAME does not mishandle file names containing hyphens.
+  * Fix other bugs affecting TP2 files with names containing hyphens.
+  * TP2_FILE_NAME does a better job of stripping out directories.
+  * MOD_FOLDER handles BACKUP corner-cases better.
+  * Add target_count parameter to ALTER_(ITEM|SPELL)_HEADER.
+  * --search add paths at a lower precedence than top-level override/.
+  * Read and use GemRB data path.
+  * Fix better-than-baseline engine checks for GemRB.
+  * The check for ToBEx does not fail if the file contains whitespace.
+  * Fix DELETE_WORLDMAP_LINKS not correctly deleting duplicate links.
+  * Fix fj_are_structure not writing an item index for new containers.
+  * APPEND evaluates variables when evaluating IF_EXISTS.
+  * Fix ability-type-matching bug in (ALTER|CLONE|DELETE)_EFFECT.
+  * WeiDU looks for biffs in the root game path. In conventional setups,
+    this should eliminate the need for a linux.ini or equivalent. An
+    INI file might still have a positive effect on performance (likely
+    not noticeable without a large number of files).
+  * Add RESOURCE_CONTAINS value.
+  * Fix various bugs where WeiDU could load files which were not game
+    resources while intending to load game resources.
+  * INNER_PATCH_FILE can be used together with patches that use the
+    name of the file being patched.
+  * The interactive installer does not ask about non-predicated
+    subcomponents for which the component-flag predicates were
+    false. In effect, the installer does not ask about subcomponents
+    that could not be installed.
+  * Functions do not fail on uninitialised RET_ARRAYs.
+  * CREATE writes an offset for ARE automap notes.
+  * WeiDU has a separate return value for top-level parsing errors.
+  * Add --parse-check command-line option.
+  * Add METADATA component flag.
+  * COPY does not mis-set DEST_* variables when the target is a
+    directory.
+
 Version 246:
   * New WeiDU timing: function overhead.
   * Fix regression in ALTER_EFFECT.
