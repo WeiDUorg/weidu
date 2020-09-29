@@ -442,8 +442,6 @@ let rec eval_pe buff game p =
       let   ca     = if isGameCheck then f "tc1300.are" else false in
       let iwdinbg2 = if isGameCheck then f "ar9201.are" else false in
       let eet = if isGameCheck then f "eet.flag" else false in
-      let gemrb = if isGameCheck then
-        false else Util.file_exists "gemrb_path.txt" in
       let  bg2 = f "ar0083.are"   in
       let  tob = f "ar6111.are"   in
       let iwd2 = f "ar6050.are"   in
