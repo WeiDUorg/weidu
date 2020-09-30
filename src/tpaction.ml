@@ -811,7 +811,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                   done
                 with _ -> () ) ;
                 Unix.closedir dh
-              end else copy_one_file src dest) slist ;
+              end else if (is_directory dest) then
+                copy_one_file src (dest ^ "/" ^
+                                   (Case_ins.filename_basename src))
+              else
+                copy_one_file src dest) slist ;
             List.iter (fun f -> f ()) !worklist
           end
 
