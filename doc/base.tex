@@ -1020,8 +1020,11 @@ unrecoverably inconsistent state (you can [R]e or [U]ninstall the component and 
 consistent again). This might break with mods using overly complicated AT!* actions (basically
 don't use this with Big Mods). \\
 \DEFINE{--save-components-name} & Reprints weidu.log. Useful if you install with --quick-log. \\
-\DEFINE{--ask-every}    & Behave as if \ttref{ASK!EVERY!COMPONENT} were
+\DEFINE{--ask-every}   & Behave as if \ttref{ASK!EVERY!COMPONENT} were
 present for all \ttref{TP2} components. \\
+\DEFINE{--ask-only} \t{X Y ...} & Limit the interactive installer to
+only asking about components number X Y..., skipping the others
+(cumulative) \\
 \DEFINE{--continue}     & Continue \ttref{TP2} processing despite
 \ttref{TP2 Action} errors. \\
 \DEFINE{--args} \t{X}       & X will be stored in the tp2 variable \verb+%argv[n]%+, where

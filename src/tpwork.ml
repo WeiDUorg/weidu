@@ -564,7 +564,7 @@ let ask_about_ungrouped tp this_tp2_filename module_defaults
       | _ -> finished := false
     done
 
-let ask_about_groups tp groups module_defaults last_module_index using_quickmenu always =
+let ask_about_groups tp groups module_defaults last_module_index using_quickmenu always has_ask_only =
   let any_to_be_asked grp =
     let ans = ref false in
     for i = 0 to last_module_index do
@@ -604,7 +604,8 @@ let ask_about_groups tp groups module_defaults last_module_index using_quickmenu
                 let the_comp = get_nth_module tp i false in
                 if is_my_group the_comp this_grp &&
                   module_defaults.(i) = TP_Skip && (not !using_quickmenu ||
-                  List.mem i always) then
+                  List.mem i always) &&
+                  (not has_ask_only || List.mem i !Tp.ask_only) then
                   module_defaults.(i) <- TP_Ask ;
               with Not_found -> ()
             done;
@@ -994,6 +995,9 @@ let rec handle_tp game this_tp2_filename tp =
   let has_ask_every =
     !ask_all || List.exists (fun a -> a = Ask_Every_Component) tp.flags in
 
+  let has_ask_only =
+    !Tp.ask_only <> [] in
+
   let using_quickmenu = ref false in
   let quickmenu, always = if has_quickmenu then begin
     let quickmenu = List.find (fun x ->
@@ -1015,7 +1019,8 @@ let rec handle_tp game this_tp2_filename tp =
          (Var.get_string (get_trans (-1000))) comp_num (get_trans (-1001)) ;
        ask_about_quickmenu tp this_tp2_filename using_quickmenu module_defaults
          quickmenu always last_module_index any_already_installed ;
-     end else if comp_num > 4 && not hasgroups && not has_ask_every then begin
+     end else if comp_num > 4 && not hasgroups && not has_ask_every &&
+       not has_ask_only then begin
        (* add (-1000) "\nThis mod has %d distinct optional components.\nTo save time, you can choose what to do with them at a high level rather\nthan being asked about each one.\n" ; *)
        log_and_print "\n%s %d %s"
          (Var.get_string(get_trans (-1000))) comp_num (get_trans (-1001)) ;
@@ -1024,6 +1029,18 @@ let rec handle_tp game this_tp2_filename tp =
      end
    end ;
 
+  (* ask only about these *)
+  if has_ask_only then
+    for i = 0 to last_module_index do
+      if (not !using_quickmenu || List.mem i always) then
+        try
+          let m = get_nth_module tp i false in
+          if List.mem i !Tp.ask_only then
+            module_defaults.(i) <- TP_Ask
+          else
+            module_defaults.(i) <- TP_Skip
+        with _ -> () ;
+    done ;
 
   (* now ask about groups *)
   let any_group_to_be_asked =
@@ -1043,7 +1060,7 @@ let rec handle_tp game this_tp2_filename tp =
     any_group_to_be_asked
   then begin
     ask_about_groups tp groups module_defaults last_module_index
-      using_quickmenu always ;
+      using_quickmenu always (has_ask_only) ;
   end;
 
   let handle_error_generic always_yes specified_specific_components

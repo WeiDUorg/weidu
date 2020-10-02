@@ -21,6 +21,7 @@ let always_yes = ref false
 let always_uninstall = ref false
 let sometimes_reinstall = ref false
 let ask_all = ref false
+let ask_only : int list ref = ref []
 let forced_language = ref ( 0-1 )
 let force_install_these : int list ref = ref []
 let force_uninstall_these : int list ref = ref []

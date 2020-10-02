@@ -1476,6 +1476,8 @@ let main () =
     "--exit", Myarg.Set exit_now, "\tprint version number and exit";
     "--no-exit-pause", Myarg.Set no_exit_pause, "\tDon't ask to press enter to exit";
     "--ask-every", Myarg.Set Tp.ask_all, "\task about every TP2 component" ;
+    "--ask-only", Myarg.List (Myarg.Int (fun i -> Tp.ask_only := i ::
+      !Tp.ask_only)), "\tX Y... limits the interactive installer to asking only about the specified components (cumulative)" ;
     "--list-languages", Myarg.String (fun s -> list_lang := Some s), "\tX lists the languages in X";
     "--list-components", Myarg.Tuple [
     Myarg.String (fun s -> list_comp := Some s);
