@@ -1256,10 +1256,20 @@ let parse_check file kind =
     (match (String.uppercase_ascii kind) with
     | "D" ->
         let buff = load_file file in
+        let old_ok = !Dc.ok_to_resolve_strings_while_loading in
+        Dc.ok_to_resolve_strings_while_loading := None ;
+        Dc.doing_traify := true ;
         ignore (Parsewrappers.parse_d_buffer file buff) ;
+        Dc.ok_to_resolve_strings_while_loading := old_ok ;
+        Dc.doing_traify := false ;
     | "BAF" ->
         let buff = load_file file in
+        let old_ok = !Dc.ok_to_resolve_strings_while_loading in
+        Dc.ok_to_resolve_strings_while_loading := None ;
+        Dc.doing_traify := true ;
         ignore (Parsewrappers.handle_script_buffer file buff) ;
+        Dc.ok_to_resolve_strings_while_loading := old_ok ;
+        Dc.doing_traify := false ;
     | "TP2" ->
         ignore (Parsewrappers.handle_tp2_filename file) ;
     | "TPA" ->
