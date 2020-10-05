@@ -39,7 +39,7 @@ let set_tp2_vars tp =
   Var.set_string "MOD_FOLDER" (mod_folder tp) ;
   Var.set_string "MOD_VERSION" (List.fold_left (fun acc flag ->
     (match flag with
-    | Version s -> (Dc.single_string_of_tlk_string (Load.the_game ()) s)
+    | Version s -> (Dc.single_string_of_tlk_string_safe (Load.the_game ()) s)
     | _ -> acc)) "" tp.flags)
 
 (************************************************************************
