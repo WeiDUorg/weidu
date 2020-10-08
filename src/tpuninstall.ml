@@ -375,8 +375,8 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
       in
       let uninstall_at () =
         let m = get_nth_module result i true in
-        ignore (set_tp2_vars tp2) ;
         Var.set_string "LANGUAGE" lang_name ;
+        ignore (set_tp2_vars tp2) ;
         Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
         handle_at_uninstall tp2 m true interactive game ;
       in
@@ -420,8 +420,8 @@ let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
               let l = List.nth tp2.languages b in
               l.lang_dir_name ;
             with _ -> "" ) in
-          ignore (set_tp2_vars tp2) ;
           Var.set_string "LANGUAGE" lang_name ;
+          ignore (set_tp2_vars tp2) ;
           Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
           let m = get_nth_module tp2 c true in
           log_only "Running AT_INTERACTIVE_EXITs in ~%s~ %d %d %s\n"

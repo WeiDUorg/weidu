@@ -689,9 +689,11 @@ let rec handle_tp game this_tp2_filename tp =
 
   let our_lang, our_lang_index = choose_lang tp this_tp2_filename in
 
-  ignore (set_tp2_vars tp) ;
+  ignore (set_prelang_tp2_vars tp) ;
 
   ignore (lang_init !our_lang) ;
+
+  ignore (set_postlang_tp2_vars tp) ;
 
   if Load.enhanced_edition_p game then begin
     if not !Load.have_bgee_lang_dir_p then begin
@@ -1450,7 +1452,7 @@ let rec handle_tp game this_tp2_filename tp =
             Dc.clear_state () ;
             Dc.push_trans ();
             init_default_strings () ;
-            set_tp2_vars tp2 ;
+            ignore (set_prelang_tp2_vars tp2) ;
             (try
               let l = List.nth tp2.languages b in
               our_lang := Some(l) ;
@@ -1461,6 +1463,7 @@ let rec handle_tp game this_tp2_filename tp =
               (*  log_and_print "Re-Installing Using Language [%s]\n" l.lang_name ;*)
               log_and_print "%s [%s]\n" ((get_trans (-1012))) l.lang_name ;
               Var.set_string "LANGUAGE" l.lang_dir_name ;
+              ignore (set_postlang_tp2_vars tp2) ;
             with _ ->
               our_lang := None ;
               our_lang_index := 0 ;

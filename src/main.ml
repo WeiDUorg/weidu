@@ -642,7 +642,7 @@ let list_components_json list_comp list_comp_lang game =
       Dc.push_trans () ;
       Var.var_clear_push () ;
       (try
-        ignore (Tpstate.set_tp2_vars tp_file) ;
+        ignore (Tpstate.set_prelang_tp2_vars tp_file) ;
         ignore (Arch2.associate_these ());
         let tra_files = (try
           List.nth tp_file.Tp.languages list_comp_lang
@@ -650,6 +650,7 @@ let list_components_json list_comp list_comp_lang game =
         ignore (List.iter (fun tra_file ->
           Parsewrappers.handle_tra_filename (Var.get_string tra_file))
                   tra_files.Tp.lang_tra_files) ;
+        ignore (Tpstate.set_postlang_tp2_vars tp_file) ;
       with _ -> ()) ;
       output_theout (Printf.sprintf "%s\n"
                        (Json.stringify_component_list comp_list)) ;

@@ -31,16 +31,22 @@ let mod_folder tp =
     | Some s -> s
     | None -> tp.backup))
 
-let set_tp2_vars tp =
+let set_prelang_tp2_vars tp =
   Var.set_string "TP2_AUTHOR" tp.author ;
   Var.set_string "TP2_FILE_NAME" (Case_ins.filename_basename tp.tp_filename) ;
   Var.set_string "TP2_BASE_NAME"
     (Util.tp2_name (Case_ins.filename_basename tp.tp_filename)) ;
-  Var.set_string "MOD_FOLDER" (mod_folder tp) ;
+  Var.set_string "MOD_FOLDER" (mod_folder tp)
+
+let set_postlang_tp2_vars tp =
   Var.set_string "MOD_VERSION" (List.fold_left (fun acc flag ->
     (match flag with
     | Version s -> (Dc.single_string_of_tlk_string_safe (Load.the_game ()) s)
     | _ -> acc)) "" tp.flags)
+
+let set_tp2_vars tp =
+  ignore (set_prelang_tp2_vars tp) ;
+  ignore (set_postlang_tp2_vars tp)
 
 (************************************************************************
  * Common hashtables.
@@ -279,7 +285,7 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
             Dc.clear_state () ;
             Dc.push_trans ();
             Var.var_clear_push () ;
-            ignore (set_tp2_vars tp2) ;
+            ignore (set_prelang_tp2_vars tp2) ;
             ignore (Arch2.associate_these ()) ;
             let a_dir = Case_ins.filename_dirname a in
             (try
@@ -294,6 +300,7 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
                     Hashtbl.add tra_ht s x; x)
                 in
                 Stats.time "adding translation strings" Dc.add_trans_strings x) l.lang_tra_files ;
+              ignore (set_postlang_tp2_vars tp2) ;
             with _ -> ()) ;
             let m = get_nth_module tp2 c true in
             let comp_str = Dc.single_string_of_tlk_string_safe game m.mod_name in
