@@ -1666,8 +1666,6 @@ let main () =
   Myarg.parse argDescr handleArg usageMsg  ;
   if !exit_now then exit 0;
 
-  weidu_version := Version.version;
-
   if (!auto_update_all) then begin
     (if (Arch.do_auto_update) then
       Autoupdate.verify_latest true);

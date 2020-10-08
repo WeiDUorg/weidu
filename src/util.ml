@@ -618,8 +618,6 @@ type execute_at_exit_type =
 
 let execute_at_exit = ref ([] : (execute_at_exit_type) list)
 
-let weidu_version = ref ""
-
 (* for some stupid reason these cannot be in the parser or the lexer *)
 
 type input_context = {

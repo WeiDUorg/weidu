@@ -50,7 +50,7 @@ src/tparser.ml : src/tparser.in
 	cp src/tparser.in src/tparser.ml
 
 src/arch2.ml :
-	echo "let associate_these a = Var.set_string \"WEIDU_ARCH\" \"$(WEIDU_ARCH)\" ; Var.set_string \"WEIDU_OS\" \"$(WEIDU_OS)\"; Var.set_string \"WEIDU_VER\" !Util.weidu_version" > src/arch2.ml
+	echo "let associate_these a = Var.set_string \"WEIDU_ARCH\" \"$(WEIDU_ARCH)\" ; Var.set_string \"WEIDU_OS\" \"$(WEIDU_OS)\"; Var.set_string \"WEIDU_VER\" Version.version" > src/arch2.ml
 	echo "let _ = associate_these ()" >> src/arch2.ml
 
 $(OBJDIR)/tparser.cmx : src/trealparserin.in src/tlexer.in scripts/make_gr.ml src/aliases.in scripts/make_tll.ml $(OBJDIR)/trealparser.cmx
