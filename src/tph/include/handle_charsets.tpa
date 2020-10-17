@@ -144,13 +144,13 @@ DEFINE_ACTION_FUNCTION fl#HANDLE_CHARSETS#RECURSE
   STR_VAR
     in_path = ""
     out_path = ""
-    type = ""
+    file_regexp = ""
     function = ""
 BEGIN
   ACTION_IF verbose BEGIN
     PRINT "#RECURSE is calling terminal function on %in_path% with out_path: %out_path%"
   END
-  ACTION_BASH_FOR "%in_path%" ".+\.%type%$" BEGIN
+  ACTION_BASH_FOR "%in_path%" "%file_regexp%" BEGIN
     LAF "%function%"
       STR_VAR
         file = EVAL "%BASH_FOR_FILE%"
@@ -175,7 +175,7 @@ BEGIN
         STR_VAR
           in_path
           out_path = EVAL "%out_path%/%directory%"
-          type
+          file_regexp
           function
       END
     END
@@ -232,6 +232,7 @@ DEFINE_ACTION_FUNCTION HANDLE_CHARSETS
     convert_array = ~~
     noconvert_array = ~~
     reload_array = ~~
+    file_regexp = ~.+\.tra$~
 BEGIN
   /* Early versions of BG: EE do not include bgee.lua and
    * PST: EE does not include monkfist.2da
@@ -324,7 +325,7 @@ BEGIN
               STR_VAR
                 in_path = EVAL ~%tra_path%/%language%~
                 out_path = EVAL ~%out_path%/%language%~
-                type = ~tra~
+                file_regexp
                 function = ~fl#HANDLE_CHARSETS#RECURSE#TERMINAL~
             END
           END
