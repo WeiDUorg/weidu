@@ -7912,21 +7912,12 @@ other mods. As such, \emph{REMEMBER TO TURN MODDER OFF WHEN YOU RELEASE YOUR MOD
 \label{sec-readln}\subsection{\t{READLN} (Last update: v203)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ATTENTION! Drawbacks of & \DEFINE{ACTION!READLN}:
-- installation will be paused
-- impossible to save user choices, every new installation will require to repeat providing manual input
-- choices are not included inside weidu installation log, debug information is lost
-- impossible to use weidu GROUP, LABEL and other features
-- impossible to display ACTION_READLN choices inside mod managers
-
-Instead of ACTION_READLN please use SUBCOMPONENT feature.
-
 This tutorial has been brought to you by plainab.
 
 The goal of this tutorial is to explain the use of READLN within the tp2 structure.
 READLN can be used as an action or as a patch.  My experience has been in using it
 as an action command. I will describe the usage of READLN and then give you some
-examples of its use.  To put it bluntly READLN stands for "read line" and it's use
+examples of its use. To put it bluntly READLN stands for "read line" and it's use
 causes WeiDU to pause and read any information entered by the user on the interface
 screen and to then store that information within the given variable.
 
@@ -8090,6 +8081,9 @@ that there is no record within the weidu.log file as to which choices were made.
 Should a problem arise during game play it may be difficult to determine which choice
 is causing the problem, especially if the player has forgotten which choices they made.
 This could be solved by creating your own log file, but that is another tutorial...
+
+Modders are urged to be considerate and use alternatives, notably a
+SUBCOMPOENENT/FORCED_SUBCOMPOENENT or configuration files if they are suitable.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec-functions}\subsection{\t{Functions} (Last update: V247)}
