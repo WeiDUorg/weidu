@@ -25,6 +25,7 @@ END
 DEFINE_PATCH_FUNCTION ~ITEM_EFFECT_TO_SPELL~
   INT_VAR type = 3
           header = 99
+          insert_point = "-1"
   STR_VAR new_itm_spl = 0
 BEGIN
   LAUNCH_PATCH_MACRO ~ITEM_EFFECT_TO_SPELL~
@@ -95,7 +96,6 @@ DEFINE_PATCH_FUNCTION ~ADD_ITEM_EQEFFECT~
     dicesize = 0
     savingthrow = 0
     savebonus = 0
-    header = 0
     special = 0
     insert_point = 0
     ___#special = special
@@ -121,7 +121,6 @@ DEFINE_PATCH_FUNCTION ~ADD_SPELL_CFEFFECT~
     dicesize = 0
     savingthrow = 0
     savebonus = 0
-    header = 0
     special = 0
     insert_point = 0
     ___#special = special

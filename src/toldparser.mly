@@ -368,7 +368,7 @@ optional_evaluate :
 | ALLOW_MISSING upper_string_list tp_flag_list
     { Tp.Allow_Missing($2) :: $3 }
 | SCRIPT_STYLE STRING tp_flag_list
-    { let n = match (String.uppercase $2) with
+    { let n = match (String.uppercase_ascii $2) with
     | "BG"
     | "BG2" -> Load.BG2
     | "BG1" -> BG1
@@ -382,7 +382,7 @@ optional_evaluate :
     ;
 
   upper_string_list :            { [] }
-| STRING upper_string_list  { (String.uppercase $1) :: $2 }
+| STRING upper_string_list  { (String.uppercase_ascii $1) :: $2 }
     ;
 
   tp_lang_list :   { [] }
@@ -521,8 +521,8 @@ optional_evaluate :
      Tp.TP_RandomSeed($2)
    }
 | COMPILE optional_evaluate string_list optional_using { Tp.TP_Compile($2,$3,[],$4) }
-| AT_NOW STRING { Tp.TP_At_Now($2,false) }
-| AT_INTERACTIVE_NOW STRING { Tp.TP_At_Now($2,false) }
+| AT_NOW STRING { Tp.TP_At_Now(None,$2,false) }
+| AT_INTERACTIVE_NOW STRING { Tp.TP_At_Now(None,$2,false) }
 | BIFF STRING BEGIN str_reg_list END { Tp.TP_Biff($2,$4) }
 | INLINED_FILE { Tp.TP_Inlined_File($1) }
 | DEFINE_ACTION_MACRO STRING BEGIN tp_local_declaration_list tp_action_list END

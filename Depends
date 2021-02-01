@@ -1,7 +1,7 @@
 
 # First stuff that makes the executable
 # to add later:
-WEIDU_BASE_MODULES := batList batteriesInit \
+WEIDU_BASE_MODULES := batList batteriesInit myhashtbl hashtblinit \
 	case_ins stats arch version parsing tph util modder var arch2 xor \
 	key cbif biff tlk load cre \
 	ids idslexer idslexer2 idsparser \
@@ -9,7 +9,7 @@ WEIDU_BASE_MODULES := batList batteriesInit \
 	dlg dc \
 	refactorbaf refactorbaflexer refactorbafparser refactordlexer refactordparser \
 	baflexer bafparser \
-	diff sav mos tp dlexer dparser sql json \
+	myxdiff diff sav mos tp dlexer dparser sql json \
 	smutil useract lexerint parsetables arraystack objpool glr lrparse \
 	automate kit tpstate tphelp trealparser tlexer toldparser toldlexer tparser \
 	parsewrappers mymarshal tppe tpuninstall tppatch tpaction tpwork \
@@ -17,13 +17,13 @@ WEIDU_BASE_MODULES := batList batteriesInit \
 WEIDU_MODULES = $(WEIDU_BASE_MODULES) myarg autoupdate main
 
 MODULES = $(WEIDU_MODULES) myarg weinstall tolower
-SOURCEDIRS := src zlib glob xdiff elkhound batteries-lite
+SOURCEDIRS := src zlib glob xdiff elkhound batteries-lite hashtbl-4.03.0
 MLLS := dlexer.mll idslexer.mll idslexer2.mll bcslexer.mll baflexer.mll tlexer.mll toldlexer.mll refactorbaflexer.mll refactordlexer.mll
 MLYS := dparser.mly idsparser.mly bcsparser.mly bafparser.mly toldparser.mly refactorbafparser.mly refactordparser.mly
 GRS := trealparserin.gr
 
 src/tph.ml : src/tph/include/* src/tph/define/* scripts/make_tph.ml
-	ocaml str.cma unix.cma -w p scripts/make_tph.ml
+	ocaml str.cma unix.cma -w p -unsafe-string scripts/make_tph.ml
 
 $(OBJDIR)/trealparser.ml : $(OBJDIR)/trealparserin.ml scripts/make_par.ml scripts/make_compr_parser.ml
 	ocaml str.cma unix.cma -w p scripts/make_compr_parser.ml $(OBJDIR)/trealparserin.ml $(OBJDIR)/trealparser.ml
@@ -50,7 +50,7 @@ src/tparser.ml : src/tparser.in
 	cp src/tparser.in src/tparser.ml
 
 src/arch2.ml :
-	echo "let associate_these a = Var.set_string \"WEIDU_ARCH\" \"$(WEIDU_ARCH)\" ; Var.set_string \"WEIDU_OS\" \"$(WEIDU_OS)\"; Var.set_string \"WEIDU_VER\" !Util.weidu_version" > src/arch2.ml
+	echo "let associate_these a = Var.set_string \"WEIDU_ARCH\" \"$(WEIDU_ARCH)\" ; Var.set_string \"WEIDU_OS\" \"$(WEIDU_OS)\"; Var.set_string \"WEIDU_VER\" Version.version" > src/arch2.ml
 	echo "let _ = associate_these ()" >> src/arch2.ml
 
 $(OBJDIR)/tparser.cmx : src/trealparserin.in src/tlexer.in scripts/make_gr.ml src/aliases.in scripts/make_tll.ml $(OBJDIR)/trealparser.cmx

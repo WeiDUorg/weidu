@@ -2,6 +2,7 @@
    starting from 18 December 2012 and WeiDU 231.06. *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
 open Diff
 open Tp
@@ -134,7 +135,7 @@ let do_readme tp this_tp2_filename =
                 if !skip_at_view || not !interactive then answer := "N";
                 while !answer <> "Y" && !answer <> "N" do
                   log_and_print "\n%s\n" (get_trans (-1034));
-                  answer := String.uppercase (read_line())
+                  answer := String.uppercase_ascii (read_line())
                 done;
                 if !answer = "Y" then
                   ignore (Unix.system str);
@@ -395,7 +396,7 @@ let ask_about_quickmenu tp this_tp2_filename using_quickmenu module_defaults
         (Dc.single_string_of_tlk_string_safe (Load.the_game ()) title)
         (if !is_selection then (get_trans (-1027)) else "") ;
       incr cnt) quickmenu ;
-    let ans = String.uppercase (read_line ()) in
+    let ans = String.uppercase_ascii (read_line ()) in
     let set_state inst uninst always_inst always_uninst =
       for i = 0 to last_module_index do
         try
@@ -463,7 +464,7 @@ let ask_about_ungrouped tp this_tp2_filename module_defaults
       finished := true ;
       (* log_and_print "\nWhat should be done with all components that are NOT YET installed?\n[I]nstall them, [S]kip them, [A]sk about each one? " ; *)
       log_and_print "\n%s" ((get_trans (-1002)));
-      match String.uppercase(read_line ()) with
+      match String.uppercase_ascii(read_line ()) with
       | "R"
       | "I" ->
           for i = 0 to last_module_index do
@@ -511,7 +512,7 @@ let ask_about_ungrouped tp this_tp2_filename module_defaults
       finished := true ;
       (* log_and_print "\nWhat should be done with all components that are ALREADY installed?\n[R]e-install them, [U]ninstall them, [S]kip them, [A]sk about each one? " ; *)
       log_and_print "\n%s" ((get_trans (-1003)));
-      match String.uppercase(read_line ()) with
+      match String.uppercase_ascii(read_line ()) with
       | "I"
       | "R" ->
           for i = 0 to last_module_index do
@@ -563,7 +564,7 @@ let ask_about_ungrouped tp this_tp2_filename module_defaults
       | _ -> finished := false
     done
 
-let ask_about_groups tp groups module_defaults last_module_index using_quickmenu always =
+let ask_about_groups tp groups module_defaults last_module_index using_quickmenu always has_ask_only =
   let any_to_be_asked grp =
     let ans = ref false in
     for i = 0 to last_module_index do
@@ -596,14 +597,15 @@ let ask_about_groups tp groups module_defaults last_module_index using_quickmenu
         log_and_print "\n%s%s%s" (Var.get_string (get_trans (-1028)))
           (Dc.single_string_of_tlk_string_safe
              (Load.the_game ()) this_grp) (get_trans (-1029)) ;
-        match String.uppercase(read_line ()) with
+        match String.uppercase_ascii(read_line ()) with
         | "Y" ->
             for i = 0 to last_module_index do
               try
                 let the_comp = get_nth_module tp i false in
                 if is_my_group the_comp this_grp &&
                   module_defaults.(i) = TP_Skip && (not !using_quickmenu ||
-                  List.mem i always) then
+                  List.mem i always) &&
+                  (not has_ask_only || List.mem i !Tp.ask_only) then
                   module_defaults.(i) <- TP_Ask ;
               with Not_found -> ()
             done;
@@ -616,7 +618,33 @@ let ask_about_groups tp groups module_defaults last_module_index using_quickmenu
         (Dc.single_string_of_tlk_string_safe
            (Load.the_game ()) this_grp) (get_trans (-1037))) !groups
 
-
+let rollback_component game tp this_tp2_filename strset_backup_filename
+    tlkpath_backup_filename our_lang_index i m =
+  Dc.clear_state () ;
+  record_strset_uninstall_info game strset_backup_filename ;
+  record_tlk_path_info game tlkpath_backup_filename ;
+  (match !backup_list_chn with
+  | Some(chn) -> close_out chn ; backup_list_chn := None
+  | None -> ()) ;
+  (match !move_list_chn with
+  | Some(chn) -> close_out chn ; move_list_chn := None
+  | None -> ()) ;
+  (match !mappings_list_chn with
+  | Some(chn) -> close_out chn ; mappings_list_chn := None
+  | None -> ()) ;
+  let lang_name =
+    (try
+      let l = List.nth tp.languages !our_lang_index in
+      l.lang_dir_name ;
+    with _ -> "" ) in
+  uninstall_tp2_component game tp this_tp2_filename i !interactive lang_name;
+  print_log () ;
+  if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] && !safe_exit then begin
+    let old_tp_quick_log = !Tp.quick_log in
+    Tp.quick_log := true;
+    Tpstate.save_log game handle_tp2_filename handle_tra_filename get_tra_list_filename;
+    Tp.quick_log := old_tp_quick_log;
+  end
 
 (*************************************************************************
  *************************************************************************
@@ -662,9 +690,11 @@ let rec handle_tp game this_tp2_filename tp =
 
   let our_lang, our_lang_index = choose_lang tp this_tp2_filename in
 
-  ignore (set_tp2_vars tp) ;
+  ignore (set_prelang_tp2_vars tp) ;
 
   ignore (lang_init !our_lang) ;
+
+  ignore (set_postlang_tp2_vars tp) ;
 
   if Load.enhanced_edition_p game then begin
     if not !Load.have_bgee_lang_dir_p then begin
@@ -811,7 +841,7 @@ let rec handle_tp game this_tp2_filename tp =
               !safe_exit then begin
               let old_log = !the_log in
               the_log := !the_log @
-                [((String.uppercase this_tp2_filename), !our_lang_index, i,
+                [((String.uppercase_ascii this_tp2_filename), !our_lang_index, i,
                   Some(package_name), Installed)];
               let old_tp_quick_log = !Tp.quick_log in
               Tp.quick_log := true;
@@ -844,43 +874,38 @@ let rec handle_tp game this_tp2_filename tp =
             end ;
             readln_strings := [] ;
             be_silent := false ;
-          with e -> begin
-            be_silent := false ;
-            append_to_strings_to_print_at_exit
-              (*  "\nNOT INSTALLED: ERRORS [%s]\n"  *)
-              (get_trans (-1032))
-              ((Tpstate.subcomp_str game m) ^ package_name) ;
-            (* add this successful install to the log! *)
-            exit_status := StatusInstallFailure ;
-            log_and_print "\n%s%s%s\n"
-              (*  "\nERROR Installing [%s], rolling back to previous state\n" *)
-              ((get_trans (-1017))) ((Tpstate.subcomp_str game m) ^ package_name) ((get_trans (-1018))) ;
-            Dc.clear_state () ;
-            record_strset_uninstall_info game strset_backup_filename ;
-            record_tlk_path_info game tlkpath_backup_filename ;
-            (match !backup_list_chn with
-            | Some(chn) -> close_out chn ; backup_list_chn := None
-            | None -> ()) ;
-            (match !move_list_chn with
-            | Some(chn) -> close_out chn ; move_list_chn := None
-            | None -> ()) ;
-            (match !mappings_list_chn with
-            | Some(chn) -> close_out chn ; mappings_list_chn := None
-            | None -> ()) ;
-            let lang_name =
-              (try
-                let l = List.nth tp.languages !our_lang_index in
-                l.lang_dir_name ;
-              with _ -> "" ) in
-            uninstall_tp2_component game tp this_tp2_filename i !interactive lang_name;
-            print_log () ;
-            if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] && !safe_exit then begin
-              let old_tp_quick_log = !Tp.quick_log in
-              Tp.quick_log := true;
-              Tpstate.save_log game handle_tp2_filename handle_tra_filename get_tra_list_filename;
-              Tp.quick_log := old_tp_quick_log;
-            end ;
-            raise e
+          with
+          | Abort msg ->
+              be_silent := false ;
+              append_to_strings_to_print_at_exit
+                (* INSTALLATION ABORTED *)
+                (get_trans (-1063))
+                ((Tpstate.subcomp_str game m) ^ package_name) ;
+              log_and_print "\n%s%s%s\n"
+                (get_trans (-1064)) ((Tpstate.subcomp_str game m) ^ package_name)
+                (get_trans (-1065)) ;
+              rollback_component game tp this_tp2_filename
+                strset_backup_filename tlkpath_backup_filename
+                our_lang_index i m ;
+              finished := true ;
+              raise (Abort msg)
+          | e -> begin
+              be_silent := false ;
+              append_to_strings_to_print_at_exit
+                (*  "\nNOT INSTALLED: ERRORS [%s]\n"  *)
+                (get_trans (-1032))
+                ((Tpstate.subcomp_str game m) ^ package_name) ;
+              (* add this successful install to the log! *)
+              exit_status := StatusInstallFailure ;
+              log_and_print "\n%s%s%s\n"
+                (*  "\nERROR Installing [%s], rolling back to previous state\n" *)
+                ((get_trans (-1017)))
+                ((Tpstate.subcomp_str game m) ^ package_name)
+                ((get_trans (-1018))) ;
+              rollback_component game tp this_tp2_filename
+                strset_backup_filename tlkpath_backup_filename
+                our_lang_index i m ;
+              raise e
           end );
           log_and_print "\n\n" ;
           record_strset_uninstall_info game strset_backup_filename ;
@@ -898,7 +923,7 @@ let rec handle_tp game this_tp2_filename tp =
           begin
             if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] then
               the_log := !the_log @
-                [((String.uppercase this_tp2_filename),!our_lang_index,i,Some(package_name),Installed)]
+                [((String.uppercase_ascii this_tp2_filename),!our_lang_index,i,Some(package_name),Installed)]
             else (* log_and_print "NOT adding a WeiDU.log record. You cannot uninstall this.\n" *) ()
           end ;
           finished := true
@@ -972,6 +997,9 @@ let rec handle_tp game this_tp2_filename tp =
   let has_ask_every =
     !ask_all || List.exists (fun a -> a = Ask_Every_Component) tp.flags in
 
+  let has_ask_only =
+    !Tp.ask_only <> [] in
+
   let using_quickmenu = ref false in
   let quickmenu, always = if has_quickmenu then begin
     let quickmenu = List.find (fun x ->
@@ -993,7 +1021,8 @@ let rec handle_tp game this_tp2_filename tp =
          (Var.get_string (get_trans (-1000))) comp_num (get_trans (-1001)) ;
        ask_about_quickmenu tp this_tp2_filename using_quickmenu module_defaults
          quickmenu always last_module_index any_already_installed ;
-     end else if comp_num > 4 && not hasgroups && not has_ask_every then begin
+     end else if comp_num > 4 && not hasgroups && not has_ask_every &&
+       not has_ask_only then begin
        (* add (-1000) "\nThis mod has %d distinct optional components.\nTo save time, you can choose what to do with them at a high level rather\nthan being asked about each one.\n" ; *)
        log_and_print "\n%s %d %s"
          (Var.get_string(get_trans (-1000))) comp_num (get_trans (-1001)) ;
@@ -1002,6 +1031,18 @@ let rec handle_tp game this_tp2_filename tp =
      end
    end ;
 
+  (* ask only about these *)
+  if has_ask_only then
+    for i = 0 to last_module_index do
+      if (not !using_quickmenu || List.mem i always) then
+        try
+          let m = get_nth_module tp i false in
+          if List.mem i !Tp.ask_only then
+            module_defaults.(i) <- TP_Ask
+          else
+            module_defaults.(i) <- TP_Skip
+        with _ -> () ;
+    done ;
 
   (* now ask about groups *)
   let any_group_to_be_asked =
@@ -1021,25 +1062,37 @@ let rec handle_tp game this_tp2_filename tp =
     any_group_to_be_asked
   then begin
     ask_about_groups tp groups module_defaults last_module_index
-      using_quickmenu always ;
+      using_quickmenu always (has_ask_only) ;
   end;
 
   let handle_error_generic always_yes specified_specific_components
       finished package_name =
     (fun e ->
-      exit_status := StatusInstallFailure ;
-      log_and_print "ERROR: %s\n" (printexc_to_string e) ;
-      Dc.clear_state () ;
-      (if (!log_file <> "") then
-        log_and_print "%s %s %s %s\n" ((get_trans (-1004))) !log_file
-          (get_trans (-1005)) tp.author) ;
-      (* log_and_print "PLEASE email the file %s to %s\n" !log_file tp.author;*)
-      if !always_yes || !specified_specific_components then begin
-        log_and_print "Automatically Skipping [%s] because of error.\n"
-          package_name ;
-        finished := true
-      end ;
-      lang_init !our_lang)
+      (match e with
+      | Abort msg ->
+          log_and_print "ABORT: %s\n" msg ;
+          Dc.clear_state () ;
+          if !always_yes || !specified_specific_components then begin
+            log_and_print
+              "Automatically skipping [%s] because it was aborted.\n"
+              package_name ;
+            finished := true
+          end ;
+          lang_init !our_lang
+      | e ->
+          exit_status := StatusInstallFailure ;
+          log_and_print "ERROR: %s\n" (printexc_to_string e) ;
+          Dc.clear_state () ;
+          (if (!log_file <> "") then
+            log_and_print "%s %s %s %s\n" ((get_trans (-1004))) !log_file
+              (get_trans (-1005)) tp.author) ;
+          (* log_and_print "Please make backup of the file: %s and look for support at: %s\n" !log_file tp.author;*)
+          if !always_yes || !specified_specific_components then begin
+            log_and_print "Automatically Skipping [%s] because of error.\n"
+              package_name ;
+            finished := true
+          end ;
+          lang_init !our_lang))
   in
 
   let asked_about_comp = Hashtbl.create 255 in
@@ -1059,7 +1112,7 @@ let rec handle_tp game this_tp2_filename tp =
           let choice_num = ref 1 in
           let choice_ht = Hashtbl.create 255 in
           let already_ht = Hashtbl.create 255 in
-          let uninstalled_because_preditate = ref false in
+          let uninstalled_because_predicate = ref false in
           let is_forced = ref false in
           let at_least_one_OK = ref false in
           for i = 0 to last_module_index do
@@ -1070,7 +1123,7 @@ let rec handle_tp game this_tp2_filename tp =
                 already_installed this_tp2_filename i ->
                 let can_uninstall = already_installed this_tp2_filename i in
                 let temp_uninst   = temporarily_uninstalled this_tp2_filename i in
-                uninstalled_because_preditate := true ;
+                uninstalled_because_predicate := true ;
                 let package_name = Dc.single_string_of_tlk_string_safe
                     (Load.the_game ()) m.mod_name in
                 log_and_print "Uninstalling the component %s because its predicate is no longer true.\n"
@@ -1078,12 +1131,12 @@ let rec handle_tp game this_tp2_filename tp =
                 handle_letter tp "U" can_uninstall temp_uninst package_name m finished i ;
             | Some(ts) when ts = subcomp ->
                 is_forced := !is_forced || (subcomp_forced m);
-                  at_least_one_OK := !at_least_one_OK || (subcomp_predicate m) ||
-                  not (fails_requirements tp m)
+                  at_least_one_OK := (!at_least_one_OK ||
+                  not (fails_requirements tp m)) && (subcomp_predicate m)
                 | _ -> ()
             with Not_found -> ()
           done ;
-          let any_already = any_already && not !uninstalled_because_preditate in
+          let any_already = any_already && not !uninstalled_because_predicate in
           if !at_least_one_OK then begin
             (if (any_already) then begin
               if not !is_forced then
@@ -1123,7 +1176,7 @@ let rec handle_tp game this_tp2_filename tp =
             done ;
             if !any_unsafe then
               log_and_print "Because of --safe-exit, only [N] and [Q] are acceptable.\n";
-            let answer = String.uppercase (read_line ()) in
+            let answer = String.uppercase_ascii (read_line ()) in
             let answer = if Hashtbl.mem already_ht () then begin
               let (m,i) = Hashtbl.find already_ht () in
               let temp_uninst = temporarily_uninstalled this_tp2_filename i in
@@ -1217,7 +1270,7 @@ let rec handle_tp game this_tp2_filename tp =
       if not (safe_to_handle tp.tp_filename !current) then
         log_and_print "\nBecause of --safe-exit, only [N] and [Q] are acceptable. ";
       begin
-        let answer = String.uppercase(read_line ()) in
+        let answer = String.uppercase_ascii(read_line ()) in
         handle_letter tp answer can_uninstall temp_uninst package_name m
           finished !current ;
         Dc.clear_state () ;
@@ -1298,7 +1351,8 @@ let rec handle_tp game this_tp2_filename tp =
       | TPM_Designated(_)
       | TPM_InstallByDefault
       | TPM_Group _
-      | TPM_NotInLog -> ()) m.mod_flags ;
+      | TPM_NotInLog
+      | TPM_Metadata(_) -> ()) m.mod_flags ;
       if not (module_groups_ok m) then
         preproc_fail "SKIPPING"
           (Dlg.Local_String {
@@ -1415,7 +1469,7 @@ let rec handle_tp game this_tp2_filename tp =
             Dc.clear_state () ;
             Dc.push_trans ();
             init_default_strings () ;
-            set_tp2_vars tp2 ;
+            ignore (set_prelang_tp2_vars tp2) ;
             (try
               let l = List.nth tp2.languages b in
               our_lang := Some(l) ;
@@ -1426,6 +1480,7 @@ let rec handle_tp game this_tp2_filename tp =
               (*  log_and_print "Re-Installing Using Language [%s]\n" l.lang_name ;*)
               log_and_print "%s [%s]\n" ((get_trans (-1012))) l.lang_name ;
               Var.set_string "LANGUAGE" l.lang_dir_name ;
+              ignore (set_postlang_tp2_vars tp2) ;
             with _ ->
               our_lang := None ;
               our_lang_index := 0 ;
@@ -1520,9 +1575,9 @@ let rec handle_tp game this_tp2_filename tp =
           (a,b,c,sopt,Permanently_Uninstalled) :: (process tl)
       end
   in
-  let result = (process !the_log) @ !re_installed in
+  let result = process !the_log in
 
-  the_log := result ;
+  the_log := result @ !re_installed ;
 
   save_log game handle_tp2_filename handle_tra_filename get_tra_list_filename ;
 

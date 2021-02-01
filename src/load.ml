@@ -11,6 +11,7 @@
    It was originally taken from Westley Weimer's WeiDU 185. *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
 open Cbif
 
@@ -21,10 +22,6 @@ let registry_game_paths () =
     if str = "." then str else Case_ins.filename_dirname str) str_list
 
 let game_paths = ref []
-
-let add_game_path path =
-  game_paths := (Str.global_replace (Str.regexp "[\\\\/]*$")
-                   "" path) :: !game_paths
 
 let override_paths = ref [
   (* compton wants this gone *)
@@ -37,16 +34,35 @@ let allow_missing = ref []
 
 let cbifs_to_rem = Queue.create ()
 
-let ok_missing file =
-  let file = String.uppercase file in
-  let rec check lst = match lst with
-  | [] -> false
-  | hd :: tl -> if (String.uppercase hd) = file then true else
-    check tl
-  in check !allow_missing
+let add_game_path path =
+  game_paths := (Str.global_replace (Str.regexp "[\\\\/]*$")
+                   "" path) :: !game_paths
 
 let add_override_path path = override_paths := !override_paths @ [path]
 let add_ids_path path = ids_paths := !ids_paths @ [path]
+
+let add_gemrb_path file =
+  let lines = Util.read_lines file in
+  ignore (List.iter (fun line ->
+    let parts = List.map String.trim (String.split_on_char '=' line) in
+    (match parts with
+    | left :: right :: [] when String.equal left "GemRB_Data_Path" ->
+        let path = Case_ins.fix_name right in
+        if (Util.is_directory path) then begin
+          log_only "Adding GemRB data path: [%s]\n" path ;
+          add_override_path path ;
+          add_override_path (path ^ "/../shared/")
+        end else
+          log_and_print "WARNING: GemRB path is not a directory: [%s]\n" path ;
+    | _ -> ())) lines)
+
+let ok_missing file =
+  let file = String.uppercase_ascii file in
+  let rec check lst = match lst with
+  | [] -> false
+  | hd :: tl -> if (String.uppercase_ascii hd) = file then true else
+    check tl
+  in check !allow_missing
 
 type tlk = {
     mutable contents : Tlk.tlk ;
@@ -298,7 +314,7 @@ let load_ee_dialogs game_path =
   let lang_path = game_path ^ "/lang" in
   let lang_dirs =
     (List.fast_sort compare
-       (List.map String.lowercase
+       (List.map String.lowercase_ascii
           (List.filter (fun dir ->
             let dir = Arch.native_separator (lang_path ^ "/" ^ dir) in
             (is_directory dir) &&
@@ -401,7 +417,7 @@ let read_cd_paths gp =
           while true do
             let s = Unix.readdir s_d_h in
             let base,ext = split s in
-            if (String.uppercase ext) = "INI" then begin
+            if (String.uppercase_ascii ext) = "INI" then begin
               let buff = load_file (gp ^ "/" ^ s) in
               (try
                 let cd_regexp = Arch.cd_regexp in
@@ -421,11 +437,11 @@ let read_cd_paths gp =
       end ;
       !sofar
     with _ -> [gp ^ "/CD1" ; gp ^ "/CD2" ; gp ^ "/CD3" ;
-               gp ^ "/CD4" ; gp ^ "/CD5" ; gp ^ "/CD6"])
+               gp ^ "/CD4" ; gp ^ "/CD5" ; gp ^ "/CD6" ; gp])
   in
   if Sys.os_type = "Unix" then
     paths @ [gp ^ "/CD1" ; gp ^ "/CD2" ; gp ^ "/CD3" ;
-             gp ^ "/CD4" ; gp ^ "/CD5" ; gp ^ "/CD6"]
+             gp ^ "/CD4" ; gp ^ "/CD5" ; gp ^ "/CD6"; gp]
   else
     paths
 
@@ -466,14 +482,16 @@ let load_game () =
   let cd_paths = read_cd_paths gp in
   if not (is_directory "override") && (file_exists "chitin.key") then
     Case_ins.unix_mkdir "override" 511 ;
+  if (Util.file_exists "gemrb_path.txt") then
+    ignore (add_gemrb_path "gemrb_path.txt") ;
   let game_type, script_style = autodetect_game_type key in
   let result =
     {
      key = key ;
      game_path = gp ;
      cd_path_list = cd_paths ;
-     override_path_list = !override_paths @ [(gp ^ "/override")] ;
-     ids_path_list = !ids_paths @ !override_paths @ [(gp ^ "/override")] ;
+     override_path_list = [(gp ^ "/override")] @ !override_paths ;
+     ids_path_list = !ids_paths @ [(gp ^ "/override")] @ !override_paths ;
      loaded_biffs = Hashtbl.create 5 ;
      dialog_search = Hashtbl.create 100000 ;
      str_sets = [] ; (* and keep it that way! :-) *)
@@ -616,7 +634,7 @@ let copy_resource game name ext oc =
 let load_resource for_what game override_allowed name ext =
   let skip_this_error = !skip_next_load_error in
   skip_next_load_error := false ;
-  let ext_up = String.uppercase ext in
+  let ext_up = String.uppercase_ascii ext in
   let full = name ^ "." ^ ext in
   let a,b =
     if (Case_ins.filename_is_implicit name) then begin
@@ -670,6 +688,28 @@ let load_resource for_what game override_allowed name ext =
     (Xor.decrypt a,b)
   else
     (a,b)
+
+let exists_in_overrides game res ext =
+  List.fold_left (fun acc dir ->
+    if file_exists (dir ^ "/" ^ res ^ "." ^ ext) then
+      true
+    else acc) false (if (String.uppercase_ascii ext) = "IDS" then
+      game.ids_path_list else game.override_path_list)
+
+let resource_exists_legacy_check name =
+  (* FILE_EXISTS_IN_GAME used to be implemented through load_resource
+     This function corresponds to the control-flow
+     load_resource > exn > with _ > not ok_missing >
+     and aims to preserve legacy behaviour, nonsense though it may be *)
+  file_exists name
+
+let resource_exists game res ext =
+  let name = res ^ "." ^ ext in
+  if (Case_ins.filename_is_implicit res) then begin
+    exists_in_overrides game res ext || Key.resource_exists game.key res ext ||
+    resource_exists_legacy_check name
+  end else
+    file_contains_data name
 
 open Key
 

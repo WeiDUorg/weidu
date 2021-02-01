@@ -14,6 +14,7 @@
  *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
 
 let debug_assign = ref false
@@ -289,7 +290,7 @@ let all_the_assoc a =
   set_string "TAB" "\t" ;
 
   List.iter (fun game ->
-    let var = "REGISTRY_" ^ (String.uppercase game) ^ "_PATH" in
+    let var = "REGISTRY_" ^ (String.uppercase_ascii game) ^ "_PATH" in
     try
       let res = Arch.game_path_by_type game in
       set_string var (if res = "." then "" else res)
@@ -315,9 +316,6 @@ let set_game_vars game_path game_type =
 
 let set_ee_language_var lang_dir =
   set_string "EE_LANGUAGE" lang_dir
-
-let get_tp2_base_name dir =
-  (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" dir)
 
 let get_mod_folder dir =
   (try

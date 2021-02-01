@@ -1,6 +1,6 @@
-(* 
+(*
  * Special Version of OCAML-YACC that has been hacked by weimer to be
- * re-entrant (that is, you can have one parser call another parser) 
+ * re-entrant (that is, you can have one parser call another parser)
  *)
 
 (***********************************************************************)
@@ -21,6 +21,7 @@
 (* The parsing engine *)
 
 open BatteriesInit
+open Hashtblinit
 open Lexing
 
 (* Internal interface to the parsing engine *)
@@ -58,8 +59,8 @@ type parse_tables =
       table : string;
       check : string;
       error_function : string -> unit;
-	names_const : string;
-	names_block : string }
+        names_const : string;
+        names_block : string }
 
 exception YYexit of Obj.t
 exception Parse_error
@@ -82,13 +83,13 @@ type parser_output =
 
 external parse_engine :
       parse_tables -> parser_env -> parser_input -> Obj.t -> parser_output
-	  = "caml_parse_engine"
+          = "caml_parse_engine"
 
-let make_env () = 
-  { s_stack = Array.create 100 0;
-    v_stack = Array.create 100 (Obj.repr ());
-    symb_start_stack = Array.create 100 dummy_pos;
-    symb_end_stack = Array.create 100 dummy_pos;
+let make_env () =
+  { s_stack = Array.make 100 0;
+    v_stack = Array.make 100 (Obj.repr ());
+    symb_start_stack = Array.make 100 dummy_pos;
+    symb_end_stack = Array.make 100 dummy_pos;
     stacksize = 100;
     stackbase = 0;
     curr_char = 0;
@@ -104,16 +105,16 @@ let make_env () =
 
 let env = ref []
 
-let henv () = List.hd !env 
+let henv () = List.hd !env
 
 let grow_stacks() =
-  let env = henv () in 
+  let env = henv () in
   let oldsize = env.stacksize in
   let newsize = oldsize * 2 in
-  let new_s = Array.create newsize 0
-  and new_v = Array.create newsize (Obj.repr ())
-  and new_start = Array.create newsize dummy_pos
-  and new_end = Array.create newsize dummy_pos in
+  let new_s = Array.make newsize 0
+  and new_v = Array.make newsize (Obj.repr ())
+  and new_start = Array.make newsize dummy_pos
+  and new_end = Array.make newsize dummy_pos in
   Array.blit env.s_stack 0 new_s 0 oldsize;
   env.s_stack <- new_s;
   Array.blit env.v_stack 0 new_v 0 oldsize;
@@ -125,7 +126,7 @@ let grow_stacks() =
   env.stacksize <- newsize
 
 let clear_parser() =
-  let env = henv () in 
+  let env = henv () in
   Array.fill env.v_stack 0 env.stacksize (Obj.repr ());
   env.lval <- Obj.repr ()
 
@@ -133,10 +134,10 @@ let current_lookahead_fun = ref (fun (x : Obj.t) -> false)
 
 let yyparse tables start lexer lexbuf =
 
-  env := (make_env ()) :: !env ; 
+  env := (make_env ()) :: !env ;
 
   let rec loop cmd arg =
-    let env = henv () in 
+    let env = henv () in
     match parse_engine tables env cmd arg with
       Read_token ->
         let t = Obj.repr(lexer lexbuf) in
@@ -167,7 +168,7 @@ let yyparse tables start lexer lexbuf =
     and init_curr_char = env.curr_char
     and init_errflag = env.errflag in
    *)
-  (let env = henv () in 
+  (let env = henv () in
   env.stackbase <- env.sp + 1;
   env.curr_char <- start;
   env.symb_end <- lexbuf.lex_curr_p);
@@ -199,19 +200,19 @@ let peek_val env n =
   Obj.magic env.v_stack.(env.asp - n)
 
 let symbol_start_pos () =
-  let env = henv () in 
+  let env = henv () in
   if env.rule_len > 0
   then env.symb_start_stack.(env.asp - env.rule_len + 1)
   else env.symb_end_stack.(env.asp)
 ;;
-let symbol_end_pos () = 
-  let env = henv () in 
+let symbol_end_pos () =
+  let env = henv () in
   env.symb_end_stack.(env.asp);;
-let rhs_start_pos n = 
-  let env = henv () in 
+let rhs_start_pos n =
+  let env = henv () in
   env.symb_start_stack.(env.asp - (env.rule_len - n));;
-let rhs_end_pos n = 
-  let env = henv () in 
+let rhs_end_pos n =
+  let env = henv () in
   env.symb_end_stack.(env.asp - (env.rule_len - n));;
 
 let symbol_start () = (symbol_start_pos ()).pos_cnum;;

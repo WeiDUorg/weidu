@@ -5,6 +5,7 @@
  * Functions to store the current state of WeiDU *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
 open Tp
 
@@ -23,13 +24,29 @@ let rec get_menu_style fl = match fl with
 | Menu_Style(i) :: tl -> int_of_string i
 | hd :: tl -> get_menu_style tl
 
-let set_tp2_vars tp =
+let mod_folder tp =
+  (match Var.get_mod_folder tp.tp_filename with
+  | Some s -> s
+  | None -> (match Var.get_mod_folder tp.backup with
+    | Some s -> s
+    | None -> tp.backup))
+
+let set_prelang_tp2_vars tp =
   Var.set_string "TP2_AUTHOR" tp.author ;
-  Var.set_string "TP2_FILE_NAME" tp.tp_filename ;
-  Var.set_string "TP2_BASE_NAME" (Var.get_tp2_base_name tp.tp_filename) ;
-  (match Var.get_mod_folder tp.backup with
-  | Some s -> Var.set_string "MOD_FOLDER" s
-  | None -> ())
+  Var.set_string "TP2_FILE_NAME" (Case_ins.filename_basename tp.tp_filename) ;
+  Var.set_string "TP2_BASE_NAME"
+    (Util.tp2_name (Case_ins.filename_basename tp.tp_filename)) ;
+  Var.set_string "MOD_FOLDER" (mod_folder tp)
+
+let set_postlang_tp2_vars tp =
+  Var.set_string "MOD_VERSION" (List.fold_left (fun acc flag ->
+    (match flag with
+    | Version s -> (Dc.single_string_of_tlk_string_safe (Load.the_game ()) s)
+    | _ -> acc)) "" tp.flags)
+
+let set_tp2_vars tp =
+  ignore (set_prelang_tp2_vars tp) ;
+  ignore (set_postlang_tp2_vars tp)
 
 (************************************************************************
  * Common hashtables.
@@ -38,7 +55,9 @@ let loaded_tph: (string,tp_action list)Hashtbl.t = Hashtbl.create 5
 let loaded_tpp: (string,tp_patch list)Hashtbl.t = Hashtbl.create 5
 let macros: ((string*bool),tp_local_declaration list * tp_patch list)Hashtbl.t = Hashtbl.create 10
 let functions: ((string*bool),(tp_pe_string * tp_patchexp) list *
-                  (tp_pe_string * tp_pe_string) list * tp_pe_string list * tp_patch list) Hashtbl.t = Hashtbl.create 10
+                  (tp_pe_string * tp_pe_string) list * tp_pe_string list *
+                  tp_pe_string list * tp_patch list)
+    Hashtbl.t = Hashtbl.create 10
 let readln_strings: string list ref = ref []
 
 let clear_codes () =
@@ -146,18 +165,27 @@ let get_component_list tp_file =
     | Tp.TPM_InstallByDefault -> true
     | _ -> false) tp_mod.Tp.mod_flags in
     let forced = forced_subgroup || install_by_default in
+    let metadata = List.fold_left (fun acc f ->
+      (match f with
+      | Tp.TPM_Metadata(s) -> Some (s :: (match acc with
+        | Some l -> l
+        | None -> []))
+      | _ -> acc)) None tp_mod.Tp.mod_flags in
     { index = index ; name = tp_mod.mod_name ; number = number ;
       label = label ; deprecated = deprecated ; group = group ;
-      subgroup = subgroup ; forced = forced }) tp_file.Tp.module_list
+      subgroup = subgroup ; forced = forced; metadata = (match metadata with
+      | Some l -> Some (List.rev l)
+      | None -> None)})
+    tp_file.Tp.module_list
 
 (************************************************************************
  * Evaluate a TP2 Patch Expression
  ************************************************************************)
 let log_match a b =
-  let a = String.uppercase a in
-  let b = String.uppercase b in
-  Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase a)) =
-  Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase b))
+  let a = String.uppercase_ascii a in
+  let b = String.uppercase_ascii b in
+  Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase_ascii a)) =
+  Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase_ascii b))
 
 let any_installed tp2 =
   let rec is_installed lst = match lst with
@@ -257,7 +285,8 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
             Dc.clear_state () ;
             Dc.push_trans ();
             Var.var_clear_push () ;
-            ignore (set_tp2_vars tp2) ;
+            ignore (set_prelang_tp2_vars tp2) ;
+            ignore (Arch2.associate_these ()) ;
             let a_dir = Case_ins.filename_dirname a in
             (try
               let l = List.nth tp2.languages b in
@@ -271,6 +300,7 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
                     Hashtbl.add tra_ht s x; x)
                 in
                 Stats.time "adding translation strings" Dc.add_trans_strings x) l.lang_tra_files ;
+              ignore (set_postlang_tp2_vars tp2) ;
             with _ -> ()) ;
             let m = get_nth_module tp2 c true in
             let comp_str = Dc.single_string_of_tlk_string_safe game m.mod_name in
@@ -291,11 +321,11 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
         let component_name = Str.global_replace newline_regexp " " component_name in
         let subcomponent_name = Str.global_replace newline_regexp " " subcomponent_name in
         Printf.sprintf "~%s~ #%d #%d // %s%s%s\n"
-          (String.uppercase a) b c subcomponent_name component_name version
+          (String.uppercase_ascii a) b c subcomponent_name component_name version
       end
       else begin
         Printf.sprintf "~%s~ #%d #%d\n"
-          (String.uppercase a) b c
+          (String.uppercase_ascii a) b c
       end
     in
     match d with

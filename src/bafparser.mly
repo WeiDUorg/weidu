@@ -63,7 +63,7 @@ let get_next_point argl =
   | _ -> failwith "get_next_point"
 
 let valid_var_area s =
-  let s = String.uppercase s in
+  let s = String.uppercase_ascii s in
   if Modder.enabled "AREA_VARIABLES" then
     let ans = (s = "GLOBAL" || s = "LOCALS" || s = "KAPUTZ" || s = "MYAREA" ||
     s = "" || ( Str.string_match (Str.regexp "AR[0-9][0-9][0-9][0-9]") s 0) ||
@@ -74,10 +74,13 @@ let valid_var_area s =
 let valid_main_string s =
   String.length s <= 32
 
-let colonise l r =
-  l ^ ":" ^ r
+let interpose l r interposer =
+  if l <> "" && r <> "" then
+    l ^ interposer ^ r
+  else
+    l ^ r
 
-let fixup_concat ss argl =
+let fixup_concat interposer argl =
   let s1 = get_next_string argl in
   let s2 = get_next_string argl in
   if not (valid_main_string s1) then
@@ -88,12 +91,9 @@ let fixup_concat ss argl =
     Modder.handle_deb "AREA_VARIABLES"
       (Printf.sprintf
          "This expression has a typo in the second part: Global(\"%s\",\"%s\")\n" s1 s2);
-  (match ss with
-  | Load.IWD1
-  | Load.IWD2 -> argl := (Arg_String,Act_String(colonise s2 s1)) :: !argl
-  | _ -> argl := (Arg_String,Act_String(s2^s1)) :: !argl)
+  argl := (Arg_String,Act_String(interpose s2 s1 interposer)) :: !argl
 
-let fixup_concat2 ss argl =
+let fixup_concat2 interposer argl =
   let s1 = get_next_string argl in
   let s2 = get_next_string argl in
   if not (valid_main_string s1) then
@@ -114,18 +114,15 @@ let fixup_concat2 ss argl =
     Modder.handle_deb "AREA_VARIABLES"
       (Printf.sprintf
          "This expression has a typo in the second part: *Global*(\"%s\",\"%s\")\n" s3 s4);
-  (match ss with
-  | Load.IWD1
-  | Load.IWD2 -> argl := (Arg_String,Act_String(colonise s2 s1)) ::
-      (Arg_String,Act_String(colonise s4 s3)) :: !argl
-  | _ -> argl := (Arg_String,Act_String(s2^s1)) ::
-      (Arg_String,Act_String(s4^s3)) :: !argl)
+  argl := (Arg_String,Act_String(interpose s2 s1 interposer)) ::
+      (Arg_String,Act_String(interpose s4 s3 interposer)) :: !argl
 
-let fixup_concat3 argl =
+let fixup_concat3 interposer argl =
   let s1 = get_next_string argl in
   let s2 = get_next_string argl in
   let s3 = get_next_string argl in
-  argl := (Arg_String,Act_String(s1)) :: (Arg_String,Act_String(colonise s3 s2)) :: !argl
+  argl := (Arg_String,Act_String(s1)) ::
+    (Arg_String,Act_String(interpose s3 s2 interposer)) :: !argl
 
 let low_word x =
   Int32.logand x (Int32.of_int 0xFFFF)
@@ -396,10 +393,10 @@ let rec verify_arg_list name al fl = match (al,fl) with
      let act_list = ref (verify_arg_list $2 $4 ids.i_args) in
      let ss = (the_game ()).Load.script_style in
      (match is_concat_string ss ids with
-     | 1 -> fixup_concat ss act_list
-     | 2 -> fixup_concat2 ss act_list
-     | 3 -> fixup_concat3 act_list
-     | _ -> ()) ;
+     | (1, interposer) -> fixup_concat interposer act_list
+     | (2, interposer) -> fixup_concat2 interposer act_list
+     | (3, interposer) -> fixup_concat3 interposer act_list
+     | (_, _) -> ()) ;
      let t1 = get_next_int act_list in
      let t2 = get_next_int act_list in
      let t3 = get_next_string act_list in
@@ -563,10 +560,10 @@ let rec verify_arg_list name al fl = match (al,fl) with
      let act_list = ref (verify_arg_list $1 $3 ids.i_args) in
      let ss = (the_game ()).Load.script_style in
      (match is_concat_string ss ids with
-     | 1 -> fixup_concat ss act_list ;
-     | 2 -> fixup_concat2 ss act_list ;
-     | 3 -> fixup_concat3 act_list
-     | _ -> () ) ;
+     | (1, interposer) -> fixup_concat interposer act_list ;
+     | (2, interposer) -> fixup_concat2 interposer act_list ;
+     | (3, interposer) -> fixup_concat3 interposer act_list
+     | (_, _) -> () ) ;
      let a1 = empty_object_param() in
      let a2 = get_next_object act_list in
      let a3 = get_next_object act_list in

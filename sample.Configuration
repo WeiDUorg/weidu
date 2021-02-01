@@ -6,19 +6,28 @@
 ifdef WINDIR
 	# (0) X86 / Windows / Cygwin, using MINGW as the C compiler
 	export ARCHOS    = x86_WIN32
-	export OCAMLDIR  = C:\\ocaml\\bin
 	export OBJEXT    = o
 	export ARCH_FILE = arch_mingw
 	export CASE_FILE = case_ins_win
 	export ARCH_C_FILES = createprocess_win32
-	export WEIDU_ARCH = x86
+	# Selects on the bitness of the Cygwin environment
+	ifeq "$(shell uname -m)" "x86_64"
+		export OCAMLDIR  = C:\\ocaml64\\bin
+		export WEIDU_ARCH = amd64
+		export ELKHOUND_BIN = elkhound64
+        export WINDRES_BIN = x86_64-w64-mingw32-windres
+	else
+		export OCAMLDIR  = C:\\ocaml\\bin
+		export WEIDU_ARCH = x86
+		export ELKHOUND_BIN = elkhound
+        export WINDRES_BIN = i686-w64-mingw32-windres
+	endif
 	export WEIDU_OS = win32
 	PROJECT_CMODULES   = reg
 	PROJECT2_CMODULES  = reg
 	PROJECT3_CMODULES  = reg
 	export GLOB      = glob_win32
 	export USEOPT = .opt
-	export TKDIR = obj
 else
 	uname=$(shell uname)
 	ifeq "$(uname)" "Linux"
@@ -37,9 +46,9 @@ else
 			export WEIDU_ARCH = x86
 		endif
 		export WEIDU_OS = unix
+		export ELKHOUND_BIN = elkhound
 		export USEOPT = .opt
 		PROJECT_CMODULES = nix
-		export TKDIR = obj
 	else
 		ifeq "$(uname)" "Darwin"
 			# (2) Mac OS X, using GCC as the C compiler
@@ -60,9 +69,9 @@ else
 				export ARCH_FILE = arch_legacy_osx
 			endif
 			export WEIDU_OS = osx
+			export ELKHOUND_BIN = elkhound
 			export USEOPT = .opt
 			PROJECT_CMODULES = nix
-			export TKDIR = obj-tk
 		endif
 	endif
 endif

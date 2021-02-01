@@ -4,6 +4,7 @@
 (* automatically make a TP2 file section for all files in the given
  * directory *)
 open BatteriesInit
+open Hashtblinit
 open Util
 
 let process file game min o =
@@ -18,7 +19,7 @@ let process file game min o =
       end
   in
   let _,ext = split file in
-  let ext = String.uppercase ext in
+  let ext = String.uppercase_ascii ext in
   try begin
     match ext with
     | "SPL"
@@ -101,7 +102,7 @@ let automate game dir_l min o =
         while true do
           let s = Unix.readdir d_h in
           let full = dir ^ "/" ^ s in
-          if file_size full > 0 then begin
+          if file_exists full then begin
             let src = Printf.sprintf "~%s~" full in
             let dst = Printf.sprintf "~override/%s~" s in
             o (Printf.sprintf "\nCOPY %-30s %-30s\n" src dst) ;

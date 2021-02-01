@@ -1,5 +1,6 @@
 (* Infinity Engine [TLK] Format *)
 open BatteriesInit
+open Hashtblinit
 open Util
 
 (* let flags_parse = 7  *)
@@ -109,7 +110,7 @@ let null_tlk () : tlk = [| |]
 let load_big_slow_tlk filename = begin
   Stats.time "unmarshal TLK" (fun () -> 
     let fd = Case_ins.unix_openfile filename [Unix.O_RDONLY] 0 in 
-    let buff = String.create 8 in 
+    let buff = Bytes.create 8 in 
     my_read 8 fd buff filename ; 
     if buff <> "TLK V1  " then begin
       failwith "not a valid TLK file (wrong sig)"
@@ -132,7 +133,7 @@ let load_big_slow_tlk filename = begin
 	let text_length = get_int () in 
 	let text = if text_length = 0 then "" else
         begin
-          let string_i_text = String.create text_length in 
+          let string_i_text = Bytes.create text_length in 
           ignore(Unix.lseek fd (offset_strdata + text_offset) Unix.SEEK_SET) ;
           my_read text_length fd string_i_text filename ; 
           string_i_text

@@ -25,7 +25,6 @@ include Configuration
 # Just a target to be used by default
 .PHONY: weidu doc all
 all : weidu
-# "make weigui" if you want weigui
 # "make weinstall" if you want weinstall
 
 ####
@@ -34,8 +33,12 @@ all : weidu
 # Debugging. Set ECHO= to debug this Makefile
 # ECHO := @
 
+
 RELEASE    := 1
 NATIVECAML := 1
+VERSION_MAJOR := $(shell grep 'version =' src/version.ml | cut -d'"' -f2 | cut -c-3)
+VERSION_MINOR := $(shell grep 'version =' src/version.ml | cut -d'"' -f2 | cut -c4-)
+
 # UNSAFE     := 1
 
 # Put here all the byproducts of make
@@ -46,7 +49,7 @@ include Depends
 
 CAMLFLAGS      += -I zlib -I xdiff
 
-   # Now the rule to make WeiDU
+# Now the rule to make WeiDU
 
 PROJECT_EXECUTABLE = $(OBJDIR)/weidu$(EXE)
 PROJECT_MODULES    = $(WEIDU_MODULES)
@@ -61,21 +64,55 @@ PROJECT_CMODULES   += crc32 compress deflate trees
 
 PROJECT_OCAML_LIBS = unix str #OCaml changed libstr into libcamlstr and "you are not supposed to link with -lstr"
 PROJECT_LIBS       = unix camlstr
+
+PROJECT_RESOURCES = weidu_resources
+
 .PHONY: weidu
-weidu:  $(PROJECT_EXECUTABLE)
+weidu: $(PROJECT_EXECUTABLE)
+
 $(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                         $(PROJECT_CMODULES:%=$(OBJDIR)/%.$(OBJEXT))
 	@$(NARRATIVE) Linking $(COMPILETOWHAT) $@
-	$(CAMLLINK) -o $@ \
-                    $(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
-                    $(PROJECT_LIBS:%=-cclib -l%) \
-                    $(PROJECT_CLIBS:%=-cclib %) \
-                    $^
-	cp $(PROJECT_EXECUTABLE) .
 
-# compile weigui with the Labltk bindings!
-weigui: FORCE
-	$(MAKE) -f Makefile-tk weigui
+ifeq ($(shell uname -s),Linux)
+	@$(NARRATIVE) Linking Linux executable
+	$(CAMLLINK) -o $@ \
+                $(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
+                $(PROJECT_LIBS:%=-cclib -l%) \
+                $(PROJECT_CLIBS:%=-cclib %) \
+                $^
+	cp $(PROJECT_EXECUTABLE) .
+endif
+
+ifeq ($(shell uname -s),Darwin)
+	@$(NARRATIVE) Linking Darwin executable
+	$(CAMLLINK) -o $@ \
+                $(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
+                $(PROJECT_LIBS:%=-cclib -l%) \
+                $(PROJECT_CLIBS:%=-cclib %) \
+                $^
+	cp $(PROJECT_EXECUTABLE) .
+endif
+
+ifeq ($(OS),Windows_NT)
+	@$(NARRATIVE) Linking Windows executable
+	@$(NARRATIVE) VERSION_MAJOR is $(VERSION_MAJOR)
+	@$(NARRATIVE) VERSION_MINOR is $(VERSION_MINOR)
+
+	sed -i "s/FILEVERSION\W\+[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+,[[:digit:]]\+/FILEVERSION\t\t$(VERSION_MAJOR),$(VERSION_MINOR),0,0/gI" windows_resources/weidu_resources.rc
+	sed -i "s/\"FileVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"FileVersion\",\ \"$(VERSION_MAJOR).$(VERSION_MINOR)\"/gI" windows_resources/weidu_resources.rc
+	sed -i "s/\"ProductVersion\",\ \"[[:digit:]]\+.[[:digit:]]\+\"/\"ProductVersion\",\ \"$(VERSION_MAJOR).$(VERSION_MINOR)\"/gI" windows_resources/weidu_resources.rc
+
+	$(WINDRES_BIN) -i windows_resources/weidu_resources.rc -o $(OBJDIR)/weidu_resources.o
+
+	$(CAMLLINK) -o $@ \
+                $(PROJECT_OCAML_LIBS:%=%.$(CMXA)) \
+                $(PROJECT_LIBS:%=-cclib -l%) \
+                $(PROJECT_CLIBS:%=-cclib %) \
+                $(PROJECT_RESOURCES:%=$(OBJDIR)/%.$(OBJEXT)) \
+                $^
+	cp $(PROJECT_EXECUTABLE) .
+endif
 
 # rule for tolower
 
@@ -125,7 +162,6 @@ clean:
 	src/tlexer.mll src/trealparserin.gr  \
 	src/toldlexer.mll src/tph.ml
 	find obj -exec rm {} \; || true
-	$(MAKE) -f Makefile-tk clean
 
 
 ###
@@ -150,7 +186,7 @@ windows_zip : weidu weinstall tolower
 	cp README* ../WeiDU-Windows
 	cp COPYING ../WeiDU-Windows
 	cp -r examples ../WeiDU-Windows
-	cp windows_manifests/*.manifest ../WeiDU-Windows
+	#cp windows_manifests/*.manifest ../WeiDU-Windows
 	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU-Windows)
 src_zip : clean
 	(cd .. ; zip -9r WeiDU-Src-$(VER).zip weidu/* -x weidu/*.exe -x weidu/*.dll -x */.DS_Store; )

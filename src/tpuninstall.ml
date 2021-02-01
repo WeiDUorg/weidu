@@ -2,6 +2,7 @@
    starting from 18 December 2012 and WeiDU 231.06. *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
 open Tp
 open Parsewrappers
@@ -98,7 +99,7 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
       | TP_At_Interactive_Uninstall(str,exact) ->
           if do_interactive_uninstall then begin
             let str = Var.get_string str in
-            match (split (String.uppercase str)) with
+            match (split (String.uppercase_ascii str)) with
             | _,"TP2" -> (enqueue_tp2_filename) str
             | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
               ignore(exec_command str exact)
@@ -106,7 +107,7 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
       | TP_At_Uninstall(str,exact) ->
           if do_uninstall then begin
             let str = Var.get_string str in
-            match (split (String.uppercase str)) with
+            match (split (String.uppercase_ascii str)) with
             | _,"TP2" -> (enqueue_tp2_filename) str
             | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
               ignore (exec_command str exact)
@@ -114,7 +115,7 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
       | TP_At_Interactive_Uninstall_Exit(str,exact) ->
           if do_interactive_uninstall then begin
             let str = Var.get_string str in
-            match (split (String.uppercase str)) with
+            match (split (String.uppercase_ascii str)) with
             | _,"TP2" -> (enqueue_tp2_filename) str
             | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
               if List.mem (Command(str,exact)) !execute_at_exit then
@@ -125,7 +126,7 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
       | TP_At_Uninstall_Exit(str,exact) ->
           if do_uninstall then begin
             let str = Var.get_string str in
-            match (split (String.uppercase str)) with
+            match (split (String.uppercase_ascii str)) with
             | _,"TP2" -> (enqueue_tp2_filename) str
             | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
               if List.mem (Command(str,exact)) !execute_at_exit then
@@ -217,9 +218,9 @@ let validate_uninstall_order tp2 =
     match flag with
     | Uninstall_Order str_l ->
         List.iter (fun action ->
-          if not (Hashtbl.mem actions (String.uppercase action)) then
+          if not (Hashtbl.mem actions (String.uppercase_ascii action)) then
             failwith (action ^ " not allowed in UNINSTALL_ORDER");
-          if not (Hashtbl.find actions (String.uppercase action)) then
+          if not (Hashtbl.find actions (String.uppercase_ascii action)) then
             failwith (action ^ " already had an UNINSTALL_ORDER");
           Queue.add action order;
           Hashtbl.add actions action false;
@@ -235,11 +236,14 @@ let validate_uninstall_order tp2 =
     log_and_print "\nWARNING: some UNINSTALL_ORDER commands are not specified\n\n";
   order
 
+let spell_ids_marker tp2 i =
+  Printf.sprintf "override/spell.ids.%s.%d.marker"
+    (String.lowercase_ascii (Util.tp2_name (Case_ins.filename_basename tp2))) i
+
 let check_pre_hooks game tp2 i interactive override_filename =
-  if (String.uppercase override_filename) = "OVERRIDE/SPELL.IDS" ||
-  (String.uppercase override_filename) = "OVERRIDE\\SPELL.IDS" then begin try
-    let tp2_basename = String.lowercase (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp2.tp_filename) in
-    let marker = Printf.sprintf "override/spell.ids.%s.%d.marker" tp2_basename i in
+  if (String.uppercase_ascii override_filename) = "OVERRIDE/SPELL.IDS" ||
+  (String.uppercase_ascii override_filename) = "OVERRIDE\\SPELL.IDS" then begin try
+    let marker = spell_ids_marker tp2.tp_filename i in
     let out_chn = Case_ins.perv_open_out_bin marker in
     output_string out_chn "spell.ids edits installed\n";
     close_out out_chn;
@@ -249,7 +253,7 @@ let check_pre_hooks game tp2 i interactive override_filename =
   with e -> () end
 
 let check_post_hooks game tp2 i interactive override_filename =
-  if String.uppercase override_filename = "CHITIN.KEY" then begin
+  if String.uppercase_ascii override_filename = "CHITIN.KEY" then begin
     let keyname = Load.find_file_in_path "." "^chitin.key$" in
     let keybuff = load_file keyname in
     game.Load.key <- Key.load_key keyname keybuff ;
@@ -371,8 +375,8 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
       in
       let uninstall_at () =
         let m = get_nth_module result i true in
-        ignore (set_tp2_vars tp2) ;
         Var.set_string "LANGUAGE" lang_name ;
+        ignore (set_tp2_vars tp2) ;
         Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
         handle_at_uninstall tp2 m true interactive game ;
       in
@@ -402,8 +406,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
 
 
 let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
-  let tp2_basename = String.lowercase (Str.global_replace (Str.regexp_case_fold ".*[-/]\\([^-/]*\\)\\.tp2$") "\\1" tp2) in
-  let marker = Printf.sprintf "override/spell.ids.%s.%d.marker" tp2_basename i in
+  let marker = spell_ids_marker tp2 i in
   my_unlink marker;
   let rec is_installed lst = match lst with
   | [] -> []
@@ -417,12 +420,12 @@ let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
               let l = List.nth tp2.languages b in
               l.lang_dir_name ;
             with _ -> "" ) in
-          ignore (set_tp2_vars tp2) ;
           Var.set_string "LANGUAGE" lang_name ;
+          ignore (set_tp2_vars tp2) ;
           Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
           let m = get_nth_module tp2 c true in
           log_only "Running AT_INTERACTIVE_EXITs in ~%s~ %d %d %s\n"
-            (String.uppercase a) b c
+            (String.uppercase_ascii a) b c
             (str_of_str_opt sopt) ;
           handle_at_uninstall tp2 m
             false (* "AT_UNINSTALL" was already done! *)

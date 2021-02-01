@@ -89,6 +89,7 @@ MyGlob (const char *Pattern, value FileFuncParm)
   int SawPat;
   int RecurseAt;
 
+  CAMLparam0();
   CAMLlocal1(v_string); 
 
   strcpy (PatCopy, Pattern);

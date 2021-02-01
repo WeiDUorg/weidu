@@ -1,0 +1,1129 @@
+/*
+Author: Argent77
+
+v1: Initial release.
+*/
+
+
+/**
+ * Adds an item to the current STO file. This is a PATCH function.
+ * SET charge1          Number charges of the 1st ability or quantity for stackables. (Default: 0)
+ * SET charge2          Number charges of the 2nd ability. (Default: 0)
+ * SET charge3          Number charges of the 3rd ability. (Default: 0)
+ * SET stack            Number of item instances the store carries in the stack. (Default: 1)
+ * SET unlimited        Set to non-zero if the store should carry an inexhaustible stack of the new item. (Default: 0)
+ * SET overwrite        Set to non-zero to overwrite any instances of an existing sale entry of matching item resref 
+ *                      when found. (Default: 0)
+ * SET expiration       The item's expiration time, when it will be replaced with the drained item. (Default: 0)
+ * SPRINT item_name     The resource name (resref) of the item to add.
+ * SPRINT position      Desired position of the item in the list of sale entries. The following syntax is supported:
+ *                      AFTER resref    Will place the new item directly behind the item given by "resref".
+ *                                      You can list more than one resref, separated by space. The new item will be 
+ *                                      added after the entry of the first matching resref.
+ *                      BEFORE resref   Will place the new item directly before the item given by "resref".
+ *                                      You can list more than one resref, separated by space. The new item will be 
+ *                                      added before the entry of the first matching resref.
+ *                      LAST            Will place the new item after all existing items.
+ *                      FIRST           Will place the new item before all existing items.
+ *                      AT value        Will place the new item at the position given by the number "value".
+ *                                      Use negative values to place the new item relative to the last item position 
+ *                                      in reverse order.
+ *                      (Default: FIRST)
+ * SPRINT flags         Use numeric values or the following constants: none, identified, unstealable, stolen.
+ *                      Constants can be combined by using ampersand (&) or space as separators 
+ *                      (e.g. identified&unstealable). (Default: none)
+ * SPRINT sale_trigger  Availability trigger (STO V1.1 only). The following syntax is supported:
+ *                      Trigger string          Example: GlobalGT("MyCondition","GLOBAL",0)
+ *                      Strref value            Example: #1234
+ *                      Translation reference   Example: @1000
+ *                      (Default: #-1)
+ * RETURN index         Index of the added item or the last matching index when overwriting items.
+ *                      Returns -1 if the item could not be added or updated.
+ * RETURN offset        Offset of the added item or the last matching offset when overwriting items.
+ *                      Returns -1 if the item could not be added or updated.
+ */
+DEFINE_PATCH_FUNCTION ~ADD_STORE_ITEM_EX~
+INT_VAR
+  charge1       = 0
+  charge2       = 0
+  charge3       = 0
+  stack         = 1
+  expiration    = 0
+  unlimited     = 0
+  overwrite     = 0
+STR_VAR
+  item_name     = ~~
+  position      = ~FIRST~
+  flags         = ~none~
+  sale_trigger  = ~#-1~
+RET
+  index
+  offset
+BEGIN
+  SET index = "-1"
+  SET offset = "-1"
+
+  // Initializations
+  LPF ~__A7_VALIDATE_STORE~
+  STR_VAR warn_prefix = ~ADD_STORE_ITEM_EX~
+  RET
+    failed
+    version
+    HEADER_SIZE = header_size
+    SALE_SIZE = sale_size
+    DRINK_SIZE = drink_size
+  END
+
+  PATCH_IF (NOT failed) BEGIN
+    READ_LONG 0x34 ofs_sales
+    READ_LONG 0x38 num_sales
+
+    PATCH_IF (num_sales = 0 && ofs_sales < HEADER_SIZE) BEGIN
+      // Default order of sections: Drinks < Sales < Cures < Purchases
+      READ_LONG 0x4c ofs  // drinks
+      PATCH_IF (ofs >= HEADER_SIZE) BEGIN
+        READ_LONG 0x50 num
+        SET size = DRINK_SIZE
+      END
+
+      PATCH_IF (ofs >= HEADER_SIZE) BEGIN
+        SET ofs_sales = ofs + num * size
+      END ELSE BEGIN
+        SET ofs_sales = HEADER_SIZE
+      END
+      WRITE_LONG 0x34 ofs_sales
+    END
+
+    // Preparing arguments
+    PATCH_IF (NOT ~%item_name%~ STR_EQ ~~) BEGIN
+      TO_UPPER ~item_name~
+    END ELSE BEGIN
+      PATCH_WARN ~ADD_STORE_ITEM_EX: item_name is empty.~
+    END
+
+    LPF ~__A7_EVAL_ITEM_FLAGS~
+    STR_VAR
+      flags
+      warn_prefix = ~ADD_STORE_ITEM_EX~
+    RET
+      item_flags = value
+    END
+
+    PATCH_IF (version = 11 && NOT ~%sale_trigger%~ STR_EQ ~~) BEGIN
+      LPF ~__A7_RESOLVE_STRREF~
+      STR_VAR string = EVAL ~%sale_trigger%~
+      RET item_trigger = strref
+      END
+
+      // Performing syntax check
+      GET_STRREF item_trigger trigger_string
+      PATCH_IF (NOT VALID_SCRIPT_TRIGGERS ~%trigger_string%~) BEGIN
+        SET item_trigger = "-1"
+        PATCH_WARN ~ADD_STORE_ITEM_EX: sale_trigger contains invalid code - defaulting to empty trigger.~
+      END
+    END ELSE BEGIN
+      SET item_trigger = "-1"
+    END
+
+    SET unlimited = unlimited ? 1 : 0
+
+    PATCH_IF (overwrite) BEGIN
+      // Updating existing entries of matching item resref
+      FOR (idx = 0; idx < num_sales; ++idx) BEGIN
+        SET ofs = ofs_sales + idx * SALE_SIZE
+        READ_ASCII ofs resref (8) NULL
+        PATCH_IF (~%resref%~ STR_EQ ~%item_name%~) BEGIN
+          WRITE_SHORT (ofs + 0x08) expiration
+          WRITE_SHORT (ofs + 0x0a) charge1
+          WRITE_SHORT (ofs + 0x0c) charge2
+          WRITE_SHORT (ofs + 0x0e) charge3
+          WRITE_LONG (ofs + 0x10) item_flags
+          WRITE_LONG (ofs + 0x14) stack
+          WRITE_LONG (ofs + 0x18) unlimited
+          PATCH_IF (version = 11) BEGIN
+            WRITE_LONG (ofs + 0x1c) item_trigger
+          END
+          SET index = idx
+          SET offset = ofs
+        END
+      END
+    END
+
+    PATCH_IF (index < 0) BEGIN
+      SET found = 0
+      FOR (idx = 0; idx < num_sales; ++idx) BEGIN
+        READ_ASCII (ofs_sales + idx * SALE_SIZE) resref (8) NULL
+        PATCH_IF (~%resref%~ STR_EQ ~%item_name%~) BEGIN
+          SET found = 1
+          SET idx = num_sales
+        END
+      END
+
+      PATCH_IF (NOT found) BEGIN
+        // Adding new sale entry
+        PATCH_PRINT ~Patching %item_name%.ITM into store...~
+        LPF ~__A7_EVAL_POSITION~
+        INT_VAR
+          num_entries = num_sales
+          ofs_entries = ofs_sales
+          size_entry  = SALE_SIZE
+          ofs_resref  = 0
+        STR_VAR
+          position
+          position_default  = ~FIRST~
+          warn_prefix       = ~ADD_STORE_ITEM_EX~
+        RET
+          item_position = entry_position
+        END
+
+        PATCH_IF (item_position >= 0) BEGIN
+          SET ofs = ofs_sales + item_position * SALE_SIZE
+          INSERT_BYTES ofs SALE_SIZE
+          WRITE_ASCIIE ofs ~%item_name%~ (8)
+          WRITE_SHORT (ofs + 0x08) expiration
+          WRITE_SHORT (ofs + 0x0a) charge1
+          WRITE_SHORT (ofs + 0x0c) charge2
+          WRITE_SHORT (ofs + 0x0e) charge3
+          WRITE_LONG (ofs + 0x10) item_flags
+          WRITE_LONG (ofs + 0x14) stack
+          WRITE_LONG (ofs + 0x18) unlimited
+          PATCH_IF (version = 11) BEGIN
+            WRITE_LONG (ofs + 0x1c) item_trigger
+          END
+          SET index = item_position
+          SET offset = ofs
+
+          // Updating item sale count and remaining offsets
+          WRITE_LONG 0x38 (num_sales + 1)
+          LPF ~__A7_UPDATE_OFFSETS~
+          INT_VAR
+            value = SALE_SIZE
+            skip_offset = 0x34
+          END
+        END ELSE BEGIN
+          PATCH_WARN ~ADD_STORE_ITEM_EX: Could not determine item position.  Skipping...~
+        END
+      END ELSE BEGIN
+        PATCH_PRINT ~%item_name%.ITM is already in the store.  Skipping...~
+      END
+    END
+  END
+END
+
+
+/**
+ * Adds a drink to the current STO file. This is a PATCH function.
+ * SET price            Price of the drink.
+ * SET rate             Rate (%) of displaying a rumor.
+ * SET overwrite        Set to non-zero to overwrite any instances of an existing drink of matching drink_name
+ *                      when found. (Default: 0)
+ * SPRINT drink_name    Name of the drink. The following syntax is supported:
+ *                      Literal string          Example: Elminster's Choice Beer
+ *                      Strref value            Example: #1234
+ *                      Translation reference   Example: @1000
+ * SPRINT position      Desired position in the list of drinks. The following syntax is supported:
+ *                      AFTER name      Will place the new drink directly behind the drink given by "name". Name can 
+ *                                      either be a strref value (e.g. #1234) or a translation reference (e.g. @1000).
+ *                                      You can list more than one name, separated by space. The new drink will be 
+ *                                      added after the entry of the first matching name.
+ *                      BEFORE name     Will place the new drink directly before the drink given by "name". Name can 
+ *                                      either be a strref value (e.g. #1234) or a translation reference (e.g. @1000).
+ *                                      You can list more than one name, separated by space. The new drink will be 
+ *                                      added before the entry of the first matching name.
+ *                      LAST            Will place the new drink after all existing drinks.
+ *                      FIRST           Will place the new drink before all existing drinks.
+ *                      AT value        Will place the new drink at the position given by the number "value".
+ *                                      Use negative values to place the new drink relative to the last drink position 
+ *                                      in reverse order.
+ *                      (Default: FIRST)
+ * RETURN index         Index of the added drink or the last matching index when overwriting drinks.
+ *                      Returns -1 if the drink could not be added or updated.
+ * RETURN offset        Offset of the added drink or the last matching offset when overwriting drinks.
+ *                      Returns -1 if the drink could not be added or updated.
+ */
+DEFINE_PATCH_FUNCTION ~ADD_STORE_DRINK~
+INT_VAR
+  price       = 0
+  rate        = 0
+  overwrite   = 0
+STR_VAR
+  drink_name  = ~~
+  position    = ~FIRST~
+RET
+  index
+  offset
+BEGIN
+  SET index = "-1"
+  SET offset = "-1"
+
+  // Initializations
+  LPF ~__A7_VALIDATE_STORE~
+  STR_VAR warn_prefix = ~ADD_STORE_DRINK~
+  RET
+    failed
+    HEADER_SIZE = header_size
+    DRINK_SIZE = drink_size
+  END
+
+  PATCH_IF (NOT failed) BEGIN
+    READ_LONG 0x4c ofs_drinks
+    READ_LONG 0x50 num_drinks
+    PATCH_IF (num_drinks = 0 && ofs_drinks < HEADER_SIZE) BEGIN
+      SET ofs_drinks = HEADER_SIZE
+      WRITE_LONG 0x4c ofs_drinks
+    END
+
+    // Preparing arguments
+    PATCH_IF (~%drink_name%~ STR_EQ ~~) BEGIN
+      PATCH_WARN ~ADD_STORE_DRINK: drink_name is empty.~
+    END
+    LPF ~__A7_RESOLVE_STRREF~
+    STR_VAR string = EVAL ~%drink_name%~
+    RET drink_strref = strref
+    END
+
+    PATCH_IF (overwrite) BEGIN
+      // Updating existing entries of matching drink strrefs
+      FOR (idx = 0; idx < num_drinks; ++idx) BEGIN
+        SET ofs = ofs_drinks + idx * DRINK_SIZE
+        READ_LONG (ofs + 0x08) strref
+        PATCH_IF (drink_strref = strref) BEGIN
+          WRITE_LONG (ofs + 0x0c) price
+          WRITE_LONG (ofs + 0x10) rate
+          SET index = idx
+          SET offset = ofs
+        END
+      END
+    END
+
+    PATCH_IF (index < 0) BEGIN
+      SET found = 0
+      FOR (idx = 0; idx < num_drinks; ++idx) BEGIN
+        READ_LONG (ofs_drinks + idx * DRINK_SIZE + 0x08) strref
+        PATCH_IF (drink_strref = strref) BEGIN
+          SET found = 1
+          SET idx = num_drinks
+        END
+      END
+
+      PATCH_IF (NOT found) BEGIN
+        // Adding new drink entry
+        PATCH_PRINT ~Patching drink into store...~
+        LPF ~__A7_EVAL_POSITION~
+        INT_VAR
+          num_entries = num_drinks
+          ofs_entries = ofs_drinks
+          size_entry  = DRINK_SIZE
+          ofs_strref  = 0x08
+        STR_VAR
+          position
+          position_default  = ~FIRST~
+          warn_prefix       = ~ADD_STORE_DRINK~
+        RET
+          drink_position = entry_position
+        END
+
+        PATCH_IF (drink_position >= 0) BEGIN
+          SET ofs = ofs_drinks + drink_position * DRINK_SIZE
+          INSERT_BYTES ofs DRINK_SIZE
+          WRITE_LONG (ofs + 0x08) drink_strref
+          WRITE_LONG (ofs + 0x0c) price
+          WRITE_LONG (ofs + 0x10) rate
+          SET index = drink_position
+          SET offset = ofs
+
+          // Updating drink count and remaining offsets
+          WRITE_LONG 0x50 (num_drinks + 1)
+          LPF ~__A7_UPDATE_OFFSETS~
+          INT_VAR
+            value = DRINK_SIZE
+            skip_offset = 0x4c
+          END
+        END ELSE BEGIN
+          PATCH_WARN ~ADD_STORE_DRINK: Could not determine drink position.  Skipping...~
+        END
+      END ELSE BEGIN
+        PATCH_PRINT ~Drink of same name is already in the store.  Skipping...~
+      END
+    END
+  END
+END
+
+
+/**
+ * Adds a cure to the current STO file. This is a PATCH function.
+ * SET price            The spell price.
+ * SET overwrite        Set to non-zero to overwrite any instances of an existing cure entry of matching spell resref 
+ *                      when found. (Default: 0)
+ * SPRINT spell_name    The resource name (resref) of the spell to add.
+ * SPRINT position      Desired position in the list of cures. The following syntax is supported:
+ *                      AFTER resref    Will place the new spell directly behind the spell given by "resref".
+ *                                      You can list more than one resref, separated by space. The new spell will be 
+ *                                      added after the entry of the first matching resref.
+ *                      BEFORE resref   Will place the new spell directly before the spell given by "resref".
+ *                                      You can list more than one resref, separated by space. The new spell will be 
+ *                                      added before the entry of the first matching resref.
+ *                      LAST            Will place the new spell after all existing cures.
+ *                      FIRST           Will place the new spell before all existing cures.
+ *                      AT value        Will place the new spell at the position given by the number "value".
+ *                                      Use negative values to place the new spell relative to the last spell position 
+ *                                      in reverse order.
+ *                      (Default: FIRST)
+ * RETURN index         Index of the added cure or the last matching index when overwriting cure entries.
+ *                      Returns -1 if the spell could not be added or updated.
+ * RETURN offset        Offset of the added cure or the last matching offset when overwriting cures.
+ *                      Returns -1 if the spell could not be added or updated.
+ */
+DEFINE_PATCH_FUNCTION ~ADD_STORE_CURE~
+INT_VAR
+  price       = 0
+  overwrite   = 0
+STR_VAR
+  spell_name  = ~~
+  position    = ~FIRST~
+RET
+  index
+  offset
+BEGIN
+  SET index = "-1"
+  SET offset = "-1"
+
+  // Initializations
+  LPF ~__A7_VALIDATE_STORE~
+  STR_VAR warn_prefix = ~ADD_STORE_CURE~
+  RET
+    failed
+    HEADER_SIZE = header_size
+    SALE_SIZE = sale_size
+    DRINK_SIZE = drink_size
+    CURE_SIZE = cure_size
+  END
+
+  PATCH_IF (NOT failed) BEGIN
+    READ_LONG 0x70 ofs_cures
+    READ_LONG 0x74 num_cures
+
+    PATCH_IF (num_cures = 0 && ofs_cures < HEADER_SIZE) BEGIN
+      // Default order of sections: Drinks < Sales < Cures < Purchases
+      READ_LONG 0x34 ofs  // sales
+      PATCH_IF (ofs >= HEADER_SIZE) BEGIN
+        READ_LONG 0x38 num
+        SET size = SALE_SIZE
+      END ELSE BEGIN
+        READ_LONG 0x4c ofs  // drinks
+        PATCH_IF (ofs >= HEADER_SIZE) BEGIN
+          READ_LONG 0x50 num
+          SET size = DRINK_SIZE
+        END
+      END
+
+      PATCH_IF (ofs >= HEADER_SIZE) BEGIN
+        SET ofs_cures = ofs + num * size
+      END ELSE BEGIN
+        SET ofs_cures = HEADER_SIZE
+      END
+      WRITE_LONG 0x70 ofs_cures
+    END
+
+    // Preparing arguments
+    PATCH_IF (NOT ~%spell_name%~ STR_EQ ~~) BEGIN
+      TO_UPPER ~spell_name~
+    END ELSE BEGIN
+      PATCH_WARN ~ADD_STORE_CURE: spell_name is empty.~
+    END
+
+    PATCH_IF (overwrite) BEGIN
+      // Updating existing entries of matching cure strrefs
+      FOR (idx = 0; idx < num_cures; ++idx) BEGIN
+        SET ofs = ofs_cures + idx * CURE_SIZE
+        READ_ASCII ofs resref
+        PATCH_IF (~%resref%~ STR_EQ ~%spell_name%~) BEGIN
+          WRITE_LONG (ofs + 0x08) price
+          SET index = idx
+          SET offset = ofs
+        END
+      END
+    END
+
+    PATCH_IF (index < 0) BEGIN
+      SET found = 0
+      FOR (idx = 0; idx < num_cures; ++idx) BEGIN
+        READ_ASCII (ofs_cures + idx * CURE_SIZE) resref
+        PATCH_IF (~%resref%~ STR_EQ ~%spell_name%~) BEGIN
+          SET found = 1
+          SET idx = num_cures
+        END
+      END
+
+      PATCH_IF (NOT found) BEGIN
+        // Adding new cure entry
+        PATCH_PRINT ~Patching %spell_name%.SPL into store...~
+        LPF ~__A7_EVAL_POSITION~
+        INT_VAR
+          num_entries = num_cures
+          ofs_entries = ofs_cures
+          size_entry  = CURE_SIZE
+          ofs_resref  = 0
+        STR_VAR
+          position
+          position_default  = ~FIRST~
+          warn_prefix       = ~ADD_STORE_CURE~
+        RET
+          cure_position = entry_position
+        END
+
+        PATCH_IF (cure_position >= 0) BEGIN
+          SET ofs = ofs_cures + cure_position * CURE_SIZE
+          INSERT_BYTES ofs CURE_SIZE
+          WRITE_ASCIIE ofs ~%spell_name%~ (8)
+          WRITE_LONG (ofs + 0x08) price
+          SET index = cure_position
+          SET offset = ofs
+
+          // Updating cure count and remaining offsets
+          WRITE_LONG 0x74 (num_cures + 1)
+          LPF ~__A7_UPDATE_OFFSETS~
+          INT_VAR
+            value = CURE_SIZE
+            skip_offset = 0x70
+          END
+        END ELSE BEGIN
+          PATCH_WARN ~ADD_STORE_CURE: Could not determine cure position.  Skipping...~
+        END
+      END ELSE BEGIN
+        PATCH_PRINT ~%spell_name%.SPL is already in the store.  Skipping...~
+      END
+    END
+  END
+END
+
+
+/**
+ * Adds one or more item categories the store will buy to the current STO file. Existing categories will be skipped.
+ * This is a PATCH function.
+ * SET category     The item category to add.
+ *                  A nearly complete list of supported item category codes can be found here:
+ *                  https://gibberlings3.github.io/iesdp/file_formats/ie_formats/sto_v1.htm#tableItemType
+ * RETURN index     Index of the added purchase. Returns -1 if the purchase could not be added.
+ * RETURN offset    Offset of the added purchase. Returns -1 if the purchase could not be added.
+ */
+DEFINE_PATCH_FUNCTION ~ADD_STORE_PURCHASE~
+INT_VAR
+  category  = "-1"
+RET
+  index
+  offset
+BEGIN
+  SET index = "-1"
+  SET offset = "-1"
+
+  // Initializations
+  LPF ~__A7_VALIDATE_STORE~
+  STR_VAR warn_prefix = ~ADD_STORE_PURCHASE~
+  RET
+    failed
+    HEADER_SIZE = header_size
+    SALE_SIZE = sale_size
+    DRINK_SIZE = drink_size
+    CURE_SIZE = cure_size
+    PURCHASE_SIZE = purchase_size
+  END
+
+  PATCH_IF (NOT failed) BEGIN
+    READ_LONG 0x2c ofs_purchases
+    READ_LONG 0x30 num_purchases
+
+    PATCH_IF (num_purchases = 0 && ofs_purchases < HEADER_SIZE) BEGIN
+      // Default order of sections: Drinks < Sales < Cures < Purchases
+      READ_LONG 0x70 ofs  // cures
+      PATCH_IF (ofs >= HEADER_SIZE) BEGIN
+        READ_LONG 0x74 num
+        SET size = CURE_SIZE
+      END ELSE BEGIN
+        READ_LONG 0x34 ofs  // sales
+        PATCH_IF (ofs >= HEADER_SIZE) BEGIN
+          READ_LONG 0x38 num
+          SET size = SALE_SIZE
+        END ELSE BEGIN
+          READ_LONG 0x4c ofs  // drinks
+          PATCH_IF (ofs >= HEADER_SIZE) BEGIN
+            READ_LONG 0x50 num
+            SET size = DRINK_SIZE
+          END
+        END
+      END
+
+      PATCH_IF (ofs >= HEADER_SIZE) BEGIN
+        SET ofs_purchases = ofs + num * size
+      END ELSE BEGIN
+        SET ofs_purchases = HEADER_SIZE
+      END
+      WRITE_LONG 0x2c ofs_purchases
+    END
+
+    // Adding new purchases
+    PATCH_IF (category >= 0) BEGIN
+      // Checking for existing category
+      SET index_found = "-1"
+      FOR (idx = 0; idx < num_purchases; ++idx) BEGIN
+        READ_LONG (ofs_purchases + idx * PURCHASE_SIZE) value
+        PATCH_IF (value = category) BEGIN
+          SET index_found = idx
+          SET idx = num_purchases
+        END
+      END
+
+      PATCH_IF (index_found < 0) BEGIN
+        PATCH_PRINT ~Patching item category %category% into store...~
+        SET ofs = ofs_purchases + num_purchases * PURCHASE_SIZE
+        INSERT_BYTES ofs PURCHASE_SIZE
+        WRITE_LONG ofs category
+        SET index = num_purchases
+        SET offset = ofs
+
+        // Updating purchase count and remaining offsets
+        WRITE_LONG 0x30 (num_purchases + 1)
+        LPF ~__A7_UPDATE_OFFSETS~
+        INT_VAR
+          value = PURCHASE_SIZE
+          skip_offset = 0x2c
+        END
+      END ELSE BEGIN
+        PATCH_PRINT ~ADD_STORE_PURCHASE: Item category is already in the store.  Skipping...~
+      END
+    END ELSE BEGIN
+      PATCH_WARN ~ADD_STORE_PURCHASE: Invalid item category %category%.  Skipping...~
+    END
+  END
+END
+
+
+/**
+ * Removes all sale instances matching the specified item name from the current STO file. This is a patch function.
+ * SPRINT item_name     The resource name (resref) of the item to remove. Regular expression syntax is supported.
+ * RETURN index         Returns the index of the first removed entry matching the item name, returns -1 otherwise.
+ * RETURN offset        Returns the offset of the first removed entry matching the item name, returns -1 otherwise.
+ */
+DEFINE_PATCH_FUNCTION ~REMOVE_STORE_ITEM_EX~
+STR_VAR
+  item_name = ~~
+RET
+  index
+  offset
+BEGIN
+  SET index = "-1"
+  SET offset = "-1"
+
+  // Initializations
+  LPF ~__A7_VALIDATE_STORE~
+  STR_VAR warn_prefix = ~REMOVE_STORE_ITEM_EX~
+  RET
+    failed
+    SALE_SIZE = sale_size
+  END
+
+  // Removing sale entries
+  PATCH_IF (NOT failed) BEGIN
+    READ_LONG 0x38 num_sales
+    PATCH_IF (num_sales > 0) BEGIN
+      PATCH_IF (~%item_name%~ STR_EQ ~~) BEGIN
+        PATCH_WARN ~REMOVE_STORE_ITEM_EX: item_name is empty.~
+      END
+
+      SET num = 0
+      READ_LONG 0x34 ofs_sales
+      FOR (idx = num_sales - 1; idx >= 0; --idx) BEGIN
+        SET ofs = ofs_sales + idx * SALE_SIZE
+        READ_ASCII ofs resref (8)
+        PATCH_IF (~%resref%~ STRING_MATCHES_REGEXP ~%item_name%~ = 0) BEGIN
+          DELETE_BYTES ofs SALE_SIZE
+          SET num += 1
+          SET index = idx
+          SET offset = ofs
+        END
+      END
+
+      PATCH_IF (num > 0) BEGIN
+        WRITE_LONG 0x38 (num_sales - num)
+        LPF ~__A7_UPDATE_OFFSETS~
+        INT_VAR
+          value = 0 - (SALE_SIZE * num)
+          skip_offset = 0x34
+        END
+      END
+    END
+  END
+END
+
+
+/**
+ * Removes all drink instances matching the specified drink name from the current STO file. This is a patch function.
+ * SPRINT drink_name    Name of the drink to remove. The following syntax is supported:
+ *                      Literal string          Example: Elminster's Choice Beer
+ *                      Strref value            Example: #1234
+ *                      Translation reference   Example: @1000
+ *                      Note: Regular expression syntax is supported for literal strings.
+ * RETURN index         Returns the index of the first removed entry matching the drink name, returns -1 otherwise.
+ * RETURN offset        Returns the offset of the first removed entry matching the drink name, returns -1 otherwise.
+ */
+DEFINE_PATCH_FUNCTION ~REMOVE_STORE_DRINK~
+STR_VAR
+  drink_name  = ~~
+RET
+  index
+  offset
+BEGIN
+  SET index = "-1"
+  SET offset = "-1"
+
+  // Initializations
+  LPF ~__A7_VALIDATE_STORE~
+  STR_VAR warn_prefix = ~REMOVE_STORE_ITEM_EX~
+  RET
+    failed
+    DRINK_SIZE = drink_size
+  END
+
+  // Removing drink entries
+  PATCH_IF (NOT failed) BEGIN
+    READ_LONG 0x50 num_drinks
+    PATCH_IF (num_drinks > 0) BEGIN
+      // Evaluating drink name
+      TEXT_SPRINT drink_string ~~
+      PATCH_IF (~%drink_name%~ STRING_MATCHES_REGEXP ~#-?[0-9]+~ = 0) BEGIN
+        INNER_PATCH_SAVE value ~%drink_name%~ BEGIN DELETE_BYTES 0 1 END
+        GET_STRREF value drink_string
+        LPF ~__A7_ESCAPE_REGEXP~ STR_VAR string = EVAL ~%drink_string%~ RET drink_string = literal END
+      END ELSE PATCH_IF (~%drink_name%~ STRING_MATCHES_REGEXP ~@-?[0-9]+~ = 0) BEGIN
+        INNER_PATCH_SAVE value ~%drink_name%~ BEGIN DELETE_BYTES 0 1 END
+        SPRINT drink_string (AT value)
+        LPF ~__A7_ESCAPE_REGEXP~ STR_VAR string = EVAL ~%drink_string%~ RET drink_string = literal END
+      END ELSE BEGIN
+        TEXT_SPRINT drink_string ~%drink_name%~
+      END
+
+      SET num = 0
+      READ_LONG 0x4c ofs_drinks
+      FOR (idx = num_drinks - 1; idx >= 0; --idx) BEGIN
+        SET ofs = ofs_drinks + idx * DRINK_SIZE
+        READ_STRREF (ofs + 0x08) string
+        PATCH_IF (~%string%~ STRING_MATCHES_REGEXP ~%drink_string%~ = 0) BEGIN
+          DELETE_BYTES ofs DRINK_SIZE
+          SET num += 1
+          SET index = idx
+          SET offset = ofs
+        END
+      END
+
+      PATCH_IF (num > 0) BEGIN
+        WRITE_LONG 0x50 (num_drinks - num)
+        LPF ~__A7_UPDATE_OFFSETS~
+        INT_VAR
+          value = 0 - (DRINK_SIZE * num)
+          skip_offset = 0x4c
+        END
+      END
+    END
+  END
+END
+
+
+/**
+ * Removes all cure instances matching the specified spell name from the current STO file. This is a patch function.
+ * SPRINT spell_name    The resource name (resref) of the spell to remove. Regular expression syntax is supported.
+ * RETURN index         Returns the index of the first removed entry matching the spell name, returns -1 otherwise.
+ * RETURN offset        Returns the offset of the first removed entry matching the spell name, returns -1 otherwise.
+ */
+DEFINE_PATCH_FUNCTION ~REMOVE_STORE_CURE~
+STR_VAR
+  spell_name  = ~~
+RET
+  index
+  offset
+BEGIN
+  SET index = "-1"
+  SET offset = "-1"
+
+  // Initializations
+  LPF ~__A7_VALIDATE_STORE~
+  STR_VAR warn_prefix = ~REMOVE_STORE_CURE~
+  RET
+    failed
+    CURE_SIZE = cure_size
+  END
+
+  // Removing cure entries
+  PATCH_IF (NOT failed) BEGIN
+    READ_LONG 0x74 num_cures
+    PATCH_IF (num_cures > 0) BEGIN
+      PATCH_IF (~%spell_name%~ STR_EQ ~~) BEGIN
+        PATCH_WARN ~REMOVE_STORE_CURE: spell_name is empty.~
+      END
+
+      SET num = 0
+      READ_LONG 0x70 ofs_cures
+      FOR (idx = num_cures - 1; idx >= 0; --idx) BEGIN
+        SET ofs = ofs_cures + idx * CURE_SIZE
+        READ_ASCII ofs resref (8)
+        PATCH_IF (~%resref%~ STRING_MATCHES_REGEXP ~%spell_name%~ = 0) BEGIN
+          DELETE_BYTES ofs CURE_SIZE
+          SET num += 1
+          SET index = idx
+          SET offset = ofs
+        END
+      END
+
+      PATCH_IF (num > 0) BEGIN
+        WRITE_LONG 0x74 (num_cures - num)
+        LPF ~__A7_UPDATE_OFFSETS~
+        INT_VAR
+          value = 0 - (CURE_SIZE * num)
+          skip_offset = 0x70
+        END
+      END
+    END
+  END
+END
+
+
+/**
+ * Removes the specified item category from the current STO file. This is a patch function.
+ * SET category     The item category to remove.
+ *                  A nearly complete list of supported item category codes can be found here:
+ *                  https://gibberlings3.github.io/iesdp/file_formats/ie_formats/sto_v1.htm#tableItemType
+ * RETURN index     Returns the index of the removed entry matching the category, returns -1 otherwise.
+ * RETURN offset    Returns the offset of the removed entry matching the category, returns -1 otherwise.
+ */
+DEFINE_PATCH_FUNCTION ~REMOVE_STORE_PURCHASE~
+INT_VAR
+  category  = "-1"
+RET
+  index
+  offset
+BEGIN
+  SET index = "-1"
+  SET offset = "-1"
+
+  // Initializations
+  LPF ~__A7_VALIDATE_STORE~
+  STR_VAR warn_prefix = ~REMOVE_STORE_PURCHASE~
+  RET
+    failed
+    PURCHASE_SIZE = purchase_size
+  END
+
+  // Removing purchase entries
+  PATCH_IF (NOT failed) BEGIN
+    READ_LONG 0x30 num_purchases
+    PATCH_IF (num_purchases > 0) BEGIN
+      SET num = 0
+      READ_LONG 0x2c ofs_purchases
+      FOR (idx = num_purchases - 1; idx >= 0; --idx) BEGIN
+        SET ofs = ofs_purchases + idx * PURCHASE_SIZE
+        READ_LONG ofs value
+        PATCH_IF (value = category) BEGIN
+          DELETE_BYTES ofs PURCHASE_SIZE
+          SET num += 1
+          SET index = idx
+          SET offset = ofs
+        END
+      END
+
+      PATCH_IF (num > 0) BEGIN
+        WRITE_LONG 0x30 (num_purchases - num)
+        LPF ~__A7_UPDATE_OFFSETS~
+        INT_VAR
+          value = 0 - (PURCHASE_SIZE * num)
+          skip_offset = 0x2c
+        END
+      END
+    END
+  END
+END
+
+
+
+// Used internally to validate generic store file structure
+DEFINE_PATCH_FUNCTION ~__A7_VALIDATE_STORE~
+STR_VAR
+  warn_prefix = ~~
+RET
+  failed
+  version     // 10 (V1.0), 11 (V1.1) or 90 (V9.0)
+  header_size
+  sale_size
+  drink_size
+  cure_size
+  purchase_size
+BEGIN
+  SET failed = 0
+  SET version = 0
+  SET header_size = 0
+  SET sale_size = 0
+  SET drink_size = 20
+  SET cure_size = 12
+  SET purchase_size = 4
+
+  READ_ASCII 0 sig (4)
+  PATCH_IF (NOT ~%sig%~ STR_EQ ~STOR~) BEGIN
+    SET failed = 1
+    PATCH_WARN ~%warn_prefix%: Not a store file.  Skipping...~
+  END
+
+  PATCH_IF (NOT failed) BEGIN
+    READ_ASCII 4 ver (4)
+    SET failed = 1
+    PATCH_MATCH ~%ver%~
+    WITH
+      ~V1.0~
+      BEGIN
+        SET failed = 0
+        SET version = 10
+        SET header_size = 156
+        SET sale_size = 28
+      END
+      ~V1.1~
+      BEGIN
+        SET failed = 0
+        SET version = 11
+        SET header_size = 156
+        SET sale_size = 88
+      END
+      ~V9.0~
+      BEGIN
+        SET failed = 0
+        SET version = 90
+        SET header_size = 240
+        SET sale_size = 28
+      END
+      DEFAULT
+    END
+    PATCH_IF (failed) BEGIN
+      PATCH_WARN ~%warn_prefix%: Unsupported store version "%ver%".  Skipping...~
+    END
+  END
+
+  PATCH_IF (NOT failed && BUFFER_LENGTH < header_size) BEGIN
+    SET failed = 1
+    PATCH_WARN ~%warn_prefix%: Corrupt store file.  Skipping...~
+  END
+END
+
+
+// Used internally to evaluate item flags.
+DEFINE_PATCH_FUNCTION ~__A7_EVAL_ITEM_FLAGS~
+STR_VAR
+  flags       = ~~
+  warn_prefix = ~~
+RET
+  value
+BEGIN
+  SET value = 0
+  INNER_PATCH ~%flags%~ BEGIN
+    SET len = BUFFER_LENGTH
+    WHILE (len > 0) BEGIN
+      // Parsing tokens separated by space or ampersand
+      SET start = INDEX_BUFFER("[^& %TAB%]")
+      PATCH_IF (start >= 0) BEGIN
+        SET end = INDEX_BUFFER("[& %TAB%]" start)
+        PATCH_IF (end >= 0) BEGIN
+          READ_ASCII start token (end - start)
+          DELETE_BYTES 0 (end + 1)
+          SET len -= (end + 1)
+        END ELSE BEGIN
+          READ_ASCII start token (len - start)
+          SET len = 0
+        END
+        PATCH_MATCH ~%token%~
+        WITH
+          ~none~          BEGIN END // no change
+          ~identified~    BEGIN value |= BIT0 END
+          ~unstealable~   BEGIN value |= BIT1 END
+          ~stolen~        BEGIN value |= BIT2 END
+          ~-?[0-9]+~
+          ~-?0b[01]+~
+          ~-?0o[0-7]+~
+          ~-?0x[0-9a-f]+~ BEGIN value |= token END
+          DEFAULT
+            PATCH_WARN ~%warn_prefix%: Unrecognised flags constant "%token%".  Skipping...~
+        END
+      END ELSE BEGIN
+        SET len = 0
+      END
+    END
+  END
+END
+
+
+// Used internally to evaluate entry position.
+// Supported: AFTER resref/strref, BEFORE resref/strref, LAST, FIRST, AT value
+DEFINE_PATCH_FUNCTION ~__A7_EVAL_POSITION~
+INT_VAR
+  num_entries       = 0
+  ofs_entries       = 0
+  size_entry        = 0
+  ofs_resref        = "-1"  // relative offset in structure, set to >= 0 to compare resrefs (BEFORE/AFTER)
+  ofs_strref        = "-1"  // relative offset in structure, set to >= 0 to compare strrefs (BEFORE/AFTER)
+STR_VAR
+  position          = ~~    // the position definition
+  position_default  = ~FIRST~
+  warn_prefix       = ~~    // string to be prefixed when printing warning messages
+RET
+  entry_position             // returns -1 on error
+BEGIN
+  SET entry_position = "-1"
+  SET pos_type = "-1"
+  SET item_pos_arg = 0
+
+  PATCH_MATCH ~%position%~
+  WITH
+    ~FIRST\([ %TAB%]+.*\)?~
+    BEGIN
+      SET entry_position = 0
+    END
+    ~LAST\([ %TAB%]+.*\)?~
+    BEGIN
+      SET entry_position = num_entries
+    END
+    ~AT[ %TAB%]+.+~
+    BEGIN
+      INNER_PATCH_SAVE item_pos_arg ~%position%~ BEGIN
+        REPLACE_TEXTUALLY ~AT[ %TAB%]+\(.+\)~ ~\1~
+      END
+      PATCH_IF (NOT IS_AN_INT ~item_pos_arg~) BEGIN
+        PATCH_WARN ~%warn_prefix%: position "%item_pos_arg%" is not a number - defaulting to 0.~
+        SET item_pos_arg = 0
+      END ELSE PATCH_IF (item_pos_arg > num_entries) BEGIN
+        PATCH_WARN ~%warn_prefix%: AT %item_pos_arg% out of range 0-%num_entries% - defaulting to %num_entries%.~
+        SET item_pos_arg = num_entries
+      END ELSE PATCH_IF (item_pos_arg < 0 - num_entries) BEGIN
+        PATCH_WARN ~%warn_prefix%: AT %item_pos_arg% out of range -1 - -%num_entries% - defaulting to -%num_entries%.~
+        SET item_pos_arg = 0
+      END ELSE PATCH_IF (item_pos_arg < 0) BEGIN
+        SET item_pos_arg = num_entries + item_pos_arg
+      END
+      SET entry_position = item_pos_arg
+    END
+    ~BEFORE[ %TAB%]+.+~
+    BEGIN
+      SET entry_position = 0
+      SET pos_type = 0
+      INNER_PATCH ~%position%~ BEGIN
+        COUNT_2DA_COLS numCols
+        SET item_pos_arg = numCols - 1
+        FOR (idx = 0; idx < item_pos_arg; ++idx) BEGIN
+          READ_2DA_ENTRY 0 (idx + 1) numCols EVAL ~item_pos_arg_%idx%~
+        END
+      END
+    END
+    ~AFTER[ %TAB%]+.+~
+    BEGIN
+      SET entry_position = num_entries
+      SET pos_type = 1
+      SET item_pos_arg = 0
+      INNER_PATCH ~%position%~ BEGIN
+        COUNT_2DA_COLS numCols
+        SET item_pos_arg = numCols - 1
+        FOR (idx = 0; idx < item_pos_arg; ++idx) BEGIN
+          READ_2DA_ENTRY 0 (idx + 1) numCols EVAL ~item_pos_arg_%idx%~
+        END
+      END
+    END
+    DEFAULT
+      PATCH_WARN ~%warn_prefix%: position not recognised "%position%" - defaulting to "%position_default%".~
+      LPF ~__A7_EVAL_POSITION~
+        INT_VAR num_entries ofs_entries size_entry
+        STR_VAR position = EVAL ~%position_default%~ warn_prefix
+        RET entry_position
+      END
+    END
+
+  // Find BEFORE/AFTER match
+  PATCH_IF (pos_type >= 0 && (ofs_resref >= 0 || ofs_strref >= 0)) BEGIN
+    FOR (idx = 0; idx < num_entries; ++idx) BEGIN
+      PATCH_IF (ofs_resref >= 0) BEGIN
+        READ_ASCII (ofs_entries + idx * size_entry + ofs_resref) resref_cmp (8) NULL
+      END ELSE PATCH_IF (ofs_strref >= 0) BEGIN
+        READ_LONG (ofs_entries + idx * size_entry + ofs_strref) strref_cmp
+      END
+
+      FOR (idx2 = 0; idx2 < item_pos_arg; ++idx2) BEGIN
+        TEXT_SPRINT arg EVAL ~%item_pos_arg_%idx2%%~
+        PATCH_IF (ofs_resref >= 0) BEGIN
+          PATCH_IF (~%resref_cmp%~ STR_EQ ~%arg%~) BEGIN
+            SET entry_position = idx + pos_type
+            SET idx2 = item_pos_arg
+            SET idx = num_entries
+          END
+        END ELSE PATCH_IF (ofs_strref >= 0) BEGIN
+          LPF ~__A7_RESOLVE_STRREF~ STR_VAR string = EVAL ~%arg%~ RET strref END
+          PATCH_IF (strref_cmp >= 0 && strref_cmp = strref) BEGIN
+            SET entry_position = idx + pos_type
+            SET idx2 = item_pos_arg
+            SET idx = num_entries
+          END
+        END
+      END
+    END
+  END
+END
+
+
+// Used internally to convert various string definitions into strref values.
+DEFINE_PATCH_FUNCTION ~__A7_RESOLVE_STRREF~
+STR_VAR string = ~~
+RET strref
+BEGIN
+  PATCH_IF (~%string%~ STRING_MATCHES_REGEXP ~#-?[0-9]+~ = 0) BEGIN
+    // Strref
+    INNER_PATCH_SAVE string ~%string%~ BEGIN DELETE_BYTES 0 1 END
+    SET strref = string
+  END ELSE PATCH_IF (~%string%~ STRING_MATCHES_REGEXP ~@-?[0-9]+~ = 0) BEGIN
+    // Tra reference
+    INNER_PATCH_SAVE string ~%string%~ BEGIN DELETE_BYTES 0 1 END
+    SET strref = RESOLVE_STR_REF( (AT string) )
+  END ELSE BEGIN
+    // Literal string
+    SET strref = RESOLVE_STR_REF(~%string%~)
+  END
+END
+
+
+// Used internally to update STO offsets by a specific amount
+DEFINE_PATCH_FUNCTION ~__A7_UPDATE_OFFSETS~
+INT_VAR
+  value       = 0 // the value to add (can be negative)
+  skip_offset = 0 // this offset is not updated
+BEGIN
+  READ_LONG skip_offset ofs_limit
+  PATCH_FOR_EACH ofs IN 0x2c 0x34 0x4c 0x70 BEGIN
+    PATCH_IF (ofs != skip_offset) BEGIN
+      READ_LONG ofs base_value
+      PATCH_IF (base_value >= ofs_limit) BEGIN
+        WRITE_LONG ofs (base_value + value)
+      END
+    END
+  END
+END
+
+
+// Used internally to escape special regular expression symbols
+DEFINE_PATCH_FUNCTION ~__A7_ESCAPE_REGEXP~
+STR_VAR
+  string = ~~
+RET
+  literal
+BEGIN
+  SET escape = 0x5c  // ascii code of backslash character
+  INNER_PATCH_SAVE literal ~%string%~ BEGIN
+    FOR (pos = BUFFER_LENGTH - 1; pos >= 0; --pos) BEGIN
+      READ_BYTE pos char
+      PATCH_FOR_EACH value IN 0x24 0x2a 0x2b 0x2e 0x3f 0x5b 0x5c 0x5d 0x5e BEGIN  // check for $*+.?[\]^
+        PATCH_IF (char = value) BEGIN
+          INSERT_BYTES pos 1
+          WRITE_BYTE pos escape
+        END
+      END
+    END
+  END
+END

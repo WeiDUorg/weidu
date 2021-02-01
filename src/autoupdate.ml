@@ -2,6 +2,7 @@
    starting from 18 December 2012 and WeiDU 231.06. *)
 
 open BatteriesInit
+open Hashtblinit
 open Util
 open Version
 
@@ -31,7 +32,10 @@ let get_version_list () =
             else begin
               let version = try
                 Arch.get_version f
-              with _ -> -1
+              with _ ->
+                Printf.printf
+                  "{%s} could not get version; let's call it...%!" f ;
+                -1
               in
               log_and_print " version = %d\n" version ;
               Hashtbl.add digest_ht f_digest version ;

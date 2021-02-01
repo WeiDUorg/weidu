@@ -9,6 +9,7 @@
 
    It was originally taken from Westley Weimer's WeiDU 185. *)
 open BatteriesInit
+open Hashtblinit
 open Util
 open Ids
 
@@ -527,7 +528,7 @@ let make_ids_map il =
     (* log_and_print "IDS: %ld %s\n" ids.i_num ids.i_name ;  *)
     Hashtbl.add from_int ids.i_num ids ;
     Hashtbl.add from_sym ids.i_name ids ;
-    Hashtbl.add from_uppercase_sym (String.uppercase ids.i_name) ids) il ;
+    Hashtbl.add from_uppercase_sym (String.uppercase_ascii ids.i_name) ids) il ;
   { from_int = from_int ;
     from_sym = from_sym ;
     from_uppercase_sym = from_uppercase_sym ; }
@@ -543,7 +544,7 @@ let clear_ids_map game =
        *)
 
 let get_ids_map game ids_filename =
-  let ids_filename = String.uppercase ids_filename in
+  let ids_filename = String.uppercase_ascii ids_filename in
   try
     let ids_state = Hashtbl.find all_games_ids_state game.Load.game_path in
     Hashtbl.find ids_state ids_filename
@@ -590,38 +591,38 @@ let five_quotes_string s =
 let five_quotes res = {res with i_name = five_quotes_string res.i_name}
 
 let ids_of_int game ids_file i =
-  let ids_file = String.uppercase ids_file in
+  let ids_file = String.uppercase_ascii ids_file in
   let ids_map : ids_map = get_ids_map game ids_file in
   let res = (Hashtbl.find ids_map.from_int i) in
   five_quotes res
 
 
 let ids_of_sym game ids_file sym =
-  let ids_file = String.uppercase ids_file in
+  let ids_file = String.uppercase_ascii ids_file in
   let ids_map : ids_map = get_ids_map game ids_file in
   try
     (Hashtbl.find ids_map.from_sym sym)
   with Not_found ->
-    let a = (Hashtbl.find ids_map.from_uppercase_sym (String.uppercase sym)) in
+    let a = (Hashtbl.find ids_map.from_uppercase_sym (String.uppercase_ascii sym)) in
 (*    let msg = Printf.sprintf "[%s] should be [%s] (note case)\n"
       sym a.i_name in
       (try input_error "PARSE" msg with _ -> () ) ; *)
     a
 
 let every_ids_of_int game ids_file i =
-  let ids_file = String.uppercase ids_file in
+  let ids_file = String.uppercase_ascii ids_file in
   let ids_map : ids_map = get_ids_map game ids_file in
   List.map five_quotes (Hashtbl.find_all ids_map.from_int i)
 
 let int_of_sym game ids_file sym =
-  let ids_file = String.uppercase ids_file in
+  let ids_file = String.uppercase_ascii ids_file in
   let ids = ids_of_sym game ids_file sym in
   ids.i_num
 
 let sym_of_int game ids_file i =
-  let ids_file = String.uppercase ids_file in
+  let ids_file = String.uppercase_ascii ids_file in
   try
-    let ids_map : ids_map = get_ids_map game (String.uppercase ids_file ) in
+    let ids_map : ids_map = get_ids_map game (String.uppercase_ascii ids_file ) in
     five_quotes_string ((Hashtbl.find ids_map.from_int i).i_name)
   with _ ->
     (* log_or_print "WARNING: %d (0x%x) not found in %s.IDS\n" i i ids_file ; *)
@@ -660,16 +661,19 @@ let is_concat_string ss ids =
   | Load.PST, 0x4080l (* GlobalBAND(S:Name*,S:Area*,I:Value *)
   | Load.PST, 0x4095l (* Xor(S:Name*,S:Area*,I:Value*)
   | Load.PST, 0x409Cl (* StuffGlobalRandom(S:Name*,S:Area*,I:Range*)
-  | Load.IWD2, 247l   (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
-  | Load.IWD2, 0x40A5l (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
-  | Load.IWD2, 306l    (* SetGlobalRandom(S:Name*,S:Area*,I:Min*,I:Max*)
-  | Load.IWD2, 307l    (* SetGlobalTimerRandom(S:Name*,S:Area*,I:Min*,I:Max*)
   | Load.IWD2, 308l (*SetGlobalTimerOnce(S:Name*,S:Area*,I:Time*GTimes) *)
   | Load.IWD1, 141l (* GivePartyGoldGlobal(S:Name*,S:Area) *)
   | Load.IWD1, 165l (* AddexperiencePartyGlobal(S:Name*,S:Area) *)
+    -> (1, "")
+
+  | Load.IWD2, 306l    (* SetGlobalRandom(S:Name*,S:Area*,I:Min*,I:Max*)
+  | Load.IWD2, 307l    (* SetGlobalTimerRandom(S:Name*,S:Area*,I:Min*,I:Max*)
+  | Load.IWD2, 247l   (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
+  | Load.IWD2, 0x40A5l (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
   | Load.IWD1, 247l   (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
   | Load.IWD1, 0x40A5l (* BitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
-    -> 1
+    -> (1, ":")
+
   | Load.PST, 233l (* GlobalSetGlobal(S:Name1*,S:Area1*,S:Name2*,S:Area2 *)
   | Load.PST, 234l (* GlobalAddGlobal(S:Name1*,S:Area1*,S:Name2*,S:Area2 *)
   | Load.PST, 235l (* GlobalSubGlobal(S:Name1*,S:Area1*,S:Name2*,S:Area2 *)
@@ -692,17 +696,23 @@ let is_concat_string ss ids =
   | Load.IWD1, 243l   (* IncrementGlobalOnce(S:Name1*,S:Area1*,S:Name2*,S:Area2*,I:Val*)
   | Load.IWD2, 243l   (* IncrementGlobalOnce(S:Name1*,S:Area1*,S:Name2*,S:Area2*,I:Val*)
   | Load.PST, 202l    (* IncrementGlobalOnce(S:Name1*,S:Area1*,S:Name2*,S:Area2*,I:Val*)
+    -> (2, "")
+
+  (* EE special: IncrementGlobalOnce(S:Name1*,S:Area1*,S:Name2*,S:Area2*,I:Val*)
+  | Load.BG2, 446l when ids.i_name <> "IncrementGlobalOnceEx"
+    -> (2, "")
+
   | Load.IWD2, 248l   (* GlobalBitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
   | Load.IWD2, 0x40A6l (* GlobalBitGlobal(S:String1*,S:String2*,I:Value,I:Mode*BitMode) *)
   | Load.IWD1, 248l   (* GlobalBitGlobal(S:String1*,S:String2*,S:String3*,S:String4*,I:Mode*BitMode) *)
   | Load.IWD1, 0x40A6l (* GlobalBitGlobal(S:String1*,S:String2*,S:String3*,S:String4*,I:Mode*BitMode) *)
-    -> 2
+    -> (2, ":")
 
   | Load.IWD2, 289l   (* SpellCastEffect(O:Source*,S:Voice*,S:Sound1*,S:Sound2*,I:Animation*sceffect,I:Speed*,I:Sequence*Sequence) *)
-    -> 3
+    -> (3, ":")
 
   | Load.NONE,_ -> failwith "No scripting style specified."
-  | _ -> 0
+  | _ -> (0, "")
 
 
 
@@ -796,10 +806,12 @@ type print_what =
 
 let trigger_to_arg_list ss t ids game =
   match is_concat_string ss ids with
-  | 3 (* FIXME *)
-  | 2 ->
-      let a,b = split_colon t.t_3 in
-      let a',b' = split_colon t.t_4 in
+  | (3, interposer) (* FIXME *)
+  | (2, interposer) ->
+      let a,b = if interposer <> "" then split_colon t.t_3
+      else split6 t.t_3 in
+      let a',b' = if interposer <> "" then split_colon t.t_4
+      else split6 t.t_4 in
       [ (Arg_Integer,(Act_Integer t.t_1)) ;
         (Arg_Integer,(Act_Integer t.t_2)) ;
         (Arg_Integer,(Act_Integer t.unknown)) ;
@@ -809,11 +821,9 @@ let trigger_to_arg_list ss t ids game =
         (Arg_String,(Act_String a')) ;
         (Arg_String,(Act_String b')) ;
         (Arg_Object,(Act_Object t.t_5)) ; ]
-  | 1 ->
-      let a,b = (match ss with
-      | Load.IWD1
-      | Load.IWD2 -> split_colon t.t_3
-      | _ -> split6 t.t_3) in
+  | (1, interposer) ->
+      let a,b = if interposer <> "" then split_colon t.t_3
+          else split6 t.t_3 in
       [ (Arg_Integer,(Act_Integer t.t_1)) ;
         (Arg_Integer,(Act_Integer t.t_2)) ;
         (Arg_Integer,(Act_Integer t.unknown)) ;
@@ -822,7 +832,7 @@ let trigger_to_arg_list ss t ids game =
         (Arg_String,(Act_String b));
         (Arg_String,(Act_String t.t_4));
         (Arg_Object,(Act_Object t.t_5)) ; ]
-  | _ ->
+  | (_, _) ->
       [ (Arg_Integer,(Act_Integer t.t_1)) ;
         (Arg_Integer,(Act_Integer t.t_2)) ;
         (Arg_Integer,(Act_Integer t.unknown)) ;
@@ -833,11 +843,9 @@ let trigger_to_arg_list ss t ids game =
 
 let action_to_arg_list ss a ids =
   match is_concat_string ss ids with
-  | 1 ->
-      let aa, b = (match ss with
-      | Load.IWD1
-      | Load.IWD2 -> split_colon a.a_8
-      | _ -> split6 a.a_8) in
+  | (1, interposer) ->
+      let aa, b = if interposer <> "" then split_colon a.a_8
+      else split6 a.a_8 in
       [ (Arg_Object,(Act_Object a.a_2)) ;
         (Arg_Object,(Act_Object a.a_3)) ;
         (* (Arg_Object,(Act_Object a.a_1)) ; *)
@@ -848,15 +856,11 @@ let action_to_arg_list ss a ids =
         (Arg_String,(Act_String aa)) ;
         (Arg_String,(Act_String b)) ;
         (Arg_String,(Act_String a.a_9)) ; ]
-  | 2 ->
-      let aa,b = (match ss with
-      | Load.IWD1
-      | Load.IWD2 -> split_colon a.a_8
-      | _ -> split6 a.a_8) in
-      let aa',b' = (match ss with
-      | Load.IWD1
-      | Load.IWD2 -> split_colon a.a_9
-      | _ -> split6 a.a_9) in
+  | (2, interposer) ->
+      let aa,b = if interposer <> "" then split_colon a.a_8
+      else split6 a.a_8 in
+      let aa',b' = if interposer <> "" then split_colon a.a_9
+      else split6 a.a_9 in
       [ (Arg_Object,(Act_Object a.a_2)) ;
         (Arg_Object,(Act_Object a.a_3)) ;
         (* (Arg_Object,(Act_Object a.a_1)) ; *)
@@ -868,7 +872,7 @@ let action_to_arg_list ss a ids =
         (Arg_String,(Act_String b)) ;
         (Arg_String,(Act_String aa')) ;
         (Arg_String,(Act_String b')) ]
-  | 3 ->
+  | (3, interposer) ->
       let aa,b = split_colon a.a_9 in
       [ (Arg_Object,(Act_Object a.a_2)) ;
         (Arg_Object,(Act_Object a.a_3)) ;
@@ -880,7 +884,7 @@ let action_to_arg_list ss a ids =
         (Arg_String,(Act_String a.a_8)) ;
         (Arg_String,(Act_String aa)) ;
         (Arg_String,(Act_String b)) ; ]
-  | _ ->
+  | (_, _) ->
       [ (Arg_Object,(Act_Object a.a_2)) ;
         (Arg_Object,(Act_Object a.a_3)) ;
         (* (Arg_Object,(Act_Object a.a_1)) ; *)
@@ -900,7 +904,7 @@ let get_first_of_type argl tau =
     failwith "cannot find an argument of the right type"
 
 let formal_arg_is_strref arg =
-  let up = String.uppercase arg.arg_comment in
+  let up = String.uppercase_ascii arg.arg_comment in
   up = "STRREF" || up = "STRINGREF"
 
 let print_script_text game how what comments strhandle =
@@ -1109,9 +1113,9 @@ let print_script_text game how what comments strhandle =
     bcs_printf "\n"
   and print_trigger_list tr compiling_to_dlg or_count =
     match tr with
-    | t :: [] when not compiling_to_dlg && String.lowercase ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
+    | t :: [] when not compiling_to_dlg && String.lowercase_ascii ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
       failwith "NextTriggerObject() without a next trigger (broken TriggerOverride)"
-    | t :: t1 :: tl when not compiling_to_dlg && String.lowercase ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
+    | t :: t1 :: tl when not compiling_to_dlg && String.lowercase_ascii ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
       let indent = 2 + if !or_count > 0 then (decr or_count ; 2) else 0 in
       bcs_printf "%*s" indent " " ;
       bcs_printf "%sTriggerOverride(" (if t1.negated then "!" else "");
@@ -1142,7 +1146,7 @@ let print_script_text game how what comments strhandle =
     if comments then begin
       print_trigger_comment game t ;
     end ;
-    if String.uppercase ids.i_name = "OR" then
+    if String.uppercase_ascii ids.i_name = "OR" then
       (Int32.to_int t.t_1)
     else 0
   and print_trigger_comment game t =
@@ -1390,7 +1394,7 @@ let is_invalid_for_ict1 action =
   | _, 256 (* CreateItemGlobal(S:Global,S:Area,S:ResRef) *)
   | _, 268 (* RealSetGlobalTimer(S:Name,S:Area,I:TimeGTimes) *)
   | _, 335 (* SetTokenGlobal(S:GLOBAL,S:Area,S:Token) *)
-    -> let check s = String.uppercase (snd (split6 s)) = "LOCALS" in
+    -> let check s = String.uppercase_ascii (snd (split6 s)) = "LOCALS" in
     List.exists check [action.a_8; action.a_9]
   | _ -> false in
   ans && action.a_1.o_name = ""

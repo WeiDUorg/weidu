@@ -24,22 +24,22 @@ DEFINE_PATCH_MACRO ~ITEM_EFFECT_TO_SPELL~ BEGIN
 
       PATCH_IF ((!___#have_type && ___#have_header) || ___#type_match) AND ((___#have_type && !___#have_header) || ___#header_match) BEGIN //ability is correct or unspecified and header matches
 
-        FOR (___#index2 = 0 ; ___#index2 < ___#abil_fx_num ; ___#index2 = ___#index2 + 1) BEGIN
-          READ_ASCII (___#fx_off + (___#abil_1fx_index + ___#index2) * 0x30) ___#effect (0x30)
+        READ_ASCII (___#fx_off + ___#abil_1fx_index * 0x30) ___#effects (0x30 * ___#abil_fx_num)
 
-          INNER_ACTION BEGIN
-            COPY_EXISTING ~%new_itm_spl%~ ~override/%new_itm_spl%~
-              READ_LONG   0x64 ___#abil_off2
-              READ_SHORT  0x68 ___#abil_num2
-              READ_LONG   0x6a ___#fx_off2
-              READ_SHORT  (___#abil_off2 + 0x1e + (0 * 0x28)) ___#abil_fx_num2
-              INSERT_BYTES (___#fx_off2 + ___#abil_fx_num2 * 0x30) 0x30
-              WRITE_EVALUATED_ASCII (___#fx_off2 + ___#abil_fx_num2 * 0x30) ~%___#effect%~ #48 //copy effect
-              WRITE_SHORT  (___#abil_off2 + 0x1e + (0 * 0x28)) (___#abil_fx_num2 + 1)
+        INNER_ACTION BEGIN
+          COPY_EXISTING ~%new_itm_spl%~ ~override/%new_itm_spl%~
+            READ_LONG   0x64 ___#abil_off2
+            READ_SHORT  0x68 ___#abil_num2
+            READ_LONG   0x6a ___#fx_off2
+            READ_SHORT  (___#abil_off2 + 0x1e + (0 * 0x28)) ___#abil_fx_num2
+            ___#insert_point = !IS_AN_INT insert_point OR insert_point < 0 OR
+              insert_point > ___#abil_fx_num2 ? ___#abil_fx_num2 : insert_point
+            INSERT_BYTES (___#fx_off2 + ___#insert_point * 0x30) (0x30 * ___#abil_fx_num)
+            WRITE_EVALUATED_ASCII (___#fx_off2 + ___#insert_point * 0x30) ~%___#effects%~ //copy effect
+            WRITE_SHORT  (___#abil_off2 + 0x1e + (0 * 0x28)) (___#abil_fx_num2 + ___#abil_fx_num)
           //no offsets to correct
-          END
-
         END
+
       END
     END
   END

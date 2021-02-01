@@ -1,7 +1,8 @@
 (* Diff routines using xdiff library *)
 open BatteriesInit
+open Hashtblinit
 open Util
-open Xdiff
+open Myxdiff
 open Str
 
 (* Usage: new_buff, bad_chunks, app_chunks = do_patch orig_buff patch_buff
@@ -21,7 +22,7 @@ let fixnl s =
 let do_patch orig_buff patch_buff vb = begin
   let orig_buff = fixnl orig_buff in
   let patch_buff = fixnl patch_buff in
-  let newf, rejf = Xdiff.patch orig_buff patch_buff in begin
+  let newf, rejf = Myxdiff.patch orig_buff patch_buff in begin
     (* RE which deliminates rejected chunks from patch *)
     let delimre = Str.regexp "@@ -[0-9]+,[0-9]+ \\+[0-9]+,[0-9]+ @@" in
     let rej_chunks = Str.full_split delimre rejf in
@@ -31,7 +32,7 @@ let do_patch orig_buff patch_buff vb = begin
         [] -> ()
       | Delim(stra) :: Text(strb) :: rem ->
           let chunk = stra ^ strb in
-          let newff, rejff = Xdiff.revpatch orig_buff chunk in
+          let newff, rejff = Myxdiff.revpatch orig_buff chunk in
           let begre = Str.regexp "^" in
           let chunk = Str.global_replace begre "    " chunk in
           let lfre = Str.regexp_string "\r" in
@@ -49,7 +50,7 @@ let do_patch orig_buff patch_buff vb = begin
             end
           in
           check_chunk rem;
-      | _ -> (log_and_print "do_patch: chunk from Xdiff.diff has wrong format.";
+      | _ -> (log_and_print "do_patch: chunk from Myxdiff.diff has wrong format.";
               raise Not_found)
     in
     check_chunk rej_chunks;
@@ -64,7 +65,7 @@ let get_patch orig_buff new_buff ncont =begin
   let orig_buff = fixnl orig_buff in
   let new_buff = fixnl new_buff in
   try
-    fixdouble (Xdiff.diff orig_buff new_buff ncont)
+    fixdouble (Myxdiff.diff orig_buff new_buff ncont)
   with e -> begin
     log_and_print "create_patch: couldn't create patch: %s\n" (printexc_to_string e);
     raise Not_found
