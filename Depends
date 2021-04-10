@@ -23,22 +23,22 @@ MLYS := dparser.mly idsparser.mly bcsparser.mly bafparser.mly toldparser.mly ref
 GRS := trealparserin.gr
 
 src/tph.ml : src/tph/include/* src/tph/define/* scripts/make_tph.ml
-	ocaml str.cma unix.cma -w p -unsafe-string scripts/make_tph.ml
+	$(OCAMLDIR)/ocaml str.cma unix.cma -w p -unsafe-string scripts/make_tph.ml
 
 $(OBJDIR)/trealparser.ml : $(OBJDIR)/trealparserin.ml scripts/make_par.ml scripts/make_compr_parser.ml
-	ocaml str.cma unix.cma -w p scripts/make_compr_parser.ml $(OBJDIR)/trealparserin.ml $(OBJDIR)/trealparser.ml
+	$(OCAMLDIR)/ocaml str.cma unix.cma -w p scripts/make_compr_parser.ml $(OBJDIR)/trealparserin.ml $(OBJDIR)/trealparser.ml
 
 $(OBJDIR)/trealparser.mli : $(OBJDIR)/trealparserin.mli
 	cp $(OBJDIR)/trealparserin.mli $(OBJDIR)/trealparser.mli
 
 src/tlexer.mll : src/tlexer.in src/trealparserin.gr scripts/make_tll.ml
-	ocaml str.cma unix.cma -w p scripts/make_tll.ml
+	$(OCAMLDIR)/ocaml str.cma unix.cma -w p scripts/make_tll.ml
 
 src/trealparserin.gr : src/trealparserin.in src/aliases.in scripts/make_gr.ml
-	ocaml str.cma unix.cma -w p scripts/make_gr.ml
+	$(OCAMLDIR)/ocaml str.cma unix.cma -w p scripts/make_gr.ml
 
 src/toldlexer.mll : src/toldlexer.in src/trealparserin.gr scripts/make_old_mll.ml
-	ocaml str.cma unix.cma -w p scripts/make_old_mll.ml
+	$(OCAMLDIR)/ocaml str.cma unix.cma -w p scripts/make_old_mll.ml
 
 src/arch.ml : src/$(ARCH_FILE).ml
 	cp src/$(ARCH_FILE).ml src/arch.ml
