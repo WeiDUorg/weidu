@@ -347,7 +347,7 @@ let check_file_presence_action string script_style ids game first_or_second_stri
         -> [ "2da" ]
 
       | 167l (* StartMovie *)
-        -> if (Load.eep) then
+        -> if (Load.eep ()) then
           [ "wbm" ] else [ "mve" ]
 
       | 272l (* CreateVisualEffectPoint *)

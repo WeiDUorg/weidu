@@ -278,7 +278,7 @@ let enhanced_edition_p game =
   | PSTEE -> true
   | GENERIC -> false)
 
-let eep =
+let eep () =
   enhanced_edition_p (the_game ())
 
 let load_dialog_pair path dpath dfpath =
