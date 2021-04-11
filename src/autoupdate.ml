@@ -144,7 +144,7 @@ let self () =
   log_and_print "\nAuto-Updating on behalf of [%s] (done)\n" target ;
 
   try
-    Sys.argv.(0) <- target;
+    Sys.argv.(0) <- (Printf.sprintf "\"%s\"" target) ;
     let is_wau = Str.regexp "weiduautoupdate" in
     let env = Array.of_list (
       List.filter (fun e ->
