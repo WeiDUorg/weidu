@@ -7912,6 +7912,9 @@ other mods. As such, \emph{REMEMBER TO TURN MODDER OFF WHEN YOU RELEASE YOUR MOD
 \label{sec-readln}\subsection{\t{READLN} (Last update: v203)}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Attention. You are urged to use something other than READLN if you
+can. You can read more at the end of this tutorial.
+
 This tutorial has been brought to you by plainab.
 
 The goal of this tutorial is to explain the use of READLN within the tp2 structure.
@@ -8076,11 +8079,13 @@ PLEASE ENTER  1, 2, 3, OR 4  ~
  END
 \end{verbatim}
 
-The only drawback to using READLN when offering additional choices to the user is
-that there is no record within the weidu.log file as to which choices were made.
-Should a problem arise during game play it may be difficult to determine which choice
-is causing the problem, especially if the player has forgotten which choices they made.
-This could be solved by creating your own log file, but that is another tutorial...
+There is a problem with using READLN. Notably, READLN pauses the
+installation until the user inputs an answer. This requires the player
+to baby-sit the installation and attentively watch for READLNs. It
+also causes problems for automated installation tools, which are
+increasingly becoming popular. Modders are urged to be choose
+solutions beside READLN, such as subcomponents, or even making use of
+configuration files, if these are suitable.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec-functions}\subsection{\t{Functions} (Last update: V247)}
