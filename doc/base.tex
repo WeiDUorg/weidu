@@ -2859,11 +2859,15 @@ global option to your \ttref{TP2} file. \\
     instructions, and caveats. \\
 
   or & \DEFINE{AUTO!EVAL!STRINGS} &
+
     \t{EVALUATE!BUFFER} is used whenever variables are evaluated. In
     particular, you can now "forget" about using it in FUNCTIONs and
     arrays. Note, TP2 defines multiple instances of
     \t{EVALUATE!BUFFER}, like \ttref{EVALUATE!BUFFER}, but these are
-    not affected by \ttref{AUTO!EVAL!STRINGS}. \\
+    not affected by \ttref{AUTO!EVAL!STRINGS}. \emph{N.B.} This adds
+    an additional level of \t{EVAL} to \ttref{OUTER!TEXT!SPRINT} and
+    \ttref{TEXT!SPRINT}, but not to \ttref{OUTER!SPRINT} or
+    \ttref{SPRINT}. \\
 
 \\
 
