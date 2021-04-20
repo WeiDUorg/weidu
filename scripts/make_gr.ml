@@ -1,5 +1,5 @@
 let is_valid x =
-  x <> "" && String.uppercase_ascii x = x && x.[String.length x - 1] <> '"' && x.[0] <> '"'
+  x <> "" && String.uppercase x = x && x.[String.length x - 1] <> '"' && x.[0] <> '"'
     && x.[0] <> '.' && (try string_of_int (int_of_string x) <> x with _ -> true) &&
   x <> "EOF" && x <> "_" && x <> "STRING" && x <> "SOUND" && x <> "INLINED_FILE" && x <> "TRANS_REF"
     && x <> "STRING_REF" && x <> "FORCED_STRING_REF" && x <> "START_FROM_TP" && x <> "START_FROM_TPP"

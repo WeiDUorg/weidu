@@ -101,7 +101,7 @@ let ext_of_key key =
     Printf.sprintf "0x%X" key
 
 let key_of_ext warn ext =
-  let ext = String.uppercase_ascii ext in
+  let ext = String.uppercase ext in
   try
     Hashtbl.find key_ext_ht ext
   with e ->
@@ -175,7 +175,7 @@ let load_key filename buff =
         let len_file = short_of_str_off buff (off + 8) in
         {
          length = int_of_str_off buff off ;
-         filename = String.uppercase_ascii
+         filename = String.uppercase
            (get_string_of_size buff off_file len_file) ;
          locations = short_of_str_off buff (off + 10) ;
        }) ;
@@ -183,7 +183,7 @@ let load_key filename buff =
         let off = offset_resource + (i * 14) in
         let bitfield = int32_of_str_off buff (off + 10) in
         let res = {
-          res_name = String.uppercase_ascii (get_string_of_size buff off 8) ;
+          res_name = String.uppercase (get_string_of_size buff off 8) ;
           res_type = short_of_str_off buff (off + 8) ;
           other_index = Int32.to_int
             (Int32.logand bitfield (Int32.of_int 16383)) ;
@@ -206,7 +206,7 @@ let find_resource key name ext =
   with Not_found ->
     begin
       Hashtbl.find key.resfind
-        (String.uppercase_ascii name,String.uppercase_ascii ext)
+        (String.uppercase name,String.uppercase ext)
     end
 
 let resource_exists key name ext =
@@ -229,8 +229,8 @@ let bif_of_resource key name ext =
 let bif_exists_in_key key name =
   let result = ref false in
   Array.iter (fun b ->
-    let b = String.uppercase_ascii b.filename in
-    if String.compare (String.uppercase_ascii name) b = 0 then
+    let b = String.uppercase b.filename in
+    if String.compare (String.uppercase name) b = 0 then
       result := true) key.biff ;
   !result
 
@@ -242,7 +242,7 @@ let list_biff key o =
 let list_biff_contents key o bl =
   Array.iter (fun r ->
     let biff = key.biff.(r.bif_index) in
-    let up_name = String.uppercase_ascii biff.filename in
+    let up_name = String.uppercase biff.filename in
     if List.mem up_name bl then
       o (Printf.sprintf "[%s] contains %8s.%3s at index %d\n"
            biff.filename r.res_name ( ext_of_key r.res_type )
@@ -256,12 +256,12 @@ let list_key key o =
 
 let list_of_key_resources : key -> bool -> string list =
   (fun key use_override ->
-    let from_key = List.map String.uppercase_ascii
+    let from_key = List.map String.uppercase
         (Array.to_list (Array.map (fun r ->
           Printf.sprintf "%s.%s" r.res_name
             (ext_of_key r.res_type)) key.resource)) in
     if use_override then begin
-      let from_override = List.map String.uppercase_ascii
+      let from_override = List.map String.uppercase
           (Array.to_list (Sys.readdir "override")) in
       List.sort_unique compare (from_key @ from_override)
     end else from_key)
@@ -271,9 +271,9 @@ let search_key_resources key use_override search_func =
 
 let remove_biff key filename =
   let idx = ref None in
-  let filename = String.uppercase_ascii filename in
+  let filename = String.uppercase filename in
   Array.iteri (fun i b ->
-    if (String.uppercase_ascii b.filename) = filename then
+    if (String.uppercase b.filename) = filename then
       idx := Some(i)) key.biff ;
   let i = match !idx with
   | Some(i) -> i

@@ -63,7 +63,7 @@ let get_next_point argl =
   | _ -> failwith "get_next_point"
 
 let valid_var_area s =
-  let s = String.uppercase_ascii s in
+  let s = String.uppercase s in
   if Modder.enabled "AREA_VARIABLES" then
     let ans = (s = "GLOBAL" || s = "LOCALS" || s = "KAPUTZ" || s = "MYAREA" ||
     s = "" || ( Str.string_match (Str.regexp "AR[0-9][0-9][0-9][0-9]") s 0) ||

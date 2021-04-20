@@ -30,7 +30,7 @@ let main () =
   let file_include = Sys.readdir "src/tph/include" in
   List.iter (fun (dir, files) ->
     Array.iter (fun file ->
-      let file = String.lowercase_ascii file in
+      let file = String.lowercase file in
       let ext = Str.global_replace (Str.regexp ".*\\.") "" file in
       if ext = "tpa" || ext = "tpp" then begin
         let contents = load_file ("src/tph/" ^ dir ^ "/" ^ file) in
@@ -39,7 +39,7 @@ let main () =
   output_string o "]\n";
   Printf.fprintf o "let %s = [" includes_symbol ;
   Array.iter (fun file ->
-    let file = Printf.sprintf "%s%s" namespace (String.lowercase_ascii file) in
+    let file = Printf.sprintf "%s%s" namespace (String.lowercase file) in
     let ext = Str.global_replace (Str.regexp ".*\\.") "" file in
     if ext = "tpa" || ext = "tpp" then Printf.fprintf o "\t\"%s\";\n" file) file_include;
   output_string o "]\n";

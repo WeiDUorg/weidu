@@ -99,7 +99,7 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
       | TP_At_Interactive_Uninstall(str,exact) ->
           if do_interactive_uninstall then begin
             let str = Var.get_string str in
-            match (split (String.uppercase_ascii str)) with
+            match (split (String.uppercase str)) with
             | _,"TP2" -> (enqueue_tp2_filename) str
             | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
               ignore(exec_command str exact)
@@ -107,7 +107,7 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
       | TP_At_Uninstall(str,exact) ->
           if do_uninstall then begin
             let str = Var.get_string str in
-            match (split (String.uppercase_ascii str)) with
+            match (split (String.uppercase str)) with
             | _,"TP2" -> (enqueue_tp2_filename) str
             | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
               ignore (exec_command str exact)
@@ -115,7 +115,7 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
       | TP_At_Interactive_Uninstall_Exit(str,exact) ->
           if do_interactive_uninstall then begin
             let str = Var.get_string str in
-            match (split (String.uppercase_ascii str)) with
+            match (split (String.uppercase str)) with
             | _,"TP2" -> (enqueue_tp2_filename) str
             | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
               if List.mem (Command(str,exact)) !execute_at_exit then
@@ -126,7 +126,7 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
       | TP_At_Uninstall_Exit(str,exact) ->
           if do_uninstall then begin
             let str = Var.get_string str in
-            match (split (String.uppercase_ascii str)) with
+            match (split (String.uppercase str)) with
             | _,"TP2" -> (enqueue_tp2_filename) str
             | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
               if List.mem (Command(str,exact)) !execute_at_exit then
@@ -218,9 +218,9 @@ let validate_uninstall_order tp2 =
     match flag with
     | Uninstall_Order str_l ->
         List.iter (fun action ->
-          if not (Hashtbl.mem actions (String.uppercase_ascii action)) then
+          if not (Hashtbl.mem actions (String.uppercase action)) then
             failwith (action ^ " not allowed in UNINSTALL_ORDER");
-          if not (Hashtbl.find actions (String.uppercase_ascii action)) then
+          if not (Hashtbl.find actions (String.uppercase action)) then
             failwith (action ^ " already had an UNINSTALL_ORDER");
           Queue.add action order;
           Hashtbl.add actions action false;
@@ -238,11 +238,11 @@ let validate_uninstall_order tp2 =
 
 let spell_ids_marker tp2 i =
   Printf.sprintf "override/spell.ids.%s.%d.marker"
-    (String.lowercase_ascii (Util.tp2_name (Case_ins.filename_basename tp2))) i
+    (String.lowercase (Util.tp2_name (Case_ins.filename_basename tp2))) i
 
 let check_pre_hooks game tp2 i interactive override_filename =
-  if (String.uppercase_ascii override_filename) = "OVERRIDE/SPELL.IDS" ||
-  (String.uppercase_ascii override_filename) = "OVERRIDE\\SPELL.IDS" then begin try
+  if (String.uppercase override_filename) = "OVERRIDE/SPELL.IDS" ||
+  (String.uppercase override_filename) = "OVERRIDE\\SPELL.IDS" then begin try
     let marker = spell_ids_marker tp2.tp_filename i in
     let out_chn = Case_ins.perv_open_out_bin marker in
     output_string out_chn "spell.ids edits installed\n";
@@ -253,7 +253,7 @@ let check_pre_hooks game tp2 i interactive override_filename =
   with e -> () end
 
 let check_post_hooks game tp2 i interactive override_filename =
-  if String.uppercase_ascii override_filename = "CHITIN.KEY" then begin
+  if String.uppercase override_filename = "CHITIN.KEY" then begin
     let keyname = Load.find_file_in_path "." "^chitin.key$" in
     let keybuff = load_file keyname in
     game.Load.key <- Key.load_key keyname keybuff ;
@@ -425,7 +425,7 @@ let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
           Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
           let m = get_nth_module tp2 c true in
           log_only "Running AT_INTERACTIVE_EXITs in ~%s~ %d %d %s\n"
-            (String.uppercase_ascii a) b c
+            (String.uppercase a) b c
             (str_of_str_opt sopt) ;
           handle_at_uninstall tp2 m
             false (* "AT_UNINSTALL" was already done! *)

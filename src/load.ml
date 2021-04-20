@@ -57,10 +57,10 @@ let add_gemrb_path file =
     | _ -> ())) lines)
 
 let ok_missing file =
-  let file = String.uppercase_ascii file in
+  let file = String.uppercase file in
   let rec check lst = match lst with
   | [] -> false
-  | hd :: tl -> if (String.uppercase_ascii hd) = file then true else
+  | hd :: tl -> if (String.uppercase hd) = file then true else
     check tl
   in check !allow_missing
 
@@ -317,7 +317,7 @@ let load_ee_dialogs game_path =
   let lang_path = game_path ^ "/lang" in
   let lang_dirs =
     (List.fast_sort compare
-       (List.map String.lowercase_ascii
+       (List.map String.lowercase
           (List.filter (fun dir ->
             let dir = Arch.native_separator (lang_path ^ "/" ^ dir) in
             (is_directory dir) &&
@@ -420,7 +420,7 @@ let read_cd_paths gp =
           while true do
             let s = Unix.readdir s_d_h in
             let base,ext = split s in
-            if (String.uppercase_ascii ext) = "INI" then begin
+            if (String.uppercase ext) = "INI" then begin
               let buff = load_file (gp ^ "/" ^ s) in
               (try
                 let cd_regexp = Arch.cd_regexp in
@@ -637,7 +637,7 @@ let copy_resource game name ext oc =
 let load_resource for_what game override_allowed name ext =
   let skip_this_error = !skip_next_load_error in
   skip_next_load_error := false ;
-  let ext_up = String.uppercase_ascii ext in
+  let ext_up = String.uppercase ext in
   let full = name ^ "." ^ ext in
   let a,b =
     if (Case_ins.filename_is_implicit name) then begin
@@ -696,7 +696,7 @@ let exists_in_overrides game res ext =
   List.fold_left (fun acc dir ->
     if file_exists (dir ^ "/" ^ res ^ "." ^ ext) then
       true
-    else acc) false (if (String.uppercase_ascii ext) = "IDS" then
+    else acc) false (if (String.uppercase ext) = "IDS" then
       game.ids_path_list else game.override_path_list)
 
 let resource_exists_legacy_check name =

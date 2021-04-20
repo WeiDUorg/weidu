@@ -214,23 +214,23 @@ action_list :           { [] }
     ;
 
 begin_prologue :
-  BEGIN STRING             { current_unit := Some(String.uppercase_ascii $2); (String.uppercase_ascii $2,0) }
-| BEGIN STRING STRING       { current_unit := Some(String.uppercase_ascii $2); (String.uppercase_ascii $2,my_int_of_string $3) }
+  BEGIN STRING             { current_unit := Some(String.uppercase $2); (String.uppercase $2,0) }
+| BEGIN STRING STRING       { current_unit := Some(String.uppercase $2); (String.uppercase $2,my_int_of_string $3) }
     ;
 
 append_prologue : APPEND STRING       
-  { current_unit := Some(String.uppercase_ascii $2) ;
-    (String.uppercase_ascii $2,false) } ;
+  { current_unit := Some(String.uppercase $2) ;
+    (String.uppercase $2,false) } ;
 | APPEND IF_FILE_EXISTS STRING
-    { current_unit := Some(String.uppercase_ascii $3) ;
-      (String.uppercase_ascii $3,true) } ;
+    { current_unit := Some(String.uppercase $3) ;
+      (String.uppercase $3,true) } ;
 
 append_safe_prologue : APPEND_EARLY STRING
-  { current_unit := Some(String.uppercase_ascii $2) ;
-    (String.uppercase_ascii $2,false) } ;
+  { current_unit := Some(String.uppercase $2) ;
+    (String.uppercase $2,false) } ;
 | APPEND_EARLY IF_FILE_EXISTS STRING
-    { current_unit := Some(String.uppercase_ascii $3) ;
-      (String.uppercase_ascii $3,true) } ;
+    { current_unit := Some(String.uppercase $3) ;
+      (String.uppercase $3,true) } ;
 
 
 string_list :            { [] }
@@ -253,7 +253,7 @@ alter_trans_list :            { [] }
     in
     result
   in
-  match String.uppercase_ascii $1 with
+  match String.uppercase $1 with
   | "TRIGGER" -> handle (fun s -> Dc.Alter_Trans_String (verify_trigger_list s))
   | "ACTION" -> handle (fun s -> Dc.Alter_Trans_String (verify_action_list s))
   | "REPLY" | "JOURNAL" | "SOLVED_JOURNAL" | "UNSOLVED_JOURNAL" ->
@@ -283,7 +283,7 @@ int_list:   { [] }
     ;
 
 upper_string_list :            { [] }
-| STRING upper_string_list  { (String.uppercase_ascii $1) :: $2 }
+| STRING upper_string_list  { (String.uppercase $1) :: $2 }
     ;
 
 when_list : { [] }
@@ -292,11 +292,11 @@ when_list : { [] }
 	
 extend_prologue :
   EXTEND_TOP STRING string_list hash_int_option 
-  { current_unit := Some(String.uppercase_ascii $2) ;
-    (true,String.uppercase_ascii $2,$3,$4) }
+  { current_unit := Some(String.uppercase $2) ;
+    (true,String.uppercase $2,$3,$4) }
 | EXTEND_BOTTOM STRING string_list hash_int_option
-    { current_unit := Some(String.uppercase_ascii $2) ;
-      (false,String.uppercase_ascii $2,$3,$4) }
+    { current_unit := Some(String.uppercase $2) ;
+      (false,String.uppercase $2,$3,$4) }
     ; 
 
 hash_int_option :             { 0 }
@@ -304,12 +304,12 @@ hash_int_option :             { 0 }
     ;
 
 replace_prologue : REPLACE STRING 
-  { current_unit := Some(String.uppercase_ascii $2); (String.uppercase_ascii $2) }
+  { current_unit := Some(String.uppercase $2); (String.uppercase $2) }
   ; 
 replace_state_trigger_prologue : REPLACE_STATE_TRIGGER STRING STRING STRING 
   string_list
-  { current_unit := Some(String.uppercase_ascii $2); 
-    (String.uppercase_ascii $2,$3 :: $5,$4) }
+  { current_unit := Some(String.uppercase $2); 
+    (String.uppercase $2,$3 :: $5,$4) }
   ; 
 
 opt_do_string_list :    { [] }
@@ -318,48 +318,48 @@ opt_do_string_list :    { [] }
 
 add_trans_trigger_prologue : ADD_TRANS_TRIGGER STRING STRING STRING string_list
   opt_do_string_list 
-  { current_unit := Some(String.uppercase_ascii $2); 
-    (String.uppercase_ascii $2,$3 :: $5,$4,$6) }
+  { current_unit := Some(String.uppercase $2); 
+    (String.uppercase $2,$3 :: $5,$4,$6) }
   ; 
 add_state_trigger_prologue : ADD_STATE_TRIGGER STRING STRING STRING string_list
-  { current_unit := Some(String.uppercase_ascii $2); 
-    (String.uppercase_ascii $2,$3 :: $5,$4) 
+  { current_unit := Some(String.uppercase $2); 
+    (String.uppercase $2,$3 :: $5,$4) 
   }
   ;
 
 chain3_prologue : CHAIN3 optional_weighted_condition STRING STRING
-  { current_unit := Some(String.uppercase_ascii $3); ($2,String.uppercase_ascii $3,$4,false) }
+  { current_unit := Some(String.uppercase $3); ($2,String.uppercase $3,$4,false) }
 | CHAIN3 optional_weighted_condition IF_FILE_EXISTS STRING STRING
-    { current_unit := Some(String.uppercase_ascii $4); ($2,String.uppercase_ascii $4,$5,true) }
+    { current_unit := Some(String.uppercase $4); ($2,String.uppercase $4,$5,true) }
     ;
 
 interject_prologue : INTERJECT STRING STRING STRING
-  { current_unit := Some(String.uppercase_ascii $2); (String.uppercase_ascii $2,false,$3,$4,false,false) }
+  { current_unit := Some(String.uppercase $2); (String.uppercase $2,false,$3,$4,false,false) }
   ;
 | INTERJECT IF_FILE_EXISTS STRING STRING STRING
-  { current_unit := Some(String.uppercase_ascii $3); (String.uppercase_ascii $3,true,$4,$5,false,false) }
+  { current_unit := Some(String.uppercase $3); (String.uppercase $3,true,$4,$5,false,false) }
   ;
 
 interject_copy_trans_prologue :
   /* first boolean = enable don't copy actions a la ICT2; second boolean: add all transitions a la
   ICT3 */
   INTERJECT_COPY_TRANS optional_safe STRING STRING STRING
-  { current_unit := Some(String.uppercase_ascii $3); (String.uppercase_ascii $3,false,$4,$5,false,false,$2) }
+  { current_unit := Some(String.uppercase $3); (String.uppercase $3,false,$4,$5,false,false,$2) }
 | INTERJECT_COPY_TRANS2 optional_safe STRING STRING STRING
-    { current_unit := Some(String.uppercase_ascii $3); (String.uppercase_ascii $3,false,$4,$5,true,false,$2) }
+    { current_unit := Some(String.uppercase $3); (String.uppercase $3,false,$4,$5,true,false,$2) }
 | INTERJECT_COPY_TRANS3 optional_safe STRING STRING STRING
-    { current_unit := Some(String.uppercase_ascii $3); (String.uppercase_ascii $3,false,$4,$5,false,true,$2) }
+    { current_unit := Some(String.uppercase $3); (String.uppercase $3,false,$4,$5,false,true,$2) }
 | INTERJECT_COPY_TRANS4 optional_safe STRING STRING STRING
-    { current_unit := Some(String.uppercase_ascii $3); (String.uppercase_ascii $3,false,$4,$5,true,true,$2) }
+    { current_unit := Some(String.uppercase $3); (String.uppercase $3,false,$4,$5,true,true,$2) }
     ;
 | INTERJECT_COPY_TRANS optional_safe IF_FILE_EXISTS STRING STRING STRING
-  { current_unit := Some(String.uppercase_ascii $4); (String.uppercase_ascii $4,true,$5,$6,false,false,$2) }
+  { current_unit := Some(String.uppercase $4); (String.uppercase $4,true,$5,$6,false,false,$2) }
 | INTERJECT_COPY_TRANS2 optional_safe IF_FILE_EXISTS STRING STRING STRING
-    { current_unit := Some(String.uppercase_ascii $4); (String.uppercase_ascii $4,true,$5,$6,true,false,$2) }
+    { current_unit := Some(String.uppercase $4); (String.uppercase $4,true,$5,$6,true,false,$2) }
 | INTERJECT_COPY_TRANS3 optional_safe IF_FILE_EXISTS STRING STRING STRING
-    { current_unit := Some(String.uppercase_ascii $4); (String.uppercase_ascii $4,true,$5,$6,false,true,$2) }
+    { current_unit := Some(String.uppercase $4); (String.uppercase $4,true,$5,$6,false,true,$2) }
 | INTERJECT_COPY_TRANS4 optional_safe IF_FILE_EXISTS STRING STRING STRING
-    { current_unit := Some(String.uppercase_ascii $4); (String.uppercase_ascii $4,true,$5,$6,true,true,$2) }
+    { current_unit := Some(String.uppercase $4); (String.uppercase $4,true,$5,$6,true,true,$2) }
     ;
 
   action : 
@@ -375,15 +375,15 @@ interject_copy_trans_prologue :
     { let top,ext_unit,ext_label,number = $1 in
     current_unit := None ; 
     if top then 
-      Dc.Extend_Top( String.uppercase_ascii ext_unit, ext_label, number, $2 )
+      Dc.Extend_Top( String.uppercase ext_unit, ext_label, number, $2 )
     else
-      Dc.Extend_Bottom( String.uppercase_ascii ext_unit, ext_label, number, $2 ) 
+      Dc.Extend_Bottom( String.uppercase ext_unit, ext_label, number, $2 ) 
     } 
 | replace_prologue state_list END 
     { current_unit := None ;
       Dc.Replace($1, $2) }
 | REPLACE_SAY STRING STRING lse
-    { Dc.Replace_Say(String.uppercase_ascii $2,$3,$4) } 
+    { Dc.Replace_Say(String.uppercase $2,$3,$4) } 
 | replace_state_trigger_prologue when_list
     { let f,s,t = $1 in 
     let verified_t = verify_trigger_list t in 
@@ -400,22 +400,22 @@ interject_copy_trans_prologue :
     current_unit := None ; 
     Dc.Add_Trans_Trigger(f,s,verified_t,tl,$2) } 
 | ADD_TRANS_ACTION STRING BEGIN string_list END BEGIN int_list END STRING when_list
-    { current_unit := Some(String.uppercase_ascii $2);
+    { current_unit := Some(String.uppercase $2);
       let verified_a = verify_action_list $9 in
       current_unit := None ; 
-      Dc.Add_Trans_Action(String.uppercase_ascii $2,$4,$7,verified_a,$10) }
+      Dc.Add_Trans_Action(String.uppercase $2,$4,$7,verified_a,$10) }
 | ALTER_TRANS STRING BEGIN string_list END BEGIN int_list END BEGIN alter_trans_list END when_list
-    { Dc.Alter_Trans(String.uppercase_ascii $2,$4,$7,$10) }
+    { Dc.Alter_Trans(String.uppercase $2,$4,$7,$10) }
 | REPLACE_TRANS_ACTION STRING BEGIN string_list END BEGIN int_list END STRING STRING when_list
-    { current_unit := Some(String.uppercase_ascii $2);
+    { current_unit := Some(String.uppercase $2);
       current_unit := None ; 
-      Dc.Replace_Trans_Action(String.uppercase_ascii $2,$4,$7,$9,$10,$11) }
+      Dc.Replace_Trans_Action(String.uppercase $2,$4,$7,$9,$10,$11) }
 | REPLACE_TRANS_TRIGGER STRING BEGIN string_list END BEGIN int_list END STRING STRING when_list
-    { current_unit := Some(String.uppercase_ascii $2);
+    { current_unit := Some(String.uppercase $2);
       current_unit := None ;
-      Dc.Replace_Trans_Trigger(String.uppercase_ascii $2,$4,$7,$9,$10,$11) }
+      Dc.Replace_Trans_Trigger(String.uppercase $2,$4,$7,$9,$10,$11) }
 | SET_WEIGHT STRING STRING STRING_REF
-    { Dc.Set_Weight(String.uppercase_ascii $2,$3,$4) }
+    { Dc.Set_Weight(String.uppercase $2,$3,$4) }
 | chain3_prologue chain3_list compound_chain3_list chain3_epilogue
     { let (entry_weight,entry_cond),file,state,ifexist = $1 in
     let first_part = List.map (fun (cond,says,action) ->
@@ -475,17 +475,17 @@ interject_copy_trans_prologue :
      }
     }
 | REPLACE_TRIGGER_TEXT STRING STRING STRING when_list
-    { Dc.Replace_Trigger_Text(String.uppercase_ascii $2,$3,$4,false,$5) }
+    { Dc.Replace_Trigger_Text(String.uppercase $2,$3,$4,false,$5) }
 | REPLACE_TRIGGER_TEXT_REGEXP STRING STRING STRING when_list
-    { Dc.Replace_Trigger_Text(String.uppercase_ascii $2,$3,$4,true,$5) }
+    { Dc.Replace_Trigger_Text(String.uppercase $2,$3,$4,true,$5) }
 | REPLACE_ACTION_TEXT STRING STRING STRING upper_string_list when_list
-    { Dc.Replace_Action_Text(String.uppercase_ascii $2 :: $5,$3,$4,false,$6) }
+    { Dc.Replace_Action_Text(String.uppercase $2 :: $5,$3,$4,false,$6) }
 | REPLACE_ACTION_TEXT_PROCESS STRING STRING STRING upper_string_list when_list
-    { Dc.Replace_Action_Text(String.uppercase_ascii $2 :: $5,$3,verify_action_list $4,false,$6) }
+    { Dc.Replace_Action_Text(String.uppercase $2 :: $5,$3,verify_action_list $4,false,$6) }
 | REPLACE_ACTION_TEXT_REGEXP STRING STRING STRING upper_string_list when_list
-    { Dc.Replace_Action_Text(String.uppercase_ascii $2 :: $5,$3,$4,true,$6) }
+    { Dc.Replace_Action_Text(String.uppercase $2 :: $5,$3,$4,true,$6) }
 | REPLACE_ACTION_TEXT_PROCESS_REGEXP STRING STRING STRING upper_string_list when_list
-    { Dc.Replace_Action_Text(String.uppercase_ascii $2 :: $5,$3,verify_action_list $4,true,$6) }
+    { Dc.Replace_Action_Text(String.uppercase $2 :: $5,$3,verify_action_list $4,true,$6) }
     ;
 
   chain3_list : optional_condition lse optional_action     { [($1,$2,$3)] }
@@ -510,17 +510,17 @@ interject_copy_trans_prologue :
 	
   chain3_epilogue: 
 | END STRING STRING
-    { let next = Dlg.Symbolic(String.uppercase_ascii $2,$3,false) in
+    { let next = Dlg.Symbolic(String.uppercase $2,$3,false) in
     [| Dlg.make_trans_of_next next |] }
 | EXTERN STRING STRING
-    { let next = Dlg.Symbolic(String.uppercase_ascii $2,$3,false) in
+    { let next = Dlg.Symbolic(String.uppercase $2,$3,false) in
     [| Dlg.make_trans_of_next next |] }
 | COPY_TRANS optional_safe STRING STRING
-    { let next = Dlg.Copy(String.uppercase_ascii $3,$4,$2) in
+    { let next = Dlg.Copy(String.uppercase $3,$4,$2) in
 	let trans = [| Dlg.make_trans_of_next next |] in
 	trans }
 | COPY_TRANS_LATE optional_safe STRING STRING
-    { let next = Dlg.Copy_Late(String.uppercase_ascii $3,$4,$2) in
+    { let next = Dlg.Copy_Late(String.uppercase $3,$4,$2) in
 	let trans = [| Dlg.make_trans_of_next next |] in
 	trans }
 | EXIT
@@ -540,7 +540,7 @@ interject_copy_trans_prologue :
 
   compound_chain3_list :                  { [] }
 | EQUALSEQUALS STRING chain3_list compound_chain3_list
-    { let this_speaker = String.uppercase_ascii $2 in
+    { let this_speaker = String.uppercase $2 in
     let first_part = List.map (fun (cond,says,action) ->
       { Dc.c3du_speaker = this_speaker ;
         Dc.c3du_condition = cond ;
@@ -552,7 +552,7 @@ interject_copy_trans_prologue :
     first_part @ $4
     }
 | EQUALSEQUALS IF_FILE_EXISTS STRING chain3_list compound_chain3_list
-    { let this_speaker = String.uppercase_ascii $3 in
+    { let this_speaker = String.uppercase $3 in
     let first_part = List.map (fun (cond,says,action) ->
       { Dc.c3du_speaker = this_speaker ;
         Dc.c3du_condition = cond ;
@@ -645,10 +645,10 @@ interject_copy_trans_prologue :
         (file,s) :: convert tl extern_guy
     in 
     extra_actions := (Dc.Chain(
-		      { Dc.entry_file = String.uppercase_ascii $2 ;
+		      { Dc.entry_file = String.uppercase $2 ;
 			Dc.entry_label = $3 ;
 			Dc.dialogue = convert $4 true;
-			Dc.exit_file = String.uppercase_ascii $6 ;
+			Dc.exit_file = String.uppercase $6 ;
 			Dc.exit_label = $7 ;
 		      } )) :: !extra_actions ;
     []  
@@ -656,7 +656,7 @@ interject_copy_trans_prologue :
     ;
 
   appendi_prologue : APPENDI STRING 
-    { let what = String.uppercase_ascii $2 in  
+    { let what = String.uppercase $2 in  
     let old = !current_unit in current_unit := Some(what); (old, what) } 
     ; 
 
@@ -764,7 +764,7 @@ interject_copy_trans_prologue :
       Dlg.action = None ;
       Dlg.journal_str = None;
       Dlg.unknown_flags = 0 ;
-      Dlg.next = Dlg.Copy(String.uppercase_ascii $3,$4,$2) ;
+      Dlg.next = Dlg.Copy(String.uppercase $3,$4,$2) ;
     }
     }
 | COPY_TRANS_LATE optional_safe STRING STRING
@@ -775,15 +775,15 @@ interject_copy_trans_prologue :
       Dlg.action = None ;
       Dlg.journal_str = None;
       Dlg.unknown_flags = 0 ;
-      Dlg.next = Dlg.Copy_Late(String.uppercase_ascii $3,$4,$2) ;
+      Dlg.next = Dlg.Copy_Late(String.uppercase $3,$4,$2) ;
     }
     }
     ;
 
   next : GOTO STRING     { Dlg.Symbolic(get_current_unit () ,$2,false) }
 | PLUS STRING     { Dlg.Symbolic(get_current_unit () ,$2,false) }
-| EXTERN STRING STRING { Dlg.Symbolic(String.uppercase_ascii $2,$3,false) }
-| EXTERN IF_FILE_EXISTS STRING STRING { Dlg.Symbolic(String.uppercase_ascii $3,$4,true) }
+| EXTERN STRING STRING { Dlg.Symbolic(String.uppercase $2,$3,false) }
+| EXTERN IF_FILE_EXISTS STRING STRING { Dlg.Symbolic(String.uppercase $3,$4,true) }
 | EXIT                 { Dlg.Exit }
     ;
 

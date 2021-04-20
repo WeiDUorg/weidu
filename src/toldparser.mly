@@ -368,7 +368,7 @@ optional_evaluate :
 | ALLOW_MISSING upper_string_list tp_flag_list
     { Tp.Allow_Missing($2) :: $3 }
 | SCRIPT_STYLE STRING tp_flag_list
-    { let n = match (String.uppercase_ascii $2) with
+    { let n = match (String.uppercase $2) with
     | "BG"
     | "BG2" -> Load.BG2
     | "BG1" -> BG1
@@ -382,7 +382,7 @@ optional_evaluate :
     ;
 
   upper_string_list :            { [] }
-| STRING upper_string_list  { (String.uppercase_ascii $1) :: $2 }
+| STRING upper_string_list  { (String.uppercase $1) :: $2 }
     ;
 
   tp_lang_list :   { [] }

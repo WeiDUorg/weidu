@@ -570,7 +570,7 @@ let preprocess_action2 game a = match a with
   -> List.iter (fun n -> make_available (action_to_str a) game n false) nl
 | Alter_Trans (n,_,_,l) ->
     make_available (action_to_str a) game n false;
-    List.iter (fun (b,c) -> if String.uppercase_ascii b = "EPILOGUE" then begin
+    List.iter (fun (b,c) -> if String.uppercase b = "EPILOGUE" then begin
       match c with
       | Alter_Trans_String c -> begin
           let parts = Str.split (Str.regexp " ") c in
@@ -639,7 +639,7 @@ let rec process_action game a = match a with
       let regexp_list = List.map (fun n -> Str.regexp_case_fold n) nl in
       let matches = Key.search_key_resources game.Load.key true
           (fun poss ->
-            let b,e = split (String.uppercase_ascii poss) in
+            let b,e = split (String.uppercase poss) in
             let ans = e = "DLG" &&
               (List.exists (fun regexp -> Str.string_match regexp b 0)
                  regexp_list) in
@@ -674,7 +674,7 @@ let rec process_action game a = match a with
       let regexp = Str.regexp_case_fold n in
       let matches = Key.search_key_resources game.Load.key true
           (fun poss ->
-            let b,e = split (String.uppercase_ascii poss) in
+            let b,e = split (String.uppercase poss) in
             let ans = e = "DLG" &&
               Str.string_match regexp b 0 in
             if ans then make_available (action_to_str a) game b false;
@@ -865,8 +865,8 @@ let rec process_action game a = match a with
           let get_next s =
             let parts = Str.split (Str.regexp " ") s in
             match parts with
-            | [a;b;c] -> Dlg.Symbolic(String.uppercase_ascii b,c,false)
-            | [a;b] -> Dlg.Symbolic(String.uppercase_ascii n,b,false)
+            | [a;b;c] -> Dlg.Symbolic(String.uppercase b,c,false)
+            | [a;b] -> Dlg.Symbolic(String.uppercase n,b,false)
             | [a] -> Dlg.Exit
             | _ -> failwith "unknown transition in ALTER_STRING"
           in
@@ -874,7 +874,7 @@ let rec process_action game a = match a with
           | Alter_Trans_Lse s -> single_string_of_tlk_string game s
           | Alter_Trans_String s -> s
           in
-          match String.uppercase_ascii what with
+          match String.uppercase what with
           | "TRIGGER" -> trans.Dlg.trans_trigger <- some_or_none intos intos
           | "ACTION" -> trans.Dlg.action <- some_or_none intos intos
           | "REPLY" -> trans.Dlg.trans_str <- some_or_none (get_lse(into)) intos
@@ -1025,7 +1025,7 @@ end
               | Some(a1),Some(a2) ->
                   let aa1 = Str.global_replace (Str.regexp "[ \t\n\r]+") "" a1 in
                   let aa2 = Str.global_replace (Str.regexp "[ \t\n\r]+") "" a2 in
-                  if String.uppercase_ascii aa1 = String.uppercase_ascii aa2 then None else begin try
+                  if String.uppercase aa1 = String.uppercase aa2 then None else begin try
                     let a2_init = Str.string_before a2 (Str.search_forward one_newline_or_cr_regexp a2 0) in
                     let a2_after = Str.global_replace (Str.regexp "[ \t\n\r]+") "" (Str.string_after a2 (Str.search_forward one_newline_or_cr_regexp a2 0)) in
                     if Str.string_match (Str.regexp "SetGlobal(\"[^\"]*\",\"GLOBAL\",1)") a2_init 0 then begin

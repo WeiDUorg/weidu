@@ -33,8 +33,8 @@ let rec eval_pe_str s = match s with
 	| true -> Var.get_string s)
 | PE_GetVar(p) -> (try Var.get_string_exact ("%" ^ eval_pe_str p ^ "%") with _ -> eval_pe_str p)
 | PE_Evaluate(p) -> Var.get_string (eval_pe_str p)
-| PE_Uppercase(s) -> String.uppercase_ascii (eval_pe_str s)
-| PE_Lowercase(s) -> String.lowercase_ascii (eval_pe_str s)
+| PE_Uppercase(s) -> String.uppercase (eval_pe_str s)
+| PE_Lowercase(s) -> String.lowercase (eval_pe_str s)
 | PE_Dollars(s,a,do_eval,do_add) ->
     let a = List.map (fun x -> Var.get_string (eval_pe_str x)) a in
     let s = Var.get_string (eval_pe_str s) in
@@ -215,7 +215,7 @@ let rec eval_pe buff game p =
 	let filename = Var.get_string filename in
 	let reg = Var.get_string reg in
 	let old_allow_missing = !Load.allow_missing in 
-	Load.allow_missing := [String.uppercase_ascii filename] ; 
+	Load.allow_missing := [String.uppercase filename] ; 
 	let answer = 
 	  try
 	    let buf = 
@@ -265,7 +265,7 @@ let rec eval_pe buff game p =
         let digest = Digest.file f in
         let hex = Digest.to_hex digest in
         log_only "File [%s] has MD5 checksum [%s]\n" f hex ;
-        (String.uppercase_ascii hex) = (String.uppercase_ascii s)
+        (String.uppercase hex) = (String.uppercase s)
       end else begin
         false
       end)
@@ -354,8 +354,8 @@ let rec eval_pe buff game p =
       let s1 = Var.get_string s1 in
       let s2 = Var.get_string s2 in 
       let comparison = if ignore_case then 
-        (fun s1 s2 -> String.compare (String.uppercase_ascii s1)
-            (String.uppercase_ascii s2)) else String.compare
+        (fun s1 s2 -> String.compare (String.uppercase s1)
+            (String.uppercase s2)) else String.compare
       in
       let result = Int32.of_int (comparison s1 s2) in
       let bigg_make_bool () =
@@ -457,7 +457,7 @@ let rec eval_pe buff game p =
       let iwdee = f "howparty.2da" in
       let pstee = f "pstchar.2da" in
       let res = List.exists (fun this ->
-        match String.uppercase_ascii this with
+        match String.uppercase this with
         | "BG2"
         | "SOA"        -> bg2 && not tutu && not tob && not ca && not iwdinbg2
         | "TOB"        -> bg2 && not tutu &&     tob && not ca && not iwdinbg2 && not bg2ee
@@ -482,7 +482,7 @@ let rec eval_pe buff game p =
         | "IWDEE"      -> iwdee
         | "PSTEE"      -> pstee
         | "EET"        -> eet
-        | _ -> log_and_print "WARNING: No rule to identify %s\n" (String.uppercase_ascii this) ; false
+        | _ -> log_and_print "WARNING: No rule to identify %s\n" (String.uppercase this) ; false
       ) game_list in
       if res then 1l else 0l;
   end
@@ -498,12 +498,12 @@ let rec eval_pe buff game p =
       let totlm = ["TOTLM"; "IWD_IN_BG2"; "IWDEE"] in
       let iwd2 = ["IWD2"] in
       let ca = ["CA"] in
-      (match String.uppercase_ascii game_set with
+      (match String.uppercase game_set with
       | "SOD" -> eval_pe "" game (PE_ResourceContains
                                     (PE_LiteralString "CAMPAIGN.2DA",
                                      PE_LiteralString "SOD"))
       | _ -> begin
-          let list = (match String.uppercase_ascii game_set with
+          let list = (match String.uppercase game_set with
           | "BG1" -> bg1
           | "TOTSC" -> totsc
           | "BG2"
@@ -516,7 +516,7 @@ let rec eval_pe buff game p =
           | "TOTLM" -> totlm
           | "IWD2" -> iwd2
           | "CA" -> ca
-          | _ -> log_and_print "WARNING: GAME_INCLUDES has no rule for %s\n" (String.uppercase_ascii game_set) ; [(String.uppercase_ascii game_set)]) in
+          | _ -> log_and_print "WARNING: GAME_INCLUDES has no rule for %s\n" (String.uppercase game_set) ; [(String.uppercase game_set)]) in
           eval_pe buff game (PE_GameIs((String.concat " " list), true))
       end)
   end

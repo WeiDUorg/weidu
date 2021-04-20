@@ -94,7 +94,7 @@ let from_ht = Hashtbl.create 511
 
 let load_dlg name buff = begin
   let result = Stats.time "unmarshal DLG" (fun () ->
-    let name = let a,b = split name in String.uppercase_ascii a in
+    let name = let a,b = split name in String.uppercase a in
     try
       if String.sub buff 0 8 <> "DLG V1.0" then begin
         failwith "not a valid DLG file (wrong sig)"
@@ -169,11 +169,11 @@ let load_dlg name buff = begin
                 then Some(dos2unix (get_action index_action)) else None ;
                 next = if flags land 8 <> 0 then Exit
                 else
-                  let dest = String.uppercase_ascii next_dlg in
+                  let dest = String.uppercase next_dlg in
                   (* create "from: " lists *)
                   if !emit_from then begin
                     Hashtbl.add from_ht (dest, index_state)
-                      (String.uppercase_ascii name,i,t) ;
+                      (String.uppercase name,i,t) ;
                   end ;
                   (Absolute(dest,index_state)) ;
               } , off)

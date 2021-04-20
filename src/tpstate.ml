@@ -182,10 +182,10 @@ let get_component_list tp_file =
  * Evaluate a TP2 Patch Expression
  ************************************************************************)
 let log_match a b =
-  let a = String.uppercase_ascii a in
-  let b = String.uppercase_ascii b in
-  Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase_ascii a)) =
-  Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase_ascii b))
+  let a = String.uppercase a in
+  let b = String.uppercase b in
+  Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase a)) =
+  Str.global_replace (Str.regexp "^SETUP-") "" (Case_ins.filename_basename (String.uppercase b))
 
 let any_installed tp2 =
   let rec is_installed lst = match lst with
@@ -321,11 +321,11 @@ let sprintf_log game handle_tp2_filename handle_tra_filename get_tra_list_filena
         let component_name = Str.global_replace newline_regexp " " component_name in
         let subcomponent_name = Str.global_replace newline_regexp " " subcomponent_name in
         Printf.sprintf "~%s~ #%d #%d // %s%s%s\n"
-          (String.uppercase_ascii a) b c subcomponent_name component_name version
+          (String.uppercase a) b c subcomponent_name component_name version
       end
       else begin
         Printf.sprintf "~%s~ #%d #%d\n"
-          (String.uppercase_ascii a) b c
+          (String.uppercase a) b c
       end
     in
     match d with

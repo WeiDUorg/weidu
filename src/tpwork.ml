@@ -135,7 +135,7 @@ let do_readme tp this_tp2_filename =
                 if !skip_at_view || not !interactive then answer := "N";
                 while !answer <> "Y" && !answer <> "N" do
                   log_and_print "\n%s\n" (get_trans (-1034));
-                  answer := String.uppercase_ascii (read_line())
+                  answer := String.uppercase (read_line())
                 done;
                 if !answer = "Y" then
                   ignore (Unix.system str);
@@ -396,7 +396,7 @@ let ask_about_quickmenu tp this_tp2_filename using_quickmenu module_defaults
         (Dc.single_string_of_tlk_string_safe (Load.the_game ()) title)
         (if !is_selection then (get_trans (-1027)) else "") ;
       incr cnt) quickmenu ;
-    let ans = String.uppercase_ascii (read_line ()) in
+    let ans = String.uppercase (read_line ()) in
     let set_state inst uninst always_inst always_uninst =
       for i = 0 to last_module_index do
         try
@@ -464,7 +464,7 @@ let ask_about_ungrouped tp this_tp2_filename module_defaults
       finished := true ;
       (* log_and_print "\nWhat should be done with all components that are NOT YET installed?\n[I]nstall them, [S]kip them, [A]sk about each one? " ; *)
       log_and_print "\n%s" ((get_trans (-1002)));
-      match String.uppercase_ascii(read_line ()) with
+      match String.uppercase(read_line ()) with
       | "R"
       | "I" ->
           for i = 0 to last_module_index do
@@ -512,7 +512,7 @@ let ask_about_ungrouped tp this_tp2_filename module_defaults
       finished := true ;
       (* log_and_print "\nWhat should be done with all components that are ALREADY installed?\n[R]e-install them, [U]ninstall them, [S]kip them, [A]sk about each one? " ; *)
       log_and_print "\n%s" ((get_trans (-1003)));
-      match String.uppercase_ascii(read_line ()) with
+      match String.uppercase(read_line ()) with
       | "I"
       | "R" ->
           for i = 0 to last_module_index do
@@ -597,7 +597,7 @@ let ask_about_groups tp groups module_defaults last_module_index using_quickmenu
         log_and_print "\n%s%s%s" (Var.get_string (get_trans (-1028)))
           (Dc.single_string_of_tlk_string_safe
              (Load.the_game ()) this_grp) (get_trans (-1029)) ;
-        match String.uppercase_ascii(read_line ()) with
+        match String.uppercase(read_line ()) with
         | "Y" ->
             for i = 0 to last_module_index do
               try
@@ -841,7 +841,7 @@ let rec handle_tp game this_tp2_filename tp =
               !safe_exit then begin
               let old_log = !the_log in
               the_log := !the_log @
-                [((String.uppercase_ascii this_tp2_filename), !our_lang_index, i,
+                [((String.uppercase this_tp2_filename), !our_lang_index, i,
                   Some(package_name), Installed)];
               let old_tp_quick_log = !Tp.quick_log in
               Tp.quick_log := true;
@@ -923,7 +923,7 @@ let rec handle_tp game this_tp2_filename tp =
           begin
             if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] then
               the_log := !the_log @
-                [((String.uppercase_ascii this_tp2_filename),!our_lang_index,i,Some(package_name),Installed)]
+                [((String.uppercase this_tp2_filename),!our_lang_index,i,Some(package_name),Installed)]
             else (* log_and_print "NOT adding a WeiDU.log record. You cannot uninstall this.\n" *) ()
           end ;
           finished := true
@@ -1176,7 +1176,7 @@ let rec handle_tp game this_tp2_filename tp =
             done ;
             if !any_unsafe then
               log_and_print "Because of --safe-exit, only [N] and [Q] are acceptable.\n";
-            let answer = String.uppercase_ascii (read_line ()) in
+            let answer = String.uppercase (read_line ()) in
             let answer = if Hashtbl.mem already_ht () then begin
               let (m,i) = Hashtbl.find already_ht () in
               let temp_uninst = temporarily_uninstalled this_tp2_filename i in
@@ -1270,7 +1270,7 @@ let rec handle_tp game this_tp2_filename tp =
       if not (safe_to_handle tp.tp_filename !current) then
         log_and_print "\nBecause of --safe-exit, only [N] and [Q] are acceptable. ";
       begin
-        let answer = String.uppercase_ascii(read_line ()) in
+        let answer = String.uppercase(read_line ()) in
         handle_letter tp answer can_uninstall temp_uninst package_name m
           finished !current ;
         Dc.clear_state () ;

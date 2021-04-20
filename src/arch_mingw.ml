@@ -109,7 +109,7 @@ let get_user_dir game_path =
   get_user_personal_dir ()
 
 let game_path_by_type name =
-  match String.lowercase_ascii name with
+  match String.lowercase name with
   | "bg2"  -> registry_path ()
   | "bg1"
   | "bg"   -> bg_registry_path ()

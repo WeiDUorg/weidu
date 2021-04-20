@@ -178,7 +178,7 @@ nonterm (Tp.tp_flag) Tp_Flag {
        Tp.Menu_Style "1" ]
   -> ALLOW_MISSING e1:Upper_String_List [ Tp.Allow_Missing e1 ]
   -> SCRIPT_STYLE e1:STRING
-       [ let n = match (String.uppercase_ascii e1) with
+       [ let n = match (String.uppercase e1) with
          | "BG"
          | "BG2" -> Load.BG2
          | "BG1" -> Load.BG1
@@ -191,11 +191,11 @@ nonterm (Tp.tp_flag) Tp_Flag {
          Tp.Script_Style(n) ]
   -> README e1:String_List [ Tp.Readme e1 ]
   -> UNINSTALL_ORDER e1:String_List [
-       List.iter (fun x -> match String.uppercase_ascii x with
+       List.iter (fun x -> match String.uppercase x with
                  | "MOVE" | "COPY" | "STRSET" | "AT" -> ()
                  | _ -> failwith (Printf.sprintf "%s not allowed in UNINSTALL_ORDER" x);
                  ) e1;
-                 Tp.Uninstall_Order (List.map String.uppercase_ascii e1) ]
+                 Tp.Uninstall_Order (List.map String.uppercase e1) ]
   -> QUICK_MENU ALWAYS_ASK e0:String_List END e1:Menu_List END [ Tp.Quick_Menu (e1,List.map int_of_string e0) ]
   -> AUTO_EVAL_STRINGS [ Tp.Auto_Eval_Strings ]
 }
@@ -211,7 +211,7 @@ nonterm((Dlg.tlk_string * int list) list) Menu_List_Rev {
 
 nonterm(string list) Upper_String_List_Rev {
   -> { [] }
-  -> e1:Upper_String_List_Rev e2:STRING [ String.uppercase_ascii e2 :: e1 ]
+  -> e1:Upper_String_List_Rev e2:STRING [ String.uppercase e2 :: e1 ]
 }
 
 nonterm(string list) Upper_String_List {

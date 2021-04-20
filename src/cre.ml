@@ -76,7 +76,7 @@ let cre_of_string buff =
   let known_spells = ref [] in
   for i = 0 to known_cnt - 1 do
     let this_buff = String.sub buff (known_off + i * 0xc) 0xc in
-    let name = String.uppercase_ascii (get_string_of_size this_buff 0 8) in
+    let name = String.uppercase (get_string_of_size this_buff 0 8) in
     let level = short_of_str_off this_buff 8 in
     let spell_type = short_of_str_off this_buff 0xa in
     known_spells := (name,level,spell_type) :: !known_spells ;
@@ -97,7 +97,7 @@ let cre_of_string buff =
     while !mlist_i < mlist_cnt do
       let this_buff = String.sub buff
           (mlist_off + (mlist_idx + !mlist_i) * 0xc) 0xc in
-      let name = String.uppercase_ascii (get_string_of_size this_buff 0 8) in
+      let name = String.uppercase (get_string_of_size this_buff 0 8) in
       let memorized = 0 <> (int_of_str_off this_buff 8) in
       incr mlist_i ;
       mlist := (name, memorized) :: !mlist
@@ -118,7 +118,7 @@ let cre_of_string buff =
   for i = 0 to items_cnt - 1 do
     let slots = ref [] in
     let this_buff = String.sub buff (items_off +i * 0x14) 0x14 in
-    let name = String.uppercase_ascii (get_string_of_size this_buff 0 8) in
+    let name = String.uppercase (get_string_of_size this_buff 0 8) in
     let unknown = short_of_str_off this_buff 0x8 in
     let q1 = short_of_str_off this_buff 0xa in
     let q2 = short_of_str_off this_buff 0xc in
@@ -308,7 +308,7 @@ let string_to_slots str =
     | Load.BG2
     | Load.IWD1
     | Load.NONE ->
-        List.map (fun str -> match String.uppercase_ascii str with
+        List.map (fun str -> match String.uppercase str with
         | "HELMET"    -> 0
         | "ARMOR"     -> 1
         | "SHIELD"    -> 2
@@ -350,10 +350,10 @@ let string_to_slots str =
             (try assert false with Assert_failure(file,line,col) ->
               set_errors file line) ;
             log_and_print "WARNING: ADD_CRE_ITEM: Unknown slot %s.  Default to INV15 for placement.\n"
-              (String.uppercase_ascii str) ;
+              (String.uppercase str) ;
             35) (Str.split many_whitespace_regexp item_slot)
     | Load.IWD2 ->
-        List.map (fun str -> match String.uppercase_ascii str with
+        List.map (fun str -> match String.uppercase str with
         | "HELMET"    -> 0
         | "ARMOR"     -> 1
               (* | "SHIELD"    -> 2 *)
@@ -407,10 +407,10 @@ let string_to_slots str =
             (try assert false with Assert_failure(file,line,col) ->
               set_errors file line) ;
             log_and_print "WARNING: ADD_CRE_ITEM: Unknown slot %s.  Default to INV23 for placement.\n"
-              (String.uppercase_ascii str) ;
+              (String.uppercase str) ;
             47) (Str.split many_whitespace_regexp item_slot)
     | Load.PST ->
-        List.map (fun str -> match String.uppercase_ascii str with
+        List.map (fun str -> match String.uppercase str with
         | "EARRING1"   -> 0
         | "ARMOR"      -> 1
         | "TATTOO1"    -> 2
@@ -460,7 +460,7 @@ let string_to_slots str =
             (try assert false with Assert_failure(file,line,col) ->
               set_errors file line) ;
             log_and_print "WARNING: ADD_CRE_ITEM: Unknown slot %s.  Default to INV19 for placement.\n"
-              (String.uppercase_ascii str) ;
+              (String.uppercase str) ;
             43) (Str.split many_whitespace_regexp item_slot)
   in
   possible_slots

@@ -74,7 +74,7 @@ let blank = [' ' '\012' '\r']
   adj lexbuf ;
   try Hashtbl.find lexicon (string_of lexbuf)
   with _ -> begin
-    try Hashtbl.find lexicon (String.uppercase_ascii (string_of lexbuf))
+    try Hashtbl.find lexicon (String.uppercase (string_of lexbuf))
     with _ -> SYMBOL(string_of lexbuf)
   end }
 | ['-']?("0x")?['0'-'9']+ { adj lexbuf ;

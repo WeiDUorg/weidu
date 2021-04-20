@@ -8,7 +8,7 @@ let case_exact = ref false
 
 let case_transform s =
   if not !case_exact then
-    String.lowercase_ascii s
+    String.lowercase s
   else s
 
 (* Pervasives FS calls *)
@@ -45,4 +45,4 @@ let filename_chop_suffix s = Filename.chop_suffix (backslash_to_slash s) ;;
 let filename_dirname s = Filename.dirname (backslash_to_slash s) ;;
 let filename_is_implicit s = Filename.is_implicit (backslash_to_slash s) ;;
 
-let fix_name s = String.lowercase_ascii (backslash_to_slash s);;
+let fix_name s = String.lowercase (backslash_to_slash s);;

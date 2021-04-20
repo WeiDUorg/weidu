@@ -290,7 +290,7 @@ let all_the_assoc a =
   set_string "TAB" "\t" ;
 
   List.iter (fun game ->
-    let var = "REGISTRY_" ^ (String.uppercase_ascii game) ^ "_PATH" in
+    let var = "REGISTRY_" ^ (String.uppercase game) ^ "_PATH" in
     try
       let res = Arch.game_path_by_type game in
       set_string var (if res = "." then "" else res)

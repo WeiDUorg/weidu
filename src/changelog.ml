@@ -58,8 +58,8 @@ let process_log log file_list game =
         List.iter (fun line ->
           let parts = split_log_line line in
           let (src, dst) = match parts with
-          | s :: d :: _ -> (String.uppercase_ascii s, String.uppercase_ascii d)
-          | s :: [] -> (String.uppercase_ascii s, "")
+          | s :: d :: _ -> (String.uppercase s, String.uppercase d)
+          | s :: [] -> (String.uppercase s, "")
           | [] -> failwith "Empty line in backup file" in
           let src_file =
             Str.global_replace (Str.regexp "^OVERRIDE[/\\]") "" src in
@@ -141,7 +141,7 @@ let prepare_result file_list backup_lists game =
       Hashtbl.find backup_lists file
     with Not_found -> [] in
   List.map (fun file1 ->
-    let file1 = String.uppercase_ascii file1 in
+    let file1 = String.uppercase file1 in
     let file = if Case_ins.filename_check_suffix file1 ".EXE" ||
     Case_ins.filename_check_suffix file1 ".KEY" then file1
     else "OVERRIDE/" ^ file1 in
@@ -175,7 +175,7 @@ let prepare_result file_list backup_lists game =
 
 let changelog file_list game =
   ignore (Parsewrappers.load_log ()) ;
-  let file_list = List.map String.uppercase_ascii file_list in
+  let file_list = List.map String.uppercase file_list in
   let backup_lists = process_log !Tp.the_log file_list game in
   let result = prepare_result file_list backup_lists game in
   List.map (fun ((text: string), (files: (string * string) list)) ->

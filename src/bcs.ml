@@ -529,7 +529,7 @@ let make_ids_map il =
     (* log_and_print "IDS: %ld %s\n" ids.i_num ids.i_name ;  *)
     Hashtbl.add from_int ids.i_num ids ;
     Hashtbl.add from_sym ids.i_name ids ;
-    Hashtbl.add from_uppercase_sym (String.uppercase_ascii ids.i_name) ids) il ;
+    Hashtbl.add from_uppercase_sym (String.uppercase ids.i_name) ids) il ;
   { from_int = from_int ;
     from_sym = from_sym ;
     from_uppercase_sym = from_uppercase_sym ; }
@@ -545,7 +545,7 @@ let clear_ids_map game =
        *)
 
 let get_ids_map game ids_filename =
-  let ids_filename = String.uppercase_ascii ids_filename in
+  let ids_filename = String.uppercase ids_filename in
   try
     let ids_state = Hashtbl.find all_games_ids_state game.Load.game_path in
     Hashtbl.find ids_state ids_filename
@@ -592,38 +592,38 @@ let five_quotes_string s =
 let five_quotes res = {res with i_name = five_quotes_string res.i_name}
 
 let ids_of_int game ids_file i =
-  let ids_file = String.uppercase_ascii ids_file in
+  let ids_file = String.uppercase ids_file in
   let ids_map : ids_map = get_ids_map game ids_file in
   let res = (Hashtbl.find ids_map.from_int i) in
   five_quotes res
 
 
 let ids_of_sym game ids_file sym =
-  let ids_file = String.uppercase_ascii ids_file in
+  let ids_file = String.uppercase ids_file in
   let ids_map : ids_map = get_ids_map game ids_file in
   try
     (Hashtbl.find ids_map.from_sym sym)
   with Not_found ->
-    let a = (Hashtbl.find ids_map.from_uppercase_sym (String.uppercase_ascii sym)) in
+    let a = (Hashtbl.find ids_map.from_uppercase_sym (String.uppercase sym)) in
 (*    let msg = Printf.sprintf "[%s] should be [%s] (note case)\n"
       sym a.i_name in
       (try input_error "PARSE" msg with _ -> () ) ; *)
     a
 
 let every_ids_of_int game ids_file i =
-  let ids_file = String.uppercase_ascii ids_file in
+  let ids_file = String.uppercase ids_file in
   let ids_map : ids_map = get_ids_map game ids_file in
   List.map five_quotes (Hashtbl.find_all ids_map.from_int i)
 
 let int_of_sym game ids_file sym =
-  let ids_file = String.uppercase_ascii ids_file in
+  let ids_file = String.uppercase ids_file in
   let ids = ids_of_sym game ids_file sym in
   ids.i_num
 
 let sym_of_int game ids_file i =
-  let ids_file = String.uppercase_ascii ids_file in
+  let ids_file = String.uppercase ids_file in
   try
-    let ids_map : ids_map = get_ids_map game (String.uppercase_ascii ids_file ) in
+    let ids_map : ids_map = get_ids_map game (String.uppercase ids_file ) in
     five_quotes_string ((Hashtbl.find ids_map.from_int i).i_name)
   with _ ->
     (* log_or_print "WARNING: %d (0x%x) not found in %s.IDS\n" i i ids_file ; *)
@@ -905,7 +905,7 @@ let get_first_of_type argl tau =
     failwith "cannot find an argument of the right type"
 
 let formal_arg_is_strref arg =
-  let up = String.uppercase_ascii arg.arg_comment in
+  let up = String.uppercase arg.arg_comment in
   up = "STRREF" || up = "STRINGREF"
 
 let print_script_text game how what comments strhandle =
@@ -1114,9 +1114,9 @@ let print_script_text game how what comments strhandle =
     bcs_printf "\n"
   and print_trigger_list tr compiling_to_dlg or_count =
     match tr with
-    | t :: [] when not compiling_to_dlg && String.lowercase_ascii ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
+    | t :: [] when not compiling_to_dlg && String.lowercase ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
       failwith "NextTriggerObject() without a next trigger (broken TriggerOverride)"
-    | t :: t1 :: tl when not compiling_to_dlg && String.lowercase_ascii ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
+    | t :: t1 :: tl when not compiling_to_dlg && String.lowercase ((best_ids_of_trigger game t).i_name) = "nexttriggerobject" ->
       let indent = 2 + if !or_count > 0 then (decr or_count ; 2) else 0 in
       bcs_printf "%*s" indent " " ;
       bcs_printf "%sTriggerOverride(" (if t1.negated then "!" else "");
@@ -1147,7 +1147,7 @@ let print_script_text game how what comments strhandle =
     if comments then begin
       print_trigger_comment game t ;
     end ;
-    if String.uppercase_ascii ids.i_name = "OR" then
+    if String.uppercase ids.i_name = "OR" then
       (Int32.to_int t.t_1)
     else 0
   and print_trigger_comment game t =
@@ -1395,7 +1395,7 @@ let is_invalid_for_ict1 action =
   | _, 256 (* CreateItemGlobal(S:Global,S:Area,S:ResRef) *)
   | _, 268 (* RealSetGlobalTimer(S:Name,S:Area,I:TimeGTimes) *)
   | _, 335 (* SetTokenGlobal(S:GLOBAL,S:Area,S:Token) *)
-    -> let check s = String.uppercase_ascii (snd (split6 s)) = "LOCALS" in
+    -> let check s = String.uppercase (snd (split6 s)) = "LOCALS" in
     List.exists check [action.a_8; action.a_9]
   | _ -> false in
   ans && action.a_1.o_name = ""
