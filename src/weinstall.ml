@@ -18,7 +18,7 @@ let main () =
     log_and_print "Usage: %s name-of-tp2 otheroptions\n" Sys.argv.(0) ;
   end else begin
     let buff = Buffer.create 1000 in
-    Sys.argv.(1) <- String.lowercase_ascii Sys.argv.(1) ;
+    Sys.argv.(1) <- String.lowercase Sys.argv.(1) ;
     if Case_ins.filename_check_suffix Sys.argv.(1) ".tp2" then
       Sys.argv.(1) <- Case_ins.filename_chop_suffix Sys.argv.(1) ".tp2" ;
     if Case_ins.filename_check_suffix Sys.argv.(1) "/" then
@@ -33,8 +33,7 @@ let main () =
     let we = Case_ins.weidu_executable in
     let fast = try
       let s = Sys.argv.(0) in
-      String.uppercase_ascii (Str.string_before (Filename.basename s) 4) =
-      "FAST"
+      String.uppercase (Str.string_before (Filename.basename s) 4) = "FAST"
     with _ -> false in
     let weidu_executable = try
       let s = Sys.argv.(0) in
