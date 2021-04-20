@@ -21,7 +21,7 @@ let askfor func mess =
     while true do
       print_string "[Y]es or [N]o\n" ;
       let x = read_line () in
-      match String.uppercase_ascii x with
+      match String.uppercase x with
       | "Y" ->
           func () ;
           raise Good_exit ;
@@ -64,23 +64,23 @@ let rec find_and_lower cur_dir () =
           let stats = Unix.lstat element in
           stats.Unix.st_kind = Unix.S_DIR
         in
-        let lowercase = element = (String.lowercase_ascii element) in
+        let lowercase = element = (String.lowercase element) in
         (* Even if directory itself is already lowercased, it may contain
            not-lowercased items and we consequently need to process it anyway.
          *)
         if not implicit && not is_a_symlink && (not lowercase || is_a_dir) then
           begin
-            let exists = Hashtbl.mem done_ht (String.lowercase_ascii element) in
+            let exists = Hashtbl.mem done_ht (String.lowercase element) in
             if exists && is_a_dir then begin
               dirlist := (element, true) :: !dirlist ;
             end else begin
-              Unix.rename element (String.lowercase_ascii element) ;
+              Unix.rename element (String.lowercase element) ;
               if is_a_dir then begin
-                dirlist := (String.lowercase_ascii element, false) :: !dirlist ;
+                dirlist := (String.lowercase element, false) :: !dirlist ;
               end
             end
           end ;
-        Hashtbl.add done_ht (String.lowercase_ascii element) true ;
+        Hashtbl.add done_ht (String.lowercase element) true ;
       end ;
     done
   with End_of_file ->
@@ -106,7 +106,7 @@ let get_wine_cfg () =
     let thisdest = if Str.string_match relative thisdest 0 then
       (winepath ^ "/" ^ thisdest)
     else thisdest in
-    Hashtbl.add allpaths (String.uppercase_ascii this) thisdest) winelst ;
+    Hashtbl.add allpaths (String.uppercase this) thisdest) winelst ;
   (* Read all directory list in baldur.ini and create linux.ini from it *)
   let linuxini = open_out "linux.ini" in
   Array.iter (fun file ->
@@ -120,7 +120,7 @@ let get_wine_cfg () =
             let split = Str.split (Str.regexp "[=;]") line in
             List.iter (fun this ->
               let path = Str.string_before this 2 in
-              let path = Hashtbl.find allpaths (String.uppercase_ascii path) in
+              let path = Hashtbl.find allpaths (String.uppercase path) in
               let otherpart = Str.string_after this 2 in
               let newpath = path ^ otherpart in
               let newpath = Str.global_replace (Str.regexp "\\\\")
