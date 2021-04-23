@@ -255,10 +255,10 @@ let str_of_int32 i =
   let i = Int32.shift_right_logical i 8 in
   let a = Int32.to_int (Int32.logand i 255l) in
   let i = Int32.shift_right_logical i 8 in
-  let result = String.make 4 (Char.chr a) in
-  result.[0] <- (Char.chr d) ;
-  result.[1] <- (Char.chr c) ;
-  result.[2] <- (Char.chr b) ;
+  let result = Bytes.make 4 (Char.chr a) in
+  Bytes.set result 0 (Char.chr d) ;
+  Bytes.set result 1 (Char.chr c) ;
+  Bytes.set result 2 (Char.chr b) ;
   result
 
 let str_of_int i =
@@ -269,8 +269,8 @@ let str_of_short i =
   let i = i lsr 8 in
   let c = i land 255 in
   let i = i lsr 8 in
-  let result = String.make 2 (Char.chr d) in
-  result.[1] <- (Char.chr c) ;
+  let result = Bytes.make 2 (Char.chr d) in
+  Bytes.set result 1 (Char.chr c) ;
   result
 
 let str_of_byte i =
@@ -297,9 +297,9 @@ let write_short buff off value =
   String.blit (str_of_short (value)) 0 buff off 2
 let write_byte buff off value =
   if value < 0 then
-    buff.[off] <- (Char.chr (256+value))
+    Bytes.set buff off (Char.chr (256+value))
   else
-    buff.[off] <- (Char.chr value)
+    Bytes.set buff off (Char.chr value)
 let write_resref buff off str =
   String.blit (str_to_exact_size str 8) 0 buff off 8
 
@@ -458,7 +458,7 @@ and copy_large_file name out reason =
         let out_fd = Case_ins.unix_openfile out
             [Unix.O_WRONLY ; Unix.O_CREAT] 511 in
         let chunk_size = 10240 in
-        let chunk = String.create chunk_size in
+        let chunk = Bytes.create chunk_size in
         let sofar = ref 0 in
         while !sofar < size do
           let chunk_size = min (size - !sofar) chunk_size in
@@ -592,14 +592,14 @@ let exec_command cmd exact =
     begin
       (* copy stdout + stderr to logfile *)
       let proc_stdout = Unix.open_process_in (cmd ^ " 2>&1") in
-      let s = String.create 80 in
+      let s = Bytes.create 80 in
       let filter = create_filter () in
       begin
         try
           while true do
             let read = input proc_stdout s 0 80 in
             if read = 0 then raise End_of_file ;
-            let text = String.sub s 0 read in
+            let text = Bytes.sub s 0 read in
             if not !be_silent then begin
               output_string stdout text ;
               flush stdout

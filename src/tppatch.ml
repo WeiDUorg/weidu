@@ -1476,19 +1476,19 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
         (* Create the non-party NPC entry *)
 
-        let npc_entry_buff = String.make 352 '\000' in
-        String.blit (String.uppercase cre_name) 0 npc_entry_buff 0xc
+        let npc_entry_buff = Bytes.make 352 '\000' in
+        Bytes.blit (String.uppercase cre_name) 0 npc_entry_buff 0xc
           (String.length cre_name);
-        String.blit area 0 npc_entry_buff 0x18 (String.length area);
+        Bytes.blit area 0 npc_entry_buff 0x18 (String.length area);
         let x = (Int32.to_int (eval_pe buff game x)) in
         let y = (Int32.to_int (eval_pe buff game y)) in
         write_short npc_entry_buff 0x20 x;
         write_short npc_entry_buff 0x22 y;
         for i = 140 to 147 do
-          npc_entry_buff.[i] <- Char.chr 0xFF
+          Bytes.set npc_entry_buff i (Char.chr 0xFF)
         done;
         for i = 180 to 185 do
-          npc_entry_buff.[i] <- Char.chr 0xFF
+          Bytes.set npc_entry_buff i (Char.chr 0xFF)
         done;
 
         (* Update all offsets *)

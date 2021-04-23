@@ -2152,7 +2152,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             biff in
           let decompress biff =
             let fd = Case_ins.unix_openfile biff [Unix.O_RDONLY] 0 in
-            let buff = String.create 8 in
+            let buff = Bytes.create 8 in
             ignore (Unix.read fd buff 0 8) ;
             ignore (Unix.close fd) ;
             (match buff with

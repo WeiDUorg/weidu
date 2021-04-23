@@ -80,9 +80,9 @@ let save_biff key filename keyname components =
     let offset_data = ref (offset_tiles + tile_table_size) in
 
     let buff_size = header_size + file_table_size + tile_table_size in
-    let buff = String.make buff_size '\000' in
+    let buff = Bytes.make buff_size '\000' in
 
-    String.blit "BIFFV1  " 0 buff 0 8 ;
+    Bytes.blit "BIFFV1  " 0 buff 0 8 ;
     write_int buff 8  num_files ;
     write_int buff 12 num_tiles ;
     write_int buff 16 offset_files ;
@@ -97,7 +97,7 @@ let save_biff key filename keyname components =
                 ) files ;
     Array.iteri (fun i (s,f,a,b,t) ->
       let in_fd = Case_ins.unix_openfile f [Unix.O_RDONLY] 0 in
-      let header = String.create 24 in
+      let header = Bytes.create 24 in
       my_read 24 in_fd header f ;
       (try
         Unix.close in_fd ;
@@ -105,13 +105,13 @@ let save_biff key filename keyname components =
         log_and_print "ERROR: save_biff failed to close %s during tiles 1\n" f ;
         raise e) ;
       let tisv1 = "TIS V1  " in
-      let istis = String.sub header 0 8 in
+      let istis = Bytes.sub header 0 8 in
       let s = (if istis = tisv1 then s - 24 else s) in
       let off = offset_tiles + (i * 20) in
       let tis_loc = (i + 1) lsl 14 in
       write_int buff (off+0) tis_loc ; (* resource location *)
       write_int buff (off+4) !offset_data ;
-      let tile_size = (if istis = tisv1 then int_of_str (String.sub header 12 4) else 5120) in
+      let tile_size = (if istis = tisv1 then int_of_str (Bytes.sub header 12 4) else 5120) in
       let num_tiles = (s/tile_size) in
       let tis_type = 1003 in
       write_int buff (off+8) num_tiles ;
@@ -123,7 +123,7 @@ let save_biff key filename keyname components =
     my_write buff_size out_fd buff filename ;
 
     let chunk_size = 10240 in
-    let chunk = String.create chunk_size in
+    let chunk = Bytes.create chunk_size in
 
     let copy_over in_fd in_name size =
       let sofar = ref 0 in
@@ -147,7 +147,7 @@ let save_biff key filename keyname components =
     Array.iteri (fun i (s,f,a,b,t) ->
       log_only "[%s] incorporating [%s]\n" filename f ;
       let in_fd = Case_ins.unix_openfile f [Unix.O_RDONLY] 0 in
-      let istis = String.create 8 in
+      let istis = Bytes.create 8 in
       my_read 8 in_fd istis f ;
       (try
         Unix.close in_fd ;
@@ -156,7 +156,7 @@ let save_biff key filename keyname components =
         raise e) ;
       let in_fd = Case_ins.unix_openfile f [Unix.O_RDONLY] 0 in
       if istis = "TIS V1  " then begin
-        let istis = String.create 24 in
+        let istis = Bytes.create 24 in
         (* have it skip the first 24 bytes *)
         my_read 24 in_fd istis f ;
         copy_over in_fd f (s - 24) ;
@@ -243,7 +243,7 @@ let read_compressed_biff_internal fd filename start size chunk_fun =
 
   let finished = ref false in
   let found_it = ref false in
-  let sizes_buff = String.create 8 in
+  let sizes_buff = Bytes.create 8 in
   while not !finished do
     (* now we're looking at one block *)
     let _ = Unix.lseek fd !cmp_offset Unix.SEEK_SET in
@@ -268,7 +268,7 @@ let read_compressed_biff_internal fd filename start size chunk_fun =
     end else begin
       (* read this block *)
       let _ = Unix.lseek fd (!cmp_offset+8) Unix.SEEK_SET in
-      let cmp_buff = String.create cmplen in
+      let cmp_buff = Bytes.create cmplen in
       my_read cmplen fd cmp_buff filename ;
       let uncmp = Cbif.uncompress cmp_buff 0 cmplen uncmplen in
       (*
@@ -357,7 +357,7 @@ let load_normal_biff filename size fd buff =
     let offset_tileset_entry = (num_file_entry * 16) in
     let table_len = (num_file_entry * 16) +
         (num_tileset_entry * 20) in
-    let buff = String.create table_len in
+    let buff = Bytes.create table_len in
     let _ = Unix.lseek fd offset_file_entry Unix.SEEK_SET in
     my_read table_len fd buff filename ;
     let result =
@@ -395,13 +395,13 @@ let load_biff filename =
     let stats = Case_ins.unix_stat filename in
     let size = stats.Unix.st_size in
     let fd = Case_ins.unix_openfile filename [Unix.O_RDONLY] 0 in
-    let buff = String.create 20 in
+    let buff = Bytes.create 20 in
     let _ = Unix.read fd buff 0 20 in
     if String.length buff < 8 then begin
       failwith "not a valid BIFF file (wrong sig)"
     end ;
     (
-     match String.sub buff 0 8 with
+     match Bytes.sub buff 0 8 with
        "BIFFV1  " -> load_normal_biff filename size fd buff
            (* comment out this BIFC line if you don't have zlib *)
      | "BIFCV1.0" -> load_compressed_biff filename size fd
@@ -435,7 +435,7 @@ let extract_file biff i ign =
       read_compressed_biff biff.fd biff.filename this.res_offset size
     end else begin
       let _ = Unix.lseek biff.fd this.res_offset Unix.SEEK_SET in
-      let buff = String.create size in
+      let buff = Bytes.create size in
       my_read size biff.fd buff biff.filename ;
       buff
     end
@@ -454,21 +454,21 @@ let extract_tis biff i ign =
         read_compressed_biff biff.fd biff.filename this.tis_offset size
       end else begin
         let _ = Unix.lseek biff.fd this.tis_offset Unix.SEEK_SET in
-        let buff = String.create size in
+        let buff = Bytes.create size in
         my_read size biff.fd buff biff.filename;
         buff
       end
     in
-    let header = String.create 0x18 in
-    String.blit "TIS V1  " 0 header 0 8;
+    let header = Bytes.create 0x18 in
+    Bytes.blit "TIS V1  " 0 header 0 8;
     let str = str_of_int this.tis_number_of_tiles in
-    String.blit str 0 header 0x08 4 ;
+    Bytes.blit str 0 header 0x08 4 ;
     let str = str_of_int this.tis_size_of_one_tile in
-    String.blit str 0 header 0x0c 4 ;
+    Bytes.blit str 0 header 0x0c 4 ;
     let str = str_of_int 0x18 in
-    String.blit str 0 header 0x10 4 ;
+    Bytes.blit str 0 header 0x10 4 ;
     let str = str_of_int 64 in
-    String.blit str 0 header 0x14 4 ;
+    Bytes.blit str 0 header 0x14 4 ;
     header ^ buff
   with e ->
     if not ign then log_and_print "ERROR: BIFF [%s]: unable to extract tileset %d\n"
@@ -479,16 +479,16 @@ let copy_file biff i oc is_tis =
   let size,offset = if is_tis then begin
     check_tile biff i false;
     let this = biff.tilesets.(i) in
-    let header = String.create 0x18 in
-    String.blit "TIS V1  " 0 header 0 8;
+    let header = Bytes.create 0x18 in
+    Bytes.blit "TIS V1  " 0 header 0 8;
     let str = str_of_int this.tis_number_of_tiles in
-    String.blit str 0 header 0x08 4 ;
+    Bytes.blit str 0 header 0x08 4 ;
     let str = str_of_int this.tis_size_of_one_tile in
-    String.blit str 0 header 0x0c 4 ;
+    Bytes.blit str 0 header 0x0c 4 ;
     let str = str_of_int 0x18 in
-    String.blit str 0 header 0x10 4 ;
+    Bytes.blit str 0 header 0x10 4 ;
     let str = str_of_int 64 in
-    String.blit str 0 header 0x14 4 ;
+    Bytes.blit str 0 header 0x14 4 ;
         output_string oc header;
     (this.tis_number_of_tiles * this.tis_size_of_one_tile) ,
     this.tis_offset
@@ -507,12 +507,12 @@ let copy_file biff i oc is_tis =
     end else begin
       let _ = Unix.lseek biff.fd offset Unix.SEEK_SET in
       let chunk_size = 10240 in
-      let chunk = String.create chunk_size in
+      let chunk = Bytes.create chunk_size in
       let sofar = ref 0 in
       while !sofar < size do
         let chunk_size = min (size - !sofar) chunk_size in
         my_read chunk_size biff.fd chunk biff.filename ;
-        output_string oc (String.sub chunk 0 chunk_size) ;
+        output_string oc (Bytes.sub chunk 0 chunk_size) ;
         sofar := !sofar + chunk_size ;
       done
     end
@@ -526,7 +526,7 @@ let bifc2biff source dest =
   let out = Case_ins.perv_open_out_bin dest in
   let fd = Case_ins.unix_openfile source [Unix.O_RDONLY] 0 in
   let read len =
-    let buff = String.create len in
+    let buff = Bytes.create len in
     ignore (my_read len fd buff source) ;
     buff in
   let header = read 12 in
