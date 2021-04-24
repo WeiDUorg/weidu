@@ -2760,29 +2760,31 @@ Here is the context-free grammar syntax for the \ttref{TP2} file format:
        \ttref{Component} \Slist &
 
        A \ttref{TP2 File} is basically a prologue and then a list of
-       \ttref{Component}s. The \ttref{BACKUP} declaration tells WeiDU where
-       to put backed-up versions of files that would be overwritten so that
-       they can be uninstalled later. This directory will be created
-       automatically if it is missing. The \ttref{AUTHOR} directive gives an
-       email address for users to send bugs to if there are problems during
-       the installation. You may use \DEFINE{SUPPORT} as an alias for
-       \ttref{AUTHOR}. The \DEFINE{TP2!AUTHOR} \ttref{variable} is set to
-       the ``emailAddress'' value. The \DEFINE{TP2!FILE!NAME} \ttref{variable}
-       is set to the name of the tp2 file. The \DEFINE{TP2!BASE!NAME}
-       \ttref{variable} is set to the name of the tp2, excluding any initial
-       ``setup-''. For ``setup-mymod.tp2'', \t{TP2!FILE!NAME} is set to
-       ``setup-mymod.tp2'', while \t{TP2!BASE!NAME} is set to ``mymod.tp2''.
-       The \DEFINE{MOD!FOLDER} \ttref{variable} is set to the
-       directory containing the TP2 file, if there is one, otherwise
-       it is set to the root directory of directoryName.
-       \ttref{TP2 Flag}s set global options.
-       \ttref{Language}s are
+       \ttref{Component}s. The \ttref{BACKUP} declaration tells WeiDU
+       where to put backed-up versions of files that would be
+       overwritten so that they can be uninstalled later. This
+       directory will be created automatically if it is missing. The
+       \ttref{AUTHOR} directive gives an email address for users to
+       send bugs to if there are problems during the installation. You
+       may use \DEFINE{SUPPORT} as an alias for \ttref{AUTHOR}. The
+       \DEFINE{TP2!AUTHOR} \ttref{variable} is set to the
+       ``emailAddress'' value. The \DEFINE{TP2!FILE!NAME}
+       \ttref{variable} is set to the name of the tp2 file. The
+       \DEFINE{TP2!BASE!NAME} \ttref{variable} is set to the name of
+       the tp2, excluding any initial ``setup-'' and file
+       extension. For ``setup-mymod.tp2'', \t{TP2!FILE!NAME} is set to
+       ``setup-mymod.tp2'', while \t{TP2!BASE!NAME} is set to
+       ``mymod''.  The \DEFINE{MOD!FOLDER} \ttref{variable} is set to
+       the directory containing the TP2 file, if there is one,
+       otherwise it is set to the root directory of directoryName.
+       \ttref{TP2 Flag}s set global options.  \ttref{Language}s are
        the various languages in which your mod is available. The
-       Finally, the \ttref{Component}s make up the actual meat of
-       your mod. Different \ttref{Component}s can be installed or
+       Finally, the \ttref{Component}s make up the actual meat of your
+       mod. Different \ttref{Component}s can be installed or
        uninstalled separately, but all of the parts within a
        \ttref{Component} are treated as a unit.  \\
-\\
+
+  \\
 
 \DEFINE{TP2 Flag} & & A \ttref{TP2 Flag} declaration tells WeiDU to apply some
 global option to your \ttref{TP2} file. \\
