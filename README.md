@@ -101,15 +101,15 @@ compiled executables for some platforms available under
   out.
 
 - Run make. Relevant build targets are
- - clean
- - weidu
- - weinstall
- - tolower
- - doc
- - windows_zip
- - linux_zip
- - osx_zip
- - src_zip
+ * clean
+ * weidu
+ * weinstall
+ * tolower
+ * doc
+ * windows_zip
+ * linux_zip
+ * osx_zip
+ * src_zip
 
 The *_zip targets produce an archive in `..` that is suitable for
 distribution. If you are not developing WeiDU, you probably want one
