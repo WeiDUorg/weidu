@@ -55,7 +55,7 @@ strings.
   installed.
 
 - Optionally, install UPX. UPX is used to compress the compiled
-  programs, buut is not available for all platforms.
+  programs, but is not available for all platforms.
 
 - Obtain Elkhound (*vide infra*) and place the executable on your
   path. Allow Elkhound to be executed as a program, for example, by
