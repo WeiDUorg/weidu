@@ -1131,8 +1131,9 @@ let rec handle_tp game this_tp2_filename tp =
                 handle_letter tp "U" can_uninstall temp_uninst package_name m finished i ;
             | Some(ts) when ts = subcomp ->
                 is_forced := !is_forced || (subcomp_forced m);
-                  at_least_one_OK := (!at_least_one_OK ||
-                  not (fails_requirements tp m)) && (subcomp_predicate m)
+                  let this_one_OK = not (fails_requirements tp m) &&
+                    (subcomp_predicate m) in
+                  at_least_one_OK := !at_least_one_OK || this_one_OK ;
                 | _ -> ()
             with Not_found -> ()
           done ;
