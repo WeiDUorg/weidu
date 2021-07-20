@@ -3837,8 +3837,8 @@ or & \DEFINE{ACTION!BASH!FOR} \ttref{directory-file-regexp} \t{BEGIN} \ttref{TP2
 or & \DEFINE{ACTION!DEFINE!ARRAY} \t{\ttref{String}1 BEGIN \ttref{String}2} \Slist \t{END} &
 	Sets the array \verb+$string1(0)+,\verb+$string1(1)+ etc. to the various elements in string2.
 \\
-or & \DEFINE{ACTION!SORT!ARRAY!INDICES} \t{\ttref{String}
-  \ttref{ArrayIndicesSortType}} &
+or & \DEFINE{ACTION!SORT!ARRAY!INDICES} \t{\ttref{String}}
+  \Ob \ttref{ArrayIndicesSortType} \Oe &
 
   Sorts the indices of the array given by String according to the
   order \ttref{ArrayIndicesSortType}. String is evaluated for
@@ -4656,7 +4656,8 @@ or & \DEFINE{PATCH!DEFINE!ARRAY} \t{\ttref{String}1 BEGIN \ttref{String}2 \Slist
 	Same as \ttref{DEFINE!ARRAY}.
 \\
 
-or & \DEFINE{SORT!ARRAY!INDICES} \t{\ttref{String}} &
+or & \DEFINE{SORT!ARRAY!INDICES} \t{\ttref{String}}
+  \Ob \ttref{ArrayIndicesSortType} \Oe &
 
   Semantically identical to \ttref{ACTION!SORT!ARRAY!INDICES}\\
 
