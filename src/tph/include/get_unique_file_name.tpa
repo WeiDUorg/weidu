@@ -45,7 +45,8 @@ DEFINE_PATCH_FUNCTION ~GET_UNIQUE_FILE_NAME~
       END
     END
 
-    value = IDS_OF_SYMBOL (~get_unique_filename_%extension%~ ~%base%~)
+    value = ~%base%~ STR_CMP ~~ ?
+      IDS_OF_SYMBOL (~get_unique_filename_%extension%~ ~%base%~) : 0 - 1
     PATCH_IF value = 0 - 1 THEN BEGIN
       found = 0
       WHILE !found BEGIN
