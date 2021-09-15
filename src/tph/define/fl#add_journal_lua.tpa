@@ -22,7 +22,8 @@
  *                    defined as strref value. title is either -1 or a strref not found in bgee.lua.
  *                    If no title is given then the first line of the first available journal entry
  *                    is used instead.
- * STR_VAR entries    An array of strref values for the respective journal entries that are added
+ * STR_VAR fl#ADD_JOURNAL#entries
+ *                    An array of strref values for the respective journal entries that are added
  *                    to the current journal group.
  *                    You can use ACTION_DEFINE_ARRAY or ACTION_DEFINE_ASSOCIATIVE_ARRAY to build
  *                    the array. (Note: This macro uses the value part of associative arrays.)
@@ -37,9 +38,9 @@ DEFINE_ACTION_MACRO fl#ADD_JOURNAL_LUA BEGIN
     OUTER_SET signature = 0
   END
 
-  ACTION_IF (signature > 0 AND VARIABLE_IS_SET $entries(0)) BEGIN
+  ACTION_IF (signature > 0 AND VARIABLE_IS_SET $fl#ADD_JOURNAL#entries(0)) BEGIN
     // preparing journal title
-    ACTION_PHP_EACH entries AS _ => strref BEGIN
+    ACTION_PHP_EACH fl#ADD_JOURNAL#entries AS _ => strref BEGIN
       ACTION_IF (title < 0) BEGIN
         ACTION_GET_STRREF strref text
         OUTER_PATCH_SAVE title_string ~%text%~ BEGIN
@@ -57,9 +58,9 @@ DEFINE_ACTION_MACRO fl#ADD_JOURNAL_LUA BEGIN
             OUTER_SET strref_title = NEXT_STRREF
             STRING_SET_EVALUATE strref_title ~%title_string%~
           END
-          OUTER_SET $titles(~%strref%~) = strref_title
+          OUTER_SET $fl#ADD_JOURNAL#titles(~%strref%~) = strref_title
         END ELSE FAIL ~ERROR: ADD_JOURNAL could not extract a title string~
-      END ELSE OUTER_SET $titles(~%strref%~) = title
+      END ELSE OUTER_SET $fl#ADD_JOURNAL#titles(~%strref%~) = title
     END
 
     // processing journal entries
@@ -70,7 +71,7 @@ DEFINE_ACTION_MACRO fl#ADD_JOURNAL_LUA BEGIN
 
       TEXT_SPRINT createEntry_var ~~
       TEXT_SPRINT createQuest_var ~~
-      PATCH_PHP_EACH titles AS strref => title BEGIN
+      PATCH_PHP_EACH fl#ADD_JOURNAL#titles AS strref => title BEGIN
 
         // preparing quest group (doesn't add duplicates)
         PATCH_IF (~%text%~ STRING_CONTAINS_REGEXP            ~createQuest[%TAB% ]*([%TAB% ]*%title%[%TAB% ]*)~ = 0) OR

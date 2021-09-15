@@ -2263,7 +2263,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
                     ignore (process_action tp
                               (TP_ActionDefineArray
-                                 (PE_LiteralString "entries",
+                                 (PE_LiteralString "fl#ADD_JOURNAL#entries",
                                   (List.map (fun x -> Printf.sprintf "%d" x) indices)))) ;
 
                     ignore (process_action tp (TP_Include
