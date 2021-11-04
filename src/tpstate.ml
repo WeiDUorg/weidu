@@ -117,19 +117,20 @@ let get_last_module_number module_list =
 
 let get_id_of_label tp_file label =
   let ans = ref None in
-  let has_label c = List.mem (TPM_Label label) c.mod_flags in
-  for i = 0 to get_highest_module_number tp_file.Tp.module_list do
-    try
-      let c = get_nth_module tp_file i false in
-      if has_label c then begin match !ans with
-      | None -> ans := Some i
-      | Some j ->
-          ans := Some (Int32.to_int Int32.min_int) ;
-          errors_this_component := true;
-          log_and_print "WARNING: Duplicate LABEL [%s] in tp2 file [%s] (components %d and %d)\n" label tp_file.tp_filename i j
-      end;
-    with Not_found -> ()
-  done;
+  Stats.time "Resolving LABELs" (fun () ->
+    let has_label c = List.mem (TPM_Label label) c.mod_flags in
+    for i = 0 to get_highest_module_number tp_file.Tp.module_list do
+      try
+        let c = get_nth_module tp_file i false in
+        if has_label c then begin match !ans with
+        | None -> ans := Some i
+        | Some j ->
+            ans := Some (Int32.to_int Int32.min_int) ;
+            errors_this_component := true;
+            log_and_print "WARNING: Duplicate LABEL [%s] in tp2 file [%s] (components %d and %d)\n" label tp_file.tp_filename i j
+        end;
+      with Not_found -> ()
+    done; ) () ;
   if !ans = None then begin
     errors_this_component := true;
     log_and_print "WARNING: LABEL [%s] not found in tp2 file [%s]\n" label tp_file.tp_filename end;
