@@ -81,14 +81,17 @@ let duplicate_trans t =
    next = t.next ;
  }
 
-let any_cr_lf = (Str.regexp ")[\r\n\t ]+")
+(* A complete action or trigger and its following whitespace.
+   Avoids making a mess of things in PST where parentheses can occur
+   inside parameters, notably from ANIMATE.IDS *)
+let some_regexp = (Str.regexp "\([A-Z][a-zA-Z0-9]+(.*)\)[\r\n\t ]+")
 
 let convert_raw_text s =
-  Str.global_replace any_cr_lf ")\r\n" s
+  Str.global_replace some_regexp "\1\r\n" s
 
 let convert_raw_text_out s =
   let s = Var.get_string s in
-  Str.global_replace any_cr_lf ")\n" s
+  Str.global_replace some_regexp "\1\n" s
 
 let from_ht = Hashtbl.create 511
 
