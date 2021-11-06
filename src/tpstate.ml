@@ -136,6 +136,29 @@ let get_id_of_label tp_file label =
     log_and_print "WARNING: LABEL [%s] not found in tp2 file [%s]\n" label tp_file.tp_filename end;
   !ans
 
+let verify_labels tp_file =
+  Stats.time "Resolving LABELs" (fun () ->
+    let table = Hashtbl.create (List.length tp_file.Tp.module_list) in
+    for i = 0 to get_highest_module_number tp_file.Tp.module_list do
+      (try
+        let comp = get_nth_module tp_file i false in
+        let label = List.fold_left (fun acc flag ->
+          (match flag with
+          | TPM_Label s -> Some s
+          | _ -> acc)) None comp.Tp.mod_flags
+        in
+        (match label with
+        | Some str when Hashtbl.mem table str ->
+            errors_this_component := true ;
+            log_and_print "WARNING: Duplicate LABEL [%s] in tp2 file [%s] \
+(components %d and %d)\n" str tp_file.Tp.tp_filename
+              (Hashtbl.find table str) i ;
+        | Some str ->
+            Hashtbl.add table str i
+        | None -> ())
+      with Not_found -> ())
+    done) ()
+
 let get_component_list tp_file =
   List.mapi (fun index tp_mod ->
     let (left, _) =

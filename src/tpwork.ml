@@ -53,7 +53,7 @@ let comp_flag_p tp m =
   | TPM_Deprecated(warn) -> true
   | TPM_RequirePredicate(p,warn) ->
       not (is_true (eval_pe "" (Load.the_game ()) p))
-  | TPM_Label(s) -> ignore (get_id_of_label tp s); false
+  | TPM_Label(s) -> false
   | _ -> false) m.mod_flags
 
 let comp_part_p m =
@@ -1284,6 +1284,7 @@ let rec handle_tp game this_tp2_filename tp =
 
   let original_menu_style () =
     let current = ref (-1) in
+    ignore(Tpstate.verify_labels tp) ;
     List.iter (fun m ->
       incr current ;
       List.iter (fun f -> match f with
@@ -1344,10 +1345,7 @@ let rec handle_tp game this_tp2_filename tp =
               ()
             else preproc_fail "SKIPPING" warn can_uninstall true
           end
-      | TPM_Label(s) ->
-          let old_errors_this_component = !errors_this_component in
-          ignore(get_id_of_label tp s);
-          errors_this_component := old_errors_this_component;
+      | TPM_Label(_)
       | TPM_SubComponents(_,_,_) (* handled above *)
       | TPM_Designated(_)
       | TPM_InstallByDefault
@@ -1524,7 +1522,7 @@ let rec handle_tp game this_tp2_filename tp =
                     true
                   end
                 end
-            | TPM_Label(s) -> ignore(get_id_of_label tp2 s); false
+            | TPM_Label(s) -> false
             | _ -> false) m.mod_flags || (if module_groups_ok m then false else begin
                 log_and_print "\n[%s] component %d %s fails component requirements, *not* Re-Installing.\n"
                   a c (str_of_str_opt sopt);
