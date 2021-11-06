@@ -10017,6 +10017,9 @@ Spawn structure variables:
 \item INT_VAR \verb+fj_schedule+ to the hourly appearance schedule (bits 0-23, default -1 or always);
 \item INT_VAR \verb+fj_day_prob+ to the spawn point daytime probability (default 100);
 \item INT_VAR \verb+fj_night_prob+ to the spawn point nighttime probability (default 100);
+\item INT_VAR \verb+fj_spawn_freq+ to the spawn frequency in seconds (Enhanced Editions only);
+\item INT_VAR \verb+fj_countdown+ to the spawn countdown (Enhanced Editions only);
+\item INT_VAR \verb+fj_weight0...fj_weight9+ to the weight of the spawn creatures (Enhanced Editions only);
 \end{itemize}
 Entrance structure variables:
 \begin{itemize}
@@ -10135,6 +10138,8 @@ Animation structure variables:
 \item INT_VAR \verb+fj_loop_chance+ to the chance of looping;
 \item INT_VAR \verb+fj_skip_cycles+ to start delay in frames;
 \item STR_VAR \verb+fj_bmp_resref+ to the palette bitmap;
+\item INT_VAR \verb+fj_width+ to the animation width (only required for WBM and PVRZ resources, Enhanced Editions only);
+\item INT_VAR \verb+fj_height+ to the animation height (only required for WBM and PVRZ resources, Enhanced Editions only);
 \end{itemize}
 Bitmask structure variables:
 \begin{itemize}
@@ -10147,6 +10152,11 @@ Songlist structure variables:
 \item INT_VAR \verb+fj_song_victory+ to the victory SONGLIST.2DA entry;
 \item INT_VAR \verb+fj_song_battle+ to the battle SONGLIST.2DA entry;
 \item INT_VAR \verb+fj_song_defeat+ to the defeat SONGLIST.2DA entry;
+\item INT_VAR \verb+fj_song_day_alt+ to the alternative day SONGLIST.2DA entry (default -1, Enhanced Editions only);
+\item INT_VAR \verb+fj_song_night_alt+ to the alternative night SONGLIST.2DA entry (default -1, Enhanced Editions only);
+\item INT_VAR \verb+fj_song_victory_alt+ to the alternative victory SONGLIST.2DA entry (default -1, Enhanced Editions only);
+\item INT_VAR \verb+fj_song_battle_alt+ to the alternative battle SONGLIST.2DA entry (default -1, Enhanced Editions only);
+\item INT_VAR \verb+fj_song_defeat_alt+ to the alternative defeat SONGLIST.2DA entry (default -1, Enhanced Editions only);
 \item STR_VAR \verb+fj_song_day0+ to the day song WAV resref;
 \item STR_VAR \verb+fj_song_day1+ to the night song WAV resref;
 \item INT_VAR \verb+fj_song_day_vol+ to the day songs volume (default 100);
@@ -10190,7 +10200,8 @@ Projectile trap structure variables (not available on PST):
 \item INT_VAR \verb+fj_loc_x+ to the X coordinate*;
 \item INT_VAR \verb+fj_loc_y+ to the Y coordinate*;
 \item INT_VAR \verb+fj_loc_z+ to the height;
-\item INT_VAR \verb+fj_target+ to the target ID;
+\item INT_VAR \verb+fj_target+ to the ea.ids value of the target;
+\item INT_VAR \verb+fj_creator+ to the index of the party member who created this projectile (0-5);
 \item STR_VAR \verb+fj_embedded_eff0+ to ~path/to/v2.eff~ or eff resref containing to projectile's effects*;
 \end{itemize}
 A few examples best illustrate the use of this function.

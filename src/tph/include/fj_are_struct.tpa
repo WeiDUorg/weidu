@@ -77,6 +77,18 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   fj_enable            = 1
   fj_day_prob          = 100
   fj_night_prob        = 100
+  fj_spawn_freq        = 0
+  fj_countdown         = 0
+  fj_weight0           = 0
+  fj_weight1           = 0
+  fj_weight2           = 0
+  fj_weight3           = 0
+  fj_weight4           = 0
+  fj_weight5           = 0
+  fj_weight6           = 0
+  fj_weight7           = 0
+  fj_weight8           = 0
+  fj_weight9           = 0
 
   // containers
   fj_lock_diff         = 100
@@ -129,6 +141,8 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   fj_init_frame        = 0
   fj_loop_chance       = 0
   fj_skip_cycles       = 0
+  fj_width             = 0
+  fj_height            = 0
 
   // songs
   fj_song_day          = 0
@@ -136,6 +150,11 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   fj_song_victory      = 0
   fj_song_battle       = 0
   fj_song_defeat       = 0
+  fj_song_day_alt      = ` 0
+  fj_song_night_alt    = ` 0
+  fj_song_victory_alt  = ` 0
+  fj_song_battle_alt   = ` 0
+  fj_song_defeat_alt   = ` 0
   fj_song_day_vol      = 100
   fj_song_night_vol    = 100
   fj_song_reverb       = 0
@@ -167,6 +186,7 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   fj_missile_num       = ` 0
   fj_frequency         = 0
   fj_target            = 0
+  fj_creator           = 0
 
   STR_VAR
 
@@ -666,6 +686,18 @@ PHP_EACH struct AS key => value BEGIN
       WRITE_LONG   fj_return_offset + 0x88 fj_schedule
       WRITE_SHORT  fj_return_offset + 0x8c fj_day_prob
       WRITE_SHORT  fj_return_offset + 0x8e fj_night_prob
+      WRITE_LONG   fj_return_offset + 0x90 fj_spawn_freq
+      WRITE_LONG   fj_return_offset + 0x94 fj_countdown
+      WRITE_BYTE   fj_return_offset + 0x98 fj_weight0
+      WRITE_BYTE   fj_return_offset + 0x99 fj_weight1
+      WRITE_BYTE   fj_return_offset + 0x9a fj_weight2
+      WRITE_BYTE   fj_return_offset + 0x9b fj_weight3
+      WRITE_BYTE   fj_return_offset + 0x9c fj_weight4
+      WRITE_BYTE   fj_return_offset + 0x9d fj_weight5
+      WRITE_BYTE   fj_return_offset + 0x9e fj_weight6
+      WRITE_BYTE   fj_return_offset + 0x9f fj_weight7
+      WRITE_BYTE   fj_return_offset + 0xa0 fj_weight8
+      WRITE_BYTE   fj_return_offset + 0xa1 fj_weight9
     END ELSE
 
     // entrance
@@ -799,6 +831,8 @@ PHP_EACH struct AS key => value BEGIN
       WRITE_BYTE   fj_return_offset + 0x3e fj_loop_chance
       WRITE_BYTE   fj_return_offset + 0x3f fj_skip_cycles
       WRITE_ASCIIE fj_return_offset + 0x40 ~%fj_bmp_resref%~ #8
+      WRITE_SHORT  fj_return_offset + 0x48 fj_width
+      WRITE_SHORT  fj_return_offset + 0x4a fj_height
     END ELSE
 
     // bitmask
@@ -820,11 +854,11 @@ PHP_EACH struct AS key => value BEGIN
       WRITE_LONG   fj_return_offset + 0x08 fj_song_victory
       WRITE_LONG   fj_return_offset + 0x0c fj_song_battle
       WRITE_LONG   fj_return_offset + 0x10 fj_song_defeat
-      WRITE_LONG   fj_return_offset + 0x14 0xffffffff
-      WRITE_LONG   fj_return_offset + 0x18 0xffffffff
-      WRITE_LONG   fj_return_offset + 0x1c 0xffffffff
-      WRITE_LONG   fj_return_offset + 0x20 0xffffffff
-      WRITE_LONG   fj_return_offset + 0x24 0xffffffff
+      WRITE_LONG   fj_return_offset + 0x14 fj_song_day_alt
+      WRITE_LONG   fj_return_offset + 0x18 fj_song_night_alt
+      WRITE_LONG   fj_return_offset + 0x1c fj_song_victory_alt
+      WRITE_LONG   fj_return_offset + 0x20 fj_song_battle_alt
+      WRITE_LONG   fj_return_offset + 0x24 fj_song_defeat_alt
       WRITE_ASCIIE fj_return_offset + 0x28 ~%fj_song_day0%~ #8
       WRITE_ASCIIE fj_return_offset + 0x30 ~%fj_song_day1%~ #8
       WRITE_LONG   fj_return_offset + 0x38 fj_song_day_vol
@@ -901,7 +935,8 @@ PHP_EACH struct AS key => value BEGIN
       WRITE_SHORT  fj_return_offset + 0x14 fj_loc_x
       WRITE_SHORT  fj_return_offset + 0x16 fj_loc_y
       WRITE_SHORT  fj_return_offset + 0x18 fj_loc_z
-      WRITE_SHORT  fj_return_offset + 0x1a fj_target
+      WRITE_BYTE   fj_return_offset + 0x1a fj_target
+      WRITE_BYTE   fj_return_offset + 0x1b fj_creator
     END
 
   END
