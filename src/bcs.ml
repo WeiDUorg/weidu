@@ -561,7 +561,9 @@ let get_ids_map game ids_filename =
                      ids_filename <> "ACTION" &&
                      ids_filename <> "TRIGGER" ) ||
                      (game.Load.script_style = Load.PST && ids_filename = "ANIMATE") ||
-                     (game.Load.script_style = Load.BG2 && ids_filename = "MISSILE")) then
+                     (game.Load.script_style = Load.BG2 &&
+                      not (game.Load.game_type = Util.BG2EE) &&
+                      ids_filename = "MISSILE")) then
       Idslexer2.initial
     else Idslexer.initial
     in

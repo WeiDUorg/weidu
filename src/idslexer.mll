@@ -27,7 +27,7 @@ let blank = [' ' '\012' '\r']
 | '*'   { adj lexbuf ; STAR } 
 | ','   { adj lexbuf ; COMMA } 
 | ':'   { adj lexbuf ; COLON } 
-| ['1'-'9']*['_''A'-'Z''a'-'z''#']['_' '0'-'9' 'A'-'Z' 'a'-'z' '#' '-' '.' '!' ' ' '/' ''']* {
+| ['1'-'9']*['_''A'-'Z''a'-'z''#']['_' '0'-'9' 'A'-'Z' 'a'-'z' '#' '-' '.' '!' ' ' '/' ''' '+']* {
   adj lexbuf ;
   let big_str = Lexing.lexeme lexbuf in
   let str = Str.global_replace space_regexp "" big_str in 
