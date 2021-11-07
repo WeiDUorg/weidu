@@ -249,7 +249,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let old_file = Var.get_string old_file in
         let new_file = Var.get_string new_file in
         let bcs_buff_of_baf_or_bcs file =
-          let a,b = split (String.uppercase file) in
+          let a,b = split_resref (String.uppercase file) in
           if b = "BAF" then begin
             try
               let contents = if eval then Var.get_string (load_file file)
@@ -416,7 +416,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             (eval_pe buff game
                (Pred_File_Exists_In_Game
                   (PE_LiteralString filename))) then begin
-                    let a,b = split filename in
+                    let a,b = split_resref filename in
                     let new_buff, path =
                       Load.load_resource "INNER_PATCH_FILE" game true a b in
                     let result = List.fold_left (fun acc elt ->
@@ -672,7 +672,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
           Var.set_string "BASH_FOR_DIRECTORY" directory ;
           Var.set_string "BASH_FOR_FILESPEC" file ;
           Var.set_string "BASH_FOR_FILE" filespec ;
-          let a,b = split filespec in
+          let a,b = split_resref filespec in
           Var.set_string "BASH_FOR_RES" a;
           Var.set_string "BASH_FOR_EXT" b;
           Var.set_int "BASH_FOR_SIZE" (file_size file);
@@ -1734,7 +1734,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
           List.iter (fun file ->
             let file = String.uppercase(eval_pe_str file) in
             Var.set_string "SAV_FILE" file;
-            let res, ext = split file in
+            let res, ext = split_resref file in
             let buff, path =
               if is_true (eval_pe "" game (Pred_File_Exists_In_Game (PE_LiteralString(file)))) then
                 Load.load_resource "EDIT_SAV_FILE" game true res ext
@@ -1897,7 +1897,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
     | TP_SourceBiff (var, res) ->
         let var = eval_pe_str var in
         let res = Var.get_string (eval_pe_str res) in
-        let name,ext = split res in
+        let name,ext = split_resref res in
         (try
           let bif_file,bif_index,tis_index =
             Key.bif_of_resource game.Load.key name ext in
@@ -2319,7 +2319,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
     | TP_DecompileAndPatch pl ->
         let (dec,com) =
-          let base,ext = split (String.lowercase patch_filename) in
+          let base,ext = split_resref (String.lowercase patch_filename) in
           match ext with
           | "bcs"
           | "bs" ->
@@ -2351,7 +2351,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
           let (fn,name) =
             let base,ext = match which with
             | Some x -> "", x
-            | None -> split (String.lowercase patch_filename)
+            | None -> split_resref (String.lowercase patch_filename)
             in
             match ext with
             | "bs"

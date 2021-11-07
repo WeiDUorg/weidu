@@ -125,7 +125,7 @@ let d_file_exists game file =
   Load.allow_missing := [] ;
   let res =
     (try
-      let a,b = split f in
+      let a,b = split_resref f in
       Load.skip_next_load_error := true;
       let buff,path = Load.load_resource "FILE_EXISTS_IN_GAME" game true a b in
       (String.length buff > 0)
@@ -639,14 +639,15 @@ let rec process_action game a = match a with
       let regexp_list = List.map (fun n -> Str.regexp_case_fold n) nl in
       let matches = Key.search_key_resources game.Load.key true
           (fun poss ->
-            let b,e = split (String.uppercase poss) in
+            let b,e = split_resref (String.uppercase poss) in
             let ans = e = "DLG" &&
               (List.exists (fun regexp -> Str.string_match regexp b 0)
                  regexp_list) in
             if ans then make_available (action_to_str a) game b false;
             ans)
       in
-      List.iter (fun n -> process (Hashtbl.find available_dlgs (fst (split n)))) matches
+      List.iter (fun n -> process (Hashtbl.find available_dlgs
+                                     (fst (split_resref n)))) matches
     end else
       List.iter (fun n ->
         let dlg = Hashtbl.find available_dlgs n in
@@ -674,13 +675,14 @@ let rec process_action game a = match a with
       let regexp = Str.regexp_case_fold n in
       let matches = Key.search_key_resources game.Load.key true
           (fun poss ->
-            let b,e = split (String.uppercase poss) in
+            let b,e = split_resref (String.uppercase poss) in
             let ans = e = "DLG" &&
               Str.string_match regexp b 0 in
             if ans then make_available (action_to_str a) game b false;
             ans)
       in
-      List.iter (fun n -> process (Hashtbl.find available_dlgs (fst (split n)))) matches
+      List.iter (fun n -> process (Hashtbl.find available_dlgs
+                                     (fst (split_resref n)))) matches
     end else process (Hashtbl.find available_dlgs n)
 
 | Append(n,unsafe,sl) ->
@@ -985,7 +987,7 @@ end
                   Load.allow_missing := [] ;
                   let res =
                     (try
-                      let a,b = split f in
+                      let a,b = split_resref f in
                       Load.skip_next_load_error := true;
                       let buff,path = Load.load_resource "FILE_EXISTS_IN_GAME" game true a b in
                       (String.length buff > 0)
@@ -1248,7 +1250,7 @@ let prife game tl = (* PRocess_If_File_Exists *)
           Load.allow_missing := [] ;
           let res =
             (try
-              let a,b = split f in
+              let a,b = split_resref f in
               Load.skip_next_load_error := true;
               let buff,path = Load.load_resource "FILE_EXISTS_IN_GAME" game true a b in
               (String.length buff > 0)

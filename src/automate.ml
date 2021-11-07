@@ -18,7 +18,7 @@ let process file game min o =
              off_name  male female)
       end
   in
-  let _,ext = split file in
+  let _,ext = split_resref file in
   let ext = String.uppercase ext in
   try begin
     match ext with

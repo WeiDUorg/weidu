@@ -20,7 +20,7 @@ open Tpuninstall
 let rec process_action_real our_lang game this_tp2_filename tp a =
 
   let get_next_col_number file =
-    let (a,b) = split file in
+    let (a,b) = split_resref file in
     let buff,path = Load.load_resource "getting 2DA columnns" game true a b in
     try
       let lst = Str.split many_newline_or_cr_regexp buff in
@@ -35,7 +35,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
   in
 
   let get_next_line_number file =
-    let (a,b) = split file in
+    let (a,b) = split_resref file in
     let buff,path = Load.load_resource "getting 2DA lines" game true a b in
     try
       let idx = Str.search_backward (Str.regexp "[\r\n][0-9]") buff
@@ -660,7 +660,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 if not get_existing then
                   load_file src
                 else
-                  let a,b = split src in
+                  let a,b = split_resref src in
                   let buff,path = Load.load_resource "COPY" game true a b in
                   buff in
               let orig_buff = String.copy buff in
@@ -865,7 +865,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 dest ^ "/" ^ (Case_ins.filename_basename src)
               else
                 dest in
-            (match String.uppercase (snd (split dest)) with
+            (match String.uppercase (snd (split_resref dest)) with
             | ".IDS" -> Bcs.clear_ids_map game
             | _ -> ()) ;
             ignore (set_copy_vars src dest None) ;
@@ -973,7 +973,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             Var.set_int32 (flag) (Bcs.int_of_sym game "AREATYPE" flag) ;
             log_and_print "\n\nArea Type [%s] already present! Skipping!\n\n" flag
           end else begin
-            let a,b = split "AREATYPE.IDS" in
+            let a,b = split_resref "AREATYPE.IDS" in
             let buff,path =
               Load.load_resource "ADD_AREA_TYPE" game true a b in
             let rec trynumber i =
@@ -1006,7 +1006,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                             PE_LiteralString
                               ("[ \t\n\r]" ^ s ^ "[ \t\n\r]"))))
           then begin
-            let a,b = split f in
+            let a,b = split_resref f in
             let buff,path =
               Load.load_resource "ADD_2DA" game true a b in
             let number = find_table_row buff 0
@@ -1118,7 +1118,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             (Var.get_string a),(Var.get_string
                                   b)) patches_list in
           let get_line file =
-            let (a,b) = split file in
+            let (a,b) = split_resref file in
             let buff,path = Load.load_resource "getting 2DA columnns" game true a b in
             let my_regexp = Str.regexp_case_fold
                 (Printf.sprintf "%s%s[\t ].*$"
@@ -1127,7 +1127,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             Str.matched_string buff
           in
           let get_column file =
-            let (a,b) = split file in
+            let (a,b) = split_resref file in
             let buff,path = Load.load_resource "getting 2DA columnns" game true a b in
             let lines = Str.split many_newline_or_cr_regexp buff in
             let cells = List.map (Str.split many_whitespace_regexp) lines in
@@ -1572,7 +1572,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           let tra_l =  List.map (fun x -> Arch.backslash_to_slash x) tra_l in
           let numd = ref 0 in
           let nums = ref 0 in
-          let handle_one_d_file filespec = match split
+          let handle_one_d_file filespec = match split_resref
               (String.uppercase filespec) with
           | _,"BAF" -> incr nums
           | _,"D" -> incr numd
@@ -1619,11 +1619,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                     let my_regexp = Str.regexp_string "%s" in
                     let tra_file_dir = Str.global_replace
                         my_regexp l.lang_dir_name path in
-                    let d_base,_ = split (Case_ins.filename_basename d) in
+                    let d_base,_ = split_resref (Case_ins.filename_basename d) in
                     let tra_file = tra_file_dir ^ "/" ^ d_base ^ ".TRA" in
                     handle_tra_filename tra_file ;
                 | Auto_Tra(path),None ->
-                    let d_base,_ = split (Case_ins.filename_basename d) in
+                    let d_base,_ = split_resref (Case_ins.filename_basename d) in
                     let tra_file = path ^ "/" ^ d_base ^ ".TRA" in
                     handle_tra_filename tra_file
                 | _ -> ()) tp.flags ;
@@ -1650,7 +1650,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               end;
               (if Modder.enabled "MISSING_EVAL" then
                 check_missing_eval ("COMPILE " ^ d) (load_file newd1);
-               match split (String.uppercase (Case_ins.filename_basename d)) with
+               match split_resref (String.uppercase (Case_ins.filename_basename d)) with
                | _,"BAF" -> compile_baf_filename game newd1
                | _,"D" -> handle_d_filename newd1
                | _,_ -> ())
@@ -1689,7 +1689,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
       | TP_Set_Col(file,new_col_list,col_num) ->
           log_and_print_modder "Setting game text column-wise ...\n" ;
-          let eight,three = split (String.uppercase file) in
+          let eight,three = split_resref (String.uppercase file) in
           let buff,loaded_path = Load.load_resource "SET_COLUMN" game true eight three in
           if buff = "" then
             log_or_print "[%s]: empty or does not exist\n" file
@@ -1750,7 +1750,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let src_list = prepend count_prepend src_list in
             log_and_print "Appending to files column-wise ...\n" ;
             let buff = if frombif then
-              let eight,three = split (String.uppercase file) in
+              let eight,three = split_resref (String.uppercase file) in
               let buff,loaded_path =
                 Load.load_resource "APPEND_COLUMN" game true eight three in
               buff
@@ -1848,7 +1848,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             log_and_print "Appending to files ...\n" ;
             let src = Var.get_string src in
             let buff = if frombif then begin
-              let eight,three = split (String.uppercase file) in
+              let eight,three = split_resref (String.uppercase file) in
               let the_buff,loaded_path =
                 Load.load_resource "APPEND" game true eight three in
               the_buff
@@ -1978,11 +1978,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 let my_regexp = Str.regexp_string "%s" in
                 let tra_file_dir = Str.global_replace
                     my_regexp l.lang_dir_name path in
-                let d_base,_ = split (Case_ins.filename_basename src) in
+                let d_base,_ = split_resref (Case_ins.filename_basename src) in
                 let tra_file = tra_file_dir ^ "/" ^ d_base ^ ".TRA" in
                 handle_tra_filename tra_file ;
             | Auto_Tra(path),None ->
-                let d_base,_ = split (Case_ins.filename_basename src) in
+                let d_base,_ = split_resref (Case_ins.filename_basename src) in
                 let tra_file = path ^ "/" ^ d_base ^ ".TRA" in
                 handle_tra_filename tra_file
             | _ -> ())) tp.flags ;
@@ -2017,7 +2017,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 raise e
               end) ; in
           List.iter (fun dest ->
-            let base,ext = split (String.uppercase dest) in
+            let base,ext = split_resref (String.uppercase dest) in
             let dest_script =
               let old_a_m = !Load.allow_missing in
               Load.allow_missing := dest :: old_a_m ;
@@ -2064,7 +2064,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_At_Exit(str,exact) ->
           begin
             let str = Var.get_string str in
-            let a,b = split (String.uppercase str) in
+            let a,b = split_resref (String.uppercase str) in
             match b with
             | "TP2" -> (enqueue_tp2_filename) str
             | _ ->
@@ -2081,7 +2081,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             | None -> None
             | Some str -> Some (Var.get_string (eval_pe_str str)) in
             let str = Var.get_string str in
-            let a,b = split (String.uppercase str) in
+            let a,b = split_resref (String.uppercase str) in
             match b with
             | "TP2" -> (enqueue_tp2_filename) str
             | _ ->

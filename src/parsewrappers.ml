@@ -26,7 +26,7 @@ let compile_baf_filename game filename =
   try
     let script = parse_file true (File filename) "parsing .baf files"
         (Bafparser.baf_file Baflexer.initial) in
-    let name,ext = split (Case_ins.filename_basename filename) in
+    let name,ext = split_resref (Case_ins.filename_basename filename) in
     let out = open_for_writing ("override/" ^ name ^ ".bcs") true in
     Bcs.save_bcs game (Bcs.Save_BCS_OC(out)) script ;
     close_out out
@@ -35,7 +35,7 @@ let compile_baf_filename game filename =
        filename (printexc_to_string e) ; raise e)
 
 let handle_script_buffer filename buffer =
-  match split (String.uppercase filename) with
+  match split_resref (String.uppercase filename) with
   | _,"BAF" -> parse_file true (String(filename,buffer)) "parsing .baf files"
         (Bafparser.baf_file Baflexer.initial)
   | _,_ -> parse_file true (String(filename,buffer)) "parsing .bcs files"
@@ -60,7 +60,7 @@ let check_file_exists file =
         (Printf.sprintf "Overwriting [%s], which already exists\n" file)
     else begin
       let name = Filename.basename file in
-      let (a,b) = split name in
+      let (a,b) = split_resref name in
       if (try
         Load.skip_next_load_error := true ;
         let buff,path = Load.load_resource "FILE_EXISTS_IN_GAME"

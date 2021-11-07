@@ -221,7 +221,7 @@ let rec eval_pe buff game p =
 	    let buf = 
               if file_exists filename then load_file filename 
               else 
-		let a,b = split filename in 
+		let a,b = split_resref filename in
 		Load.skip_next_load_error := true; 
 		let buff,path = 
 		  Load.load_resource "FILE_CONTAINS_EVALUATED" game true a b
@@ -241,7 +241,7 @@ let rec eval_pe buff game p =
   | PE_ResourceContains(filename, regexp) ->
       let filename = Var.get_string (eval_pe_str filename) in
       let regexp = Var.get_string (eval_pe_str regexp) in
-      let res, ext = split filename in
+      let res, ext = split_resref filename in
       let old_allow_missing = !Load.allow_missing in
       Load.allow_missing := [ String.uppercase_ascii filename ] ;
       let result =
@@ -283,7 +283,7 @@ let rec eval_pe buff game p =
   | Pred_File_Is_In_Compressed_Bif(f) -> if_true (
       let f = eval_pe_str f in
       let filename = (Var.get_string f) in
-      let (a,b) = split filename in
+      let (a,b) = split_resref filename in
       try
         let (a,b,c,this_biff) = Load.find_in_key game a b in
         this_biff.Biff.compressed
@@ -298,7 +298,7 @@ let rec eval_pe buff game p =
 
   | Pred_File_Exists_In_Game(f) -> if_true  (
       let f = Var.get_string (eval_pe_str f) in
-      let res,ext = split f in
+      let res,ext = split_resref f in
       (try
         Load.resource_exists game res ext
       with _ -> false))
@@ -636,7 +636,7 @@ let rec eval_pe buff game p =
       if theref = [] then log_and_print "Couldn't find any suitable string in STATE_WHICH_SAYS\n";
       if theref = [] then failwith "resolve" ;
       if theref = [0 - 3] then Int32.of_int (0 - 3) else begin
-        let (a,b) = split (Var.get_string file) in
+        let (a,b) = split_resref (Var.get_string file) in
         let buff,path = Load.load_resource "STATE_WHICH_SAYS" game true a b in
         if !debug_ocaml then log_and_print "%s \n" path ;
         let numstates = int_of_str_off buff 8  in

@@ -380,7 +380,7 @@ let get_line_count file game =
   let buff = if file_exists file then
     load_file file
   else
-    let a,b = split file in
+    let a,b = split_resref file in
     let buff,path =
       Load.load_resource "FILE_CONTAINS_EVALUATED" game true a b
     in
@@ -522,17 +522,17 @@ let set_copy_vars src dest buff =
   Var.set_string "SOURCE_FILESPEC" src ;
   Var.set_string "SOURCE_FILE" (Case_ins.filename_basename src) ;
   Var.set_string "SOURCE_RES"
-    (let a,b = split (Case_ins.filename_basename src) in a) ;
+    (let a,b = split_resref (Case_ins.filename_basename src) in a) ;
   Var.set_string "SOURCE_EXT"
-    (let a,b = split (Case_ins.filename_basename src) in b) ;
+    (let a,b = split_resref (Case_ins.filename_basename src) in b) ;
   let dest_dir = Case_ins.filename_dirname dest in
   Var.set_string "DEST_DIRECTORY" dest_dir ;
   Var.set_string "DEST_FILESPEC" dest ;
   Var.set_string "DEST_FILE" (Case_ins.filename_basename dest) ;
   Var.set_string "DEST_RES"
-    (let a,b = split (Case_ins.filename_basename dest) in a) ;
+    (let a,b = split_resref (Case_ins.filename_basename dest) in a) ;
   Var.set_string "DEST_EXT"
-    (let a,b = split (Case_ins.filename_basename dest) in b) ;
+    (let a,b = split_resref (Case_ins.filename_basename dest) in b) ;
   (match buff with
   | None -> Var.set_int32 "SOURCE_SIZE" (Int32.of_int ((Case_ins.unix_stat src).Unix.st_size))
   | Some(b) ->

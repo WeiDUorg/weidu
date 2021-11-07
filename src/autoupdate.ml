@@ -13,7 +13,7 @@ let get_version_list () =
   let version_regexp = Str.regexp_case_fold ".*version \\([0-9]+\\).*" in
   let digest_ht = Hashtbl.create 255 in
   let argv_0 = Case_ins.filename_basename Sys.argv.(0) in
-  let this,ext = try split argv_0 with _ -> argv_0,"" in
+  let this,ext = try split_resref argv_0 with _ -> argv_0,"" in
   let my_real_name = this^(if ext = "" then "" else ".exe") in
   let this_digest = Digest.file my_real_name in
   Hashtbl.add digest_ht this_digest (int_of_string version) ;
@@ -51,7 +51,7 @@ let verify_latest can_spawn = begin
   let sorted = get_version_list () in
   if !debug_ocaml then List.iter (fun (f,v) -> log_and_print "%s %d\n" f v) sorted;
   let argv_0 = Case_ins.filename_basename Sys.argv.(0) in
-  let this,ext = try split argv_0 with _ -> argv_0,"" in
+  let this,ext = try split_resref argv_0 with _ -> argv_0,"" in
   let my_real_name = this^(if ext = "" then "" else ".exe") in
 
   (* head of list is newest element *)

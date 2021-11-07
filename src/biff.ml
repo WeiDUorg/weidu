@@ -48,7 +48,7 @@ let save_biff key filename keyname components =
     let all_components = List.flatten (List.map (fun file ->
       let size = file_size file in
       if size > 0 then begin
-        let a,b = split (Case_ins.filename_basename file) in
+        let a,b = split_resref (Case_ins.filename_basename file) in
         try
           let tau = key_of_ext false b in
           [ (size,file,String.uppercase a,String.uppercase b,tau) ]

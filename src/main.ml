@@ -48,7 +48,9 @@ type output_info = {
       | _ -> if !debug_ocaml then log_and_print "You're a pervert, decide where to put your stuff!\n"
       end ;
       let ext_chop = List.map String.uppercase ext_chop in
-      let directory,(name,ext) = (Case_ins.filename_dirname file,split(Case_ins.filename_basename file)) in
+      let directory,(name,ext) =
+        (Case_ins.filename_dirname file,
+         split_resref(Case_ins.filename_basename file)) in
       let fullname = match theout.dir, theout.file with
       | ".", "" -> file
       | _, "" -> theout.dir ^
@@ -59,7 +61,7 @@ type output_info = {
       | ".", _ -> theout.file
       | _ -> file
       in
-      let base,ext = split fullname in
+      let base,ext = split_resref fullname in
       let result =
         if List.mem (String.uppercase ext) ext_chop then
           Case_ins.filename_chop_extension fullname
@@ -114,7 +116,7 @@ let forceify_file forceify game =
   (match forceify with
     Some(file) -> begin
       try
-        let name,ext = split (String.uppercase file) in
+        let name,ext = split_resref (String.uppercase file) in
         Dlg.local_string_ht := Some([]) ;
         begin
           match ext with
@@ -264,7 +266,7 @@ let cmp_binary_file cmp_dest cmp_src game =
       let b1,s = match cmp_src with
       | Some (x) -> (load_file x,x)
       | None ->
-          let (base,ext) = split (Case_ins.filename_basename d) in
+          let (base,ext) = split_resref (Case_ins.filename_basename d) in
           (fst (Load.load_resource "cmp-from" game true base ext),Case_ins.filename_basename d)
       in
       let b2 = load_file d in
@@ -309,14 +311,14 @@ let cmp_d_file dcmp_dest dcmp_src game =
       let buff,s = match dcmp_src with
       | Some (x) -> (load_file x,x)
       | None ->
-          let (base,ext) = split (Case_ins.filename_basename d) in
+          let (base,ext) = split_resref (Case_ins.filename_basename d) in
           (fst (Load.load_resource "cmp-from" game true base ext),Case_ins.filename_basename d)
       in
-      let b,e = split s in
+      let b,e = split_resref s in
       let imp_base = Case_ins.filename_basename b in
       let s_dlg = Dlg.load_dlg imp_base buff in
 
-      let b,e = split d in
+      let b,e = split_resref d in
       let buff, final_path = Load.load_resource "DLG compare command" game true b e in
       let imp_base = Case_ins.filename_basename b in
       let d_dlg = Dlg.load_dlg imp_base buff in
@@ -336,11 +338,11 @@ let cmp_text_file textcmp_dest textcmp_src game =
       let src_buff,s = match textcmp_src with
       | Some (x) -> (load_file x,x)
       | None ->
-          let (base,ext) = split (Case_ins.filename_basename d) in
+          let (base,ext) = split_resref (Case_ins.filename_basename d) in
           (fst (Load.load_resource "cmp-from" game true base ext),Case_ins.filename_basename d)
       in
       let out_name = ".../" ^ d ^ ".patch" in
-      let b,e = split d in
+      let b,e = split_resref d in
       let dest_buff, final_path = Load.load_resource "BCS patch command" game true b e in begin
         try begin
           let res = Diff.get_patch src_buff dest_buff 20 in
@@ -372,11 +374,11 @@ let cmp_bcs_file bcmp_dest bcmp_src game =
       let src_buff,s = match bcmp_src with
       | Some (x) -> (decompile (load_file x,x),x)
       | None ->
-          let (base,ext) = split (Case_ins.filename_basename d) in
+          let (base,ext) = split_resref (Case_ins.filename_basename d) in
           (decompile(Load.load_resource "cmp-from" game true base ext),Case_ins.filename_basename d)
       in
       let out_name = ".../" ^ d ^ ".patch" in
-      let b,e = split d in
+      let b,e = split_resref d in
       let dest_buff = decompile (Load.load_resource "BCS patch command" game true b e) in
       begin
         try begin
@@ -405,7 +407,7 @@ let rcmp_file game rcmp_src rcmp_dest =
   (match rcmp_src, rcmp_dest with
   | Some (s), Some(d) ->
       let load file =
-        let a,b = split (Filename.basename file) in
+        let a,b = split_resref (Filename.basename file) in
         let buff = try load_file file with e -> fst (Load.load_resource "--rcmp" game true a b) in
         match String.uppercase b with
         | "DLG" -> buff
@@ -420,9 +422,9 @@ let rcmp_file game rcmp_src rcmp_dest =
 let diff_patch_file bcmp_orig bcmp_patch game =
   (match bcmp_orig,bcmp_patch with
     Some(s),Some(d) ->
-      let b,e = split s in
+      let b,e = split_resref s in
       let orig_buff, final_path = Load.load_resource "BCS patch compare command" game true b e in
-      let b,e = split d in
+      let b,e = split_resref d in
       let patch_buff, final_path = Load.load_resource "BCS patch compare command" game true b e in begin
         try begin
           let new_buff, bad_chunks, app_chunks = Diff.do_patch orig_buff patch_buff true in begin
@@ -671,7 +673,7 @@ let biff_get bg_list game =
   let files_in_chitin = Key.list_of_key_resources game.Load.key false in
   let try_to_load str = begin
     try begin
-      let base,ext = split (String.uppercase str) in
+      let base,ext = split_resref (String.uppercase str) in
       let path = theout.dir ^ "/" ^ str in
       let out = open_for_writing path true in
       if ext <> "IDS" && ext <> "2DA" then begin
@@ -819,7 +821,7 @@ let untraify game untraify_d untraify_tra =
       let result = parse_file true (File tra) "parsing .tra files" (Dparser.tra_file Dlexer.initial) in
       log_or_print "[%s] has %d translation strings\n" tra
         (List.length result);
-      let base,ext = split d in
+      let base,ext = split_resref d in
       let base = handle_out_boringness base [ext] in
       if !debug_ocaml then log_and_print "I'm trying to save to %s.%s\n\n" base ext ;
       let filebuff = load_file d in
@@ -856,7 +858,7 @@ let traify_file game traify traify_num traify_comment traify_old_tra =
   (match traify with
   | Some(file) -> begin
       try
-        let name,ext = split (String.uppercase file) in
+        let name,ext = split_resref (String.uppercase file) in
 
         let buf = ref (load_file file) in
 
@@ -1083,7 +1085,7 @@ let compile_baf baf_list game =
   List.iter (fun str ->
     try
       let script = handle_baf_filename str in
-      let name,ext = split (Case_ins.filename_basename str) in
+      let name,ext = split_resref (Case_ins.filename_basename str) in
       let out = Case_ins.perv_open_out_bin (theout.dir ^ "/" ^ name ^ ".bcs") in
       Bcs.save_bcs game (Bcs.Save_BCS_OC(out)) script ;
       close_out out
@@ -1207,7 +1209,7 @@ let do_script process_script pause_at_end game =
 let decompile_bcs bcs_list game =
   if_bgee_check_lang_or_fail game ;
   List.iter (fun str ->
-    let b,e = split str in
+    let b,e = split_resref str in
     try
       let buff, _ =
         if file_exists str then (load_file str),"" else
@@ -1233,7 +1235,7 @@ let decompile_bcs bcs_list game =
 let merge_tlk tlk_merge game =
   if_bgee_check_lang_or_fail game ;
   List.iter (fun str ->
-    let name,ext = split (String.uppercase str) in
+    let name,ext = split_resref (String.uppercase str) in
     let tlk = Tlk.load_tlk str in
     let dialog = Load.get_active_dialog game in
     let max =
@@ -1407,7 +1409,8 @@ let main () =
   let parse_check_file = ref "" in
   let parse_check_kind = ref "" in
 
-  let argv0_base, argv0_ext = split (String.uppercase (Case_ins.filename_basename Sys.argv.(0))) in
+  let argv0_base, argv0_ext = split_resref
+      (String.uppercase (Case_ins.filename_basename Sys.argv.(0))) in
 
   let auto () = begin
     pause_at_end := true ;
@@ -1428,7 +1431,8 @@ let main () =
         log_and_print "ERROR: Cannot perform auto-update, going ahead anyway!\n\t%s\n"
           (printexc_to_string e) ;
       end ) ;
-    if List.exists (fun arg -> let a,b = split arg in (String.uppercase b) = "TP2")
+    if List.exists (fun arg ->
+      let a,b = split_resref arg in (String.uppercase b) = "TP2")
         (Array.to_list Sys.argv) then
       () (* setup-solaufein.exe foo.tp2
           * runs foo.tp2, not setup-solaufein.tp2 *)
@@ -1634,7 +1638,7 @@ let main () =
     exit (return_value StatusArgumentInvalid)
   in
   let handleArg str = begin
-    let base,ext = split (String.uppercase str) in
+    let base,ext = split_resref (String.uppercase str) in
     match ext with
     | "D" -> test_output_tlk_p := true ; d_list := str :: !d_list
     | "DLG" -> dlg_list := (base,ext) :: !dlg_list

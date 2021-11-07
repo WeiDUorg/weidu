@@ -368,6 +368,26 @@ let split name =
     base,ext
   with _ -> name,"")
 
+let split_resref name =
+  let rec fold acc lst =
+    (match lst with
+    | ext :: [] -> acc, ext
+    | item :: tail -> fold (acc ^ "." ^ item) tail) in
+  (try
+    let parts = String.split_on_char '.' name in
+    (match parts with
+    | res :: ext :: [] -> (* foo.bar or .foo *)
+        res, ext
+    | res :: middle :: tail -> (* foo.bar.baz etc *)
+        fold res (middle :: tail)
+    | res :: [] -> (* foo (no ext) *)
+        name, ""
+    | _ -> log_and_print "WARNING: unable to split resref [%s]\n" name ;
+        name, "")
+  with _ -> log_and_print "WARNING: unable to split resref [%s]\n" name ;
+    name, "")
+
+
 let my_unlink file =
   begin
     try

@@ -146,7 +146,7 @@ let prepare_result file_list backup_lists game =
     Case_ins.filename_check_suffix file1 ".KEY" then file1
     else "OVERRIDE/" ^ file1 in
     let file_log = reduce_log_list backup_lists (List.rev (get_list file)) in
-    let (base,ext) = split file1 in
+    let (base,ext) = split_resref file1 in
     let first = Printf.sprintf "\n\n\nMods affecting %s:\n" file1 in
     let item_list = List.mapi (fun i record ->
       let optext = (match record.op with

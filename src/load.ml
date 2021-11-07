@@ -419,7 +419,7 @@ let read_cd_paths gp =
         (try
           while true do
             let s = Unix.readdir s_d_h in
-            let base,ext = split s in
+            let base,ext = split_resref s in
             if (String.uppercase ext) = "INI" then begin
               let buff = load_file (gp ^ "/" ^ s) in
               (try
@@ -824,7 +824,7 @@ let file_exists_in_game game f =
   allow_missing := [] ;
   let res =
     (try
-      let a,b = split f in
+      let a,b = split_resref f in
       skip_next_load_error := true ;
       let buff,path = load_resource "FILE_EXISTS_IN_GAME" game true a b in
       (String.length buff > 0)

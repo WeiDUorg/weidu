@@ -301,7 +301,7 @@ let remove_files key file_lst =
   let new_resfind = Hashtbl.copy key.resfind in
   let file_hsh = Hashtbl.create 5 in
   List.iter (fun file ->
-    let (name,ext) = split file in
+    let (name,ext) = split_resref file in
     Hashtbl.remove new_resfind (name,ext) ;
     Hashtbl.add file_hsh (name,ext) true) file_lst ;
   let new_file_count = ref (Array.length key.resource) in
