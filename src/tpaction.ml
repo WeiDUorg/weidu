@@ -1617,12 +1617,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 match f,!our_lang with
                   Auto_Tra(path),Some(l) ->
                     let my_regexp = Str.regexp_string "%s" in
-                    let tra_file_dir = Str.global_replace
-                        my_regexp l.lang_dir_name path in
+                    let tra_file_dir = Var.get_string
+                        (Str.global_replace my_regexp l.lang_dir_name path) in
                     let d_base,_ = split_resref (Case_ins.filename_basename d) in
                     let tra_file = tra_file_dir ^ "/" ^ d_base ^ ".TRA" in
                     handle_tra_filename tra_file ;
                 | Auto_Tra(path),None ->
+                    let path = Var.get_string path in
                     let d_base,_ = split_resref (Case_ins.filename_basename d) in
                     let tra_file = path ^ "/" ^ d_base ^ ".TRA" in
                     handle_tra_filename tra_file
@@ -1976,12 +1977,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             (match f,!our_lang with
             | Auto_Tra(path),Some(l) ->
                 let my_regexp = Str.regexp_string "%s" in
-                let tra_file_dir = Str.global_replace
-                    my_regexp l.lang_dir_name path in
+                let tra_file_dir = Var.get_string
+                    (Str.global_replace my_regexp l.lang_dir_name path) in
                 let d_base,_ = split_resref (Case_ins.filename_basename src) in
                 let tra_file = tra_file_dir ^ "/" ^ d_base ^ ".TRA" in
                 handle_tra_filename tra_file ;
             | Auto_Tra(path),None ->
+                let path = Var.get_string path in
                 let d_base,_ = split_resref (Case_ins.filename_basename src) in
                 let tra_file = path ^ "/" ^ d_base ^ ".TRA" in
                 handle_tra_filename tra_file
