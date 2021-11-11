@@ -17,8 +17,9 @@ let get_version_list () =
   let my_real_name = this^(if ext = "" then "" else ".exe") in
   let this_digest = Digest.file my_real_name in
   Hashtbl.add digest_ht this_digest (int_of_string version) ;
-  (if not (Str.string_match (Str.regexp_case_fold "setup-.*exe") my_real_name 0)
-  then weidu_list := (my_real_name,int_of_string version) :: !weidu_list) ;
+  (if not (Str.string_match
+             (Str.regexp_case_fold "setup-.*\.exe$") my_real_name 0) then
+    weidu_list := (my_real_name,int_of_string version) :: !weidu_list) ;
   (try begin
     let d_h = Case_ins.unix_opendir "." in
     try
