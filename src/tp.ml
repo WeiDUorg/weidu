@@ -210,7 +210,7 @@ and tp_action =
          * as a normal file.
          * Create backup?
          *)
-  | TP_Set_Col of string * (string list) * int
+  | TP_Set_Col of string * (string list) * int * (tp_constraint list)
   | TP_Extend_Top of bool * string * string * (tp_patch list) * (string list)
   | TP_Extend_Bottom of bool * string * string * (tp_patch list) * (string list)
   | TP_At_Exit of string * bool

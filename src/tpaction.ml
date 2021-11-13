@@ -1213,12 +1213,16 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             lower = Dlg.TLK_Index (int_of_string (get_it "lower" "lower"));
             mixed = Dlg.TLK_Index (int_of_string (get_it "mixed" "mixed"));
             help        = Dlg.TLK_Index (int_of_string (get_it "help"  "help"));
-            tob_abbr = get_it "luabbr" "luabbr";
-            tob_start = begin
+            tob_abbr =
+            if when_exists "luabbr.2da" [Tp.TP_IfExists] true game then
+              get_it "luabbr" "luabbr"
+            else "" ;
+            tob_start =
+            if when_exists "25stweap.2da" [Tp.TP_IfExists] true game then begin
               let str = get_it "25stweap" "column" in
               let lst = Str.split (Str.regexp "[ \t]+") str in
               List.map (fun elt -> if elt = "$" then "" else elt) lst
-            end;
+            end else [] ;
             unused_class = get_it "unusabilities" "unused";
 
             (*                          unused_class : string ;
@@ -1303,11 +1307,12 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               TP_Append(file ^ ".2DA",str,[],true,false,0)
                 ) include_list in
             let abbr = Printf.sprintf  "%s               %s" k.kit_name k.tob_abbr in
-            let a9 = TP_Append("LUABBR.2DA",abbr,[],true,false,0) in
+            let a9 = TP_Append("LUABBR.2DA",abbr,[Tp.TP_IfExists],
+                               true,false,0) in
             let a10 = TP_Set_Col("25STWEAP.2DA",
                                  ("" :: "" :: k.kit_name ::
                                   (List.map Var.get_string k.tob_start)),
-                                 this_kit_prof_number+1) in
+                                 this_kit_prof_number+1,[Tp.TP_IfExists]) in
             let a11 = TP_Append("KIT.IDS",
                                 (Printf.sprintf "0x%x %s" (0x4000 + this_kit_number)
                                    k.kit_name),[],true,false,0) in
@@ -1329,7 +1334,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                                 (get_pe_string "tb#kit_this_is_a_temp_var",get_pe_int "0");
                               TP_Patch2DANow
                                 ("tb#kit_this_is_a_temp_var", get_pe_int "0");],[])] ;
-                         copy_constraint_list = [] ;
+                         copy_constraint_list = [Tp.TP_IfExists] ;
                          copy_backup = true;
                          copy_at_end = false;
                          copy_save_inlined = false;
@@ -1358,9 +1363,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                        }) in
             let action_list = a1 :: a2 :: a3 :: a4 :: a5 :: a6 :: a7 :: a8 ::
               a9 :: a10 :: a11 :: a_e1 :: a_e2 :: fix2da1 :: fix2da1a :: include_actions in
-            let old_allow_missing = !Load.allow_missing in
-            Load.allow_missing :=
-              "LUABBR.2DA" :: "25STWEAP.2DA" :: old_allow_missing ;
             (* actually do it! *)
             List.iter (process_action tp) action_list ;
             let fix2da2 =
@@ -1378,7 +1380,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                                  String.make
                                    (String.length
                                       (Var.get_string_exact "%tb#kit_temp2%")) ' ',None);],[])] ;
-                         copy_constraint_list = [] ;
+                         copy_constraint_list = [Tp.TP_IfExists] ;
                          copy_backup = true;
                          copy_at_end = false;
                          copy_save_inlined = false;
@@ -1404,7 +1406,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                        }) in
             process_action tp fix2da2;
             process_action tp fix2da2a;
-            Load.allow_missing := old_allow_missing ;
             Var.set_int32 (k.kit_name) (Int32.of_int this_kit_number) ;
             log_and_print "Added %s Kit\n" k.kit_name ;
             Bcs.clear_ids_map game ;
@@ -1688,46 +1689,52 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             raise e
       end
 
-      | TP_Set_Col(file,new_col_list,col_num) ->
-          log_and_print_modder "Setting game text column-wise ...\n" ;
-          let eight,three = split_resref (String.uppercase file) in
-          let buff,loaded_path = Load.load_resource "SET_COLUMN" game true eight three in
-          if buff = "" then
-            log_or_print "[%s]: empty or does not exist\n" file
-          else begin
-            let dest = "override/" ^ file in
-            let buff_as_lines = Str.split many_newline_or_cr_regexp buff in
-            if List.length buff_as_lines <> List.length new_col_list then begin
-              log_and_print "Cannot set column-wise because there are %d lines in %s but I was only given %d things to append\n"
-                (List.length buff_as_lines) file (List.length new_col_list)    ;
-              failwith ("cannot set column-wise to " ^ file)
-            end ;
-            Stats.time "saving files" (fun () ->
-              let out = open_for_writing dest true in
-              let linecount = ref 0 in
-              List.iter2 (fun orig_line new_col ->
-                let line_as_cols = Str.split many_whitespace_regexp orig_line in
-                let i = ref 0 in
-                if !linecount = 2 then incr i; (* 2nd coloumn (counting from 0) has one less entry *)
-                incr linecount;
-                List.iter (fun orig_col ->
-                  (if !i = col_num then
-                    Printf.fprintf out "%-20s%-20s" new_col orig_col
-                  else
-                    Printf.fprintf out "%-20s" orig_col) ;
-                  incr i;) line_as_cols ;
-                (if (!i <= col_num) then
-                  Printf.fprintf out "%-20s" new_col) ;
-                output_string out "\r\n") buff_as_lines new_col_list ;
-              close_out out ;
-              begin (* handle read-only files! *)
-                try
-                  Case_ins.unix_chmod dest 511 ; (* 511 = octal 0777 = a+rwx *)
-                with e -> ()
-                    (* log_or_print "WARNING: chmod %s : %s\n" filename
-                       (printexc_to_string e) *)
-              end ;) () ;
-            log_or_print "Set text in [%s] column-wise\n" file
+      | TP_Set_Col(file,new_col_list,col_num,constraints) ->
+          if when_exists file constraints true game then begin
+            log_and_print_modder "Setting game text column-wise ...\n" ;
+            let eight,three = split_resref (String.uppercase file) in
+            let buff,loaded_path = Load.load_resource "SET_COLUMN"
+                game true eight three in
+            if buff = "" then
+              log_or_print "[%s]: empty or does not exist\n" file
+            else begin
+              let dest = "override/" ^ file in
+              let lines = Str.split many_newline_or_cr_regexp buff in
+              if List.length lines <> List.length new_col_list then begin
+                log_and_print "Cannot set column-wise because there are %d lines in %s but I was only given %d things to append\n"
+                  (List.length lines) file (List.length new_col_list) ;
+                failwith ("cannot set column-wise to " ^ file)
+              end ;
+              Stats.time "saving files" (fun () ->
+                let out = open_for_writing dest true in
+                let linecount = ref 0 in
+                List.iter2 (fun orig_line new_col ->
+                  let line_as_cols = Str.split many_whitespace_regexp
+                      orig_line in
+                  let i = ref 0 in
+                  (* 2nd coloumn (counting from 0) has one less entry *)
+                  if !linecount = 2 then incr i;
+                  incr linecount;
+                  List.iter (fun orig_col ->
+                    (if !i = col_num then
+                      Printf.fprintf out "%-20s%-20s" new_col orig_col
+                    else
+                      Printf.fprintf out "%-20s" orig_col) ;
+                    incr i;) line_as_cols ;
+                  (if (!i <= col_num) then
+                    Printf.fprintf out "%-20s" new_col) ;
+                  output_string out "\r\n") lines new_col_list ;
+                close_out out ;
+                begin (* handle read-only files! *)
+                  try
+                    (* 511 = octal 0777 = a+rwx *)
+                    Case_ins.unix_chmod dest 511 ;
+                  with e -> ()
+                      (* log_or_print "WARNING: chmod %s : %s\n" filename
+                         (printexc_to_string e) *)
+                end ;) () ;
+              log_or_print "Set text in [%s] column-wise\n" file
+            end
           end
 
       | TP_Append_Col(file,src,count_prepend,con_l,frombif,do_backup) ->
