@@ -1,3 +1,40 @@
+Version 248:
+  * Add --ask-only command-line option.
+  * --parse-check does not fail on trarefs in BAF.
+  * MODDER FUN_ARGS report name of function and type of argument.
+  * WeiDU does not terminate if it fails to resolve a traref for
+    MOD_VERSION.
+  * Having the VERSION string be a traref does not result in an error.
+  * The variable WEIDU_VER is set correctly.
+  * HANDLE_CHARSETS can convert non-TRA files. Thanks, the_bigg.
+  * Attempts to load movie files are made with the WBM extension on
+    EE-type games.
+  * Fix failure to re-run WeiDU after auto-update if the file name
+    contained spaces.
+  * Fix regression that mangled Latin-1 characters.
+  * TP2_BASE_NAME once again does not include a file extension, to
+    match previous de facto behaviour.
+  * Fix regression involving SUBCOMPONENT predicates.
+  * Fix bug that had GET_UNIQUE_FILE_NAME returning non-unique results
+    if variable base was empty. Thanks, DavidW.
+  * Fix variable leak in ADD_JOURNAL.
+  * Changes to fj_are_structure parameters to better reflect file
+    structure, as well as additions for EE. Thanks, Argent77.
+  * Optimise processing of LABELs in own TP2.
+  * Fix incorrect line-breaking in DLGs that resulted in broken IDS
+    symbols, and possibly other problems. Affected DLGs need to be
+    recreated.
+  * WeiDU does not fail to load, for example, the file ".BCS".
+  * Support EE 2.6's MISSILE.IDS.
+  * Passing the TP2 as an absolute path does not cause MOD_FOLDER to
+    be set to an incorrect value.
+  * AUTO_TRA evaluates variables.
+  * Auto-update no longer updates executables for which no version
+    information can be obtained. These need to be updated by hand if
+    they actually are WeiDU.
+  * ADD_KIT and COPY_KIT work as expected on SoA-only games.
+  * Fix error when RET_ARRAYing an empty array into a non-empty one.
+
 Version 247:
   * ID_OF_LABEL caches parsed TP2s for better performance.
   * Add out_path option to HANDLE_CHARSETS.
