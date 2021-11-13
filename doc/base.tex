@@ -5081,11 +5081,14 @@ COPY_EXISTING ~some.cre~ ~override/some.cre~
 
 or & \DEFINE{ADD!MEMORIZED!SPELL} splName spellLevel spellType
   \Ob \t{(} \ttref{value} \t{)} \Oe&
-  When applied to a CRE file, this \ttref{patch} causes the given spell to
-  be memorized one more time (or value times if specified).
-  Note that spellLevel counts from 0 (e.g., you
-  should say \t{\#2} for a third-level Fireball). Possible values for spellType
-  are \t{priest}, \t{innate} and \t{wizard}. Example:
+
+  When applied to a CRE file, this \ttref{patch} causes the given
+  spell to be memorized one more time (or value times if
+  specified). The spell is additionally added to the creature's list
+  of known spells.  Note that spellLevel counts from 0 (e.g., you
+  should say \t{\#2} for a third-level Fireball). Possible values for
+  spellType are \t{priest}, \t{innate} and \t{wizard}. Example:
+
 \begin{verbatim}
 COPY_EXISTING ~some.cre~ ~override/some.cre~
   ADD_MEMORIZED_SPELL ~SPPR314~ #2 ~priest~ ( 5 )
