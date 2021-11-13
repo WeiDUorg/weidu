@@ -579,7 +579,9 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
                   let wasvar = PE_Dollars(PE_LiteralString was,var,false,false) in
                   let wantvar = PE_Dollars(PE_LiteralString want,var,false,false) in
                   (wantvar,wasvar)) (Hashtbl.find !Var.arrays want) in
-                List.append acc vars
+                List.append acc (List.filter (fun (_,wasvar) ->
+                  (* if function array is empty *)
+                  Hashtbl.mem final_returns (eval_pe_str wasvar)) vars)
               else
                 acc) rets retas in
             List.iter (fun (a,b) ->
