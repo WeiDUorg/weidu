@@ -25,25 +25,27 @@ let get_version_list () =
       while true do
         let f = Unix.readdir d_h in
         if Arch.is_weidu_executable f then begin
-          let f_digest = Digest.file f in
-          let version =
-            if Hashtbl.mem digest_ht f_digest then
-              Hashtbl.find digest_ht f_digest
-            else begin
-              try
-                Arch.get_version f
-              with _ ->
-                Printf.printf
-                  "{%s} could not get version; if this is WeiDU, you need to update it yourself\n%!" f ;
-                -1
-            end in
-          if version > 0 then begin
-            log_and_print " version = %d\n" version ;
-            Hashtbl.add digest_ht f_digest version ;
-            weidu_list := (f,version) :: !weidu_list
-          end else begin
-            log_and_print " but does not appear to be WeiDU; if it is, you need to update it yourself\n" ;
-          end
+          (try
+            let f_digest = Digest.file f in
+            let version =
+              if Hashtbl.mem digest_ht f_digest then
+                Hashtbl.find digest_ht f_digest
+              else begin
+                try
+                  Arch.get_version f
+                with e ->
+                  Printf.printf
+                    "{%s} could not get version; if this is WeiDU, you need to update it yourself\n%!" f ;
+                  raise e ;
+              end in
+            if version > 0 then begin
+              log_and_print " version = %d\n" version ;
+              Hashtbl.add digest_ht f_digest version ;
+              weidu_list := (f,version) :: !weidu_list
+            end else begin
+              log_and_print " but does not appear to be WeiDU; if it is, you need to update it yourself\n" ;
+            end
+          with _ -> ())
         end done
     with e -> ()
   end with e -> ()) ;
