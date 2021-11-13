@@ -10,7 +10,6 @@ let self_update_message = ref true
 
 let get_version_list () =
   let weidu_list = ref [] in
-  let version_regexp = Str.regexp_case_fold ".*version \\([0-9]+\\).*" in
   let digest_ht = Hashtbl.create 255 in
   let argv_0 = Case_ins.filename_basename Sys.argv.(0) in
   let this,ext = try split_resref argv_0 with _ -> argv_0,"" in
@@ -31,18 +30,20 @@ let get_version_list () =
             if Hashtbl.mem digest_ht f_digest then
               Hashtbl.find digest_ht f_digest
             else begin
-              let version = try
+              try
                 Arch.get_version f
               with _ ->
                 Printf.printf
-                  "{%s} could not get version; let's call it...%!" f ;
+                  "{%s} could not get version; if this is WeiDU, you need to update it yourself\n%!" f ;
                 -1
-              in
-              log_and_print " version = %d\n" version ;
-              Hashtbl.add digest_ht f_digest version ;
-              version
             end in
-          weidu_list := (f,version) :: !weidu_list
+          if version > 0 then begin
+            log_and_print " version = %d\n" version ;
+            Hashtbl.add digest_ht f_digest version ;
+            weidu_list := (f,version) :: !weidu_list
+          end else begin
+            log_and_print " but does not appear to be WeiDU; if it is, you need to update it yourself\n" ;
+          end
         end done
     with e -> ()
   end with e -> ()) ;

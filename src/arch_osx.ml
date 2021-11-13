@@ -68,7 +68,8 @@ let get_version f =
   let ic,oc,ec = Unix.open_process_full exec (Unix.environment()) in
   let line = input_line ic in
   ignore (Unix.close_process_full (ic,oc,ec));
-  let s = Str.global_replace ( Str.regexp_case_fold ".*version \\([0-9]+\\).*") "\\1" line in
+  let version_regexp = Str.regexp ".*WeiDU version \\([0-9]+\\).*" in
+  let s = Str.global_replace version_regexp "\\1" line in
   int_of_string s
 
 external get_user_personal_dir : unit -> string = "get_user_home_dir"
