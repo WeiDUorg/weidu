@@ -9938,7 +9938,7 @@ This is a PATCH function.
 
 Universal structure variables:
 \begin{itemize}
-\item STR_VAR \verb+fj_structure_type+ to the type of area structure to be added (actor, region, spawn, entrance, container, itm, ambient, variable, door, animation, explored bitmask, songlist, rest interrupt table, note or projectile)*;
+\item STR_VAR \verb+fj_structure_type+ to the type of area structure to be added (actor, region, spawn, entrance, container, itm, ambient, variable, door, animation, bitmask, songs, interrupts, note or projectile)*;
 \item INT_VAR \verb+fj_delete_mode+ to the index of the structure to be deleted (if deleting rather than adding a new structure);
 \item INT_VAR \verb+fj_debug+ to 1 to enable feedback
 \item RET \verb+fj_return_offset+ returns the position of the structure in the area file;
@@ -10202,7 +10202,7 @@ Projectile trap structure variables (not available on PST):
 \item INT_VAR \verb+fj_loc_z+ to the height;
 \item INT_VAR \verb+fj_target+ to the ea.ids value of the target;
 \item INT_VAR \verb+fj_creator+ to the index of the party member who created this projectile (0-5);
-\item STR_VAR \verb+fj_embedded_eff0+ to ~path/to/v2.eff~ or eff resref containing to projectile's effects*;
+\item STR_VAR \verb+fj_embedded_eff_0+ to ~path/to/v2.eff~ or eff resref containing to projectile's effects* Subsequent indices can be used for additional effects;
 \end{itemize}
 A few examples best illustrate the use of this function.
 
