@@ -31,20 +31,21 @@ let get_version_list () =
               if Hashtbl.mem digest_ht f_digest then
                 Hashtbl.find digest_ht f_digest
               else begin
-                try
+                let version = (try
                   Arch.get_version f
-                with e ->
+                with Failure "invalid pid" ->
                   Printf.printf
                     "{%s} could not get version; if this is WeiDU, you need to update it yourself\n%!" f ;
-                  raise e ;
+                  failwith "moving on"
+                | Failure "not weidu" ->
+                    Printf.printf
+                      " but does not appear to be WeiDU; if it is, you need to update it yourself\n" ;
+                    failwith "moving on") in
+                log_and_print " version = %d\n" version ;
+                Hashtbl.add digest_ht f_digest version ;
+                version
               end in
-            if version > 0 then begin
-              log_and_print " version = %d\n" version ;
-              Hashtbl.add digest_ht f_digest version ;
-              weidu_list := (f,version) :: !weidu_list
-            end else begin
-              log_and_print " but does not appear to be WeiDU; if it is, you need to update it yourself\n" ;
-            end
+            weidu_list := (f,version) :: !weidu_list
           with _ -> ())
         end done
     with e -> ()

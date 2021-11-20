@@ -71,13 +71,6 @@ let get_version f =
   Printf.printf "{%s} Queried (pid = %d)%!" f pid ;
   let ic = Unix.in_channel_of_descr newstdout in
   let line = input_line ic in
-  let version =
-    try
-      let version_regexp = Str.regexp ".*WeiDU version \\([0-9]+\\).*" in
-      let s = Str.global_replace version_regexp "\\1" line in
-      int_of_string s
-    with _ -> -1
-  in
   (try Unix.close newstdin with _ -> ()) ;
   (try Unix.close newstdout with _ -> ()) ;
   (try Unix.close newstderr with _ -> ()) ;
@@ -85,6 +78,13 @@ let get_version f =
   (try Unix.close newstdout' with _ -> ()) ;
   (try Unix.close newstderr' with _ -> ()) ;
   Unix.kill pid 9;
+  let version =
+    try
+      let version_regexp = Str.regexp ".*WeiDU version \\([0-9]+\\).*" in
+      let s = Str.global_replace version_regexp "\\1" line in
+      int_of_string s
+    with _ -> failwith "not weidu"
+  in
   version
 
 external get_user_personal_dir : unit -> string = "get_user_home_dir"
