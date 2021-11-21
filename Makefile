@@ -184,6 +184,7 @@ windows_zip : weidu weinstall tolower
 	strip ../WeiDU-Windows/tolower.exe || true
 	upx --best ../WeiDU-Windows/tolower.exe || echo "No EXE Compression"
 	cp README* ../WeiDU-Windows
+	rm ../WeiDU-Windows/README.md
 	cp COPYING ../WeiDU-Windows
 	cp -r examples ../WeiDU-Windows
 	#cp windows_manifests/*.manifest ../WeiDU-Windows
@@ -202,6 +203,7 @@ linux_zip : weidu weinstall tolower
 	strip ../WeiDU-Linux/tolower || true
 	upx --best ../WeiDU-Linux/tolower || echo "No EXE Compression"
 	cp README* ../WeiDU-Linux
+	rm ../WeiDU-Linux/README.md
 	cp COPYING ../WeiDU-Linux
 	cp -r examples ../WeiDU-Linux
 	(cd .. ; zip -9r WeiDU-Linux-$(VER).zip WeiDU-Linux )
@@ -214,6 +216,7 @@ osx_zip : weidu weinstall
 	upx --best ../WeiDU-Mac/weidu || echo "No EXE Compression"
 	upx --best ../WeiDU-Mac/weinstall || echo "No EXE Compression"
 	cp README* ../WeiDU-Mac
+	rm ../WeiDU-Mac/README.md
 	cp COPYING ../WeiDU-Mac
 	cp -r examples ../WeiDU-Mac
 	#sed -e's/version_plist=.*/version_plist=\"${VERBIG}\"/g'  '../WeiDU-Mac/WeiDU Installer.command' > t
