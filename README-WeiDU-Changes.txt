@@ -1,3 +1,8 @@
+Version 249:
+  * Auto-update is less chatty than in 248.
+  * Fix regression affecting the line-breaking in DLGs. Affected DLGs
+    can be fixed by re-installing with a WeiDU other than 248.
+
 Version 248:
   * Add --ask-only command-line option.
   * --parse-check does not fail on trarefs in BAF.
