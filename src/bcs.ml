@@ -734,6 +734,24 @@ let split_colon s =
   | l :: r :: rest -> (r,l)
   | _ -> (s,""))
 
+let count_string_args ids =
+  List.fold_left (fun acc elt ->
+    acc + if (elt.arg_kind = Arg_String) then 1 else 0) 0 ids.i_args
+
+let mismatched_string_args_trigger ids t =
+  let string_formal_count = count_string_args ids in
+  (string_formal_count > 0 && t.t_3 = "") ||
+  (string_formal_count > 1 && t.t_4 = "") ||
+  (string_formal_count = 0 && t.t_3 <> "") ||
+  (string_formal_count = 0 && t.t_4 <> "")
+
+let mismatched_string_args_action ids a =
+  let string_formal_count = count_string_args ids in
+  (string_formal_count > 0 && a.a_8 = "") ||
+  (string_formal_count > 1 && a.a_9 = "") ||
+  (string_formal_count = 0 && a.a_8 <> "") ||
+  (string_formal_count = 0 && a.a_9 <> "")
+
 let rec best_ids_of_trigger game c =
   let ids = every_ids_of_int game "TRIGGER" c.trigger_id in
   if ids = [] then begin
@@ -748,18 +766,12 @@ let rec best_ids_of_trigger game c =
         end else begin
           log_and_print "ERROR: cannot resolve trigger 0x%lx\n" c.trigger_id ; raise e
         end)
+    | ids :: tl when mismatched_string_args_trigger ids c ->
+        proc tl
+    | ids :: [] ->
+        ids
     | ids :: tl ->
-        let string_formal_count = List.fold_left
-            (fun acc elt  -> acc +
-              if (elt.arg_kind = Arg_String) then 1 else 0) 0 ids.i_args in
-        if (string_formal_count > 0 && c.t_3 = "") ||
-        (string_formal_count > 1 && c.t_4 = "") ||
-        (string_formal_count = 0 && c.t_3 <> "") ||
-        (string_formal_count = 0 && c.t_4 <> "") then
-          proc tl
-        else begin
-          ids
-        end
+        ids
     in
     proc ids
   end
@@ -778,18 +790,14 @@ let rec best_ids_of_action game a =
         end else begin
           log_and_print "ERROR: cannot resolve action %ld\n" a.action_id ; raise e
         end)
+    (* disambiguates e.g., opcode 7 *)
+    | ids :: tl when mismatched_string_args_action ids a ->
+        proc tl
+    (* no ambiguity -> return *)
+    | ids :: [] ->
+        ids
     | ids :: tl ->
-        let string_formal_count = List.fold_left
-            (fun acc elt  -> acc +
-              if (elt.arg_kind = Arg_String) then 1 else 0) 0 ids.i_args in
-        if (string_formal_count > 0 && a.a_8 = "") ||
-        (string_formal_count > 1 && a.a_9 = "") ||
-        (string_formal_count = 0 && a.a_8 <> "") ||
-        (string_formal_count = 0 && a.a_9 <> "") then
-          proc tl
-        else begin
-          ids
-        end
+        ids
     in
     proc ids
   end
