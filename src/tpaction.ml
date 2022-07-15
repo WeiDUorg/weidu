@@ -2387,13 +2387,20 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             | None -> ""
             | Some s -> Var.get_string s) in
 
-            Var.set_string "FL#CREATE#TYPE" (eval_pe_str (PE_LiteralString filetype));
-            Var.set_string "FL#CREATE#RESREF" (eval_pe_str (PE_LiteralString resref));
-            Var.set_string "FL#CREATE#VERSION" (eval_pe_str (PE_LiteralString version));
+            Var.add_local_string "FL#CREATE#TYPE"
+              (eval_pe_str (PE_LiteralString filetype)) ;
+            Var.add_local_string "FL#CREATE#RESREF"
+              (eval_pe_str (PE_LiteralString resref)) ;
+            Var.add_local_string "FL#CREATE#VERSION"
+              (eval_pe_str (PE_LiteralString version)) ;
 
             process_action tp (TP_Define_Patch_Macro ("FL#CREATE#PATCH_LIST", [], patch_list));
             process_action tp (TP_Include [".../WEIDU_NAMESPACE/fl#create.tpa"]);
             process_action tp (TP_Launch_Action_Macro("FL#CREATE"));
+
+            Var.remove_local "FL#CREATE#TYPE" ;
+            Var.remove_local "FL#CREATE#RESREF" ;
+            Var.remove_local "fl#CREATE#VERSION" ;
           end
 
       | TP_WithTra(tra_list, action_list) ->
