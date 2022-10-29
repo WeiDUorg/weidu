@@ -3146,7 +3146,9 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
       desired version. \ttref{CREATE} supports the file types \t{ARE},
       \t{CRE}, \t{EFF}, \t{ITM}, \t{SPL} and \t{STO} and all their
       known file versions (aside from EFF V1.0, which is never found
-      as a file).  \\
+      as a file). \ttref{CREATE} sets \ttref{COPY} variables
+      (\t{SOURCE!*} and \t{DEST!*}) as if the file were an implicit
+      file being copied to the override directory. \\
 
   or & \DEFINE{COMPILE} \Ob \t{EVALUATE!BUFFER} \Oe sourceFile \Slist
        \Ob \ttref{patch} \Slist \Oe \Ob \DEFINE{USING} traFile \Slist \Oe &

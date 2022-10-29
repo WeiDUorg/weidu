@@ -2394,6 +2394,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             Var.add_local_string "FL#CREATE#VERSION"
               (eval_pe_str (PE_LiteralString version)) ;
 
+            let file = resref ^ "." ^ filetype in
+            ignore (Tphelp.set_copy_vars file ("override/" ^ file) (Some "")) ;
+
             process_action tp (TP_Define_Patch_Macro ("FL#CREATE#PATCH_LIST", [], patch_list));
             process_action tp (TP_Include [".../WEIDU_NAMESPACE/fl#create.tpa"]);
             process_action tp (TP_Launch_Action_Macro("FL#CREATE"));
