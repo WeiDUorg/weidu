@@ -99,7 +99,7 @@ let verify_latest can_spawn = begin
             file)
         in
 
-        Sys.argv.(0) <- not_this ;
+        Sys.argv.(0) <- (Printf.sprintf "\"%s\"" not_this) ;
 
         let cmd = Array.fold_left (fun acc elt -> acc ^ " " ^ elt)
             Sys.argv.(0) (Array.sub Sys.argv 1 ((Array.length Sys.argv)-1)) in
