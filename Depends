@@ -4,12 +4,12 @@
 WEIDU_BASE_MODULES := batList batteriesInit myhashtbl hashtblinit \
 	case_ins stats arch version parsing tph util modder var arch2 xor \
 	key cbif biff tlk load cre \
-	ids idslexer idslexer2 idsparser \
-	bcs bcslexer bcsparser \
+	ids idsparser idslexer idslexer2 \
+	bcs bcsparser bcslexer \
 	dlg dc \
-	refactorbaf refactorbaflexer refactorbafparser refactordlexer refactordparser \
-	baflexer bafparser \
-	myxdiff diff sav mos tp dlexer dparser sql json \
+	refactorbaf refactorbafparser refactorbaflexer refactordparser refactordlexer \
+	bafparser baflexer \
+	myxdiff diff sav mos tp dparser dlexer sql json \
 	smutil useract lexerint parsetables arraystack objpool glr lrparse \
 	automate kit tpstate tphelp trealparser tlexer toldparser toldlexer tparser \
 	parsewrappers mymarshal tppe tpuninstall tppatch tpaction tpwork \
@@ -52,6 +52,8 @@ src/tparser.ml : src/tparser.in
 src/arch2.ml :
 	echo "let associate_these a = Var.set_string \"WEIDU_ARCH\" \"$(WEIDU_ARCH)\" ; Var.set_string \"WEIDU_OS\" \"$(WEIDU_OS)\"; Var.set_string \"WEIDU_VER\" Version.version" > src/arch2.ml
 	echo "let _ = associate_these ()" >> src/arch2.ml
+
+$(OBJDIR)/trealparser.cmx : $(OBJDIR)/trealparser.cmi
 
 $(OBJDIR)/tparser.cmx : src/trealparserin.in src/tlexer.in scripts/make_gr.ml src/aliases.in scripts/make_tll.ml $(OBJDIR)/trealparser.cmx
 
