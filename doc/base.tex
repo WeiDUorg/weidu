@@ -3598,7 +3598,7 @@ unusabilities
   and you can share the type between your mods without issue).
 	\\
 
-  or & \DEFINE{ADD!PROJECTILE} modpath/PROName.PRO &
+  or & \DEFINE{ADD!PROJECTILE} modpath/PROName.PRO \Ob name \Oe &
     Appends an entry for PROName to \t{PROJECTL.IDS} and assigns it the next
     available ProRef number.  Then copies the file \t{modpath/PROName.PRO}
     to the \t{override} folder.  The new ProRef number can be accessed
@@ -3612,6 +3612,9 @@ ADD_PROJECTILE      ~MyMod/MYDXP.PRO~
 COPY ~MyMod/MYDART.ITM~ ~override/MYDART.ITM~
   WRITE_SHORT   0x09c ~%MYDXP%~
 \end{verbatim}
+
+    If a name is provided, this is used as the projectile's symbolic
+    name in MISSILE.IDS.
   \\
 
   or & \DEFINE{ADD!SPELL} modpath/newSPLfile.SPL type level idsName
