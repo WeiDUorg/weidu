@@ -45,6 +45,7 @@ ACTION_FOR_EACH file IN
                 ~game_is~
                 ~x_of_filespec~
                 ~res_of_spell_ids~
+                ~read_2da~
 BEGIN
   INCLUDE ~%MOD_FOLDER%/lib/tests/%file%.tpa~
   LAM run_tests

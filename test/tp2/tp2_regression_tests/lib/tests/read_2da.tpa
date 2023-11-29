@@ -1,0 +1,118 @@
+DEFINE_ACTION_FUNCTION run
+  RET
+    success
+    message
+BEGIN
+  OUTER_SPRINT message "test_read_2da"
+  PRINT "%message%"
+  ACTION_TRY
+    LAF test_read_2da END
+    OUTER_SET success = 1
+  WITH
+    DEFAULT
+      OUTER_SET success = 0
+      OUTER_SPRINT message "tests failed in test_read_2da: %ERROR_MESSAGE%"
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_read_2da BEGIN
+  COPY "%MOD_FOLDER%/resources/2da/fl#a.2da"
+       "%MOD_FOLDER%/resources/2da/fl#a.2da"
+    LPF test_read_2da_entry END
+    LPF test_read_2da_entries_now END
+  BUT_ONLY
+END
+
+DEFINE_PATCH_FUNCTION test_read_2da_entry BEGIN
+  READ_2DA_ENTRY 0 0 2 value
+  SPRINT expected "2DA"
+  PATCH_IF "%value%" STR_CMP "%expected%" BEGIN
+    PATCH_FAIL ~test_read_2da read %value% when %expected% was expected~
+  END
+  READ_2DA_ENTRY 2 4 5 value
+  SPRINT expected "C4"
+  PATCH_IF "%value%" STR_CMP "%expected%" BEGIN
+    PATCH_FAIL ~test_read_2da read %value% when %expected% was expected~
+  END
+  LPF test_read_2da_entry#oob END
+END
+
+DEFINE_PATCH_FUNCTION test_read_2da_entry#oob BEGIN
+  PATCH_TRY
+    READ_2DA_ENTRY 2 5 5 value
+    SET fail = 1
+  WITH
+    DEFAULT
+      SET fail = 0
+  END
+  PATCH_IF fail BEGIN
+    PATCH_FAIL ~test_read_2da: reading out-of-bounds did not fail~
+  END
+END
+
+DEFINE_PATCH_FUNCTION test_read_2da_entries_now BEGIN
+  LPF test_read_2da_entries_now#basic END
+  LPF test_read_2da_entries_now#basic
+    INT_VAR row = 2 col = 4 rcols = 5 STR_VAR expected = "C4"
+  END
+  LPF test_read_2da_entries_now#fun_ret END
+  LPF test_read_2da_entries_now#oob END
+END
+
+DEFINE_PATCH_FUNCTION test_read_2da_entries_now#basic
+  INT_VAR
+    row = 0
+    col = 0
+    rcols = 2
+  STR_VAR
+    expected = "2DA"
+BEGIN
+  READ_2DA_ENTRIES_NOW table rcols
+  READ_2DA_ENTRY_FORMER table row col value
+  PATCH_IF "%value%" STR_CMP "%expected%" BEGIN
+    PATCH_FAIL ~test_read_2da _FORMER read %value% when %expected% was expected~
+  END
+END
+
+DEFINE_PATCH_FUNCTION test_read_2da_entries_now#fun_ret
+  INT_VAR
+    r_expected = 3
+  STR_VAR
+    expected = "C4"
+BEGIN
+  LPF test_read_2da_entries_now#fun_ret#inner
+    RET table RET_ARRAY table
+  END
+  PATCH_IF table != r_expected BEGIN
+    PATCH_FAIL ~test_read_2da expected %r_expected% rows but got %table%~
+  END
+  READ_2DA_ENTRY_FORMER table 2 4 value
+  PATCH_IF "%value%" STR_CMP "%expected%" BEGIN
+    PATCH_FAIL ~test_read_2da _FORMER read %value% from function-return when %expected% was expected~
+  END
+END
+
+DEFINE_PATCH_FUNCTION test_read_2da_entries_now#fun_ret#inner
+  INT_VAR
+    rcols = 5
+  RET
+    table
+  RET_ARRAY
+    table
+BEGIN
+  READ_2DA_ENTRIES_NOW table rcols
+END
+
+DEFINE_PATCH_FUNCTION test_read_2da_entries_now#oob BEGIN
+  READ_2DA_ENTRIES_NOW table 5
+  PATCH_TRY
+    READ_2DA_ENTRY_FORMER table 2 5 value
+    SET fail = 1
+  WITH
+    DEFAULT
+      SET fail = 0
+  END
+  PATCH_IF fail BEGIN
+    PATCH_FAIL ~test_read_2da _FORMER reading out-of-bounds did not fail~
+  END
+END

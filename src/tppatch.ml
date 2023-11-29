@@ -892,31 +892,36 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         List.iter (fun this_line ->
           let this_line = Str.split many_whitespace_regexp this_line in
           if (List.length this_line) >= req_col then begin
-            j := 0;
-            List.iter ( fun item ->
-              let name = Printf.sprintf "%s_%d_%d" str !i !j in
-              Var.set_string name item;
-              j := !j + 1;) this_line;
-            i := !i + 1;
-          end) lines;
-        let name = Printf.sprintf "%s" str in
-        Var.set_int32 name (Int32.of_int !i);
+            j := 0 ;
+            List.iter (fun item ->
+              let i_pe = PE_LiteralString (string_of_int !i) in
+              let j_pe = PE_LiteralString (string_of_int !j) in
+              let args = i_pe :: j_pe :: [] in
+              let exp = PE_Dollars((PE_LiteralString str),args,false,true) in
+              Var.set_string (eval_pe_str exp) item ;
+              incr j) this_line ; incr i
+          end) lines ;
+        Var.set_int32 str (Int32.of_int !i) ;
         buff
 
     | TP_Read2DAFormer(str, row, col, var) ->
-          let row = Int32.to_int (eval_pe buff game row) in
-          let col = Int32.to_int (eval_pe buff game col) in
-          let str = Var.get_string str in
-          let str = Printf.sprintf "%%%s_%d_%d%%" str row col in
-          begin
-            try
-              Var.set_string var (Var.get_string_exact str);
-            with Not_found ->
-              let msg = Printf.sprintf
-                  "ERROR: READ_2DA_ENTRY_FORMER failed on variable %s" str in
-              failwith msg;
-          end ;
-          buff
+        let row = PE_LiteralString (string_of_int
+                                      (Int32.to_int (eval_pe buff game row))) in
+        let col = PE_LiteralString (string_of_int
+                                      (Int32.to_int (eval_pe buff game col))) in
+        let args = row :: col :: [] in
+        let str = PE_LiteralString (Var.get_string str) in
+        let exp = PE_Dollars(str,args,false,false) in
+        let str = "%" ^ (eval_pe_str exp) ^ "%" in
+        begin
+          try
+            Var.set_string var (Var.get_string_exact str) ;
+          with Not_found ->
+            let msg = Printf.sprintf
+                "ERROR: READ_2DA_ENTRY_FORMER failed on variable %s" str in
+            failwith msg
+        end ;
+        buff
 
     | TP_PatchInsert2DARow(row,req_col,value) ->
         let row = Int32.to_int (eval_pe buff game row) in
