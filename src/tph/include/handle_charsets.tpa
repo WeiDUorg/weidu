@@ -75,6 +75,11 @@ BEGIN
       OUTER_SPRINT charset "CP1252"
     END
 
+    ".*brazilian.*" ".*portuguese?.*" ".*pt_BR.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
     DEFAULT
       FAIL "ERROR: charset could not be inferred for language %language%"
   END
