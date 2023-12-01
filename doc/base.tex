@@ -3169,12 +3169,15 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
       loaded, the \ttref{D} and \ttref{BAF} files are compiled. Any
       \ttref{DLG}s or \ttref{BCS}s they create or modify are placed in the
       \t{override} directory.  \\
-  or & \DEFINE{CLEAR!MEMORY} & removes all variables from the memory, then
-      reloads the automatic ones (\ttref{TP2!AUTHOR}, \ttref{TP2!FILE!NAME}, \ttref{TP2!BASE!NAME},
-      \ttref{MOD!FOLDER}, \ttref{LANGUAGE}, \ttref{WEIDU!ARCH},
-      \ttref{WEIDU!OS}, \ttref{COMPONENT!NUMBER}, all numeric constants such as \t{NAME1}, the soundsets, or
-      \t{SCRIPT!OVERRIDE}). \ttref{INTERACTIVE} is automatically set when you call the
-      next component. \emph{Do not use this feature without a real reason.} \\
+  or & \DEFINE{CLEAR!MEMORY} & removes all variables from the memory,
+      then reloads the automatic ones (\ttref{TP2!AUTHOR},
+      \ttref{TP2!FILE!NAME}, \ttref{TP2!BASE!NAME}, \ttref{MOD!FOLDER},
+      \ttref{LANGUAGE}, \ttref{WEIDU!VER}, \ttref{WEIDU!ARCH},
+      \ttref{WEIDU!OS}, \ttref{COMPONENT!NUMBER}, all numeric constants
+      such as \t{NAME1}, the soundsets, or
+      \t{SCRIPT!OVERRIDE}). \ttref{INTERACTIVE} is automatically set when
+      you call the next component. \emph{Do not use this feature without a
+      real reason.} \\
   or & \DEFINE{CLEAR!ARRAYS} & removes the names and contents of all arrays
       from the memory (while still keeping their values). \\
   or & \DEFINE{CLEAR!CODES} & Removes all loaded functions and macros from the
@@ -5774,6 +5777,10 @@ PATCH_PRINT "y is %y% ; z is %z%"
 or & \verb+$array(index list)+ &
     The so-called \emph{array construct}. See the \ahrefloc{sec-array-construct}{tutorial}.
 \\
+
+or & \t{\%}\DEFINE{WEIDU!VER}\t{\%} & The special variable
+\t{WEIDU!VER} is set at start-up to the 5-digit version-number of the
+currently running WeiDU binary. \\
 
 or & \t{\%}\DEFINE{WEIDU!ARCH}\t{\%} & The special variable \t{WEIDU!ARCH}
 is set to either \t{"x86"}, \t{"amd64"} or \t{"mac"} at WeiDU startup and can be used to
