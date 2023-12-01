@@ -59,9 +59,10 @@ let rec assoc3 x l =
 
 let good_terminal_p =
   let term = try Sys.getenv "TERM" with _ -> "" in
-  let xterm = Str.regexp_string "xterm" in
+  let list = [ "xterm" ; "st" ; "konsole" ; "rxvt" ; "kitty" ; "gnome" ;
+               "alacritty" ] in
   (try
-    let _ = Str.search_forward xterm term 0 in
+    let _ = Str.search_forward (Str.regexp (String.concat "\\|" list)) term 0 in
     true
   with Not_found -> false)
 
