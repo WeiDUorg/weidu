@@ -10524,7 +10524,7 @@ The following constructs are recognized:
    [..]   character set; ranges are denoted with -, as in [a-z];
           an initial ^, as in [^0-9], complements the set
    ^      matches at beginning of line
-   $      matches at end of line
+   $      matches at end of line, specifically %LNL%, /n, LF, 0x0A
    \|     (infix) alternative between two expressions
    \(..\) grouping and naming of the enclosed expression
    \1     the text matched by the first \(...\) expression
