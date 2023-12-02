@@ -421,6 +421,8 @@ nonterm(Tp.tp_action) Tp_Action {
        [ Tp.TP_GetFileArray(e1,e2,e3,false) ]
   -> GET_DIRECTORY_ARRAY e1:Patch_String_Left e2:Patch_String_Right e3:Patch_String_Right
        [ Tp.TP_GetFileArray(e1,e2,e3,true) ]
+  -> GET_RESOURCE_ARRAY e1:Patch_String_Right e2:Patch_String_Right
+       [ Tp.TP_GetResourceArray(e1,e2) ]
   -> DEFINE_ACTION_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Action_List END
        [ Tp.TP_Define_Action_Macro(e1,e2,e3) ]
   -> DEFINE_PATCH_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Patch_List END

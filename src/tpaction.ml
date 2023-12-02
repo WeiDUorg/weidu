@@ -1553,6 +1553,19 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           with End_of_file -> Unix.closedir dh
       end
 
+      | TP_GetResourceArray(array_name,pattern) ->
+          let regxp = Str.regexp_case_fold (Var.get_string
+                                              (eval_pe_str pattern )) in
+          let matches = List.stable_sort compare (List.filter (fun res ->
+            Str.string_match regxp res 0) (Key.list_of_key_resources
+                                             game.Load.key true)) in
+          ignore (List.iteri (fun i res ->
+            Var.set_string
+              (eval_pe_str
+                 (PE_Dollars(array_name,[get_pe_string(string_of_int i)],
+                             false,true)))
+              res) matches)
+
       | TP_Mkdir(str_l) -> begin
           let str_l = List.map (fun x -> Arch.backslash_to_slash x) str_l in
           let numdir = List.length str_l in

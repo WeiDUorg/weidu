@@ -172,6 +172,7 @@ and tp_action =
   | TP_Load_Tra of string list
   | TP_Inlined_File of (string * string)
   | TP_GetFileArray of tp_pe_string * tp_pe_string * tp_pe_string * bool
+  | TP_GetResourceArray of tp_pe_string * tp_pe_string
   | TP_Define_Action_Macro of string * tp_local_declaration list * tp_action list
   | TP_Define_Patch_Macro of string * tp_local_declaration list * tp_patch list
   | TP_Define_Patch_Function of string * (tp_pe_string * tp_patchexp) list *

@@ -3853,9 +3853,19 @@ or & \DEFINE{ACTION!SORT!ARRAY!INDICES} \t{\ttref{String}}
   variables and you can use the array construct.\\
 
 or & \DEFINE{GET!FILE!ARRAY} \ttref{String} path \ttref{regexp} &
-  The array \verb+$string(0)+, \verb+$string{1}+ etc is set to the file names, including path, that match regexp in path. The path is relative to the installation directory (e.g. save/000000000-Auto-Save).\\
+  The array \verb+$string(0)+, \verb+$string(1)+ etc is set to the file names, including path, that match regexp in path. The path is relative to the installation directory (e.g. save/000000000-Auto-Save).\\
 or & \DEFINE{GET!DIRECTORY!ARRAY} \ttref{String} path \ttref{regexp} &
   Like \ttref{GET!FILE!ARRAY} except regexp is matched against directories instead of files.\\
+
+or & \DEFINE{GET!RESOURCE!ARRAY} \ttref{String} \ttref{regexp} &
+
+  The array \verb+$String(0)+, \verb+$String(1)+ etc is set to a
+  sorted list of resource references that match the regexp
+  case-insensitively. Resource references are all biffed files as well
+  as those existing in the \t{override/} directory. The result does
+  not include any file paths. Both the string and the regexp are
+  evaluated for variables and the array construct. \\
+
 or & \DEFINE{ACTION!DEFINE!ASSOCIATIVE!ARRAY} \t{\ttref{String} BEGIN key1 \Ob , key2 ... \Oe => result1} \Slist \t{END} &
   Sets the array \verb+$string+, indexed by the keys, to the corresponding results. The results can either be \ttref{String}s or \ttref{value}s.
   Example:

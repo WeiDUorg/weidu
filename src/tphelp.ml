@@ -227,6 +227,7 @@ let action_to_str a = match a with
 | TP_Action_ReadLN _ -> "ACTION_READLN"
 | TP_GetFileArray(_,_,_,false) -> "GET_FILE_ARRAY"
 | TP_GetFileArray(_,_,_,true) -> "GET_DIRECTORY_ARRAY"
+| TP_GetResourceArray(_,_) -> "GET_RESOURCE_ARRAY"
 | TP_DecompressBiff _ -> "DECOMPRESS_BIFF"
 | TP_ActionToLower _ -> "ACTION_TO_LOWER"
 | TP_ActionToUpper _ -> "ACTION_TO_UPPER"

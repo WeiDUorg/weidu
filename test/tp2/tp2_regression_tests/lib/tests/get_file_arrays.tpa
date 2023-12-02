@@ -1,0 +1,71 @@
+DEFINE_ACTION_FUNCTION run
+  RET
+    success
+    message
+BEGIN
+  OUTER_SPRINT message "test_file_arrays"
+  PRINT "%message%"
+  ACTION_TRY
+    LAF test_file_arrays END
+    OUTER_SET success = 1
+  WITH
+    DEFAULT
+      OUTER_SET success = 0
+      OUTER_SPRINT message "tests failed in test_file_arrays: %ERROR_MESSAGE%"
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_file_arrays BEGIN
+  LAF test_file_array END
+  LAF test_dir_array END
+  LAF test_res_array END
+END
+
+DEFINE_ACTION_FUNCTION test_file_array BEGIN
+  OUTER_SPRINT path "%MOD_FOLDER%/resources/file_structure"
+  GET_FILE_ARRAY array "%path%" "fl#.*\.file"
+  OUTER_SPRINT expected "fl#a.file"
+  // for some reason, this array is reversed
+  OUTER_SPRINT found $array(1)
+  ACTION_IF "%found%" STR_CMP "%path%/%expected%" BEGIN
+    FAIL "test_array_file found %found% but %path%/%expected% was expected"
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_dir_array BEGIN
+  OUTER_SPRINT path "%MOD_FOLDER%/resources/file_structure"
+  GET_DIRECTORY_ARRAY array "%path%" "[ab]"
+  OUTER_SPRINT expected "b"
+  // and this one is in alphabetical order
+  OUTER_SPRINT found $array(1)
+  ACTION_IF "%found%" STR_CMP "%path%/%expected%" BEGIN
+    FAIL "test_dir_array found %found% but %path%/%expected% was expected"
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_res_array BEGIN
+  LAF test_res_array#var_eval END
+  LAF test_res_array#array_eval END
+END
+
+DEFINE_ACTION_FUNCTION test_res_array#var_eval BEGIN
+  OUTER_SPRINT array "array"
+  OUTER_SPRINT ext "are"
+  GET_RESOURCE_ARRAY "%array%" ".....1\.%ext%$"
+  OUTER_SPRINT found $"%array%"(0)
+  ACTION_IF EVAL "%found%" STRING_COMPARE_REGEXP ".+\.%ext%$" BEGIN
+    FAIL "test_res_array failed #var_eval test"
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_res_array#array_eval BEGIN
+  OUTER_SPRINT $args(0) "array"
+  OUTER_SPRINT $args(1) ".....1\.%ext%$"
+  OUTER_SPRINT ext "are"
+  GET_RESOURCE_ARRAY $args(0) $args(1)
+  OUTER_SPRINT array $args(0)
+  OUTER_SPRINT found $"%array%"(0)
+  ACTION_IF EVAL "%found%" STRING_COMPARE_REGEXP ".+\.%ext%$" BEGIN
+    FAIL "test_res_array failed #array_eval test"
+  END
+END
