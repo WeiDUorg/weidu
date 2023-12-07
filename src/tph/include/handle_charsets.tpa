@@ -80,6 +80,41 @@ BEGIN
       OUTER_SPRINT charset "CP1252"
     END
 
+    ".*swedish.*" ".*svenska.*" ".*sv_SE.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    ".*dutch.*" ".*nederlands.*" ".*nl_NL.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    ".*latina?.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    ".*faroese.*" ".*foeroyskr.*" ".*fo_FO.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1252"
+    END
+
+    ".*hungarian.*" ".*hu_HU.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1250"
+    END
+
+    ".*turkish.*" ".*tr_TR.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1254"
+    END
+
+    ".*ukrainian.*" ".*uk_UA.*"
+    BEGIN
+      OUTER_SPRINT charset "CP1251"
+    END
+
     DEFAULT
       FAIL "ERROR: charset could not be inferred for language %language%"
   END
