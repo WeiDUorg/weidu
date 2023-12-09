@@ -40,7 +40,7 @@ exception Abort of string
 
 type tp_flag =
   | Version of Dlg.tlk_string
-  | Auto_Tra of string
+  | Auto_Tra of string * string option
   | TP_No_If_Eval of unit
   | Menu_Style of string
   | Ask_Every_Component

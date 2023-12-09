@@ -354,7 +354,7 @@ optional_evaluate :
     ;
 
   tp_flag_list :                  { [] }
-| AUTO_TRA STRING tp_flag_list         { (Tp.Auto_Tra($2)) :: $3 }
+| AUTO_TRA STRING tp_flag_list         { (Tp.Auto_Tra($2,None)) :: $3 }
 | NO_IF_EVAL_BUG tp_flag_list          { Tp.TP_No_If_Eval () :: $2 }
 | MENU_STYLE STRING tp_flag_list       { (Tp.Menu_Style($2)) :: $3 }
 | ASK_EVERY_COMPONENT tp_flag_list     { (Tp.Ask_Every_Component) :: $2 }

@@ -164,7 +164,8 @@ nonterm (Tp.tp_flag list) Tp_Flag_List {
 
 nonterm (Tp.tp_flag) Tp_Flag {
   -> VERSION e1:Lse [ Tp.Version e1 ]
-  -> AUTO_TRA e1:STRING [ Tp.Auto_Tra e1 ]
+  -> AUTO_TRA e1:STRING [ Tp.Auto_Tra (e1,None) ]
+  -> AUTO_TRA e1:STRING e2:STRING [ Tp.Auto_Tra (e1,Some(e2)) ]
   -> NO_IF_EVAL_BUG [ Tp.TP_No_If_Eval () ]
   -> MENU_STYLE e1:STRING [ Tp.Menu_Style e1 ]
   -> ASK_EVERY_COMPONENT [ Tp.Ask_Every_Component ]
