@@ -208,15 +208,23 @@ BEGIN
         RET
           directory = res
       END
-      ACTION_IF verbose BEGIN
+      OUTER_SET convert = 1
+      ACTION_PHP_EACH "%exclude_directories%" AS _ => excl_dir BEGIN
+        ACTION_IF "%directory%" STR_EQ "%excl_dir%" BEGIN
+          OUTER_SET convert = 0
+        END
+      END
+      ACTION_IF convert AND verbose BEGIN
         PRINT "#RECURSE is recursing through %in_path% with out_path: %out_path%/%directory%"
       END
-      LAF fl#HANDLE_CHARSETS#RECURSE
-        STR_VAR
-          in_path
-          out_path = EVAL "%out_path%/%directory%"
-          file_regexp
-          function
+      ACTION_IF convert BEGIN
+        LAF fl#HANDLE_CHARSETS#RECURSE
+          STR_VAR
+            in_path
+            out_path = EVAL "%out_path%/%directory%"
+            file_regexp
+            function
+        END
       END
     END
   END
