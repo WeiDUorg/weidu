@@ -4958,10 +4958,12 @@ or & \DEFINE{COUNT!2DA!COLS} \ttref{variable} &
   \ttref{2DA} file) and stores the result in the variable. \\
 or & \DEFINE{COUNT!REGEXP!INSTANCES} \ttref{optcase} \ttref{optexact} \ttref{regexp}
     \ttref{variable} &
-  This command counts the number of times regexp appears in the current file
-  and stores the result in the variable. Variable substitution is performed
-  on regexp prior to regexp handling (EG, if \verb+%var% = ~abc~+,
-  \verb+~[%var%]~+ is evaluated as \verb+~[abc]~+). \\
+  This command counts the number of times regexp appears in the
+  current file and stores the result in the variable. Variable
+  substitution is performed on regexp prior to regexp handling (EG, if
+  \verb+%var% = ~abc~+, \verb+~[%var%]~+ is evaluated as
+  \verb+~[abc]~+). For legacy reasons, the result is −1 if the file is
+  empty (0 bytes). \\
 
 or & \DEFINE{LOOKUP!IDS!SYMBOL!OF!INT} variable idsFile \ttref{value} &
   The symbolic constant associated with \ttref{value} in idsFile (which may
