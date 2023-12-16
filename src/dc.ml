@@ -152,6 +152,7 @@ let chain_label () =
   Printf.sprintf "!chain_%d" !chain_counter
 
 let available_dlgs = Hashtbl.create 31
+let dlg_names = Hashtbl.create 31
 
 let d_action_list = ref ([] : (string * action) list)
 
@@ -408,12 +409,26 @@ let test_trans out game =
       out (Printf.sprintf  "@%d is #%d\n" id ref)
     end) (List.hd !trans_strings)
 
+let dlg_available name =
+  try
+    Hashtbl.mem available_dlgs (Hashtbl.find dlg_names
+                                  (String.uppercase_ascii name))
+  with Not_found -> false
+
+let get_available_dlg name =
+  Hashtbl.find available_dlgs (Hashtbl.find dlg_names
+                                 (String.uppercase_ascii name))
+
+let add_available_dlg name dlg =
+  Hashtbl.add dlg_names (String.uppercase_ascii name) name ;
+  Hashtbl.add available_dlgs name dlg
+
 exception FoundState of int
 
 let resolve_label (file,label) game =
   try
     let dlg =
-      try Hashtbl.find available_dlgs file
+      try get_available_dlg file
       with _ -> begin
         if Modder.get "MISSING_EXTERN" = Modder.None then () else
         begin
@@ -480,8 +495,8 @@ let resolve_strings game d =
       raise e) d.Dlg.state
 
 let locate_dlg game name =
-  if Hashtbl.mem available_dlgs name then
-    Hashtbl.find available_dlgs name
+  if dlg_available name then
+    get_available_dlg name
   else begin
     let buff, final_path = Load.load_resource "copy_trans" game true name "DLG" in
     let dlg = Dlg.load_dlg name buff in
@@ -489,14 +504,14 @@ let locate_dlg game name =
   end
 
 let make_available for_what game name unsafe =
-  if Hashtbl.mem available_dlgs name then
+  if dlg_available name then
     ()
   else begin
     try
       if unsafe then Load.skip_next_load_error := true ;
       let buff, final_path = Load.load_resource for_what game true name "DLG" in
       let dlg = Dlg.load_dlg name buff in
-      Hashtbl.add available_dlgs name dlg
+      add_available_dlg name dlg
     with e -> begin
       if !debug_ocaml then log_and_print "File %s is missing.\n" name ;
       if not unsafe then raise e;
@@ -505,25 +520,26 @@ let make_available for_what game name unsafe =
 
 let clear_state () =
   d_action_list := [] ;
+  Hashtbl.clear dlg_names ;
   Hashtbl.clear available_dlgs
 
 let preprocess_append_early game a = match a with
 | Append_Early(n,unsafe,sl) ->
     make_available "APPEND_EARLY" game n unsafe ;
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     dlg.Dlg.state <- Array.append dlg.Dlg.state
         (Array.of_list sl)
 | _ -> ()
 
 let preprocess_action1 game a = match a with
 | Create(d) ->
-    if Hashtbl.mem available_dlgs d.Dlg.name then begin
+    if dlg_available d.Dlg.name then begin
       log_and_print "BEGIN %s when %s is already loaded/created\n" d.Dlg.name d.Dlg.name;
       log_and_print "(you should say BEGIN %s exactly once and before APPEND %s, etc.)\n" d.Dlg.name d.Dlg.name ;
       failwith "invalid D file"
     end ;
     log_or_print "Adding %s to internal list of available DLGs\n" d.Dlg.name ;
-    Hashtbl.add available_dlgs d.Dlg.name d
+    add_available_dlg d.Dlg.name d
 | _ -> ()
 
 let action_to_str a = match a with
@@ -594,7 +610,7 @@ let preprocess_action2 game a = match a with
       ci.c3_dialogue
 
 let append_state n state =
-  let dlg = Hashtbl.find available_dlgs n in
+  let dlg = get_available_dlg n in
   dlg.Dlg.state <- Array.append dlg.Dlg.state [| state |]
 
 let passes d_when str =
@@ -618,7 +634,7 @@ let rec process_action game a = match a with
 | Create(d) -> ()
 
 | Set_Weight(n,s,w) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     let num = resolve_label (n,s) game in
     dlg.Dlg.state.(num).Dlg.state_trigger_weight <- Dlg.Offset(w)
 
@@ -646,11 +662,11 @@ let rec process_action game a = match a with
             if ans then make_available (action_to_str a) game b false;
             ans)
       in
-      List.iter (fun n -> process (Hashtbl.find available_dlgs
+      List.iter (fun n -> process (get_available_dlg
                                      (fst (split_resref n)))) matches
     end else
       List.iter (fun n ->
-        let dlg = Hashtbl.find available_dlgs n in
+        let dlg = get_available_dlg n in
         process dlg) nl
 
 | Replace_Trigger_Text(n,s_from,s_to,use_regexp,d_when) ->
@@ -681,18 +697,18 @@ let rec process_action game a = match a with
             if ans then make_available (action_to_str a) game b false;
             ans)
       in
-      List.iter (fun n -> process (Hashtbl.find available_dlgs
+      List.iter (fun n -> process (get_available_dlg
                                      (fst (split_resref n)))) matches
-    end else process (Hashtbl.find available_dlgs n)
+    end else process (get_available_dlg n)
 
 | Append(n,unsafe,sl) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     dlg.Dlg.state <- Array.append dlg.Dlg.state
         (Array.of_list sl)
 | Append_Early(n,unsafe,sl) -> () (* done earlier! *)
 
 | Extend_Top(n,sl,0,tl) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     List.iter (fun s ->
       let num = resolve_label (n,s) game in
       if (num >= 0 && num < Array.length dlg.Dlg.state) then
@@ -704,7 +720,7 @@ let rec process_action game a = match a with
           num (Array.length dlg.Dlg.state)) sl
 
 | Extend_Top(n,sl,place,tl) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     List.iter (fun s ->
       let num = resolve_label (n,s) game in
       if (num >= 0 && num < Array.length dlg.Dlg.state) then begin
@@ -732,7 +748,7 @@ let rec process_action game a = match a with
           num (Array.length dlg.Dlg.state)) sl
 
 | Extend_Bottom(n,sl,0,tl) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     List.iter (fun s ->
       let num = resolve_label (n,s) game in
       if (num >= 0 && num < Array.length dlg.Dlg.state) then
@@ -744,7 +760,7 @@ let rec process_action game a = match a with
           num (Array.length dlg.Dlg.state)) sl
 
 | Extend_Bottom(n,sl,place,tl) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     List.iter (fun s->
       let num = resolve_label (n,s) game in
       if (num >= 0 && num < Array.length dlg.Dlg.state) then begin
@@ -773,12 +789,12 @@ let rec process_action game a = match a with
           num (Array.length dlg.Dlg.state)) sl
 
 | Replace_Say(n,l,s) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     let num = resolve_label (n,l) game in
     dlg.Dlg.state.(num).Dlg.resp_str <- s
 
 | Replace(n,new_s_list) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     let trigger_ord = ref 0 in
     let trigger_unord = ref 0 in
     Array.iteri (fun i s ->
@@ -807,13 +823,13 @@ let rec process_action game a = match a with
         log_or_print "WARNING: REPLACE %d out of range 0-%d\n"
           num (Array.length dlg.Dlg.state)) new_s_list
 | Replace_State_Trigger(n,sl,new_t,d_when) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     List.iter (fun s ->
       let num = resolve_label (n,s) game in
       if passes d_when dlg.Dlg.state.(num).Dlg.state_trigger then
         dlg.Dlg.state.(num).Dlg.state_trigger <- new_t) sl
 | Add_State_Trigger(n,sl,new_t,d_when) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     List.iter (fun s ->
       let num = resolve_label (n,s) game in
       if passes d_when dlg.Dlg.state.(num).Dlg.state_trigger then
@@ -821,7 +837,7 @@ let rec process_action game a = match a with
           dlg.Dlg.state.(num).Dlg.state_trigger) sl
 
 | Add_Trans_Action(n,state_labels,transition_indices,action_text,d_when) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     List.iter (fun state_label ->
       let num = resolve_label (n,state_label) game in
       let do_it trans =
@@ -842,7 +858,7 @@ let rec process_action game a = match a with
                 end) lst) state_labels;
 
 | Alter_Trans(n,state_labels,transition_indices,changes) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     List.iter (fun state_label ->
       let num = resolve_label (n,state_label) game in
       let do_it trans =
@@ -899,7 +915,7 @@ let rec process_action game a = match a with
                 end) lst) state_labels;
 
 | Replace_Trans_Action(n,state_labels,transition_indices,oldt,newt,d_when) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     List.iter (fun state_label ->
       let num = resolve_label (n,state_label) game in
       let do_it trans =
@@ -921,7 +937,7 @@ let rec process_action game a = match a with
                 end) lst) state_labels;
 
 | Replace_Trans_Trigger(n,state_labels,transition_indices,oldt,newt,d_when) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     List.iter (fun state_label ->
       let num = resolve_label (n,state_label) game in
       let do_it trans =
@@ -943,7 +959,7 @@ let rec process_action game a = match a with
                 end) lst) state_labels;
 
 | Add_Trans_Trigger(n,sl,new_t,t_list,d_when) ->
-    let dlg = Hashtbl.find available_dlgs n in
+    let dlg = get_available_dlg n in
     List.iter (fun s ->
       let num = resolve_label (n,s) game in
       let do_it trans =
