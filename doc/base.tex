@@ -9040,6 +9040,10 @@ This is an ACTION macro.
 \item SET \verb+overwrite+ to 2 if you want new soundset to overwrite the old one completely. Set it to 1 if you want to overwrite old string references only with non-empty new references (may keep some old). Set it to 0 it you want to overwrite only empty old references with new ones.
 \end{itemize}
 
+\verb+FL#FJ_CRE_VALIDITY+: This function is a wrapper around
+\verb+FJ_CRE_VALIDITY+ and allows you to use the conventional function
+interface together with \ttref{MODDER} \verb+fun_args+.
+
 \verb+FJ_CRE_VALIDITY+: Checks whether a CRE file is well-formed or not, fixes some common bugs, and reports whether the CRE file is still broken or not. In particular:
 \begin{itemize}
 \item reports invalidity if it is charbase.cre, shorter than the minimum size, the signature mismatches, or a sub-structure has members and its offset is in the header.
@@ -9054,6 +9058,10 @@ This is a PATCH function.
 \item INT_VAR \verb+do_eff+ to 0 if you don't want EFFv1 <-> EFFv2 conversion to be applied. Defaults to 1.
 \item RET \verb+valid+ returns 1 if the CRE is well-formed, 0 otherwise.
 \end{itemize}
+
+\verb+FL#FJ_CRE_REINDEX+: This function is a wrapper around
+\verb+FJ_CRE_REINDEX+ and allows you to use the conventional function
+interface together with \ttref{MODDER} \verb+fun_args+.
 
 \verb+FJ_CRE_REINDEX+: reorders creatures with nonstandard offset orders. Called by FJ_CRE_VALIDITY automatically if relevant.\\\\
 This is a PATCH function.

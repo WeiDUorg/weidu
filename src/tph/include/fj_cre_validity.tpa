@@ -1,3 +1,22 @@
+DEFINE_PATCH_FUNCTION ~FL#FJ_CRE_VALIDITY~
+  INT_VAR
+    do_message = 0
+    do_reindex = 1
+    do_eff = 1
+  RET
+    valid
+BEGIN
+  LPF ~FJ_CRE_VALIDITY~ RET valid END
+END
+
+DEFINE_PATCH_FUNCTION ~FL#FJ_CRE_REINDEX~
+  INT_VAR
+    do_reindex = 1
+    do_eff = 1
+BEGIN
+  LPF ~FJ_CRE_REINDEX~ END
+END
+
 DEFINE_PATCH_FUNCTION ~FJ_CRE_VALIDITY~ RET valid BEGIN
   SET do_message = IS_AN_INT do_message ? do_message : 0
   SPRINT m1 ~is corrupt~
