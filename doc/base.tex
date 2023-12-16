@@ -7943,7 +7943,11 @@ near the beta status).
      \end{itemize}
 \item overwriting_file: you are writing to a file that exists (physically and/or in biffs).
 \item fun_args: functions are launched with \verb+INT_VAR+s or \verb+STR_VAR+s
-  that and not included in the function's definition.
+  that and not included in the function's definition. Note that some functions
+  want arrays passed to them variable by variable and MODDER will flag these
+  variables as not part of the function definition (because they aren't). You
+  can get around it by declaring the variables with e.g., \ttref{OUTER!SET},
+  optionally inside a variable scope, e.g., \ttref{PATCH!WITH!SCOPE}.
 \end{itemize}
 
 An important note: if a tp2 sets MODDER, the debugging mode might propagate to
