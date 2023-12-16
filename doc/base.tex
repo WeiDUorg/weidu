@@ -9672,6 +9672,7 @@ If the decompression utility cannot be found, the user is warned that the audio 
 
 \begin{itemize}
 \item INT_VAR \verb+music+ if this variable is not 0 and the game is BG:EE, the audio files are given the extension .acm instead of .wav. This variable has no effect if the game is not BG:EE. By default its value is 0.
+\item INT_VAR \verb+quiet+ if this variable is 1, the function will suppress output from oggdec and sox. By default this is 0.
 \item STR_VAR \verb+audio_path+ to the path your .ogg files are stored in. By default this variable is \verb+~%MOD_FOLDER%/audio~+.
 \item STR_VAR \verb+oggdec_path+ to the path oggdec is located in. By default this variable is \verb+~%audio_path%~+.
 \item STR_VAR \verb+sox_path+ to the path SoX is located in. By default this variable is \verb+~%audio_path%~+.

@@ -1,6 +1,7 @@
 DEFINE_ACTION_FUNCTION HANDLE_AUDIO
   INT_VAR
     music = 0
+    quiet = 0
   STR_VAR
     audio_path = EVAL "%MOD_FOLDER%/audio"
     oggdec_path = EVAL "%audio_path%"
@@ -17,10 +18,13 @@ BEGIN
       win32
       BEGIN
         ACTION_IF FILE_EXISTS "%oggdec_path%/oggdec.exe" BEGIN
+          ACTION_IF quiet BEGIN
+            OUTER_SPRINT cli_quiet "2>NUL" // old oggdec does not have -Q
+          END ELSE OUTER_SPRINT cli_quiet ""
           ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
             OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
             COPY ~.../fl#inlined/null.file~ ~%wavfile%~
-            AT_NOW ~%oggdec_path%/oggdec.exe "%BASH_FOR_FILESPEC%"~
+            AT_NOW ~%oggdec_path%/oggdec.exe "%BASH_FOR_FILESPEC%" %cli_quiet%~
             MOVE ~%wavfile%~ ~%output_path%~
           END
         END ELSE BEGIN
@@ -31,11 +35,14 @@ BEGIN
       osx
       BEGIN
         ACTION_IF FILE_EXISTS ~%sox_path%/sox~ BEGIN
+          ACTION_IF quiet BEGIN
+            OUTER_SPRINT cli_quiet "-q" // can't actually run mac sox to verify
+          END ELSE OUTER_SPRINT cli_quiet ""
           AT_NOW ~chmod +x '%sox_path%/sox'~
           ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
             OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
             COPY ~.../fl#inlined/null.file~ ~%wavfile%~
-            AT_NOW ~'%sox_path%/sox' '%BASH_FOR_FILESPEC%' '%wavfile%'~
+            AT_NOW ~'%sox_path%/sox' %cli_quiet% '%BASH_FOR_FILESPEC%' '%wavfile%'~
             MOVE ~%wavfile%~ ~%output_path%~
           END
         END ELSE BEGIN
@@ -46,10 +53,13 @@ BEGIN
       unix
       BEGIN
         OUTER_SET installed = 1
+        ACTION_IF quiet BEGIN
+          OUTER_SPRINT cli_quiet "2>/dev/null" // because Case_ins breaks -Q
+        END ELSE OUTER_SPRINT cli_quiet ""
         ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
           OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
           COPY ~.../fl#inlined/null.file~ ~%wavfile%~
-          AT_NOW ~oggdec '%BASH_FOR_FILESPEC%'~
+          AT_NOW ~oggdec '%BASH_FOR_FILESPEC%' %cli_quiet%~
           ACTION_IF FILE_EXISTS ~%wavfile%~ AND !FILE_SIZE ~%wavfile%~ 0 BEGIN
             MOVE ~%wavfile%~ ~%output_path%~
           END ELSE OUTER_SET installed = 0
