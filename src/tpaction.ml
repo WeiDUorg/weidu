@@ -1652,9 +1652,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                     let d_base,_ = split_resref (Case_ins.filename_basename d) in
                     let tra_file = path ^ "/" ^ d_base ^ ".TRA" in
                     let sub_file = sub_path ^ "/" ^ d_base ^ ".TRA" in
+                    handle_tra_filename tra_file ;
                     if Load.eep () && file_exists sub_file then
-                      handle_tra_filename sub_file
-                    else handle_tra_filename tra_file
+                      handle_tra_filename sub_file ;
                 | _ -> ()) tp.flags ;
               if !Dc.notChanged then
                 Modder.handle_msg "SETUP_TRA"
@@ -2031,9 +2031,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 let d_base,_ = split_resref (Case_ins.filename_basename src) in
                 let tra_file = path ^ "/" ^ d_base ^ ".TRA" in
                 let sub_file = sub_path ^ "/" ^ d_base ^ ".TRA" in
+                handle_tra_filename tra_file ;
                 if Load.eep () && file_exists sub_file then
-                  handle_tra_filename sub_file
-                else handle_tra_filename tra_file
+                  handle_tra_filename sub_file ;
             | _ -> ())) tp.flags ;
 
           resolve_tra_paths_and_load !our_lang tra_l ;
