@@ -2020,9 +2020,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 let d_base,_ = split_resref (Case_ins.filename_basename src) in
                 let tra_file = tra_file_dir ^ "/" ^ d_base ^ ".TRA" in
                 let sub_file = tra_file_subdir ^ "/" ^ d_base ^ ".TRA" in
+                handle_tra_filename tra_file ;
                 if Load.eep () && file_exists sub_file then
-                  handle_tra_filename sub_file
-                else handle_tra_filename tra_file ;
+                  handle_tra_filename sub_file ;
             | Auto_Tra(path,sub),None ->
                 let path = Var.get_string path in
                 let sub_path = Var.get_string (path ^ (match sub with
