@@ -2800,7 +2800,10 @@ global option to your \ttref{TP2} file. \\
        evaluated when the action is processed. If a subdirectory is
        provided, any matching \t{TRA} file in this directory is loaded
        after the corresponding \t{TRA} file in the normal directory on
-       EE-type games. \\
+       EE-type games. Only the name of the subdirectory itself should
+       be given. If foo is your mod folder, bar is your \t{TRA} folder
+       and baz is your subdirectory, your \ttref{AUTO!TRA} might look
+       like \verb+AUTO!TRA ~foo/bar~ ~baz~+ \\
 
   or & \DEFINE{ALLOW!MISSING} file \Slist &
        \ttref{ALLOW!MISSING} directive allows you to specify files that can
