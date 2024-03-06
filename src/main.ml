@@ -1501,7 +1501,7 @@ let main () =
     "--list-components-json", Myarg.Tuple [
     Myarg.String (fun s -> list_comp_json := Some s) ;
     Myarg.Int (fun i -> list_comp_lang := i) ;
-  ], "\tX Y lists all components in X using language Y with JSON output EXPERIMENTAL!" ;
+  ], "\tX Y lists all components in X using language Y with JSON output" ;
     "--save-components-name", Myarg.Set save_comp_name, "\trewrites weidu.log, printing every component name";
     "--change-log",Myarg.String (fun s -> change_log := s :: !change_log), "\tgenerates a changelog for the given resource (cumulative)";
     "--change-log-list",Myarg.List (Myarg.String (fun s -> change_log := s :: !change_log)), "\tgenerates a changelog for the given resource (cumulative)";
