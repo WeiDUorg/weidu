@@ -1266,11 +1266,10 @@ let parse_check file kind =
         Dc.ok_to_resolve_strings_while_loading := old_ok ;
         Dc.doing_traify := false ;
     | "BAF" ->
-        let buff = load_file file in
         let old_ok = !Dc.ok_to_resolve_strings_while_loading in
         Dc.ok_to_resolve_strings_while_loading := None ;
         Dc.doing_traify := true ;
-        ignore (Parsewrappers.handle_script_buffer file buff) ;
+        ignore (Parsewrappers.handle_baf_filename file) ;
         Dc.ok_to_resolve_strings_while_loading := old_ok ;
         Dc.doing_traify := false ;
     | "TP2" ->

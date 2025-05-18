@@ -3332,7 +3332,9 @@ P Q R 3
     Guard-values are either \ttref{value}s or literal
     expressions. Values are evaluated, including for variables and the
     array construct, and the result is case-insensitively matched as a
-    \ttref{regexp} against the match-value.
+    \ttref{regexp} against the match-value. Note that regexp-matching
+    requires the match-length to equal the string-length, unlike most
+    other regexp matching in \t{TP2}.
 
     Condition-values must be \ttref{value}s and must evaluate to integers.
 
@@ -5482,23 +5484,25 @@ second value is evaluated and returned, otherwise the third value is
 evaluated and returned.  \\
 
 or & \ttref{String} \DEFINE{STRING!COMPARE} \ttref{String} &
-This is legacy syntax for \ttref{STRING!EQUAL}:
-This expression evaluates to 0 if and only if its two string arguments are
-equal (have the same length and the same contents). Otherwise it will evaluate
-to a negative or positive integer, depending on whether the first string argument
-would sort lexicographically before or after the second string argument.
-\ttref{variable}s within the strings (e.g., ``\t{\%mykit\%}'') are replaced by
-their values. Note that variables that you want expanded \emph{must} be put in \%'s,
-otherwise the raw text will be used.
-You may use \DEFINE{STR!CMP} as a synonym for \ttref{STRING!COMPARE}. This
-function works just like C's \t{strcmp}.
-Note also that \ttref{STRING!EQUAL} and \ttref{STRING!COMPARE} are similar,
-but \ttref{STRING!EQUAL} has more intuitive return values. \\
+This expression evaluates to 0 if and only if its two string arguments
+are equal (have the same length and the same contents). Both strings
+are evaluated for variables and the array construct. Otherwise it will
+evaluate to a negative or positive integer, depending on whether the
+first string argument would sort lexicographically before or after the
+second string argument.  \ttref{variable}s within the strings (e.g.,
+``\t{\%mykit\%}'') are replaced by their values. Note that variables
+that you want expanded \emph{must} be put in \%'s, otherwise the raw
+text will be used.  You may use \DEFINE{STR!CMP} as a synonym for
+\ttref{STRING!COMPARE}. This function works just like C's \t{strcmp}.
+Note also that \ttref{STRING!EQUAL} and \ttref{STRING!COMPARE} are
+similar, but \ttref{STRING!EQUAL} returns logical true, rather than
+false, on a string match. \\
 
 or & \ttref{String} \DEFINE{STRING!COMPARE!CASE} \ttref{String} &
-This is legacy syntax for \ttref{STRING!EQUAL!CASE}:
 As \ttref{STRING!COMPARE}, but the comparison ignores case. That is,
-\t{"ANOMEN"} and \t{"aNoMeN"} are considered equal.\\
+\t{"ANOMEN"} and \t{"aNoMeN"} are considered equal. Note that
+\ttref{STRING!EQUAL!CASE} relates to \t{STRING!COMPARE!CASE} like
+\ttref{STRING!EQUAL} relates to \ttref{STRING!COMPARE}. \\
 
 or & \ttref{String} \DEFINE{STRING!EQUAL} \ttref{String} &
 This expression evaluates to 1 if and only if its two string arguments are
@@ -5507,8 +5511,9 @@ equal (have the same length and the same contents), otherwise it values to 0.
 by their values.
 Note that variables that you want expanded \emph{must} be put in \%'s,
 otherwise the raw text will be used.
-Note also that \ttref{STRING!EQUAL} and \ttref{STRING!COMPARE} are similar,
-but \ttref{STRING!EQUAL} has more intuitive return values. \\
+Note also that \ttref{STRING!EQUAL} and \ttref{STRING!COMPARE} are
+similar, but \ttref{STRING!EQUAL} returns logical true, rather than
+false, on a string match. \\
 
 or & \ttref{String} \DEFINE{STRING!EQUAL!CASE} \ttref{String} &
 As \ttref{STRING!EQUAL}, but the comparison ignores case. That is,
@@ -5516,10 +5521,15 @@ As \ttref{STRING!EQUAL}, but the comparison ignores case. That is,
 \DEFINE{STR!EQ} as a synonym for \ttref{STRING!EQUAL!CASE}.\\
 
 or & \ttref{String} \DEFINE{STRING!MATCHES!REGEXP} \ttref{String} &
-As \ttref{STRING!COMPARE!CASE}, but the second string is treated as a
-\ttref{regexp}. Thus \t{"AR1005" STRING!MATCHES!REGEXP "AR[0-9]+"}
-evaluates to 0 (``no difference''). You may use
-\DEFINE{STRING!COMPARE!REGEXP} as a synonym. \\
+
+Compares a string to a regexp and returns results like
+\ttref{STRING!COMPARE!CASE}. The left-hand string is evaluated for
+variables and the array construct and the right-hand string is treated
+as a \ttref{regexp}. Note that certain regexps, for example
+\verb+~ *~+, can match substrings within the left-hand string. Thus \t{"AR1005"
+STRING!MATCHES!REGEXP "AR[0-9]+"} evaluates to 0 (``no
+  difference''). You may use \DEFINE{STRING!COMPARE!REGEXP} as a
+  synonym. \\
 
 or & \ttref{String} \DEFINE{STRING!CONTAINS!REGEXP} \ttref{String} &
 As \ttref{STRING!MATCHES!REGEXP}, but it evaluates to 0 if the first string
