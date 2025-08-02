@@ -1619,6 +1619,16 @@ let main () =
     "--tlkcmp-to", Myarg.String (fun s -> tlkcmp_dest := Some(s)), "X\t... into this one";
     "--tlkcmp-use-strings", Myarg.Set tlkcmp_strings, "\tmodifies --tlkcmp behavior";
 
+    "", Myarg.Unit (fun a -> a), "\nModder Options:\n" ;
+    "SETUP_TRA", Myarg.Unit (fun a -> a), "\tCan be set to NONE, WARN, FAIL";
+    "AREA_VARIABLES", Myarg.Unit (fun a -> a), "\tCan be set to NONE, WARN, FAIL";
+    "MISSING_EXTERN", Myarg.Unit (fun a -> a), "\tCan be set to NONE, WARN, FAIL";
+    "MISSING_RESREF", Myarg.Unit (fun a -> a), "\tCan be set to NONE, WARN, FAIL";
+    "ICT2_ACTIONS", Myarg.Unit (fun a -> a), "\tCan be set to NONE, WARN, FAIL";
+    "MISSING_EVAL", Myarg.Unit (fun a -> a), "\tCan be set to NONE, WARN, FAIL";
+    "OVERWRITING_FILE", Myarg.Unit (fun a -> a), "\tCan be set to NONE, WARN, FAIL";
+    "FUN_ARGS", Myarg.Unit (fun a -> a), "\tCan be set to NONE, WARN, FAIL";
+
     "", Myarg.Unit (fun a -> a), "\nLog Options:\n" ;
 
     "--log", Myarg.String (fun s -> init_log Version.version s),"X\tlog output and details to X" ;
