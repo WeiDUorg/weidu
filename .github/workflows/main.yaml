@@ -5,31 +5,25 @@ concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
 jobs:
-  build:
-    name: build
-    runs-on: ubuntu-latest
-    container:
-      image: docker.io/ocaml/opam:debian-ocaml-4.08
-      options: --user root
+  build-nix:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: '.#packages.aarch64-darwin'
+            suffix: ''
+          - os: ubuntu-latest
+            target: '.#packages.x86_64-linux'
+            suffix: ''
+    runs-on: ${{ matrix.os }}
     steps:
-      - name: setup env
-        run: |
-          sudo apt-get install -yqqq bison wget flex git cmake
-      - name: build elkhound
-        run: |
-          git clone https://github.com/The-Mod-Elephant/elkhound /home/opam/elkhound
-          cd /home/opam/elkhound
-          mkdir -p ${ELKHOUND_BUILD_DIR}
-          export PATH=/home/opam/.opam/4.08/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-          cmake -Wno-dev -S ${ELKHOUND_SRC_DIR} -B ${ELKHOUND_BUILD_DIR} -D CMAKE_BUILD_TYPE=Release
-          make -C ${ELKHOUND_BUILD_DIR}
-          mv /home/opam/elkhound/build/elkhound/elkhound /usr/bin/.
-        env:
-          ELKHOUND_BUILD_DIR: "build"
-          ELKHOUND_SRC_DIR: "src"
-      - name: build weidu
-        run: |
-          git clone https://github.com/${{ github.repository }} -b ${{ github.head_ref || github.ref_name }} /home/opam/weidu
-          cd /home/opam/weidu
-          mv .github/scripts/Configuration .
-          make
+      - uses: actions/checkout@main
+      - uses: cachix/install-nix-action@master
+        with:
+          nix_path: nixpkgs=channel:nixos-25.05
+      - run: |
+          nix build ${{ matrix.target }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}
+          path: result/bin/weidu

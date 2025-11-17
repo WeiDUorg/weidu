@@ -20,3 +20,7 @@ diffs/*
 .paths
 .settings/
 /Configuration
+.envrc
+.direnv
+result
+
