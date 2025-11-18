@@ -1,0 +1,9 @@
+.dockerignore
+.gitignore
+Dockerfile
+.git
+.github
+Configuration
+obj/
+result
+.direnv
