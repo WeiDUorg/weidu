@@ -33,8 +33,7 @@ else
 	ifeq "$(uname)" "Linux"
 		# (1) X86 / Linux, using GCC as the C Compiler
 		export ARCHOS    = x86_LINUX
-		export OCMAL_BIN = $(shell which ocaml)
-		export OCAMLDIR  = $(shell dirname $(OCMAL_BIN))
+		export OCAMLDIR  = $(shell dirname $(shell which ocaml))
 		export OBJEXT    = o
 		export ARCH_FILE = arch_unix
 		export CASE_FILE = case_ins_linux
@@ -54,8 +53,7 @@ else
 		ifeq "$(uname)" "Darwin"
 			# (2) Mac OS X, using GCC as the C compiler
 			export ARCHOS    = x86_LINUX
-			export OCMAL_BIN = $(shell which ocaml)
-			export OCAMLDIR  = $(shell dirname $(OCMAL_BIN))
+			export OCAMLDIR  = $(shell dirname $(shell which ocaml))
 			export OBJEXT    = o
 			export CASE_FILE = case_ins_mac
 			export GLOB      = glob_unix
