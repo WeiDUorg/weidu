@@ -28,6 +28,7 @@
             # Tools
             nativeBuildInputs = with pkgs; [
               git
+              hadolint
             ];
             # Env
             shellHook = ''
