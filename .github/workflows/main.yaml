@@ -45,3 +45,28 @@ jobs:
           push: false
           cache-from: type=gha
           cache-to: type=gha
+  windows-build:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@main
+      - uses: actions/download-artifact@v5
+        with:
+          name: win-elkhound
+          repository: The-Mod-Elephant/elkhound
+          github-token: ${{ secrets.GH_TOKEN_CROSS_REPO_DOWNLOAD }}
+          run-id: 19432082177
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ocaml-variants.4.14.2+options,ocaml-option-default-unsafe-string
+      - run: |
+          mv elkhound.exe D:/a/weidu/weidu/_opam/bin/elkhound.exe
+          opam switch
+          (& opam env) -split '\r?\n' | ForEach-Object { Invoke-Expression $_ }
+          mv sample.Configuration Configuration
+          make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: weidu.asm.exe
