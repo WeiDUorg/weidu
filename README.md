@@ -63,7 +63,7 @@ nix build '.#packages.x86_64-linux'
 
 - Cygwin-hosted MinGW-GCC, called `mingw-gcc-core`, or some such.
 
-- Elkhound (*vide infra*). For less configuration, place the elkhound binary in Cygwin's `/bin` directory, or equivalent. The buildprocess does not like paths with spaces.
+- Elkhound (*vide infra*). For less configuration, place the elkhound binary in Cygwin's `/bin` directory, or equivalent. The build process does not like paths with spaces.
 
 ### MacOS
 

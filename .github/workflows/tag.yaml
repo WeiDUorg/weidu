@@ -26,6 +26,7 @@ jobs:
         with:
           name: ${{ matrix.os }}
           path: result/bin/
+          if-no-files-found: error
   windows-build:
     runs-on: windows-2022
     steps:
@@ -47,10 +48,15 @@ jobs:
           (& opam env) -split '\r?\n' | ForEach-Object { Invoke-Expression $_ }
           mv sample.Configuration Configuration
           make
-      - uses: actions/upload-artifact@v4
+          make weinstall
+      - name: upload windows artifact
+        uses: actions/upload-artifact@v4
         with:
           name: windows-latest
-          path: weidu.asm.exe
+          path: |
+            weidu.asm.exe
+            weinstall.asm.exe
+          if-no-files-found: error
   release:
     name: release
     permissions:
@@ -78,9 +84,10 @@ jobs:
           mv linux/weidu.asm.exe lin-weidu
           mv macos/weidu.asm.exe mac-weidu
           mv windows/weidu.asm.exe weidu.exe
+          mv windows/weinstall.asm.exe weinstall.exe
       - name: Create Release
         id: create_release
-        uses: ncipollo/release-action@v1.18.0
+        uses: ncipollo/release-action@v1.20.0
         with:
           generateReleaseNotes: true
-          artifacts: "lin-weidu,mac-weidu,weidu.exe"
+          artifacts: "lin-weidu,mac-weidu,weidu.exe,weinstall.exe"
