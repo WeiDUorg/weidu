@@ -59,25 +59,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
-      - uses: actions/download-artifact@main
+      - name: download linux artifact
+        uses: actions/download-artifact@main
         with:
           name: ubuntu-latest
           path: linux
-      - uses: actions/download-artifact@main
+      - name: download mac artifact
+        uses: actions/download-artifact@main
         with:
           name: macos-latest
           path: macos
-      - uses: actions/download-artifact@main
+      - name: download windows artifact
+        uses: actions/download-artifact@main
         with:
           name: windows-latest
           path: windows
       - run: |
           mv linux/weidu.asm.exe lin-weidu
           mv macos/weidu.asm.exe mac-weidu
-          mv windows/weidu.asm.exe win-weidu
+          mv windows/weidu.asm.exe weidu.exe
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1.18.0
         with:
           generateReleaseNotes: true
-          artifacts: "lin-weidu,mac-weidu"
+          artifacts: "lin-weidu,mac-weidu,weidu.exe"

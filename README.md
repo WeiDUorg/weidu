@@ -1,4 +1,11 @@
-# Building WeiDU
+# WeiDU
+[![](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/The-Mod-Elephant/weidu/releases/latest)
+[![](https://img.shields.io/badge/Windows-0078D6?&style=for-the-badge&logoColor=white&logo=git-for-windows)](https://github.com/The-Mod-Elephant/weidu/releases/latest)
+[![](https://img.shields.io/badge/mac%20os-grey?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/The-Mod-Elephant/weidu/releases/latest)
+[![](https://img.shields.io/github/actions/workflow/status/The-Mod-Elephant/weidu/main.yaml?style=for-the-badge)](https://github.com/The-Mod-Elephant/weidu/actions/workflows/main.yaml)
+[![](https://img.shields.io/github/license/The-Mod-Elephant/weidu?style=for-the-badge)](./LICENSE)
+
+## Building weidu
 
 ## Requirements and build environment
 

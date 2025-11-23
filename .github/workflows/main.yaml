@@ -2,7 +2,7 @@ name: main
 on:
   push:
     branches:
-    - main
+    - devel
   pull_request:
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -53,7 +53,8 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@main
-      - uses: actions/download-artifact@v5
+      - name: fetch windows elkhound
+        uses: actions/download-artifact@v5
         with:
           name: win-elkhound
           repository: The-Mod-Elephant/elkhound
@@ -63,13 +64,15 @@ jobs:
         uses: ocaml/setup-ocaml@v3
         with:
           ocaml-compiler: ocaml-variants.4.14.2+options,ocaml-option-default-unsafe-string
-      - run: |
+      - name: build weidu
+        run: |
           mv elkhound.exe D:/a/weidu/weidu/_opam/bin/elkhound.exe
           opam switch
           (& opam env) -split '\r?\n' | ForEach-Object { Invoke-Expression $_ }
           mv sample.Configuration Configuration
           make
-      - uses: actions/upload-artifact@v4
+      - name: upload windows artifact
+        uses: actions/upload-artifact@v4
         with:
           name: windows
           path: weidu.asm.exe
