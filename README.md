@@ -9,103 +9,113 @@
 
 ## Requirements and build environment
 
-The version of OCaml needs to be greater than or equal to 4.04 and
-less than or equal to 4.11, and configured without forced safe
-strings.
+The version of OCaml needs to be greater than or equal to 4.04 and less than or equal to 4.11, and configured without forced safe strings.
 
 ### GNU/Linux
 
-- OCaml with native compilers.
+- OCaml with native compilers. Generally we recommend [opam](https://opam.ocaml.org/) to get started. You'll need to create a switch because weidu uses unsafe strings:
 
-- A basic GCC tool chain with make.
+```sh
+ opam switch create 4.08.1+default-unsafe-string
+```
+
+- A basic GCC tool chain with make. This should come preinstalled on most versions of linux.
 
 - Perl, which is normally installed by default.
 
-- Optionally, also git, hevea, texlive, zip and upx. HeVeA and TexLive
-  are only needed to build the documentation and zip and upx are used
-  in making the distributable archives (upx is optional).
+- Optionally, also git and hevea, texlive. HeVeA and TexLive are only needed to build the documentation.
 
-- Elkhound (*vide infra*). Place the executable on you path and allow
-  Elkhound to be executed as a program, for example, by using the
-  terminal command `chmod +x path/to/elkhound`
+- Elkhound (*vide infra*). Place the executable on you path and allow Elkhound to be executed as a program, for example, by using the terminal command `chmod +x path/to/elkhound`. You can find a pre-built version of elkhound [here](https://github.com/The-Mod-Elephant/elkhound/releases/latest).
+
+### Nix
+
+It is possible to build weidu via, nix. We have included a `flake.nix` file, which will automatically install all the tools and systems required. You will have to enable flakes once you have installed nix. Please note this is not available in windows.
+
+To enable flakes in Nix, you need to add the following line to your configuration file: 
+
+```sh
+experimental-features = nix-command flakes
+```
+
+In either `~/.config/nix/nix.conf` for user-specific settings or `/etc/nix/nix.conf` for system-wide settings. After that, you can use the nix command with flakes features enabled.
+
+#### Build with nix
+
+Building executables (for linux and macos) is very straight forward with nix.
+
+For linux:
+
+```sh
+nix build '.#packages.x86_64-linux'
+```
+
+For macos:
+
+```sh
+nix build '.#packages.x86_64-linux'
+```
 
 ### Windows
 
-- Native OCaml (typically compiled by MinGW), obtained from ocaml.org.
+- Native OCaml (typically compiled by MinGW), obtained from either from ocaml.org or via opam. Again this is tricky due to unsafe strings.
 
-- A Cygwin-based *nix tool chain, particularly `binutils` and `make`
-  from the `Devel` group. Perl is also required but is typically
-  installed by default. Optionally also `git` (Devel), `openssh`
-  (Net), `zip` (Archive) and `upx` (Utils).
+- A Cygwin-based *nix tool chain, particularly `binutils` and `make` from the `Devel` group. Perl is also required but is typically installed by default. Optionally also `git` (Devel).
 
 - Cygwin-hosted MinGW-GCC, called `mingw-gcc-core`, or some such.
 
-- Elkhound (*vide infra*). For less configuration, place the elkhound
-  binary in Cygwin's `/bin` directory, or equivalent. The build
-  process does not like paths with spaces.
+- Elkhound (*vide infra*). For less configuration, place the elkhound binary in Cygwin's `/bin` directory, or equivalent. The buildprocess does not like paths with spaces.
 
 ### MacOS
 
-- Make sure you have Xcode installed. You probably don't need Xcode
-  *per se* but apparently it is the conventional way of obtaining some
-  of the necessary programs (make, gcc, etc.). You may be able to
-  download and install Xcode's command-line tools from [Apple
-  Developer](https://developer.apple.com/downloads/) without having to
-  download and install all of Xcode.
+- Make sure you have Xcode installed. You probably don't need Xcode *per se* but apparently it is the conventional way of obtaining some of the necessary programs (make, gcc, etc.). You may be able to download and install Xcode's command-line tools from [Apple Develper](https://developer.apple.com/downloads/) without having to download and install all of Xcode.
 
-- Install [MacPorts](https://www.macports.org/index.php) or
-  [HomeBrew](http://brew.sh/).
+- Install [HomeBrew](http://brew.sh/) or [MacPorts](https://www.macports.org/index.php) or.
 
 - Install Perl (using MacPorts or HomeBrew, for example).
 
-- Use MacPorts or HomeBrew to install OCaml. Note where OCaml was
-  installed.
+- Use MacPorts or HomeBrew to install OCaml. Note where OCaml was installed.
 
-- Optionally, install UPX. UPX is used to compress the compiled
-  programs, but is not available for all platforms.
-
-- Obtain Elkhound (*vide infra*) and place the executable on your
-  path. Allow Elkhound to be executed as a program, for example, by
-  using the terminal command `chmod +x path/to/elkhound`
+- Obtain Elkhound (*vide infra*) and place the executable on your path. Allow Elkhound to be executed as a program, for example, by using the terminal command `chmod +x path/to/elkhound`
 
 ## Elkhound
 
 The source code and build instructions for Elkhound are available at
-[GitHub](https://github.com/WeiDUorg/elkhound). There are also
-compiled executables for some platforms available under
-[Releases](https://github.com/WeiDUorg/elkhound/releases/latest).
+[GitHub](https://github.com/The-Mod-Elephant/elkhound).
+
+There are also compiled executables for some platforms available under [Releases](https://github.com/The-Mod-Elephant/elkhound).
 
 ## Compiling WeiDU
 
 ### First time compiling
 
-- Obtain WeiDU's source code. The recommended way is by using git:
-  `git clone git://github.com/WeiDUorg/weidu.git your/directory` Bear
-  in mind WeiDU builds distribution packages to the directory one
-  level up from where the source is located.
+- Obtain WeiDU's source code. The recommended way is by using git: `git clone git://github.com/WeiDUorg/weidu.git your/directory` Bear in mind WeiDU builds distribution packages to the directory one level up from where the source is located.
 
-- Enter the directory where you put WeiDU's source code. Copy the file
-  ./sample.Configuration to ./Configuration. Open the file and change
-  the value for `OCAMLDIR` for your platform to the directory in which
-  the OCaml binaries are located.
+- Enter the directory where you put WeiDU's source code. Copy the file:
+```sh
+./sample.Configuration
+```
+to
+```sh
+./Configuration
+```
 
 ### If you have compiled before
 
-- Make sure you have the up-to-date WeiDU source. The recommended way
-  is by using git (from inside the directory where you keep your WeiDU
-  source code): `git pull origin`
+- Make sure you have the up-to-date WeiDU source. The recommended way is by using git (from inside the directory where you keep your WeiDU source code): 
 
-- If the file ./sample.Configuration has been changed, recreate
-  ./Configuration and re-apply any changes you have made to it.
+```sh
+git reset origin/devel --hard
+```
+
+- If the file ./sample.Configuration has been changed, recreate ./Configuration and re-apply any changes you have made to it.
 
 ### Finally
 
-- Check out the branch from which you wish to compile WeiDU. If you
-  are building a stable version, check out the `master` branch. If
-  your are building a beta version, check out the `devel` branch. From
-  inside your WeiDU source directory, you check out the branch with:
-  `git checkout branch`, where branch is the branch you wish to check
-  out.
+- Check out the branch from which you wish to compile WeiDU.
+
+```sh
+git checkout devel
+```
 
 - Run make. Relevant build targets are
  * clean
@@ -117,7 +127,3 @@ compiled executables for some platforms available under
  * linux_zip
  * osx_zip
  * src_zip
-
-The *_zip targets produce an archive in `..` that is suitable for
-distribution. If you are not developing WeiDU, you probably want one
-of windows_zip, linux_zip or osx_zip.
