@@ -26,11 +26,36 @@ jobs:
         with:
           name: ${{ matrix.os }}
           path: result/bin/
+  windows-build:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@main
+      - uses: actions/download-artifact@v5
+        with:
+          name: win-elkhound
+          repository: The-Mod-Elephant/elkhound
+          github-token: ${{ secrets.GH_TOKEN_CROSS_REPO_DOWNLOAD }}
+          run-id: 19432082177
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ocaml-variants.4.14.2+options,ocaml-option-default-unsafe-string
+      - run: |
+          mv elkhound.exe D:/a/weidu/weidu/_opam/bin/elkhound.exe
+          opam switch
+          (& opam env) -split '\r?\n' | ForEach-Object { Invoke-Expression $_ }
+          mv sample.Configuration Configuration
+          make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-latest
+          path: weidu.asm.exe
   release:
     name: release
     permissions:
       contents: write
-    needs: [build-nix]
+    needs: [build-nix, windows-build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
@@ -42,9 +67,14 @@ jobs:
         with:
           name: macos-latest
           path: macos
+      - uses: actions/download-artifact@main
+        with:
+          name: windows-latest
+          path: windows
       - run: |
           mv linux/weidu.asm.exe lin-weidu
           mv macos/weidu.asm.exe mac-weidu
+          mv windows/weidu.asm.exe win-weidu
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1.18.0
