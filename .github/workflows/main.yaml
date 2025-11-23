@@ -30,6 +30,7 @@ jobs:
         with:
           name: ${{ matrix.os }}
           path: result/bin/
+          if-no-files-found: error
   build-docker:
     name: Build Docker Image
     runs-on: ubuntu-latest
@@ -71,8 +72,12 @@ jobs:
           (& opam env) -split '\r?\n' | ForEach-Object { Invoke-Expression $_ }
           mv sample.Configuration Configuration
           make
+          make weinstall
       - name: upload windows artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows
-          path: weidu.asm.exe
+          name: windows-latest
+          path: |
+            weidu.asm.exe
+            weinstall.asm.exe
+          if-no-files-found: error
