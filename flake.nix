@@ -40,7 +40,7 @@
           pkgs = import nixpkgs { inherit system; };
         in pkgs.stdenv.mkDerivation {
           pname = "weidu";
-          version = "1.0";
+          version = "v250";
 
           src = ./.;
 
