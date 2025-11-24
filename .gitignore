@@ -23,4 +23,4 @@ diffs/*
 .envrc
 .direnv
 result
-
+doc/README*

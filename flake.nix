@@ -21,6 +21,7 @@
             buildInputs = with pkgs; [
               elkhound
               gnumake
+              hevea
               ocaml-ng.ocamlPackages_4_14_unsafe_string.ocaml
               perl
               which
@@ -47,6 +48,7 @@
           nativeBuildInputs = with pkgs; [
             elkhound
             gnumake
+            hevea
             ocaml-ng.ocamlPackages_4_14_unsafe_string.ocaml
             perl
             which

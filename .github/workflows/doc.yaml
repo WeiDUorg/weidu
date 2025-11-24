@@ -1,0 +1,41 @@
+name: doc
+on:
+  push:
+    branches:
+    - devel
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - uses: cachix/install-nix-action@master
+        with:
+          nix_path: nixpkgs=channel:nixos-25.05
+      - name: Build static files
+        shell: 'nix develop -c bash -e {0}'
+        run: |
+          make -C doc
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: obj
+
+  # Deployment job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: docs
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
