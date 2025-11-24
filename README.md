@@ -16,7 +16,7 @@ The version of OCaml needs to be greater than or equal to 4.04 and less than or 
 - OCaml with native compilers. Generally we recommend [opam](https://opam.ocaml.org/) to get started. You'll need to create a switch because weidu uses unsafe strings:
 
 ```sh
- opam switch create 4.08.1+default-unsafe-string
+opam switch create 4.08.1+default-unsafe-string
 ```
 
 - A basic GCC tool chain with make. This should come preinstalled on most versions of linux.
@@ -52,12 +52,16 @@ nix build '.#packages.x86_64-linux'
 For macos:
 
 ```sh
-nix build '.#packages.x86_64-linux'
+nix build '.#packages.aarch64-darwin'
 ```
 
 ### Windows
 
-- Native OCaml (typically compiled by MinGW), obtained from either from ocaml.org or via opam. Again this is tricky due to unsafe strings.
+- Native OCaml (typically compiled by MinGW), obtained from either from ocaml.org or via opam. Again this is tricky due to unsafe strings. Builds of OCaml before 4.14 don't exist for opam for 64 bit windows. So the following is required.
+
+```sh
+opam switch create --packages=ocaml-option-default-unsafe-string ocaml-variants.4.14.2+options
+```
 
 - A Cygwin-based *nix tool chain, particularly `binutils` and `make` from the `Devel` group. Perl is also required but is typically installed by default. Optionally also `git` (Devel).
 
@@ -67,13 +71,13 @@ nix build '.#packages.x86_64-linux'
 
 ### MacOS
 
-- Make sure you have Xcode installed. You probably don't need Xcode *per se* but apparently it is the conventional way of obtaining some of the necessary programs (make, gcc, etc.). You may be able to download and install Xcode's command-line tools from [Apple Develper](https://developer.apple.com/downloads/) without having to download and install all of Xcode.
+- OCaml with native compilers. Generally we recommend [opam](https://opam.ocaml.org/) to get started. You'll need to create a switch because weidu uses unsafe strings:
 
-- Install [HomeBrew](http://brew.sh/) or [MacPorts](https://www.macports.org/index.php) or.
+```sh
+opam switch create 4.08.1+default-unsafe-string
+```
 
 - Install Perl (using MacPorts or HomeBrew, for example).
-
-- Use MacPorts or HomeBrew to install OCaml. Note where OCaml was installed.
 
 - Obtain Elkhound (*vide infra*) and place the executable on your path. Allow Elkhound to be executed as a program, for example, by using the terminal command `chmod +x path/to/elkhound`
 
