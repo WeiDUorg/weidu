@@ -81,3 +81,14 @@ jobs:
             weidu.asm.exe
             weinstall.asm.exe
           if-no-files-found: error
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - uses: cachix/install-nix-action@master
+        with:
+          nix_path: nixpkgs=channel:nixos-25.05
+      - name: Build static files
+        shell: 'nix develop -c bash -e {0}'
+        run: |
+          make -C doc
