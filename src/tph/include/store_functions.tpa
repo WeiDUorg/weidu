@@ -161,7 +161,9 @@ BEGIN
 
       PATCH_IF (NOT found) BEGIN
         // Adding new sale entry
-        PATCH_PRINT ~Patching %item_name%.ITM into store...~
+        PATCH_IF !IS_SILENT BEGIN 
+          PATCH_PRINT ~Patching %item_name%.ITM into store...~
+        END   
         LPF ~__A7_EVAL_POSITION~
         INT_VAR
           num_entries = num_sales
@@ -204,7 +206,9 @@ BEGIN
           PATCH_WARN ~ADD_STORE_ITEM_EX: Could not determine item position.  Skipping...~
         END
       END ELSE BEGIN
-        PATCH_PRINT ~%item_name%.ITM is already in the store.  Skipping...~
+        PATCH_IF !IS_SILENT BEGIN 
+          PATCH_PRINT ~%item_name%.ITM is already in the store.  Skipping...~
+        END  
       END
     END
   END
@@ -308,7 +312,9 @@ BEGIN
 
       PATCH_IF (NOT found) BEGIN
         // Adding new drink entry
-        PATCH_PRINT ~Patching drink into store...~
+        PATCH_IF !IS_SILENT BEGIN 
+          PATCH_PRINT ~Patching drink into store...~
+        END  
         LPF ~__A7_EVAL_POSITION~
         INT_VAR
           num_entries = num_drinks
@@ -343,7 +349,9 @@ BEGIN
           PATCH_WARN ~ADD_STORE_DRINK: Could not determine drink position.  Skipping...~
         END
       END ELSE BEGIN
-        PATCH_PRINT ~Drink of same name is already in the store.  Skipping...~
+        PATCH_IF !IS_SILENT BEGIN 
+          PATCH_PRINT ~Drink of same name is already in the store.  Skipping...~
+        END  
       END
     END
   END
@@ -457,7 +465,9 @@ BEGIN
 
       PATCH_IF (NOT found) BEGIN
         // Adding new cure entry
-        PATCH_PRINT ~Patching %spell_name%.SPL into store...~
+        PATCH_IF !IS_SILENT BEGIN 
+          PATCH_PRINT ~Patching %spell_name%.SPL into store...~
+        END  
         LPF ~__A7_EVAL_POSITION~
         INT_VAR
           num_entries = num_cures
@@ -491,7 +501,9 @@ BEGIN
           PATCH_WARN ~ADD_STORE_CURE: Could not determine cure position.  Skipping...~
         END
       END ELSE BEGIN
-        PATCH_PRINT ~%spell_name%.SPL is already in the store.  Skipping...~
+        PATCH_IF !IS_SILENT BEGIN 
+          PATCH_PRINT ~%spell_name%.SPL is already in the store.  Skipping...~
+        END  
       END
     END
   END
@@ -574,7 +586,9 @@ BEGIN
       END
 
       PATCH_IF (index_found < 0) BEGIN
-        PATCH_PRINT ~Patching item category %category% into store...~
+        PATCH_IF !IS_SILENT BEGIN 
+          PATCH_PRINT ~Patching item category %category% into store...~
+        END  
         SET ofs = ofs_purchases + num_purchases * PURCHASE_SIZE
         INSERT_BYTES ofs PURCHASE_SIZE
         WRITE_LONG ofs category
@@ -589,7 +603,9 @@ BEGIN
           skip_offset = 0x2c
         END
       END ELSE BEGIN
-        PATCH_PRINT ~ADD_STORE_PURCHASE: Item category is already in the store.  Skipping...~
+        PATCH_IF !IS_SILENT BEGIN 
+          PATCH_PRINT ~ADD_STORE_PURCHASE: Item category is already in the store.  Skipping...~
+        END  
       END
     END ELSE BEGIN
       PATCH_WARN ~ADD_STORE_PURCHASE: Invalid item category %category%.  Skipping...~

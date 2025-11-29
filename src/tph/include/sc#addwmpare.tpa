@@ -97,7 +97,9 @@ BEGIN
 
   // save games
   ACTION_IF ( "%inclSv%" ) BEGIN
-    PRINT ~Adding wmp area "%strName%"~
+    ACTION_IF !IS_SILENT BEGIN 
+      PRINT ~Adding wmp area "%strName%"~
+    END   
     MKDIR "%SAVE_DIRECTORY%"
     GET_DIRECTORY_ARRAY save "%SAVE_DIRECTORY%" ~~
     LAUNCH_ACTION_FUNCTION ~sc#savepatch~ END
