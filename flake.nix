@@ -30,6 +30,8 @@
             nativeBuildInputs = with pkgs; [
               git
               hadolint
+              ocamlformat_0_26_1
+              ocamlPackages.ocaml-lsp
             ];
             # Env
             shellHook = ''
