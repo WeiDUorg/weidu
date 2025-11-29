@@ -55,12 +55,8 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@main
       - name: fetch windows elkhound
-        uses: actions/download-artifact@v5
-        with:
-          name: win-elkhound
-          repository: The-Mod-Elephant/elkhound
-          github-token: ${{ secrets.GH_TOKEN_CROSS_REPO_DOWNLOAD }}
-          run-id: 19432082177
+        run: |
+          curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.0/elkhound.exe -o elkhound.exe
       - name: Set-up OCaml
         uses: ocaml/setup-ocaml@v3
         with:
