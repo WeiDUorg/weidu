@@ -11,7 +11,7 @@
 
 open BatteriesInit
 open Hashtblinit
-let version = "24900"
+let version = "25000"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
@@ -256,4 +256,5 @@ let version = "24900"
 (* 246 let comment = "Land of Confusion" *)
 (* 247 let comment = "Return of the Warlock" *)
 (* 248 let comment = "Enhammered" *)
-let comment = "Master Doom"
+(* 249 let comment = "Master Doom" *)
+let comment = "Terror Rising"

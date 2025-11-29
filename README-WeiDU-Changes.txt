@@ -1,3 +1,7 @@
+Version 250:
+  * CI for weidu, minor build fixes
+  * Help now print modder options and their settings
+
 Version 249:
   * Auto-update is less chatty than in 248.
   * Fix regression affecting the line-breaking in DLGs. Affected DLGs
