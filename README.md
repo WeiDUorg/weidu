@@ -130,4 +130,19 @@ git checkout devel
  * windows_zip
  * linux_zip
  * osx_zip
- * src_zip
+
+## Using Weidu
+
+### Environment Variables
+
+- `WEIDU_VER` A variable that contains the version of the WeiDU binary (e.g., 25000).
+- `WEIDU_EXECUTABLE` A variable that contains the full path of the current WeiDU binary.
+- `WEIDU_OS` A variable that is set to the users current os (e.g., unix).
+- `WEIDU_ARCH` A variable that is set to the users current cpu architecture (e.g., amd64).
+
+This is handled in [here](src/arch2.ml). And maybe disabled via the:
+
+```ocaml
+ignore (Arch2.associate_these ())
+```
+set in some of the commands.
