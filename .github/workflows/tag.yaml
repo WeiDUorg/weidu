@@ -49,7 +49,7 @@ jobs:
       - name: build weidu
         run: |
           export PATH="$PATH:$PWD/bin"
-          mkdir -p ${{ matrix.build_path }}
+          mkdir -p obj/x86_LINUX
           opam switch
           eval $(opam env)
           mv sample.Configuration Configuration
