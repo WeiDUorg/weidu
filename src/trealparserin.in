@@ -164,8 +164,7 @@ nonterm (Tp.tp_flag list) Tp_Flag_List {
 
 nonterm (Tp.tp_flag) Tp_Flag {
   -> VERSION e1:Lse [ Tp.Version e1 ]
-  -> AUTO_TRA e1:STRING [ Tp.Auto_Tra (e1,None) ]
-  -> AUTO_TRA e1:STRING e2:STRING [ Tp.Auto_Tra (e1,Some(e2)) ]
+  -> AUTO_TRA e1:STRING [ Tp.Auto_Tra e1 ]
   -> NO_IF_EVAL_BUG [ Tp.TP_No_If_Eval () ]
   -> MENU_STYLE e1:STRING [ Tp.Menu_Style e1 ]
   -> ASK_EVERY_COMPONENT [ Tp.Ask_Every_Component ]
@@ -422,10 +421,10 @@ nonterm(Tp.tp_action) Tp_Action {
        [ Tp.TP_GetFileArray(e1,e2,e3,false) ]
   -> GET_DIRECTORY_ARRAY e1:Patch_String_Left e2:Patch_String_Right e3:Patch_String_Right
        [ Tp.TP_GetFileArray(e1,e2,e3,true) ]
-  -> GET_RESOURCE_ARRAY e1:Patch_String_Right e2:Patch_String_Right
-       [ Tp.TP_GetResourceArray(e1,e2) ]
   -> DEFINE_ACTION_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Action_List END
        [ Tp.TP_Define_Action_Macro(e1,e2,e3) ]
+  -> GET_RESOURCE_ARRAY e1:Patch_String_Right e2:Patch_String_Right
+       [ Tp.TP_GetResourceArray(e1,e2) ]
   -> DEFINE_PATCH_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Patch_List END
        [ Tp.TP_Define_Patch_Macro(e1,e2,e3) ]
   -> DEFINE_PATCH_FUNCTION e1:STRING e2:DefineFunctionIntVar e3:DefineFunctionStrVar e4:DefineFunctionRet e5:DefineFunctionRetArray

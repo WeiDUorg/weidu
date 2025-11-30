@@ -66,7 +66,7 @@ jobs:
         uses: actions/checkout@main
       - name: fetch windows elkhound
         run: |
-          curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.0/elkhound.exe -o elkhound.exe
+          curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.0/old-elkhound.exe -o elkhound.exe
       - name: Set-up OCaml
         uses: ocaml/setup-ocaml@v3
         with:

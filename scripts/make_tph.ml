@@ -23,7 +23,7 @@ let inlined_symbol = "builtin_inlined_files" (* inlined files and content to aut
 let includes_symbol = "builtin_definitions" (* inlined files where the builtin definitions are defined *)
 
 let main () =
-  let o = open_out "src/tph.ml" in
+  let o = open_out_bin "src/tph.ml" in
   output_string o "(* DO NOT EDIT, file generated automatically by scripts/make_tph.ml from src/tph/* *)\n";
   Printf.fprintf o "let %s = [" inlined_symbol ;
   let file_define  = Sys.readdir "src/tph/define"  in

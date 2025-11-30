@@ -85,7 +85,7 @@ jobs:
         uses: actions/checkout@main
       - name: fetch windows elkhound
         run: |
-          curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.0/elkhound.exe -o elkhound.exe
+          curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.0/old-elkhound.exe -o elkhound.exe
       - name: Set-up OCaml
         uses: ocaml/setup-ocaml@v3
         with:
@@ -102,6 +102,12 @@ jobs:
         with:
           name: windows-latest
           path: weidu.asm.exe
+          if-no-files-found: error
+      - name: upload windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-source
+          path: src
           if-no-files-found: error
   build-docs:
     runs-on: ubuntu-latest
