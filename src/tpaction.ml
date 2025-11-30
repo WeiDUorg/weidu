@@ -1629,32 +1629,18 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               Dc.push_copy_trans () ;
               List.iter (fun f ->
                 match f,!our_lang with
-                  Auto_Tra(path,sub),Some(l) ->
+                  Auto_Tra(path),Some(l) ->
                     let my_regexp = Str.regexp_string "%s" in
                     let tra_file_dir = Var.get_string
                         (Str.global_replace my_regexp l.lang_dir_name path) in
-
-                    let tra_file_subdir = Var.get_string
-                        (tra_file_dir ^ (match sub with
-                        | Some dir -> Printf.sprintf "/%s" dir
-                        | None -> "")) in
                     let d_base,_ = split_resref (Case_ins.filename_basename d) in
                     let tra_file = tra_file_dir ^ "/" ^ d_base ^ ".TRA" in
-                    let sub_file = tra_file_subdir ^ "/" ^ d_base ^ ".TRA" in
                     handle_tra_filename tra_file ;
-                    if Load.eep () && file_exists sub_file then
-                      handle_tra_filename sub_file ;
-                | Auto_Tra(path,sub),None ->
+                | Auto_Tra(path),None ->
                     let path = Var.get_string path in
-                    let sub_path = Var.get_string (path ^ (match sub with
-                    | Some dir -> Printf.sprintf "/%s" dir
-                    | None -> "")) in
                     let d_base,_ = split_resref (Case_ins.filename_basename d) in
                     let tra_file = path ^ "/" ^ d_base ^ ".TRA" in
-                    let sub_file = sub_path ^ "/" ^ d_base ^ ".TRA" in
-                    handle_tra_filename tra_file ;
-                    if Load.eep () && file_exists sub_file then
-                      handle_tra_filename sub_file ;
+                    handle_tra_filename tra_file
                 | _ -> ()) tp.flags ;
               if !Dc.notChanged then
                 Modder.handle_msg "SETUP_TRA"
@@ -2009,31 +1995,18 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           (* handle AUTO_TRA "solarom/%s" *)
           List.iter (fun f ->
             (match f,!our_lang with
-            | Auto_Tra(path,sub),Some(l) ->
+            | Auto_Tra(path),Some(l) ->
                 let my_regexp = Str.regexp_string "%s" in
                 let tra_file_dir = Var.get_string
                     (Str.global_replace my_regexp l.lang_dir_name path) in
-                let tra_file_subdir = Var.get_string
-                    (tra_file_dir ^ (match sub with
-                    | Some dir -> Printf.sprintf "/%s" dir
-                    | None -> "")) in
                 let d_base,_ = split_resref (Case_ins.filename_basename src) in
                 let tra_file = tra_file_dir ^ "/" ^ d_base ^ ".TRA" in
-                let sub_file = tra_file_subdir ^ "/" ^ d_base ^ ".TRA" in
                 handle_tra_filename tra_file ;
-                if Load.eep () && file_exists sub_file then
-                  handle_tra_filename sub_file ;
-            | Auto_Tra(path,sub),None ->
+            | Auto_Tra(path),None ->
                 let path = Var.get_string path in
-                let sub_path = Var.get_string (path ^ (match sub with
-                | Some dir -> Printf.sprintf "/%s" dir
-                | None -> "")) in
                 let d_base,_ = split_resref (Case_ins.filename_basename src) in
                 let tra_file = path ^ "/" ^ d_base ^ ".TRA" in
-                let sub_file = sub_path ^ "/" ^ d_base ^ ".TRA" in
-                handle_tra_filename tra_file ;
-                if Load.eep () && file_exists sub_file then
-                  handle_tra_filename sub_file ;
+                handle_tra_filename tra_file
             | _ -> ())) tp.flags ;
 
           resolve_tra_paths_and_load !our_lang tra_l ;
@@ -2427,23 +2400,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             | None -> ""
             | Some s -> Var.get_string s) in
 
-            Var.add_local_string "FL#CREATE#TYPE"
-              (eval_pe_str (PE_LiteralString filetype)) ;
-            Var.add_local_string "FL#CREATE#RESREF"
-              (eval_pe_str (PE_LiteralString resref)) ;
-            Var.add_local_string "FL#CREATE#VERSION"
-              (eval_pe_str (PE_LiteralString version)) ;
-
-            let file = resref ^ "." ^ filetype in
-            ignore (Tphelp.set_copy_vars file ("override/" ^ file) (Some "")) ;
+            Var.set_string "FL#CREATE#TYPE" (eval_pe_str (PE_LiteralString filetype));
+            Var.set_string "FL#CREATE#RESREF" (eval_pe_str (PE_LiteralString resref));
+            Var.set_string "FL#CREATE#VERSION" (eval_pe_str (PE_LiteralString version));
 
             process_action tp (TP_Define_Patch_Macro ("FL#CREATE#PATCH_LIST", [], patch_list));
             process_action tp (TP_Include [".../WEIDU_NAMESPACE/fl#create.tpa"]);
             process_action tp (TP_Launch_Action_Macro("FL#CREATE"));
-
-            Var.remove_local "FL#CREATE#TYPE" ;
-            Var.remove_local "FL#CREATE#RESREF" ;
-            Var.remove_local "fl#CREATE#VERSION" ;
           end
 
       | TP_WithTra(tra_list, action_list) ->

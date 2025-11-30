@@ -656,11 +656,15 @@ let is_concat_string ss ids =
   | Load.PST, 0x407Fl (* BitCheck(S:Name*,S:Area*,I:Bit*Bits) *)
   | Load.PST, 0x4081l (* BitCheckExact(S:Name*,S:Area*,I:Bit*Bits) *)
   | Load.PST, 245l (* BitClear(S:Name*,S:Area*,I:Bit*Bits) *)
+  | Load.PST, 141l (* GivePartyGoldGlobal(S:Name*,S:Area *)
+  | Load.PST, 165l (* AddexperiencePartyGlobal(S:Name*,S:Area *)
   | Load.PST, 260l (* GlobalXOR(S:Name*,S:Area*,I:Value *)
   | Load.PST, 0x4080l (* GlobalBAND(S:Name*,S:Area*,I:Value *)
   | Load.PST, 0x4095l (* Xor(S:Name*,S:Area*,I:Value*)
   | Load.PST, 0x409Cl (* StuffGlobalRandom(S:Name*,S:Area*,I:Range*)
   | Load.IWD2, 308l (*SetGlobalTimerOnce(S:Name*,S:Area*,I:Time*GTimes) *)
+  | Load.IWD1, 141l (* GivePartyGoldGlobal(S:Name*,S:Area) *)
+  | Load.IWD1, 165l (* AddexperiencePartyGlobal(S:Name*,S:Area) *)
     -> (1, "")
 
   | Load.IWD2, 306l    (* SetGlobalRandom(S:Name*,S:Area*,I:Min*,I:Max*)
@@ -730,24 +734,6 @@ let split_colon s =
   | l :: r :: rest -> (r,l)
   | _ -> (s,""))
 
-let count_string_args ids =
-  List.fold_left (fun acc elt ->
-    acc + if (elt.arg_kind = Arg_String) then 1 else 0) 0 ids.i_args
-
-let mismatched_string_args_trigger ids t =
-  let string_formal_count = count_string_args ids in
-  (string_formal_count > 0 && t.t_3 = "") ||
-  (string_formal_count > 1 && t.t_4 = "") ||
-  (string_formal_count = 0 && t.t_3 <> "") ||
-  (string_formal_count = 0 && t.t_4 <> "")
-
-let mismatched_string_args_action ids a =
-  let string_formal_count = count_string_args ids in
-  (string_formal_count > 0 && a.a_8 = "") ||
-  (string_formal_count > 1 && a.a_9 = "") ||
-  (string_formal_count = 0 && a.a_8 <> "") ||
-  (string_formal_count = 0 && a.a_9 <> "")
-
 let rec best_ids_of_trigger game c =
   let ids = every_ids_of_int game "TRIGGER" c.trigger_id in
   if ids = [] then begin
@@ -762,12 +748,18 @@ let rec best_ids_of_trigger game c =
         end else begin
           log_and_print "ERROR: cannot resolve trigger 0x%lx\n" c.trigger_id ; raise e
         end)
-    | ids :: tl when mismatched_string_args_trigger ids c ->
-        proc tl
-    | ids :: [] ->
-        ids
     | ids :: tl ->
-        ids
+        let string_formal_count = List.fold_left
+            (fun acc elt  -> acc +
+              if (elt.arg_kind = Arg_String) then 1 else 0) 0 ids.i_args in
+        if (string_formal_count > 0 && c.t_3 = "") ||
+        (string_formal_count > 1 && c.t_4 = "") ||
+        (string_formal_count = 0 && c.t_3 <> "") ||
+        (string_formal_count = 0 && c.t_4 <> "") then
+          proc tl
+        else begin
+          ids
+        end
     in
     proc ids
   end
@@ -786,14 +778,18 @@ let rec best_ids_of_action game a =
         end else begin
           log_and_print "ERROR: cannot resolve action %ld\n" a.action_id ; raise e
         end)
-    (* disambiguates e.g., opcode 7 *)
-    | ids :: tl when mismatched_string_args_action ids a ->
-        proc tl
-    (* no ambiguity -> return *)
-    | ids :: [] ->
-        ids
     | ids :: tl ->
-        ids
+        let string_formal_count = List.fold_left
+            (fun acc elt  -> acc +
+              if (elt.arg_kind = Arg_String) then 1 else 0) 0 ids.i_args in
+        if (string_formal_count > 0 && a.a_8 = "") ||
+        (string_formal_count > 1 && a.a_9 = "") ||
+        (string_formal_count = 0 && a.a_8 <> "") ||
+        (string_formal_count = 0 && a.a_9 <> "") then
+          proc tl
+        else begin
+          ids
+        end
     in
     proc ids
   end

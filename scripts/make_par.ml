@@ -2,7 +2,7 @@ let main () =
   let i = Printf.sprintf "%s/trealparserin.ml" Sys.argv.(1) in
   let o = Printf.sprintf "%s/trealparser.ml" Sys.argv.(1) in
   let i = open_in i in
-  let o = open_out o in
+  let o = open_out_bin o in
   let   gotoTable_reg = Str.regexp " *gotoTable = \\[\\| *(\\* [0-9]* elements \\*)" in
   let actionTable_reg = Str.regexp " *actionTable = \\[\\| *(\\* [0-9]* elements \\*)" in
   try
