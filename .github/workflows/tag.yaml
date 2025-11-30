@@ -122,4 +122,4 @@ jobs:
         uses: ncipollo/release-action@v1.20.0
         with:
           generateReleaseNotes: true
-          artifacts: "lin-weidu,mac-weidu,weidu.exe,weinstall.exe"
+          artifacts: "lin-weidu,mac-weidu,mac-arm-weidu,weidu.exe,weinstall.exe"
