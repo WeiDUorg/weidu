@@ -15,8 +15,8 @@ jobs:
           - os: macos-latest
             target: '.#packages.aarch64-darwin'
             suffix: ''
-          - os: ubuntu-latest
-            target: '.#packages.x86_64-linux'
+          - os: macos-15-intel
+            target: '.#packages.x86_64-darwin'
             suffix: ''
     runs-on: ${{ matrix.os }}
     steps:
@@ -26,10 +26,39 @@ jobs:
           nix_path: nixpkgs=channel:nixos-25.05
       - run: |
           nix build ${{ matrix.target }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@main
         with:
           name: ${{ matrix.os }}
           path: result/bin/
+          if-no-files-found: error
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@main
+      - name: fetch elkhound
+        run: |
+          mkdir -p bin
+          curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.0/lin-elkhound -o bin/elkhound
+          chmod +x bin/elkhound
+          ls -ltrah bin/
+          ./bin/elkhound
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 4.08.1+default-unsafe-string
+      - name: build weidu
+        run: |
+          export PATH="$PATH:$PWD/bin"
+          mkdir -p obj/x86_LINUX
+          opam switch
+          eval $(opam env)
+          mv sample.Configuration Configuration
+          make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-latest
+          path: weidu.asm.exe
           if-no-files-found: error
   build-docker:
     name: Build Docker Image
@@ -68,14 +97,11 @@ jobs:
           (& opam env) -split '\r?\n' | ForEach-Object { Invoke-Expression $_ }
           mv sample.Configuration Configuration
           make
-          make weinstall
       - name: upload windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-latest
-          path: |
-            weidu.asm.exe
-            weinstall.asm.exe
+          path: weidu.asm.exe
           if-no-files-found: error
   build-docs:
     runs-on: ubuntu-latest

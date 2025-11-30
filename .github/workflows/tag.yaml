@@ -3,6 +3,9 @@ on:
   push:
     tags:
       - "*"
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 jobs:
   build-nix:
     strategy:
@@ -11,8 +14,8 @@ jobs:
           - os: macos-latest
             target: '.#packages.aarch64-darwin'
             suffix: ''
-          - os: ubuntu-latest
-            target: '.#packages.x86_64-linux'
+          - os: macos-15-intel
+            target: '.#packages.x86_64-darwin'
             suffix: ''
     runs-on: ${{ matrix.os }}
     steps:
@@ -26,6 +29,35 @@ jobs:
         with:
           name: ${{ matrix.os }}
           path: result/bin/
+          if-no-files-found: error
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@main
+      - name: fetch elkhound
+        run: |
+          mkdir -p bin
+          curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.0/lin-elkhound -o bin/elkhound
+          chmod +x bin/elkhound
+          ls -ltrah bin/
+          ./bin/elkhound
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 4.08.1+default-unsafe-string
+      - name: build weidu
+        run: |
+          export PATH="$PATH:$PWD/bin"
+          mkdir -p ${{ matrix.build_path }}
+          opam switch
+          eval $(opam env)
+          mv sample.Configuration Configuration
+          make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-latest
+          path: weidu.asm.exe
           if-no-files-found: error
   windows-build:
     runs-on: windows-2022
@@ -50,15 +82,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-latest
-          path: |
-            weidu.asm.exe
-            weinstall.asm.exe
+          path: weidu.asm.exe
           if-no-files-found: error
   release:
     name: release
     permissions:
       contents: write
-    needs: [build-nix, windows-build]
+    needs: [build-nix, build-linux, windows-build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
@@ -70,8 +100,13 @@ jobs:
       - name: download mac artifact
         uses: actions/download-artifact@main
         with:
-          name: macos-latest
+          name: macos-15-intel
           path: macos
+      - name: download mac artifact
+        uses: actions/download-artifact@main
+        with:
+          name: macos-latest
+          path: macos-arm
       - name: download windows artifact
         uses: actions/download-artifact@main
         with:
@@ -80,8 +115,8 @@ jobs:
       - run: |
           mv linux/weidu.asm.exe lin-weidu
           mv macos/weidu.asm.exe mac-weidu
+          mv macos-arm/weidu.asm.exe mac-arm-weidu
           mv windows/weidu.asm.exe weidu.exe
-          mv windows/weinstall.asm.exe weinstall.exe
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1.20.0
