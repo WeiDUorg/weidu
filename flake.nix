@@ -32,6 +32,8 @@
               hadolint
               ocamlformat_0_26_1
               ocamlPackages.ocaml-lsp
+              upx
+              zip
             ];
             # Env
             shellHook = ''
@@ -54,6 +56,8 @@
             ocaml-ng.ocamlPackages_4_14_unsafe_string.ocaml
             perl
             which
+            upx
+            zip
           ];
 
           buildInputs = with pkgs; [
@@ -68,10 +72,12 @@
 
           buildPhase = ''
             make
+            make osx_zip
+            make linux_zip
           '';
 
           installPhase = ''
-            mv weidu.asm.exe $out/bin/.
+            mv WeiDU*.zip $out/.
           '';
           enableParallelBuilding = false;
         }
