@@ -29,7 +29,7 @@ jobs:
       - uses: actions/upload-artifact@main
         with:
           name: ${{ matrix.os }}
-          path: result/bin/
+          path: result/WeiDU-Mac*.zip
           if-no-files-found: error
   build-linux:
     runs-on: ubuntu-latest
@@ -55,13 +55,13 @@ jobs:
           eval $(opam env)
           mv sample.Configuration Configuration
           make
+          make linux_zip
       - uses: actions/upload-artifact@v4
         with:
           name: ubuntu-latest
-          path: weidu.asm.exe
+          path: WeiDU-Linux-*.zip
           if-no-files-found: error
   build-docker:
-    name: Build Docker Image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -78,7 +78,7 @@ jobs:
           push: false
           cache-from: type=gha
           cache-to: type=gha
-  windows-build:
+  build-windows:
     runs-on: windows-2022
     steps:
       - name: Checkout the code
@@ -90,6 +90,8 @@ jobs:
         uses: ocaml/setup-ocaml@v3
         with:
           ocaml-compiler: ocaml-variants.4.14.2+options,ocaml-option-default-unsafe-string
+      - name: Set-up Zip and Upx
+        run: choco install upx zip
       - name: build weidu
         run: |
           mv elkhound.exe D:/a/weidu/weidu/_opam/bin/elkhound.exe
@@ -97,17 +99,12 @@ jobs:
           (& opam env) -split '\r?\n' | ForEach-Object { Invoke-Expression $_ }
           mv sample.Configuration Configuration
           make
+          make windows_zip
       - name: upload windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-latest
-          path: weidu.asm.exe
-          if-no-files-found: error
-      - name: upload windows artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-source
-          path: src
+          path: WeiDU-Windows-*.zip
           if-no-files-found: error
   build-docs:
     runs-on: ubuntu-latest

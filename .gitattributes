@@ -1,4 +1,5 @@
 *.2da text eol=lf
+*.bcs binary
 *.baf text eol=lf
 *.c text eol=lf
 *.d text eol=lf

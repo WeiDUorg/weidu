@@ -173,54 +173,54 @@ doc: doc/base.tex
 	$(MAKE) -C doc
 
 windows_zip : weidu weinstall tolower
-	test -d ../WeiDU-Windows || mkdir ../WeiDU-Windows
-	mv -f weid*.exe ../WeiDU-Windows/weidu.exe || true
-	mv -f wein*.exe ../WeiDU-Windows/weinstall.exe || true
-	mv -f tolo*.exe ../WeiDU-Windows/tolower.exe || true
-	strip ../WeiDU-Windows/weidu.exe || true
-	upx --best ../WeiDU-Windows/weidu.exe || echo "No EXE Compression"
-	strip ../WeiDU-Windows/weinstall.exe || true
-	upx --best ../WeiDU-Windows/weinstall.exe || echo "No EXE Compression"
-	strip ../WeiDU-Windows/tolower.exe || true
-	upx --best ../WeiDU-Windows/tolower.exe || echo "No EXE Compression"
-	cp README* ../WeiDU-Windows
-	rm ../WeiDU-Windows/README.md
-	cp COPYING ../WeiDU-Windows
-	cp -r examples ../WeiDU-Windows
-	#cp windows_manifests/*.manifest ../WeiDU-Windows
-	(cd .. ; zip -9r WeiDU-Windows-$(VER).zip WeiDU-Windows)
+	mkdir -p WeiDU-Windows
+	mv -f weid*.exe WeiDU-Windows/weidu.exe || true
+	mv -f wein*.exe WeiDU-Windows/weinstall.exe || true
+	mv -f tolo*.exe WeiDU-Windows/tolower.exe || true
+	strip WeiDU-Windows/weidu.exe || true
+	upx --best WeiDU-Windows/weidu.exe || echo "No EXE Compression"
+	strip WeiDU-Windows/weinstall.exe || true
+	upx --best WeiDU-Windows/weinstall.exe || echo "No EXE Compression"
+	strip WeiDU-Windows/tolower.exe || true
+	upx --best WeiDU-Windows/tolower.exe || echo "No EXE Compression"
+	cp README* WeiDU-Windows
+	rm WeiDU-Windows/README.md
+	cp COPYING WeiDU-Windows
+	cp --preserve=all -r examples WeiDU-Windows
+	#cp windows_manifests/*.manifest WeiDU-Windows
+	zip -9r WeiDU-Windows-$(VER).zip WeiDU-Windows
 src_zip : clean
-	(cd .. ; zip -9r WeiDU-Src-$(VER).zip weidu/* -x weidu/*.exe -x weidu/*.dll -x */.DS_Store; )
+	zip -9r WeiDU-Src-$(VER).zip weidu/* -x weidu/*.exe -x weidu/*.dll -x */.DS_Store;
 linux_zip : weidu weinstall tolower
-	test -d ../WeiDU-Linux || mkdir ../WeiDU-Linux
-	mv weid*$(EXE) ../WeiDU-Linux/weidu || true
-	mv wein*$(EXE) ../WeiDU-Linux/weinstall || true
-	mv tolower$(EXE) ../WeiDU-Linux/tolower || true
-	strip ../WeiDU-Linux/weidu || true
-	upx --best ../WeiDU-Linux/weidu || echo "No EXE Compression"
-	strip ../WeiDU-Linux/weinstall || true
-	upx --best ../WeiDU-Linux/weinstall || echo "No EXE Compression"
-	strip ../WeiDU-Linux/tolower || true
-	upx --best ../WeiDU-Linux/tolower || echo "No EXE Compression"
-	cp README* ../WeiDU-Linux
-	rm ../WeiDU-Linux/README.md
-	cp COPYING ../WeiDU-Linux
-	cp -r examples ../WeiDU-Linux
-	(cd .. ; zip -9r WeiDU-Linux-$(VER).zip WeiDU-Linux )
+	mkdir -p WeiDU-Linux
+	mv weid*$(EXE) WeiDU-Linux/weidu || true
+	mv wein*$(EXE) WeiDU-Linux/weinstall || true
+	mv tolower$(EXE) WeiDU-Linux/tolower || true
+	strip WeiDU-Linux/weidu || true
+	upx --best WeiDU-Linux/weidu || echo "No EXE Compression"
+	strip WeiDU-Linux/weinstall || true
+	upx --best WeiDU-Linux/weinstall || echo "No EXE Compression"
+	strip WeiDU-Linux/tolower || true
+	upx --best WeiDU-Linux/tolower || echo "No EXE Compression"
+	cp README* WeiDU-Linux
+	rm WeiDU-Linux/README.md
+	cp COPYING WeiDU-Linux
+	cp -r examples WeiDU-Linux
+	zip -9r WeiDU-Linux-$(VER).zip WeiDU-Linux
 osx_zip : weidu weinstall
-	test -d ../WeiDU-Mac || mkdir ../WeiDU-Mac
-	mv weid*$(EXE) ../WeiDU-Mac/weidu || true
-	mv wein*$(EXE) ../WeiDU-Mac/weinstall || true
-	strip ../WeiDU-Mac/weidu || true
-	strip ../WeiDU-Mac/weinstall || true
-	upx --best ../WeiDU-Mac/weidu || echo "No EXE Compression"
-	upx --best ../WeiDU-Mac/weinstall || echo "No EXE Compression"
-	cp README* ../WeiDU-Mac
-	rm ../WeiDU-Mac/README.md
-	cp COPYING ../WeiDU-Mac
-	cp -r examples ../WeiDU-Mac
-	#sed -e's/version_plist=.*/version_plist=\"${VERBIG}\"/g'  '../WeiDU-Mac/WeiDU Installer.command' > t
-	#mv t ../WeiDU-Mac/WeiDU\ Installer.command
-	(cd .. ; zip -9r WeiDU-Mac-$(VER).zip WeiDU-Mac -x */.DS_Store )
+	mkdir -p WeiDU-Mac
+	mv weid*$(EXE) WeiDU-Mac/weidu || true
+	mv wein*$(EXE) WeiDU-Mac/weinstall || true
+	strip WeiDU-Mac/weidu || true
+	strip WeiDU-Mac/weinstall || true
+	upx --best WeiDU-Mac/weidu || echo "No EXE Compression"
+	upx --best WeiDU-Mac/weinstall || echo "No EXE Compression"
+	cp README* WeiDU-Mac
+	rm WeiDU-Mac/README.md
+	cp COPYING WeiDU-Mac
+	cp -r examples WeiDU-Mac
+	#sed -e's/version_plist=.*/version_plist=\"${VERBIG}\"/g'  'WeiDU-Mac/WeiDU Installer.command' > t
+	#mv t WeiDU-Mac/WeiDU\ Installer.command
+	zip -9r WeiDU-Mac-$(VER).zip WeiDU-Mac -x */.DS_Store
 
 FORCE:

@@ -28,7 +28,7 @@ jobs:
       - uses: actions/upload-artifact@main
         with:
           name: ${{ matrix.os }}
-          path: result/bin/
+          path: result/WeiDU-Mac*.zip
           if-no-files-found: error
   build-linux:
     runs-on: ubuntu-latest
@@ -54,12 +54,13 @@ jobs:
           eval $(opam env)
           mv sample.Configuration Configuration
           make
+          make linux_zip
       - uses: actions/upload-artifact@v4
         with:
           name: ubuntu-latest
-          path: weidu.asm.exe
+          path: WeiDU-Linux-*.zip
           if-no-files-found: error
-  windows-build:
+  build-windows:
     runs-on: windows-2022
     steps:
       - name: Checkout the code
@@ -71,24 +72,27 @@ jobs:
         uses: ocaml/setup-ocaml@v3
         with:
           ocaml-compiler: ocaml-variants.4.14.2+options,ocaml-option-default-unsafe-string
-      - run: |
+      - name: Set-up Zip and Upx
+        run: choco install upx zip
+      - name: build weidu
+        run: |
           mv elkhound.exe D:/a/weidu/weidu/_opam/bin/elkhound.exe
           opam switch
           (& opam env) -split '\r?\n' | ForEach-Object { Invoke-Expression $_ }
           mv sample.Configuration Configuration
           make
-          make weinstall
+          make windows_zip
       - name: upload windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-latest
-          path: weidu.asm.exe
+          path: WeiDU-Windows-*.zip
           if-no-files-found: error
   release:
     name: release
     permissions:
       contents: write
-    needs: [build-nix, build-linux, windows-build]
+    needs: [build-nix, build-linux, build-windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
@@ -113,13 +117,13 @@ jobs:
           name: windows-latest
           path: windows
       - run: |
-          mv linux/weidu.asm.exe lin-weidu
-          mv macos/weidu.asm.exe mac-weidu
-          mv macos-arm/weidu.asm.exe mac-arm-weidu
-          mv windows/weidu.asm.exe weidu.exe
+          mv linux/. .
+          mv macos/. .
+          mv macos-arm/WeiDU-Mac-250.zip WeiDU-Mac-ARM-250.zip
+          mv windows/. .
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1.20.0
         with:
           generateReleaseNotes: true
-          artifacts: "lin-weidu,mac-weidu,mac-arm-weidu,weidu.exe,weinstall.exe"
+          artifacts: "*zip"

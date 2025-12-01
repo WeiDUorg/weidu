@@ -25,3 +25,7 @@ diffs/*
 result
 doc/README*
 .vscode
+*.zip
+WeiDU-Linux
+WeiDU-Windows
+WeiDU-Mac
