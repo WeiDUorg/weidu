@@ -117,10 +117,10 @@ jobs:
           name: windows-latest
           path: windows
       - run: |
-          mv linux/. .
-          mv macos/. .
+          mv linux/*.zip .
+          mv macos/*.zip .
           mv macos-arm/WeiDU-Mac-250.zip WeiDU-Mac-ARM-250.zip
-          mv windows/. .
+          mv windows/*.zip .
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1.20.0
