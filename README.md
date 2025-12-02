@@ -5,6 +5,8 @@
 [![](https://img.shields.io/github/actions/workflow/status/The-Mod-Elephant/weidu/main.yaml?style=for-the-badge)](https://github.com/The-Mod-Elephant/weidu/actions/workflows/main.yaml)
 [![](https://img.shields.io/github/license/The-Mod-Elephant/weidu?style=for-the-badge)](./LICENSE)
 
+Please note this an unofficial version. Find the old version [here](https://github.com/WeiDUorg/weidu).
+
 ## Building weidu
 
 ## Requirements and build environment
