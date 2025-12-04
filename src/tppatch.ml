@@ -2390,7 +2390,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
     | TP_PatchReadLN(x) ->
         if !interactive then begin
-          let y = read_line ()in
+          let y = read_line_with_bell ()in
           log_only "User answer: \"%s\"\n" y;
           Var.set_string (eval_pe_str x) y;
           readln_strings:= y :: !readln_strings;

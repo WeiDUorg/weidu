@@ -78,6 +78,11 @@ let log_only_modder fmt =
     | Some(o) -> output_string o result ; flush o) in
   Printf.kprintf k fmt
 
+let read_line_with_bell () =
+  print_string "\007";
+  flush stdout;
+  read_line ()
+
 let log_and_print fmt =
   let k result = begin
     if not !be_silent then (output_string stdout result ; flush stdout ) ;
