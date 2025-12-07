@@ -1,0 +1,36 @@
+DEFINE_ACTION_FUNCTION run
+  RET
+    success
+    message
+BEGIN
+  OUTER_SPRINT message "test_merge_arrays"
+  PRINT "%message%"
+  ACTION_TRY
+    LAF test_merge_arrays END
+    OUTER_SET success = 1
+  WITH
+    DEFAULT
+      OUTER_SET success = 0
+      OUTER_SPRINT message "tests failed in test_merge_arrays: %ERROR_MESSAGE%"
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_merge_arrays BEGIN
+  LAF test_merge_array END
+END
+
+DEFINE_ACTION_FUNCTION test_merge_array BEGIN
+  ACTION_DEFINE_ARRAY array1 BEGIN 1 2 3 END
+  ACTION_DEFINE_ARRAY array2 BEGIN 4 5 END
+  MERGEARRAYS array1 array2
+  ACTION_DEFINE_ARRAY expected_arr BEGIN 1 2 3 4 5 END
+
+  OUTER_SET foo = 0
+  ACTION_PHP_EACH array1array2 AS found BEGIN
+    OUTER_SPRINT expected $"%expected_arr%"(foo)
+    ACTION_IF "%found%" STR_CMP "%expected%" BEGIN
+      FAIL "test_array_file found %found% but %expected% was expected"
+    END
+    OUTER_SET foo += 1
+  END
+END

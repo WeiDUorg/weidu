@@ -192,6 +192,12 @@ let clear_arr () =
   Hashtbl.iter (fun a b -> Hashtbl.remove !arrays a) arr_spec ;
   Hashtbl.clear !arrays
 
+let rec merge_arr ((array1 : (string list list)), (array2 : (string list list))) = 
+  match (array1,array2) with
+  | (x::xs), (y::ys) -> (x @ y)::(merge_arr (xs, ys))
+  | [], array2 -> array2
+  | array1, [] -> array1
+
 let assoc name value =
   let value = Int32.of_int value in
   Hashtbl.replace !variables name (Int32 value)

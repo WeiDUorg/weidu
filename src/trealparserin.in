@@ -484,6 +484,7 @@ nonterm(Tp.tp_action) Tp_Action {
   -> OUTER_SNPRINT e1:Patch_Exp e2:Patch_String_Left e3:Dlg_Or_Patch_String_Right [ Tp.TP_Outer_Snprint(e1,e2,e3) ]
   -> ACTION_DEFINE_ASSOCIATIVE_ARRAY e1:Patch_String_Left BEGIN e2:Associative_String_List END
        [ Tp.TP_ActionDefineAssociativeArray(e1,e2) ]
+  -> ACTION_MERGE_ARRAYS e1:Patch_String_Left e2:Patch_String_Right [ Tp.TP_ActionMergeArrays(e1,e2) ]
   -> OUTER_WHILE e1:Patch_Exp BEGIN e2:Tp_Action_List END [ Tp.TP_Outer_While(e1,e2) ]
   -> ACTION_READLN e1:Patch_String_Left [ Tp.TP_Action_ReadLN e1 ]
   -> REQUIRE_FILE e1:STRING e2:Lse [ Tp.TP_Require_File(e1,e2) ]
@@ -1272,6 +1273,7 @@ nonterm (Tp.tp_patch) Tp_Patch {
        [ Tp.TP_PatchDefineArray(e1,e2) ]
   -> DEFINE_ASSOCIATIVE_ARRAY e1:Patch_String_Left BEGIN e2:Associative_String_List END
        [ Tp.TP_DefineAssociativeArray(e1,e2) ]
+  -> MERGE_ARRAYS e1:Patch_String_Left e2:Patch_String_Right [ Tp.TP_MergeArrays(e1,e2) ]
   -> SORT_ARRAY_INDICES e1:Patch_String_Left e2:Array_Indices_Sort_Type
      [Tp.TP_PatchSortArrayIndices(e1,e2) ]
   -> PATCH_FOR_EACH e1:Patch_String_Right IN e2:String_List BEGIN e3:Tp_Patch_List END

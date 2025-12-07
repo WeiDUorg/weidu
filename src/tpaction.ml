@@ -142,6 +142,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_ActionDefineAssociativeArray(arr,vals) ->
           run_patch (TP_DefineAssociativeArray(arr,vals))
 
+      | TP_ActionMergeArrays(arr1, arr2) ->
+        run_patch (TP_MergeArrays(arr1, arr2))
+
       | TP_ActionSortArrayIndices(array,sort_type) ->
           run_patch (TP_PatchSortArrayIndices(array,sort_type))
 

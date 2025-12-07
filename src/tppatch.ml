@@ -707,6 +707,15 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             (Var.get_string (eval_pe_str y));) vals;
         buff
 
+    | TP_MergeArrays(arr1, arr2) ->
+        let (key1,key2) = ((eval_pe_str arr1),(eval_pe_str arr2)) in
+        let key = key1^key2 in
+        let array1 = (try Hashtbl.find !Var.arrays key1 with _ -> []) in
+        let array2 = (try Hashtbl.find !Var.arrays key2 with _ -> []) in
+        let combined = Var.merge_arr(array1, array2) in
+        Hashtbl.add !Var.arrays key combined;
+        buff
+
     | TP_PatchSortArrayIndices(array,sort_type) ->
         let array = Var.get_string (eval_pe_str array) in
         let indices = (try Hashtbl.find !Var.arrays array with _ -> []) in
