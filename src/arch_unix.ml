@@ -40,7 +40,7 @@ let handle_view_command s skip =
     end) [Str.regexp_case_fold "^VIEW[ \t]*" ; Str.regexp_case_fold "^NOTEPAD[ \t]*" ;
           Str.regexp_case_fold "^EXPLORER[ \t]*"];
   if skip && (s <> !result) then result := "";
-  let s = String.lowercase !result in
+  let s = String.lowercase_ascii !result in
   s
 
 let glob str fn = failwith "no globbing support"

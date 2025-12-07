@@ -19,7 +19,7 @@ let process file game min o =
       end
   in
   let _,ext = split_resref file in
-  let ext = String.uppercase ext in
+  let ext = String.uppercase_ascii ext in
   try begin
     match ext with
     | "SPL"

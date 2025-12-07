@@ -12,7 +12,7 @@ let load_log () =
     let result = parse_file true (File Tp.log_name) "parsing .log files"
         (Dparser.log_file Dlexer.initial) in
     Tp.the_log := List.map (fun (a,b,c,d) ->
-      ((String.uppercase a),b,c,d,Tp.Installed)) result
+      ((String.uppercase_ascii a),b,c,d,Tp.Installed)) result
   with e ->
     log_or_print "WARNING: parsing log [%s]: %s\n" Tp.log_name
       (printexc_to_string e) ;
@@ -35,7 +35,7 @@ let compile_baf_filename game filename =
        filename (printexc_to_string e) ; raise e)
 
 let handle_script_buffer filename buffer =
-  match split_resref (String.uppercase filename) with
+  match split_resref (String.uppercase_ascii filename) with
   | _,"BAF" -> parse_file true (String(filename,buffer)) "parsing .baf files"
         (Bafparser.baf_file Baflexer.initial)
   | _,_ -> parse_file true (String(filename,buffer)) "parsing .bcs files"
@@ -197,7 +197,7 @@ Dlg.reprint_trigger := (fun s ->
   ignore_context_error := true ;
   let ans = try
     let lexbuf = lex_init_from_internal_string "" s in
-    let lexbuf = Lexing.from_string (String.copy s) in
+    let lexbuf = Lexing.from_string (Util.copy_string s) in
     let res = Bafparser.trigger_list Baflexer.initial lexbuf in
     let buff = Buffer.create (String.length s) in
     Bcs.print_script_text (Load.the_game()) (Bcs.Save_BCS_Buffer(buff))
