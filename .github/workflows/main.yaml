@@ -160,7 +160,7 @@ jobs:
     name: release
     permissions:
       contents: write
-    needs: [build-nix, build-linux, build-windows]
+    needs: [build-nix, build-macos, build-linux, build-windows]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref_name == 'devel'
     steps:
