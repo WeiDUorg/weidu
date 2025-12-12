@@ -14,10 +14,12 @@ jobs:
         include:
           - os: macos-latest
             target: '.#packages.aarch64-darwin'
-            suffix: ''
           - os: macos-15-intel
             target: '.#packages.x86_64-darwin'
-            suffix: ''
+          - os: ubuntu-24.04
+            target: '.#packages.x86_64-linux'
+          - os: ubuntu-24.04-arm
+            target: '.#packages.aarch64-linux'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@main
@@ -26,10 +28,47 @@ jobs:
           nix_path: nixpkgs=channel:nixos-25.05
       - run: |
           nix build ${{ matrix.target }}
-      - uses: actions/upload-artifact@main
+  build-macos:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            include: /opt/homebrew/opt
+            elkhound_name: mac-arm-elkhound
+          - os: macos-15-intel
+            include: /usr/local/opt
+            elkhound_name: mac-elkhound
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@main
+      - name: fetch elkhound
+        run: |
+          mkdir -p bin
+          curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.2/${{ matrix.elkhound_name }} -o bin/elkhound
+          chmod +x bin/elkhound
+          ./bin/elkhound
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ocaml-variants.4.14.2+options,ocaml-option-default-unsafe-string
+      - name: Set-up Zip and Upx
+        run: |
+          export HOMEBREW_NO_AUTO_UPDATE=1
+          brew install zip upx
+      - name: build weidu
+        run: |
+          export PATH="$PATH:$PWD/bin"
+          mkdir -p obj/x86_LINUX
+          mkdir -p obj/.depend
+          opam switch
+          eval $(opam env)
+          mv sample.Configuration Configuration
+          make
+          make osx_zip
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}
-          path: result/WeiDU-Mac*.zip
+          path: WeiDU-Mac-*.zip
           if-no-files-found: error
   build-linux:
     runs-on: ubuntu-latest
@@ -39,9 +78,8 @@ jobs:
       - name: fetch elkhound
         run: |
           mkdir -p bin
-          curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.0/lin-elkhound -o bin/elkhound
+          curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.2/lin-elkhound -o bin/elkhound
           chmod +x bin/elkhound
-          ls -ltrah bin/
           ./bin/elkhound
       - name: Set-up OCaml
         uses: ocaml/setup-ocaml@v3
@@ -51,6 +89,7 @@ jobs:
         run: |
           export PATH="$PATH:$PWD/bin"
           mkdir -p obj/x86_LINUX
+          mkdir -p obj/.depend
           opam switch
           eval $(opam env)
           mv sample.Configuration Configuration
@@ -85,7 +124,7 @@ jobs:
         uses: actions/checkout@main
       - name: fetch windows elkhound
         run: |
-          curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.0/old-elkhound.exe -o elkhound.exe
+          curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.2/elkhound.exe -o elkhound.exe
       - name: Set-up OCaml
         uses: ocaml/setup-ocaml@v3
         with:
@@ -117,3 +156,45 @@ jobs:
         shell: 'nix develop -c bash -e {0}'
         run: |
           make -C doc
+  release:
+    name: release
+    permissions:
+      contents: write
+    needs: [build-nix, build-linux, build-windows]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref_name == 'devel'
+    steps:
+      - uses: actions/checkout@main
+      - name: download linux artifact
+        uses: actions/download-artifact@main
+        with:
+          name: ubuntu-latest
+          path: linux
+      - name: download mac artifact
+        uses: actions/download-artifact@main
+        with:
+          name: macos-15-intel
+          path: macos
+      - name: download mac artifact
+        uses: actions/download-artifact@main
+        with:
+          name: macos-latest
+          path: macos-arm
+      - name: download windows artifact
+        uses: actions/download-artifact@main
+        with:
+          name: windows-latest
+          path: windows
+      - run: |
+          mv linux/*.zip .
+          mv macos/*.zip .
+          mv macos-arm/WeiDU-Mac-250.zip WeiDU-Mac-ARM-250.zip
+          mv windows/*.zip .
+      - name: Create Release
+        id: create_release
+        uses: ncipollo/release-action@v1.20.0
+        with:
+          generateReleaseNotes: true
+          artifacts: "*zip"
+          prerelease: true
+          name: nightly-${{ github.sha }}

@@ -72,12 +72,10 @@
 
           buildPhase = ''
             make
-            make osx_zip
-            make linux_zip
           '';
 
           installPhase = ''
-            mv WeiDU*.zip $out/.
+            mv weidu* $out/.
           '';
           enableParallelBuilding = false;
         }
