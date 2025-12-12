@@ -1,0 +1,61 @@
+name: release
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        required: true
+        type: string
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+jobs:
+  release:
+    permissions:
+      contents: write
+      actions: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - name: download linux artifact
+        uses: actions/download-artifact@main
+        with:
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          name: ubuntu-latest
+          path: linux
+      - name: download mac artifact
+        uses: actions/download-artifact@main
+        with:
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          name: macos-15-intel
+          path: macos
+      - name: download mac artifact
+        uses: actions/download-artifact@main
+        with:
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          name: macos-latest
+          path: macos-arm
+      - name: download windows artifact
+        uses: actions/download-artifact@main
+        with:
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          name: windows-latest
+          path: windows
+      - name: move zips
+        run: |
+          mv linux/*.zip .
+          mv macos/*.zip .
+          arm=$(ls macos-arm/WeiDU-Mac-*.zip)
+          mv "${arm}" "${arm/WeiDU-Mac-/WeiDU-Mac-ARM-}"
+          mv macos-arm/WeiDU-*.zip .
+          mv windows/*.zip .
+      - name: Create Release
+        id: create_release
+        uses: ncipollo/release-action@v1.20.0
+        with:
+          generateReleaseNotes: true
+          artifacts: "*zip"
+          prerelease: ${{ contains(github.ref_name, 'nightly') }}

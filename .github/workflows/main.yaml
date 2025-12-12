@@ -1,9 +1,6 @@
 name: main
 on:
   push:
-    branches:
-    - devel
-  pull_request:
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
@@ -100,23 +97,6 @@ jobs:
           name: ubuntu-latest
           path: WeiDU-Linux-*.zip
           if-no-files-found: error
-  build-docker:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4.2.2
-        with:
-          fetch-depth: 0
-          submodules: true
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: false
-          cache-from: type=gha
-          cache-to: type=gha
   build-windows:
     runs-on: windows-2022
     steps:
@@ -145,56 +125,62 @@ jobs:
           name: windows-latest
           path: WeiDU-Windows-*.zip
           if-no-files-found: error
-  build-docs:
+  build-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha
+  trigger-nightly-release:
+    needs: [build-nix, build-macos, build-linux, build-windows,build-docker]
+    if: github.ref == 'refs/heads/devel'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
-      - uses: cachix/install-nix-action@master
-        with:
-          nix_path: nixpkgs=channel:nixos-25.05
-      - name: Build static files
-        shell: 'nix develop -c bash -e {0}'
+      - name: generate_version
+        id: generate_version
         run: |
-          make -C doc
-  release:
-    name: release
-    permissions:
-      contents: write
-    needs: [build-nix, build-macos, build-linux, build-windows]
+          major_version=$(grep 'version =' src/version.ml | cut -d'"' -f2 | cut -c-3)
+          minor_version=$(grep 'version =' src/version.ml | cut -d'"' -f2 | cut -c4-)
+          echo "version=${major_version}.${minor_version}" >> "$GITHUB_OUTPUT"
+      - name: create tag
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const short_sha = context.sha.substring(0, 7);
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/v${{ steps.generate_version.outputs.version }}-nightly-${short_sha}`,
+              sha: context.sha,
+            });
+      - name: trigger
+        run: |
+            short_sha=$(git rev-parse --short ${{ github.sha }})
+            ref=$(echo "v${{ steps.generate_version.outputs.version }}-nightly-${short_sha}")
+            echo "${ref}"
+            gh workflow run release.yaml --ref "${ref}" -f run_id=${{ github.run_id }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+  trigger-release:
+    needs: [build-nix, build-macos, build-linux, build-windows,build-docker]
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref_name == 'devel'
     steps:
       - uses: actions/checkout@main
-      - name: download linux artifact
-        uses: actions/download-artifact@main
-        with:
-          name: ubuntu-latest
-          path: linux
-      - name: download mac artifact
-        uses: actions/download-artifact@main
-        with:
-          name: macos-15-intel
-          path: macos
-      - name: download mac artifact
-        uses: actions/download-artifact@main
-        with:
-          name: macos-latest
-          path: macos-arm
-      - name: download windows artifact
-        uses: actions/download-artifact@main
-        with:
-          name: windows-latest
-          path: windows
-      - run: |
-          mv linux/*.zip .
-          mv macos/*.zip .
-          mv macos-arm/WeiDU-Mac-250.zip WeiDU-Mac-ARM-250.zip
-          mv windows/*.zip .
-      - name: Create Release
-        id: create_release
-        uses: ncipollo/release-action@v1.20.0
-        with:
-          generateReleaseNotes: true
-          artifacts: "*zip"
-          prerelease: true
-          name: nightly-${{ github.sha }}
+      - name: trigger
+        run: |
+            gh workflow run release.yaml --ref ${{ github.ref_name }} -f run_id=${{ github.run_id }}
+        env:
+          GH_TOKEN: ${{ github.token }}

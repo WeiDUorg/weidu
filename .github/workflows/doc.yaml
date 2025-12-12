@@ -1,8 +1,6 @@
 name: doc
 on:
   push:
-    branches:
-    - devel
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
@@ -27,9 +25,8 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: obj
-
-  # Deployment job
   deploy:
+    if: startsWith(github.ref, 'refs/tags/') && startsWith(github.ref_name, 'nightly') != true
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
