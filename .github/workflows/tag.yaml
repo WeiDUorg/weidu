@@ -131,7 +131,7 @@ jobs:
     name: release
     permissions:
       contents: write
-    needs: [build-nix, build-linux, build-windows]
+    needs: [build-nix, build-macos, build-linux, build-windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
