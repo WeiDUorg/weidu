@@ -13,10 +13,12 @@ jobs:
         include:
           - os: macos-latest
             target: '.#packages.aarch64-darwin'
-            suffix: ''
           - os: macos-15-intel
             target: '.#packages.x86_64-darwin'
-            suffix: ''
+          - os: ubuntu-24.04
+            target: '.#packages.x86_64-linux'
+          - os: ubuntu-24.04-arm
+            target: '.#packages.aarch64-linux'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@main
@@ -25,10 +27,47 @@ jobs:
           nix_path: nixpkgs=channel:nixos-25.05
       - run: |
           nix build ${{ matrix.target }}
-      - uses: actions/upload-artifact@main
+  build-macos:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            include: /opt/homebrew/opt
+            elkhound_name: mac-arm-elkhound
+          - os: macos-15-intel
+            include: /usr/local/opt
+            elkhound_name: mac-elkhound
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@main
+      - name: fetch elkhound
+        run: |
+          mkdir -p bin
+          curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.2/${{ matrix.elkhound_name }} -o bin/elkhound
+          chmod +x bin/elkhound
+          ./bin/elkhound
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ocaml-variants.4.14.2+options,ocaml-option-default-unsafe-string
+      - name: Set-up Zip and Upx
+        run: |
+          export HOMEBREW_NO_AUTO_UPDATE=1
+          brew install zip upx
+      - name: build weidu
+        run: |
+          export PATH="$PATH:$PWD/bin"
+          mkdir -p obj/x86_LINUX
+          mkdir -p obj/.depend
+          opam switch
+          eval $(opam env)
+          mv sample.Configuration Configuration
+          make
+          make osx_zip
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}
-          path: result/WeiDU-Mac*.zip
+          path: WeiDU-Mac-*.zip
           if-no-files-found: error
   build-linux:
     runs-on: ubuntu-latest
