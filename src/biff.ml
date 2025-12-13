@@ -51,7 +51,7 @@ let save_biff key filename keyname components =
         let a,b = split_resref (Case_ins.filename_basename file) in
         try
           let tau = key_of_ext false b in
-          [ (size,file,String.uppercase a,String.uppercase b,tau) ]
+          [ (size,file,String.uppercase_ascii a,String.uppercase_ascii b,tau) ]
         with _ ->
           log_only "WARNING: Not including [%s]: unknown resource type\n"
             file ; []

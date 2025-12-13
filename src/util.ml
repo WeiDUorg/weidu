@@ -83,6 +83,12 @@ let read_line_with_bell () =
   flush stdout;
   read_line ()
 
+let copy_string str =
+  let len = String.length str in
+  let byte_array = Bytes.create len in
+  Bytes.blit_string str 0 byte_array 0 len;
+  Bytes.to_string byte_array 
+
 let log_and_print fmt =
   let k result = begin
     if not !be_silent then (output_string stdout result ; flush stdout ) ;
@@ -423,11 +429,11 @@ let handle_readonly filename =
 
 let rec backup_if_extant filename =
   if Hashtbl.mem backup_ht
-      (String.uppercase (native_separator filename)) then
+      (String.uppercase_ascii (native_separator filename)) then
     ()
   else begin
-    if (String.uppercase filename) = "OVERRIDE/SPELL.IDS" ||
-    (String.uppercase filename) = "OVERRIDE\\SPELL.IDS" then begin
+    if (String.uppercase_ascii filename) = "OVERRIDE/SPELL.IDS" ||
+    (String.uppercase_ascii filename) = "OVERRIDE\\SPELL.IDS" then begin
       if not (file_exists "override/spell.ids.installed") then begin
         backup_if_extant "override/spell.ids.installed" ;
         let out_chn = Case_ins.perv_open_out_bin
@@ -437,7 +443,7 @@ let rec backup_if_extant filename =
       end
     end ;
     Hashtbl.add backup_ht
-      (String.uppercase (native_separator filename)) true ;
+      (String.uppercase_ascii (native_separator filename)) true ;
     (match !backup_list_chn with
     | Some(chn) -> output_string chn (filename ^ "\n") ; flush chn
     | None -> ()) ;
@@ -507,7 +513,7 @@ and copy_large_file name out reason =
 
 let load_file name =
   if Hashtbl.mem inlined_files name then
-    String.copy (Hashtbl.find inlined_files (Arch.backslash_to_slash name))
+    copy_string (Hashtbl.find inlined_files (Arch.backslash_to_slash name))
   else
     try begin
       Stats.time "loading files" (fun () ->
@@ -875,7 +881,7 @@ let attempt_to_load_bgee_lang_dir game_path =
     let regexp = (Str.regexp_case_fold "lang_dir[ \t]+=[ \t]+\\([a-z_]+\\)") in
     (try
       ignore (Str.search_forward regexp buff 0) ;
-      Some (String.lowercase (Str.matched_group 1 buff))
+      Some (String.lowercase_ascii (Str.matched_group 1 buff))
     with Not_found -> None)
   end
   else None
@@ -884,7 +890,7 @@ let write_bgee_lang_dir game_path dir =
   (try
     let conf = Arch.native_separator (game_path ^ "/weidu.conf") in
     let chan = Case_ins.perv_open_out_bin conf in
-    ignore (output_string chan (String.lowercase
+    ignore (output_string chan (String.lowercase_ascii
                                   (Printf.sprintf "lang_dir = %s\n" dir))) ;
     ignore (close_out chan)
   with e ->
@@ -939,7 +945,7 @@ let all_possible_tp2s filename =
 let tp2_name filename =
   let chunk_list = Str.split (Str.regexp "[-]") filename in
   (match chunk_list with
-  | a :: b when (String.uppercase a) = "SETUP" -> (match b with
+  | a :: b when (String.uppercase_ascii a) = "SETUP" -> (match b with
     | c :: [] -> c
     | c -> (String.concat "-" c))
   | a :: b -> (String.concat "-" (a :: b))
