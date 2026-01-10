@@ -3664,16 +3664,19 @@ COPY ~MyMod/MYDART.ITM~ ~override/MYDART.ITM~
     name in MISSILE.IDS.
   \\
 
-  or & \DEFINE{ADD!SPELL} modpath/newSPLfile.SPL type level idsName
-  \ttref{patch} \Slist \Ob \t{IF!EXISTING} \ttref{patch} \Slist
-  \t{END} \Oe \Ob \t{ON!DISABLE} \ttref{patch} \Slist \t{END} \Oe &
+  or & \DEFINE{ADD!SPELL} newSPLfile type level idsName \ttref{patch} \Slist
+       \Ob \t{IF!EXISTING} \ttref{patch} \Slist \t{END} \Oe
+       \Ob \t{ON!DISABLE} \ttref{patch} \Slist \t{END} \Oe &
 
-  adds newSPLfile as a spell of type and level into the game (IE, SPPR102
-  or whatnot), in the first empty slot possible, appends the idsName
-  to spell.ids, and sets \verb+%idsName%+ to the 4-digit code
-  associated with idsName in Spell.ids. While you copy newSPLfile to
-  the override, you also apply the patches listed.
-
+       Adds newSPLfile to the game with the symbolic script name
+       idsName. newSPLfile should specify the file's path as well as
+       extension. The spell is added to the game as the specified type
+       and level, as per \t{SPELL.IDS}, in the first empty slot
+       possible. The symbolic name idsName is added to spell.ids and
+       when evaluated as a variable, the symbolic name returns the
+       4-digit code associated with idsName in spell.ids. While you
+       copy newSPLfile to the override, you also apply the patches
+       listed.
 
 
 	If Spell.ids already contains a spell named idsName, of the same type and
