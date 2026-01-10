@@ -330,7 +330,7 @@ let init_default_strings () =
   add (-1045) "French" ;
   add (-1046) "Italian" ;
   add (-1047) "Polish" ;
-  add (-1048) "Portuguese" ;
+  add (-1048) "Brazilian Portuguese" ;
   add (-1049) "Turkish" ;
   add (-1050) "Japanese" ;
   add (-1051) "Korean" ;
