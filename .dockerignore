@@ -5,7 +5,6 @@
 .github
 .gitignore
 .workflows
-Configuration
 Dockerfile
 obj/
 result
