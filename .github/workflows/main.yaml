@@ -133,6 +133,41 @@ jobs:
             gh workflow run release.yaml --ref "${ref}" -f run_id=${{ github.run_id }}
         env:
           GH_TOKEN: ${{ github.token }}
+  trigger-rc-release:
+    needs: [build-macos, build-linux, build-windows]
+    if: github.ref == 'refs/heads/rc'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@main
+      - name: generate_version
+        id: generate_version
+        run: |
+          major_version=$(grep 'version =' src/version.ml | cut -d'"' -f2 | cut -c-3)
+          minor_version=$(grep 'version =' src/version.ml | cut -d'"' -f2 | cut -c4-)
+          echo "version=${major_version}.${minor_version}" >> "$GITHUB_OUTPUT"
+          echo "minor_version=${minor_version}" >> "$GITHUB_ENV"
+      - name: calculate RC number
+        id: rc_number
+        run: |
+          rc_number=$((10#${{ env.minor_version }} - 1))
+          echo "rc=${rc_number}" >> "$GITHUB_OUTPUT"
+      - name: create tag
+        uses: actions/github-script@v8
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/v${{ steps.generate_version.outputs.version }}-rc${{ steps.rc_number.outputs.rc }}`,
+              sha: context.sha
+            });
+      - name: trigger
+        run: |
+            ref=$(echo "v${{ steps.generate_version.outputs.version }}-rc${{ steps.rc_number.outputs.rc }}")
+            echo "${ref}"
+            gh workflow run release.yaml --ref "${ref}" -f run_id=${{ github.run_id }}
+        env:
+          GH_TOKEN: ${{ github.token }}
   trigger-release:
     needs: [build-macos, build-linux, build-windows]
     if: startsWith(github.ref, 'refs/tags/')

@@ -63,10 +63,18 @@ jobs:
             cp README-WeiDU.html ${platform}/. || true
             zip -ur ${file} ${platform}
           done
+      - name: determine prerelease
+        id: prerelease
+        run: |
+          if [[ "${{ github.ref_name }}" =~ ^[0-9]+\.00$ ]]; then
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1.20.0
         with:
           artifacts: "*zip"
-          prerelease: ${{ contains(github.ref_name, 'nightly') }}
+          prerelease: ${{ steps.prerelease.outputs.prerelease }}
           generateReleaseNotes: true

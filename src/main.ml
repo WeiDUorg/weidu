@@ -1717,8 +1717,13 @@ let main () =
 
   log_and_print "[%s] WeiDU version %s\n" Sys.argv.(0) version ;
   let version_int = int_of_string Version.version in
-  if version_int mod 100 <> 0 then
-    log_and_print "This is a non-stable version. Unless you're sure about what you're doing, consider downgrading.\n" ;
+  (match version_int mod 100 with
+  | v when (v > 1) -> log_and_print "This version is a release candidate. \
+        Regressions (bugs that were not present in the past) since last \
+        version are not expected but cannot be excluded.\n"
+  | 1 -> log_and_print "This is a version under development. New features \
+        may be incomplete or subject to change.\n"
+  | _ -> ()) ;
 
   (* see if AUTOUPDATE is in our base name *)
   (try
