@@ -77,4 +77,4 @@ jobs:
         with:
           artifacts: "*zip"
           prerelease: ${{ steps.prerelease.outputs.prerelease }}
-          generateReleaseNotes: true
+          generateReleaseNotes: ${{ steps.prerelease.outputs.prerelease }}
