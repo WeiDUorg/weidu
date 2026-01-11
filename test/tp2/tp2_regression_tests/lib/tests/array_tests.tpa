@@ -1,0 +1,40 @@
+DEFINE_ACTION_FUNCTION run
+  RET
+    success
+    message
+BEGIN
+  OUTER_SPRINT message "test_array_tests"
+  PRINT "%message%"
+  ACTION_TRY
+    LAF test_clear_array END
+    OUTER_SET success = 1
+  WITH
+    DEFAULT
+      OUTER_SET success = 0
+      OUTER_SPRINT message "tests failed in array_tests: %ERROR_MESSAGE%"
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_clear_array BEGIN
+  ACTION_CLEAR_ARRAY fl#clear_array#this_array
+  ACTION_DEFINE_ARRAY fl#clear_array#this_array BEGIN foo bar END
+  OUTER_SPRINT $fl#expected(0) foo
+  OUTER_SPRINT $fl#expected(1) bar
+  OUTER_SET index = 0
+  ACTION_PHP_EACH fl#clear_array#this_array AS key => val BEGIN
+    OUTER_SPRINT expected $fl#expected("%key%")
+    ACTION_IF "%expected%" STR_EQ "%val%" BEGIN
+      OUTER_SET ++ index
+    END
+  END
+  ACTION_IF NOT index > 0 BEGIN
+    FAIL "test_clear_array: setup failed"
+  END
+  ACTION_CLEAR_ARRAY fl#clear_array#this_array
+  ACTION_PHP_EACH fl#clear_array#this_array AS key => val BEGIN
+    OUTER_SPRINT expected $fl#expected("%key%")
+    ACTION_IF "%expected%" STR_EQ "%val%" BEGIN
+      FAIL "test_clear_array: array was not cleared as expected"
+    END
+  END
+END

@@ -22,6 +22,7 @@ let unix_access s p = Unix.access s p
 
 let sys_readdir s = Sys.readdir s;;
 let sys_remove s = Sys.remove s
+let sys_file_exists s = Sys.file_exists s
 
 let weidu_executable = "weidu.exe" ;;
 

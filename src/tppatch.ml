@@ -688,7 +688,8 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
     | TP_PatchClearArray(arr) ->
         let arr = eval_pe_str arr in
-        let _,global = Var.array_lookup arr in
+        let _,global = (try Var.array_lookup arr
+        with Not_found -> [],false) in
         if global then
           while Hashtbl.mem !Var.global_arrays arr do
             Hashtbl.remove !Var.global_arrays arr
