@@ -66,7 +66,7 @@ jobs:
       - name: determine prerelease
         id: prerelease
         run: |
-          if [[ "${{ github.ref_name }}" =~ ^[0-9]+\.00$ ]]; then
+          if [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.00$ ]]; then
             echo "prerelease=false" >> "$GITHUB_OUTPUT"
           else
             echo "prerelease=true" >> "$GITHUB_OUTPUT"
