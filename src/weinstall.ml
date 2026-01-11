@@ -45,7 +45,7 @@ let main () =
     Buffer.add_string buff (Printf.sprintf "%s --log %s "
                               weidu_executable debug_where) ;
     let x = Sys.argv.(1) in
-    let tp2s = List.filter Sys.file_exists
+    let tp2s = List.filter Case_ins.sys_file_exists
         [(x ^ "/" ^ x ^ ".tp2") ;
          (x ^ "/" ^ "setup-" ^ x ^ ".tp2") ;
          (x ^ ".tp2") ;

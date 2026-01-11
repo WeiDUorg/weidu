@@ -34,6 +34,7 @@ let unix_access s p = Unix.access (case_transform (backslash_to_slash s)) p
 
 let sys_readdir s = Sys.readdir (case_transform (backslash_to_slash s));;
 let sys_remove s = Sys.remove (case_transform (backslash_to_slash s))
+let sys_file_exists s = Sys.file_exists (case_transform (backslash_to_slash s))
 
 let weidu_executable = "weidu" ;;
 
