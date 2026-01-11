@@ -1,3 +1,67 @@
+Version 251:
+  * CREATE called within CREATE works as expected.
+  * CREATE sets SOURCE_* and DEST_* variables.
+  * Auto-update does not fail if the filename of the newest WeiDU
+    contains spaces or otherwise needs to be quoted.
+  * Recognise Hungarian and Norwegian as game languages.
+  * Add HANDLE_CHARSETS infer-support for Brazilian Portuguese,
+    Swedish, Dutch, Latin, Faroese, Hungarian, Turkish, Ukrainian,
+    Hungarian, and Norwegian.
+  * READ_2DA_ENTRIES_NOW/FORMER use normal arrays that work as
+    expected.
+  * WeiDU recognises more terminals on Linux and avoids pagination.
+  * Add GET_RESOURCE_ARRAY.
+  * Add subdir option to AUTO_TRA, for loading additional TRA files on
+    EE-type games.
+  * HANDLE_CHARSETS can exclude directories.
+  * Fix issue involving case-sensitive look-up of filenames within D.
+  * Add wrapper functions for FJ_CRE_VALIDITY and FJ_CRE_REINDEX that
+    get along with MODDER FUN_ARGS.
+  * Add option for making HANDLE_AUDIO quiet.
+  * APPEND_FILE does not fail on empty files.
+  * On PST and IWD1, the script actions 141 GivePartyGoldGlobal() and
+    165 AddexperiencePartyGlobal() do not have their string arguments
+    concatenated.
+  * --parse-check can parse BAF files without a .BAF extension.
+  * Inlined files will not consume all your computer's memory if they
+    are copied over and over.
+  * Miscellaneous function output is suppressed when IS_SILENT.
+    Thanks, Camdawg.
+  * FJ_CRE_VALIDITY does not fail charbase.cre if the game is PSTEE.
+  * ADD_KIT and COPY_KIT recognise and work with filler lines in
+    KITLIST.IDS.
+  * Add OUTER_SPRINTF.
+  * --force-* arguments warn if any of the component numbers given are
+    not the numbers of actual components.
+  * READLN and ACTION_READLN emit the 'bell' (code 7) control
+    character when asking for input. Thanks, podcherklife.
+  * Add GLOBAL option for SET and SPRINT.
+  * WeiDU-Linux can be expected to work without tolower or a
+    case-insensitive file system. Evidence to the contrary should be
+    reported as bugs. Thanks, dark0dave, for crucial assistance.
+  * Add VARIABLE_IS_IN_ARRAY.
+  * When CHAIN, I_C_T etc. receive an empty list of dialagues, a
+    comprehensible error message will be printed, rather than
+    something inscrutinable like Failure("hd").
+  * When SPRINTF receives too few arguments, a comprehensible error
+    message will be printed, rather than something inscrutinable like
+    Failure("hd").
+  * Change uninstallation behaviour to prevent re-installation of
+    temporarily uninstalled components in another order than the
+    original order under certain circumstances.
+  * Add --unbiff.
+  * EXTEND_TOP and friends take when-clauses.
+  * --change-log does not fail to resolve, e.g., %MOD_FOLDER% when
+    loading TRA files.
+  * 32-bit binaries of WeiDU should have slightly less trouble with
+    large files, but still cannot patch or report the size of them.
+  * GAME_INCLUDES evaluates variables.
+  * GAME_IS and the other two can cache the result for improved
+    performance.
+  * Add DEFINED_AS_FUNCTION and DEFINED_AS_INLINED.
+  * IF_EXISTS work with inlined files.
+  * ADD_SPELL evaluates variables before printing anything.
+
 Version 249:
   * Auto-update is less chatty than in 248.
   * Fix regression affecting the line-breaking in DLGs. Affected DLGs
