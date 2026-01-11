@@ -256,4 +256,5 @@ let version = "25101"
 (* 246 let comment = "Land of Confusion" *)
 (* 247 let comment = "Return of the Warlock" *)
 (* 248 let comment = "Enhammered" *)
-let comment = "Master Doom"
+(* 249 let comment = "Master Doom" *)
+let comment = "The Madness of Serpents"
