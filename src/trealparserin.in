@@ -826,6 +826,11 @@ nonterm(Tp.tp_pe_string) Patch_String_Right {
        [ Tp.PE_Dollars(e1,e2,true,false) ]
 }
 
+nonterm(Tp.tp_array_construct) Array_Construct {
+  -> DOLLARS e1:Patch_String_Right LPAREN e2:Patch_String_Right_List RPAREN
+       [ Tp.PE_Dollars(e1,e2,false,false) ]
+}
+
 nonterm(Tp.tp_pe_string list) Patch_String_Left_List_Rev {
   -> { [] }
   -> e2:Patch_String_Left_List_Rev e1:Patch_String_Left [ e1 :: e2 ]
@@ -1051,7 +1056,7 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
   -> ENGINE_IS e0:Optional_Cache e1:STRING [ Tp.PE_GameIs(e1,false,e0) ]
   -> GAME_INCLUDES e0:Optional_Cache e1:STRING [ Tp.PE_GameIncludes(e1,e0) ]
   -> VARIABLE_IS_SET e1:Patch_String_Name [ Tp.PE_VariableIsSet e1 ]
-  -> VARIABLE_IS_IN_ARRAY e1:Patch_String_Name [ Tp.PE_VariableIsInArray e1 ]
+  -> VARIABLE_IS_IN_ARRAY e1:Array_Construct [ Tp.PE_VariableIsInArray e1 ]
   -> IDS_OF_SYMBOL LPAREN e1:STRING e2:STRING RPAREN [ Tp.PE_IdsOfSymbol(e1,e2) ]
   -> STATE_WHICH_SAYS e1:Lse FROM e2:STRING
        [ let file = fst (split e2) ^ ".dlg" in

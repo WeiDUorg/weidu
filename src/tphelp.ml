@@ -105,8 +105,7 @@ let rec pe_to_str pe = "(" ^ (match pe with
       (pe_to_str e1) (pe_to_str e2) (pe_to_str e3)
 
 | PE_VariableIsSet(s) -> Printf.sprintf "VARIABLE_IS_SET %s" (pe_str_str s)
-| PE_VariableIsInArray(s) -> Printf.sprintf "VARIABLE_IS_IN_ARRAY %s"
-                                            (pe_str_str s)
+| PE_VariableIsInArray(_) -> Printf.sprintf "VARIABLE_IS_IN_ARRAY"
 | PE_TraEntryExists(a,b) ->
     Printf.sprintf "TRA_ENTRY_EXISTS (%s %s)" (pe_str_str a)
       (if b <> [] then (List.fold_left (fun acc elt ->

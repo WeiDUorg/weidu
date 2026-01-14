@@ -5672,8 +5672,8 @@ Returns true if the variable String is set (there's a variable called either
 \verb+String+ or \verb+%String%+, regardless of whether it is a string or an
 integer).  \\
 
-or & \DEFINE{VARIABLE!IS!IN!ARRAY} \ttref{String} & % Not actually a String
-Returns true if the variable String is set, as per
+or & \DEFINE{VARIABLE!IS!IN!ARRAY} \ttref{array construct} &
+Returns true if the array variable is set, as per
 \ttref{VARIABLE!IS!SET}, and if it is a member of an array, in the way
 that has it, for example, iterared over by \ttref{PHP!EACH}. \\
 
@@ -5922,7 +5922,7 @@ PATCH_PRINT "y is %y% ; z is %z%"
     This prints out \t{y is 82 ; z is tricky 5}. You may also do hackery like
     \t{FILE!SIZE "myfile" "\%\%indirection\%\%"}. Be very careful with this
     feature. \\
-or & \verb+$array(index list)+ &
+or & \label{array construct}\verb+$array(index list)+ &
     The so-called \emph{array construct}. See the \ahrefloc{sec-array-construct}{tutorial}.
 \\
 

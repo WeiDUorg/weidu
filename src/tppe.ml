@@ -143,16 +143,20 @@ let rec eval_pe buff game p =
          Not_found -> (try ignore (Var.var_lookup (Var.var_wrap s)) ;
                            1l with Not_found -> 0l))
 
-  | PE_VariableIsInArray(s) ->
-     let lst = String.split_on_char '_' (eval_pe_str s) in
-     (try
-        let name = List.hd lst in
-        let body = List.tl lst in
-        let bodies,_ =
-          (try Var.array_lookup name with Not_found -> ([],false)) in
-        if body <> [] && (List.mem body bodies) &&
-             (eval_pe buff game (PE_VariableIsSet s)) = 1l then 1l else 0l ;
-      with Failure _ -> 0l)
+  | PE_VariableIsInArray(a) ->
+     let ac_to_pe_string (a : tp_array_construct) : tp_pe_string =
+       (match a with
+       | PE_Dollars(name,keys,eval,add) -> PE_Dollars(name,keys,eval,add)) in
+     (match a with
+     | PE_Dollars(name,keys,_,_) ->
+         let name = Var.get_string (eval_pe_str name) in
+         let body = List.map (fun key -> Var.get_string
+             (eval_pe_str key)) keys in
+         let bodies,_ =
+           (try Var.array_lookup name with Not_found -> [],false) in
+         if body <> [] && List.mem body bodies &&
+           (eval_pe buff game (PE_VariableIsSet (ac_to_pe_string a))) = 1l
+         then 1l else 0l)
 
   | PE_TraEntryExists(s,tra_l) ->
     let s = Var.get_string (eval_pe_str s) in

@@ -44,15 +44,9 @@ DEFINE_ACTION_FUNCTION test_variable_is_in_array BEGIN
   ACTION_IF NOT VARIABLE_IS_IN_ARRAY $foo(bar) BEGIN
     FAIL "test_variable_is_in_array failed on set array variable"
   END
-  ACTION_IF NOT VARIABLE_IS_IN_ARRAY foo_bar BEGIN
-    FAIL "test_variable_is_in_array failed on set variable"
-  END
   ACTION_CLEAR_ARRAY foo
   ACTION_IF VARIABLE_IS_IN_ARRAY $foo(bar) BEGIN
     FAIL "test_variable_is_in_array failed after clearing array"
-  END
-  ACTION_IF VARIABLE_IS_IN_ARRAY quux BEGIN
-    FAIL "test_variable_is_in_array failed on non-array variable"
   END
   ACTION_IF VARIABLE_IS_IN_ARRAY $array(baz) BEGIN
     FAIL "test_variable_is_in_array does not have a clean test environment"
@@ -63,6 +57,14 @@ DEFINE_ACTION_FUNCTION test_variable_is_in_array BEGIN
   LAF ret_array RET_ARRAY array END
   ACTION_IF NOT VARIABLE_IS_IN_ARRAY $array(baz) BEGIN
     FAIL "test_variable_is_in_array failed on RET_ARRAY'd variable"
+  END
+  OUTER_SET $foo_bar(baz) = 1
+  ACTION_IF NOT VARIABLE_IS_IN_ARRAY $foo_bar(baz) BEGIN
+    FAIL "test_variable_is_in_array failed on underscored array"
+  END
+  OUTER_SET $foo(bar baz_quux) = 1
+  ACTION_IF NOT VARIABLE_IS_IN_ARRAY $foo(bar baz_quux) BEGIN
+    FAIL "test_variable_is_in_array failed on underscored key"
   END
 
   // Likewise, there is a test-path here for behaviour after CLEAR_MEMORY,
