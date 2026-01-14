@@ -478,6 +478,9 @@ and tp_constraint =
   | TP_ButOnlyIfItChanges
   | TP_IfExists
 
+and tp_array_construct =
+  | PE_Dollars of tp_pe_string * (tp_pe_string list) * bool * bool
+
 and tp_pe_string =
   | PE_LiteralString of string
   | PE_GetVar of tp_pe_string
@@ -542,7 +545,7 @@ and tp_patchexp =
   | PE_GameIs of string * bool * tp_cache_arg option
   | PE_GameIncludes of string * tp_cache_arg option
   | PE_VariableIsSet of tp_pe_string
-  | PE_VariableIsInArray of tp_pe_string
+  | PE_VariableIsInArray of tp_array_construct
   | PE_IdsOfSymbol of string * string
   | PE_StateWhichSays of (Dlg.tlk_string option) * ((tp_patchexp * string) option) * string
   | PE_IsAnInt of tp_pe_string
