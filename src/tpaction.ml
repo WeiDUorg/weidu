@@ -2477,6 +2477,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           begin
             run_patch (TP_PatchTime (name, pl_of_al action_list))
           end
+
+      | TP_RegisterUninstall(filename) ->
+          Util.backup_if_extant (Var.get_string (eval_pe_str filename))
       );
       if !clear_memory then begin
         clear_memory := false;

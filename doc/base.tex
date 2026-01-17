@@ -4122,6 +4122,11 @@ or & \DEFINE{ACTION!TIME} \ttref{String} \t{BEGIN} \ttref{TP2 Action}
   Measure the time taken to execute the \ttref{TP2 Action}s and report
   it under the label \ttref{String} together with the other time
   measurements at the end of the mod's debug file.\\
+or & \DEFINE{REGISTER!UNINSTALL} \ttref{String} &
+  \t{String} should be a file name, including directory, if
+  any. \t{String} is evaluated for variables and the array
+  construct. This action generates uninstall information equivalent to
+  a \ttref{COPY} with the file name as the target (toFile). \\
 
 \\
 

@@ -23,7 +23,7 @@ BEGIN
           END ELSE OUTER_SPRINT cli_quiet ""
           ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
             OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
-            COPY ~.../fl#inlined/null.file~ ~%wavfile%~
+            REGISTER_UNINSTALL ~%wavfile%~
             AT_NOW ~%oggdec_path%/oggdec.exe "%BASH_FOR_FILESPEC%" %cli_quiet%~
             MOVE ~%wavfile%~ ~%output_path%~
           END
@@ -41,7 +41,7 @@ BEGIN
           AT_NOW ~chmod +x '%sox_path%/sox'~
           ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
             OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
-            COPY ~.../fl#inlined/null.file~ ~%wavfile%~
+            REGISTER_UNINSTALL ~%wavfile%~
             AT_NOW ~'%sox_path%/sox' %cli_quiet% '%BASH_FOR_FILESPEC%' '%wavfile%'~
             MOVE ~%wavfile%~ ~%output_path%~
           END
@@ -58,7 +58,7 @@ BEGIN
         END ELSE OUTER_SPRINT cli_quiet ""
         ACTION_BASH_FOR ~%audio_path%~ ~.+\.ogg$~ BEGIN
           OUTER_SPRINT wavfile ~%audio_path%/%BASH_FOR_RES%.wav~
-          COPY ~.../fl#inlined/null.file~ ~%wavfile%~
+          REGISTER_UNINSTALL ~%wavfile%~
           AT_NOW ~oggdec '%BASH_FOR_FILESPEC%' %cli_quiet%~
           ACTION_IF FILE_EXISTS ~%wavfile%~ AND !FILE_SIZE ~%wavfile%~ 0 BEGIN
             MOVE ~%wavfile%~ ~%output_path%~

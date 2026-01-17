@@ -24,14 +24,14 @@ BEGIN
   ACTION_IF FILE_EXISTS ~%tisunpack_path%/%WEIDU_OS%/%tisunpack%~ BEGIN
     ACTION_BASH_FOR ~%tiz_path%~ ~.+\.tiz$~ BEGIN
       OUTER_SPRINT tisfile ~%output_path%/%BASH_FOR_RES%.tis~
-      COPY ~.../fl#inlined/null.file~ ~%tisfile%~
+      REGISTER_UNINSTALL ~%tisfile%~
       AT_NOW ~%tisunpack_path%/%WEIDU_OS%/%tisunpack% -s -f -o %quote%%tisfile%%quote% %quote%%BASH_FOR_FILESPEC%%quote%~
     END
   END ELSE ACTION_IF "%WEIDU_OS%" STRING_EQUAL_CASE "unix" BEGIN // Support tisunpack being located on the system path
     OUTER_SET installed = 1
     ACTION_BASH_FOR ~%tiz_path%~ ~.+\.tiz$~ BEGIN
       OUTER_SPRINT tisfile ~%output_path%/%BASH_FOR_RES%.tis~
-      COPY ~.../fl#inlined/null.file~ ~%tisfile%~
+      REGISTER_UNINSTALL ~%tisfile%~
       AT_NOW ~tisunpack -s -f -o '%tisfile%' '%BASH_FOR_FILESPEC%'~
       ACTION_IF !FILE_EXISTS ~%tisfile%~ OR
                 FILE_SIZE ~%tisfile%~ 0

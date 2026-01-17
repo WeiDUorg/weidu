@@ -586,6 +586,7 @@ nonterm(Tp.tp_action) Tp_Action {
   -> WITH_SCOPE BEGIN e1:Tp_Action_List END [ Tp.TP_WithVarScope(e1) ]
   -> ACTION_TIME e1:Patch_String_Right BEGIN
      e2:Tp_Action_List END [ Tp.TP_ActionTime(e1, e2) ]
+  -> REGISTER_UNINSTALL e1:Patch_String_Right [ Tp.TP_RegisterUninstall(e1) ]
 }
 
 nonterm((Tp.tp_patchexp list * Tp.tp_patchexp * Tp.tp_action list) list) Action_With_List_Rev {
