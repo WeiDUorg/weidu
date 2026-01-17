@@ -1013,13 +1013,13 @@ selection X. Can be combined with --force-install and friends, but
 only if the latter components are defined in ALWAYS!ASK.  \\
 \DEFINE{--skip-at-view} & AT!* ~VIEW this~ actions (and the extra chromosome versions like
 ~NOTEPAD this~) aren't processed, while still processing batch files and similia. \\
-\DEFINE{--safe-exit} & Save weidu.log every time a component installation is begun.
+\DEFINE{--safe-exit} & Save WeiDU.log every time a component installation is begun.
 This makes it impossible to uninstall components (don't ask), but allows the user to kill
 the weidu process (E.G. closing the DOS console via the X button) without leaving the game in an
 unrecoverably inconsistent state (you can [R]e or [U]ninstall the component and the game will be
 consistent again). This might break with mods using overly complicated AT!* actions (basically
 don't use this with Big Mods). \\
-\DEFINE{--save-components-name} & Reprints weidu.log. Useful if you install with --quick-log. \\
+\DEFINE{--save-components-name} & Reprints WeiDU.log. Useful if you install with --quick-log. \\
 \DEFINE{--ask-every}   & Behave as if \ttref{ASK!EVERY!COMPONENT} were
 present for all \ttref{TP2} components. \\
 \DEFINE{--ask-only} \t{X Y ...} & Limit the interactive installer to
@@ -2809,7 +2809,7 @@ global option to your \ttref{TP2} file. \\
   is & \DEFINE{AUTO!TRA} path \Ob subdir \Oe &
 
        The \ttref{AUTO!TRA} flag is used with the \ttref{COMPILE} and
-       \t{EXTEND!TOP} \ttref{TP2 Action}s. It automatically loads
+       \ttref{EXTEND!TOP (TP2)} \ttref{TP2 Action}s. It automatically loads
        \ttref{TRA} files that match your \ttref{D} files. The
        expression ``\%s'', occurring in path, is replaced with the
        languageDirectory of the \ttref{LANGUAGE} the user
@@ -2867,7 +2867,7 @@ global option to your \ttref{TP2} file. \\
   or & \DEFINE{VERSION} String &
 
   "String" (variables evaluated) will be appended to every component's
-  name in the weidu.log file. The \ttref{variable}
+  name in the WeiDU.log file. The \ttref{variable}
   \DEFINE{MOD!VERSION} evaluates to the string set by \ttref{VERSION}
   or to the empty string if the \ttref{VERSION} flag is not present. \\
 
@@ -3236,7 +3236,8 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
       Waits for the user to provided an enter-terminated string and store it in
       variable. Said string will be stored and re-used during non-interactive reinstalls. See the
       \ahrefloc{sec-readln}{\t{READLN} tutorial}. \\
-or & \DEFSYN{APPEND} \ttref{optNoBackup} filename newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe  &
+  or & \t{\textbf{APPEND}}\label{APPEND (TP2)} \ttref{optNoBackup} filename
+      newText \ttref{when} \Slist \Ob \t{KEEP!CRLF} \Oe  &
       If there are no \ttref{when} conditions or they are all true, the
       ASCII text newText is appended to the existing file filename (which
       is read from the game \ttref{BIFF}s or the \t{override} folder).
@@ -3307,8 +3308,9 @@ P Q R 3
 	  assumed to be at the beginning of newText. A cell containing exactly
 	  \verb+$+ is printed as empty. \\
 
-  or & \DEFSYN{EXTEND!TOP} existingBCS newFile \ttref{patch} \Slist
-    \Ob \t{USING} traName \Slist \Oe \Ob \ttref{when} \Slist \Oe &
+  or & \t{\textbf{EXTEND!TOP}}\label{EXTEND!TOP (TP2)} existingBCS
+    newFile \ttref{patch} \Slist \Ob \t{USING} traName \Slist \Oe
+    \Ob \ttref{when} \Slist \Oe &
 
     If there are no \ttref{when} conditions, or they are all true,
     loads existingFile (which may be \ttref{BAF} or \ttref{BCS}),
@@ -3319,14 +3321,15 @@ P Q R 3
     want to evaluate variables inside the body of newFile before
     parsing it. \\
 
-  or & \DEFSYN{EXTEND!BOTTOM} existingBCS newFile \ttref{patch} \Slist
-    \Ob \t{USING} traName \Slist \Oe \Ob \ttref{when} \Slist \Oe &
-    As \t{EXTEND!TOP}, but the newFile file is put at the bottom of the
-    existingBCS file. User variables in the filenames existingFile and
-    newFile are replaced by their values. \\
+  or & \t{\textbf{EXTEND!BOTTOM}}\label{EXTEND!BOTTOM (TP2)} existingBCS
+    newFile \ttref{patch} \Slist \Ob \t{USING} traName \Slist \Oe
+    \Ob \ttref{when} \Slist \Oe &
+    As \ttref{EXTEND!TOP (TP2)}, but the newFile file is put at the
+    bottom of the existingBCS file. User variables in the filenames
+    existingFile and newFile are replaced by their values. \\
   or & \DEFINE{EXTEND!TOP!REGEXP} existingBCSregexp newFile \ttref{patch} \Slist
     \Ob \t{USING} traName \Slist \Oe \Ob \ttref{when} \Slist \Oe &
-    As \t{EXTEND!TOP}, but the newFile file is put at the top of the
+    As \ttref{EXTEND!TOP (TP2)}, but the newFile file is put at the top of the
     every \ttref{BCS} file that matches the \ttref{regexp}
     existingBCSregexp. \\
   or & \DEFINE{EXTEND!BOTTOM!REGEXP} existingBCSregexp newFile
@@ -4136,7 +4139,7 @@ or & \DEFINE{ACTION!TIME} \ttref{String} \t{BEGIN} \ttref{TP2 Action}
 			a real reason.} \\
   or & \t{-} & If you put a \t{-} here, WeiDU will {\em not} copy the file,
            but only store it as an inlined file (so you can patch a file and
-           then use it for \t{EXTEND!BOTTOM} or whatever).
+           then use it for \ttref{EXTEND!BOTTOM (TP2)} or whatever).
            This option is not available for \ttref{COPY!LARGE}, \ttref{MOVE} or \ttref{DELETE}. \\
 \\
 
@@ -5430,8 +5433,8 @@ or & \DEFINE{PATCH!TIME} \ttref{String} \t{BEGIN} \ttref{patch}
 \\
 
 \DEFINE{when} & & A \ttref{when} clause gives you local control over
-when a \ttref{COPY}, \ttref{COPY!EXISTING}, \t{APPEND},
-\ttref{APPEND!COL}, \t{EXTEND!TOP}, \t{EXTEND!BOTTOM},
+when a \ttref{COPY}, \ttref{COPY!EXISTING}, \ttref{APPEND (TP2)},
+\ttref{APPEND!COL}, \ttref{EXTEND!TOP (TP2)}, \ttref{EXTEND!BOTTOM (TP2)},
 \ttref{EXTEND!TOP!REGEXP}, or \ttref{EXTEND!BOTTOM!REGEXP} happens. If
 the \ttref{COPY}, \ttref{COPY!EXISTING}, \ttref{EXTEND!TOP!REGEXP}, or
 \ttref{EXTEND!BOTTOM!REGEXP} contains multiple files, each one is
@@ -5460,8 +5463,8 @@ checked against the \ttref{when} clauses separately. \\
   or & \DEFINE{IF!EXISTS} & True only if the file exists or an inlined
   file of that name is defined. For \ttref{COPY}, this check is done
   with \ttref{FILE!EXISTS}. For \ttref{COPY!EXISTING},
-  \ttref{COPY!EXISTING!REGEXP}, \ttref{COPY!RANDOM}, \t{APPEND},
-  \ttref{APPEND!COL}, \t{EXTEND!TOP}, \t{EXTEND!BOTTOM},
+  \ttref{COPY!EXISTING!REGEXP}, \ttref{COPY!RANDOM}, \ttref{APPEND (TP2)},
+  \ttref{APPEND!COL}, \ttref{EXTEND!TOP (TP2)}, \ttref{EXTEND!BOTTOM (TP2)},
   \ttref{EXTEND!TOP!REGEXP}, and \ttref{EXTEND!BOTTOM!REGEXP} this
   check is done with \ttref{FILE!EXISTS!IN!GAME}. For
   \ttref{COPY!ALL!GAM!FILES}, this \t{when} clause is redundant. \\
@@ -6066,18 +6069,19 @@ figured, "Huh, guess I'm going to have to put the script in every area
 script".  (Area scripts are scripts that are assigned to areas that are ran
 while you are in the area.  Pretty obvious, right?)
 
-Now, writing the code to \t{EXTEND!TOP} this little script into every area
-script would of taken quite a while, and well, rather than do that, I
-humbly requested Wes to implement the \ttref{regexp} feature of
-\t{EXTEND!TOP} and \t{EXTEND!BOTTOM}, and Westley obliged.  (My penance
-for that request is writing the docs you are reading right now.)
+Now, writing the code to \ttref{EXTEND!TOP (TP2)} this little script
+into every area script would of taken quite a while, and well, rather
+than do that, I humbly requested Wes to implement the \ttref{regexp}
+feature of \ttref{EXTEND!TOP (TP2)} and \ttref{EXTEND!BOTTOM (TP2)},
+and Westley obliged.  (My penance for that request is writing the docs
+you are reading right now.)
 
-So now with Wes' help, I could \t{EXTEND!TOP} to every area in 1 fell
-swoop.  If you were to open up NI and expand the \ttref{BCS} tree, you
-would see a whole crapload of scripts that begin with the prefix AR.  These
-are the area scripts I mentioned before.  They go from
-AR0014 to AR6400.  So now, using \ttref{regexp}, here is how you would
-extend the script to the top of every area script:
+So now with Wes' help, I could \ttref{EXTEND!TOP (TP2)} to every area
+in 1 fell swoop.  If you were to open up NI and expand the \ttref{BCS}
+tree, you would see a whole crapload of scripts that begin with the
+prefix AR.  These are the area scripts I mentioned before.  They go
+from AR0014 to AR6400.  So now, using \ttref{regexp}, here is how you
+would extend the script to the top of every area script:
 
 \begin{verbatim}
 EXTEND_TOP_REGEXP ~ar[0-6].*bcs~ ~pathtoscript/patch.bcs~
@@ -7188,7 +7192,7 @@ SUBCOMPONENT ~Imoen Mage Kit~ (FILE_EXISTS_IN_GAME ~turnip.spl~)
 One note about \t{SUBCOMPONENT}s and mod ordering: WeiDU will display
 \t{SUBCOMPONENT}s in a single grouping no matter if they fall consecutively
 in the \ttref{TP2}. However, the component number (the one that gets placed in
-\t{weidu.log} and the one you check for in \ttref{REQUIRE!COMPONENT} et al.) is
+\t{WeiDU.log} and the one you check for in \ttref{REQUIRE!COMPONENT} et al.) is
 still based on their \ttref{TP2} order.
 
 As of v192, if all subcomponents fail their requirement, then we don't ask about
