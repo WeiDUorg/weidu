@@ -61,6 +61,7 @@ Version 251:
   * Add DEFINED_AS_FUNCTION and DEFINED_AS_INLINED.
   * IF_EXISTS work with inlined files.
   * ADD_SPELL evaluates variables before printing anything.
+  * Add REGISTER_UNINSTALL.
 
 Version 249:
   * Auto-update is less chatty than in 248.

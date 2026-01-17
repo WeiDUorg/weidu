@@ -244,6 +244,7 @@ let action_to_str a = match a with
 | TP_WithTra (_, _) -> "WITH_TRA"
 | TP_WithVarScope (_) -> "WITH_SCOPE"
 | TP_ActionTime(_, _) -> "ACTION_TIME"
+| TP_RegisterUninstall(_) -> "REGISTER_UNINSTALL"
 
 
 (************************************************************************

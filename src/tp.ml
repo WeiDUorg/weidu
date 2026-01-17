@@ -264,6 +264,7 @@ and tp_action =
   | TP_WithTra of tp_pe_string list * tp_action list
   | TP_WithVarScope of tp_action list
   | TP_ActionTime of tp_pe_string * tp_action list
+  | TP_RegisterUninstall of tp_pe_string
 
 (*
   and predicate =
