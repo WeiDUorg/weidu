@@ -1532,8 +1532,8 @@ let main () =
     "--quick-menu", Myarg.Int (fun d -> Tp.chosen_quick_menu := Some d), "\tX installs the quick menu selection X";
     "--process-script", Myarg.String (fun s -> process_script := s; Tp.skip_at_view := true; Tp.quick_log := true; test_output_tlk_p := true), "\tX process installation script X";
     "--skip-at-view", Myarg.Set Tp.skip_at_view, "\tkills AT_* ~VIEW this~";
-    "--quick-log", Myarg.Set Tp.quick_log, "\tDoesn't print the name of components in weidu.log (much faster)";
-    "--safe-exit", Myarg.Set Tpstate.safe_exit, "\tPrints weidu.log after starting the installation of every component";
+    "--quick-log", Myarg.Set Tp.quick_log, "\tDoesn't print the name of components in WeiDU.log (much faster)";
+    "--safe-exit", Myarg.Set Tpstate.safe_exit, "\tPrints WeiDU.log after starting the installation of every component";
     "--version", Myarg.Set exit_now, "\tprint version number and exit";
     "--exit", Myarg.Set exit_now, "\tprint version number and exit";
     "--licence", Myarg.Set show_licence, "\tprint licence information and exit" ;
@@ -1550,7 +1550,7 @@ let main () =
     Myarg.String (fun s -> list_comp_json := Some s) ;
     Myarg.Int (fun i -> list_comp_lang := i) ;
   ], "\tX Y lists all components in X using language Y with JSON output EXPERIMENTAL!" ;
-    "--save-components-name", Myarg.Set save_comp_name, "\trewrites weidu.log, printing every component name";
+    "--save-components-name", Myarg.Set save_comp_name, "\trewrites WeiDU.log, printing every component name";
     "--change-log",Myarg.String (fun s -> change_log := s :: !change_log), "\tgenerates a changelog for the given resource (cumulative)";
     "--change-log-list",Myarg.List (Myarg.String (fun s -> change_log := s :: !change_log)), "\tgenerates a changelog for the given resource (cumulative)";
     "--change-log-rest",Myarg.Rest (Myarg.String (fun s -> change_log := s :: !change_log)), "\tgenerates a changelog for the given resource (cumulative)";
