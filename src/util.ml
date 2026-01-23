@@ -952,6 +952,47 @@ let tp2_name filename =
   | a :: b -> (String.concat "-" (a :: b))
   | _ -> filename)
 
+let tp2_directory tp2_file =
+  let parts = List.rev
+      (String.split_on_char '/'
+         (Str.global_replace
+            (Str.regexp "\\\\") "/" tp2_file))
+  in
+  (match parts with
+  | file :: dir :: _ when
+      (String.equal
+         (String.lowercase
+            (Case_ins.filename_chop_extension
+               (tp2_name
+                  (Case_ins.filename_basename file))))
+         (String.lowercase dir)) -> Some dir
+  | _ -> None)
+
+let read_tp2_name tp2_file directory =
+  let files = Case_ins.sys_readdir directory in
+  Array.fold_left (fun acc item ->
+    if (String.equal (String.lowercase_ascii item)
+          (String.lowercase_ascii tp2_file)) && not (is_directory item) then
+      item else acc) tp2_file files
+
+let read_tp2_directory dir_name directory =
+  let dirs = Case_ins.sys_readdir directory in
+  Array.fold_left (fun acc item ->
+    if (String.equal (String.lowercase_ascii item)
+          (String.lowercase_ascii dir_name)) && is_directory item then
+      item else acc) dir_name dirs
+
+let case_exact_tp_file tp_file =
+  (match tp2_directory tp_file with
+  | None ->
+      read_tp2_name (Case_ins.filename_basename tp_file) "."
+  | Some dir ->
+      let tp2_name = (read_tp2_name
+                        (Case_ins.filename_basename
+                           tp_file) dir) in
+      let tp2_dir = (read_tp2_directory dir ".") in
+      Filename.concat tp2_dir tp2_name)
+
 let read_lines file =
   let chan = Case_ins.perv_open_in file in
   let read chan = try Some (input_line chan) with End_of_file -> None in

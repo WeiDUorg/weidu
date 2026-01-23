@@ -25,21 +25,11 @@ let rec get_menu_style fl = match fl with
 | hd :: tl -> get_menu_style tl
 
 let mod_folder tp =
-  let parts = List.rev
-      (String.split_on_char '/'
-         (Str.global_replace
-            (Str.regexp "\\\\") "/" tp.tp_filename)) in
-  (match parts with
-  | file :: dir :: _ when
-      (String.equal
-         (String.lowercase
-            (Case_ins.filename_chop_extension
-               (Util.tp2_name
-                  (Case_ins.filename_basename file))))
-         (String.lowercase dir)) -> dir
-  | _ -> (match Var.get_mod_folder tp.backup with
+  (match Util.tp2_directory tp.tp_filename with
+  | Some dir -> dir
+  | None -> Util.read_tp2_directory (match Var.get_mod_folder tp.backup with
     | Some s -> s
-    | None -> tp.backup))
+    | None -> tp.backup) ".")
 
 let set_prelang_tp2_vars tp =
   Var.set_string "TP2_AUTHOR" tp.author ;

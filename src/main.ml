@@ -1176,6 +1176,7 @@ let do_tp2_files tp_list force_install_these_main force_uninstall_these_main pau
     let tp_file = Queue.take tp2_queues in
     try
       if file_exists tp_file then begin
+        let tp_file = Util.case_exact_tp_file tp_file in
         let result = handle_tp2_filename tp_file in
         Tpwork.handle_tp game tp_file result;
       end
@@ -1221,6 +1222,7 @@ let do_script process_script pause_at_end game =
     List.iter (fun (a,b) -> log_and_print "%s %d\n" b a) !toproc;
     try
       if file_exists tp_file then begin
+        let tp_file = Util.case_exact_tp_file tp_file in
         let result = handle_tp2_filename tp_file in
         List.iter (fun (a,b) ->
           begin

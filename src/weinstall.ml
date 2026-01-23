@@ -24,7 +24,7 @@ let main () =
     if Case_ins.filename_check_suffix Sys.argv.(1) "/" then
       Sys.argv.(1) <- Case_ins.filename_chop_suffix Sys.argv.(1) "/" ;
     let debug_where = try
-      let h = Unix.stat "debugs" in
+      let h = Unix.stat "debugs" in (* still case sensitive *)
       if h.Unix.st_kind = Unix.S_DIR then
         quote (Printf.sprintf "debugs/%s.debug" Sys.argv.(1))
       else quote (Printf.sprintf "setup-%s.debug" Sys.argv.(1)) ;
@@ -33,7 +33,8 @@ let main () =
     let we = Case_ins.weidu_executable in
     let fast = try
       let s = Sys.argv.(0) in
-      String.uppercase (Str.string_before (Filename.basename s) 4) = "FAST"
+      String.uppercase_ascii (Str.string_before
+                                (Filename.basename s) 4) = "FAST"
     with _ -> false in
     let weidu_executable = try
       let s = Sys.argv.(0) in
