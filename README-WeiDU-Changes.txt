@@ -62,6 +62,7 @@ Version 251:
   * IF_EXISTS work with inlined files.
   * ADD_SPELL evaluates variables before printing anything.
   * Add REGISTER_UNINSTALL.
+  * The contents of %MOD_FOLDER% are case-exact.
 
 Version 249:
   * Auto-update is less chatty than in 248.

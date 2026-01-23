@@ -481,7 +481,7 @@ let uninstall game handle_tp2_filename tp2 i interactive =
         | Installed ->
             begin
               try
-                let best = find_best_file [a ; tp2] in
+                let best = find_best_file [tp2 ; a] in
                 let lang_name =
                   (try
                     let l = List.nth (handle_tp2_filename best).languages b in
