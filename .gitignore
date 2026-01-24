@@ -19,6 +19,7 @@ diffs/*
 .project
 .paths
 .settings/
+.dir-locals.el
 *.zip
 WeiDU-Linux
 WeiDU-Windows
