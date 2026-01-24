@@ -133,7 +133,7 @@ PUT SYMBOLS *)
   let buf = Buffer.create 10240 in
   inlined name buf lexbuf }
 | eof   { EOF }
-| _	{ lex_error (Printf.sprintf "invalid character [%s]\n HINT: Don't use MS Word to edit your .tp2 files - use ConTEXT (http://www.context.cx instead)." (string_of
+| _	{ lex_error (Printf.sprintf "invalid character [%s]\n HINT: Don't use MS Word to edit your .tp2 files - use a text editor." (string_of
 lexbuf)) }
 and comment = parse
       "*/"	{ adj lexbuf ; () }
