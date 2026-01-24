@@ -181,4 +181,10 @@ DEFINE_ACTION_FUNCTION test_global_arrays BEGIN
   ACTION_IF NOT index = 4 BEGIN
     FAIL "test_global_arrays: at end of test index does not have expected value"
   END
+  OUTER_SET GLOBAL $fl#global2(foo) = 1
+  OUTER_SET GLOBAL $fl#global2(bar) = 1
+  OUTER_SET GLOBAL $fl#global2(bar) += 1
+  ACTION_IF NOT VARIABLE_IS_IN_ARRAY $fl#global2(foo) BEGIN
+    FAIL "test_global_arrays: right-hand array construct does assignment"
+  END
 END
