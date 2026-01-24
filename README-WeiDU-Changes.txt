@@ -42,9 +42,9 @@ Version 251:
   * Add VARIABLE_IS_IN_ARRAY.
   * When CHAIN, I_C_T etc. receive an empty list of dialagues, a
     comprehensible error message will be printed, rather than
-    something inscrutinable like Failure("hd").
+    something inscrutable like Failure("hd").
   * When SPRINTF receives too few arguments, a comprehensible error
-    message will be printed, rather than something inscrutinable like
+    message will be printed, rather than something inscrutable like
     Failure("hd").
   * Change uninstallation behaviour to prevent re-installation of
     temporarily uninstalled components in another order than the
