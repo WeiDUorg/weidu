@@ -5,21 +5,40 @@ DEFINE_ACTION_FUNCTION fun_eval
   INT_VAR
     int_arg = 0
     int_arg2 = 0
+    int_arg3 = 0
+    $int(arg4) = 0
+    $int(arg5) = 0
   STR_VAR
     str_arg = ""
     str_arg2 = ""
     str_arg3 = ""
+    str_arg4 = ""
+    $str(arg5) = ""
+    $str(arg6) = ""
   RET
     int_ret
     int_ret2
+    int_ret3
+    $int(ret4)
     str_ret
     str_ret2
+    str_ret3
+    $str(ret4)
 BEGIN
   ACTION_IF int_arg != 1 BEGIN
     FAIL "test_fun_eval failed on int eval"
   END
   ACTION_IF int_arg2 != 1 BEGIN
     FAIL "test_fun_eval failed on int eval 2"
+  END
+  ACTION_IF int_arg3 != 1 BEGIN
+    FAIL "test_fun_eval failed on int eval 3"
+  END
+  ACTION_IF $int(arg4) != 1 BEGIN
+    FAIL "test_fun_eval failed on int eval 4"
+  END
+  ACTION_IF $int(arg5) != 1 BEGIN
+    FAIL "test_fun_eval failed on int eval 5"
   END
   ACTION_IF !"%str_arg%" STRING_EQUAL foo BEGIN
     FAIL "test_fun_eval failed on str eval"
@@ -30,22 +49,47 @@ BEGIN
   ACTION_IF !"%str_arg3%" STRING_EQUAL foo BEGIN
     FAIL "test_fun_eval failed on str eval 3"
   END
+  ACTION_IF "%str_arg4%" STR_CMP foo BEGIN
+    FAIL "test_fun_eval failed on str eval 4"
+  END
+  ACTION_IF $str(arg5) STR_CMP foo BEGIN
+    FAIL "test_fun_eval failed on str eval 5"
+  END
+  ACTION_IF $str(arg6) STR_CMP foo BEGIN
+    FAIL "test_fun_eval failed on str eval 6"
+  END
   OUTER_SET int_ret = 1
   OUTER_SET int_ret2 = 1
+  OUTER_SET int_ret3 = 1
+  OUTER_SET $int(ret4) = 1
   OUTER_SPRINT str_ret bar
   OUTER_SPRINT str_ret2 bar
+  OUTER_SPRINT str_ret3 bar
+  OUTER_SPRINT $str(ret4) bar
 END
 
 DEFINE_ACTION_FUNCTION test_fun_eval BEGIN
   OUTER_SET int_arg = 1
+  OUTER_SET $array(foo) = 1
+  OUTER_SET $int(arg4) = 1
   OUTER_SPRINT str_arg foo
   OUTER_SPRINT str_arg3_outer foo
+  OUTER_SPRINT $str(arg4) foo
+  OUTER_SPRINT $str(arg5) foo
   OUTER_SET int_ret = 0      //If this fails ("Unknown return value: 0"), there be bugs: RETs should not be evaluated
   OUTER_SPRINT str_ret ""
+  OUTER_SET $int(ret3) = 0
+  OUTER_SPRINT $str(ret3) ""
+  OUTER_SET $int(ret4) = 0
+  OUTER_SPRINT $str(ret4) ""
+  OUTER_SET $int(ret5) = 0
   LAF fun_eval
-    INT_VAR int_arg int_arg2 = 1
+    INT_VAR int_arg int_arg2 = 1 int_arg3 = $array(foo) $int(arg4)
+    $int(arg5) = $int(arg4)
     STR_VAR str_arg str_arg2 = foo str_arg3 = EVAL "%str_arg3_outer%"
+    str_arg4 $str(arg5) $str(arg6) = $str(arg5)
     RET int_ret int_ret2_outer = int_ret2 str_ret str_ret2_outer = str_ret2
+    $int(ret3) = int_ret3 $str(ret3) = str_ret3 $int(ret4) $str(ret4) $int(ret5) = $int(ret4)
   END
 
   ACTION_IF int_ret != 1 BEGIN
@@ -59,6 +103,21 @@ DEFINE_ACTION_FUNCTION test_fun_eval BEGIN
   END
   ACTION_IF !"%str_ret2_outer%" STRING_EQUAL bar BEGIN
     FAIL "test_fun_eval failed on str ret eval 2"
+  END
+  ACTION_IF $int(ret3) != 1 BEGIN
+    FAIL "test_fun_eval failed on int ret eval 3"
+  END
+  ACTION_IF $str(ret3) STR_CMP bar BEGIN
+    FAIL "test_fun_eval failed on str ret eval 3"
+  END
+  ACTION_IF $int(ret4) != 1 BEGIN
+    FAIL "test_fun_eval failed on int ret eval 4"
+  END
+  ACTION_IF $str(ret4) STR_CMP bar BEGIN
+    FAIL "test_fun_eval failed on str ret eval 4"
+  END
+  ACTION_IF $int(ret5) != 1 BEGIN
+    FAIL "test_fun_eval failed on int ret eval 5"
   END
 END
 
