@@ -10698,11 +10698,7 @@ A regular expression or \DEFINE{regexp} is "somewhat" like a DOS wildcard
 but not quite. The big difference is that if you would say * in DOS you say
 .* in regexp-land.  Here's a definition:
 
-The syntax for regular expressions is the same as in Gnu Emacs. The special
-characters are:
-\begin{verbatim}
-$^.*+?[]\
-\end{verbatim}
+The syntax for regular expressions is the same as in GNU Emacs.
 
 The following constructs are recognized:
 \begin{verbatim}
@@ -10711,15 +10707,18 @@ The following constructs are recognized:
    +      (postfix) matches the previous expression one or several times
    ?      (postfix) matches the previous expression once or not at all
    [..]   character set; ranges are denoted with -, as in [a-z];
-          an initial ^, as in [^0-9], complements the set
-   ^      matches at beginning of line
-   $      matches at end of line, specifically %LNL%, /n, LF, 0x0A
+          an initial ^, as in [^0-9], complements the set. To include a ]
+          character, include it as the first character of the set; to include
+          a - character, include it as the first or last character of the set.
+          Characters do not need to be quoted.
+   ^      matches at beginning of line, or after \n
+   $      matches at end of line, specifically %LNL%, \n, LF, 0x0A
    \|     (infix) alternative between two expressions
    \(..\) grouping and naming of the enclosed expression
    \1     the text matched by the first \(...\) expression
-          (\2 for the second expression, etc)
+          (\2 for the second expression, etc, up to \9)
    \b     matches word boundaries
-   \      quotes special characters.
+   \      quotes special characters. The special characters are $^\.*+?[].
 \end{verbatim}
 
 So spe.* matches "sper01.itm" and "sper.eff" and "special".
