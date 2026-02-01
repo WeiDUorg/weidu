@@ -4428,8 +4428,8 @@ or & \DEFINE{APPLY_BCS_PATCH_OR_COPY} patchFile copyFile &
 or & \DEFINE{WRITE_BYTE} \ttref{offset} \ttref{value} &
   The first argument is the offset at which the second argument (an 8-bit
   byte value) is written. Performs \verb+READ_BYTE offset THIS+ and
-  \verb+READ_SBYTE offset STHIS+ automatically (you can now write
-  \verb+WRITE_BYTE 100 THIS + 2).  \\
+  \verb+READ_SBYTE offset STHIS+ automatically (you can now write, for example,
+  \verb+WRITE_BYTE+ \verb+100+ \verb+THIS+ \t{+} \verb+2+).  \\
 or & \DEFINE{WRITE_SHORT} \ttref{offset} \ttref{value} &
   The first argument is the offset at which the second argument (a 16-bit
   short value) is written. Performs \verb+READ_SHORT offset THIS+ and
