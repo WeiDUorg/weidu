@@ -28,33 +28,34 @@ let if_true p = if p then 1l else 0l
 
 let rec eval_pe_str s = match s with
 | PE_LiteralString(s) -> (
-	match (the_tp()).is_auto_eval_string with
-	| false -> s
-	| true -> Var.get_string s)
-| PE_GetVar(p) -> (try Var.get_string_exact ("%" ^ eval_pe_str p ^ "%") with _ -> eval_pe_str p)
+    match (the_tp()).is_auto_eval_string with
+    | false -> s
+    | true -> Var.get_string s)
+| PE_GetVar(p) -> (try Var.get_string_exact (Var.var_wrap (eval_pe_str p))
+with _ -> eval_pe_str p)
 | PE_Evaluate(p) -> Var.get_string (eval_pe_str p)
 | PE_Uppercase(s) -> String.uppercase (eval_pe_str s)
 | PE_Lowercase(s) -> String.lowercase (eval_pe_str s)
 | PE_Dollars(s,a,do_eval,do_add) ->
     let a = List.map (fun x -> Var.get_string (eval_pe_str x)) a in
     let s = Var.get_string (eval_pe_str s) in
-    
-    let array_text = "$\"" ^ s ^ "\"(" ^ (List.fold_left (fun acc this -> acc ^ (if acc = "" then "\"" else "\"\"") ^ this) "" a) ^ "\")" in
+
+    let array_text = "$\"" ^ s ^ "\"(" ^ (List.fold_left (fun acc this -> acc ^
+      (if acc = "" then "\"" else "\"\"") ^ this) "" a) ^ "\")" in
     List.iter (check_missing_eval ("array parameter at " ^ array_text)) a;
     check_missing_eval ("array name at " ^ array_text) s;
     let result = List.fold_left (fun acc this -> acc ^ "_" ^ this) s a in
     let result = if do_eval then
-      ( try
-	ignore (int_of_string result); result
+      (try
+        ignore (int_of_string result); result
       with _ ->
-	try
-	  Var.get_string_exact ("%" ^ result ^ "%")
-	with _ -> result) else result
+        try
+          Var.get_string_exact ("%" ^ result ^ "%")
+        with _ -> result) else result
     in
     if do_add then (
       let old = try Hashtbl.find !Var.arrays s with Not_found -> [] in
-      if not (List.mem a old) then Hashtbl.add !Var.arrays s (a :: old);
-     );
+      if not (List.mem a old) then Hashtbl.add !Var.arrays s (a :: old)) ;
     result
 
 let eval_pe_tlk_str game s = match s with
@@ -69,11 +70,11 @@ let rec eval_pe buff game p =
     let out_of_bounds = (idx < 0 || (idx + size) > len) in
     match out_of_bounds with
     | false -> (retfun ())
-    | true ->
-	begin
-	  log_and_print "ERROR: illegal %d-byte read from offset %d of %d-byte file\n" size idx len ;
-	  failwith ("Read out of bounds")
-	end
+    | true -> begin
+        log_and_print "ERROR: illegal %d-byte read from offset %d of \
+          %d-byte file\n" size idx len ;
+        failwith ("Read out of bounds")
+    end
   in
   match p with
   | Pred_True -> 1l
@@ -117,62 +118,60 @@ let rec eval_pe buff game p =
       value
   | PE_String(s) ->
       let s = eval_pe_str s in
-      begin
-	try
-          Int32.of_string s
-	with e ->
-	  begin 
-	    try
-              Var.get_int32 ("%" ^ s ^ "%")
-	    with e -> 
-              begin
-		try
-		  Var.get_int32 s
-		with e ->
-		  begin
-		    (if !eval_pe_warn then log_and_print
-			"ERROR: cannot convert %s or %%%s%% to an integer\n" s s) ;
-		    raise e
-		  end 
-              end
-	  end 
+      begin try
+        Int32.of_string s
+      with _ ->
+        begin try
+          Var.get_int32 ("%" ^ s ^ "%")
+        with _ ->
+          begin try
+            Var.get_int32 s
+          with e ->
+            begin (if !eval_pe_warn then log_and_print
+                "ERROR: cannot convert %s or %%%s%% to an integer\n" s s) ;
+              raise e
+            end
+          end
+        end
       end
+
   | PE_VariableIsSet(s) ->
       let s = eval_pe_str s in
       (try ignore (Var.var_lookup s) ; 1l with
-         Not_found -> (try ignore (Var.var_lookup (Var.var_wrap s)) ;
-                           1l with Not_found -> 0l))
+        Not_found -> (try ignore (Var.var_lookup (Var.var_wrap s)) ;
+          1l with Not_found -> 0l))
 
   | PE_VariableIsInArray(a) ->
-     let ac_to_pe_string (a : tp_array_construct) : tp_pe_string =
-       (match a with
-       | PE_Dollars(name,keys,eval,add) -> PE_Dollars(name,keys,eval,add)) in
-     (match a with
-     | PE_Dollars(name,keys,_,_) ->
-         let name = Var.get_string (eval_pe_str name) in
-         let body = List.map (fun key -> Var.get_string
-             (eval_pe_str key)) keys in
-         let bodies,_ =
-           (try Var.array_lookup name with Not_found -> [],false) in
-         if body <> [] && List.mem body bodies &&
-           (eval_pe buff game (PE_VariableIsSet (ac_to_pe_string a))) = 1l
-         then 1l else 0l)
+      let ac_to_pe_string (a : tp_array_construct) : tp_pe_string =
+        (match a with
+        | PE_Dollars(name,keys,eval,add) -> PE_Dollars(name,keys,eval,add)) in
+      (match a with
+      | PE_Dollars(name,keys,_,_) ->
+          let name = Var.get_string (eval_pe_str name) in
+          let body = List.map (fun key -> Var.get_string
+              (eval_pe_str key)) keys in
+          let bodies,_ =
+            (try Var.array_lookup name with Not_found -> [],false) in
+          if body <> [] && List.mem body bodies &&
+            (eval_pe buff game (PE_VariableIsSet (ac_to_pe_string a))) = 1l
+          then 1l else 0l)
 
   | PE_TraEntryExists(s,tra_l) ->
-    let s = Var.get_string (eval_pe_str s) in
-	let tra_l = List.map Var.get_string (List.map eval_pe_str tra_l) in
-	if tra_l <> [] then Dc.push_trans();
-	List.iter handle_tra_filename tra_l;
-    let old_eval_pe_warn = !eval_pe_warn in
-	eval_pe_warn := false;
-	let ans = begin try
-	  ignore (Dc.single_string_of_tlk_string game (Dlg.Trans_String(Dlg.String s)));
-	  1l
-	with _ -> 0l end in
-	eval_pe_warn := old_eval_pe_warn;
-	if tra_l <> [] then Dc.pop_trans();
-	ans
-  
+      let s = Var.get_string (eval_pe_str s) in
+      let tra_l = List.map Var.get_string (List.map eval_pe_str tra_l) in
+      if tra_l <> [] then Dc.push_trans() ;
+      List.iter handle_tra_filename tra_l ;
+      let old_eval_pe_warn = !eval_pe_warn in
+      eval_pe_warn := false;
+      let ans = begin try
+        ignore (Dc.single_string_of_tlk_string game
+                  (Dlg.Trans_String(Dlg.String s))) ;
+        1l
+      with _ -> 0l end in
+      eval_pe_warn := old_eval_pe_warn ;
+      if tra_l <> [] then Dc.pop_trans () ;
+      ans
+
   | PE_IdsOfSymbol(file,entry) ->
       begin try
         let file = Var.get_string file in
@@ -181,13 +180,12 @@ let rec eval_pe buff game p =
       with _ -> -1l
       end
 
-
   | PE_Random(lb,ub) ->
       let lb = eval_pe buff game lb in
       let ub = eval_pe buff game ub in
       if lb > ub then 0l
       else if lb = ub then lb
-	  (* random(3,5) = 3 + rand_zero_exclusive((5-3)+1) *)
+          (* random(3,5) = 3 + rand_zero_exclusive((5-3)+1) *)
       else Int32.add lb (Random.int32 (Int32.succ (Int32.sub ub lb)))
 
   | PE_String_Length(s) ->
@@ -197,60 +195,63 @@ let rec eval_pe buff game p =
       Int32.of_int (String.length buff)
 
   | PE_Index(from_end,case_sens,match_exact,what,start,where) ->
-    let case_sens = match case_sens with
-            None -> false
-          | Some(x) -> x
-    in
-    let match_exact = match match_exact with
-            None -> false
-          | Some(x) -> x
-    in
-    let find = Var.get_string (eval_pe_str what) in
-    let my_regexp = match case_sens, match_exact with
-      false, false -> Str.regexp_case_fold        find
-    | true , false -> Str.regexp                  find
-    | false, true  -> Str.regexp_string_case_fold find
-    | true , true  -> Str.regexp_string           find
-    in
-    let where = match where with
-    | None -> buff
-    | Some x -> Var.get_string (eval_pe_str x)
-    in
-    let start = match from_end, start with
-    | false, None -> 0
-    | true, None -> String.length where
-    | _, Some x -> Int32.to_int (eval_pe where game x)
-    in
-    Int32.of_int (try (if from_end then Str.search_backward else Str.search_forward) my_regexp where start with _ -> 0 - 1)
-      
+      let case_sens = match case_sens with
+      | None -> false
+      | Some(x) -> x
+      in
+      let match_exact = match match_exact with
+      | None -> false
+      | Some(x) -> x
+      in
+      let find = Var.get_string (eval_pe_str what) in
+      let my_regexp = match case_sens, match_exact with
+      | false, false -> Str.regexp_case_fold        find
+      | true , false -> Str.regexp                  find
+      | false, true  -> Str.regexp_string_case_fold find
+      | true , true  -> Str.regexp_string           find
+      in
+      let where = match where with
+      | None -> buff
+      | Some x -> Var.get_string (eval_pe_str x)
+      in
+      let start = match from_end, start with
+      | false, None -> 0
+      | true, None -> String.length where
+      | _, Some x -> Int32.to_int (eval_pe where game x)
+      in
+      Int32.of_int (try (if from_end then Str.search_backward else
+      Str.search_forward) my_regexp where start with _ -> 0 - 1)
+
   | PE_FileContainsEvaluated(filename, reg) ->
       begin
-	let filename = eval_pe_str filename in 
-	let reg = eval_pe_str reg in
-	let filename = Var.get_string filename in
-	let reg = Var.get_string reg in
-	let old_allow_missing = !Load.allow_missing in 
-	Load.allow_missing := [String.uppercase filename] ; 
-	let answer = 
-	  try
-	    let buf = 
-              if file_exists filename then load_file filename 
-              else 
-		let a,b = split_resref filename in
-		Load.skip_next_load_error := true; 
-		let buff,path = 
-		  Load.load_resource "FILE_CONTAINS_EVALUATED" game true a b
-		in buff
-	    in
-	    if buf = "" then 0l
-	    else
-	      let regexp = Str.regexp_case_fold reg in
-              let _ = Str.search_forward regexp buf 0 in 
+        let filename = eval_pe_str filename in
+        let reg = eval_pe_str reg in
+        let filename = Var.get_string filename in
+        let reg = Var.get_string reg in
+        let old_allow_missing = !Load.allow_missing in
+        Load.allow_missing := [String.uppercase filename] ;
+        let answer =
+          try
+            let buf =
+              if file_exists filename then load_file filename
+              else begin
+                let a,b = split_resref filename in
+                Load.skip_next_load_error := true;
+                let buff,path =
+                  Load.load_resource "FILE_CONTAINS_EVALUATED" game true a b
+                in buff
+              end
+            in
+            if buf = "" then 0l
+            else begin
+              let regexp = Str.regexp_case_fold reg in
+              let _ = Str.search_forward regexp buf 0 in
               1l
-	  with Not_found -> 0l
-	in
-	Load.allow_missing := old_allow_missing ;
-	answer
+            end
+          with Not_found -> 0l
+        in
+        Load.allow_missing := old_allow_missing ;
+        answer
       end
 
   | PE_ResourceContains(filename, regexp) ->
@@ -265,10 +266,11 @@ let rec eval_pe buff game p =
           let buff, _ = Load.load_resource "RESOURCE_CONTAINS"
               game true res ext in
           if buff = "" then 0l
-          else
+          else begin
             let regexp = Str.regexp_case_fold regexp in
             let _ = Str.search_forward regexp buff 0 in
             1l
+          end
         with Not_found -> 0l) in
       Load.allow_missing := old_allow_missing ;
       result
@@ -303,47 +305,31 @@ let rec eval_pe buff game p =
         let (a,b,c,this_biff) = Load.find_in_key game a b in
         this_biff.Biff.compressed
       with _ -> false )
-	  
+
   | Pred_Biff_Is_Compressed(f) -> if_true (
       let f = Var.get_string (eval_pe_str f) in
-	  try
-		(Load.load_bif_in_game game f).Biff.compressed
-	  with _ -> false
-    )
+      try
+        (Load.load_bif_in_game game f).Biff.compressed
+      with _ -> false)
 
-  | Pred_File_Exists_In_Game(f) -> if_true  (
+  | Pred_File_Exists_In_Game(f) -> if_true (
       let f = Var.get_string (eval_pe_str f) in
       let res,ext = split_resref f in
       (try
         Load.resource_exists game res ext
       with _ -> false))
 
-(*
-      let old_allow_missing = !Load.allow_missing in
-      Load.allow_missing := [] ;
-      let res =
-	(try
-          let a,b = split f in
-          Load.skip_next_load_error := true;
-          let buff,path = Load.load_resource "FILE_EXISTS_IN_GAME" game true a b in
-          (String.length buff > 0) 
-	with Failure _ -> false
-	| Invalid_argument "String.create" -> true (* File is > 2^24 bytes *)
-	| _ -> false
-	) in
-      Load.allow_missing := old_allow_missing ;
-      res )
-*)
   | Pred_File_Size(f,s) ->
-      let f = eval_pe_str f in 
+      let f = eval_pe_str f in
       if_true (file_size (Var.get_string f) = s)
+
   | Pred_File_Contains(f,r) -> if_true (
       let f = eval_pe_str f in
       let r = eval_pe_str r in
       let buf = load_file f in
-      let regexp = Str.regexp_case_fold r in 
+      let regexp = Str.regexp_case_fold r in
       try
-        let _ = Str.search_forward regexp buf 0 in 
+        let _ = Str.search_forward regexp buf 0 in
         true
       with Not_found -> false)
 
@@ -353,13 +339,12 @@ let rec eval_pe buff game p =
       let s1 = Var.get_string s1 in
       let s2 = Var.get_string s2 in
       let r = Str.regexp_case_fold s2 in
-      let b = 
+      let b =
         if exact then Str.string_match r s1 0
-        else
-          try
-            let _ = Str.search_forward r s1 0 in
-            true
-          with _ -> false
+        else try
+          let _ = Str.search_forward r s1 0 in
+          true
+        with _ -> false
       in
       if b then 0l else 1l
 
@@ -367,8 +352,8 @@ let rec eval_pe buff game p =
       let s1 = eval_pe_str s1 in
       let s2 = eval_pe_str s2 in
       let s1 = Var.get_string s1 in
-      let s2 = Var.get_string s2 in 
-      let comparison = if ignore_case then 
+      let s2 = Var.get_string s2 in
+      let comparison = if ignore_case then
         (fun s1 s2 -> String.compare (String.uppercase s1)
             (String.uppercase s2)) else String.compare
       in
@@ -380,21 +365,22 @@ let rec eval_pe buff game p =
           result )
       in
       bigg_make_bool ()
+
   | PE_Add(a,b) -> let a = eval_pe buff game a in let b = eval_pe buff game b in Int32.add a b
   | PE_Sub(a,b) -> let a = eval_pe buff game a in let b = eval_pe buff game b in Int32.sub a b
   | PE_Mul(a,b) -> let a = eval_pe buff game a in let b = eval_pe buff game b in Int32.mul a b
-  | PE_Div(a,b) -> let a = eval_pe buff game a in let b = eval_pe buff game b in 
+  | PE_Div(a,b) -> let a = eval_pe buff game a in let b = eval_pe buff game b in
     (try Int32.div a b with Division_by_zero -> Int32.zero)
   | PE_Mod(a,b) -> let a = eval_pe buff game a in let b = eval_pe buff game b in
     (try Int32.rem a b with Division_by_zero -> Int32.zero)
-  | PE_Exp(a,b,c) -> 
-      (try 
-	let a = Int32.to_float (eval_pe buff game a) in
-	let b = Int32.to_float (eval_pe buff game b) in
-	let c = Int32.to_float (eval_pe buff game c) in
-	let bc = b /. c in 
-	let answer = a ** bc in
-	Int32.of_float answer
+  | PE_Exp(a,b,c) ->
+      (try
+        let a = Int32.to_float (eval_pe buff game a) in
+        let b = Int32.to_float (eval_pe buff game b) in
+        let c = Int32.to_float (eval_pe buff game c) in
+        let bc = b /. c in
+        let answer = a ** bc in
+        Int32.of_float answer
       with _ -> 0l)
 
   | PE_Not(a) ->   if is_true (eval_pe buff game a)
@@ -428,11 +414,11 @@ let rec eval_pe buff game p =
     let number = Int32.to_int (eval_pe buff game number) in
     if_true (already_installed filename number && not (temporarily_uninstalled filename number))
   | PE_IsInstalledAfter(filename1,number1,filename2,number2) ->
-	let filename1 = Var.get_string (eval_pe_str filename1) in
-	let filename2 = Var.get_string (eval_pe_str filename2) in
-	let number1 = Int32.to_int (eval_pe buff game number1) in
-	let number2 = Int32.to_int (eval_pe buff game number2) in
-	if_true (installed_after filename1 number1 filename2 number2)
+      let filename1 = Var.get_string (eval_pe_str filename1) in
+      let filename2 = Var.get_string (eval_pe_str filename2) in
+      let number1 = Int32.to_int (eval_pe buff game number1) in
+      let number2 = Int32.to_int (eval_pe buff game number2) in
+      if_true (installed_after filename1 number1 filename2 number2)
 
   | PE_IdOfLabel(filename,name) ->
       let filename = Var.get_string (eval_pe_str filename) in
@@ -575,23 +561,26 @@ let rec eval_pe buff game p =
       end else if result then 1l else 0l
   end
 
-  | PE_IsAnInt(x) -> let old_eval_pe_warn = !eval_pe_warn in (eval_pe_warn := false ;
-		      try
-			let _ = (eval_pe buff game (PE_String(x))) in
-			eval_pe_warn := old_eval_pe_warn;
-			1l
-		      with _ ->
-			eval_pe_warn := old_eval_pe_warn;
-			0l
-		     )
+  | PE_IsAnInt(x) ->
+      let old_eval_pe_warn = !eval_pe_warn in
+      (eval_pe_warn := false ;
+       try
+         let _ = (eval_pe buff game (PE_String(x))) in
+         eval_pe_warn := old_eval_pe_warn;
+         1l
+       with _ ->
+         eval_pe_warn := old_eval_pe_warn;
+         0l)
+
   | PE_IsSilent -> if (!be_silent) then 1l else 0l
-  
+
   | PE_Resolve_Str_Ref(lse) ->
-	let new_index = match Dc.resolve_tlk_string game lse with
+        let new_index = match Dc.resolve_tlk_string game lse with
           Dlg.TLK_Index(i) -> i
-	  | _ -> log_and_print "ERROR: cannot RESOLVE_STR_REF\n" ; failwith "resolve"
-	in
-    Int32.of_int new_index	
+        | _ -> log_and_print "ERROR: cannot RESOLVE_STR_REF\n" ;
+            failwith "resolve"
+        in
+    Int32.of_int new_index
 
   | PE_SizeOfFile(file) ->
       let file = Arch.backslash_to_slash (Var.get_string (eval_pe_str file)) in
@@ -606,28 +595,28 @@ let rec eval_pe buff game p =
           if !debug_ocaml then log_and_print "in lookforit \n";
           try (match lst with
           | [] -> []
-          | hd :: tl -> looksingle game lse hd; lookforit game lse tl
-              ) with
+          | hd :: tl -> looksingle game lse hd; lookforit game lse tl)
+          with
           | FoundInt(i) -> i :: lookforit game lse (List.tl lst)
           | e -> raise e
         and looksingle game lse this =
           if !debug_ocaml then log_and_print "looking in %s\n" this;
           handle_tra_filename this ;
           try
-            ( match Dc.resolve_tlk_string_internal false false game lse
+            (match Dc.resolve_tlk_string_internal false false game lse
             with
             | Dlg.TLK_Index(i) -> if !debug_ocaml then begin
-                let str = Dc.single_string_of_tlk_string game (Dlg.TLK_Index(i)) in
+                let str = Dc.single_string_of_tlk_string game
+                    (Dlg.TLK_Index(i)) in
                 let str = Var.get_string str in
                 log_and_print "\n%d - %s\n" i str
             end ; raise(FoundInt i)
-            | _ -> ();
-             )
+            | _ -> ())
           with
-            FoundInt(i) -> raise (FoundInt i)
+          | FoundInt(i) -> raise (FoundInt i)
           | a -> if !debug_ocaml then log_and_print "%s\n" (printexc_to_string a)
         in
-        
+
         Dc.push_copy_trans_modder ();
         try
           let ans = lookforit game lse lst in
@@ -640,11 +629,11 @@ let rec eval_pe buff game p =
       let theref = match traref with
       | None (*going by tra + @ref*) ->
           begin try
-            ( match Dc.resolve_tlk_string_internal false true game (value_of_option lse)
-            with
+            (match Dc.resolve_tlk_string_internal false true game
+                (value_of_option lse) with
             | Dlg.TLK_Index(i) -> [i]
-            | _ -> log_and_print "ERROR: cannot resolve SAY patch\n" ; failwith "resolve"
-             )
+            | _ -> log_and_print "ERROR: cannot resolve SAY patch\n" ;
+                failwith "resolve")
           with Not_found -> [0 - 3]
           | e -> raise e
           end
@@ -678,7 +667,9 @@ let rec eval_pe buff game p =
             in
             if !debug_ocaml then List.iter (fun x -> log_and_print "%s\n" x) lst;
             let x = begin try
-              lookforit game (Dlg.Trans_String(Dlg.Int(Int32.to_int(eval_pe buff game num)))) lst
+              lookforit game
+                (Dlg.Trans_String
+                   (Dlg.Int(Int32.to_int(eval_pe buff game num)))) lst
             with
             | Not_found -> [0 - 3]
             | e -> Dc.pop_trans ();  raise e
@@ -702,11 +693,14 @@ let rec eval_pe buff game p =
         for i = 0 to numstates - 1 do
           let this_say = int_of_str_off buff ((16 * i) + stateoff) in
           if List.mem this_say theref then whichstate := i ;
-          if List.mem this_say theref && !debug_ocaml then log_and_print "Found number %d at state %d\n" this_say i;
+          if List.mem this_say theref && !debug_ocaml then
+            log_and_print "Found number %d at state %d\n" this_say i;
           if List.mem this_say theref then incr howmany ;
         done ;
-        if !howmany = 0 then Int32.of_int (0 - 1) else if !howmany > 1 then Int32.of_int (0 - 2) else
-        Int32.of_int !whichstate
+        if !howmany = 0 then Int32.of_int (0 - 1) else if !howmany > 1 then
+          Int32.of_int (0 - 2)
+        else
+          Int32.of_int !whichstate
       end
   end
 
@@ -728,9 +722,9 @@ let rec eval_pe buff game p =
   | PE_DefinedAsFunction pe_string -> begin
       let name = Var.get_string (eval_pe_str pe_string) in
       if Hashtbl.mem Tpstate.functions (name,false) &&
-      Hashtbl.mem Tpstate.functions (name, true) then 3l else if
-        Hashtbl.mem Tpstate.functions (name,false) then 1l else if
-        Hashtbl.mem Tpstate.functions (name,true) then 2l else 0l
+        Hashtbl.mem Tpstate.functions (name, true) then 3l else if
+          Hashtbl.mem Tpstate.functions (name,false) then 1l else if
+            Hashtbl.mem Tpstate.functions (name,true) then 2l else 0l
   end
   | PE_DefinedAsInlined pe_string ->
       (if Hashtbl.mem Util.inlined_files
@@ -743,19 +737,17 @@ let eval_pe buff game pe =
       (pe_to_str pe) res ) ;
   res
 
-
 let string_of_pe buff game pe =
   eval_pe_warn := false ;
   let value = try
-      let x = (eval_pe buff game pe) in
-      Int32.to_string x
-    with _ ->
+    let x = (eval_pe buff game pe) in
+    Int32.to_string x
+  with _ ->
     begin
       match pe with
-        | PE_String(x) -> Var.get_string (eval_pe_str x)
-        | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game pe) ; "")
+      | PE_String(x) -> Var.get_string (eval_pe_str x)
+      | _ -> (eval_pe_warn := true ; ignore (eval_pe buff game pe) ; "")
     end
   in
-  eval_pe_warn := true ; 
+  eval_pe_warn := true ;
   value
-
