@@ -318,12 +318,11 @@ let load_ee_dialogs game_path =
   let lang_path = game_path ^ "/lang" in
   let lang_dirs =
     (List.fast_sort compare
-       (List.map String.lowercase
-          (List.filter (fun dir ->
-            let dir = Arch.native_separator (lang_path ^ "/" ^ dir) in
-            (is_directory dir) &&
-            (file_exists (Arch.native_separator (dir ^ "/dialog.tlk"))))
-             (Array.to_list (Case_ins.sys_readdir lang_path))))) in
+       (List.filter (fun dir ->
+         let dir = Arch.native_separator (lang_path ^ "/" ^ dir) in
+         (is_directory dir) &&
+         (file_exists (Arch.native_separator (dir ^ "/dialog.tlk"))))
+          (Array.to_list (Case_ins.sys_readdir lang_path)))) in
   let languages = (List.map (fun lang ->
     let path = Arch.native_separator (lang_path ^ "/" ^ lang) in
     load_dialog_pair path None None) lang_dirs) in
@@ -338,7 +337,7 @@ let load_ee_dialogs game_path =
 
 let load_dialogs game_path =
   if file_exists (Arch.native_separator
-                    (game_path ^ "/lang/en_us/dialog.tlk")) then
+                    (game_path ^ "/lang/en_US/dialog.tlk")) then
     load_ee_dialogs game_path
   else
     load_default_dialogs game_path
@@ -511,8 +510,8 @@ let load_game () =
 
 let set_additional_bgee_load_paths game dir =
   let gp = game.game_path in
-  let more = List.append (if dir <> "en_us" then [gp ^ "/lang/" ^ dir] else [])
-      [gp ^ "/lang/en_us"] in
+  let more = List.append (if (String.lowercase_ascii dir) <> "en_us" then
+    [gp ^ "/lang/" ^ dir] else []) [gp ^ "/lang/en_US"] in
   game.cd_path_list <- (List.append game.cd_path_list more)
 
 let use_bgee_lang_dir game dir =

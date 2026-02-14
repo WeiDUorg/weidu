@@ -512,8 +512,8 @@ let ask_about_lang_dir ask_text: string =
              ("ru_ru", (get_trans (-1053))); ("uk_ua", (get_trans (-1054)));
              ("hu_hu", (get_trans (-1055))); ("no_nb", (get_trans (-1056)))]) ;
   let prettify dir =
-    if Hashtbl.mem pretty_ht dir then
-      Hashtbl.find pretty_ht dir
+    if Hashtbl.mem pretty_ht (String.lowercase_ascii dir) then
+      Hashtbl.find pretty_ht (String.lowercase_ascii dir)
     else dir in
   let answer = ref None in
   while !answer = None do
