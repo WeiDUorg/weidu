@@ -875,29 +875,6 @@ let split_log_line line =
   if List.length pieces = 2 then pieces else
   Str.split (Str.regexp " ") line
 
-let attempt_to_load_bgee_lang_dir game_path =
-  let conf = Arch.native_separator (game_path ^ "/weidu.conf") in
-  if file_exists conf then begin
-    let buff = load_file conf in
-    let regexp = (Str.regexp_case_fold "lang_dir[ \t]+=[ \t]+\\([a-z_]+\\)") in
-    (try
-      ignore (Str.search_forward regexp buff 0) ;
-      Some (String.lowercase (Str.matched_group 1 buff))
-    with Not_found -> None)
-  end
-  else None
-
-let write_bgee_lang_dir game_path dir =
-  (try
-    let conf = Arch.native_separator (game_path ^ "/weidu.conf") in
-    let chan = Case_ins.perv_open_out_bin conf in
-    ignore (output_string chan (String.lowercase
-                                  (Printf.sprintf "lang_dir = %s\n" dir))) ;
-    ignore (close_out chan)
-  with e ->
-    log_and_print "ERROR: unable to save weidu.conf because: %s\n"
-      (printexc_to_string e))
-
 let deduplicate list =
   let table = Hashtbl.create (List.length list) in
   List.filter (fun x ->
@@ -979,7 +956,8 @@ let read_tp2_directory dir_name directory =
   let dirs = Case_ins.sys_readdir directory in
   Array.fold_left (fun acc item ->
     if (String.equal (String.lowercase_ascii item)
-          (String.lowercase_ascii dir_name)) && is_directory item then
+          (String.lowercase_ascii dir_name)) &&
+      is_directory (Arch.native_separator directory ^ "/" ^ item) then
       item else acc) dir_name dirs
 
 let case_exact_tp_file tp_file =
@@ -1001,3 +979,25 @@ let read_lines file =
     | Some line -> loop (line :: list)
     | None -> close_in chan ; List.rev list in
   loop []
+
+let attempt_to_load_bgee_lang_dir game_path =
+  let conf = Arch.native_separator (game_path ^ "/weidu.conf") in
+  if file_exists conf then begin
+    let buff = load_file conf in
+    let regexp = (Str.regexp_case_fold "lang_dir[ \t]+=[ \t]+\\([a-z_]+\\)") in
+    (try
+      ignore (Str.search_forward regexp buff 0) ;
+      Some (read_tp2_directory (Str.matched_group 1 buff) "lang")
+    with Not_found -> None)
+  end
+  else None
+
+let write_bgee_lang_dir game_path dir =
+  (try
+    let conf = Arch.native_separator (game_path ^ "/weidu.conf") in
+    let chan = Case_ins.perv_open_out_bin conf in
+    ignore (output_string chan (Printf.sprintf "lang_dir = %s\n" dir)) ;
+    ignore (close_out chan)
+  with e ->
+    log_and_print "ERROR: unable to save weidu.conf because: %s\n"
+      (printexc_to_string e))

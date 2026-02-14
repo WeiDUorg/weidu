@@ -1512,7 +1512,7 @@ let main () =
     "--search-ids", Myarg.String Load.add_ids_path, "X\tlook in X for input IDS files (cumulative)" ;
     "--tlkin", Myarg.String Load.set_dialog_tlk_path,"X\tuse X as DIALOG.TLK" ;
     "--ftlkin", Myarg.String Load.set_dialogf_tlk_path,"X\tuse X as DIALOGF.TLK";
-    "--use-lang", Myarg.String (fun s -> ee_use_lang := Some (String.lowercase s)), "X\ton games with multiple languages, use files in lang/X/";
+    "--use-lang", Myarg.String (fun s -> ee_use_lang := Some s), "X\ton games with multiple languages, use files in lang/X/";
     "--tlkmerge", Myarg.String (fun s -> tlk_merge := !tlk_merge @ [s]; test_output_tlk_p := true),
     "X\tmerge X into loaded DIALOG.TLK" ;
     "--yes", Myarg.Set Tp.always_yes,"\tanswer all TP2 questions with 'Yes'";
@@ -1779,8 +1779,10 @@ let main () =
     (match !ee_use_lang with
     | None -> Load.set_bgee_lang_dir game
               (attempt_to_load_bgee_lang_dir game.Load.game_path)
-    | Some s -> Load.set_bgee_lang_dir game (Some s) ;
-        write_bgee_lang_dir game.Load.game_path s) ;
+    | Some s ->
+        let dir = read_tp2_directory s "lang" in
+        Load.set_bgee_lang_dir game (Some dir) ;
+        write_bgee_lang_dir game.Load.game_path dir) ;
   end
   else begin
     ignore (Load.actually_load_tlk_pair game (Load.get_active_dialogs game)) ;
