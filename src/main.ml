@@ -1780,7 +1780,7 @@ let main () =
     | None -> Load.set_bgee_lang_dir game
               (attempt_to_load_bgee_lang_dir game.Load.game_path)
     | Some s ->
-        let dir = read_tp2_directory s "lang" in
+        let dir = read_directory_name s "lang" in
         Load.set_bgee_lang_dir game (Some dir) ;
         write_bgee_lang_dir game.Load.game_path dir) ;
   end

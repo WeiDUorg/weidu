@@ -27,7 +27,7 @@ let rec get_menu_style fl = match fl with
 let mod_folder tp =
   (match Util.tp2_directory tp.tp_filename with
   | Some dir -> dir
-  | None -> Util.read_tp2_directory (match Var.get_mod_folder tp.backup with
+  | None -> Util.read_directory_name (match Var.get_mod_folder tp.backup with
     | Some s -> s
     | None -> tp.backup) ".")
 

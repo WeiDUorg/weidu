@@ -945,14 +945,14 @@ let tp2_directory tp2_file =
          (String.lowercase dir)) -> Some dir
   | _ -> None)
 
-let read_tp2_name tp2_file directory =
+let read_file_name tp2_file directory =
   let files = Case_ins.sys_readdir directory in
   Array.fold_left (fun acc item ->
     if (String.equal (String.lowercase_ascii item)
           (String.lowercase_ascii tp2_file)) && not (is_directory item) then
       item else acc) tp2_file files
 
-let read_tp2_directory dir_name directory =
+let read_directory_name dir_name directory =
   let dirs = Case_ins.sys_readdir directory in
   Array.fold_left (fun acc item ->
     if (String.equal (String.lowercase_ascii item)
@@ -963,12 +963,12 @@ let read_tp2_directory dir_name directory =
 let case_exact_tp_file tp_file =
   (match tp2_directory tp_file with
   | None ->
-      read_tp2_name (Case_ins.filename_basename tp_file) "."
+      read_file_name (Case_ins.filename_basename tp_file) "."
   | Some dir ->
-      let tp2_name = (read_tp2_name
+      let tp2_name = (read_file_name
                         (Case_ins.filename_basename
                            tp_file) dir) in
-      let tp2_dir = (read_tp2_directory dir ".") in
+      let tp2_dir = (read_directory_name dir ".") in
       Filename.concat tp2_dir tp2_name)
 
 let read_lines file =
@@ -987,7 +987,7 @@ let attempt_to_load_bgee_lang_dir game_path =
     let regexp = (Str.regexp_case_fold "lang_dir[ \t]+=[ \t]+\\([a-z_]+\\)") in
     (try
       ignore (Str.search_forward regexp buff 0) ;
-      Some (read_tp2_directory (Str.matched_group 1 buff) "lang")
+      Some (read_directory_name (Str.matched_group 1 buff) "lang")
     with Not_found -> None)
   end
   else None
