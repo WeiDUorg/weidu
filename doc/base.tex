@@ -3424,7 +3424,9 @@ P Q R 3
     \end{itemize}
     Slashes and backslashes will be converted appropriately for the
     underlying operating system. If \t{EXACT} is specified, \verb+/+
-    and \verb+\+ will instead be preserved as they are. The most common usage is:
+    and \verb+\+ will instead be preserved as they are. \t{EXACT}
+    causes WeiDU on Linux to not turn the command into lower
+    case. The most common usage is:
 \begin{verbatim}
 AT_INTERACTIVE_EXIT ~VIEW mymod\README.txt~
 \end{verbatim}
