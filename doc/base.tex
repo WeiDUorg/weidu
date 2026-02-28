@@ -4332,11 +4332,14 @@ SNPRINT 3 myvar "1:%author%"
 
 or & \DEFINE{SPRINTF} \ttref{variable} stringWithVars
 \t{(} \ttref{variable} or \ttref{value}  \Slist \t{)} &
-In stringWithVars, any instance of \t{\%s}, \t{\%d} and \t{\%x} will consume
-one variable of the list of variables and format the contents of the variable
-as a string, decimal number or hexadecimal number, respectively. Any normal text
-in stringWithVars is reproduced verbatim. Variables enclosed in \t{\%} are not
-evaluated. The result is stored in the variable given as the first argument.
+In stringWithVars, any instance of \t{\%s}, \t{\%d} and \t{\%x} will
+consume one variable of the list of variables and format the contents
+of the variable as a string, decimal number or hexadecimal number,
+respectively. Note that \t{\%s} will not preserve the formatting of
+any strings that can be interpretted as numbers, but will format them
+as decimal. Any normal text in stringWithVars is reproduced
+verbatim. Variables enclosed in \t{\%} are not evaluated. The result
+is stored in the variable given as the first argument.
 \begin{verbatim}
 SET ten = 10
 SPRINTF foo "%s %d %x quux" ("bar" 10 ten)
