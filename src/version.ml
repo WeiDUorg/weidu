@@ -11,7 +11,7 @@
 
 open BatteriesInit
 open Hashtblinit
-let version = "25106"
+let version = "25100"
 
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
