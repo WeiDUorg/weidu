@@ -1,6 +1,10 @@
 open BatteriesInit
 open Hashtblinit
 
+let case_fold = ref false
+
+let case_sensitive_p () = false
+
 let backslash_to_slash s =
   let s = Str.global_replace (Str.regexp "\\\\") "/" s in
 				s

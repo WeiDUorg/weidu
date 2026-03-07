@@ -4,10 +4,15 @@
 open BatteriesInit
 open Hashtblinit
 
+let case_fold = ref true
+
+let case_sensitive_p () = true
+
 external fcase : string -> string = "fcase"
 
 (* fcase returns "./" for "" *)
-let case_transform s = if String.trim s <> "" then fcase s else ""
+let case_transform s = if not !case_fold then s else
+  if String.trim s <> "" then fcase s else ""
 
 (* Pervasives FS calls *)
 let backslash_to_slash s =

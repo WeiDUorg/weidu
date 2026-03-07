@@ -1566,6 +1566,8 @@ let main () =
     "\tX Y... X, Y... will be stored in the %argvx% variables (cumulative)";
     "--args-list", Myarg.List (Myarg.String (fun s -> Var.set_string ("argv[" ^ (string_of_int !counter) ^ "]") s; incr counter)),
     "\tX Y... X, Y... will be stored in the %argvx% variables (cumulative)";
+    "--no-case-fold", Myarg.Unit (fun () -> Case_ins.case_fold := false ; Hashtbl.replace !Tp.conf "case_fold" "false"), "\tdo not case-fold I/O (Linux only)";
+    "--case-fold", Myarg.Unit (fun () -> Case_ins.case_fold := true ; Hashtbl.replace !Tp.conf "case_fold" "true"), "\tfold case when doing I/O (Linux only, default)";
     "--print-backtrace", Myarg.Unit (fun () -> print_backtrace := true; Printexc.record_backtrace true),"\tprints OCaml stack trace when reporting an exception (rarely of interest to end-users)";
     "--debug-ocaml", Myarg.Set Util.debug_ocaml,"\tenables random debugging information for the Ocaml source (rarely of interest to end-users)" ;
     "--debug-boiic", Myarg.Set Tp.debug_boiic,"\tprints out which files have been changed by BUT_ONLY_IF_IT_CHANGES" ;
@@ -1775,6 +1777,12 @@ let main () =
   if (!forced_script_style <> Load.NONE) then
     force_script_style game !forced_script_style Sys.argv.(0);
 
+  (match Sys.getenv_opt "WEIDU_NO_CASE_FOLD" with
+  | Some "1"
+  | Some "true" -> Case_ins.case_fold := false
+  | Some _
+  | None -> ()) ;
+
   if file_exists (Util.conf_filename game.Load.game_path) then begin
     let conf = Util.load_conf game.Load.game_path in
     if Load.enhanced_edition_p game then
@@ -1788,6 +1796,13 @@ let main () =
           let dir = read_directory_name s "lang" in
           Load.set_bgee_lang_dir game (Some dir) ;
           Hashtbl.replace conf "lang_dir" dir) ;
+    if Case_ins.case_sensitive_p () then
+      (try
+        (match Hashtbl.find conf "case_fold" with
+        | "true" -> Case_ins.case_fold := true
+        | "false" -> Case_ins.case_fold := false
+        | u -> log_and_print "Unrecognised value for case_fold: %s\n" u)
+      with Not_found -> ()) ;
     Hashtbl.iter (fun key value ->
       Hashtbl.replace !Tp.conf key value) conf ;
   end ;

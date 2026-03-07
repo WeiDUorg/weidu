@@ -283,7 +283,7 @@ let eep () =
   enhanced_edition_p (the_game ())
 
 let save_conf_p () =
-  eep ()
+  eep () || Case_ins.case_sensitive_p ()
 
 let load_dialog_pair path dpath dfpath =
   let dialog, dialog_path = fake_load_dialog path dpath in

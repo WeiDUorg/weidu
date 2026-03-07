@@ -1039,6 +1039,12 @@ where n is 0 for the first argument, 1 for the second, etc.
 
 If the installation is non-interactive, said variables will be loaded from the last interactive
 session. \\
+\DEFINE{--no-case-fold} & WeiDU will not fold case in I/O operations
+(Linux only). You can also set the environment variable
+\t{WEIDU_NO_CASE_FOLD} to either \t{true} (case sensitive) or \t{1}
+for the same effect. \\
+\DEFINE{--case-fold} & Explicitly tell WeiDU to fold case in I/O
+operations (Linux only, case-folding is default). \\
 \DEFINE{--debug-assign} & Print out all values assigned to \ttref{TP2}
 variables (even implicit ones created by \t{WeiDU}). \\
 \DEFINE{--debug-value} & Print out all \ttref{value}s encountered in
