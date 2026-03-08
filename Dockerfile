@@ -10,7 +10,7 @@ RUN apt-get update -yqqq && \
     unzip master.zip && \
     mkdir -p ${ELKHOUND_BUILD_DIR} && \
     cmake -Wno-dev -S ${ELKHOUND_SRC_DIR} -B ${ELKHOUND_BUILD_DIR} -D CMAKE_BUILD_TYPE=Release && \
-    make -j$(npoc) -C ${ELKHOUND_BUILD_DIR} && \
+    make -j$(nproc) -C ${ELKHOUND_BUILD_DIR} && \
     mv ${ELKHOUND_BUILD_DIR}/elkhound/elkhound /usr/bin/elkhound
 FROM docker.io/ocaml/opam:debian-13-ocaml-4.08 AS weidu-build
 COPY --from=elkhound-build /usr/bin/elkhound /usr/bin/elkhound
