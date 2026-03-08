@@ -1775,18 +1775,36 @@ let main () =
   if (!forced_script_style <> Load.NONE) then
     force_script_style game !forced_script_style Sys.argv.(0);
 
-  if Load.enhanced_edition_p game then begin
+  if file_exists (Util.conf_filename game.Load.game_path) then begin
+    let conf = Util.load_conf game.Load.game_path in
+    if Load.enhanced_edition_p game then
+      (match !ee_use_lang with
+      | None -> (try
+          let dir = read_directory_name
+              (Hashtbl.find conf "lang_dir") "lang" in
+          Load.set_bgee_lang_dir game (Some dir)
+      with Not_found -> Load.set_bgee_lang_dir game None)
+      | Some s ->
+          let dir = read_directory_name s "lang" in
+          Load.set_bgee_lang_dir game (Some dir) ;
+          Hashtbl.replace conf "lang_dir" dir) ;
+    Hashtbl.iter (fun key value ->
+      Hashtbl.replace !Tp.conf key value) conf ;
+  end ;
+
+  if Load.enhanced_edition_p game then
     (match !ee_use_lang with
-    | None -> Load.set_bgee_lang_dir game
-              (attempt_to_load_bgee_lang_dir game.Load.game_path)
+    | None -> ()
     | Some s ->
         let dir = read_directory_name s "lang" in
         Load.set_bgee_lang_dir game (Some dir) ;
-        write_bgee_lang_dir game.Load.game_path dir) ;
-  end
-  else begin
+        Hashtbl.replace !Tp.conf "lang_dir" dir) ;
+
+  if Load.save_conf_p () then
+    Util.save_conf game.Load.game_path !Tp.conf ;
+
+  if not (Load.enhanced_edition_p game) then
     ignore (Load.actually_load_tlk_pair game (Load.get_active_dialogs game)) ;
-  end ;
 
   ignore (Load.deal_with_tlkin game) ;
 

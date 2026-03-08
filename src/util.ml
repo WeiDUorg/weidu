@@ -980,24 +980,26 @@ let read_lines file =
     | None -> close_in chan ; List.rev list in
   loop []
 
-let attempt_to_load_bgee_lang_dir game_path =
-  let conf = Arch.native_separator (game_path ^ "/weidu.conf") in
-  if file_exists conf then begin
-    let buff = load_file conf in
-    let regexp = (Str.regexp_case_fold "lang_dir[ \t]+=[ \t]+\\([a-z_]+\\)") in
-    (try
-      ignore (Str.search_forward regexp buff 0) ;
-      Some (read_directory_name (Str.matched_group 1 buff) "lang")
-    with Not_found -> None)
-  end
-  else None
+let conf_filename game_path =
+  Arch.native_separator (game_path ^ "/weidu.conf")
 
-let write_bgee_lang_dir game_path dir =
+let load_conf game_path =
+  let lines = read_lines (conf_filename game_path) in
+  List.fold_left (fun acc line ->
+    let parts = List.map String.trim (String.split_on_char '=' line) in
+    (match parts with
+    | "lang_dir" :: value :: [] -> Hashtbl.replace acc "lang_dir" value ; acc
+    | _ -> acc)) (Hashtbl.create 5) lines
+
+let save_conf game_path table =
   (try
-    let conf = Arch.native_separator (game_path ^ "/weidu.conf") in
-    let chan = Case_ins.perv_open_out_bin conf in
-    ignore (output_string chan (Printf.sprintf "lang_dir = %s\n" dir)) ;
-    ignore (close_out chan)
+    if (Hashtbl.length table) > 0 then begin
+      let chan = Case_ins.perv_open_out_bin (conf_filename game_path) in
+      Hashtbl.iter (fun key value ->
+        ignore (output_string chan (Printf.sprintf "%s = %s\n" key value)))
+        table ;
+      ignore (close_out chan)
+    end
   with e ->
     log_and_print "ERROR: unable to save weidu.conf because: %s\n"
       (printexc_to_string e))

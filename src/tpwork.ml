@@ -700,7 +700,8 @@ let rec handle_tp game this_tp2_filename tp =
     if not !Load.have_bgee_lang_dir_p then begin
       let dir = ask_about_lang_dir (get_trans (-1040)) in
       ignore (Load.set_bgee_lang_dir game (Some dir)) ;
-      ignore (write_bgee_lang_dir game.Load.game_path dir) ;
+      ignore (Hashtbl.replace !Tp.conf "lang_dir" dir) ;
+      Util.save_conf game.Load.game_path !Tp.conf
     end ;
     (* todo: fix this mess *)
     Dc.cur_index := Array.length (Load.get_active_dialog game) ;

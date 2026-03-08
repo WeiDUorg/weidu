@@ -35,6 +35,7 @@ let debug_change = ref false
 let has_if_eval_bug = ref true
 let continue_on_error = ref false
 let debug_pe = ref false
+let conf : (string, string) Hashtbl.t ref = ref (Hashtbl.create 5)
 
 exception Abort of string
 
