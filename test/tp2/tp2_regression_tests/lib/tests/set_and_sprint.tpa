@@ -48,6 +48,10 @@ DEFINE_ACTION_FUNCTION test_set BEGIN
   ACTION_IF foo = 5 BEGIN
     FAIL "test_set failed scope test"
   END
+  OUTER_SET_IDS_SYMBOL_OF_INT foobar spell 1101
+  ACTION_IF "%foobar%" STR_CMP "CLERIC_BLESS" BEGIN
+    FAIL "test_set failed IDS_SYMBOL_OF_INT: got %foobar% while expecting CLERIC_BLESS"
+  END
 END
 
 /* SPRINT and TEXT_SPRINT */

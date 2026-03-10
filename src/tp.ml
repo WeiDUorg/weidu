@@ -195,6 +195,7 @@ and tp_action =
   | TP_Outer_Inner_Buff of string * (tp_patch list)
   | TP_Outer_Inner_Buff_Save of tp_pe_string * string * (tp_patch list)
   | TP_Outer_Set of tp_pe_string * tp_patchexp * bool
+  | TP_OuterSetIdsSymOfInt of string * string * tp_patchexp
   | TP_Outer_Sprint of tp_pe_string * tp_pe_tlk_string * bool
   | TP_Outer_Sprintf of tp_pe_string * tp_pe_tlk_string * tp_patchexp list
   | TP_Outer_Text_Sprint of tp_pe_string * tp_pe_string * bool

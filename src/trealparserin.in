@@ -485,6 +485,7 @@ nonterm(Tp.tp_action) Tp_Action {
        [ Tp.TP_Outer_Set(e1,(Tp.PE_Add(Tp.PE_String(left_to_right e1), Tp.get_pe_int "1")),e3) ]
   -> OUTER_SET e3:Optional_Global MINUS_MINUS e1:Patch_String_Left
        [ Tp.TP_Outer_Set(e1,(Tp.PE_Sub(Tp.PE_String(left_to_right e1), Tp.get_pe_int "1")),e3) ]
+  -> OUTER_SET_IDS_SYMBOL_OF_INT e1:STRING e2:STRING e3:Patch_Exp [ Tp.TP_OuterSetIdsSymOfInt(e1,e2,e3) ]
   -> OUTER_SPRINT e3:Optional_Global e1:Patch_String_Left e2:Dlg_Or_Patch_String_Right
        [ Tp.TP_Outer_Sprint(e1,e2,e3) ]
   -> OUTER_SPRINTF e1:Patch_String_Left e2:Dlg_Or_Patch_String_Right LPAREN e3:Patch_Exp_List RPAREN

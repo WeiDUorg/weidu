@@ -218,6 +218,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_Outer_Set(name,value,global) ->
           run_patch (TP_PatchSet(name,value,global))
 
+      | TP_OuterSetIdsSymOfInt(var,ids,value) ->
+          run_patch (TP_PatchSetIdsSymOfInt(var,ids,value))
+
       | TP_Outer_Sprint(name,msg,global) ->
           run_patch (TP_PatchSprint(name,msg,global))
 

@@ -3870,6 +3870,8 @@ or & \ttref{OUTER_SET} \Ob \t{GLOBAL} \Oe \ttref{variable} \t{<<=} \ttref{value}
   Equivalent to \t{OUTER_SET variable = variable BLSL value}. \\
 or & \ttref{OUTER_SET} \Ob \t{GLOBAL} \Oe \ttref{variable} \t{>>=} \ttref{value} &
   Equivalent to \t{OUTER_SET variable = variable BLSR value}. \\
+or & \DEFINE{OUTER_SET_IDS_SYMBOL_OF_INT} variable idsFile \ttref{value} &
+  Like \ttref{SET_IDS_SYMBOL_OF_INT} but with more action. \\
 or & \DEFINE{OUTER_INNER_PATCH} buffString \t{BEGIN} \ttref{patch} \Slist \t{END} &
   Any WeiDU variables inside \t{\%}s within buffString are replaced by
   their values. All of the \ttref{patch}es given are evaluated as if the
@@ -5062,19 +5064,19 @@ or & \DEFINE{COUNT_REGEXP_INSTANCES} \ttref{optcase} \ttref{optexact} \ttref{reg
   \verb+~[abc]~+). For legacy reasons, the result is −1 if the file is
   empty (0 bytes). \\
 
-or & \DEFINE{LOOKUP_IDS_SYMBOL_OF_INT} variable idsFile \ttref{value} &
+or & \DEFINE{SET_IDS_SYMBOL_OF_INT} variable idsFile \ttref{value} &
   The symbolic constant associated with \ttref{value} in idsFile (which may
   contain user variables) is stored
   in variable. If that doesn't work, \ttref{value} is stored in variable.
   Example:
 \begin{verbatim}
-LOOKUP_IDS_SYMBOL_OF_INT foo ~spell~ 1101
+SET_IDS_SYMBOL_OF_INT foo ~spell~ 1101
 SPRINT myfile "SPELL"
-LOOKUP_IDS_SYMBOL_OF_INT bar ~%myfile%~ (0x44c + 1)
-LOOKUP_IDS_SYMBOL_OF_INT baz ~spell~ 77777
+SET_IDS_SYMBOL_OF_INT bar ~%myfile%~ (0x44c + 1)
+SET_IDS_SYMBOL_OF_INT baz ~spell~ 77777
 \end{verbatim}
   Both \t{foo} and \t{bar} are \t{CLERIC\_BLESS} while \t{baz} is
-  \t{777777}. \\
+  \t{777777}. You may use \DEFINE{LOOKUP_IDS_SYMBOL_OF_INT} as a synonym. \\
 
 or & \DEFINE{COMPILE_BAF_TO_BCS} &
 Consider using \ttref{DECOMPILE_AND_PATCH} instead.
