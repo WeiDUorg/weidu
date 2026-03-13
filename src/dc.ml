@@ -883,9 +883,9 @@ let rec process_action game a = match a with
           let get_next s =
             let parts = Str.split (Str.regexp " ") s in
             match parts with
-            | [a;b;c] -> Dlg.Symbolic(String.uppercase b,c,false)
-            | [a;b] -> Dlg.Symbolic(String.uppercase n,b,false)
-            | [a] -> Dlg.Exit
+            | [a;b;c] when a = "EXTERN" -> Dlg.Symbolic(String.uppercase b,c,false)
+            | [a;b] when a = "GOTO" || a = "+" -> Dlg.Symbolic(String.uppercase n,b,false)
+            | [a] when a = "EXIT" -> Dlg.Exit
             | _ -> failwith "unknown transition in ALTER_STRING"
           in
           let intos = match into with
