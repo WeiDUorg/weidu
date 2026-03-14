@@ -729,11 +729,11 @@ let rec process_action game a = match a with
         let place =
           if place < 0 then
             failwith "EXTEND_TOP #position must be non-negative"
-          else if place >= tlen then begin
+          else if place > tlen then begin
             log_or_print
               "WARNING: EXTEND_TOP #position %d out of range 0-%d\n"
               place tlen ;
-            tlen - 1
+            tlen
           end else place
         in
         (* insert these transitions just after already-extans transition
@@ -769,11 +769,11 @@ let rec process_action game a = match a with
         let place =
           if place < 0 then
             failwith "EXTEND_BOTTOM #position must be non-negative"
-          else if place >= tlen then begin
+          else if place > tlen then begin
             log_or_print
               "WARNING: EXTEND_BOTTOM #position %d out of range 0-%d\n"
               place tlen ;
-            tlen - 1
+            tlen
           end else place
         in
         let place = tlen - place in
