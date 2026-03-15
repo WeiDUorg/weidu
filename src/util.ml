@@ -990,6 +990,7 @@ let load_conf game_path =
     (match parts with
     | "lang_dir" :: value :: [] -> Hashtbl.replace acc "lang_dir" value ; acc
     | "case_fold" :: value :: [] -> Hashtbl.replace acc "case_fold" value ; acc
+    | "lowercase" :: value :: [] -> Hashtbl.replace acc "lowercase" value ; acc
     | _ -> acc)) (Hashtbl.create 5) lines
 
 let save_conf game_path table =

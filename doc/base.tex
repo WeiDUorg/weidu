@@ -1045,6 +1045,15 @@ session. \\
 for the same effect. \\
 \DEFINE{--case-fold} & Explicitly tell WeiDU to fold case in I/O
 operations (Linux only, case-folding is default). \\
+\DEFINE{--lowercase} & Lowercase I/O for legacy behaviour and
+compatibility with tolower (Linux only). Takes precedence over
+\ttref{--fold-case}. Note that this is incompatible with the Enhanced
+Editions, and lowercasing needs to be enabled for every mod you
+install since WeiDU saves the log in weidu.log with lowercasing, but
+in WeiDU.log with case-folding. \\
+\DEFINE{--no-lowercase} & Unsets \ttref{--lowercase} if it has
+previously been used (Linux only). Note caveats described under
+\ttref{--lowercase}. \\
 \DEFINE{--debug-assign} & Print out all values assigned to \ttref{TP2}
 variables (even implicit ones created by \t{WeiDU}). \\
 \DEFINE{--debug-value} & Print out all \ttref{value}s encountered in

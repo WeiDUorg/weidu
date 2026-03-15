@@ -2,6 +2,7 @@ open BatteriesInit
 open Hashtblinit
 
 let case_fold = ref false
+let lowercase = ref false
 
 let case_sensitive_p () = false
 

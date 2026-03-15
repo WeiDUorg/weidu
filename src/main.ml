@@ -1568,6 +1568,8 @@ let main () =
     "\tX Y... X, Y... will be stored in the %argvx% variables (cumulative)";
     "--no-case-fold", Myarg.Unit (fun () -> Case_ins.case_fold := false ; Hashtbl.replace !Tp.conf "case_fold" "false"), "\tdo not case-fold I/O (Linux only)";
     "--case-fold", Myarg.Unit (fun () -> Case_ins.case_fold := true ; Hashtbl.replace !Tp.conf "case_fold" "true"), "\tfold case when doing I/O (Linux only, default)";
+    "--lowercase", Myarg.Unit (fun () -> Case_ins.lowercase := true ; Hashtbl.replace !Tp.conf "lowercase" "true"), "\tlowercase I/O for legacy behaviour and compatibility with tolower (Linux only, overrides --case-fold)";
+    "--no-lowercase", Myarg.Unit (fun () -> Case_ins.lowercase := false ; Hashtbl.replace !Tp.conf "lowercase" "false"), "\tunsets --lowercase if it has previously been used (Linux only)";
     "--print-backtrace", Myarg.Unit (fun () -> print_backtrace := true; Printexc.record_backtrace true),"\tprints OCaml stack trace when reporting an exception (rarely of interest to end-users)";
     "--debug-ocaml", Myarg.Set Util.debug_ocaml,"\tenables random debugging information for the Ocaml source (rarely of interest to end-users)" ;
     "--debug-boiic", Myarg.Set Tp.debug_boiic,"\tprints out which files have been changed by BUT_ONLY_IF_IT_CHANGES" ;
@@ -1801,7 +1803,11 @@ let main () =
         (match Hashtbl.find conf "case_fold" with
         | "true" -> Case_ins.case_fold := true
         | "false" -> Case_ins.case_fold := false
-        | u -> log_and_print "Unrecognised value for case_fold: %s\n" u)
+        | u -> log_and_print "Unrecognised value for case_fold: %s\n" u) ;
+        (match Hashtbl.find conf "lowercase" with
+        | "true" -> Case_ins.lowercase := true
+        | "false" -> Case_ins.lowercase := false
+        | u -> log_and_print "Unrecognised value for lowercase: %s\n" u)
       with Not_found -> ()) ;
     Hashtbl.iter (fun key value ->
       Hashtbl.replace !Tp.conf key value) conf ;
