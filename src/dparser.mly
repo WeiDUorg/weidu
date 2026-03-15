@@ -250,7 +250,7 @@ alter_trans_list :            { [] }
         parse_error (Printf.sprintf "Wrong EPILOGUE for ALTER_TRANS in %s \
                        near line %d\n" con.filename con.line)
     | e ->
-      log_and_print "WARNING: can not verify %s parameter for %s" $1 filename;
+      log_and_print "WARNING: can not verify %s parameter for %s\n" $1 filename;
       (try assert false with Assert_failure(file,line,col) -> set_errors file line);
       ($1, Dc.Alter_Trans_String $2) :: $3
     end
