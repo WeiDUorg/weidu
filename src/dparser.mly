@@ -245,7 +245,11 @@ alter_trans_list :            { [] }
 		      con.line con.col con.filename) in
     let result = begin try
       ($1, f $2) :: $3
-    with e ->
+    with
+    | Failure "Wrong EPILOGUE for ALTER_TRANS" ->
+        parse_error (Printf.sprintf "Wrong EPILOGUE for ALTER_TRANS in %s \
+                       near line %d\n" con.filename con.line)
+    | e ->
       log_and_print "WARNING: can not verify %s parameter for %s" $1 filename;
       (try assert false with Assert_failure(file,line,col) -> set_errors file line);
       ($1, Dc.Alter_Trans_String $2) :: $3
