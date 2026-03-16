@@ -1040,20 +1040,24 @@ where n is 0 for the first argument, 1 for the second, etc.
 If the installation is non-interactive, said variables will be loaded from the last interactive
 session. \\
 \DEFINE{--no-case-fold} & WeiDU will not fold case in I/O operations
-(Linux only). You can also set the environment variable
+(Linux only). This option is saved in the file weidu.conf, located in
+the root game directory. You can also set the environment variable
 \t{WEIDU_NO_CASE_FOLD} to either \t{true} (case sensitive) or \t{1}
 for the same effect. \\
 \DEFINE{--case-fold} & Explicitly tell WeiDU to fold case in I/O
-operations (Linux only, case-folding is default). \\
+operations (Linux only, case-folding is default). This option is saved
+in the file weidu.conf, located in the root game directory. \\
 \DEFINE{--lowercase} & Lowercase I/O for legacy behaviour and
-compatibility with tolower (Linux only). Takes precedence over
-\ttref{--fold-case}. Note that this is incompatible with the Enhanced
-Editions, and lowercasing needs to be enabled for every mod you
-install since WeiDU saves the log in weidu.log with lowercasing, but
-in WeiDU.log with case-folding. \\
+compatibility with tolower (Linux only). This option is saved in the
+file weidu.conf, located in the root game directory. Takes precedence
+over \ttref{--fold-case}. Note that this is incompatible with the
+Enhanced Editions, and lowercasing needs to be enabled for every mod
+you install since WeiDU saves the log in weidu.log with lowercasing,
+but in WeiDU.log with case-folding. \\
 \DEFINE{--no-lowercase} & Unsets \ttref{--lowercase} if it has
-previously been used (Linux only). Note caveats described under
-\ttref{--lowercase}. \\
+previously been used (Linux only). This option is saved in the file
+weidu.conf, located in the root game directory. Note caveats described
+under \ttref{--lowercase}. \\
 \DEFINE{--debug-assign} & Print out all values assigned to \ttref{TP2}
 variables (even implicit ones created by \t{WeiDU}). \\
 \DEFINE{--debug-value} & Print out all \ttref{value}s encountered in
@@ -1097,9 +1101,10 @@ the registry; X can be one of BG1, BG2, PST, IWD1 or IWD2. BGEE is unsupported.
 the default \t{override} directory. \\
 \\
 \multicolumn{2}{c}{ \color{red} Game Text (\ttref{TLK}) File Input} \\
-\DEFINE{--use-lang} \t{X} & On multi-language games (e.g., BGEE), use the files
-in lang/X/ instead of asking which lang/X/ to use. This answer is saved
-and --use-lang can override a previously saved answer.\\
+\DEFINE{--use-lang} \t{X} & On multi-language games (e.g., BGEE), use
+the files in lang/X/ instead of asking which lang/X/ to use. This
+answer is saved in the file weidu.conf, located in the root game
+directory, and --use-lang can override a previously saved answer.\\
 \DEFINE{--tlkin} \t{X} & Use {\tt X} as {\tt DIALOG.}\ttref{TLK} (instead
 of looking for \t{DIALOG.TLK} in the game directory). \\
 \DEFINE{--ftlkin} \t{X} & Use {\tt X} as {\tt DIALOGF.}\ttref{TLK} (instead
