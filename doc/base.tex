@@ -366,7 +366,7 @@ All other keywords are symbolic. Notes:
   additionally guarded by the \ttref{transition} predicate {\tt Global("globalVariable","GLOBAL",0)} and accompanied by the action {\tt SetGlobal("globalVariable","GLOBAL",1)}. If you pick {\tt globalVariable } to be unique, this will ensure that the \ttref{chainText} is only ever seen once per game. This is useful for making interjections. \\
 
   or & \DEFINE{INTERJECT_COPY_TRANS} \Ob \t{SAFE} \Oe entryFilename
-  entryLabel {\tt globalVariable} \ttref{chainText} \Slist &
+  entryLabel {\tt globalVariable} \ttref{chainText} \Slist \t{END} &
   This behaves just like \ttref{INTERJECT} except that the
   exitFilename and exitLabel are not present. Instead, whenever the
   dialogue would pass out of the \ttref{chainText} it follows a copy
@@ -381,7 +381,7 @@ All other keywords are symbolic. Notes:
   \\
 
   or & \DEFINE{INTERJECT_COPY_TRANS2} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
-  globalVariable} \ttref{chainText} \Slist &
+  globalVariable} \ttref{chainText} \Slist \t{END} &
   This works just like \ttref{INTERJECT_COPY_TRANS}, except that any
   actions taken in the transitions of the state specified by entryFilename
   and entryLabel are preserved and kept with the speaker associated with
@@ -390,14 +390,14 @@ All other keywords are symbolic. Notes:
   \\
 
   or & \DEFINE{INTERJECT_COPY_TRANS3} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
-  globalVariable} \ttref{chainText} \Slist &
+  globalVariable} \ttref{chainText} \Slist \t{END} &
   This works just like \ttref{INTERJECT_COPY_TRANS}, except that all
   states in chainText get a link in the entry state, rather than only the
   first one. Expecting documentation.
   \\
 
   or & \DEFINE{INTERJECT_COPY_TRANS4} \Ob \t{SAFE} \Oe entryFilename entryLabel {\tt
-  globalVariable} \ttref{chainText} \Slist &
+  globalVariable} \ttref{chainText} \Slist \t{END} &
   This is either \ttref{INTERJECT_COPY_TRANS3} with \ttref{INTERJECT_COPY_TRANS2}-style
   action handling, or \ttref{INTERJECT_COPY_TRANS2} with the extended
   \ttref{INTERJECT_COPY_TRANS3} state creation rules, depending at how you
