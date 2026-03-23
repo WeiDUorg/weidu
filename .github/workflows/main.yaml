@@ -41,7 +41,7 @@ jobs:
           eval $(opam env)
           make
           make osx_zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.os }}
           path: WeiDU-Mac-*.zip
@@ -70,7 +70,7 @@ jobs:
           eval $(opam env)
           make
           make linux_zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ubuntu-22.04
           path: WeiDU-Linux-*.zip
@@ -97,7 +97,7 @@ jobs:
           make
           make windows_zip
       - name: upload windows artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: windows-latest
           path: WeiDU-Windows-*.zip
