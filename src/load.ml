@@ -406,7 +406,8 @@ let find_key_file game_paths =
       let keyname = find_file_in_path path "^chitin.key$" in
       if file_exists keyname then begin
         let keybuff = load_file keyname in
-        raise (FoundKey((Key.load_key keyname keybuff),keyname,path))
+        raise (FoundKey((Key.load_key keyname keybuff),
+                        (Case_ins.filename_basename keyname),path))
       end) game_paths ;
     log_and_print "\nERROR: Unable to find CHITIN.KEY in:\n" ;
     List.iter (fun path -> log_and_print "\t%s\n" path) game_paths ;
