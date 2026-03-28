@@ -416,42 +416,32 @@ let find_key_file game_paths =
   with FoundKey(k,kn,gp) -> k, kn, gp
 
 let read_cd_paths gp =
-  let paths =
-    (try
-      let s_d_h = Case_ins.unix_opendir gp in
-      let sofar = ref [] in
-      begin
-        (try
-          while true do
-            let s = Unix.readdir s_d_h in
-            let base,ext = split_resref s in
-            if (String.uppercase ext) = "INI" then begin
-              let buff = load_file (gp ^ "/" ^ s) in
-              (try
-                let cd_regexp = Arch.cd_regexp in
-                let i = ref 0 in
-                while true do
-                  i := (Str.search_forward cd_regexp buff !i) + 1 ;
-                  let cd_path = Str.matched_group 1 buff in
-                  let cd_path_list = Str.split (Str.regexp ";") cd_path in
-                  List.iter (fun cd_path ->
-                    log_only "Possible HD/CD Path: [%s]\n" cd_path ;
-                    sofar := cd_path :: !sofar) cd_path_list ;
-                done
-              with _ -> ())
-            end
-          done
-        with _ -> ())
-      end ;
-      !sofar
-    with _ -> [gp ^ "/CD1" ; gp ^ "/CD2" ; gp ^ "/CD3" ;
-               gp ^ "/CD4" ; gp ^ "/CD5" ; gp ^ "/CD6" ; gp])
+  let files = List.filter (fun file ->
+    not (Util.is_directory file) && Case_ins.filename_check_suffix
+        (String.lowercase_ascii file) "ini")
+      (Array.to_list (Case_ins.sys_readdir gp))
   in
-  if Sys.os_type = "Unix" then
-    paths @ [gp ^ "/CD1" ; gp ^ "/CD2" ; gp ^ "/CD3" ;
-             gp ^ "/CD4" ; gp ^ "/CD5" ; gp ^ "/CD6"; gp]
-  else
-    paths
+  let paths = List.fold_left (fun acc file ->
+    let buff = load_file (gp ^ "/" ^ file) in
+    let pos = ref 0 in
+    let results = ref [] in
+    (try while true do
+      pos := (Str.search_forward Arch.cd_regexp buff !pos) + 1 ;
+      let path = Str.matched_group 1 buff in
+      let path_list = String.split_on_char ';' path in
+      results := List.append !results path_list ;
+    done with Not_found -> ()) ;
+    List.append acc !results) [] files
+  in
+  let default = [gp ^ "/CD1" ; gp ^ "/CD2" ; gp ^ "/CD3" ;
+                 gp ^ "/CD4" ; gp ^ "/CD5" ; gp ^ "/CD6" ; gp] in
+  let result = (match paths with
+  | list when Sys.os_type = "Unix" -> default @ list
+  | [] -> default
+  | list -> list) in
+  List.iter (fun path ->
+    log_only "Found possible HD/CD-path [%s]\n" path) result ;
+  result
 
 let autodetect_game_type key =
   let starting_assumption = (GENERIC, BG1) in
