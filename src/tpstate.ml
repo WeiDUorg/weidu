@@ -264,6 +264,13 @@ let str_of_str_opt sopt = match sopt with
 | Some(str) -> " ~" ^ str ^ "~"
 | None -> ""
 
+let str_of_game_type game_type = match game_type with
+| BGEE -> "BG:EE"
+| BG2EE -> "BG2:EE"
+| IWDEE -> "IWD:EE"
+| PSTEE -> "PST:EE"
+| GENERIC -> "Classic"
+
 let print_log () =
   List.iter (fun (n,i1,i2,sopt,st) ->
     log_or_print "%s %2d %2d %s%s\n" n i1 i2 (match st with
@@ -290,6 +297,11 @@ let sprintf_log game handle_tp2_filename get_tra_list_filename log
   if vocal then (log_or_print "Saving This Log:\n" ; print_log ());
   if intro then begin
     Printf.bprintf out "// Log of Currently Installed WeiDU Mods\n" ;
+    Printf.bprintf out "// Detected game type: %s%s" (str_of_game_type
+                                                        game.Load.game_type)
+      (if Load.eep () then Printf.sprintf " using game language %s\n"
+          (try Hashtbl.find !Tp.conf "lang_dir" with Not_found -> "ERROR") else
+        "\n") ;
     Printf.bprintf out "// The top of the file is the 'oldest' mod\n" ;
     Printf.bprintf out "// ~TP2_File~ #language_number #component_number%s"
       (if !quick_log then "\n" else " // [Subcomponent Name -> ] Component Name [ : Version]\n") ;
