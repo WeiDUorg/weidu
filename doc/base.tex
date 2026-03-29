@@ -1239,13 +1239,15 @@ and create \ttref{TP2} actions to install those kits as part of a module.  \\
 \\
 \multicolumn{2}{c}{ \color{red} Logging Options } \\
 
+\DEFINE{--logapp} & Append to log file instead of overwriting it. This
+is an option for \ttref{--log} or \ttref{--autolog} and needs to occur
+before either. \\
 \DEFINE{--log} \t{X}& Log output and details to \t{X}. By default, log
 to the file setup-mymod.debug in the game directory, unless a
 directory called \t{debugs} exists, in which case the log file is
 placed there. \\
 
 \DEFINE{--autolog} & 	Log output and details to \t{WSETUP.DEBUG}. \\
-\DEFINE{--logapp} & 	Append to log file instead of overwriting it. \\
 \end{tabular}
 
 Finally, note that WeiDU will \emph{not} add duplicate strings to
