@@ -614,7 +614,7 @@ let append_state n state =
   dlg.Dlg.state <- Array.append dlg.Dlg.state [| state |]
 
 let passes d_when str =
-  List.fold_left (fun acc elt -> match elt with
+  List.fold_left (fun acc elt -> acc && match elt with
   | W_If s -> begin
       let my_regexp = Str.regexp_case_fold (Var.get_string s) in
       try let _ = Str.search_forward my_regexp str 0 in
