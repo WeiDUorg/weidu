@@ -503,6 +503,23 @@ let locate_dlg game name =
     dlg
   end
 
+let search_dlgs game matcher =
+  let module StringSet = Set.Make(String) in
+  let names = ref StringSet.empty in
+  let add_name n = names := StringSet.add n !names in
+  Hashtbl.iter (fun n d -> 
+    if (matcher (String.uppercase n)) then add_name n
+  ) dlg_names;
+  let fs_matches = Key.search_key_resources game.Load.key true 
+    (fun poss ->
+      let name,ext = split_resref (String.uppercase poss) in
+      ext = "DLG" && (matcher name)) in
+  List.iter (fun full_path -> 
+    let name, _ = split_resref (String.uppercase full_path) in
+    add_name name
+  ) fs_matches;
+  StringSet.elements !names
+
 let make_available for_what game name unsafe =
   if dlg_available name then
     ()
@@ -689,14 +706,12 @@ let rec process_action game a = match a with
     in
     if (use_regexp) then begin
       let regexp = Str.regexp_case_fold n in
-      let matches = Key.search_key_resources game.Load.key true
-          (fun poss ->
-            let b,e = split_resref (String.uppercase poss) in
-            let ans = e = "DLG" &&
-              Str.string_match regexp b 0 in
-            if ans then make_available (action_to_str a) game b false;
-            ans)
-      in
+      let make_available_if_matched = fun n -> 
+        let name_matches = Str.string_match regexp n 0 in
+        if name_matches then 
+          make_available (action_to_str a) game n false;
+        name_matches in
+      let matches = search_dlgs game make_available_if_matched in
       List.iter (fun n -> process (get_available_dlg
                                      (fst (split_resref n)))) matches
     end else process (get_available_dlg n)
