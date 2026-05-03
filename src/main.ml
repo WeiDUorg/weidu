@@ -1239,7 +1239,8 @@ let do_script process_script pause_at_end game =
             ) (List.rev !toproc);
         List.iter (fun c -> match c with
         | Command (s,e) ->
-            log_or_print "Executing: [%s]\n" s ;
+            if not !Util.dry_run then
+              log_or_print "Executing: [%s]\n" s ;
             ignore (exec_command s e)
         | Fn f ->
             Lazy.force f
@@ -1680,6 +1681,14 @@ let main () =
     "--autolog", Myarg.Unit (fun () -> init_log Version.version "WSETUP.DEBUG"), "\tlog output and details to WSETUP.DEBUG" ;
     "--logapp", Myarg.Set append_to_log,"\tappend to log instead of overwriting" ;
     "--log-extern", Myarg.Set log_extern,"\talso log output from commands invoked by WeiDU " ;
+    "--dry-run", Myarg.Set Util.dry_run, "\tlog all file operations and shell commands without executing them" ;
+    "--allow-outside-gamedir", Myarg.Set Util.allow_outside_gamedir, "\tsuppress warnings when file operations target paths outside the game directory" ;
+    "--warn-shell", Myarg.Set Util.warn_shell, "\tprint a visible warning to console whenever a mod executes a shell command" ;
+    "--audit-log", Myarg.String (fun s -> Util.audit_log_path_override := Some s), "X\twrite the audit log to X instead of <gamedir>/weidu-audit.log" ;
+    "--no-audit-log", Myarg.Set Util.no_audit_log, "\tdisable the audit log entirely" ;
+    "--audit-log-json", Myarg.String (fun s -> Util.audit_log_json := true ; Util.audit_log_path_override := Some s), "X\twrite audit log as NDJSON to X (one JSON object per line)" ;
+    "--strict-path-risk", Myarg.Set Util.strict_path_risk, "\tblock operations targeting HIGH-RISK paths outside game directory" ;
+    "--require-sha256", Myarg.Set Util.require_sha256, "\tfail component install when SHA-256 cannot be computed (no MD5 fallback)" ;
     "--debug-assign", Myarg.Set Var.debug_assign,"\tPrint out all values assigned to TP2 variables" ;
     "--debug-value", Myarg.Set Tp.debug_pe,"\tPrint out all value expressions" ;
     "--continue", Myarg.Set Tp.continue_on_error,"\tcontinue despite TP2 action errors" ;
@@ -1775,6 +1784,33 @@ let main () =
   in
 
   Load.saved_game := Some(game) ;
+
+  Util.game_dir_for_audit := game.Load.game_path ;
+  (if not !Util.no_audit_log then
+   let audit_dir =
+     if Util.is_directory game.Load.game_path then game.Load.game_path
+     else Sys.getcwd () in
+   let audit_path = match !Util.audit_log_path_override with
+     | Some p -> p
+     | None   -> Filename.concat audit_dir "weidu-audit.log" in
+   try
+     let flags = [Open_append; Open_creat; Open_text] in
+     (if !Util.audit_log_json then begin
+       let chn = open_out_gen flags 0o644 audit_path in
+       Util.audit_log_json_channel := Some chn
+     end else begin
+       let chn = open_out_gen flags 0o644 audit_path in
+       Util.audit_log_channel := Some chn
+     end) ;
+     Util.audit_log "=== WeiDU session started (version %s) ===" Version.version ;
+     Util.audit_log "ARGV: %s"
+       (String.concat " " (Array.to_list Sys.argv)) ;
+     Util.audit_log "CWD: %s" (Sys.getcwd ()) ;
+     if !Util.dry_run then
+       log_and_print "*** DRY-RUN mode: no files will be written or commands executed ***\n"
+   with e ->
+     log_or_print "WARNING: could not open audit log [%s]: %s\n"
+       audit_path (Printexc.to_string e)) ;
 
   if (!forced_script_style <> Load.NONE) then
     force_script_style game !forced_script_style Sys.argv.(0);
@@ -2143,7 +2179,8 @@ with e ->
 
 List.iter (fun c -> match c with
 | Command (s,e) ->
-    log_or_print "Executing: [%s]\n" s ;
+    if not !Util.dry_run then
+      log_or_print "Executing: [%s]\n" s ;
     ignore (exec_command s e)
 | Fn f ->
     Lazy.force f)
@@ -2160,6 +2197,44 @@ if file_exists "override/add_spell.ids" && not (file_exists "override/spell.ids.
 | None -> () ) ;
 
 Util.log_channel := None;
+
+let security_summary = Util.security_summary_string () in
+log_and_print "%s\n" security_summary ;
+Util.audit_log "%s" security_summary ;
+
+(* Dry-run summary is always printed to console, regardless of whether the
+   audit log is open.  audit_log() will additionally write to whichever
+   channel (text or JSON) is currently open. *)
+(if !Util.dry_run then begin
+  let total = !Util.dry_run_copies + !Util.dry_run_moves +
+              !Util.dry_run_deletes + !Util.dry_run_mkdirs +
+              !Util.dry_run_execs in
+  let summary =
+    Printf.sprintf
+      "DRY-RUN summary: %d cop%s, %d move%s, %d delet%s, %d mkdir%s, %d shell command%s (total: %d operations intercepted)"
+      !Util.dry_run_copies  (if !Util.dry_run_copies  = 1 then "y"  else "ies")
+      !Util.dry_run_moves   (if !Util.dry_run_moves   = 1 then ""   else "s")
+      !Util.dry_run_deletes (if !Util.dry_run_deletes = 1 then "e"  else "es")
+      !Util.dry_run_mkdirs  (if !Util.dry_run_mkdirs  = 1 then ""   else "s")
+      !Util.dry_run_execs   (if !Util.dry_run_execs   = 1 then ""   else "s")
+      total in
+  log_and_print "\n%s\n" summary ;
+  Util.audit_log "%s" summary
+end) ;
+(match !Util.audit_log_channel with
+| Some chn ->
+    Util.audit_log "=== WeiDU session ended (exit code %d) ==="
+        (Util.return_value !Util.exit_status) ;
+    close_out chn ;
+    Util.audit_log_channel := None
+| None -> ()) ;
+(match !Util.audit_log_json_channel with
+| Some chn ->
+    Util.audit_log "=== WeiDU session ended (exit code %d) ==="
+        (Util.return_value !Util.exit_status) ;
+    close_out chn ;
+    Util.audit_log_json_channel := None
+| None -> ()) ;
 
 if not !no_exit_pause && (!pause_at_end ||
 (!exit_status <> StatusSuccess)) then begin

@@ -1,0 +1,5 @@
+BACKUP ~security/backup~
+AUTHOR ~security-tests~
+
+BEGIN ~sensitive path test (macos)~
+  MKDIR ~/Users/weidu-security-user~

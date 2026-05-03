@@ -313,11 +313,19 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             | [] -> ()
             | head :: tail -> begin
                 if file_exists head && not (is_directory head) then begin
+                  warn_outside_gamedir head ;
+                  audit_log "DELETE: [%s]" head ;
+                  if !dry_run then begin
+                    log_or_print "[DRY-RUN] would delete [%s]\n" head ;
+                    incr dry_run_deletes ;
+                    delete tail
+                  end else begin
                   if do_backup then
                     backup_if_extant head ;
                   ignore (record_other_file_op head) ;
                   Case_ins.sys_remove head ;
                   delete tail
+                  end
                 end else if is_directory head then begin
                   let head = Str.global_replace (Str.regexp "/$") ""
                       (Arch.backslash_to_slash head) in
@@ -362,14 +370,21 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 log_or_print "Moving %s to %s\n" src dst;
                 if not (file_exists src) then
                   log_and_print "ERROR: cannot locate %s\n" src ;
-                Case_ins.unix_rename src dst;
-                if do_backup then
-                  (match !move_list_chn with
-                  | Some(chn) -> output_string chn (src ^ log_line_separator ^ dst ^ "\n") ;
-                      flush chn
-                  | None -> ());
-                if !ok then
-                  ignore (List.iter record_other_file_op [src;dst]) end
+                warn_outside_gamedir dst ;
+                audit_log "MOVE: [%s] -> [%s]" src dst ;
+                if !dry_run then begin
+                  log_or_print "[DRY-RUN] would move [%s] to [%s]\n" src dst ;
+                  incr dry_run_moves
+                end else begin
+                  Case_ins.unix_rename src dst;
+                  if do_backup then
+                    (match !move_list_chn with
+                    | Some(chn) -> output_string chn (src ^ log_line_separator ^ dst ^ "\n") ;
+                        flush chn
+                    | None -> ());
+                  if !ok then
+                    ignore (List.iter record_other_file_op [src;dst])
+                end end
             else log_and_print "MOVE [%s] [%s]: source is a directory\n" src dst;
           in
           List.iter (fun (src,dst) ->
@@ -848,7 +863,12 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                         end) () in
                   if (it_changed) then begin
                     let doit () = Stats.time "saving files" (fun () ->
-                      if not (save_inlined) then begin
+                    warn_outside_gamedir dest ;
+                    audit_log "COPY: [%s] -> [%s]" src dest ;
+                    if !dry_run then begin
+                      log_or_print "[DRY-RUN] would copy [%s] to [%s]\n" src dest ;
+                      incr dry_run_copies
+                    end else if not (save_inlined) then begin
                         let out =
                           try open_for_writing_internal make_a_backup dest true
                           with e -> log_and_print
@@ -960,7 +980,12 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             | _ -> ()) ;
             ignore (set_copy_vars src dest None) ;
             Stats.time "saving files" (fun () ->
-              if Hashtbl.mem inlined_files (Arch.backslash_to_slash src) then begin
+              warn_outside_gamedir dest ;
+              audit_log "COPY: [%s] -> [%s]" src dest ;
+              if !dry_run then begin
+                log_or_print "[DRY-RUN] would copy [%s] to [%s]\n" src dest ;
+                incr dry_run_copies
+              end else if Hashtbl.mem inlined_files (Arch.backslash_to_slash src) then begin
                 let copy_args = {
                   copy_get_existing = false;
                   copy_use_regexp = false;
@@ -1658,8 +1683,15 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           log_and_print "Creating %d director%s\n" numdir
             (if numdir = 1 then "y" else "ies") ;
           List.iter (fun str ->
+            let str = Var.get_string str in
+            warn_outside_gamedir str ;
+            audit_log "MKDIR: [%s]" str ;
+            if !dry_run then begin
+              log_or_print "[DRY-RUN] would create directory [%s]\n" str ;
+              incr dry_run_mkdirs
+            end else
             try
-              recursive_mkdir (Var.get_string str) 511 (* 511 = octal 0777 = a+rwx *)
+              recursive_mkdir str 511 (* 511 = octal 0777 = a+rwx *)
             with e ->
               (log_and_print "Problem %s on %s : tp.ml\n"
                  (printexc_to_string e) str)) str_l
