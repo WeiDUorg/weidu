@@ -50,6 +50,44 @@ let debug_modder = ref false
 
 let be_silent = ref false
 
+(* Security / audit features *)
+let dry_run = ref false
+let allow_outside_gamedir = ref false
+let audit_log_channel = ref (None : out_channel option)
+let game_dir_for_audit = ref ""
+
+(* Dry-run operation counters *)
+let dry_run_copies  = ref 0
+let dry_run_moves   = ref 0
+let dry_run_deletes = ref 0
+let dry_run_mkdirs  = ref 0
+let dry_run_execs   = ref 0
+
+(* Print a visible console warning for every shell command invoked *)
+let warn_shell = ref false
+
+(* Audit log path control *)
+let no_audit_log = ref false
+let audit_log_path_override = ref (None : string option)
+
+(* NDJSON audit log *)
+let audit_log_json = ref false
+let audit_log_json_channel = ref (None : out_channel option)
+
+(* Strict hashing policy and security counters *)
+let require_sha256 = ref false
+let strict_path_risk = ref false
+let security_outside_warnings = ref 0
+let security_sensitive_warnings = ref 0
+let security_high_risk_warnings = ref 0
+let security_high_risk_blocked = ref 0
+let security_shell_commands = ref 0
+let security_md5_fallbacks = ref 0
+let security_hash_mismatches = ref 0
+
+(* Current TP2/component context — updated before each component install *)
+let audit_component_context = ref ""
+
 let log_or_print fmt =
   let k result =
     (match !log_channel with
@@ -102,6 +140,223 @@ let log_and_print_modder fmt =
   end in
   Printf.kprintf k fmt
 
+let audit_log fmt =
+  let k result =
+    let t = Unix.localtime (Unix.gettimeofday ()) in
+    let ts = Printf.sprintf "%04d-%02d-%02dT%02d:%02d:%02d"
+      (t.Unix.tm_year + 1900) (t.Unix.tm_mon + 1) t.Unix.tm_mday
+      t.Unix.tm_hour t.Unix.tm_min t.Unix.tm_sec in
+    let ctx = !audit_component_context in
+    (* Chain value is computed in Hash to keep all digest logic centralized. *)
+    let chain = Hash.next_audit_chain ts ctx result in
+    (match !audit_log_channel with
+    | None -> ()
+    | Some o ->
+        let ctx_str = if ctx <> "" then Printf.sprintf " {%s}" ctx else "" in
+      output_string o (Printf.sprintf "[%s]%s [chain=%s] %s\n" ts ctx_str chain result) ;
+        flush o) ;
+    (match !audit_log_json_channel with
+    | None -> ()
+    | Some o ->
+        (* minimal JSON escaping for the message field *)
+        let json_escape s =
+          let buf = Buffer.create (String.length s) in
+          String.iter (fun c -> match c with
+            | '"'  -> Buffer.add_string buf "\\\""
+            | '\\' -> Buffer.add_string buf "\\\\"
+            | '\n' -> Buffer.add_string buf "\\n"
+            | '\r' -> Buffer.add_string buf "\\r"
+            | '\t' -> Buffer.add_string buf "\\t"
+            | c    -> Buffer.add_char buf c) s ;
+          Buffer.contents buf
+        in
+        (* extract first token as "op" (everything before first colon or space) *)
+        let op = try
+          let i = String.index result ':' in
+          String.sub result 0 i
+        with Not_found -> result in
+        let ctx_json = if ctx <> "" then
+          Printf.sprintf ",\"ctx\":\"%s\"" (json_escape ctx)
+        else "" in
+        output_string o
+          (Printf.sprintf "{\"ts\":\"%s\",\"chain\":\"%s\",\"op\":\"%s\",\"msg\":\"%s\"%s}\n"
+             ts (json_escape chain) (json_escape op) (json_escape result) ctx_json) ;
+        flush o)
+  in
+  Printf.kprintf k fmt
+
+let security_summary_string () =
+  Printf.sprintf
+    "Security summary: outside-gamedir warnings=%d, sensitive-path warnings=%d, high-risk-path warnings=%d, high-risk blocked=%d, shell commands=%d, md5 fallbacks=%d, tp2 hash mismatches=%d"
+    !security_outside_warnings
+    !security_sensitive_warnings
+    !security_high_risk_warnings
+    !security_high_risk_blocked
+    !security_shell_commands
+    !security_md5_fallbacks
+    !security_hash_mismatches
+
+(* Resolve . and .. in a slash-normalised path without filesystem access. *)
+let canonicalize_path path =
+  let norm p = Str.global_replace (Str.regexp "\\\\") "/" p in
+  let full =
+    let p = norm path in
+    if Filename.is_relative p then
+      let base = norm (if !game_dir_for_audit <> "" then !game_dir_for_audit
+                       else Sys.getcwd ()) in
+      base ^ "/" ^ p
+    else p
+  in
+  let parts = String.split_on_char '/' full in
+  let rec resolve acc = function
+    | [] -> List.rev acc
+    | "" :: rest when acc <> [] -> resolve acc rest
+    | "." :: rest -> resolve acc rest
+    | ".." :: rest ->
+        (match acc with
+        | [] | [""] | [_] -> resolve acc rest
+        | _ :: prev -> resolve prev rest)
+    | p :: rest -> resolve (p :: acc) rest
+  in
+  String.concat "/" (resolve [] parts)
+
+(* Warn when a path (absolute or relative) resolves outside the game directory. *)
+let warn_outside_gamedir path =
+  if not !allow_outside_gamedir && !game_dir_for_audit <> "" then begin
+    let norm p =
+      let p = Str.global_replace (Str.regexp "\\\\") "/" p in
+      Str.global_replace (Str.regexp "/+$") "" p
+    in
+    let canon_path = String.lowercase_ascii (norm (canonicalize_path path)) in
+    let canon_gd   = String.lowercase_ascii (norm (canonicalize_path !game_dir_for_audit)) in
+    let prefix = canon_gd ^ "/" in
+    if canon_path <> canon_gd &&
+       not (String.length canon_path >= String.length prefix &&
+            String.sub canon_path 0 (String.length prefix) = prefix) then begin
+      incr security_outside_warnings ;
+      log_or_print
+        "WARNING: file operation targets path outside game directory:\n\
+        \  Path: [%s]\n\
+        \  Game: [%s]\n\
+        \  Use --allow-outside-gamedir to suppress this warning.\n"
+        path !game_dir_for_audit ;
+      audit_log "WARN outside-gamedir: [%s]" path ;
+      let env_or_empty name = try Sys.getenv name with _ -> "" in
+      let home = String.lowercase_ascii (norm (env_or_empty "HOME")) in
+      let userprofile = String.lowercase_ascii (norm (env_or_empty "USERPROFILE")) in
+      let weidu_os_raw = String.lowercase_ascii (env_or_empty "WEIDU_OS") in
+      let string_contains haystack needle =
+        try
+          ignore (Str.search_forward (Str.regexp_string needle) haystack 0) ;
+          true
+        with Not_found -> false
+      in
+      (* WEIDU_OS is treated as a hint, with runtime fallback when missing/unknown. *)
+      let detected_os =
+        if weidu_os_raw <> "" then begin
+          if string_contains weidu_os_raw "win" then "windows"
+          else if string_contains weidu_os_raw "mac" ||
+                  string_contains weidu_os_raw "darwin" ||
+                  string_contains weidu_os_raw "osx" then "macos"
+          else if string_contains weidu_os_raw "linux" ||
+                  string_contains weidu_os_raw "unix" then "linux"
+          else if Sys.os_type = "Win32" then "windows"
+          (* /System/Library exists on macOS and not on Linux; reliable without
+             spawning a subprocess and independent of compile-time Arch constants *)
+          else if Sys.os_type = "Unix" && Sys.file_exists "/System/Library" then "macos"
+          else "linux"
+        end else if Sys.os_type = "Win32" then "windows"
+        else if Sys.os_type = "Unix" && Sys.file_exists "/System/Library" then "macos"
+        else "linux"
+      in
+      let is_prefix base target =
+        base <> "" &&
+        (target = base ||
+         (String.length target > String.length base &&
+          String.sub target 0 (String.length base) = base &&
+          target.[String.length base] = '/')) in
+      let sensitive_reason = ref "" in
+      let high_risk_reason = ref "" in
+      (match detected_os with
+      | "windows" ->
+          if is_prefix userprofile canon_path then
+            sensitive_reason := "user profile" ;
+          if !sensitive_reason = "" &&
+             (is_prefix (String.lowercase_ascii (norm (env_or_empty "APPDATA"))) canon_path ||
+              is_prefix (String.lowercase_ascii (norm (env_or_empty "LOCALAPPDATA"))) canon_path) then
+            sensitive_reason := "application data" ;
+          if Str.string_match (Str.regexp "^[a-z]:/*$") canon_path 0 then
+            high_risk_reason := "drive root"
+          else if Str.string_match (Str.regexp "^[a-z]:/windows\(/.*\)?$") canon_path 0 then
+            high_risk_reason := "windows system directory"
+          else if Str.string_match (Str.regexp "^[a-z]:/program files\(/.*\)?$") canon_path 0 ||
+                  Str.string_match (Str.regexp "^[a-z]:/program files (x86)\(/.*\)?$") canon_path 0 then
+            high_risk_reason := "program files"
+          else if Str.string_match (Str.regexp "^[a-z]:/programdata\(/.*\)?$") canon_path 0 then
+            high_risk_reason := "programdata"
+      | "macos" ->
+          if Str.string_match (Str.regexp "^/users/[^/]+\(/.*\)?$") canon_path 0 ||
+             is_prefix home canon_path then
+            sensitive_reason := "user home" ;
+          if Str.string_match (Str.regexp "^/system\(/.*\)?$") canon_path 0 then
+            high_risk_reason := "system directory"
+          else if Str.string_match (Str.regexp "^/library\(/.*\)?$") canon_path 0 then
+            high_risk_reason := "library directory"
+          else if Str.string_match (Str.regexp "^/applications\(/.*\)?$") canon_path 0 then
+            high_risk_reason := "applications directory"
+          else if Str.string_match (Str.regexp "^/usr\(/.*\)?$") canon_path 0 ||
+                  Str.string_match (Str.regexp "^/bin\(/.*\)?$") canon_path 0 ||
+                  Str.string_match (Str.regexp "^/sbin\(/.*\)?$") canon_path 0 then
+            high_risk_reason := "os binaries"
+          else if canon_path = "/" then
+            high_risk_reason := "filesystem root"
+      | _ ->
+          if Str.string_match (Str.regexp "^/home/[^/]+\(/.*\)?$") canon_path 0 ||
+             is_prefix home canon_path || canon_path = "/root" ||
+             Str.string_match (Str.regexp "^/root/.*$") canon_path 0 then
+            sensitive_reason := "user home/root" ;
+          if Str.string_match (Str.regexp "^/etc\(/.*\)?$") canon_path 0 then
+            high_risk_reason := "system configuration"
+          else if Str.string_match (Str.regexp "^/usr\(/.*\)?$") canon_path 0 ||
+                  Str.string_match (Str.regexp "^/bin\(/.*\)?$") canon_path 0 ||
+                  Str.string_match (Str.regexp "^/sbin\(/.*\)?$") canon_path 0 then
+            high_risk_reason := "os binaries"
+          else if Str.string_match (Str.regexp "^/lib\(/.*\)?$") canon_path 0 ||
+                  Str.string_match (Str.regexp "^/lib64\(/.*\)?$") canon_path 0 then
+            high_risk_reason := "system libraries"
+          else if Str.string_match (Str.regexp "^/boot\(/.*\)?$") canon_path 0 then
+            high_risk_reason := "boot files"
+          else if canon_path = "/" then
+            high_risk_reason := "filesystem root") ;
+      if !sensitive_reason <> "" then begin
+        incr security_sensitive_warnings ;
+        log_or_print
+          "WARNING: target path is sensitive (%s, os=%s): [%s]\n"
+          !sensitive_reason detected_os path ;
+        audit_log "WARN sensitive-path(%s): [%s] reason=%s"
+          detected_os path !sensitive_reason
+      end ;
+      if !high_risk_reason <> "" then begin
+        incr security_high_risk_warnings ;
+        log_or_print
+          "WARNING: target path is HIGH-RISK (%s, os=%s): [%s]\n"
+          !high_risk_reason detected_os path ;
+        audit_log "WARN high-risk-path(%s): [%s] reason=%s"
+          detected_os path !high_risk_reason ;
+        if !strict_path_risk then begin
+          incr security_high_risk_blocked ;
+          exit_status := StatusInstallFailure ;
+          log_or_print
+            "ERROR: blocked by --strict-path-risk (%s, os=%s): [%s]\n"
+            !high_risk_reason detected_os path ;
+          audit_log "ERROR high-risk-path-blocked(%s): [%s] reason=%s"
+            detected_os path !high_risk_reason ;
+          failwith "blocked by --strict-path-risk"
+        end
+      end
+    end
+  end
+
 let print_backtrace = ref false
 
 let printexc_to_string e =
@@ -119,7 +374,8 @@ let recursive_mkdir directory mode =
   let dir_split = Str.split (Str.regexp "[/\\]") directory in
   let added_up_dir = ref "" in
   let skip_first_slash = ref false in
-  if String.get directory 0 = '\\' || String.get directory 0 = '/' then
+  if String.length directory > 0 &&
+     (String.get directory 0 = '\\' || String.get directory 0 = '/') then
     skip_first_slash := true ;
   List.iter (fun part ->
     added_up_dir := !added_up_dir ^ (if !skip_first_slash then "/" else "") ^
@@ -618,7 +874,16 @@ let create_filter = function () ->
 
 let exec_command cmd exact =
   let cmd = if exact then cmd else Arch.slash_to_backslash cmd in
-  let ret = if !log_extern then
+  incr security_shell_commands ;
+  audit_log "EXEC: [%s]" cmd ;
+  if !dry_run then begin
+    log_or_print "[DRY-RUN] would execute: [%s]\n" cmd ;
+    incr dry_run_execs ;
+    Unix.WEXITED 0
+  end else begin
+    if !warn_shell then
+      log_or_print "WARNING: mod is executing shell command: [%s]\n" cmd ;
+    let ret = if !log_extern then
     begin
       (* copy stdout + stderr to logfile *)
       let proc_stdout = Unix.open_process_in (cmd ^ " 2>&1") in
@@ -641,6 +906,7 @@ let exec_command cmd exact =
       Unix.close_process_in proc_stdout
     end else Unix.system cmd
   in ret
+  end
 
 type execute_at_exit_type =
 | Command of string * bool

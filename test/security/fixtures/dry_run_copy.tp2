@@ -1,0 +1,5 @@
+BACKUP ~security/backup~
+AUTHOR ~security-tests~
+
+BEGIN ~dry-run copy test~
+  COPY ~security/fixtures/input.txt~ ~override/security-dry-run.txt~

@@ -1248,6 +1248,31 @@ directory called \t{debugs} exists, in which case the log file is
 placed there. \\
 
 \DEFINE{--autolog} & 	Log output and details to \t{WSETUP.DEBUG}. \\
+\DEFINE{--dry-run} & Log file operations and shell commands without executing
+them. This is intended for preview/audit runs and may not follow all runtime
+branches exactly. For broader branch exploration, combine with
+\ttref{--continue}. \\
+\DEFINE{--allow-outside-gamedir} & Suppress warnings for operations whose
+target path resolves outside the game directory.
+By default, WeiDU warns and audits these operations without blocking them,
+to preserve compatibility with large mod stacks (BGT or EET installations). \\
+\DEFINE{--warn-shell} & Print a visible warning whenever a mod executes a
+shell command. \\
+\DEFINE{--audit-log} \t{X} & Write audit entries to path \t{X} instead of
+the default \t{<gamedir>/weidu-audit.log}. \\
+\DEFINE{--audit-log-json} \t{X} & Write audit entries in NDJSON format to
+path \t{X} (one JSON object per line). \\
+\DEFINE{--no-audit-log} & Disable audit logging. \\
+\DEFINE{--strict-path-risk} & Block operations that target HIGH-RISK paths
+outside the game directory (opt-in strict mode).
+Examples of blocked targets: On \t{Windows}, drive roots (\t{C:\\}),
+system directories (\t{C:\\Windows\\*}), and program files (\t{C:\\Program Files\\*}, \t{C:\\ProgramData\\*}).
+On \t{macOS}, the filesystem root (\t{/}), system directories (\t{/System/*}),
+and OS binaries (\t{/usr/*}, \t{/bin/*}). On \t{Linux}, the root (\t{/}),
+configuration (\t{/etc/*}), OS binaries (\t{/usr/*}, \t{/bin/*}), and system
+libraries (\t{/lib/*}, \t{/boot/*}). \\
+\DEFINE{--require-sha256} & Fail component installation when a SHA-256 hash
+cannot be computed (instead of allowing MD5 fallback). \\
 \end{tabular}
 
 Finally, note that WeiDU will \emph{not} add duplicate strings to

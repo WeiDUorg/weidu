@@ -824,6 +824,50 @@ let rec handle_tp game this_tp2_filename tp =
 
           ignore (handle_cli_vars args_backup_filename) ;
 
+          Util.audit_component_context :=
+            Printf.sprintf "%s #%d" this_tp2_filename i ;
+          audit_log "COMPONENT-START: [%s] #%d %s"
+            this_tp2_filename i (Tpstate.subcomp_str game m ^ package_name) ;
+          (* Integrity policy: prefer SHA-256; if unavailable, either fail hard
+             (--require-sha256) or fallback to explicitly marked MD5. *)
+          (match Hash.sha256_file this_tp2_filename with
+          | Some sha256 ->
+              audit_log "TP2-SHA256: [%s] sha256=%s" this_tp2_filename sha256 ;
+              if Hash.register_tp2_hash ~game_dir:!game_dir_for_audit
+                  this_tp2_filename sha256 then begin
+                incr security_hash_mismatches ;
+                log_and_print "WARNING: TP2 hash mismatch detected within this session for [%s]. File contents changed during execution.\n"
+                  this_tp2_filename ;
+                audit_log "WARN tp2-hash-mismatch: [%s] sha256=%s"
+                  this_tp2_filename sha256
+              end
+          | None ->
+              if !require_sha256 then begin
+                exit_status := StatusInstallFailure ;
+                log_and_print "ERROR: SHA-256 is required but unavailable for [%s] (--require-sha256).\n"
+                  this_tp2_filename ;
+                audit_log "ERROR sha256-required-unavailable: [%s]"
+                  this_tp2_filename ;
+                failwith "SHA-256 required but unavailable"
+              end else begin
+                (try
+                  let md5 = Digest.to_hex (Digest.file this_tp2_filename) in
+                  incr security_md5_fallbacks ;
+                  log_and_print "WARNING: SHA-256 unavailable for [%s]; using MD5 fallback (%s). MD5 is cryptographically unreliable.\n"
+                    this_tp2_filename md5 ;
+                  audit_log "TP2-MD5-UNRELIABLE: [%s] md5=%s (sha256 unavailable; MD5 is cryptographically unreliable)"
+                    this_tp2_filename md5 ;
+                  if Hash.register_tp2_hash ~game_dir:!game_dir_for_audit
+                      this_tp2_filename md5 then begin
+                    incr security_hash_mismatches ;
+                    log_and_print "WARNING: TP2 hash mismatch detected within this session for [%s]. File contents changed during execution.\n"
+                      this_tp2_filename ;
+                    audit_log "WARN tp2-hash-mismatch: [%s] md5=%s"
+                      this_tp2_filename md5
+                  end
+                with _ -> ())
+              end) ;
+
           log_and_print "\n%s [%s]%s\n"
             (* "\nInstalling [%s]\n"  *)
             ((get_trans (-1016)))
@@ -878,6 +922,8 @@ let rec handle_tp game this_tp2_filename tp =
           with
           | Abort msg ->
               be_silent := false ;
+              Util.audit_component_context := "" ;
+              audit_log "COMPONENT-ABORT: [%s] #%d" this_tp2_filename i ;
               append_to_strings_to_print_at_exit
                 (* INSTALLATION ABORTED *)
                 (get_trans (-1063))
@@ -892,6 +938,9 @@ let rec handle_tp game this_tp2_filename tp =
               raise (Abort msg)
           | e -> begin
               be_silent := false ;
+              Util.audit_component_context := "" ;
+              audit_log "COMPONENT-ERROR: [%s] #%d %s" this_tp2_filename i
+                (Printexc.to_string e) ;
               append_to_strings_to_print_at_exit
                 (*  "\nNOT INSTALLED: ERRORS [%s]\n"  *)
                 (get_trans (-1032))
@@ -908,6 +957,8 @@ let rec handle_tp game this_tp2_filename tp =
                 our_lang_index i m ;
               raise e
           end );
+          audit_log "COMPONENT-END: [%s] #%d" this_tp2_filename i ;
+          Util.audit_component_context := "" ;
           log_and_print "\n\n" ;
           record_strset_uninstall_info game strset_backup_filename ;
           record_tlk_path_info game tlkpath_backup_filename ;

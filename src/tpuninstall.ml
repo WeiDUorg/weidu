@@ -272,6 +272,8 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
   Stats.time "tp2 uninstall" (fun () ->
     try
       let result = tp2 in
+      Util.audit_component_context := Printf.sprintf "%s #%d" tp_file i ;
+      audit_log "UNINSTALL-START: [%s] #%d" tp_file i ;
       let d = result.backup ^ "/" ^ (string_of_int i) in
       let u_filename = (Printf.sprintf "%s/UNINSTALL.%d" d i) in
       let m_filename = (Printf.sprintf "%s/MAPPINGS.%d" d i) in
@@ -298,6 +300,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
         end with _ -> ());
         List.iter (fun (a,b) ->
           (try
+            audit_log "UNINSTALL-MOVE-RESTORE: [%s] -> [%s]" b a ;
             Case_ins.unix_rename b a ;
           with e ->
             log_and_print "WARNING: unable to restore [%s]: %s\n"
@@ -312,6 +315,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
         let file_list = ref [] in
         let mappings_list = Hashtbl.create 300 in
         let restore backup_filename override_filename =
+          audit_log "UNINSTALL-RESTORE: [%s] -> [%s]" backup_filename override_filename ;
           log_or_print "  Restoring backed-up [%s]\n" backup_filename ;
           copy_large_file backup_filename override_filename "restoring a backup" ;
           my_unlink backup_filename
@@ -349,6 +353,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
             (List.length !file_list) tp_file i;
           List.iter (fun override_filename ->
             check_pre_hooks game tp2 i interactive override_filename;
+            audit_log "UNINSTALL-DELETE: [%s]" override_filename ;
             my_unlink override_filename;
             try
               if !has_mappings && Hashtbl.mem mappings_list override_filename then begin
@@ -372,6 +377,8 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
             Case_ins.unix_unlink m_filename with _ -> ());
           log_and_print "Uninstalled    %3d files for [%s] component %d.\n"
             (List.length !file_list) tp_file i;
+          audit_log "UNINSTALL-END: [%s] #%d" tp_file i ;
+          Util.audit_component_context := ""
       in
       let uninstall_at () =
         let m = get_nth_module result i true in
@@ -399,6 +406,8 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
           my_rmdir tp2.backup
       end;
     with e ->
+      Util.audit_component_context := "" ;
+      audit_log "UNINSTALL-ERROR: [%s] #%d %s" tp_file i (printexc_to_string e) ;
       log_and_print "Error Uninstalling [%s] component %d:\n%s\n"
         tp_file i (printexc_to_string e);
       (try assert false with Assert_failure(file,line,col) -> set_errors file line)

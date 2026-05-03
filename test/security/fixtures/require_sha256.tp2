@@ -1,0 +1,5 @@
+BACKUP ~security/backup~
+AUTHOR ~security-tests~
+
+BEGIN ~require sha256 test~
+  PRINT ~require-sha256 smoke test~

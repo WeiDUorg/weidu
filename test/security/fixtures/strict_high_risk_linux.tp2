@@ -1,0 +1,5 @@
+BACKUP ~security/backup~
+AUTHOR ~security-tests~
+
+BEGIN ~strict high-risk test (linux)~
+  MKDIR ~/etc/weidu-security-test~
