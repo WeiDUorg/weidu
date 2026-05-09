@@ -4024,7 +4024,7 @@ or & \DEFINE{ACTION_REINCLUDE} \t{\ttref{String}} \Slist &
     that fileName is a real file with contents fileBody. This allows you to
     define \t{inlined} files inside your TP2 file. Such definitions
     must be executed before the \ttref{inlined} file is used. Other operations
-    on fileName (such as \ttref{FILE_EXISTS}, \ttref{FILE_MD5} or
+    on fileName (such as \ttref{FILE_EXISTS}, \ttref{FILE_MD5}, \ttref{FILE_SHA256} or
     \ttref{FILE_SIZE}) are undefined. Inlined files will be skipped by
     \ttref{COPY_EXISTING_REGEXP} and other ``wildcard'' approaches: you
     must name them directly. Unlike most other WeiDU things,
@@ -5909,9 +5909,25 @@ manner. Evaluates to 0 for a file that does not exist but has been
 \ttref{ALLOW_MISSING}'d.\\
 or & \DEFINE{FILE_MD5} fileName md5sum & Evaluates to 1 if the file exists
 and has the given MD5 checksum. Evaluates to 0 otherwise. Two different
-files are exceptionally unlikely to have the same MD5 checksum. In any
+files can have the same MD5 checksum. In any
 event, the discovered checksum is printed to the log. If the file does not
-exist, it evaluates to 0. \\
+exist, it evaluates to 0.
+
+\emph{MD5 is NOT collision-resistant! Do not use without a real reason.} \\
+or & \DEFINE{FILE_SHA256} fileName sha256sum & Evaluates to 1 if the file exists
+and has the given SHA-256 checksum. Evaluates to 0 otherwise. Two different
+files are exceptionally unlikely to have the same SHA-256 checksum. In any
+event, the discovered checksum is printed to the log. If the file does not
+exist, or SHA-256 support is unavailable at runtime, it evaluates to 0.
+Method selection is based on the detected OS and tried in this order:
+\begin{itemize}
+\item \t{Windows} (\t{Sys.os_type = "Win32"}):
+  \t{certutil -hashfile fileName SHA256}, then
+  \t{powershell -NoProfile -Command "(Get-FileHash -Path fileName -Algorithm SHA256).Hash"}
+\item \t{Unix-like} (Linux/macOS):
+  \t{sha256sum fileName}, then \t{shasum -a 256 fileName}
+\end{itemize}
+If all methods fail or are unavailable, \ttref{FILE_SHA256} evaluates to 0. \\
 or & \DEFINE{FILE_IS_IN_COMPRESSED_BIFF} fileName & Evaluates to 1 if the file
 is stored in a compressed biff (ignoring copies in the override). Evaluates to
 0 otherwise (the file is not in a biff, or it is in an uncompressed biff).
