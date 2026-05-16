@@ -479,7 +479,7 @@ let load_game () =
   let dialog_index = 0 in
   let cd_paths = read_cd_paths gp in
   if not (is_directory "override") && (file_exists "chitin.key") then
-    Case_ins.unix_mkdir "override" 511 ;
+    recursive_mkdir "override" 511 ;
   if (Util.file_exists "gemrb_path.txt") then
     ignore (add_gemrb_path "gemrb_path.txt") ;
   let game_type, script_style = autodetect_game_type key in

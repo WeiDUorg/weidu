@@ -1,0 +1,5 @@
+BACKUP ~tmp/dry_uninstall/backup~
+AUTHOR ~security-tests~
+
+BEGIN ~dry-run uninstall test~
+  COPY ~fixtures/input.txt~ ~tmp/dry_uninstall/installed.txt~

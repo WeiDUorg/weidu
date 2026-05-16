@@ -31,14 +31,19 @@ let sha256_default_backends () =
     [Sha256sum; Shasum256]
 
 let run_command_capture_lines cmd =
-  try
-    let proc = Unix.open_process_in cmd in
-    let lines = ref [] in
-    (try while true do lines := input_line proc :: !lines done
-     with End_of_file -> ()) ;
-    let status = Unix.close_process_in proc in
-    Some (List.rev !lines, status)
-  with _ -> None
+  if Dryrun.active () then begin
+    Dryrun.record_exec () ;
+    None
+  end else begin
+    try
+      let proc = Unix.open_process_in cmd in
+      let lines = ref [] in
+      (try while true do lines := input_line proc :: !lines done
+       with End_of_file -> ()) ;
+      let status = Unix.close_process_in proc in
+      Some (List.rev !lines, status)
+    with _ -> None
+  end
 
 let parse_sha256_from_lines backend lines =
   let normalize_line line =
@@ -117,17 +122,22 @@ let sha256_file path = sha256_file_with_backends path (sha256_default_backends (
 let sha256_string s =
   (* We intentionally hash via the same external SHA-256 backends used for files,
      so behavior is consistent across all hash call sites in this codebase. *)
-  let tmp = Filename.temp_file "weidu-sha256-" ".tmp" in
-  try
-    let ch = open_out_bin tmp in
-    output_string ch s ;
-    close_out ch ;
-    let res = sha256_file tmp in
-    (try Sys.remove tmp with _ -> ()) ;
-    res
-  with _ ->
-    (try Sys.remove tmp with _ -> ()) ;
+  if Dryrun.active () then begin
+    Dryrun.record_write () ;
     None
+  end else begin
+    let tmp = Filename.temp_file "weidu-sha256-" ".tmp" in
+    try
+      let ch = open_out_bin tmp in
+      output_string ch s ;
+      close_out ch ;
+      let res = sha256_file tmp in
+      (try Sys.remove tmp with _ -> ()) ;
+      res
+    with _ ->
+      (try Sys.remove tmp with _ -> ()) ;
+      None
+  end
 
 let canonicalize_for_key ?base path =
   (* Canonicalization here is lexical (no filesystem access), matching security checks

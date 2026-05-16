@@ -51,17 +51,17 @@ let debug_modder = ref false
 let be_silent = ref false
 
 (* Security / audit features *)
-let dry_run = ref false
+let dry_run = Dryrun.enabled
 let allow_outside_gamedir = ref false
 let audit_log_channel = ref (None : out_channel option)
 let game_dir_for_audit = ref ""
 
 (* Dry-run operation counters *)
-let dry_run_copies  = ref 0
-let dry_run_moves   = ref 0
-let dry_run_deletes = ref 0
-let dry_run_mkdirs  = ref 0
-let dry_run_execs   = ref 0
+let dry_run_copies  = Dryrun.copies
+let dry_run_moves   = Dryrun.moves
+let dry_run_deletes = Dryrun.deletes
+let dry_run_mkdirs  = Dryrun.mkdirs
+let dry_run_execs   = Dryrun.execs
 
 (* Print a visible console warning for every shell command invoked *)
 let warn_shell = ref false
@@ -371,23 +371,28 @@ let set_errors file line =
   errors_this_component := true
 
 let recursive_mkdir directory mode =
-  let dir_split = Str.split (Str.regexp "[/\\]") directory in
-  let added_up_dir = ref "" in
-  let skip_first_slash = ref false in
-  if String.length directory > 0 &&
-     (String.get directory 0 = '\\' || String.get directory 0 = '/') then
-    skip_first_slash := true ;
-  List.iter (fun part ->
-    added_up_dir := !added_up_dir ^ (if !skip_first_slash then "/" else "") ^
-      part ;
-    skip_first_slash := true ;
-(*        log_and_print "MKDIR %s\n" !added_up_dir ; *)
-    (try
-      Case_ins.unix_mkdir !added_up_dir mode ;
-    with e -> (match e with
-    | Unix.Unix_error(Unix.EEXIST,_,_) -> ()
-    | _ -> log_and_print "Problem %s on %s: util.ml\n"
-          (printexc_to_string e) !added_up_dir))) dir_split
+  if Dryrun.active () then begin
+    log_or_print "[DRY-RUN] would create directory [%s]\n" directory ;
+    Dryrun.record_mkdir ()
+  end else begin
+    let dir_split = Str.split (Str.regexp "[/\\]") directory in
+    let added_up_dir = ref "" in
+    let skip_first_slash = ref false in
+    if String.length directory > 0 &&
+       (String.get directory 0 = '\\' || String.get directory 0 = '/') then
+      skip_first_slash := true ;
+    List.iter (fun part ->
+      added_up_dir := !added_up_dir ^ (if !skip_first_slash then "/" else "") ^
+        part ;
+      skip_first_slash := true ;
+  (*        log_and_print "MKDIR %s\n" !added_up_dir ; *)
+      (try
+        Case_ins.unix_mkdir !added_up_dir mode ;
+      with e -> (match e with
+      | Unix.Unix_error(Unix.EEXIST,_,_) -> ()
+      | _ -> log_and_print "Problem %s on %s: util.ml\n"
+            (printexc_to_string e) !added_up_dir))) dir_split
+  end
 
 let inlined_files = Hashtbl.create 15
 
@@ -415,31 +420,37 @@ let set_backup_dir str i =
   recursive_mkdir backup_dir_name 511 ; (* 511 = octal 0777 = a+rwx *)
   backup_dir := Some(backup_dir_name) ;
   (match !backup_list_chn with
-  | Some(c) -> close_out c
+  | Some(c) -> close_out c ; backup_list_chn := None
   | None -> ()) ;
   (match !mappings_list_chn with
-  | Some(c) -> close_out c
+  | Some(c) -> close_out c ; mappings_list_chn := None
   | None -> ()) ;
   (match !move_list_chn with
-  | Some(c) -> close_out c
+  | Some(c) -> close_out c ; move_list_chn := None
   | None -> ()) ;
   (match !other_list_chn with
-  | Some(c) -> close_out c
+  | Some(c) -> close_out c ; other_list_chn := None
   | None -> ()) ;
   let backup_filename = (backup_dir_name ^ "/UNINSTALL." ^ i) in
   let mappings_filename = (backup_dir_name ^ "/MAPPINGS." ^ i) in
   let move_filename = (backup_dir_name ^ "/MOVE." ^ i) in
   let other_filename = (backup_dir_name ^ "/OTHER." ^ i) in
   Hashtbl.clear backup_ht ;
-  (try
-    backup_list_chn := Some(Case_ins.perv_open_out_bin backup_filename) ;
-    mappings_list_chn := Some(Case_ins.perv_open_out_bin mappings_filename) ;
-    move_list_chn := Some(Case_ins.perv_open_out_bin move_filename) ;
-    other_list_chn := Some(Case_ins.perv_open_out_bin other_filename) ;
-  with e ->
-    log_and_print "WARNING: unable to open [%s]: %s
-      Will be unable to UNINSTALL later.\n"
-       backup_filename (printexc_to_string e))
+  if Dryrun.active () then begin
+    log_or_print "[DRY-RUN] would prepare backup metadata in [%s]\n"
+      backup_dir_name ;
+    Dryrun.record_metadata ()
+  end else begin
+    (try
+      backup_list_chn := Some(Case_ins.perv_open_out_bin backup_filename) ;
+      mappings_list_chn := Some(Case_ins.perv_open_out_bin mappings_filename) ;
+      move_list_chn := Some(Case_ins.perv_open_out_bin move_filename) ;
+      other_list_chn := Some(Case_ins.perv_open_out_bin other_filename) ;
+    with e ->
+      log_and_print "WARNING: unable to open [%s]: %s
+        Will be unable to UNINSTALL later.\n"
+         backup_filename (printexc_to_string e))
+  end
 
 let log_file = ref ""
 let append_to_log = ref false
@@ -649,29 +660,67 @@ let split_resref name =
     name, "")
 
 
+let remove_file file =
+  if Dryrun.active () then begin
+    log_or_print "[DRY-RUN] would delete [%s]\n" file ;
+    Dryrun.record_delete ()
+  end else
+    Case_ins.sys_remove file
+
 let my_unlink file =
   begin
-    try
-      Case_ins.unix_unlink file
-    with e ->
-      log_only "Unable to Unlink [%s]: %s\n"
-        file (printexc_to_string e)
+    if Dryrun.active () then begin
+      log_or_print "[DRY-RUN] would delete [%s]\n" file ;
+      Dryrun.record_delete ()
+    end else begin
+      try
+        Case_ins.unix_unlink file
+      with e ->
+        log_only "Unable to Unlink [%s]: %s\n"
+          file (printexc_to_string e)
+    end
   end
 
 let my_rmdir dir =
   begin
-    try
-      Case_ins.unix_rmdir dir
-    with e ->
-      log_only "Unable to Rmdir [%s]: %s\n"
-        dir (printexc_to_string e)
+    if Dryrun.active () then begin
+      log_or_print "[DRY-RUN] would remove directory [%s]\n" dir ;
+      Dryrun.record_rmdir ()
+    end else begin
+      try
+        Case_ins.unix_rmdir dir
+      with e ->
+        log_only "Unable to Rmdir [%s]: %s\n"
+          dir (printexc_to_string e)
+    end
   end
+
+let rename_file src dst =
+  if Dryrun.active () then begin
+    log_or_print "[DRY-RUN] would rename [%s] to [%s]\n" src dst ;
+    Dryrun.record_rename ()
+  end else
+    Case_ins.unix_rename src dst
+
+let move_file src dst =
+  if Dryrun.active () then begin
+    log_or_print "[DRY-RUN] would move [%s] to [%s]\n" src dst ;
+    Dryrun.record_move ()
+  end else
+    Case_ins.unix_rename src dst
+
+let chmod_file filename mode =
+  if Dryrun.active () then begin
+    log_or_print "[DRY-RUN] would chmod [%s]\n" filename ;
+    Dryrun.record_chmod ()
+  end else
+    Case_ins.unix_chmod filename mode
 
 let handle_readonly filename =
   if file_exists filename then (* if it already exists *)
     begin (* handle read-only files! *)
       try
-        Case_ins.unix_chmod filename 511 ; (* 511 = octal 0777 = a+rwx *)
+        chmod_file filename 511 ; (* 511 = octal 0777 = a+rwx *)
       with e -> ()
           (* log_or_print "WARNING: chmod %s : %s\n" filename
              (printexc_to_string e) *)
@@ -686,16 +735,27 @@ let rec backup_if_extant filename =
     (String.uppercase filename) = "OVERRIDE\\SPELL.IDS" then begin
       if not (file_exists "override/spell.ids.installed") then begin
         backup_if_extant "override/spell.ids.installed" ;
-        let out_chn = Case_ins.perv_open_out_bin
-            "override/spell.ids.installed" in
-        output_string out_chn "spell.ids edits installed\n" ;
-        close_out out_chn ;
+        if Dryrun.active () then begin
+          log_or_print
+            "[DRY-RUN] would write metadata [override/spell.ids.installed]\n" ;
+          Dryrun.record_metadata ()
+        end else begin
+          let out_chn = Case_ins.perv_open_out_bin
+              "override/spell.ids.installed" in
+          output_string out_chn "spell.ids edits installed\n" ;
+          close_out out_chn ;
+        end
       end
     end ;
     Hashtbl.add backup_ht
       (String.uppercase (native_separator filename)) true ;
     (match !backup_list_chn with
-    | Some(chn) -> output_string chn (filename ^ "\n") ; flush chn
+    | Some(chn) ->
+        if Dryrun.active () then
+          Dryrun.record_metadata ()
+        else begin
+          output_string chn (filename ^ "\n") ; flush chn
+        end
     | None -> ()) ;
     (match !backup_dir with
     | Some(dir) when file_exists filename -> begin
@@ -710,8 +770,13 @@ let rec backup_if_extant filename =
           else
             where := out1 ;
           (match !mappings_list_chn with
-          | Some(chn) -> output_string chn (filename ^ log_line_separator ^
-                                            !where ^ "\n") ; flush chn
+          | Some(chn) ->
+              if Dryrun.active () then
+                Dryrun.record_metadata ()
+              else begin
+                output_string chn (filename ^ log_line_separator ^
+                                   !where ^ "\n") ; flush chn
+              end
           | None -> ()) ;
           copy_large_file name !where "creating a backup"
         with e ->
@@ -733,8 +798,11 @@ and copy_large_file name out reason =
         log_and_print "ERROR: [%s] has reported size %Ld\n" name size ;
         failwith ("error loading " ^ name)
       end ;
-      if file_exists out then my_unlink out ;
-      begin
+      if Dryrun.active () then begin
+        log_or_print "[DRY-RUN] would copy [%s] to [%s]\n" name out ;
+        Dryrun.record_copy ()
+      end else begin
+        if file_exists out then my_unlink out ;
         let in_fd  = Case_ins.unix_openfile name [Unix.O_RDONLY] 0 in
         let out_fd = Case_ins.unix_openfile out
             [Unix.O_WRONLY ; Unix.O_CREAT] 511 in
@@ -820,7 +888,12 @@ let open_for_writing_internal backup filename binary =
   !modder_check_file_exists filename ;
   if (backup) then backup_if_extant filename else
   (match !other_list_chn with
-   | Some(chn) -> output_string chn (filename ^ "\n") ; flush chn
+   | Some(chn) ->
+       if Dryrun.active () then
+         Dryrun.record_metadata ()
+       else begin
+         output_string chn (filename ^ "\n") ; flush chn
+       end
    | None -> ()) ;
   let dir = Filename.dirname filename in
   if dir <> "" && not (is_directory dir) then
@@ -828,20 +901,45 @@ let open_for_writing_internal backup filename binary =
   if file_exists filename then (* if it already exists *)
     begin (* handle read-only files! *)
       try
-        Case_ins.unix_chmod filename 511 ; (* 511 = octal 0777 = a+rwx *)
+        chmod_file filename 511 ; (* 511 = octal 0777 = a+rwx *)
       with e -> ()
           (* log_or_print "WARNING: chmod %s : %s\n" filename
              (printexc_to_string e) *)
     end ;
-  let out_chn = (if binary then Case_ins.perv_open_out_bin else
-  Case_ins.perv_open_out) filename in
-  out_chn
+  if Dryrun.active () then begin
+    log_or_print "[DRY-RUN] would write [%s]\n" filename ;
+    Dryrun.record_write () ;
+    Dryrun.null_out_channel binary
+  end else begin
+    let out_chn = (if binary then Case_ins.perv_open_out_bin else
+    Case_ins.perv_open_out) filename in
+    out_chn
+  end
 
 let open_for_writing = open_for_writing_internal true
 
+let open_for_writing_direct filename binary =
+  let dir = Filename.dirname filename in
+  if dir <> "" && not (is_directory dir) then
+    recursive_mkdir dir 511 ;
+  if file_exists filename then
+    handle_readonly filename ;
+  if Dryrun.active () then begin
+    log_or_print "[DRY-RUN] would write [%s]\n" filename ;
+    Dryrun.record_write () ;
+    Dryrun.null_out_channel binary
+  end else
+    (if binary then Case_ins.perv_open_out_bin filename
+     else Case_ins.perv_open_out filename)
+
 let record_other_file_op filename =
   match !other_list_chn with
-  | Some chn -> output_string chn (filename ^ "\n") ; flush chn
+  | Some chn ->
+      if Dryrun.active () then
+        Dryrun.record_metadata ()
+      else begin
+        output_string chn (filename ^ "\n") ; flush chn
+      end
   | None -> ()
 
 (* filter to avoid logging progress bars from external programs *)
@@ -876,9 +974,9 @@ let exec_command cmd exact =
   let cmd = if exact then cmd else Arch.slash_to_backslash cmd in
   incr security_shell_commands ;
   audit_log "EXEC: [%s]" cmd ;
-  if !dry_run then begin
+  if Dryrun.active () then begin
     log_or_print "[DRY-RUN] would execute: [%s]\n" cmd ;
-    incr dry_run_execs ;
+    Dryrun.record_exec () ;
     Unix.WEXITED 0
   end else begin
     if !warn_shell then
@@ -1013,8 +1111,8 @@ let get_error_chn sort =
   try
     Hashtbl.find error_chn_ht sort
   with Not_found ->
-    let oc = Case_ins.perv_open_out (Printf.sprintf "%s/%s"
-                                       !error_chn_base sort) in
+    let filename = Printf.sprintf "%s/%s" !error_chn_base sort in
+    let oc = open_for_writing_direct filename false in
     Hashtbl.add error_chn_ht sort oc ;
     oc
 
@@ -1262,7 +1360,8 @@ let load_conf game_path =
 let save_conf game_path table =
   (try
     if (Hashtbl.length table) > 0 then begin
-      let chan = Case_ins.perv_open_out_bin (conf_filename game_path) in
+      let filename = conf_filename game_path in
+      let chan = open_for_writing_direct filename true in
       Hashtbl.iter (fun key value ->
         ignore (output_string chan (Printf.sprintf "%s = %s\n" key value)))
         table ;

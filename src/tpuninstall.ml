@@ -244,7 +244,7 @@ let check_pre_hooks game tp2 i interactive override_filename =
   if (String.uppercase override_filename) = "OVERRIDE/SPELL.IDS" ||
   (String.uppercase override_filename) = "OVERRIDE\\SPELL.IDS" then begin try
     let marker = spell_ids_marker tp2.tp_filename i in
-    let out_chn = Case_ins.perv_open_out_bin marker in
+    let out_chn = open_for_writing_direct marker true in
     output_string out_chn "spell.ids edits installed\n";
     close_out out_chn;
     if interactive then begin
@@ -301,7 +301,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
         List.iter (fun (a,b) ->
           (try
             audit_log "UNINSTALL-MOVE-RESTORE: [%s] -> [%s]" b a ;
-            Case_ins.unix_rename b a ;
+            rename_file b a ;
           with e ->
             log_and_print "WARNING: unable to restore [%s]: %s\n"
 	      a (printexc_to_string e))
@@ -374,7 +374,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
                     ) (!file_list)  ;
           (try
             my_unlink u_filename;
-            Case_ins.unix_unlink m_filename with _ -> ());
+            my_unlink m_filename with _ -> ());
           log_and_print "Uninstalled    %3d files for [%s] component %d.\n"
             (List.length !file_list) tp_file i;
           audit_log "UNINSTALL-END: [%s] #%d" tp_file i ;

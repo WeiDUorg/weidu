@@ -131,7 +131,7 @@ let extract game o output_dir min_num =
               Load.load_resource "extract kit" game true "clabfi01" "2DA" in
           let dst = Printf.sprintf "%s/%s.2DA" output_dir abilities in
           o (Printf.sprintf "~%s~\n" dst) ;
-          let oc = Case_ins.perv_open_out_bin dst in
+          let oc = open_for_writing_direct dst true in
           output_string oc buff ;
           close_out oc ;
           process_ability buff;
@@ -178,7 +178,7 @@ let extract game o output_dir min_num =
     try
       let buff, _ = Load.load_resource "extract kit" game true k "SPL" in
       let dst = Printf.sprintf "%s/%s.SPL" output_dir k in
-      let oc = Case_ins.perv_open_out_bin dst in
+      let oc = open_for_writing_direct dst true in
       output_string oc buff ;
       close_out oc ;
     with _ -> ()) abils ;

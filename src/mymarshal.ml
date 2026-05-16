@@ -18,10 +18,10 @@ let read_unsetstr filename : Load.str_set_record list =
 ;;
 
 let write_unsetstr filename unsetstr =
-  let outchan = Case_ins.perv_open_out_bin filename in
+  let outchan = open_for_writing_direct filename true in
   Marshal.to_channel outchan unsetstr [];
   close_out outchan;
-  let outchan = Case_ins.perv_open_out (filename ^ ".TEXT") in
+  let outchan = open_for_writing_direct (filename ^ ".TEXT") false in
   List.iter (fun item ->
     let (idx,old,old_f) = item in
     Printf.fprintf outchan "#%d ~~~~~%s~~~~~ [%s] #%d #%d #%d ~~~~~%s~~~~~ [%s] #%d #%d #%d\n" 
@@ -38,7 +38,7 @@ let read_tlkpath filename : string * string option =
     (Dparser.tlk_path_file Dlexer.initial)
 
 let write_tlkpath filename dialog_path dialogf_path =
-  let out = Case_ins.perv_open_out filename in
+  let out = open_for_writing_direct filename false in
   ignore (output_string out ("~" ^ dialog_path ^ "~")) ;
   (match dialogf_path with
   | None -> ignore (output_string out "\n")
@@ -59,10 +59,10 @@ let read_cli_vars filename : string list =
 ;;
 
 let write_cli_vars filename cli_vars =
-  let outchan = Case_ins.perv_open_out_bin filename in
+  let outchan = open_for_writing_direct filename true in
   Marshal.to_channel outchan cli_vars [] ;
   close_out outchan ;
-  let outchan = Case_ins.perv_open_out (filename ^ ".TEXT") in
+  let outchan = open_for_writing_direct (filename ^ ".TEXT") false in
   List.iter (fun s ->
     Printf.fprintf outchan "~~~~~%s~~~~~\n" s;
   ) cli_vars;
@@ -83,10 +83,10 @@ let read_readln filename : string list =
       (Dparser.args_file Dlexer.initial)
 
 let write_readln filename writeln =
-  let outchan = Case_ins.perv_open_out_bin filename in
+  let outchan = open_for_writing_direct filename true in
   Marshal.to_channel outchan (List.map (fun s -> (Tp.PE_LiteralString "",s)) writeln) [] ;
   close_out outchan ;
-  let outchan = Case_ins.perv_open_out (filename ^ ".TEXT") in
+  let outchan = open_for_writing_direct (filename ^ ".TEXT") false in
   List.iter (fun b ->
     Printf.fprintf outchan "~~~~~%s~~~~~\n" b;
   ) writeln;

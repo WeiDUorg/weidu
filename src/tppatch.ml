@@ -1399,14 +1399,14 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
                 let new_buff = before ^ npc_entry_buff ^ cre_chunk ^
                   buff ^ after in
 
-                let oc = Case_ins.perv_open_out_bin (filename ^
-                                                     "/baldur.gam") in
+                let oc = open_for_writing_direct
+                    (filename ^ "/baldur.gam") true in
                 output_string oc new_buff;
                 close_out oc;
                 begin (* handle read-only files! *)
                   try
                     (* 511 = octal 0777 = a+rwx *)
-                    Case_ins.unix_chmod (filename ^ "/baldur.gam") 511 ;
+                    chmod_file (filename ^ "/baldur.gam") 511 ;
                   with e -> ()
                       (* log_or_print "WARNING: chmod %s : %s\n" filename
                          (printexc_to_string e) *)
@@ -1473,13 +1473,14 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
                 let new_buff = before ^ npc_entry_buff ^ cre_chunk ^
                   buff ^ after in
 
-                let oc = Case_ins.perv_open_out_bin (filename ^ "/baldur.gam") in
+                let oc = open_for_writing_direct
+                    (filename ^ "/baldur.gam") true in
                 output_string oc new_buff;
                 close_out oc;
                 begin (* handle read-only files! *)
                   try
                     (* 511 = octal 0777 = a+rwx *)
-                    Case_ins.unix_chmod (filename ^ "/baldur.gam") 511 ;
+                    chmod_file (filename ^ "/baldur.gam") 511 ;
                   with e -> ()
                       (* log_or_print "WARNING: chmod %s : %s\n" filename
                          (printexc_to_string e) *)
@@ -1529,13 +1530,13 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let after = Str.string_after nbaldur_buff party_npc_off in
         let new_buff = before ^ npc_entry_buff ^ after in
 
-        let oc = Case_ins.perv_open_out_bin "override/baldur.gam" in
+        let oc = open_for_writing_direct "override/baldur.gam" true in
         output_string oc new_buff;
         close_out oc;
         begin (* handle read-only files! *)
           try
             (* 511 = octal 0777 = a+rwx *)
-            Case_ins.unix_chmod "override/baldur.gam" 511 ;
+            chmod_file "override/baldur.gam" 511 ;
           with e -> ()
               (* log_or_print "WARNING: chmod %s : %s\n" filename
                  (printexc_to_string e) *)

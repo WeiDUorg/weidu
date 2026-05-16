@@ -138,7 +138,7 @@ let do_readme tp this_tp2_filename =
                   answer := String.uppercase (read_line())
                 done;
                 if !answer = "Y" then
-                  ignore (Unix.system str);
+                  ignore (exec_command str true);
               end
               else walk tail
           | [] -> log_and_print

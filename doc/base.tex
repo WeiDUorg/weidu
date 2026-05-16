@@ -1248,10 +1248,13 @@ directory called \t{debugs} exists, in which case the log file is
 placed there. \\
 
 \DEFINE{--autolog} & 	Log output and details to \t{WSETUP.DEBUG}. \\
-\DEFINE{--dry-run} & Log file operations and shell commands without executing
-them. This is intended for preview/audit runs and may not follow all runtime
-branches exactly. For broader branch exploration, combine with
-\ttref{--continue}. \\
+\DEFINE{--dry-run} & Simulate installation without changing game files,
+mod backup files, uninstall metadata, \t{WeiDU.log}, or running shell
+commands. WeiDU still reads files, evaluates TP2 logic, and writes normal
+console/debug/audit output. Because dry-run suppresses writes rather than
+creating a virtual filesystem, later actions read the real filesystem and may
+not follow all runtime branches exactly. For broader branch exploration,
+combine with \ttref{--continue}. \\
 \DEFINE{--allow-outside-gamedir} & Suppress warnings for operations whose
 target path resolves outside the game directory.
 By default, WeiDU warns and audits these operations without blocking them,

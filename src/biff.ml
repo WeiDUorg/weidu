@@ -177,7 +177,7 @@ let save_biff key filename keyname components =
     if true then
       begin
         try
-          Case_ins.unix_chmod filename 511 ;
+          chmod_file filename 511 ;
         with e -> ()
       end ;
 
@@ -528,7 +528,7 @@ let copy_file biff i oc is_tis =
 
 let bifc2biff source dest =
   ignore (handle_readonly dest) ;
-  let out = Case_ins.perv_open_out_bin dest in
+  let out = open_for_writing_direct dest true in
   let fd = Case_ins.unix_openfile source [Unix.O_RDONLY] 0 in
   let read len =
     let buff = Bytes.create len in

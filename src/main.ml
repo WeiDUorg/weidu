@@ -73,6 +73,14 @@ type output_info = {
     with _ -> if !debug_ocaml then log_and_print "something happened...\nDefaulting to %s\n" file ; file
 ;;
 
+  let open_theout_file flags s =
+    if Dryrun.active () then begin
+      log_or_print "[DRY-RUN] would write [%s]\n" s ;
+      Dryrun.record_write () ;
+      Dryrun.null_out_gen flags 511
+    end else
+      Case_ins.perv_open_out_gen flags 511 s
+
   let set_theout app s =
     theout.append <- app ;
     if is_directory s then begin
@@ -80,9 +88,9 @@ type output_info = {
     end else begin
       theout.file <- s ;
       if app then
-        theout.chan <- lazy (Case_ins.perv_open_out_gen [Open_append ; Open_wronly ; Open_creat ; Open_text ] 511 s)
+        theout.chan <- lazy (open_theout_file [Open_append ; Open_wronly ; Open_creat ; Open_text ] s)
       else
-        theout.chan <- lazy (Case_ins.perv_open_out_gen [ Open_wronly ; Open_creat ; Open_text] 511 s)
+        theout.chan <- lazy (open_theout_file [ Open_wronly ; Open_creat ; Open_text] s)
     end;
 ;;
 
@@ -440,7 +448,7 @@ let diff_patch_file bcmp_orig bcmp_patch game =
                 log_and_print "File %s unchanged by patch %s.\n" s d
               else
                 let out_name = s ^ ".new" in
-                let out = Case_ins.perv_open_out_bin out_name in begin
+                let out = open_for_writing_direct out_name true in begin
                   log_and_print "Saving new file to %s\n" out_name ;
                   output_string out new_buff ;
                   close_out out
@@ -1108,7 +1116,7 @@ let compile_baf baf_list game =
     try
       let script = handle_baf_filename str in
       let name,ext = split_resref (Case_ins.filename_basename str) in
-      let out = Case_ins.perv_open_out_bin (theout.dir ^ "/" ^ name ^ ".bcs") in
+      let out = open_for_writing_direct (theout.dir ^ "/" ^ name ^ ".bcs") true in
       Bcs.save_bcs game (Bcs.Save_BCS_OC(out)) script ;
       close_out out
     with e -> log_and_print "ERROR: problem loading [%s]: %s\n" str
@@ -1243,7 +1251,11 @@ let do_script process_script pause_at_end game =
               log_or_print "Executing: [%s]\n" s ;
             ignore (exec_command s e)
         | Fn f ->
-            Lazy.force f
+            if Dryrun.active () then begin
+              log_or_print "[DRY-RUN] would run deferred exit action\n" ;
+              Dryrun.record_write ()
+            end else
+              Lazy.force f
               )
           !execute_at_exit;
         execute_at_exit := [];
@@ -1267,7 +1279,7 @@ let decompile_bcs bcs_list game =
       let script = handle_script_buffer str buff in
       let base = Case_ins.filename_basename b in
       let out_name = theout.dir ^ "/" ^ base ^ ".baf" in
-      let out = Case_ins.perv_open_out out_name in
+      let out = open_for_writing_direct out_name false in
       (try
         Bcs.print_script_text game (Bcs.Save_BCS_OC(out))
           (Bcs.BCS_Print_Script(script)) (!Dlg.comments) None ;
@@ -1681,7 +1693,7 @@ let main () =
     "--autolog", Myarg.Unit (fun () -> init_log Version.version "WSETUP.DEBUG"), "\tlog output and details to WSETUP.DEBUG" ;
     "--logapp", Myarg.Set append_to_log,"\tappend to log instead of overwriting" ;
     "--log-extern", Myarg.Set log_extern,"\talso log output from commands invoked by WeiDU " ;
-    "--dry-run", Myarg.Set Util.dry_run, "\tlog all file operations and shell commands without executing them" ;
+    "--dry-run", Myarg.Set Dryrun.enabled, "\tlog all file operations and shell commands without executing them" ;
     "--allow-outside-gamedir", Myarg.Set Util.allow_outside_gamedir, "\tsuppress warnings when file operations target paths outside the game directory" ;
     "--warn-shell", Myarg.Set Util.warn_shell, "\tprint a visible warning to console whenever a mod executes a shell command" ;
     "--audit-log", Myarg.String (fun s -> Util.audit_log_path_override := Some s), "X\twrite the audit log to X instead of <gamedir>/weidu-audit.log" ;
@@ -2183,7 +2195,11 @@ List.iter (fun c -> match c with
       log_or_print "Executing: [%s]\n" s ;
     ignore (exec_command s e)
 | Fn f ->
-    Lazy.force f)
+    if Dryrun.active () then begin
+      log_or_print "[DRY-RUN] would run deferred exit action\n" ;
+      Dryrun.record_write ()
+    end else
+      Lazy.force f)
     !execute_at_exit ;
 if file_exists "override/add_spell.ids" && not (file_exists "override/spell.ids.installed") && not (
   let files = Case_ins.sys_readdir "override" in
@@ -2206,18 +2222,7 @@ Util.audit_log "%s" security_summary ;
    audit log is open.  audit_log() will additionally write to whichever
    channel (text or JSON) is currently open. *)
 (if !Util.dry_run then begin
-  let total = !Util.dry_run_copies + !Util.dry_run_moves +
-              !Util.dry_run_deletes + !Util.dry_run_mkdirs +
-              !Util.dry_run_execs in
-  let summary =
-    Printf.sprintf
-      "DRY-RUN summary: %d cop%s, %d move%s, %d delet%s, %d mkdir%s, %d shell command%s (total: %d operations intercepted)"
-      !Util.dry_run_copies  (if !Util.dry_run_copies  = 1 then "y"  else "ies")
-      !Util.dry_run_moves   (if !Util.dry_run_moves   = 1 then ""   else "s")
-      !Util.dry_run_deletes (if !Util.dry_run_deletes = 1 then "e"  else "es")
-      !Util.dry_run_mkdirs  (if !Util.dry_run_mkdirs  = 1 then ""   else "s")
-      !Util.dry_run_execs   (if !Util.dry_run_execs   = 1 then ""   else "s")
-      total in
+  let summary = Dryrun.summary_string () in
   log_and_print "\n%s\n" summary ;
   Util.audit_log "%s" summary
 end) ;

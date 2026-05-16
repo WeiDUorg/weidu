@@ -52,7 +52,11 @@ let get_version_list () =
   end with e -> ()) ;
   List.sort (fun (f1,v1) (f2,v2) -> v2 - v1) !weidu_list
 
-let verify_latest can_spawn = begin
+let verify_latest can_spawn =
+  if Dryrun.active () then begin
+    log_and_print "[DRY-RUN] would check and apply WeiDU auto-updates if needed\n" ;
+    Dryrun.record_write ()
+  end else begin
   let sorted = get_version_list () in
   if !debug_ocaml then List.iter (fun (f,v) -> log_and_print "%s %d\n" f v) sorted;
   let argv_0 = Case_ins.filename_basename Sys.argv.(0) in
@@ -75,23 +79,23 @@ let verify_latest can_spawn = begin
       let newest_buff = load_file newest in
 
       List.iter (fun (target,target_t) ->
-        if (target <> this) && (target_t <> newest_t) then begin
-          (* log_and_print "\tUnlinking [%s]: " target ;        *)
-          let unlink_worked = (try Case_ins.unix_unlink target ; true
-          with _ -> false) in
-          (* log_and_print "%b\n" unlink_worked ; *)
-          log_and_print "\tCopying [%s] -> [%s]: " newest target ;
-          let copy_worked = try
-            let out = open_for_writing target true in
-            output_string out newest_buff ;
-            close_out out ;
-            if Arch.view_command <> "start"
-            then Unix.chmod target 0o755 (* rwxr-xr-x *);
-            true
-          with _ -> false in
-          log_and_print "%b\n" copy_worked ;
-        end
-                ) sorted ;
+          if (target <> this) && (target_t <> newest_t) then begin
+            (* log_and_print "\tUnlinking [%s]: " target ;        *)
+            let unlink_worked = (try my_unlink target ; true
+            with _ -> false) in
+            (* log_and_print "%b\n" unlink_worked ; *)
+            log_and_print "\tCopying [%s] -> [%s]: " newest target ;
+            let copy_worked = try
+              let out = open_for_writing target true in
+              output_string out newest_buff ;
+              close_out out ;
+              if Arch.view_command <> "start"
+              then chmod_file target 0o755 (* rwxr-xr-x *);
+              true
+            with _ -> false in
+            log_and_print "%b\n" copy_worked ;
+          end
+                  ) sorted ;
 
       if newest_t <> (int_of_string version) then begin
         let not_this = Case_ins.filename_basename
@@ -124,6 +128,11 @@ end
 let self () =
   (* let update_regexp = Str.regexp_case_fold "weiduautoupdate" in      *)
   let target = Unix.getenv "weiduautoupdate" in
+  if Array.fold_left (fun acc arg -> acc || arg = "--dry-run") false Sys.argv then begin
+    Dryrun.enabled := true ;
+    log_and_print "[DRY-RUN] would auto-update on behalf of [%s]\n" target ;
+    Dryrun.record_write ()
+  end else begin
   let silent =
     try
       let waus = Unix.getenv "weiduautoupdatesilent" in
@@ -137,13 +146,13 @@ let self () =
   log_and_print "Auto-Updating on behalf of [%s]\n" target ;
   let this_buff = load_file Sys.argv.(0) in
   (* in this case we can always just copy ourselves over the target *)
-  let unlink_worked = (try Case_ins.unix_unlink target ; true with _ -> false) in
+  let unlink_worked = (try my_unlink target ; true with _ -> false) in
   log_and_print "\tCopying [%s] -> [%s]: " Sys.argv.(0) target ;
   let copy_worked = try
     let out = open_for_writing target true in
     output_string out this_buff ;
     close_out out ;
-    if Arch.view_command <> "start" then Unix.chmod target 0o755 (* rwxr-xr-x *);
+    if Arch.view_command <> "start" then chmod_file target 0o755 (* rwxr-xr-x *);
     true
   with _ -> false in
   log_and_print "\nAuto-Updating on behalf of [%s] (done)\n" target ;
@@ -165,3 +174,4 @@ let self () =
       (if not Myarg.good_terminal_p then (try ignore (read_line () ) with _ -> ()))
     end;
     exit (return_value StatusAutoUpdateRetry) ;
+  end

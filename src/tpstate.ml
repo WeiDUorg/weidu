@@ -379,7 +379,7 @@ let save_log game handle_tp2_filename get_tra_list_filename =
   let tra_ht = Hashtbl.create 511 in
   let s = sprintf_log game handle_tp2_filename
             get_tra_list_filename !the_log tp2_ht tra_ht true true in
-  let out = Case_ins.perv_open_out log_name in
+  let out = open_for_writing_direct log_name false in
   output_string out s;
   close_out out
 

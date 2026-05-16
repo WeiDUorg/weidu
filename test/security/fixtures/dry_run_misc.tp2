@@ -1,0 +1,10 @@
+BACKUP ~tmp/dry_misc/backup~
+AUTHOR ~security-tests~
+
+BEGIN ~dry-run misc test~
+  MKDIR ~tmp/dry_misc/newdir~
+  COPY_LARGE ~fixtures/input.txt~ ~tmp/dry_misc/large-copy.txt~
+  APPEND_OUTER ~tmp/dry_misc/append.txt~ ~added-by-dry-run~
+  DELETE ~tmp/dry_misc/delete-dir~
+  MOVE ~tmp/dry_misc/move-source.txt~ ~tmp/dry_misc/move-dest.txt~
+  AT_NOW ~echo dry-run-at-now > tmp/dry_misc/at-now.txt~
