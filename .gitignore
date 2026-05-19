@@ -16,6 +16,8 @@ diffs/*
 *.rej
 *.orig
 *~
+__pycache__/
+*.pyc
 .project
 .paths
 .settings/

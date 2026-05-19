@@ -1,5 +1,0 @@
-BACKUP ~tmp/dry_copy/backup~
-AUTHOR ~security-tests~
-
-BEGIN ~dry-run copy test~
-  COPY ~fixtures/input.txt~ ~tmp/dry_copy/security-dry-run.txt~

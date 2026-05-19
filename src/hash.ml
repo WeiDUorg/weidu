@@ -1,14 +1,12 @@
 (* Centralized hashing helpers (SHA-256 + fallback digest utilities). *)
 
 open BatteriesInit
-open Hashtblinit
 
 let many_whitespace_regexp = Str.regexp "[ \t]+"
-let normalize_slashes p = Str.global_replace (Str.regexp "\\\\") "/" p
 
 type sha256_backend =
   | ShaCertUtil
-  (* PowerShell Get-FileHash — available on all modern Windows versions (8+/Server 2012+)
+  (* PowerShell Get-FileHash - available on all modern Windows versions (8+/Server 2012+)
      as a fallback when certutil is absent or misbehaves. *)
   | ShaPS
   | Sha256sum
@@ -31,19 +29,14 @@ let sha256_default_backends () =
     [Sha256sum; Shasum256]
 
 let run_command_capture_lines cmd =
-  if Dryrun.active () then begin
-    Dryrun.record_exec () ;
-    None
-  end else begin
-    try
-      let proc = Unix.open_process_in cmd in
-      let lines = ref [] in
-      (try while true do lines := input_line proc :: !lines done
-       with End_of_file -> ()) ;
-      let status = Unix.close_process_in proc in
-      Some (List.rev !lines, status)
-    with _ -> None
-  end
+  try
+    let proc = Unix.open_process_in cmd in
+    let lines = ref [] in
+    (try while true do lines := input_line proc :: !lines done
+     with End_of_file -> ()) ;
+    let status = Unix.close_process_in proc in
+    Some (List.rev !lines, status)
+  with _ -> None
 
 let parse_sha256_from_lines backend lines =
   let normalize_line line =
@@ -118,82 +111,3 @@ let sha256_file_with_backends path backends =
   go backends
 
 let sha256_file path = sha256_file_with_backends path (sha256_default_backends ())
-
-let sha256_string s =
-  (* We intentionally hash via the same external SHA-256 backends used for files,
-     so behavior is consistent across all hash call sites in this codebase. *)
-  if Dryrun.active () then begin
-    Dryrun.record_write () ;
-    None
-  end else begin
-    let tmp = Filename.temp_file "weidu-sha256-" ".tmp" in
-    try
-      let ch = open_out_bin tmp in
-      output_string ch s ;
-      close_out ch ;
-      let res = sha256_file tmp in
-      (try Sys.remove tmp with _ -> ()) ;
-      res
-    with _ ->
-      (try Sys.remove tmp with _ -> ()) ;
-      None
-  end
-
-let canonicalize_for_key ?base path =
-  (* Canonicalization here is lexical (no filesystem access), matching security checks
-     where path traversal should be normalized without requiring files to exist. *)
-  let p = normalize_slashes path in
-  let full =
-    if Filename.is_relative p then
-      let b = match base with
-        | Some b when b <> "" -> normalize_slashes b
-        | _ -> normalize_slashes (Sys.getcwd ()) in
-      b ^ "/" ^ p
-    else p in
-  let parts = String.split_on_char '/' full in
-  let rec resolve acc = function
-    | [] -> List.rev acc
-    | "" :: rest when acc <> [] -> resolve acc rest
-    | "." :: rest -> resolve acc rest
-    | ".." :: rest ->
-        (match acc with
-        | [] | [""] | [_] -> resolve acc rest
-        | _ :: prev -> resolve prev rest)
-    | part :: rest -> resolve (part :: acc) rest
-  in
-  String.lowercase_ascii (String.concat "/" (resolve [] parts))
-
-let tp2_hash_seen = Hashtbl.create 97
-
-let register_tp2_hash ?game_dir path digest =
-  let key = canonicalize_for_key ?base:game_dir path in
-  if Hashtbl.mem tp2_hash_seen key then begin
-    let old_digest = Hashtbl.find tp2_hash_seen key in
-    old_digest <> digest
-  end else begin
-    Hashtbl.add tp2_hash_seen key digest ;
-    false
-  end
-
-let audit_chain_prev = ref ""
-let audit_chain_sha256_available = ref (None : bool option)
-
-let next_audit_chain ts ctx result =
-  (* Tamper-evident chain:
-     chain_n = hash(chain_{n-1} || ts || ctx || msg).
-     We prefer SHA-256 and degrade to Digest only if SHA-256 backends are unavailable. *)
-  let chain_seed = !audit_chain_prev ^ "|" ^ ts ^ "|" ^ ctx ^ "|" ^ result in
-  let chain =
-    match !audit_chain_sha256_available with
-    | Some false -> Digest.to_hex (Digest.string chain_seed)
-    | _ ->
-        begin match sha256_string chain_seed with
-        | Some digest ->
-            audit_chain_sha256_available := Some true ;
-            digest
-        | None ->
-            audit_chain_sha256_available := Some false ;
-            Digest.to_hex (Digest.string chain_seed)
-        end in
-  audit_chain_prev := chain ;
-  chain

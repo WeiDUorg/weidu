@@ -9,3 +9,9 @@
 Dockerfile
 obj/
 result
+WeiDU-Windows/
+WeiDU-Linux/
+WeiDU-Mac/
+WeiDU-*.zip
+__pycache__/
+*.pyc

@@ -1,0 +1,19 @@
+BACKUP ~danger/backup~
+AUTHOR ~sandbox test~
+
+BEGIN ~sandbox dangerous fixture~
+
+// These game-copy mutations should be visible in the sandbox report only.
+COPY ~danger/input.txt~ ~override/copied.txt~
+COPY_LARGE ~danger/input.txt~ ~override/copied-large.txt~
+
+MOVE ~danger/move-source.txt~ ~override/moved.txt~
+
+DELETE ~danger/delete-me.txt~
+
+// The /game write should be reported; root and parent escapes should fail.
+AT_NOW ~sh -c 'echo shell-inside > override/shell.txt; echo shell-root > /sandbox-root-escape.txt || true; echo shell-parent > ../sandbox-parent-escape.txt || true; echo shell-temp > /tmp/sandbox-temp.txt'~
+
+// These errors are deliberately silenced; syscall tracing should still report them.
+AT_NOW ~sh -c 'exec 2>/dev/null; echo silent-root > /sandbox-silent-escape.txt || true; echo silent-parent > ../sandbox-silent-parent.txt || true; echo silent-temp > /tmp/sandbox-silent-temp.txt || true'~
+AT_NOW ~sh -c 'exec 2>/dev/null; cp danger/input.txt /sandbox-silent-copy.txt || true; mv danger/input.txt /sandbox-silent-move.txt || true; rm -f /sandbox-silent-delete.txt || true; mkdir /sandbox-silent-dir || true'~

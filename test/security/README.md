@@ -1,30 +1,17 @@
 # Security regression tests
 
-Run from this directory:
-
-- Windows (PowerShell):
-
-```pwsh
-perl .\run_tests.pl
-```
-
-- macOS (zsh/bash):
+Sandbox launcher tests do not require a WeiDU build or Docker/Podman:
 
 ```bash
-perl ./run_tests.pl
+python test/security/test_weidu_sandbox.py
 ```
 
-- Linux (bash/sh):
-
-```bash
-perl ./run_tests.pl
-```
-
-Optional:
-  - Set `WEIDU_BIN` to a specific executable path.
-
-These tests cover:
-  - `--dry-run` suppression for copy, large copy, append, mkdir, delete, move, shell, and uninstall operations
-  - `--require-sha256` failure path when hash tools are unavailable
-  - `--strict-path-risk` blocking for OS-specific high-risk paths
-  - sensitive path warnings that should not block by default
+The `fixtures/danger` directory is a manual integration fixture for the
+container sandbox. To use it, copy `fixtures/danger/setup-danger.tp2` to
+the game root and copy the remaining fixture files as the game's
+`danger/` folder, then run the launcher against that game with Docker or
+Podman enabled. The fixture performs copy, large copy, move, delete, and
+shell actions so the sandbox report should show changes only in the
+temporary game copy. It also includes outside-game shell attempts with
+stderr redirected to `/dev/null`; those should appear through the syscall
+trace diagnostics rather than stdout/stderr parsing.

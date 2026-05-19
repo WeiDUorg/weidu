@@ -53,10 +53,6 @@ let get_version_list () =
   List.sort (fun (f1,v1) (f2,v2) -> v2 - v1) !weidu_list
 
 let verify_latest can_spawn =
-  if Dryrun.active () then begin
-    log_and_print "[DRY-RUN] would check and apply WeiDU auto-updates if needed\n" ;
-    Dryrun.record_write ()
-  end else begin
   let sorted = get_version_list () in
   if !debug_ocaml then List.iter (fun (f,v) -> log_and_print "%s %d\n" f v) sorted;
   let argv_0 = Case_ins.filename_basename Sys.argv.(0) in
@@ -122,17 +118,11 @@ let verify_latest can_spawn =
         end
       end
     end ;
-  end
 end
 
 let self () =
   (* let update_regexp = Str.regexp_case_fold "weiduautoupdate" in      *)
   let target = Unix.getenv "weiduautoupdate" in
-  if Array.fold_left (fun acc arg -> acc || arg = "--dry-run") false Sys.argv then begin
-    Dryrun.enabled := true ;
-    log_and_print "[DRY-RUN] would auto-update on behalf of [%s]\n" target ;
-    Dryrun.record_write ()
-  end else begin
   let silent =
     try
       let waus = Unix.getenv "weiduautoupdatesilent" in
@@ -174,4 +164,3 @@ let self () =
       (if not Myarg.good_terminal_p then (try ignore (read_line () ) with _ -> ()))
     end;
     exit (return_value StatusAutoUpdateRetry) ;
-  end

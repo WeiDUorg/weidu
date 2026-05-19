@@ -20,8 +20,13 @@ USER root
 RUN chown -R opam:opam /src
 USER opam
 ENV PATH="${PATH}:/home/opam/.opam/4.08/bin"
-RUN make
+RUN make clean && make
 FROM docker.io/debian:13-slim
 WORKDIR /src
 COPY --from=weidu-build /src/weidu.asm.exe /src/weidu
-CMD ["/src/weidu"]
+RUN apt-get update -yqqq && \
+    apt-get install -yqqq --no-install-recommends strace && \
+    rm -rf /var/lib/apt/lists/* && \
+    chmod 0755 /src/weidu
+USER 10001:10001
+ENTRYPOINT ["/src/weidu"]

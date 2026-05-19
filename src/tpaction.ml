@@ -313,8 +313,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             | [] -> ()
             | head :: tail -> begin
                 if file_exists head && not (is_directory head) then begin
-                  warn_outside_gamedir head ;
-                  audit_log "DELETE: [%s]" head ;
                   if do_backup then
                     backup_if_extant head ;
                   ignore (record_other_file_op head) ;
@@ -364,18 +362,15 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 log_or_print "Moving %s to %s\n" src dst;
                 if not (file_exists src) then
                   log_and_print "ERROR: cannot locate %s\n" src ;
-                warn_outside_gamedir dst ;
-                audit_log "MOVE: [%s] -> [%s]" src dst ;
                 move_file src dst;
-                if not (Dryrun.active ()) then begin
-                  if do_backup then
-                    (match !move_list_chn with
-                    | Some(chn) -> output_string chn (src ^ log_line_separator ^ dst ^ "\n") ;
-                        flush chn
-                    | None -> ());
-                  if !ok then
-                    ignore (List.iter record_other_file_op [src;dst])
-                end end
+                if do_backup then
+                  (match !move_list_chn with
+                  | Some(chn) -> output_string chn (src ^ log_line_separator ^ dst ^ "\n") ;
+                      flush chn
+                  | None -> ());
+                if !ok then
+                  ignore (List.iter record_other_file_op [src;dst])
+              end
             else log_and_print "MOVE [%s] [%s]: source is a directory\n" src dst;
           in
           List.iter (fun (src,dst) ->
@@ -854,12 +849,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                         end) () in
                   if (it_changed) then begin
                     let doit () = Stats.time "saving files" (fun () ->
-                    warn_outside_gamedir dest ;
-                    audit_log "COPY: [%s] -> [%s]" src dest ;
-                    if Dryrun.active () then begin
-                      log_or_print "[DRY-RUN] would copy [%s] to [%s]\n" src dest ;
-                      Dryrun.record_copy ()
-                    end ;
                     if not (save_inlined) then begin
                         let out =
                           try open_for_writing_internal make_a_backup dest true
@@ -972,8 +961,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             | _ -> ()) ;
             ignore (set_copy_vars src dest None) ;
             Stats.time "saving files" (fun () ->
-              warn_outside_gamedir dest ;
-              audit_log "COPY: [%s] -> [%s]" src dest ;
               if Hashtbl.mem inlined_files (Arch.backslash_to_slash src) then begin
                 let copy_args = {
                   copy_get_existing = false;
@@ -1673,8 +1660,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             (if numdir = 1 then "y" else "ies") ;
           List.iter (fun str ->
             let str = Var.get_string str in
-            warn_outside_gamedir str ;
-            audit_log "MKDIR: [%s]" str ;
             try
               recursive_mkdir str 511 (* 511 = octal 0777 = a+rwx *)
             with e ->
@@ -2244,35 +2229,25 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             (match buff with
             | "BIFFV1  " -> ignore (log_and_print "[%s] already decompressed\n" biff) ; ()
             | "BIFCV1.0" ->
-                if Dryrun.active () then begin
-                  log_or_print "[DRY-RUN] would decompress biff [%s]\n" biff ;
-                  Dryrun.record_write ()
-                end else begin
-                  let backed_up = backup biff "" in
-                  (try
-                    let sz = Biff.bifc2biff (Case_ins.fix_name backed_up) (Case_ins.fix_name biff) in
-                    ignore (log_and_print "[%s] decompressed biff file: %d bytes\n" biff sz) ;
-                  with e ->
-                    ignore (backdown biff "") ;
-                    ignore (log_and_print "ERROR: could not decompress biff %s [%s]\n" biff (printexc_to_string e)) ;
-                    raise e)
-                end
+                let backed_up = backup biff "" in
+                (try
+                  let sz = Biff.bifc2biff (Case_ins.fix_name backed_up) (Case_ins.fix_name biff) in
+                  ignore (log_and_print "[%s] decompressed biff file: %d bytes\n" biff sz) ;
+                with e ->
+                  ignore (backdown biff "") ;
+                  ignore (log_and_print "ERROR: could not decompress biff %s [%s]\n" biff (printexc_to_string e)) ;
+                  raise e)
             | "BIF V1.0" ->
-                if Dryrun.active () then begin
-                  log_or_print "[DRY-RUN] would decompress biff [%s]\n" biff ;
-                  Dryrun.record_write ()
-                end else begin
-                  let biff = backup biff "" in
-                  (try
-                    let new_bif = (Case_ins.filename_chop_extension biff) ^ ".bif" in
-                    if file_exists new_bif then ignore (my_unlink new_bif) ;
-                    let sz =  Cbif.cbf2bif (Case_ins.fix_name biff) (Case_ins.fix_name new_bif) in
-                    ignore (log_and_print "[%s] decompressed biff file: %d bytes\n" biff sz) ;
-                  with e ->
-                    ignore (backdown biff "") ;
-                    ignore (log_and_print "ERROR: could not decompress biff %s [%s]\n" biff (printexc_to_string e)) ;
-                    raise e)
-                end
+                let biff = backup biff "" in
+                (try
+                  let new_bif = (Case_ins.filename_chop_extension biff) ^ ".bif" in
+                  if file_exists new_bif then ignore (my_unlink new_bif) ;
+                  let sz =  Cbif.cbf2bif (Case_ins.fix_name biff) (Case_ins.fix_name new_bif) in
+                  ignore (log_and_print "[%s] decompressed biff file: %d bytes\n" biff sz) ;
+                with e ->
+                  ignore (backdown biff "") ;
+                  ignore (log_and_print "ERROR: could not decompress biff %s [%s]\n" biff (printexc_to_string e)) ;
+                  raise e)
             | _ -> failwith (Printf.sprintf "%s is not a valid BIFF file (wrong sig)" biff)) in
           let length = (List.length biff_path_list) in
           ignore (log_and_print "Decompressing %i biff file%s\n" length (if length = 1 then "" else "s")) ;

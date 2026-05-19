@@ -169,6 +169,17 @@ clean:
 ###
 VER = $(shell grep "let version" src/version.ml | cut -d \" -f 2 | sed -e's/\(...\)00/\1/g')
 VERBIG = $(shell grep "let version" src/version.ml | cut -d \" -f 2)
+SANDBOX_BUILD_FILES = Configuration Depends Dockerfile Makefile Makefile.ocaml
+SANDBOX_BUILD_DIRS = batteries-lite elkhound fcase glob hashtbl-4.03.0 scripts src xdiff zlib
+
+define copy_sandbox_support
+	rm -rf $(1)/scripts $(1)/sandbox-src
+	mkdir -p $(1)/scripts $(1)/sandbox-src
+	cp scripts/weidu-sandbox.py $(1)/scripts/weidu-sandbox.py
+	cp $(SANDBOX_BUILD_FILES) $(1)/sandbox-src
+	cp -r $(SANDBOX_BUILD_DIRS) $(1)/sandbox-src
+endef
+
 doc: doc/base.tex
 	$(MAKE) -C doc
 
@@ -187,6 +198,7 @@ windows_zip : weidu weinstall tolower
 	rm WeiDU-Windows/README.md
 	cp COPYING WeiDU-Windows
 	cp --preserve=all -r examples WeiDU-Windows
+	$(call copy_sandbox_support,WeiDU-Windows)
 	#cp windows_manifests/*.manifest WeiDU-Windows
 	zip -9r WeiDU-Windows-$(VER).zip WeiDU-Windows
 src_zip : clean
@@ -206,6 +218,7 @@ linux_zip : weidu weinstall tolower
 	rm WeiDU-Linux/README.md
 	cp COPYING WeiDU-Linux
 	cp -r examples WeiDU-Linux
+	$(call copy_sandbox_support,WeiDU-Linux)
 	zip -9r WeiDU-Linux-$(VER).zip WeiDU-Linux
 osx_zip : weidu weinstall
 	mkdir -p WeiDU-Mac
@@ -219,6 +232,7 @@ osx_zip : weidu weinstall
 	rm WeiDU-Mac/README.md
 	cp COPYING WeiDU-Mac
 	cp -r examples WeiDU-Mac
+	$(call copy_sandbox_support,WeiDU-Mac)
 	#sed -e's/version_plist=.*/version_plist=\"${VERBIG}\"/g'  'WeiDU-Mac/WeiDU Installer.command' > t
 	#mv t WeiDU-Mac/WeiDU\ Installer.command
 	zip -9r WeiDU-Mac-$(VER).zip WeiDU-Mac -x */.DS_Store

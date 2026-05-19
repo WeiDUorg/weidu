@@ -14,6 +14,7 @@
 *.nix text eol=lf
 *.ocaml text eol=lf
 *.pl text eol=lf
+*.py text eol=lf
 *.rc text eol=crlf
 *.sample text eol=lf
 *.sh text eol=lf
