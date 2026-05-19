@@ -33,29 +33,12 @@ DEFAULT_IMAGE = "weidu-sandbox:local"
 PACKAGED_BUILD_CONTEXT = "sandbox-src"
 SANDBOX_DIAGNOSTICS_TARGET = "/sandbox-diagnostics"
 STRACE_LOG_NAME = "strace.log"
-PATH_TOKEN_RE = re.compile(
-    r"""
-    (?P<parent>\.\.[/\\][^\s"'`<>|;&]+)
-    |(?P<win>[A-Za-z]:[/\\][^\s"'`<>|;&]+)
-    |(?P<unix>/[^\s"'`<>|;&]+)
-    """,
-    re.VERBOSE,
-)
+DEFAULT_CONTAINER_CWD = "/game"
 STRACE_LINE_RE = re.compile(
-    r"^(?:\d+\s+)?(?P<syscall>[A-Za-z_][A-Za-z0-9_]*)"
+    r"^(?:(?P<pid>\d+)\s+)?(?P<syscall>[A-Za-z_][A-Za-z0-9_]*)"
     r"\((?P<args>.*)\)\s+=\s+(?P<result>.+)$"
 )
 STRACE_QUOTED_RE = re.compile(r'"((?:\\.|[^"\\])*)"')
-TRAILING_PATH_PUNCTUATION = ".,;:)]}'\""
-BLOCKED_ACCESS_MARKERS = (
-    ("read_only_filesystem", "read-only file system"),
-    ("permission_denied", "permission denied"),
-    ("operation_not_permitted", "operation not permitted"),
-    ("access_denied", "access is denied"),
-    ("cannot_create", "cannot create"),
-    ("cannot_remove", "cannot remove"),
-    ("cannot_delete", "cannot delete"),
-)
 MUTATING_SYSCALLS = {
     "chmod",
     "creat",
@@ -364,93 +347,58 @@ def summarize_changes(changes: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def blocked_access_reasons(line: str) -> list[str]:
-    """Return blocked-access markers found in one process-output line."""
-    lower = line.lower()
-    return [code for code, marker in BLOCKED_ACCESS_MARKERS if marker in lower]
+def normalize_container_path(path: str, cwd: str = DEFAULT_CONTAINER_CWD) -> str:
+    """Resolve a container path lexically without touching the host filesystem."""
+    normalized = path.replace("\\", "/")
+    if not normalized.startswith("/"):
+        normalized = f"{cwd.rstrip('/')}/{normalized}"
+    parts: list[str] = []
+    for part in normalized.split("/"):
+        if part in ("", "."):
+            continue
+        if part == "..":
+            if parts:
+                parts.pop()
+            continue
+        parts.append(part)
+    return "/" + "/".join(parts)
 
 
-def classify_container_path(raw_path: str) -> dict[str, str]:
-    """Classify a path mention from process output relative to the sandbox."""
-    path = raw_path.rstrip(TRAILING_PATH_PUNCTUATION)
+def classify_container_path(
+    raw_path: str,
+    cwd: str = DEFAULT_CONTAINER_CWD,
+) -> dict[str, str]:
+    """Classify a traced path relative to the sandbox mount layout."""
+    path = raw_path
     normalized = path.replace("\\", "/")
     if re.match(r"^[A-Za-z]:/", normalized):
         return {
             "path": path,
+            "resolved_path": normalized,
             "relation": "host_absolute_syntax",
             "meaning": "Windows-style absolute path requested from inside Linux sandbox",
         }
-    if normalized == "/game" or normalized.startswith("/game/"):
+    resolved = normalize_container_path(normalized, cwd)
+    if resolved == "/game" or resolved.startswith("/game/"):
         return {
             "path": path,
+            "resolved_path": resolved,
             "relation": "inside_game_copy",
             "meaning": "temporary game copy mounted at /game",
         }
-    if normalized == "/tmp" or normalized.startswith("/tmp/"):
+    if resolved == "/tmp" or resolved.startswith("/tmp/"):
         return {
             "path": path,
+            "resolved_path": resolved,
             "relation": "container_tmpfs",
             "meaning": "ephemeral container /tmp, discarded after the run",
         }
-    if normalized.startswith("../"):
-        return {
-            "path": path,
-            "relation": "outside_game",
-            "meaning": "parent traversal from /game",
-        }
-    if normalized.startswith("/"):
-        return {
-            "path": path,
-            "relation": "outside_game",
-            "meaning": "absolute container path outside /game",
-        }
     return {
         "path": path,
-        "relation": "relative_or_unknown",
-        "meaning": "relative path or unclassified path mention",
+        "resolved_path": resolved,
+        "relation": "outside_game",
+        "meaning": "container path outside /game",
     }
-
-
-def extract_path_mentions(line: str) -> list[dict[str, str]]:
-    """Extract path-looking tokens from a process-output line."""
-    mentions: list[dict[str, str]] = []
-    seen: set[str] = set()
-    for match in PATH_TOKEN_RE.finditer(line):
-        token = match.group(0).rstrip(TRAILING_PATH_PUNCTUATION)
-        if token in seen:
-            continue
-        seen.add(token)
-        mentions.append(classify_container_path(token))
-    return mentions
-
-
-def analyze_output_stream(stream: str, text: str) -> list[dict[str, Any]]:
-    """Find sandbox-relevant filesystem diagnostics in stdout or stderr."""
-    events: list[dict[str, Any]] = []
-    for line_number, line in enumerate(text.splitlines(), start=1):
-        reasons = blocked_access_reasons(line)
-        mentions = extract_path_mentions(line)
-        relevant_mentions = [
-            mention
-            for mention in mentions
-            if mention["relation"]
-            in ("outside_game", "host_absolute_syntax", "container_tmpfs")
-        ]
-        if not relevant_mentions:
-            continue
-        # Keep path mentions that have an obvious sandbox implication. A reason
-        # makes the event more actionable, but pure mentions are still useful in
-        # reports because shell failures may be phrased differently per platform.
-        events.append(
-            {
-                "stream": stream,
-                "line_number": line_number,
-                "line": line,
-                "blocked_reasons": reasons,
-                "paths": relevant_mentions,
-            }
-        )
-    return events
 
 
 def decode_strace_string(raw: str) -> str:
@@ -462,7 +410,10 @@ def decode_strace_string(raw: str) -> str:
         return raw
 
 
-def extract_strace_paths(args: str) -> list[dict[str, str]]:
+def extract_strace_paths(
+    args: str,
+    cwd: str = DEFAULT_CONTAINER_CWD,
+) -> list[dict[str, str]]:
     """Extract quoted path arguments from one strace syscall argument list."""
     paths: list[dict[str, str]] = []
     seen: set[str] = set()
@@ -471,7 +422,7 @@ def extract_strace_paths(args: str) -> list[dict[str, str]]:
         if path in seen:
             continue
         seen.add(path)
-        paths.append(classify_container_path(path))
+        paths.append(classify_container_path(path, cwd))
     return paths
 
 
@@ -500,15 +451,24 @@ def parse_strace_result(result: str) -> dict[str, Any]:
 def parse_strace_log(text: str) -> list[dict[str, Any]]:
     """Parse mutating filesystem syscalls from a strace log."""
     events: list[dict[str, Any]] = []
+    cwd_by_pid: dict[str, str] = {"main": DEFAULT_CONTAINER_CWD}
     for line_number, line in enumerate(text.splitlines(), start=1):
         match = STRACE_LINE_RE.match(line)
         if not match:
             continue
+        pid = match.group("pid") or "main"
         syscall = match.group("syscall")
         args = match.group("args")
+        result = parse_strace_result(match.group("result"))
+        cwd = cwd_by_pid.get(pid, DEFAULT_CONTAINER_CWD)
+        if syscall == "chdir":
+            paths = extract_strace_paths(args, cwd)
+            if result["success"] and paths:
+                cwd_by_pid[pid] = paths[0]["resolved_path"]
+            continue
         if not syscall_can_mutate(syscall, args):
             continue
-        paths = extract_strace_paths(args)
+        paths = extract_strace_paths(args, cwd)
         relevant_paths = [
             path
             for path in paths
@@ -522,7 +482,7 @@ def parse_strace_log(text: str) -> list[dict[str, Any]]:
                 "line_number": line_number,
                 "line": line,
                 "syscall": syscall,
-                "result": parse_strace_result(match.group("result")),
+                "result": result,
                 "paths": relevant_paths,
             }
         )
@@ -530,27 +490,11 @@ def parse_strace_log(text: str) -> list[dict[str, Any]]:
 
 
 def build_diagnostics(
-    stdout: str,
-    stderr: str,
     strace_text: str | None = None,
     strace_error: str | None = None,
 ) -> dict[str, Any]:
     """Build report diagnostics for sandbox escape attempts."""
-    events = analyze_output_stream("stdout", stdout) + analyze_output_stream("stderr", stderr)
     syscall_events = parse_strace_log(strace_text) if strace_text is not None else []
-    outside_events = [
-        event
-        for event in events
-        if any(
-            path["relation"] in ("outside_game", "host_absolute_syntax")
-            for path in event["paths"]
-        )
-    ]
-    tmpfs_events = [
-        event
-        for event in events
-        if any(path["relation"] == "container_tmpfs" for path in event["paths"])
-    ]
     outside_syscalls = [
         event
         for event in syscall_events
@@ -579,25 +523,23 @@ def build_diagnostics(
             "enabled": True,
             "available": strace_text is not None,
             "error": strace_error,
-            "mutating_events": syscall_events,
+            "interesting_events": syscall_events,
             "note": (
                 "Syscall trace is collected with strace -f -e trace=file inside "
-                "the container and parsed for mutating filesystem calls."
+                "the container and parsed for outside-game and tmpfs mutating "
+                "filesystem calls."
             ),
         },
         "outside_game_access": {
-            "detected": bool(outside_events or outside_syscalls),
-            "output_events": outside_events,
+            "detected": bool(outside_syscalls),
             "syscall_events": outside_syscalls,
             "note": (
-                "Output events come from captured stdout/stderr. Syscall events "
-                "come from strace and can reveal attempts whose shell errors were "
-                "suppressed."
+                "Events come from strace and can reveal attempts whose shell "
+                "errors were suppressed."
             ),
         },
         "container_tmpfs_access": {
-            "detected": bool(tmpfs_events or tmpfs_syscalls),
-            "output_events": tmpfs_events,
+            "detected": bool(tmpfs_syscalls),
             "syscall_events": tmpfs_syscalls,
             "note": "/tmp is writable inside the container but is discarded after the run.",
         },
@@ -608,18 +550,10 @@ def summarize_diagnostics(diagnostics: dict[str, Any]) -> str:
     """Create a short human-readable summary for important diagnostics."""
     outside = diagnostics["outside_game_access"]
     if not outside["detected"]:
-        return "No outside-game path attempts were detected in output or syscall trace."
-    output_events = outside["output_events"]
+        return "No outside-game path attempts were detected in the syscall trace."
     syscall_events = outside["syscall_events"]
-    total = len(output_events) + len(syscall_events)
-    lines = [
-        f"{total} outside-game path diagnostic(s) found:"
-    ]
-    for event in output_events[:5]:
-        paths = ", ".join(path["path"] for path in event["paths"])
-        reasons = ", ".join(event["blocked_reasons"]) or "path mention"
-        lines.append(f"  output {event['stream']}:{event['line_number']}: {reasons}: {paths}")
-    for event in syscall_events[:10 - len(lines) + 1]:
+    lines = [f"{len(syscall_events)} outside-game syscall diagnostic(s) found:"]
+    for event in syscall_events[:10]:
         paths = ", ".join(path["path"] for path in event["paths"])
         result = event["result"]
         if result["success"]:
@@ -628,8 +562,8 @@ def summarize_diagnostics(diagnostics: dict[str, Any]) -> str:
             detail = f"{result['errno']} ({result['message']})"
         lines.append(f"  syscall {event['syscall']}:{event['line_number']}: {detail}: {paths}")
     shown = len(lines) - 1
-    if total > shown:
-        lines.append(f"  ... {total - shown} more")
+    if len(syscall_events) > shown:
+        lines.append(f"  ... {len(syscall_events) - shown} more")
     return "\n".join(lines)
 
 
@@ -678,8 +612,6 @@ def main(argv: list[str] | None = None) -> int:
             changes = diff_snapshots(before, after)
             strace_text, strace_error = read_strace_log(diagnostics_dir)
             diagnostics = build_diagnostics(
-                completed.stdout,
-                completed.stderr,
                 strace_text,
                 strace_error,
             )

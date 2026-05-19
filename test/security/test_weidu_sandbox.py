@@ -174,37 +174,6 @@ class SandboxLauncherTests(unittest.TestCase):
             "1970-01-01T00:00:00.000Z",
         )
 
-    def test_diagnostics_detect_outside_game_errors(self):
-        """Blocked root/parent writes should be called out explicitly."""
-        stderr = "\n".join(
-            [
-                "sh: 1: cannot create /sandbox-root-escape.txt: Read-only file system",
-                "sh: 1: cannot create ../sandbox-parent-escape.txt: Read-only file system",
-            ]
-        )
-        diagnostics = weidu_sandbox.build_diagnostics("", stderr)
-        outside = diagnostics["outside_game_access"]
-
-        self.assertTrue(outside["detected"])
-        self.assertEqual(len(outside["output_events"]), 2)
-        detected_paths = {
-            path["path"]
-            for event in outside["output_events"]
-            for path in event["paths"]
-        }
-        self.assertEqual(
-            detected_paths,
-            {"/sandbox-root-escape.txt", "../sandbox-parent-escape.txt"},
-        )
-
-    def test_diagnostics_classify_tmpfs_separately(self):
-        """Writable /tmp is container-local and should not count as host escape."""
-        stdout = "created /tmp/sandbox-temp.txt"
-        diagnostics = weidu_sandbox.build_diagnostics(stdout, "")
-
-        self.assertFalse(diagnostics["outside_game_access"]["detected"])
-        self.assertTrue(diagnostics["container_tmpfs_access"]["detected"])
-
     def test_diagnostics_parse_strace_outside_game_syscalls(self):
         """Strace should catch outside writes even when shell output is silent."""
         strace_log = "\n".join(
@@ -225,11 +194,12 @@ class SandboxLauncherTests(unittest.TestCase):
                 ),
             ]
         )
-        diagnostics = weidu_sandbox.build_diagnostics("", "", strace_log)
+        diagnostics = weidu_sandbox.build_diagnostics(strace_log)
         outside = diagnostics["outside_game_access"]
 
         self.assertTrue(outside["detected"])
         self.assertEqual(len(outside["syscall_events"]), 2)
+        self.assertEqual(len(diagnostics["syscall_trace"]["interesting_events"]), 2)
         detected_paths = {
             path["path"]
             for event in outside["syscall_events"]
@@ -246,7 +216,7 @@ class SandboxLauncherTests(unittest.TestCase):
             '321 openat(AT_FDCWD, "/tmp/sandbox-temp.txt", '
             "O_WRONLY|O_CREAT|O_TRUNC, 0666) = 4"
         )
-        diagnostics = weidu_sandbox.build_diagnostics("", "", strace_log)
+        diagnostics = weidu_sandbox.build_diagnostics(strace_log)
 
         self.assertFalse(diagnostics["outside_game_access"]["detected"])
         self.assertTrue(diagnostics["container_tmpfs_access"]["detected"])
@@ -255,23 +225,60 @@ class SandboxLauncherTests(unittest.TestCase):
             "/tmp/sandbox-temp.txt",
         )
 
-    def test_diagnostics_summary_is_clear(self):
-        """Console summary should include blocked outside-game path evidence."""
-        diagnostics = weidu_sandbox.build_diagnostics(
-            "",
-            "sh: 1: cannot create /outside.txt: Permission denied\n",
+    def test_diagnostics_resolve_relative_paths_after_chdir(self):
+        """Relative writes should be classified using traced chdir state."""
+        strace_log = "\n".join(
+            [
+                '7 chdir("/tmp") = 0',
+                (
+                    '7 openat(AT_FDCWD, "relative-temp.txt", '
+                    "O_WRONLY|O_CREAT|O_TRUNC, 0666) = 4"
+                ),
+                '8 chdir("/") = 0',
+                (
+                    '8 openat(AT_FDCWD, "relative-root.txt", '
+                    "O_WRONLY|O_CREAT|O_TRUNC, 0666) = -1 EROFS "
+                    "(Read-only file system)"
+                ),
+            ]
         )
-        summary = weidu_sandbox.summarize_diagnostics(diagnostics)
+        diagnostics = weidu_sandbox.build_diagnostics(strace_log)
 
-        self.assertIn("outside-game path diagnostic", summary)
-        self.assertIn("/outside.txt", summary)
-        self.assertIn("permission_denied", summary)
+        self.assertTrue(diagnostics["container_tmpfs_access"]["detected"])
+        self.assertEqual(
+            diagnostics["container_tmpfs_access"]["syscall_events"][0]["paths"][0][
+                "resolved_path"
+            ],
+            "/tmp/relative-temp.txt",
+        )
+        self.assertTrue(diagnostics["outside_game_access"]["detected"])
+        self.assertEqual(
+            diagnostics["outside_game_access"]["syscall_events"][0]["paths"][0][
+                "resolved_path"
+            ],
+            "/relative-root.txt",
+        )
+
+    def test_diagnostics_keeps_game_relative_parent_paths_inside(self):
+        """Parent traversal inside /game should not be reported as escape."""
+        strace_log = "\n".join(
+            [
+                '1 chdir("/game/subdir") = 0',
+                (
+                    '1 openat(AT_FDCWD, "../inside-game.txt", '
+                    "O_WRONLY|O_CREAT|O_TRUNC, 0666) = 4"
+                ),
+            ]
+        )
+        diagnostics = weidu_sandbox.build_diagnostics(strace_log)
+
+        self.assertFalse(diagnostics["outside_game_access"]["detected"])
+        self.assertFalse(diagnostics["container_tmpfs_access"]["detected"])
+        self.assertEqual(diagnostics["syscall_trace"]["interesting_events"], [])
 
     def test_diagnostics_summary_includes_syscalls(self):
         """Console summary should include silent attempts found by strace."""
         diagnostics = weidu_sandbox.build_diagnostics(
-            "",
-            "",
             '1 mkdir("/sandbox-silent-dir", 0777) = -1 EROFS (Read-only file system)',
         )
         summary = weidu_sandbox.summarize_diagnostics(diagnostics)
@@ -279,6 +286,14 @@ class SandboxLauncherTests(unittest.TestCase):
         self.assertIn("syscall mkdir", summary)
         self.assertIn("/sandbox-silent-dir", summary)
         self.assertIn("EROFS", summary)
+
+    def test_diagnostics_reports_missing_strace_log(self):
+        """Missing strace output should be explicit in the report."""
+        diagnostics = weidu_sandbox.build_diagnostics(None, "strace log missing")
+
+        self.assertFalse(diagnostics["syscall_trace"]["available"])
+        self.assertEqual(diagnostics["syscall_trace"]["error"], "strace log missing")
+        self.assertFalse(diagnostics["outside_game_access"]["detected"])
 
 
 if __name__ == "__main__":

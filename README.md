@@ -337,14 +337,14 @@ instructions if you prefer Docker over Podman.
   `strace -f -e trace=file` output collected inside the container. It can
   reveal silent file writes, deletes, renames, mkdirs, chmods, and
   write-mode opens even when shell errors are redirected to `/dev/null`.
-- The JSON report's `diagnostics.outside_game_access` section combines
-  captured stdout/stderr evidence with the syscall trace. Absolute paths
-  outside `/game`, parent traversals such as `../outside.txt`, and
-  Windows-style absolute path syntax are reported there when visible to
-  either source.
+- The JSON report's `diagnostics.outside_game_access` section is derived
+  from the syscall trace. Absolute paths outside `/game`, parent
+  traversals such as `../outside.txt`, and Windows-style absolute path
+  syntax are reported there when they appear in mutating file syscalls.
+  Relative paths are resolved against traced `chdir` calls where possible.
 - Writes to `/tmp` happen inside the container's ephemeral tmpfs. They are
   discarded after the run and are reported separately from outside-game
-  access when visible in output or syscall trace.
+  access when visible in the syscall trace.
 - Official installation references:
   - Python: <https://docs.python.org/3/using/>
   - Docker Desktop: <https://docs.docker.com/desktop/>

@@ -13,5 +13,5 @@ the game root and copy the remaining fixture files as the game's
 Podman enabled. The fixture performs copy, large copy, move, delete, and
 shell actions so the sandbox report should show changes only in the
 temporary game copy. It also includes outside-game shell attempts with
-stderr redirected to `/dev/null`; those should appear through the syscall
-trace diagnostics rather than stdout/stderr parsing.
+stderr redirected to `/dev/null`; those should still appear through the
+syscall trace diagnostics.
