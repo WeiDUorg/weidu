@@ -640,7 +640,11 @@ let exec_command cmd exact =
       end ;
       Unix.close_process_in proc_stdout
     end else Unix.system cmd
-  in ret
+  in
+  (* An external command may have created or removed files behind our back;
+     drop the case-folding cache so the next lookup re-scans from disk. *)
+  Case_ins.fcase_cache_clear () ;
+  ret
 
 type execute_at_exit_type =
 | Command of string * bool

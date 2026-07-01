@@ -2210,13 +2210,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           let backup biff suffix =
             let backup = backup_filename biff suffix in
             if file_exists backup then begin
-              Unix.unlink backup end ;
+              Case_ins.unix_unlink backup end ;
             ignore (Case_ins.unix_rename biff backup) ;
             backup in
           let backdown biff suffix =
             let backup = backup_filename biff suffix in
             if file_exists biff then
-              Unix.unlink biff ;
+              Case_ins.unix_unlink biff ;
             ignore (Case_ins.unix_rename backup biff) ;
             biff in
           let decompress biff =
@@ -2239,7 +2239,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 let biff = backup biff "" in
                 (try
                   let new_bif = (Case_ins.filename_chop_extension biff) ^ ".bif" in
-                  if file_exists new_bif then ignore (Unix.unlink new_bif) ;
+                  if file_exists new_bif then ignore (Case_ins.unix_unlink new_bif) ;
                   let sz =  Cbif.cbf2bif (Case_ins.fix_name biff) (Case_ins.fix_name new_bif) in
                   ignore (log_and_print "[%s] decompressed biff file: %d bytes\n" biff sz) ;
                 with e ->

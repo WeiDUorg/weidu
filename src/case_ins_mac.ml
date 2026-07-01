@@ -6,6 +6,10 @@ let lowercase = ref false
 
 let case_sensitive_p () = false
 
+(* No case-folding cache on this platform (see case_ins_linux.ml); no-op so
+   shared code can call it unconditionally. *)
+let fcase_cache_clear () = ()
+
 let backslash_to_slash s =
   let s = Str.global_replace (Str.regexp "\\\\") "/" s in
 				s
