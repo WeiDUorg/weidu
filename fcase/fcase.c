@@ -31,6 +31,8 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 /* --------------------------------------------------------------------------
@@ -45,11 +47,24 @@
  * We cache, per resolved directory path, a hashtable mapping a lowercased base
  * name to the real on-disk base name.  A directory is scanned once (on first
  * touch) and reused, turning each per-component lookup from O(entries) into
- * O(1).  The cache is kept coherent by the OCaml wrappers in case_ins_linux.ml,
- * which call fcase_cache_add / _remove / _flush whenever they create, delete or
- * rename a file, and fcase_cache_clear after running an external command.  The
- * OCaml side knows the semantic operation, which is what makes correct
- * invalidation feasible (doing it blindly inside C would not be).
+ * O(1).
+ *
+ * Coherence has two layers:
+ *
+ *  - The OCaml wrappers in case_ins_linux.ml call fcase_cache_add / _remove /
+ *    _flush whenever they create, delete or rename a file, and _clear after an
+ *    external command.  They know the semantic operation, which is what makes
+ *    precise, syscall-free invalidation possible.
+ *
+ *  - A miss is revalidated against the directory's mtime before it is believed
+ *    (fc_dir_stale).  Any mutation the wrappers did not report -- an unwrapped
+ *    code path, another process -- bumps that mtime, so the entry is re-scanned
+ *    instead of poisoning the rest of the run.  Hits stay syscall-free.
+ *
+ * Cache keys are the resolved path prefixes casepath() builds, so a directory
+ * must have exactly ONE spelling: casepath drops "." and empty components,
+ * without which "./override" resolved through a "./." prefix whose entry the
+ * OCaml side (keyed on Filename.dirname == ".") could never invalidate.
  * ------------------------------------------------------------------------ */
 
 typedef struct fc_entry {
@@ -63,6 +78,8 @@ typedef struct fc_dir {
   fc_entry **buckets;
   size_t nbuckets;
   size_t nentries;
+  time_t mtime;                /* dir mtime when scanned; revalidates a miss */
+  long mtime_ns;
   struct fc_dir *next;
 } fc_dir;
 
@@ -214,6 +231,7 @@ static fc_dir *fc_dir_load(const char *path)
 {
   DIR *dh = opendir(path);
   struct dirent *e;
+  struct stat st;
   fc_dir *d;
   size_t idx;
   if (!dh) return NULL;
@@ -223,6 +241,15 @@ static fc_dir *fc_dir_load(const char *path)
   d->buckets = NULL;
   d->nbuckets = 0;
   d->nentries = 0;
+  /* Record the mtime BEFORE reading, so a write racing this scan leaves us with
+   * a stamp older than the directory and the next miss re-scans. */
+  if (fstat(dirfd(dh), &st) == 0) {
+    d->mtime = st.st_mtime;
+    d->mtime_ns = (long) st.st_mtim.tv_nsec;
+  } else {
+    d->mtime = 0;
+    d->mtime_ns = 0;
+  }
   while ((e = readdir(dh)))
     fc_dir_put(d, e->d_name);
   closedir(dh);
@@ -230,6 +257,34 @@ static fc_dir *fc_dir_load(const char *path)
   d->next = fc_dirs[idx];
   fc_dirs[idx] = d;
   return d;
+}
+
+/* Drop one cached directory (by key). */
+static void fc_dir_drop(const char *path)
+{
+  size_t idx = fc_hash(path) % FC_DIR_NBUCKETS;
+  fc_dir *d = fc_dirs[idx], *prev = NULL;
+  while (d) {
+    if (strcmp(d->path, path) == 0) {
+      if (prev) prev->next = d->next; else fc_dirs[idx] = d->next;
+      fc_dir_free(d);
+      return;
+    }
+    prev = d;
+    d = d->next;
+  }
+}
+
+/* Has the directory changed since we scanned it?  Creating, deleting or
+ * renaming an entry bumps the directory's mtime, so this catches every mutation
+ * the OCaml wrappers did not tell us about (an unwrapped code path, an external
+ * tool, another process).  Only ever called on a miss, so the hot path -- a hit
+ * -- stays syscall-free. */
+static int fc_dir_stale(const fc_dir *d)
+{
+  struct stat st;
+  if (stat(d->path, &st) != 0) return 1;   /* gone or unreadable: re-scan */
+  return st.st_mtime != d->mtime || (long) st.st_mtim.tv_nsec != d->mtime_ns;
 }
 
 /* Resolve one path component inside dirpath.
@@ -245,6 +300,12 @@ static int fc_resolve(const char *dirpath, const char *name, const char **real_o
     if (!d) return -1;
   }
   r = fc_dir_get(d, name);
+  if (!r && fc_dir_stale(d)) {
+    fc_dir_drop(dirpath);
+    d = fc_dir_load(dirpath);
+    if (!d) return -1;
+    r = fc_dir_get(d, name);
+  }
   if (r) { *real_out = r; return 1; }
   return 0;
 }
@@ -284,6 +345,18 @@ static int casepath(char const *path, char *r)
     if (last)
       return 0;
 
+    /* Drop no-op components so that one directory has ONE cache key.  WeiDU
+     * builds paths as game_path ^ "/override/..." with game_path = ".", which
+     * used to resolve through a distinct "./." prefix: the invalidation done by
+     * the OCaml side (keyed on Filename.dirname, i.e. ".") could never reach
+     * that entry, so it stayed stale for the whole run.  Empty components come
+     * from "//" and from a trailing slash. */
+    if (c[0] == 0 || (c[0] == '.' && c[1] == 0))
+    {
+      c = strsep(&p, "/");
+      continue;
+    }
+
     rc = fc_resolve(rl == 0 ? "/" : r, c, &real);
     if (rc < 0)
       return 0;
@@ -312,36 +385,35 @@ static int casepath(char const *path, char *r)
   return 1;
 }
 
+/* Re-stamp a cached dir we just mutated ourselves.  The mutation bumped the
+ * directory's mtime; without this the entry would look stale to fc_dir_stale
+ * and every later miss would pay a full re-scan. */
+static void fc_dir_restamp(fc_dir *d)
+{
+  struct stat st;
+  if (stat(d->path, &st) == 0) {
+    d->mtime = st.st_mtime;
+    d->mtime_ns = (long) st.st_mtim.tv_nsec;
+  }
+}
+
 CAMLprim value fcase_cache_add(value vdir, value vname)
 {
   fc_dir *d = fc_dir_find(String_val(vdir));
-  if (d) fc_dir_put(d, String_val(vname));
+  if (d) { fc_dir_put(d, String_val(vname)); fc_dir_restamp(d); }
   return Val_unit;
 }
 
 CAMLprim value fcase_cache_remove(value vdir, value vname)
 {
   fc_dir *d = fc_dir_find(String_val(vdir));
-  if (d) fc_dir_del(d, String_val(vname));
+  if (d) { fc_dir_del(d, String_val(vname)); fc_dir_restamp(d); }
   return Val_unit;
 }
 
 CAMLprim value fcase_cache_flush(value vdir)
 {
-  const char *path = String_val(vdir);
-  size_t idx = fc_hash(path) % FC_DIR_NBUCKETS;
-  fc_dir *d = fc_dirs[idx], *prev = NULL;
-  while (d)
-  {
-    if (strcmp(d->path, path) == 0)
-    {
-      if (prev) prev->next = d->next; else fc_dirs[idx] = d->next;
-      fc_dir_free(d);
-      break;
-    }
-    prev = d;
-    d = d->next;
-  }
+  fc_dir_drop(String_val(vdir));
   return Val_unit;
 }
 
