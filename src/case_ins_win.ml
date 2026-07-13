@@ -6,6 +6,10 @@ let lowercase = ref false
 
 let case_sensitive_p () = false
 
+(* No case-folding cache on this platform (see case_ins_linux.ml); no-op so
+   shared code can call it unconditionally. *)
+let fcase_cache_clear () = ()
+
 (* Pervasives FS calls *)
 let perv_open_out s = open_out s ;;
 let perv_open_out_gen m i s = open_out_gen m i s ;;
