@@ -1,4 +1,14 @@
 Version 251:
+  * Mod-supplied external commands require explicit authorization.
+    Interactive runs ask before execution, while non-interactive runs
+    deny by default. Add --ask-external-commands,
+    --allow-external-commands, and --deny-external-commands.
+    Prompts identify the requesting TP2, component, and action and use
+    a fresh confirmation token. Interactive allow-all decisions apply
+    only to that TP2 component; the command-line allow policy remains
+    invocation-wide. A denial cannot be caught by ACTION_TRY or
+    overridden by --continue, and uninstall restoration still runs
+    before a denied hook is reported as an error.
   * CREATE called within CREATE works as expected.
   * CREATE sets SOURCE_* and DEST_* variables.
   * Auto-update does not fail if the filename of the newest WeiDU

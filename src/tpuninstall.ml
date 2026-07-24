@@ -92,60 +92,66 @@ let record_tlk_path_info game filename =
 (************************************************************************
  * Uninstall a TP2 component
  ************************************************************************)
-let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
+let handle_at_uninstall tp2 m component
+    do_uninstall do_interactive_uninstall game =
+  let external_command_request action = {
+      external_command_tp2 = tp2.tp_filename ;
+      external_command_component = Some component ;
+      external_command_action = action ;
+    } in
+  let execute_external_command action str exact =
+    let str = Var.get_string str in
+    match split (String.uppercase str) with
+    | _, "TP2" -> enqueue_tp2_filename str
+    | _, _ ->
+        let str =
+          if exact then str
+          else Arch.handle_view_command str !skip_at_view in
+        ignore
+          (exec_command (external_command_request action) str exact)
+  in
+  let enqueue_external_command_for action str exact =
+    let str = Var.get_string str in
+    match split (String.uppercase str) with
+    | _, "TP2" -> enqueue_tp2_filename str
+    | _, _ ->
+        let str =
+          if exact then str
+          else Arch.handle_view_command str !skip_at_view in
+        enqueue_external_command
+          (external_command_request action) str exact
+  in
   let rec handle_al al =
     List.iter (fun a ->
       match a with
       | TP_At_Interactive_Uninstall(str,exact) ->
-          if do_interactive_uninstall then begin
-            let str = Var.get_string str in
-            match (split (String.uppercase str)) with
-            | _,"TP2" -> (enqueue_tp2_filename) str
-            | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
-              ignore(exec_command str exact)
-          end
+          if do_interactive_uninstall then
+            execute_external_command
+              External_at_interactive_uninstall str exact
       | TP_At_Uninstall(str,exact) ->
-          if do_uninstall then begin
-            let str = Var.get_string str in
-            match (split (String.uppercase str)) with
-            | _,"TP2" -> (enqueue_tp2_filename) str
-            | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
-              ignore (exec_command str exact)
-          end
+          if do_uninstall then
+            execute_external_command External_at_uninstall str exact
       | TP_At_Interactive_Uninstall_Exit(str,exact) ->
-          if do_interactive_uninstall then begin
-            let str = Var.get_string str in
-            match (split (String.uppercase str)) with
-            | _,"TP2" -> (enqueue_tp2_filename) str
-            | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
-              if List.mem (Command(str,exact)) !execute_at_exit then
-                ()
-              else
-                execute_at_exit := (Command(str,exact)) :: !execute_at_exit
-          end
+          if do_interactive_uninstall then
+            enqueue_external_command_for
+              External_at_interactive_uninstall_exit str exact
       | TP_At_Uninstall_Exit(str,exact) ->
-          if do_uninstall then begin
-            let str = Var.get_string str in
-            match (split (String.uppercase str)) with
-            | _,"TP2" -> (enqueue_tp2_filename) str
-            | _,_ -> let str = if exact then str else Arch.handle_view_command str !skip_at_view in
-              if List.mem (Command(str,exact)) !execute_at_exit then
-                ()
-              else
-                execute_at_exit := (Command(str,exact)) :: !execute_at_exit
-          end
+          if do_uninstall then
+            enqueue_external_command_for
+              External_at_uninstall_exit str exact
       | TP_If(p,al1,al2) ->
-          begin try
+          begin
             eval_pe_warn := false ;
-            let res = is_true (eval_pe "" game p) in
-            (* log_or_print "IF evaluates to %b\n" res ; *)
-            if res then begin
-              handle_al al1
-            end else begin
-              handle_al al2
-            end
-          with _ -> () ;
-            eval_pe_warn := true ;
+            (try
+              let res = is_true (eval_pe "" game p) in
+              (* log_or_print "IF evaluates to %b\n" res ; *)
+              if res then handle_al al1 else handle_al al2
+            with
+            | External_command_denied _ as e ->
+                eval_pe_warn := true ;
+                raise e
+            | _ -> ()) ;
+            eval_pe_warn := true
           end
       | TP_Biff _ ->
           (* re-load the chitin *)
@@ -267,6 +273,8 @@ let check_post_hooks game tp2 i interactive override_filename =
     game.Load.loaded_biffs <- Hashtbl.create 5 ;
   end
 
+exception Uninstall_completed_with_error of exn
+
 let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
   let order = validate_uninstall_order tp2 in
   Stats.time "tp2 uninstall" (fun () ->
@@ -378,17 +386,37 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
         Var.set_string "LANGUAGE" lang_name ;
         ignore (set_tp2_vars tp2) ;
         Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i) ;
-        handle_at_uninstall tp2 m true interactive game ;
+        handle_at_uninstall tp2 m i true interactive game ;
+      in
+      let first_error = ref None in
+      let security_denial = ref None in
+      let restoration_failed = ref false in
+      let run_uninstall_action action f =
+        try f ()
+        with e ->
+          (match !first_error with
+          | None -> first_error := Some e
+          | Some _ -> ()) ;
+          (match e, !security_denial with
+          | (External_command_denied _ as denial), None ->
+              security_denial := Some denial
+          | _ -> ()) ;
+          if action <> "AT" then restoration_failed := true ;
+          log_and_print
+            "Error during %s uninstallation for [%s] component %d:\n%s\n"
+            action tp_file i (printexc_to_string e)
       in
       Queue.iter (fun action ->
         match action with
-        | "COPY" -> uninstall_copy();
-        | "MOVE" -> uninstall_move();
-        | "AT"   -> uninstall_at();
-        | "STRSET" -> uninstall_strset();
-        | _ -> failwith ("Unknown action during uninstall: " ^ action);
+        | "COPY" -> run_uninstall_action action uninstall_copy
+        | "MOVE" -> run_uninstall_action action uninstall_move
+        | "AT" -> run_uninstall_action action uninstall_at
+        | "STRSET" -> run_uninstall_action action uninstall_strset
+        | _ ->
+            run_uninstall_action action (fun () ->
+              failwith ("Unknown action during uninstall: " ^ action))
                  ) order;
-      if (interactive) then begin
+      if not !restoration_failed && interactive then begin
         my_unlink (Printf.sprintf "%s/READLN.%d" d i);
         my_unlink (Printf.sprintf "%s/READLN.%d.TEXT" d i);
         my_unlink (Printf.sprintf "%s/ARGS.%d" d i);
@@ -398,16 +426,34 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
         if (Array.length (Case_ins.sys_readdir tp2.backup) = 0) then
           my_rmdir tp2.backup
       end;
-    with e ->
-      log_and_print "Error Uninstalling [%s] component %d:\n%s\n"
-        tp_file i (printexc_to_string e);
-      (try assert false with Assert_failure(file,line,col) -> set_errors file line)
+      match !first_error with
+      | None -> ()
+      | Some e when not !restoration_failed ->
+          raise (Uninstall_completed_with_error e)
+      | Some e ->
+          (match !security_denial with
+          | None -> raise e
+          | Some denial -> raise denial)
+    with
+    | Uninstall_completed_with_error e as outcome ->
+        log_and_print "Error Uninstalling [%s] component %d:\n%s\n"
+          tp_file i (printexc_to_string e);
+        (try assert false with
+          Assert_failure(file,line,col) -> set_errors file line);
+        raise outcome
+    | e ->
+        log_and_print "Error Uninstalling [%s] component %d:\n%s\n"
+          tp_file i (printexc_to_string e);
+        (try assert false with
+          Assert_failure(file,line,col) -> set_errors file line);
+        raise e
                              ) ()
 
 
 let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
   let marker = spell_ids_marker tp2 i in
   my_unlink marker;
+  let hook_error = ref None in
   let rec is_installed lst = match lst with
   | [] -> []
   | (a,b,c,sopt,d) :: tl when log_match a tp2
@@ -427,9 +473,11 @@ let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
           log_only "Running AT_INTERACTIVE_EXITs in ~%s~ %d %d %s\n"
             (String.uppercase a) b c
             (str_of_str_opt sopt) ;
-          handle_at_uninstall tp2 m
-            false (* "AT_UNINSTALL" was already done! *)
-            true (* but the user just asked for this to be explicit *) game ;
+          (try
+            handle_at_uninstall tp2 m i
+              false (* "AT_UNINSTALL" was already done! *)
+              true (* but the user just asked for this to be explicit *) game
+          with e -> hook_error := Some e) ;
           begin
             let d = tp2.backup ^ "/" ^ (string_of_int i) in
             my_unlink (Printf.sprintf "%s/READLN.%d" d i);
@@ -443,7 +491,11 @@ let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
           end;
           (a,b,c,sopt,Permanently_Uninstalled) :: tl
   | hd :: tl -> hd :: (is_installed tl)
-  in the_log := is_installed !the_log
+  in
+  the_log := is_installed !the_log ;
+  match !hook_error with
+  | None -> ()
+  | Some e -> raise e
 
 (************************************************************************
  * Do everything necessary to uninstall the given tp2 component. This
@@ -462,6 +514,14 @@ let uninstall game handle_tp2_filename tp2 i interactive =
   log_or_print "uninstall: %s %d\n" tp2 i ;
   Var.set_int32 "COMPONENT_NUMBER" (Int32.of_int i);
   let worked = ref true in
+  let security_denial = ref None in
+  let remember_security_denial = function
+  | External_command_denied _ as e ->
+      (match !security_denial with
+      | None -> security_denial := Some e
+      | Some _ -> ())
+  | _ -> ()
+  in
   if not (already_installed tp2 i) then begin
     log_and_print "Internal Error: trying to uninstall non-installed mod component [%s] %d\n" tp2 i ;(try assert false with Assert_failure(file,line,col) -> set_errors file line);
     false
@@ -489,7 +549,16 @@ let uninstall game handle_tp2_filename tp2 i interactive =
                   with _ -> "" ) in
                 uninstall_tp2_component game (handle_tp2_filename best) a c interactive lang_name;
                 (a,b,c,sopt,Permanently_Uninstalled) :: tl
-              with _ ->
+              with
+              | Uninstall_completed_with_error e ->
+                remember_security_denial e ;
+                worked := false ;
+                (a,b,c,sopt,Permanently_Uninstalled) :: tl
+              | External_command_denied _ as e ->
+                remember_security_denial e ;
+                worked := false ;
+                lst
+              | _ ->
                 log_and_print "ERROR: This Mod is too old (or too new) to uninstall that component for you.\nUpgrade to the newest versions of this mod and that one and try again.\n" ;(try assert false with Assert_failure(file,line,col) -> set_errors file line);
                 worked := false ;
                 lst
@@ -516,7 +585,16 @@ let uninstall game handle_tp2_filename tp2 i interactive =
                   with _ -> "" ) in
                 uninstall_tp2_component game (handle_tp2_filename best) a c false  lang_name;
                 (a,b,c,sopt,Temporarily_Uninstalled) :: (prepare tl)
-              with e ->
+              with
+              | Uninstall_completed_with_error e ->
+                remember_security_denial e ;
+                worked := false ;
+                (a,b,c,sopt,Temporarily_Uninstalled) :: (prepare tl)
+              | External_command_denied _ as e ->
+                remember_security_denial e ;
+                worked := false ;
+                lst
+              | e ->
                 log_and_print "ERROR: This Mod is too old (or too new) to uninstall that component for you.\nUpgrade to the newest versions of this mod and that one and try again.\n[%s]\n"
                   (printexc_to_string e);(try assert false with Assert_failure(file,line,col) -> set_errors file line);
                 worked := false ;
@@ -526,5 +604,7 @@ let uninstall game handle_tp2_filename tp2 i interactive =
     in
     let new_log = List.rev (prepare (List.rev !the_log)) in
     the_log := new_log ;
-    !worked
+    match !security_denial with
+    | None -> !worked
+    | Some e -> raise e
   end

@@ -17,7 +17,8 @@ open Tpuninstall
 (*************************************************************************
  * process_action
  *************************************************************************)
-let rec process_action_real our_lang game this_tp2_filename tp a =
+let rec process_action_real
+    our_lang game this_tp2_filename component tp a =
 
   let get_next_col_number file =
     let (a,b) = split_resref file in
@@ -174,11 +175,54 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               caller filename v ; true
           end) true con_l in
 
-  let process_action = (process_action_real our_lang game this_tp2_filename) in
+  let process_action =
+    process_action_real our_lang game this_tp2_filename component in
   let process_patch2 = process_patch2_real process_action tp our_lang in
 
   let run_patch x = ignore (process_patch2 "" game "" x) in
   let pl_of_al x = [TP_PatchInnerAction x] in
+
+  let external_command_request action = {
+      external_command_tp2 = this_tp2_filename ;
+      external_command_component = Some component ;
+      external_command_action = action ;
+    } in
+
+  let process_external_at_exit action str exact =
+    let str = Var.get_string str in
+    let _, extension = split_resref (String.uppercase str) in
+    match extension with
+    | "TP2" -> enqueue_tp2_filename str
+    | _ ->
+        let str =
+          if exact then str
+          else Arch.handle_view_command str !skip_at_view in
+        enqueue_external_command
+          (external_command_request action) str exact
+  in
+
+  let process_external_at_now action retvar str exact =
+    let retvar = match retvar with
+    | None -> None
+    | Some str -> Some (Var.get_string (eval_pe_str str)) in
+    let str = Var.get_string str in
+    let _, extension = split_resref (String.uppercase str) in
+    match extension with
+    | "TP2" -> enqueue_tp2_filename str
+    | _ ->
+        let str =
+          if exact then str
+          else Arch.handle_view_command str !skip_at_view in
+        let request = external_command_request action in
+        match retvar with
+        | None -> ignore (exec_command request str exact)
+        | Some var ->
+            let retval = match exec_command request str exact with
+            | Unix.WEXITED i
+            | Unix.WSIGNALED i
+            | Unix.WSTOPPED i -> i in
+            Var.set_int var retval
+  in
 
   let str = action_to_str a in
   Stats.time str (fun () ->
@@ -600,7 +644,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       | TP_ClearCodes ->
           log_and_print "Clearing the macros.\n" ;
           clear_codes () ;
-          process_action_real our_lang game this_tp2_filename tp
+          process_action_real our_lang game this_tp2_filename component tp
             (TP_Include Tph.builtin_definitions);
 
       | TP_ClearInlined ->
@@ -612,7 +656,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           Bcs.clear_ids_map game ;
 
       | TP_ClearEverything ->
-          List.iter (process_action_real our_lang game this_tp2_filename tp)
+          List.iter
+            (process_action_real
+               our_lang game this_tp2_filename component tp)
             [ TP_ClearArrays; TP_ClearMemory; TP_ClearInlined;
               TP_ClearCodes; TP_Clear_Ids_Map ]
 
@@ -2126,44 +2172,18 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       end
 
       | TP_At_Interactive_Exit(str,exact) ->
-          if !interactive then process_action tp (TP_At_Exit(str,exact))
+          if !interactive then
+            process_external_at_exit External_at_interactive_exit str exact
       | TP_At_Interactive_Now(retvar,str,exact) ->
-          if !interactive then process_action tp (TP_At_Now(retvar,str,exact))
+          if !interactive then
+            process_external_at_now
+              External_at_interactive_now retvar str exact
 
       | TP_At_Exit(str,exact) ->
-          begin
-            let str = Var.get_string str in
-            let a,b = split_resref (String.uppercase str) in
-            match b with
-            | "TP2" -> (enqueue_tp2_filename) str
-            | _ ->
-                let str = if exact then str else Arch.handle_view_command str !skip_at_view in
-                if List.mem (Command (str,exact)) !execute_at_exit then
-                  ()
-                else
-                  execute_at_exit := (Command (str,exact)) :: !execute_at_exit
-          end
+          process_external_at_exit External_at_exit str exact
 
       | TP_At_Now(retvar,str,exact) ->
-          begin
-            let retvar = match retvar with
-            | None -> None
-            | Some str -> Some (Var.get_string (eval_pe_str str)) in
-            let str = Var.get_string str in
-            let a,b = split_resref (String.uppercase str) in
-            match b with
-            | "TP2" -> (enqueue_tp2_filename) str
-            | _ ->
-                let str = if exact then str else Arch.handle_view_command str !skip_at_view in
-                (match retvar with
-                | None -> ignore (exec_command str exact)
-                | Some var ->
-                    let retval = match exec_command str exact with
-                    | Unix.WEXITED i
-                    | Unix.WSIGNALED i
-                    | Unix.WSTOPPED i -> i in
-                    Var.set_int var retval)
-          end
+          process_external_at_now External_at_now retvar str exact
 
       | TP_At_Interactive_Uninstall(_)
       | TP_At_Uninstall(_)
@@ -2490,6 +2510,9 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
         clear_memory := true;
       end;
       with
+     | External_command_denied _ as e ->
+        exit_status := StatusInstallFailure ;
+        raise e
      | Abort msg -> raise (Abort msg)
      | e -> (* from: let rec process_action = try *)
       (if !continue_on_error then begin

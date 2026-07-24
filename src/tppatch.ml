@@ -479,7 +479,9 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         try
           List.fold_left (fun acc elt ->
             process_patch2 patch_filename game acc elt) buff pl
-        with e ->
+        with
+        | External_command_denied _ as e -> raise e
+        | e ->
           current_exception := e;
           let e = printexc_to_string e in
           Var.set_string "ERROR_MESSAGE" e;

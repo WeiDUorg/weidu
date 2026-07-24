@@ -1,0 +1,13 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~External command policy: component-scoped approval~
+
+PRINT ~A mod can print a fake token such as SPOOFED, but not the fresh token below.~
+OUTER_SET COMPONENT_NUMBER = 1
+AT_NOW ~echo ran > first-command-ran~ EXACT
+AT_NOW ~echo ran > second-command-ran~ EXACT
+
+BEGIN ~External command policy: next component~
+
+AT_NOW ~echo ran > third-command-ran~ EXACT

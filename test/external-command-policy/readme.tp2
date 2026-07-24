@@ -1,0 +1,6 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+README ~readme.txt~
+
+BEGIN ~External command policy: README~

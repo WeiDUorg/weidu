@@ -1,0 +1,13 @@
+BACKUP ~controller-backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~External command policy: UNINSTALL inside ACTION_TRY~
+
+ACTION_TRY
+  UNINSTALL ~victim.tp2~ 0
+WITH
+  DEFAULT
+    COPY ~source.txt~ ~uninstall-action-try-caught~
+END
+
+COPY ~source.txt~ ~continued-after-uninstall-denial~

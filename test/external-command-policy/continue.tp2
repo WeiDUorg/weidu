@@ -1,0 +1,7 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~External command policy: --continue~
+
+AT_NOW ~echo ran > denied-command-ran~ EXACT
+COPY ~source.txt~ ~continued-after-denial~

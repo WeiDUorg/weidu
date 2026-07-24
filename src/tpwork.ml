@@ -137,8 +137,14 @@ let do_readme tp this_tp2_filename =
                   log_and_print "\n%s\n" (get_trans (-1034));
                   answer := String.uppercase (read_line())
                 done;
-                if !answer = "Y" then
-                  ignore (Unix.system str);
+                if !answer = "Y" then begin
+                  let request = {
+                      external_command_tp2 = this_tp2_filename ;
+                      external_command_component = None ;
+                      external_command_action = External_readme ;
+                    } in
+                  ignore (exec_command request str false)
+                end;
               end
               else walk tail
           | [] -> log_and_print
@@ -637,7 +643,15 @@ let rollback_component game tp this_tp2_filename strset_backup_filename
       let l = List.nth tp.languages !our_lang_index in
       l.lang_dir_name ;
     with _ -> "" ) in
-  uninstall_tp2_component game tp this_tp2_filename i !interactive lang_name;
+  (try
+    uninstall_tp2_component
+      game tp this_tp2_filename i !interactive lang_name
+  with
+  | Uninstall_completed_with_error e ->
+      log_and_print
+        "Rollback restored WeiDU-managed state, but an uninstall hook \
+         failed:\n%s\n"
+        (printexc_to_string e));
   print_log () ;
   if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] && !safe_exit then begin
     let old_tp_quick_log = !Tp.quick_log in
@@ -834,7 +848,7 @@ let rec handle_tp game this_tp2_filename tp =
               (Int32.of_int (if !interactive then 1 else 0)) ;
             let old_silent = !be_silent in
             be_silent := true;
-            process_action_real our_lang game this_tp2_filename tp
+            process_action_real our_lang game this_tp2_filename i tp
               (TP_Include Tph.builtin_definitions);
             be_silent := old_silent;
 
@@ -852,7 +866,11 @@ let rec handle_tp game this_tp2_filename tp =
             end ;
 
             List.iter (fun flag -> match flag with
-            | Always(al) -> List.iter (process_action_real our_lang game this_tp2_filename tp) al
+            | Always(al) ->
+                List.iter
+                  (process_action_real
+                     our_lang game this_tp2_filename i tp)
+                  al
             | TP_No_If_Eval () -> has_if_eval_bug := false ;
             | Define_Action_Macro(str,decl,al) ->
                 Hashtbl.replace macros (str,false) (decl, [TP_PatchInnerAction al])
@@ -869,7 +887,10 @@ let rec handle_tp game this_tp2_filename tp =
                 log_and_print "WARNING: Unable to read readln references from [%s]: %s\n"
                   args_backup_filename (printexc_to_string e)
             end ;
-            List.iter (process_action_real our_lang game this_tp2_filename tp) m.mod_parts ;
+            List.iter
+              (process_action_real
+                 our_lang game this_tp2_filename i tp)
+              m.mod_parts ;
             if !interactive then begin
               Mymarshal.write_readln readln_backup_filename (List.rev !readln_strings);
             end ;

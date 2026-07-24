@@ -1,0 +1,13 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~External command policy: ACTION_TRY~
+
+ACTION_TRY
+  AT_NOW ~echo ran > denied-command-ran~ EXACT
+WITH
+  DEFAULT
+    COPY ~source.txt~ ~action-try-caught~
+END
+
+COPY ~source.txt~ ~continued-after-action-try~

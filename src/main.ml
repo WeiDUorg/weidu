@@ -1238,9 +1238,9 @@ let do_script process_script pause_at_end game =
           Tpwork.handle_tp game tp_file result
             ) (List.rev !toproc);
         List.iter (fun c -> match c with
-        | Command (s,e) ->
-            log_or_print "Executing: [%s]\n" s ;
-            ignore (exec_command s e)
+        | Command command ->
+            log_or_print "Executing: [%s]\n" command.command ;
+            ignore (execute_authorized_external_command command)
         | Fn f ->
             Lazy.force f
               )
@@ -1534,6 +1534,15 @@ let main () =
     "--quick-menu", Myarg.Int (fun d -> Tp.chosen_quick_menu := Some d), "\tX installs the quick menu selection X";
     "--process-script", Myarg.String (fun s -> process_script := s; Tp.skip_at_view := true; Tp.quick_log := true; test_output_tlk_p := true), "\tX process installation script X";
     "--skip-at-view", Myarg.Set Tp.skip_at_view, "\tkills AT_* ~VIEW this~";
+    "--ask-external-commands", Myarg.Unit (fun () ->
+      set_external_command_policy External_command_ask),
+      "\task before mod-supplied external commands (prompt approval is TP2/component-scoped)";
+    "--allow-external-commands", Myarg.Unit (fun () ->
+      set_external_command_policy External_command_allow),
+      "\tallow mod-supplied external commands for this invocation without prompting (unsafe)";
+    "--deny-external-commands", Myarg.Unit (fun () ->
+      set_external_command_policy External_command_deny),
+      "\tdeny all mod-supplied external commands";
     "--quick-log", Myarg.Set Tp.quick_log, "\tDoesn't print the name of components in WeiDU.log (much faster)";
     "--safe-exit", Myarg.Set Tpstate.safe_exit, "\tPrints WeiDU.log after starting the installation of every component";
     "--version", Myarg.Set exit_now, "\tprint version number and exit";
@@ -2133,7 +2142,11 @@ let main () =
 
 (try
   Stats.time "stuff not covered elsewhere" main ();
-with e ->
+with
+| External_command_denied _ as e ->
+  exit_status := StatusInstallFailure ;
+  log_and_print "\nFATAL ERROR: %s\n" (printexc_to_string e)
+| e ->
   log_and_print "\nFATAL ERROR: %s\n" (printexc_to_string e) ) ;
 
 (match !Util.log_channel with
@@ -2141,9 +2154,15 @@ with e ->
 | None -> () ) ;
 
 List.iter (fun c -> match c with
-| Command (s,e) ->
-    log_or_print "Executing: [%s]\n" s ;
-    ignore (exec_command s e)
+| Command command ->
+    let request = command.request in
+    log_or_print
+      "Executing external command for %S component %s (%s): [%s]\n"
+      request.external_command_tp2
+      (external_command_component_name request)
+      (external_command_action_name request.external_command_action)
+      command.command ;
+    ignore (execute_authorized_external_command command)
 | Fn f ->
     Lazy.force f)
     !execute_at_exit ;

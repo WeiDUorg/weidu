@@ -983,7 +983,8 @@ when processing \ttref{D} and \ttref{BAF} files. \\
 \tt{FILE.}\ttref{TP2} & Read {\tt FILE} and ask the user whether to install,
 reinstall or uninstall its \ttref{TP2} \ttref{Component}s. \\
 \DEFINE{--yes} & Answer all \ttref{TP2} questions with 'Yes' and do not
-prompt for a key to be pressed at the end of \ttref{TP2} processing. \\
+prompt for a key to be pressed at the end of \ttref{TP2} processing.
+This does not authorize external operating-system commands. \\
 \DEFINE{--uninstall}  	& Answer all \ttref{TP2} questions with 'Uninstall'
 and do not prompt for a key to be pressed at the end of \ttref{TP2}
 processing. \\
@@ -1010,6 +1011,16 @@ selection X. Can be combined with --force-install and friends, but
 only if the latter components are defined in ALWAYS_ASK.  \\
 \DEFINE{--skip-at-view} & AT_* ~VIEW this~ actions (and the extra chromosome versions like
 ~NOTEPAD this~) aren't processed, while still processing batch files and similia. \\
+\DEFINE{--ask-external-commands} & Ask before each external command unless
+the requesting \ttref{TP2} and component were approved at an earlier prompt.
+Running a command requires the fresh confirmation token displayed by the
+prompt. This is the default when standard input and output are terminals. \\
+\DEFINE{--allow-external-commands} & Allow all mod-supplied external
+commands for this WeiDU invocation without prompting. Authorized commands
+retain the user's operating-system permissions; use this only with trusted
+mods. \\
+\DEFINE{--deny-external-commands} & Deny all mod-supplied external commands.
+This is the default when standard input or output is not a terminal. \\
 \DEFINE{--safe-exit} & Save WeiDU.log every time a component installation is begun.
 This makes it impossible to uninstall components (don't ask), but allows the user to kill
 the weidu process (E.G. closing the DOS console via the X button) without leaving the game in an
@@ -1023,7 +1034,8 @@ present for all \ttref{TP2} components. \\
 only asking about components number X Y..., skipping the others
 (cumulative) \\
 \DEFINE{--continue}     & Continue \ttref{TP2} processing despite
-\ttref{TP2 Action} errors. \\
+\ttref{TP2 Action} errors. External-command authorization denials are
+security decisions and are never continued. \\
 \DEFINE{--args} \t{X}       & X will be stored in the tp2 variable \verb+%argv[n]%+, where
 n is 0 for the first argument, 1 for the second, etc.
 
@@ -2859,7 +2871,8 @@ global option to your \ttref{TP2} file. \\
        before installing any component. If more than one file name is provided,
        they are checked for existence in the order they're provided, and the first available
        one will be opened. If you wish to open multiple readme files, use multiple \t{README}
-       statements.
+       statements. Launching the system viewer is an external command and
+       requires authorization under the selected external-command policy.
   \\
   or & \DEFSYN{UNINSTALL_ORDER} String \Slist &
 		\emph{Do not use this without a real reason.}
@@ -2876,7 +2889,9 @@ global option to your \ttref{TP2} file. \\
 		If this is specified, then ALL operations must be specified
 		(if any isn't, a warning is printed). Please note that this means that
 		your mod might start printing warnings three years down the line if
-		a new uninstall action is coded.
+		a new uninstall action is coded. If processing an AT hook raises an
+		error or the hook is denied, WeiDU still attempts COPY, MOVE and
+		STRSET restoration before reporting the uninstall failure.
   \\
   or & \DEFINE{MODDER} String \Slist &
        Enable additional debug info. By default, these messages are verbose but do
@@ -3158,8 +3173,11 @@ MOVE ~sourceDirectory~ ~destinationDirectory~
 MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
 \end{verbatim}
 
-       Safety notes: when uninstalling, MOVE is restored first,
-       then all generic actions are restored, then \t{AT_*!UNINSTALL} is handled.
+       Safety notes: with the default \ttref{UNINSTALL_ORDER}, MOVE is restored
+       first, then all generic actions are restored, then
+       \t{AT_*!UNINSTALL} is handled. Regardless of a custom order, an AT
+       processing error or denial does not prevent the remaining restoration
+       categories from being attempted.
        As such, do your \ttref{AT_NOW}, then do your \ttref{COPY}, then do your \t{MOVE}s
        (exception: if you \t{MOVE} for biffing purposes, it is safe to call
        \ttref{MAKE_BIFF} after \t{MOVE}. \emph{Do not use the --make-biff command-line argument}).
@@ -3403,7 +3421,9 @@ P Q R 3
     \Oe \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} \Oe \Ob \t{ANY}
     condition-\ttref{value} \t{BEGIN} \ttref{TP2 Action} \Slist \t{END}
     \Oe ... \t{DEFAULT} \ttref{TP2 Action} \Slist \t{END} &
-    If evaluating the action list results in an error, the error is matched, as per \ttref{ACTION_MATCH}.
+    If evaluating the action list results in an error, the error is matched,
+    as per \ttref{ACTION_MATCH}. External-command authorization denials are
+    not matchable errors and are re-raised immediately.
 
     \textbf{N.B.} \t{TRY} is generally \emph{not safe} to use because
     many errors are intended to be fatal and if the mod installation
@@ -3445,6 +3465,31 @@ P Q R 3
     WeiDU doesn't handle, like extracting WAVs from an MP3, make a batch
     file and run it from here.
     \end{itemize}
+    External operating-system commands require explicit authorization.
+    With an interactive terminal, WeiDU displays the escaped requesting
+    \ttref{TP2} filename, component number, action type and exact command.
+    To distinguish the real prompt from mod output, running or approving a
+    command requires the fresh confirmation token shown in that prompt.
+    \t{Y token} runs the command once, while \t{A token} approves external
+    commands only for the same \ttref{TP2} filename and component. Without an
+    interactive terminal, commands are denied by default. The command-line
+    options \t{--ask-external-commands}, \t{--allow-external-commands}, and
+    \t{--deny-external-commands} select the policy explicitly; only
+    \t{--allow-external-commands} grants invocation-wide approval.
+    \t{--yes} does not authorize external commands.
+
+    Denial is a fatal security decision for the current component:
+    \ttref{ACTION_TRY}, uninstall \ttref{ACTION_IF}, and \t{--continue}
+    cannot consume it. During uninstall, WeiDU attempts COPY, MOVE and STRSET
+    restoration even if an AT hook is denied, updates \t{WeiDU.log} to match
+    completed restoration, and reports the uninstall as failed rather than
+    printing a success message.
+
+    External commands run with the user's operating-system permissions and
+    are not restricted to the game directory. Only use
+    \t{--allow-external-commands} with mods that you trust. This authorization
+    boundary is not an operating-system sandbox and does not restrict
+    WeiDU's built-in file operations.
     Slashes and backslashes will be converted appropriately for the
     underlying operating system. If \t{EXACT} is specified, \verb+/+
     and \verb+\+ will instead be preserved as they are. \t{EXACT}

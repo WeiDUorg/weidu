@@ -1,0 +1,13 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+UNINSTALL_ORDER ~AT~ ~COPY~ ~MOVE~ ~STRSET~
+
+BEGIN ~External command policy: uninstall ACTION_IF~
+
+COPY ~replacement.txt~ ~target.txt~
+MOVE ~move-source.txt~ ~move-destination.txt~
+
+ACTION_IF 1 THEN BEGIN
+  AT_UNINSTALL ~echo ran > uninstall-command-ran~ EXACT
+END

@@ -1,0 +1,6 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~External command policy: non-EXACT~
+
+AT_NOW ~echo path/segment > command-ran~
