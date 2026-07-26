@@ -563,6 +563,7 @@ and tp_patchexp =
   | PE_DefinedAsInlined of tp_pe_string
 
   | Pred_File_MD5 of tp_pe_string * tp_pe_string
+  | Pred_File_SHA256 of tp_pe_string * tp_pe_string
   | Pred_File_Exists of tp_pe_string
   | Pred_Directory_Exists of tp_pe_string
   | Pred_File_Is_In_Compressed_Bif of tp_pe_string

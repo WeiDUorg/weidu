@@ -269,6 +269,7 @@ let _ = List.iter
       (* predicates *)
       ("FILE_EXISTS", FILE_EXISTS ) ;
       ("FILE_MD5", FILE_MD5 ) ;
+      ("FILE_SHA256", FILE_SHA256 ) ;
       ("FILE_EXISTS_IN_GAME", FILE_EXISTS_IN_GAME ) ;
       ("FILE_SIZE", FILE_SIZE ) ;
       ("FILE_CONTAINS", FILE_CONTAINS ) ;

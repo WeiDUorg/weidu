@@ -110,6 +110,7 @@ open Load
   %token FILE_CONTAINS_EVALUATED
   %token FILE_IS_IN_COMPRESSED_BIF
   %token FILE_MD5
+  %token FILE_SHA256
   %token FILE_EXISTS
   %token FILE_EXISTS_IN_GAME
   %token FILE_SIZE
@@ -712,6 +713,7 @@ optional_evaluate :
 | FILE_EXISTS patch_STRING_right { Tp.Pred_File_Exists($2) }
 | FILE_IS_IN_COMPRESSED_BIF patch_STRING_right { Tp.Pred_File_Is_In_Compressed_Bif($2) }
 | FILE_MD5 patch_STRING_right patch_STRING_right { Tp.Pred_File_MD5($2,$3) }
+| FILE_SHA256 patch_STRING_right patch_STRING_right { Tp.Pred_File_SHA256($2,$3) }
 | FILE_EXISTS_IN_GAME patch_STRING_right { Tp.Pred_File_Exists_In_Game($2) }
 | FILE_SIZE patch_STRING_right STRING { Tp.Pred_File_Size($2,my_int_of_string $3) }
 | FILE_CONTAINS patch_STRING_right patch_STRING_right { Tp.Pred_File_Contains($2,$3) }

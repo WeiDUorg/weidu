@@ -1028,6 +1028,7 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
   -> FILE_IS_IN_COMPRESSED_BIF e1:Patch_String_Right
        [ Tp.Pred_File_Is_In_Compressed_Bif e1 ]
   -> FILE_MD5 e1:Patch_String_Right e2:Patch_String_Right [ Tp.Pred_File_MD5(e1,e2) ]
+  -> FILE_SHA256 e1:Patch_String_Right e2:Patch_String_Right [ Tp.Pred_File_SHA256(e1,e2) ]
   -> FILE_EXISTS_IN_GAME e1:Patch_String_Right [ Tp.Pred_File_Exists_In_Game e1 ]
   -> FILE_SIZE e1:Patch_String_Right e2:STRING [ Tp.Pred_File_Size(e1,my_int_of_string e2) ]
   -> SIZE_OF_FILE e1:Patch_String_Right [ Tp.PE_SizeOfFile(e1) ]

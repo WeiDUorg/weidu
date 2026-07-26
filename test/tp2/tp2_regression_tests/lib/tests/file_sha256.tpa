@@ -1,0 +1,46 @@
+DEFINE_ACTION_FUNCTION run
+  RET
+    success
+    message
+BEGIN
+  OUTER_SPRINT message "test_file_sha256"
+  PRINT "%message%"
+  ACTION_TRY
+    LAF test_file_sha256 END
+    OUTER_SET success = 1
+  WITH
+    DEFAULT
+      OUTER_SET success = 0
+      OUTER_SPRINT message "tests failed in file_sha256: %ERROR_MESSAGE%"
+  END
+END
+
+DEFINE_ACTION_FUNCTION test_file_sha256 BEGIN
+  ACTION_IF NOT FILE_SHA256
+      ~tp2_regression_tests/lib/data/file_sha256.txt~
+      ~ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad~
+  BEGIN
+    FAIL "FILE_SHA256 rejected the correct lowercase digest"
+  END
+
+  ACTION_IF NOT FILE_SHA256
+      ~tp2_regression_tests/lib/data/file_sha256.txt~
+      ~BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD~
+  BEGIN
+    FAIL "FILE_SHA256 rejected the correct uppercase digest"
+  END
+
+  ACTION_IF FILE_SHA256
+      ~tp2_regression_tests/lib/data/file_sha256.txt~
+      ~0000000000000000000000000000000000000000000000000000000000000000~
+  BEGIN
+    FAIL "FILE_SHA256 accepted an incorrect digest"
+  END
+
+  ACTION_IF FILE_SHA256
+      ~tp2_regression_tests/lib/data/file_sha256-missing.txt~
+      ~ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad~
+  BEGIN
+    FAIL "FILE_SHA256 accepted a missing file"
+  END
+END

@@ -5885,10 +5885,16 @@ exists as a game resource and has non-zero size. Evaluates to 0 otherwise.
 manner. Evaluates to 0 for a file that does not exist but has been
 \ttref{ALLOW_MISSING}'d.\\
 or & \DEFINE{FILE_MD5} fileName md5sum & Evaluates to 1 if the file exists
-and has the given MD5 checksum. Evaluates to 0 otherwise. Two different
-files are exceptionally unlikely to have the same MD5 checksum. In any
-event, the discovered checksum is printed to the log. If the file does not
+and has the given MD5 checksum. Evaluates to 0 otherwise. The discovered
+checksum is printed to the log. MD5 is cryptographically unreliable and
+must not be used when collision resistance matters; mod authors are encouraged
+to use \ttref{FILE_SHA256} for new checksum comparisons. If the file does not
 exist, it evaluates to 0. \\
+or & \DEFINE{FILE_SHA256} fileName sha256sum & Evaluates to 1 if the file
+exists and has the given SHA-256 checksum. Evaluates to 0 otherwise. The
+discovered checksum is printed to the log. SHA-256 is the recommended
+predicate for cryptographically reliable file checksum comparisons. If the
+file does not exist, it evaluates to 0. \\
 or & \DEFINE{FILE_IS_IN_COMPRESSED_BIFF} fileName & Evaluates to 1 if the file
 is stored in a compressed biff (ignoring copies in the override). Evaluates to
 0 otherwise (the file is not in a biff, or it is in an uncompressed biff).

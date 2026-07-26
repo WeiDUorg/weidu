@@ -9,7 +9,7 @@ WEIDU_BASE_MODULES := batList batteriesInit myhashtbl hashtblinit \
 	dlg dc \
 	refactorbaf refactorbafparser refactorbaflexer refactordparser refactordlexer \
 	bafparser baflexer \
-	myxdiff diff sav mos tp dparser dlexer sql json \
+	myxdiff diff sav mos sha256 tp dparser dlexer sql json \
 	smutil useract lexerint parsetables arraystack objpool glr lrparse \
 	automate kit tpstate tphelp trealparser tlexer toldparser toldlexer tparser \
 	parsewrappers mymarshal tppe tpuninstall tppatch tpaction tpwork \

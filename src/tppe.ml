@@ -287,6 +287,17 @@ let rec eval_pe buff game p =
         false
       end)
 
+  | Pred_File_SHA256(f,s) -> if_true (
+      let f = eval_pe_str f in
+      let s = eval_pe_str s in
+      if file_exists f then begin
+        let hex = Sha256.file f in
+        log_only "File [%s] has SHA-256 checksum [%s]\n" f hex ;
+        (String.uppercase_ascii hex) = (String.uppercase_ascii s)
+      end else begin
+        false
+      end)
+
   | Pred_File_Exists(f) -> if_true (
       let f = eval_pe_str f in
       let filename = (Var.get_string f) in
