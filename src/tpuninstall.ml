@@ -267,6 +267,106 @@ let check_post_hooks game tp2 i interactive override_filename =
     game.Load.loaded_biffs <- Hashtbl.create 5 ;
   end
 
+let authority_file_exists path =
+  let exists = file_exists path in
+  File_access.raise_if_denied () ;
+  exists
+
+let read_uninstall_lines filename =
+  if not (authority_file_exists filename) then
+    []
+  else begin
+    let channel = Case_ins.perv_open_in_bin filename in
+    let rec read result =
+      try read (input_line channel :: result)
+      with End_of_file -> List.rev result in
+    try
+      let result = read [] in
+      close_in channel ;
+      result
+    with e ->
+      close_in_noerr channel ;
+      raise e
+  end
+
+let read_uninstall_pairs filename =
+  List.fold_left (fun result line ->
+    match split_log_line line with
+    | [first ; second] -> (first, second) :: result
+    | _ -> result) [] (read_uninstall_lines filename)
+
+let preflight_uninstall _game tp2 i interactive =
+  let directory = tp2.backup ^ "/" ^ string_of_int i in
+  let uninstall_filename =
+    Printf.sprintf "%s/UNINSTALL.%d" directory i in
+  let mappings_filename =
+    Printf.sprintf "%s/MAPPINGS.%d" directory i in
+  let unsetstr_filename =
+    Printf.sprintf "%s/UNSETSTR.%d" directory i in
+  let tlkpath_filename =
+    Printf.sprintf "%s/TLKPATH.%d" directory i in
+  let move_filename =
+    Printf.sprintf "%s/MOVE.%d" directory i in
+  let other_filename =
+    Printf.sprintf "%s/OTHER.%d" directory i in
+  let mappings = read_uninstall_pairs mappings_filename in
+  let mapping_for path =
+    try Some (List.assoc path mappings) with Not_found -> None in
+  let require_existing_read_write path =
+    if authority_file_exists path then begin
+      File_access.require_read path ;
+      File_access.require_write path
+    end in
+  List.iter File_access.require_write
+    [directory ; tp2.backup ; uninstall_filename ; mappings_filename ;
+     unsetstr_filename ; tlkpath_filename ; move_filename ; other_filename] ;
+  List.iter require_existing_read_write
+    [uninstall_filename ; mappings_filename ; unsetstr_filename ;
+     tlkpath_filename ; move_filename] ;
+  List.iter (fun (original, moved) ->
+    File_access.require_write original ;
+    File_access.require_write moved) (read_uninstall_pairs move_filename) ;
+  List.iter (fun (original, backup) ->
+    File_access.require_write original ;
+    File_access.require_read backup ;
+    File_access.require_write backup) mappings ;
+  List.iter (fun original ->
+    File_access.require_write original ;
+    match mapping_for original with
+    | Some backup ->
+        File_access.require_read backup ;
+        File_access.require_write backup
+    | None ->
+        let basename = Case_ins.filename_basename original in
+        let first_backup = directory ^ "/" ^ basename in
+        let second_backup =
+          directory ^ "/" ^
+          Str.global_replace (Str.regexp "[\\/]") "." original in
+        require_existing_read_write first_backup ;
+        require_existing_read_write second_backup)
+    (read_uninstall_lines uninstall_filename) ;
+  if authority_file_exists tlkpath_filename then begin
+    try
+      let dialog_path, dialogf_path =
+        Mymarshal.read_tlkpath tlkpath_filename in
+      File_access.require_read dialog_path ;
+      File_access.require_write dialog_path ;
+      (match dialogf_path with
+      | None -> ()
+      | Some path ->
+          File_access.require_read path ;
+          File_access.require_write path)
+    with e ->
+      File_access.reraise_if_denied e
+  end ;
+  if interactive then
+    List.iter File_access.require_write
+      [Printf.sprintf "%s/READLN.%d" directory i ;
+       Printf.sprintf "%s/READLN.%d.TEXT" directory i ;
+       Printf.sprintf "%s/ARGS.%d" directory i ;
+       Printf.sprintf "%s/ARGS.%d.TEXT" directory i] ;
+  File_access.raise_if_denied ()
+
 let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
   let order = validate_uninstall_order tp2 in
   Stats.time "tp2 uninstall" (fun () ->
@@ -279,6 +379,7 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
       let tlkpath_filename = Printf.sprintf "%s/TLKPATH.%d" d i in
       let move_filename = (Printf.sprintf "%s/MOVE.%d" d i) in
       let other_filename = (Printf.sprintf "%s/OTHER.%d" d i) in
+      preflight_uninstall game tp2 i interactive ;
       my_unlink other_filename;
       let uninstall_move () =
         let lst = ref [] in
@@ -398,10 +499,12 @@ let uninstall_tp2_component game tp2 tp_file i interactive lang_name =
         if (Array.length (Case_ins.sys_readdir tp2.backup) = 0) then
           my_rmdir tp2.backup
       end;
+      File_access.raise_if_denied () ;
     with e ->
       log_and_print "Error Uninstalling [%s] component %d:\n%s\n"
         tp_file i (printexc_to_string e);
-      (try assert false with Assert_failure(file,line,col) -> set_errors file line)
+      (try assert false with Assert_failure(file,line,col) -> set_errors file line) ;
+      File_access.reraise_if_denied e
                              ) ()
 
 
@@ -489,7 +592,8 @@ let uninstall game handle_tp2_filename tp2 i interactive =
                   with _ -> "" ) in
                 uninstall_tp2_component game (handle_tp2_filename best) a c interactive lang_name;
                 (a,b,c,sopt,Permanently_Uninstalled) :: tl
-              with _ ->
+              with e ->
+                File_access.reraise_if_denied e ;
                 log_and_print "ERROR: This Mod is too old (or too new) to uninstall that component for you.\nUpgrade to the newest versions of this mod and that one and try again.\n" ;(try assert false with Assert_failure(file,line,col) -> set_errors file line);
                 worked := false ;
                 lst
@@ -517,6 +621,7 @@ let uninstall game handle_tp2_filename tp2 i interactive =
                 uninstall_tp2_component game (handle_tp2_filename best) a c false  lang_name;
                 (a,b,c,sopt,Temporarily_Uninstalled) :: (prepare tl)
               with e ->
+                File_access.reraise_if_denied e ;
                 log_and_print "ERROR: This Mod is too old (or too new) to uninstall that component for you.\nUpgrade to the newest versions of this mod and that one and try again.\n[%s]\n"
                   (printexc_to_string e);(try assert false with Assert_failure(file,line,col) -> set_errors file line);
                 worked := false ;

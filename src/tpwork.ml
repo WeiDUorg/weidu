@@ -885,9 +885,10 @@ let rec handle_tp game this_tp2_filename tp =
               log_and_print "\n%s%s%s\n"
                 (get_trans (-1064)) ((Tpstate.subcomp_str game m) ^ package_name)
                 (get_trans (-1065)) ;
-              rollback_component game tp this_tp2_filename
-                strset_backup_filename tlkpath_backup_filename
-                our_lang_index i m ;
+              File_access.with_recovery (fun () ->
+                rollback_component game tp this_tp2_filename
+                  strset_backup_filename tlkpath_backup_filename
+                  our_lang_index i m) ;
               finished := true ;
               raise (Abort msg)
           | e -> begin
@@ -903,9 +904,10 @@ let rec handle_tp game this_tp2_filename tp =
                 ((get_trans (-1017)))
                 ((Tpstate.subcomp_str game m) ^ package_name)
                 ((get_trans (-1018))) ;
-              rollback_component game tp this_tp2_filename
-                strset_backup_filename tlkpath_backup_filename
-                our_lang_index i m ;
+              File_access.with_recovery (fun () ->
+                rollback_component game tp this_tp2_filename
+                  strset_backup_filename tlkpath_backup_filename
+                  our_lang_index i m) ;
               raise e
           end );
           log_and_print "\n\n" ;
@@ -956,14 +958,18 @@ let rec handle_tp game this_tp2_filename tp =
   in
 
   let handle_letter tp answer can_uninstall temp_uninst package_name m finished i =
-    saved_tp := Some tp;
-    try
-      let ans = handle_letter_inner tp answer can_uninstall temp_uninst package_name m finished i in
-      saved_tp := None;
-      ans
-    with e ->
-      saved_tp := None;
-      raise e
+    File_access.with_tp2 tp.tp_filename (fun () ->
+      File_access.with_component i (fun () ->
+        saved_tp := Some tp;
+        try
+          let ans =
+            handle_letter_inner tp answer can_uninstall temp_uninst
+              package_name m finished i in
+          saved_tp := None;
+          ans
+        with e ->
+          saved_tp := None;
+          raise e))
   in
 
   let specify = ref false in
@@ -1081,6 +1087,7 @@ let rec handle_tp game this_tp2_filename tp =
           end ;
           lang_init !our_lang
       | e ->
+          File_access.reraise_if_denied e ;
           exit_status := StatusInstallFailure ;
           log_and_print "ERROR: %s\n" (printexc_to_string e) ;
           Dc.clear_state () ;

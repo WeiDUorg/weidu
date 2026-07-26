@@ -1,3 +1,16 @@
+Version 252:
+  * Restrict TP2-initiated file reads and writes to canonical game,
+    Enhanced Edition user-data, TP2 source, and explicitly authorized
+    installation roots. Add cumulative --allow-file-root for multi-root
+    installations and other operator-approved layouts.
+  * Treat file-authority denials as fatal, including inside ACTION_TRY,
+    --continue, and uninstall or rollback error handling. Preflight
+    uninstall metadata before mutating files.
+  * Auto-update no longer starts sibling setup binaries to discover their
+    versions and never uses a sibling as the update source. The running
+    executable updates eligible peers atomically; peers declaring a newer
+    version are left untouched.
+
 Version 251:
   * CREATE called within CREATE works as expected.
   * CREATE sets SOURCE_* and DEST_* variables.

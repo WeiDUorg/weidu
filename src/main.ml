@@ -1141,7 +1141,9 @@ let test_output_tlk game pause_at_end =
 
  let check_component_args file_list force_install_these_main
                           force_uninstall_these_main =
-   let tp_list = List.map handle_tp2_filename file_list in
+   let tp_list = List.map (fun filename ->
+     File_access.with_tp2 filename (fun () ->
+       handle_tp2_filename filename)) file_list in
    List.iter (fun tp_file ->
        let comp_list = List.filter (fun comp ->
                            not comp.Tp.deprecated)
@@ -1175,11 +1177,12 @@ let do_tp2_files tp_list force_install_these_main force_uninstall_these_main pau
   while not (Queue.is_empty tp2_queues) do
     let tp_file = Queue.take tp2_queues in
     try
-      if file_exists tp_file then begin
-        let tp_file = Util.case_exact_tp_file tp_file in
-        let result = handle_tp2_filename tp_file in
-        Tpwork.handle_tp game tp_file result;
-      end
+      File_access.with_tp2 tp_file (fun () ->
+        if file_exists tp_file then begin
+          let tp_file = Util.case_exact_tp_file tp_file in
+          let result = handle_tp2_filename tp_file in
+          Tpwork.handle_tp game tp_file result;
+        end)
     with e ->
       log_and_print "ERROR: problem parsing TP file [%s]: %s\n" tp_file
         (printexc_to_string e) ;
@@ -1221,32 +1224,33 @@ let do_script process_script pause_at_end game =
     end) parts ;
     List.iter (fun (a,b) -> log_and_print "%s %d\n" b a) !toproc;
     try
-      if file_exists tp_file then begin
-        let tp_file = Util.case_exact_tp_file tp_file in
-        let result = handle_tp2_filename tp_file in
-        List.iter (fun (a,b) ->
-          begin
-            match b with
-            | "U" ->
-                Tp.force_install_these := [];
-                Tp.force_uninstall_these := [a];
-            | "I" ->
-                Tp.force_uninstall_these := [];
-                Tp.force_install_these := [a];
-            | _ -> ()
-          end ;
-          Tpwork.handle_tp game tp_file result
-            ) (List.rev !toproc);
-        List.iter (fun c -> match c with
-        | Command (s,e) ->
-            log_or_print "Executing: [%s]\n" s ;
-            ignore (exec_command s e)
-        | Fn f ->
-            Lazy.force f
-              )
-          !execute_at_exit;
-        execute_at_exit := [];
-      end
+      File_access.with_tp2 tp_file (fun () ->
+        if file_exists tp_file then begin
+          let tp_file = Util.case_exact_tp_file tp_file in
+          let result = handle_tp2_filename tp_file in
+          List.iter (fun (a,b) ->
+            begin
+              match b with
+              | "U" ->
+                  Tp.force_install_these := [];
+                  Tp.force_uninstall_these := [a];
+              | "I" ->
+                  Tp.force_uninstall_these := [];
+                  Tp.force_install_these := [a];
+              | _ -> ()
+            end ;
+            Tpwork.handle_tp game tp_file result
+              ) (List.rev !toproc);
+          List.iter (fun c -> match c with
+          | Command (s,e) ->
+              log_or_print "Executing: [%s]\n" s ;
+              ignore (exec_command s e)
+          | Fn f ->
+              Lazy.force f
+                )
+            !execute_at_exit;
+          execute_at_exit := [];
+        end)
     with e ->
       log_and_print "ERROR: problem parsing TP file [%s]: %s\n" tp_file
         (printexc_to_string e) ;
@@ -1507,9 +1511,17 @@ let main () =
 
     "--game", Myarg.String Load.add_game_path, "X\tset main game directory to X" ;
     "--game-by-type", Myarg.String (fun x -> Load.add_game_path(Arch.game_path_by_type x)), "X\tset main game directory to the one where X is installed (BG,BG2,IWD,IWD2,PST)";
+    "--allow-file-root", Myarg.String File_access.add_explicit_root,
+      "X\tauthorize TP2 read/write access within installation root X (cumulative)";
     "--nogame", Myarg.Set no_game,"\tdo not load any default game files" ;
-    "--search", Myarg.String Load.add_override_path, "X\tlook in X for input files (cumulative)" ;
-    "--search-ids", Myarg.String Load.add_ids_path, "X\tlook in X for input IDS files (cumulative)" ;
+    "--search", Myarg.String (fun path ->
+      Load.add_override_path path ;
+      File_access.add_explicit_read_root path),
+      "X\tlook in X for input files (cumulative)" ;
+    "--search-ids", Myarg.String (fun path ->
+      Load.add_ids_path path ;
+      File_access.add_explicit_read_root path),
+      "X\tlook in X for input IDS files (cumulative)" ;
     "--tlkin", Myarg.String Load.set_dialog_tlk_path,"X\tuse X as DIALOG.TLK" ;
     "--ftlkin", Myarg.String Load.set_dialogf_tlk_path,"X\tuse X as DIALOGF.TLK";
     "--use-lang", Myarg.String (fun s -> ee_use_lang := Some s), "X\ton games with multiple languages, use files in lang/X/";
@@ -1774,6 +1786,48 @@ let main () =
   in
 
   Load.saved_game := Some(game) ;
+
+  let dialog_paths =
+    Array.fold_left (fun paths pair ->
+      let paths = pair.Load.dialog.Load.path :: paths in
+      match pair.Load.dialogf with
+      | None -> paths
+      | Some dialogf -> dialogf.Load.path :: paths) [] game.Load.dialogs in
+  let tp2_source_roots =
+    List.map Case_ins.filename_dirname !tp_list in
+  let tp2_source_roots =
+    if !process_script = "" then tp2_source_roots
+    else Case_ins.filename_dirname !process_script :: tp2_source_roots in
+  let user_roots =
+    if Load.enhanced_edition_p game then begin
+      let platform_root = Arch.get_user_dir game.Load.game_path in
+      let user_root =
+        Util.get_user_dir game.Load.game_path game.Load.game_type in
+      try
+        if File_access.path_is_within ~root:platform_root user_root then
+          [user_root]
+        else begin
+          log_and_print
+            "WARNING: EE user directory [%s] is outside platform user-data root [%s]; it is not automatically authorized. Use %s only if this location is intentional.\n"
+            user_root platform_root File_access.grant_option ;
+          []
+        end
+      with e ->
+        log_and_print
+          "WARNING: EE user directory [%s] could not be authorized safely: %s\n"
+          user_root (printexc_to_string e) ;
+        []
+    end else
+      [] in
+  let write_roots =
+    (match game.Load.game_type with
+    | GENERIC -> [Sys.getcwd ()]
+    | _ -> [game.Load.game_path]) @ user_roots in
+  let read_roots =
+    write_roots @ tp2_source_roots in
+  File_access.configure
+    ~read_roots ~write_roots ~read_files:dialog_paths
+    ~write_files:dialog_paths ;
 
   if (!forced_script_style <> Load.NONE) then
     force_script_style game !forced_script_style Sys.argv.(0);

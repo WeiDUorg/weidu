@@ -47,8 +47,6 @@ let handle_view_command s skip =
 
 external glob : string -> (string -> unit) -> unit = "myglob"
 
-let create_process_env = Unix.create_process_env
-
 let biff_path_separator = "\\\\" (* backslash_to_slash hopefully sorts this out *)
 
 let cd_regexp = Str.regexp "^[CH]D[0-9]+.*=\\([^\r\n]*\\)"
@@ -57,20 +55,17 @@ let is_weidu_executable f =
   try
     let i = Case_ins.perv_open_in_bin f in
     let buff = Bytes.create 4 in
-    let signature = input i buff 0 4 in
-    Str.string_match (Str.regexp_case_fold "setup-.*") f 0 && buff = "\xfe\xed\xfa\xce"
+    let signature =
+      try
+        let signature = input i buff 0 4 in
+        close_in i ;
+        signature
+      with e ->
+        close_in_noerr i ;
+        raise e in
+    Str.string_match (Str.regexp_case_fold "setup-.*") f 0 &&
+    signature = 4 && buff = "\xfe\xed\xfa\xce"
   with _ -> false
-
-let get_version f =
-  ignore (Unix.access f [ Unix.X_OK ]) ;
-  let exec = Printf.sprintf "./%s --exit" f in
-  Printf.printf "{%s} queried%!" f;
-  let ic,oc,ec = Unix.open_process_full exec (Unix.environment()) in
-  let line = input_line ic in
-  ignore (Unix.close_process_full (ic,oc,ec));
-  let version_regexp = Str.regexp ".*WeiDU version \\([0-9]+\\).*" in
-  let s = Str.global_replace version_regexp "\\1" line in
-  int_of_string s
 
 external get_user_personal_dir : unit -> string = "get_user_home_dir"
 

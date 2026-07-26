@@ -11,6 +11,8 @@ external cbf2bif_int : string -> string -> int
     = "mlgz_cbf2bif"
 	
 let cbf2bif file_in file_out =
+    File_access.require_read file_in ;
+    File_access.require_write file_out ;
     (try Case_ins.unix_mkdir "cache" 511 with Unix.Unix_error(Unix.EEXIST,_,_) -> ());
 	cbf2bif_int file_in file_out;
 

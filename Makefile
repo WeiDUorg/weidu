@@ -23,9 +23,12 @@
 include Configuration
 
 # Just a target to be used by default
-.PHONY: weidu doc all
+.PHONY: weidu doc all test-security
 all : weidu
 # "make weinstall" if you want weinstall
+
+test-security: weidu
+	test/security/run_tests.sh ./weidu$(EXE)
 
 ####
 #### OCAML stuff
@@ -60,7 +63,7 @@ endif
 #PROJECT_CMODULES   += eff_strings
 PROJECT_CMODULES   += zlib adler32 inflate uncompr inftrees zutil inffast $(GLOB) xdiff
 PROJECT_CMODULES   += xemit xpatchi xutils xdiffi xprepare $(ARCH_C_FILES)
-PROJECT_CMODULES   += crc32 compress deflate trees
+PROJECT_CMODULES   += crc32 compress deflate trees path_canonical
 
 PROJECT_OCAML_LIBS = unix str #OCaml changed libstr into libcamlstr and "you are not supposed to link with -lstr"
 PROJECT_LIBS       = unix camlstr
@@ -136,8 +139,8 @@ $(PROJECT3_EXECUTABLE) : $(PROJECT3_MODULES:%=$(OBJDIR)/%.$(CMO)) \
 # rule for WeInstall
 
 PROJECT4_EXECUTABLE = $(OBJDIR)/weinstall$(EXE)
-PROJECT4_MODULES    = batList batteriesInit case_ins weinstall
-PROJECT4_CMODULES   = $(CASE_C_FILES)
+PROJECT4_MODULES    = batList batteriesInit file_access case_ins weinstall
+PROJECT4_CMODULES   = $(CASE_C_FILES) path_canonical
 PROJECT4_OCAML_LIBS = unix str
 PROJECT4_LIBS       = unix camlstr
 .PHONY: weinstall

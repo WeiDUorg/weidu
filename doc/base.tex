@@ -1072,7 +1072,10 @@ things, this is useful for catching parenthesis errors in your
 \\
 \multicolumn{2}{c}{ \color{red} Automatic Updating Options } \\
 \DEFINE{--update-all} & Auto-update all \t{WeiDU} setup files (e.g.,
-\t{Setup-MyMod.exe}) in the current directory. \\
+\t{Setup-MyMod.exe}) in the current directory from the running executable.
+Sibling setup files are never executed or used as update sources. A sibling
+that declares a newer \t{WeiDU} version is left untouched and must be run
+directly if it is trusted. \\
 \DEFINE{--noautoupdate} & If you are running \t{WeiDU} as
 \t{Setup-MyMod.exe}, do not attempt to update yourself or any other mod. \\
 \DEFINE{--no-auto-tp2} & Do not run \t{setup-mymod.tp2} even if \t{WeiDU} is
@@ -1096,6 +1099,15 @@ no \t{override} directory will be used. \\
 {\tt \DEFINE{--game-by-type} X} & tries to guess the game path by reading
 the registry; X can be one of BG1, BG2, PST, IWD1 or IWD2. BGEE is unsupported.
 \\
+\DEFINE{--allow-file-root} \t{X} & Authorize TP2-initiated reads and writes
+within installation root \t{X} (cumulative). WeiDU automatically authorizes
+the selected game directory and the validated Enhanced Edition user-data
+directory. With \ttref{--nogame}, it authorizes the working directory.
+TP2 source directories and directories supplied through \ttref{--search} or
+\ttref{--search-ids} receive read authority. Existing path components are
+resolved before each access, so a symbolic link cannot escape an authorized
+root. Access elsewhere is refused; use this option for operator-approved
+multi-game layouts such as BGT or EET. \\
 \DEFINE{--search} \t{X}	& Look in {\tt X} for input files (cumulative).
 \t{X} is treated as an \t{override} directory and is given priority over
 the default \t{override} directory. \\

@@ -40,6 +40,7 @@ jobs:
           opam switch
           eval $(opam env)
           make
+          make test-security
           make osx_zip
       - uses: actions/upload-artifact@v6
         with:
@@ -60,7 +61,10 @@ jobs:
       - name: Set-up OCaml
         uses: ocaml/setup-ocaml@v3.5.1
         with:
-          ocaml-compiler: 4.08.1+default-unsafe-string
+          ocaml-compiler: ocaml-variants.4.08.1+default-unsafe-string
+          opam-repositories: |
+            default: git+https://github.com/ocaml/opam-repository.git
+            archive: git+https://github.com/ocaml/opam-repository-archive
       - name: build weidu
         run: |
           export PATH="$PATH:$PWD/bin"
@@ -69,6 +73,7 @@ jobs:
           opam switch
           eval $(opam env)
           make
+          make test-security
           make linux_zip
       - uses: actions/upload-artifact@v6
         with:

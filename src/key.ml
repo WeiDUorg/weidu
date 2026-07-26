@@ -263,7 +263,7 @@ let list_of_key_resources : key -> bool -> string list =
             (ext_of_key r.res_type)) key.resource)) in
     if use_override then begin
       let from_override = List.map String.uppercase
-          (Array.to_list (Sys.readdir "override")) in
+          (Array.to_list (Case_ins.sys_readdir "override")) in
       List.sort_unique compare (from_key @ from_override)
     end else from_key)
 

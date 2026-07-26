@@ -181,7 +181,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
   let pl_of_al x = [TP_PatchInnerAction x] in
 
   let str = action_to_str a in
-  Stats.time str (fun () ->
+  File_access.with_action str (fun () ->
+    Stats.time str (fun () ->
     try
       (match a with
 
@@ -383,7 +384,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                       (Printf.sprintf "MOVE [%s] [%s]: can't move a directory into a file, or destination directory not existing"
                          src dst);
                   Array.iter (fun file ->
-                    move (src ^ "/" ^ file) dst) (Sys.readdir src)
+                    move (src ^ "/" ^ file) dst) (Case_ins.sys_readdir src)
                 end else
                   move src dst
             | TP_Directory_Regexp (dir, match_exact, regexp) ->
@@ -676,7 +677,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           ignore (get_file_list (Var.get_string "%SAVE_DIRECTORY%")) ;
           ignore (get_file_list (Var.get_string "%MPSAVE_DIRECTORY%")) ;
           let gam_list = List.filter (fun (src, dst) ->
-            Sys.file_exists src) !file_list in
+            Case_ins.sys_file_exists src) !file_list in
           let my_copy_args = {
             copy_get_existing = false;
             copy_use_regexp = false;
@@ -750,9 +751,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 let res = ref [] in
                 List.iter (fun (s,p) ->
                   let myfun (glob_s : string) = begin
+                    File_access.require_read glob_s ;
                     log_only "Callback from Arch.glob: %s\n" glob_s;
                     res := (glob_s, p) :: !res
                   end in
+                  File_access.require_glob s ;
                   log_only "Calling Arch.glob: %s\n" s;
                   let res = (Arch.glob s myfun) in
                   log_only "Arch.glob returned.\n";
@@ -924,9 +927,11 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               let res = ref [] in
               List.iter (fun (s,p) ->
                 let myfun (glob_s : string) = begin
+                  File_access.require_read glob_s ;
                   log_only "Callback from Arch.glob: %s\n" glob_s;
                   res := (glob_s, p) :: !res
                 end in
+                File_access.require_glob s ;
                 log_only "Calling Arch.glob: %s\n" s;
                 let res = (Arch.glob s myfun) in
                 log_only "Arch.glob returned.\n";
@@ -2210,13 +2215,13 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           let backup biff suffix =
             let backup = backup_filename biff suffix in
             if file_exists backup then begin
-              Unix.unlink backup end ;
+              Case_ins.unix_unlink backup end ;
             ignore (Case_ins.unix_rename biff backup) ;
             backup in
           let backdown biff suffix =
             let backup = backup_filename biff suffix in
             if file_exists biff then
-              Unix.unlink biff ;
+              Case_ins.unix_unlink biff ;
             ignore (Case_ins.unix_rename backup biff) ;
             biff in
           let decompress biff =
@@ -2239,7 +2244,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 let biff = backup biff "" in
                 (try
                   let new_bif = (Case_ins.filename_chop_extension biff) ^ ".bif" in
-                  if file_exists new_bif then ignore (Unix.unlink new_bif) ;
+                  if file_exists new_bif then
+                    ignore (Case_ins.unix_unlink new_bif) ;
                   let sz =  Cbif.cbf2bif (Case_ins.fix_name biff) (Case_ins.fix_name new_bif) in
                   ignore (log_and_print "[%s] decompressed biff file: %d bytes\n" biff sz) ;
                 with e ->
@@ -2501,4 +2507,4 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
         exit_status := StatusInstallFailure ;
         log_and_print "Stopping installation because of error.\n" ;
         raise e
-      end)) ()
+      end)) ())

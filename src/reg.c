@@ -20,15 +20,10 @@
 
 CAMLprim value get_bg2main_path(void)
 {
-  int result;
   char buf[SIZE] = { '.', 0 } ;
-#ifdef __CYGWIN__
-  long size = SIZE; 
-#else
-  int size = SIZE; 
-#endif
+  LONG size = (LONG) sizeof(buf);
 
-  result = RegQueryValueA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\BG2Main.Exe", buf, &size); 
+  RegQueryValueA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\BG2Main.Exe", buf, &size);
 
   // "buf" now contains the path to BG2Main.exe
 
@@ -37,15 +32,10 @@ CAMLprim value get_bg2main_path(void)
 
 CAMLprim value get_bgmain_path(void)
 {
-  int result;
   char buf[SIZE] = { '.', 0 } ;
-#ifdef __CYGWIN__
-  long size = SIZE; 
-#else
-  int size = SIZE; 
-#endif
+  LONG size = (LONG) sizeof(buf);
 
-  result = RegQueryValueA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\BGMain.Exe", buf, &size); 
+  RegQueryValueA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\BGMain.Exe", buf, &size);
 
   // "buf" now contains the path to BG2Main.exe
 
@@ -54,15 +44,10 @@ CAMLprim value get_bgmain_path(void)
 
 CAMLprim value get_iwdmain_path(void)
 {
-  int result;
   char buf[SIZE] = { '.', 0 } ;
-#ifdef __CYGWIN__
-  long size = SIZE; 
-#else
-  int size = SIZE; 
-#endif
+  LONG size = (LONG) sizeof(buf);
 
-  result = RegQueryValueA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\IDMain.Exe", buf, &size); 
+  RegQueryValueA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\IDMain.Exe", buf, &size);
 
   // "buf" now contains the path to BG2Main.exe
 
@@ -71,15 +56,10 @@ CAMLprim value get_iwdmain_path(void)
 
 CAMLprim value get_pstmain_path(void)
 {
-  int result;
   char buf[SIZE] = { '.', 0 } ;
-#ifdef __CYGWIN__
-  long size = SIZE; 
-#else
-  int size = SIZE; 
-#endif
+  LONG size = (LONG) sizeof(buf);
 
-  result = RegQueryValueA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Torment.Exe", buf, &size); 
+  RegQueryValueA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Torment.Exe", buf, &size);
 
   // "buf" now contains the path to BG2Main.exe
 
@@ -88,15 +68,10 @@ CAMLprim value get_pstmain_path(void)
 
 CAMLprim value get_iwd2main_path(void)
 {
-  int result;
   char buf[SIZE] = { '.', 0 } ;
-#ifdef __CYGWIN__
-  long size = SIZE; 
-#else
-  int size = SIZE; 
-#endif
+  LONG size = (LONG) sizeof(buf);
 
-  result = RegQueryValueA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\IWD2.Exe", buf, &size); 
+  RegQueryValueA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\IWD2.Exe", buf, &size);
 
   // "buf" now contains the path to BG2Main.exe
 
@@ -113,9 +88,9 @@ CAMLprim value get_user_personal_dir(void)
   char expBuf[SIZE] = {'.', 0};
   DWORD expBufSize = sizeof(expBuf);
 
-  RegOpenKeyEx(HKEY_CURRENT_USER, subkey, 0, KEY_QUERY_VALUE, &hKey);
+  RegOpenKeyExA(HKEY_CURRENT_USER, subkey, 0, KEY_QUERY_VALUE, &hKey);
   RegQueryValueExA(hKey, "Personal", 0, &type, (BYTE*)unexpBuf, &unexpBufSize);
-  ExpandEnvironmentStrings(&unexpBuf, (BYTE*)expBuf, &expBufSize);
+  ExpandEnvironmentStringsA(unexpBuf, expBuf, expBufSize);
   RegCloseKey(hKey);
 
   return copy_string(expBuf);
