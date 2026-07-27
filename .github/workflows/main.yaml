@@ -87,11 +87,12 @@ jobs:
         uses: ocaml/setup-ocaml@v3.5.1
         with:
           ocaml-compiler: ocaml-variants.4.14.2+options,ocaml-option-default-unsafe-string
-      - name: Set-up Zip and Upx
-        run: choco install upx zip
+      - name: Set-up Zip
+        run: choco install zip
       - name: build weidu
         run: |
-          mv elkhound.exe D:/a/weidu/weidu/_opam/bin/elkhound.exe
+          $opamBin = opam var bin
+          Move-Item elkhound.exe (Join-Path $opamBin 'elkhound.exe')
           opam switch
           (& opam env) -split '\r?\n' | ForEach-Object { Invoke-Expression $_ }
           make

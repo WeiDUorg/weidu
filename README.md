@@ -55,7 +55,7 @@ first-hand experience.
 - A Cygwin-based *nix tool chain, particularly `binutils` and `make`
   from the `Devel` group. Perl is also required but is typically
   installed by default. Optionally also `git` (Devel), `openssh`
-  (Net), `zip` (Archive) and `upx` (Utils).
+  (Net) and `zip` (Archive).
 
 - Cygwin-hosted MinGW-GCC, called `mingw-gcc-core`, or some such.
 

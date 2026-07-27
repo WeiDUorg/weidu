@@ -178,11 +178,8 @@ windows_zip : weidu weinstall tolower
 	mv -f wein*.exe WeiDU-Windows/weinstall.exe || true
 	mv -f tolo*.exe WeiDU-Windows/tolower.exe || true
 	strip WeiDU-Windows/weidu.exe || true
-	upx --best WeiDU-Windows/weidu.exe || echo "No EXE Compression"
 	strip WeiDU-Windows/weinstall.exe || true
-	upx --best WeiDU-Windows/weinstall.exe || echo "No EXE Compression"
 	strip WeiDU-Windows/tolower.exe || true
-	upx --best WeiDU-Windows/tolower.exe || echo "No EXE Compression"
 	cp README* WeiDU-Windows
 	rm WeiDU-Windows/README.md
 	cp COPYING WeiDU-Windows
