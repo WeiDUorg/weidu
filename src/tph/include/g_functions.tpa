@@ -83,8 +83,8 @@ END
 DEFINE_PATCH_FUNCTION ~ADD_ITEM_EQEFFECT~
   INT_VAR
     opcode = 0
-    target = 0
-    timing = 0
+    target = 1
+    timing = 2
     parameter1 = 0
     parameter2 = 0
     power = 0

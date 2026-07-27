@@ -1,4 +1,5 @@
 Version 251:
+  * ADD_ITEM_EQEFFECT defaults target to 1 and timing to 2.
   * CREATE called within CREATE works as expected.
   * CREATE sets SOURCE_* and DEST_* variables.
   * Auto-update does not fail if the filename of the newest WeiDU
