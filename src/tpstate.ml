@@ -31,24 +31,6 @@ let mod_folder tp =
     | Some s -> s
     | None -> tp.backup) ".")
 
-let set_prelang_tp2_vars tp =
-  Var.set_string "TP2_AUTHOR" tp.author ;
-  Var.set_string "TP2_FILE_NAME" (Case_ins.filename_basename tp.tp_filename) ;
-  Var.set_string "TP2_BASE_NAME"
-    (Filename.remove_extension
-       (Util.tp2_name (Case_ins.filename_basename tp.tp_filename))) ;
-  Var.set_string "MOD_FOLDER" (mod_folder tp)
-
-let set_postlang_tp2_vars tp =
-  Var.set_string "MOD_VERSION" (List.fold_left (fun acc flag ->
-    (match flag with
-    | Version s -> (Dc.single_string_of_tlk_string_safe (Load.the_game ()) s)
-    | _ -> acc)) "" tp.flags)
-
-let set_tp2_vars tp =
-  ignore (set_prelang_tp2_vars tp) ;
-  ignore (set_postlang_tp2_vars tp)
-
 (************************************************************************
  * Common hashtables.
  ************************************************************************)
@@ -68,6 +50,64 @@ let clear_codes () =
   let var_spec = Hashtbl.copy functions in
   Hashtbl.iter (fun a b -> Hashtbl.remove functions a) var_spec ;
   Hashtbl.clear functions
+
+type tp2_environment = {
+  variables : (string, Var.variable_value) Hashtbl.t ;
+  global_scope : (string, Var.variable_value) Hashtbl.t ;
+  arrays : (string, string list list) Hashtbl.t ;
+  global_arrays : (string, string list list) Hashtbl.t ;
+}
+
+let initial_tp2_environment : tp2_environment option ref = ref None
+
+let snapshot_tp2_environment () = {
+  variables = Hashtbl.copy !Var.variables ;
+  global_scope = Hashtbl.copy !Var.global_scope ;
+  arrays = Hashtbl.copy !Var.arrays ;
+  global_arrays = Hashtbl.copy !Var.global_arrays ;
+}
+
+let reset_tp2_environment () =
+  let initial =
+    match !initial_tp2_environment with
+    | Some environment -> environment
+    | None ->
+        let environment = snapshot_tp2_environment () in
+        initial_tp2_environment := Some environment ;
+        environment
+  in
+  Var.variables := Hashtbl.copy initial.variables ;
+  Var.global_scope := Hashtbl.copy initial.global_scope ;
+  Var.arrays := Hashtbl.copy initial.arrays ;
+  Var.global_arrays := Hashtbl.copy initial.global_arrays ;
+  Var.variables_stack := [] ;
+  Var.arrays_stack := [] ;
+  clear_codes () ;
+  readln_strings := [] ;
+  clear_inlined () ;
+  Bcs.clear_ids_map (Load.the_game ())
+
+let set_prelang_tp2_vars tp =
+  (* Temporary metadata lookups run inside Var.var_clear_push/var_pop and must
+   * not disturb the active installation environment. *)
+  if !Var.variables_stack = [] && !Var.arrays_stack = [] then
+    reset_tp2_environment () ;
+  Var.set_string "TP2_AUTHOR" tp.author ;
+  Var.set_string "TP2_FILE_NAME" (Case_ins.filename_basename tp.tp_filename) ;
+  Var.set_string "TP2_BASE_NAME"
+    (Filename.remove_extension
+       (Util.tp2_name (Case_ins.filename_basename tp.tp_filename))) ;
+  Var.set_string "MOD_FOLDER" (mod_folder tp)
+
+let set_postlang_tp2_vars tp =
+  Var.set_string "MOD_VERSION" (List.fold_left (fun acc flag ->
+    (match flag with
+    | Version s -> (Dc.single_string_of_tlk_string_safe (Load.the_game ()) s)
+    | _ -> acc)) "" tp.flags)
+
+let set_tp2_vars tp =
+  ignore (set_prelang_tp2_vars tp) ;
+  ignore (set_postlang_tp2_vars tp)
 
 (************************************************************************
  * For handling lists of modules.
