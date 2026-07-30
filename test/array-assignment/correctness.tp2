@@ -1,0 +1,134 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~Array assignment correctness~
+
+OUTER_SET entry_count = 2000
+OUTER_FOR (i = 0; i < entry_count; ++i) BEGIN
+  OUTER_SET $entries(~first~ ~second~ ~third~ ~fourth~ ~fifth~ ~%i%~) = i
+END
+
+OUTER_SET $entries(~first~ ~second~ ~third~ ~fourth~ ~fifth~ ~42~) = 99
+OUTER_SET $entries(~first~ ~second~ ~third~ ~fourth~ ~fifth~ ~42~) += 1
+
+ACTION_IF
+  $entries(~first~ ~second~ ~third~ ~fourth~ ~fifth~ ~0~) != 0 OR
+  $entries(~first~ ~second~ ~third~ ~fourth~ ~fifth~ ~42~) != 100 OR
+  $entries(~first~ ~second~ ~third~ ~fourth~ ~fifth~ ~1999~) != 1999
+BEGIN
+  FAIL ~array values changed while their indices were registered~
+END
+
+ACTION_IF NOT VARIABLE_IS_IN_ARRAY
+  $entries(~first~ ~second~ ~third~ ~fourth~ ~fifth~ ~42~)
+BEGIN
+  FAIL ~VARIABLE_IS_IN_ARRAY did not find an assigned index~
+END
+
+OUTER_SET iterated_entries = 0
+ACTION_PHP_EACH entries AS key => value BEGIN
+  OUTER_SET ++iterated_entries
+END
+ACTION_IF iterated_entries != entry_count BEGIN
+  FAIL ~reassigning an index registered a duplicate array entry~
+END
+
+OUTER_SET $underscored_name(~under_scored~ ~tail~) = 1
+OUTER_SET $underscored(~name_under~ ~scored_tail~) = 2
+ACTION_IF
+  NOT VARIABLE_IS_IN_ARRAY $underscored_name(~under_scored~ ~tail~) OR
+  NOT VARIABLE_IS_IN_ARRAY $underscored(~name_under~ ~scored_tail~)
+BEGIN
+  FAIL ~structurally distinct underscored indices were conflated~
+END
+
+OUTER_SET GLOBAL $global_entries(~alpha~) = 1
+OUTER_SET GLOBAL $global_entries(~beta~) = 2
+OUTER_SET GLOBAL $global_entries(~alpha~) = 3
+ACTION_IF
+  NOT VARIABLE_IS_IN_ARRAY $global_entries(~alpha~) OR
+  NOT VARIABLE_IS_IN_ARRAY $global_entries(~beta~) OR
+  $global_entries(~alpha~) != 3
+BEGIN
+  FAIL ~global array membership or values changed~
+END
+OUTER_SET global_entries_seen = 0
+ACTION_PHP_EACH global_entries AS key => value BEGIN
+  OUTER_SET ++global_entries_seen
+END
+ACTION_IF global_entries_seen != 2 BEGIN
+  FAIL ~reassigning a global index registered a duplicate array entry~
+END
+
+OUTER_SET $ordered(~10~) = 10
+OUTER_SET $ordered(~2~) = 2
+OUTER_SET $ordered(~1~) = 1
+ACTION_SORT_ARRAY_INDICES ordered NUMERICALLY
+OUTER_SPRINT order ~~
+ACTION_PHP_EACH ordered AS key => value BEGIN
+  OUTER_SPRINT order ~%order%,%key%~
+END
+ACTION_IF ~%order%~ STR_CMP ~,1,2,10~ BEGIN
+  FAIL ~sorting no longer controls array iteration order~
+END
+
+OUTER_SET $scoped(~outer~) = 1
+WITH_SCOPE BEGIN
+  OUTER_SET $scoped(~inner~) = 2
+  ACTION_IF NOT VARIABLE_IS_IN_ARRAY $scoped(~inner~) BEGIN
+    FAIL ~an index assigned inside a scope was not registered~
+  END
+END
+ACTION_IF VARIABLE_IS_IN_ARRAY $scoped(~inner~) BEGIN
+  FAIL ~an index assigned inside a scope leaked into its parent scope~
+END
+ACTION_IF NOT VARIABLE_IS_IN_ARRAY $scoped(~outer~) BEGIN
+  FAIL ~an outer-scope array index was lost after leaving a scope~
+END
+
+DEFINE_ACTION_FUNCTION return_items
+  INT_VAR seed = 0
+  RET_ARRAY items
+BEGIN
+  OUTER_SET $items(~alpha~) = seed
+  OUTER_SET $items(~beta~) = seed + 1
+  OUTER_SET $items(~gamma~) = seed + 2
+  OUTER_SET $items(~beta~) = seed + 3
+END
+
+OUTER_SET return_count = 5000
+OUTER_FOR (i = 0; i < return_count; ++i) BEGIN
+  LAF return_items
+    INT_VAR seed = i
+    RET_ARRAY items
+  END
+END
+
+OUTER_SET returned_entries = 0
+ACTION_PHP_EACH items AS key => value BEGIN
+  OUTER_SET ++returned_entries
+END
+ACTION_IF returned_entries != 3 BEGIN
+  FAIL ~repeated RET_ARRAY calls changed the returned array's index set~
+END
+ACTION_IF
+  $items(~alpha~) != return_count - 1 OR
+  $items(~beta~) != return_count + 2 OR
+  $items(~gamma~) != return_count + 1
+BEGIN
+  FAIL ~repeated RET_ARRAY calls returned incorrect values~
+END
+
+ACTION_CLEAR_ARRAY entries
+ACTION_IF VARIABLE_IS_IN_ARRAY
+  $entries(~first~ ~second~ ~third~ ~fourth~ ~fifth~ ~42~)
+BEGIN
+  FAIL ~clearing an array retained its index membership~
+END
+
+ACTION_CLEAR_ARRAY global_entries
+ACTION_IF VARIABLE_IS_IN_ARRAY $global_entries(~alpha~) BEGIN
+  FAIL ~clearing a global array retained its index membership~
+END
+
+PRINT ~array-assignment tests passed~

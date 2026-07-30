@@ -23,7 +23,7 @@
 include Configuration
 
 # Just a target to be used by default
-.PHONY: weidu doc all
+.PHONY: weidu doc all test-array-assignment benchmark-array-assignment
 all : weidu
 # "make weinstall" if you want weinstall
 
@@ -69,6 +69,12 @@ PROJECT_RESOURCES = weidu_resources
 
 .PHONY: weidu
 weidu: $(PROJECT_EXECUTABLE)
+
+test-array-assignment: weidu
+	sh test/array-assignment/run_tests.sh $(PROJECT_EXECUTABLE)
+
+benchmark-array-assignment: weidu
+	sh test/array-assignment/run_benchmark.sh $(PROJECT_EXECUTABLE)
 
 $(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
                         $(PROJECT_CMODULES:%=$(OBJDIR)/%.$(OBJEXT))

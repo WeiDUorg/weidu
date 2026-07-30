@@ -1,4 +1,6 @@
 Version 251:
+  * Improve the performance of array assignment and RET_ARRAY by
+    avoiding linear index scans and repeated array-name bindings.
   * CREATE called within CREATE works as expected.
   * CREATE sets SOURCE_* and DEST_* variables.
   * Auto-update does not fail if the filename of the newest WeiDU

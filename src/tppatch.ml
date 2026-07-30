@@ -540,9 +540,9 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             let final_ret_arrays = Hashtbl.create 5 in
             List.iter (fun s ->
               let s = Var.get_string (eval_pe_str s) in
-              if (Hashtbl.mem !Var.arrays s) then
+              if Var.local_array_mem s then
                 Hashtbl.add final_ret_arrays s
-                  (Some (Hashtbl.find !Var.arrays s))
+                  (Some (Var.find_local_array s))
               else
                 (* to differentiate uninitialised arrays from unknown ones *)
                 Hashtbl.add final_ret_arrays s None) f_retas ;
@@ -553,7 +553,8 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
                 Some vars ->
                   let vars = List.map (fun var ->
                     let var = List.map get_pe_string var in
-                    PE_Dollars(name,var,false,false)) vars in
+                    PE_Dollars(name,var,false,false))
+                    (Var.array_indices vars) in
                   List.append acc vars
               | None -> acc)) final_ret_arrays f_rets in
             List.iter (fun a ->
@@ -571,17 +572,17 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               with Not_found ->
                 failwith (Printf.sprintf "Unknown return array: %s" is)) in
               ignore (match v with
-                Some a -> Hashtbl.add !Var.arrays want a
+                Some a -> Var.set_local_array want a
               | None -> ())) retas ;
             let rets = List.fold_left (fun acc (want,was) ->
               let was = Var.get_string (eval_pe_str was) in
               let want = Var.get_string (eval_pe_str want) in
-              if (Hashtbl.mem !Var.arrays want) then
+              if Var.local_array_mem want then
                 let vars = List.map (fun var ->
                   let var = List.map get_pe_string var in
                   let wasvar = PE_Dollars(PE_LiteralString was,var,false,false) in
                   let wantvar = PE_Dollars(PE_LiteralString want,var,false,false) in
-                  (wantvar,wasvar)) (Hashtbl.find !Var.arrays want) in
+                  (wantvar,wasvar)) (Var.find_local_array_indices want) in
                 List.append acc (List.filter (fun (_,wasvar) ->
                   (* if function array is empty *)
                   Hashtbl.mem final_returns (eval_pe_str wasvar)) vars)
@@ -690,13 +691,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let arr = eval_pe_str arr in
         let _,global = (try Var.array_lookup arr
         with Not_found -> [],false) in
-        if global then
-          while Hashtbl.mem !Var.global_arrays arr do
-            Hashtbl.remove !Var.global_arrays arr
-          done else
-          while Hashtbl.mem !Var.arrays arr do
-            Hashtbl.remove !Var.arrays arr
-          done ;
+        Var.clear_array global arr ;
         buff
 
     | TP_PatchDefineArray(arr,vals) ->
@@ -745,11 +740,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let sorted_indices = List.map (fun (_,var) ->
           var) sorted in
         if List.length sorted_indices > 0 then begin
-          if global then
-            ignore (Hashtbl.add !Var.global_arrays array
-                      (List.rev sorted_indices))
-          else
-            ignore (Hashtbl.add !Var.arrays array (List.rev sorted_indices))
+          Var.set_array_indices global array (List.rev sorted_indices)
         end ;
         buff
 
@@ -2478,8 +2469,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             offset count index length;
         let arrS = eval_pe_str arr in
         process_action tp (TP_ActionClearArray arr);
-        if not (Hashtbl.mem !Var.arrays arrS) then
-          Hashtbl.add !Var.arrays arrS [];
+        Var.ensure_local_array arrS;
         for i = index to index + count - 1 do
           Var.set_string
             (eval_pe_str

@@ -1,0 +1,75 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU benchmark~
+
+BEGIN ~Array assignment benchmark~
+
+DEFINE_ACTION_FUNCTION scalar_returns
+  RET number text
+BEGIN
+  OUTER_SET number = 1
+  OUTER_SPRINT text ~X~
+END
+
+DEFINE_ACTION_FUNCTION parameterized_returns
+  INT_VAR x = 0 y = 0 z = 0
+  STR_VAR a = ~~ b = ~~ c = ~~
+  RET number text
+BEGIN
+  OUTER_SET number = x + y + z
+  OUTER_SPRINT text ~%a%-%b%-%c%~
+END
+
+DEFINE_ACTION_FUNCTION array_returns
+  INT_VAR x = 0 y = 0 z = 0
+  STR_VAR a = ~~ b = ~~ c = ~~
+  RET number text
+  RET_ARRAY items
+BEGIN
+  OUTER_SET number = x + y + z
+  OUTER_SPRINT text ~%a%-%b%-%c%~
+  OUTER_SPRINT $items(~%x%~) ~%a%~
+  OUTER_SPRINT $items(~%y%~) ~%b%~
+  OUTER_SPRINT $items(~%z%~) ~%c%~
+END
+
+OUTER_SET return_count = 100000
+OUTER_FOR (i = 0; i < return_count; ++i) BEGIN
+  ACTION_TIME ~parameterless-function-calls~ BEGIN
+    LAF scalar_returns RET number text END
+  END
+END
+
+OUTER_FOR (i = 0; i < return_count; ++i) BEGIN
+  ACTION_TIME ~parameterized-function-calls~ BEGIN
+    LAF parameterized_returns
+      INT_VAR x = 1 y = 2 z = 3
+      STR_VAR a = ~A~ b = ~B~ c = ~C~
+      RET number text
+    END
+  END
+END
+
+OUTER_FOR (i = 0; i < return_count; ++i) BEGIN
+  ACTION_TIME ~repeated-ret-array~ BEGIN
+    LAF array_returns
+      INT_VAR x = 1 y = 2 z = 3
+      STR_VAR a = ~A~ b = ~B~ c = ~C~
+      RET number text
+      RET_ARRAY items
+    END
+  END
+END
+
+OUTER_SET assignment_count = 10000
+ACTION_TIME ~unique-array-assignments~ BEGIN
+  OUTER_FOR (i = 0; i < assignment_count; ++i) BEGIN
+    OUTER_SET $array1(~first~ ~second~ ~third~ ~fourth~ ~fifth~ ~%i%~) = i
+  END
+END
+
+ACTION_TIME ~equivalent-variable-assignments~ BEGIN
+  OUTER_SPRINT array_var ~array2_first_second_third_fourth_fifth~
+  OUTER_FOR (i = 0; i < assignment_count; ++i) BEGIN
+    OUTER_SET $~%array_var%~(~%i%~) = i
+  END
+END

@@ -23,11 +23,31 @@ type variable_value =
   | Int32 of Int32.t
   | String of string
 
+module ArrayIndexSet = Set.Make(struct
+  type t = string list
+  let compare = compare
+end)
+
+type array_value = {
+  indices : string list list;
+  index_set : ArrayIndexSet.t;
+}
+
+let array_value_of_indices indices = {
+  indices;
+  index_set = List.fold_left
+    (fun set index -> ArrayIndexSet.add index set)
+    ArrayIndexSet.empty indices;
+}
+
+let empty_array_value = array_value_of_indices []
+
 let variables = ref(Hashtbl.create 255)
 let global_scope = ref (Hashtbl.create 255)
 
-let arrays : (string, string list list) Hashtbl.t ref = ref(Hashtbl.create 255)
-let global_arrays = ref(Hashtbl.create 255)
+let arrays : (string, array_value) Hashtbl.t ref = ref(Hashtbl.create 255)
+let global_arrays : (string, array_value) Hashtbl.t ref =
+  ref(Hashtbl.create 255)
 
 let variables_stack = ref []
 let arrays_stack = ref []
@@ -73,10 +93,62 @@ let global_pop_arrays () =
 let array_lookup var =
   (try
     let a = Hashtbl.find !arrays var in
-    (a,false)
+    (a.indices,false)
   with Not_found ->
     let a = Hashtbl.find !global_arrays var in
-    (a,true))
+    (a.indices,true))
+
+let local_array_mem var =
+  Hashtbl.mem !arrays var
+
+let find_local_array var =
+  Hashtbl.find !arrays var
+
+let find_local_array_indices var =
+  (find_local_array var).indices
+
+let array_indices value =
+  value.indices
+
+let set_local_array var value =
+  Hashtbl.replace !arrays var value
+
+let set_array_indices global var indices =
+  let table = if global then !global_arrays else !arrays in
+  Hashtbl.replace table var (array_value_of_indices indices)
+
+let ensure_local_array var =
+  if not (local_array_mem var) then
+    set_local_array var empty_array_value
+
+let remove_all_array_bindings table var =
+  while Hashtbl.mem table var do
+    Hashtbl.remove table var
+  done
+
+let clear_array global var =
+  let table = if global then !global_arrays else !arrays in
+  remove_all_array_bindings table var
+
+let add_array_index var index =
+  let value =
+    try find_local_array var
+    with Not_found -> empty_array_value
+  in
+  if not (ArrayIndexSet.mem index value.index_set) then
+    set_local_array var {
+      indices = index :: value.indices;
+      index_set = ArrayIndexSet.add index value.index_set;
+    }
+
+let array_index_mem var index =
+  let value =
+    try Hashtbl.find !arrays var
+    with Not_found ->
+      try Hashtbl.find !global_arrays var
+      with Not_found -> empty_array_value
+  in
+  ArrayIndexSet.mem index value.index_set
 
 let var_wrap name =
   "%" ^ name ^ "%"
@@ -213,8 +285,6 @@ let clear_var () =
   Hashtbl.clear !variables
 
 let clear_arr () =
-  let arr_spec = Hashtbl.copy !arrays in
-  Hashtbl.iter (fun a b -> Hashtbl.remove !arrays a) arr_spec ;
   Hashtbl.clear !arrays
 
 let assoc name value =

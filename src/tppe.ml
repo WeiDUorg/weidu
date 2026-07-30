@@ -53,9 +53,7 @@ with _ -> eval_pe_str p)
           Var.get_string_exact ("%" ^ result ^ "%")
         with _ -> result) else result
     in
-    if do_add then (
-      let old = try Hashtbl.find !Var.arrays s with Not_found -> [] in
-      if not (List.mem a old) then Hashtbl.add !Var.arrays s (a :: old)) ;
+    if do_add then Var.add_array_index s a ;
     result
 
 let eval_pe_tlk_str game s = match s with
@@ -150,9 +148,7 @@ let rec eval_pe buff game p =
           let name = Var.get_string (eval_pe_str name) in
           let body = List.map (fun key -> Var.get_string
               (eval_pe_str key)) keys in
-          let bodies,_ =
-            (try Var.array_lookup name with Not_found -> [],false) in
-          if body <> [] && List.mem body bodies &&
+          if body <> [] && Var.array_index_mem name body &&
             (eval_pe buff game (PE_VariableIsSet (ac_to_pe_string a))) = 1l
           then 1l else 0l)
 
