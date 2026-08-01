@@ -9,7 +9,12 @@
 #
 # It was originally taken from Westley Weimer's WeiDU 185.
 
-all: ../README-WeiDU.html clean
+.PHONY: all check-command-line-options clean
+
+all: check-command-line-options ../README-WeiDU.html clean
+
+check-command-line-options:
+	perl ../test/check_command_line_options.pl
 
 ../README-WeiDU.html: base.tex
 	cp base.tex README.tex

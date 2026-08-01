@@ -958,6 +958,15 @@ weidu --biff-get-list sw1h01.itm --out foo
 \
 
 \begin{tabular}{lp{10in}|p{10in}}
+\multicolumn{2}{c}{ \color{red} Program Control Options } \\
+\DEFINE{--help} & Display the command-line option summary and exit
+successfully. The single-dash spelling \t{-help} is accepted as an alias. \\
+\DEFINE{--version} & Print the version number and exit. \\
+\DEFINE{--exit} & Equivalent to \ttref{--version}. \\
+\DEFINE{--licence} & Print licence information and exit. \\
+\DEFINE{--no-exit-pause} & Do not display the final ``Press ENTER to exit''
+prompt. \\
+\\
 \multicolumn{2}{c}{ \color{red} Compiling And Decompiling } \\
 \tt{FILE.}\ttref{D}   & Compile \t{FILE} to a \ttref{DLG} (dialogue file). \\
 \tt{FILE.}\ttref{DLG} & Decompile \t{FILE} to a \ttref{D} (dialogue text file). \\
@@ -1008,8 +1017,17 @@ skips the others (cumulative). \\
 \DEFINE{--quick-menu} \t{X} & installs the \ttref{QUICK_MENU}
 selection X. Can be combined with --force-install and friends, but
 only if the latter components are defined in ALWAYS_ASK.  \\
+\DEFINE{--process-script} \t{X} & Process the non-interactive installation
+script \t{X}. Each line begins with a \ttref{TP2} filename and a numeric
+language, followed by \t{I} or \t{U} markers and the component numbers to
+install or uninstall. This option implies \ttref{--quick-log} and
+\ttref{--skip-at-view}, and suppresses the final exit prompt. \\
 \DEFINE{--skip-at-view} & AT_* ~VIEW this~ actions (and the extra chromosome versions like
 ~NOTEPAD this~) aren't processed, while still processing batch files and similia. \\
+\DEFINE{--quick-log} & Omit translated component names, subcomponent names
+and versions from \t{WeiDU.log}. This avoids reparsing installed
+\ttref{TP2} files when saving the log and can substantially reduce the time
+needed to write it. \\
 \DEFINE{--safe-exit} & Save WeiDU.log every time a component installation is begun.
 This makes it impossible to uninstall components (don't ask), but allows the user to kill
 the weidu process (E.G. closing the DOS console via the X button) without leaving the game in an
@@ -1022,6 +1040,16 @@ present for all \ttref{TP2} components. \\
 \DEFINE{--ask-only} \t{X Y ...} & Limit the interactive installer to
 only asking about components number X Y..., skipping the others
 (cumulative) \\
+\DEFINE{--list-languages} \t{X} & List the languages declared by
+\ttref{TP2} file \t{X}, one per line as \t{number:name}. \\
+\DEFINE{--list-components} \t{X Y} & List the components declared by
+\ttref{TP2} file \t{X} in \t{WeiDU.log} format, using language number
+\t{Y}. Language numbers are the zero-based values reported by
+\ttref{--list-languages}. \\
+\DEFINE{--list-components-json} \t{X Y} & List the non-deprecated
+components declared by \ttref{TP2} file \t{X} as JSON, using language
+number \t{Y}. Language numbers are the zero-based values reported by
+\ttref{--list-languages}. \\
 \DEFINE{--continue}     & Continue \ttref{TP2} processing despite
 \ttref{TP2 Action} errors. \\
 \DEFINE{--args} \t{X}       & X will be stored in the tp2 variable \verb+%argv[n]%+, where
@@ -1064,6 +1092,18 @@ variables (even implicit ones created by \t{WeiDU}). \\
 \ttref{TP2} processing and the results they evaluate to. Among other
 things, this is useful for catching parenthesis errors in your
 \ttref{value}s. \\
+\DEFINE{--print-backtrace} & Record and print the OCaml call stack when
+reporting an exception. This is normally only useful when diagnosing an
+internal WeiDU error. \\
+\DEFINE{--debug-ocaml} & Enable additional implementation-level diagnostic
+output. This is normally only useful when diagnosing an internal WeiDU
+error. \\
+\DEFINE{--debug-boiic} & Report whether each \ttref{COPY} operation that
+uses \ttref{BUT_ONLY_IF_IT_CHANGES} did or did not change its buffer. \\
+\DEFINE{--debug-change} & Warn when patches attached to a \ttref{COPY}
+operation leave its buffer unchanged. Copies that use
+\ttref{BUT_ONLY_IF_IT_CHANGES} are instead covered by
+\ttref{--debug-boiic}. \\
 {\tt \DEFINE{--modder} \Ob X Y \Oe \Slist} & enables the
 \ttref{MODDER} mode and sets the \ttref{MODDER} option X to Y (cumulative,
 -list syntax).
@@ -1099,6 +1139,9 @@ the registry; X can be one of BG1, BG2, PST, IWD1 or IWD2. BGEE is unsupported.
 \DEFINE{--search} \t{X}	& Look in {\tt X} for input files (cumulative).
 \t{X} is treated as an \t{override} directory and is given priority over
 the default \t{override} directory. \\
+\DEFINE{--search-ids} \t{X} & Look in \t{X} for input \t{IDS} files
+(cumulative). Explicit IDS search paths take priority over the game's
+\t{override} directory and paths supplied with \ttref{--search}. \\
 \\
 \multicolumn{2}{c}{ \color{red} Game Text (\ttref{TLK}) File Input} \\
 \DEFINE{--use-lang} \t{X} & On multi-language games (e.g., BGEE), use
@@ -1127,7 +1170,6 @@ file then the result will be appended to it instead of overwriting it. \\
 \DEFINE{--ftlkout} \t{X} & Redirect the output dialogf to X. If any strings were added to or changed in the
 loaded \t{DIALOGF.TLK}, emit \t{X} as an updated version that reflects
 those changes. If this options is not provided, the output dialogf is the same as the input dialogf. \\
-\DEFINE{--version} & Print version number and exit. \\
 \DEFINE{--parse-check} \t{X} \t{Y} & Parses file \t{Y} as file type
 \t{X} and returns 0 if the file was parsed without errors. \t{X} must
 be one of \t{D}, \t{BAF}, \t{TP2}, \t{TPA}, or \t{TPP}. \\
@@ -1223,6 +1265,14 @@ commands of the form \t{STRING_SET "Hello" @1} instead of \t{STRING_SET \#1
 \DEFINE{--bcmp-from}  \t{X}&      Emit \ttref{APPLY_BCS_PATCH} to turn this
 \ttref{BCS} file ... \\
 \DEFINE{--bcmp-to}    \t{X}&      ... into this one. \\
+\DEFINE{--textcmp-from} \t{X} & Emit a patch and an
+\ttref{APPLY_BCS_PATCH} \ttref{TP2} snippet to turn this textual file ... \\
+\DEFINE{--textcmp-to} \t{X} & ... into this one. \\
+\DEFINE{--rcmp-from} \t{X} & \emph{Experimental.} Emit line-by-line
+\ttref{REPLACE_TEXTUALLY} commands to turn this textual file ... \\
+\DEFINE{--rcmp-to} \t{X} & ... into this one. The generated output can be
+incomplete or ambiguous when lines are inserted, removed or repeated, and
+must be reviewed before use. \\
 \DEFINE{--bcmp-orig}  \t{X}&      Original file \t{X} to apply ... \\
 \DEFINE{--bcmp-patch} \t{X}&      ... this patch to. \\
 \\
@@ -1233,6 +1283,10 @@ commands of the form \t{STRING_SET "Hello" @1} instead of \t{STRING_SET \#1
 \\
 \multicolumn{2}{c}{ \color{red} Automatic Module Packaging Options} \\
 \DEFINE{--automate} \t{X}&   Automatically create a \ttref{TP2} file for resources in folder \t{X}. See \ttref{--out}. \\
+\DEFINE{--automate-file} \t{X} & Emit a \ttref{TP2} snippet containing
+\ttref{SAY} commands for the translatable string references in the
+\ttref{ARE}, \ttref{ITM}, \ttref{SPL}, \ttref{CRE}, \ttref{EFF} or
+\t{STO} file \t{X}. See \ttref{--out} and \ttref{--automate-min}. \\
 \DEFINE{--automate-min} \t{X}& Only \ttref{--automate} string references above \t{X}. If not specified, it is assumed as 62169 (that is, the number of strings in unmodded SoA). \\
 \DEFINE{--extract-kits} \t{X} & Extract all kits starting with kit \#\t{X}
 and create \ttref{TP2} actions to install those kits as part of a module.  \\
@@ -1248,6 +1302,21 @@ directory called \t{debugs} exists, in which case the log file is
 placed there. \\
 
 \DEFINE{--autolog} & 	Log output and details to \t{WSETUP.DEBUG}. \\
+\DEFINE{--log-extern} & Also write the standard output and standard error
+of commands invoked by WeiDU to the active log file. The command output
+remains visible unless WeiDU is running silently. \\
+\\
+\multicolumn{2}{c}{ \color{red} Installed-File Change Log Options } \\
+\DEFINE{--change-log} \t{X} & Report the installed mod components that
+affected resource \t{X} (cumulative). When recoverable historical versions
+exist in mod backups, copy them to the directory selected by
+\ttref{--out}. \\
+\DEFINE{--change-log-list} \t{X Y ...} & Equivalent to repeating
+\ttref{--change-log} for \t{X}, \t{Y}, and subsequent resource names,
+stopping at the next option. \\
+\DEFINE{--change-log-rest} \t{X Y ...} & Equivalent to repeating
+\ttref{--change-log} for every remaining argument. This option must be the
+last option on the command line. \\
 \end{tabular}
 
 Finally, note that WeiDU will \emph{not} add duplicate strings to
