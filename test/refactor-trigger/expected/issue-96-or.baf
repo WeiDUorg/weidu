@@ -1,0 +1,12 @@
+IF
+  See(Player1)
+  OR(4)
+    RandomNum(10,1)
+    RandomNum(10,2)
+    RandomNum(10,9)
+    RandomNum(10,3)
+  See(Player2)
+THEN
+  RESPONSE #100
+    NoAction()
+END

@@ -1,0 +1,13 @@
+BACKUP ~issue-95-backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~REFACTOR_TRIGGER negation regression tests~
+
+COPY ~fixtures/negative.baf~ ~results/issue-95-same.baf~
+  REFACTOR_TRIGGER EXACT_MATCH ~See(Player1)~ ~!See(Player1)~
+
+COPY ~fixtures/negative.baf~ ~results/issue-95-different.baf~
+  REFACTOR_TRIGGER EXACT_MATCH ~See(Player1)~ ~!See(Player2)~
+
+COPY ~fixtures/positive.baf~ ~results/issue-95-positive.baf~
+  REFACTOR_TRIGGER EXACT_MATCH ~See(Player1)~ ~!See(Player2)~

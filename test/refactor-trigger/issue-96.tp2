@@ -1,0 +1,44 @@
+BACKUP ~issue-96-backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~REFACTOR_TRIGGER ordering regression tests~
+
+COPY ~fixtures/or-positive.baf~ ~results/issue-96-simple.baf~
+  REFACTOR_TRIGGER EXACT_MATCH
+    ~RandomNum(10,2)~
+    ~RandomNum(10,9)~
+
+COPY ~fixtures/or-positive.baf~ ~results/issue-96-conjunction.baf~
+  REFACTOR_TRIGGER EXACT_MATCH
+    ~RandomNum(10,2)~
+    ~RandomNum(10,2) RandomNum(10,9)~
+
+COPY ~fixtures/or-positive.baf~ ~results/issue-96-or.baf~
+  REFACTOR_TRIGGER EXACT_MATCH
+    ~RandomNum(10,2)~
+    ~OR(2) RandomNum(10,2) RandomNum(10,9)~
+
+COPY ~fixtures/or-negative.baf~ ~results/issue-96-negated-simple.baf~
+  REFACTOR_TRIGGER EXACT_MATCH
+    ~RandomNum(10,2)~
+    ~RandomNum(10,9)~
+
+COPY ~fixtures/or-negative.baf~ ~results/issue-96-negated-conjunction.baf~
+  REFACTOR_TRIGGER EXACT_MATCH
+    ~RandomNum(10,2)~
+    ~RandomNum(10,8) RandomNum(10,9)~
+
+COPY ~fixtures/or-negative.baf~ ~results/issue-96-negated-or.baf~
+  REFACTOR_TRIGGER EXACT_MATCH
+    ~RandomNum(10,2)~
+    ~OR(2) RandomNum(10,8) RandomNum(10,9)~
+
+COPY ~fixtures/or-negative.baf~ ~results/issue-96-negated-explicit.baf~
+  REFACTOR_TRIGGER EXACT_MATCH
+    ~RandomNum(10,2)~
+    ~!RandomNum(10,9)~
+
+COPY ~fixtures/or-positive.baf~ ~results/issue-96-backreference.baf~
+  REFACTOR_TRIGGER EVALUATE_REGEXP
+    ~\(RandomNum(10,2)\)~
+    ~\1~

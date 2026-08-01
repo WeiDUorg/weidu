@@ -1,0 +1,6 @@
+IF
+  !See(Player1)
+THEN
+  RESPONSE #100
+    NoAction()
+END
