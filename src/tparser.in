@@ -95,6 +95,20 @@ let parse start lexbuf =
   cu
 
 
+let parse_with_fallback filename sort_of_file elkhound_parser ocamlyacc_parser =
+  try
+    parse_file false filename sort_of_file elkhound_parser
+  with _ ->
+    let result = parse_file true filename sort_of_file ocamlyacc_parser in
+    let parsed_filename = match filename with
+    | File filename -> filename
+    | String(filename, _) -> filename
+    in
+    log_and_print
+      "WARNING: [%s] could not be parsed by the Elkhound parser; using the deprecated OCamlyacc parser.\n"
+      parsed_filename ;
+    result
+
 let parse_tp2_file filename =
   let tp_file lexbuf =
     let cu = parse START_FROM_TP lexbuf in
@@ -102,11 +116,8 @@ let parse_tp2_file filename =
     | Tp.Start_From_Tp(a) -> a
     | _ -> failwith "Elkhound internal"
   in
-  try
-    parse_file false filename "Parsing TP2 files"
-      (Toldparser.tp_file Toldlexer.initial)
-  with _ ->
-    parse_file true filename "Parsing TP2 files" tp_file
+  parse_with_fallback filename "Parsing TP2 files" tp_file
+    (Toldparser.tp_file Toldlexer.initial)
 
 let parse_tpa_file filename =
   let tpa_file lexbuf =
@@ -115,11 +126,8 @@ let parse_tpa_file filename =
     | Tp.Start_From_Tpa(a) -> a
     | _ -> failwith "Elkhound internal"
   in
-  try
-    parse_file false filename "Parsing TPA files"
-      (Toldparser.tph_file Toldlexer.initial)
-  with _ ->
-    parse_file true filename "Parsing TPA files" tpa_file
+  parse_with_fallback filename "Parsing TPA files" tpa_file
+    (Toldparser.tph_file Toldlexer.initial)
 
 let parse_tpp_file filename =
   let tpp_file lexbuf =
@@ -128,8 +136,5 @@ let parse_tpp_file filename =
     | Tp.Start_From_Tpp(a) -> a
     | _ -> failwith "Elkhound internal"
   in
-  try
-    parse_file false filename "Parsing TPP files"
-      (Toldparser.tpp_file Toldlexer.initial)
-  with _ ->
-    parse_file true filename "Parsing TPP files" tpp_file
+  parse_with_fallback filename "Parsing TPP files" tpp_file
+    (Toldparser.tpp_file Toldlexer.initial)

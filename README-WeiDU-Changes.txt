@@ -63,6 +63,8 @@ Version 251:
   * ADD_SPELL evaluates variables before printing anything.
   * Add REGISTER_UNINSTALL.
   * The contents of %MOD_FOLDER% are case-exact.
+  * TP2, TPA/TPH, and TPP files are parsed by Elkhound first. If that
+    fails, the deprecated OCamlyacc parser is used with a warning.
 
 Version 249:
   * Auto-update is less chatty than in 248.
