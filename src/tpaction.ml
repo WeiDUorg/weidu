@@ -50,61 +50,47 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       raise e
   in
 
-  let kitlist_ex_p buff =
-    (try Str.search_forward (Str.regexp "[\r\n][0-9]+[ \t]+\*[ \t]+\*")
-                            buff 0 ; true
-     with Not_found -> false) in
-
   let next_kitlist_ex_line buff =
-    let _ = Str.search_forward
-              (Str.regexp "[\r\n][0-9]+[ \t]+\*[ \t]+\*.+$")
-              buff 0 in
-    Str.string_after (Str.matched_string buff) 1 in
+    let filler_line = Str.regexp "^[0-9]+[ \t]+[*][ \t]+[*]" in
+    try
+      Some (List.find
+              (fun line -> Str.string_match filler_line line 0)
+              (Str.split many_newline_or_cr_regexp buff))
+    with Not_found -> None in
 
   let get_next_kit_number file =
     let resref, ext = split_resref file in
     let buff, path = Load.load_resource "getting 2DA lines" game true
                                         resref ext in
-    if not (kitlist_ex_p buff) then (get_next_line_number file), false else
-      (try
-         let line = next_kitlist_ex_line buff in
-         let number = int_of_string (List.hd (split_apart line)) in
-         number, true
-       with e ->
-         log_and_print "ERROR: cannot find line numbers in %s\n" file ;
-         raise e) in
+    match next_kitlist_ex_line buff with
+    | None -> (get_next_line_number file), None
+    | Some line ->
+        (try
+           let number = int_of_string (List.hd (split_apart line)) in
+           number, Some line
+         with e ->
+           log_and_print "ERROR: cannot find line numbers in %s\n" file ;
+           raise e) in
 
   let kitlist_action number kit_name lower_index mixed_index help_index
-                     abil_file prof_number unused_class exp =
-    if not exp then begin
-        let append_to_kitlist = Printf.sprintf
-                                  "%d  %s %d %d %d %s %d %s"
-                                  number kit_name lower_index mixed_index
-                                  help_index abil_file prof_number
-                                  unused_class in
-
-        TP_Append("KITLIST.2DA",append_to_kitlist,[],true,false,0) end
-    else begin
-        let row = string_of_int (number + 3) in
+                     abil_file prof_number unused_class filler_line =
+    let append_to_kitlist = Printf.sprintf
+                              "%d  %s %d %d %d %s %d %s"
+                              number kit_name lower_index mixed_index
+                              help_index abil_file prof_number unused_class in
+    match filler_line with
+    | None ->
+        TP_Append("KITLIST.2DA",append_to_kitlist,[],true,false,0)
+    | Some filler_line ->
+        let filler_pattern = Printf.sprintf "^%s$" (Str.quote filler_line) in
         let patch =
           TP_PatchIf
             (PE_GT (get_pe_int "%SOURCE_SIZE%", get_pe_int "0"),
              (* no measureble performance impact on my machine with
               * conventional HDD - Wisp *)
-             [TP_Patch2DA(get_pe_int row, get_pe_int "1", get_pe_int "0",
-                          get_pe_int kit_name) ;
-              TP_Patch2DA(get_pe_int row, get_pe_int "2", get_pe_int "0",
-                          get_pe_int (string_of_int lower_index)) ;
-              TP_Patch2DA(get_pe_int row, get_pe_int "3", get_pe_int "0",
-                          get_pe_int (string_of_int mixed_index)) ;
-              TP_Patch2DA(get_pe_int row, get_pe_int "4", get_pe_int "0",
-                          get_pe_int (string_of_int help_index)) ;
-              TP_Patch2DA(get_pe_int row, get_pe_int "5", get_pe_int "0",
-                          get_pe_int abil_file) ;
-              TP_Patch2DA(get_pe_int row, get_pe_int "6", get_pe_int "0",
-                          get_pe_int (string_of_int prof_number)) ;
-              TP_Patch2DA(get_pe_int row, get_pe_int "7", get_pe_int "0",
-                          get_pe_int unused_class)], []) in
+             [TP_PatchStringTextually
+                (Some true, Some false, filler_pattern, append_to_kitlist,
+                 None)], []) in
         TP_Copy ({copy_get_existing = true ;
                   copy_use_regexp = false ;
                   copy_use_glob = false ;
@@ -113,7 +99,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                   copy_constraint_list = [] ;
                   copy_backup = true ;
                   copy_at_end = false ;
-                  copy_save_inlined = false}) end in
+                  copy_save_inlined = false}) in
 
   let when_exists file when_list existing game =
     if List.mem TP_IfExists when_list then begin
@@ -1373,7 +1359,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               Dlg.TLK_Index(i) -> i
             | _ -> log_and_print "ERROR: cannot resolve KIT help string\n" ;
                 failwith "resolve" in
-            let this_kit_number, exp = get_next_kit_number "KITLIST.2DA" in
+            let this_kit_number, filler_line =
+              get_next_kit_number "KITLIST.2DA" in
             if this_kit_number > 0x500 then begin
                 failwith ("The game cannot currently support more than " ^
                             "1280 kits.\n" ^ "Ask Ascension64 to further " ^
@@ -1386,7 +1373,8 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let this_kit_prof_number = get_next_col_number "WEAPPROF.2DA" in
             let a8 = kitlist_action this_kit_number k.kit_name lower_index
                                     mixed_index help_index abil_file_no_ext
-                                    this_kit_prof_number k.unused_class exp in
+                                    this_kit_prof_number k.unused_class
+                                    filler_line in
             let include_actions = List.map (fun file ->
               let num = get_next_line_number (file ^ ".2DA" ) in
               let str = Printf.sprintf "%d      %d" num this_kit_number in
