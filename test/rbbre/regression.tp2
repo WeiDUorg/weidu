@@ -1,0 +1,12 @@
+BACKUP ~backup~
+AUTHOR "WeiDU maintainers"
+
+BEGIN "REPLACE_BCS_BLOCK_REGEXP regression test"
+
+COPY ~test/input.bcs~ ~override/result.bcs~
+  REPLACE_BCS_BLOCK_REGEXP ~test/src.bcs~ ~test/dst.bcs~
+
+COPY ~test/input.bcs~ ~override/mismatch.bcs~
+  REPLACE_BCS_BLOCK_REGEXP ~test/no-match.bcs~ ~test/dst.bcs~ ON_MISMATCH
+    REPLACE_TEXTUALLY ~GLOBALGlobalVar1~ ~GLOBALGlobalVar9~
+  END

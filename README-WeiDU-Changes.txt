@@ -63,6 +63,8 @@ Version 251:
   * ADD_SPELL evaluates variables before printing anything.
   * Add REGISTER_UNINSTALL.
   * The contents of %MOD_FOLDER% are case-exact.
+  * Document REPLACE_BCS_BLOCK_REGEXP and add regression coverage for
+    matching, capture-group replacement, and ON_MISMATCH handling.
 
 Version 249:
   * Auto-update is less chatty than in 248.

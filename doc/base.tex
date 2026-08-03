@@ -4533,6 +4533,30 @@ or & \DEFINE{REPLACE_BCS_BLOCK} \Ob \t{EVALUATE_BUFFER} \Oe \ttref{optcase}
 
   You may use \DEFINE{R_B_B} as a synonym for \ttref{REPLACE_BCS_BLOCK}.
   \\
+or & \DEFINE{REPLACE_BCS_BLOCK_REGEXP} oldFile newFile
+     \Ob \t{ON_MISMATCH} \ttref{patch} \Slist \t{END} \Oe &
+  Replaces every non-overlapping segment of the current file that matches the
+  \ttref{regexp} read from oldFile with the replacement template read from
+  newFile. Matching is case-sensitive. Both files are read as textual,
+  compiled-\ttref{BCS} fragments; they are not compiled from \ttref{BAF}, and
+  no script header or footer is removed.
+
+  The replacement template may contain \verb+\0+ for the complete match and
+  \verb+\1+ through \verb+\9+ for the corresponding \verb+\(...\)+ group in
+  oldFile. For example, a compiled-BCS pattern containing
+  \verb+\([0-9]+\) 0 0 0 0"GLOBALTimer" "" AC+ can preserve the matched
+  integer by using \verb+\1 0 0 0 0"GLOBALTimer" "" AC+ in newFile.
+
+  Variables in the oldFile and newFile \emph{filenames} are evaluated before
+  the files are loaded. The contents of the files are otherwise used verbatim.
+
+  If the regular expression is not found and the \t{ON_MISMATCH} section is
+  present, those patches are run. If it is not found and \t{ON_MISMATCH} is
+  absent, a warning is printed and the current file remains unchanged.
+
+  You may use \DEFINE{R_B_B_RE} as a synonym for
+  \ttref{REPLACE_BCS_BLOCK_REGEXP}.
+  \\
 or & \DEFINE{INSERT_BYTES} \ttref{offset} \ttref{value} &
   The first argument is the offset, the second argument is the count.
   The file will be expanded at the given offset with count bytes worth of
@@ -11121,7 +11145,6 @@ all those from IEGMC, the Dragon's Hoard Download Centre, and the SHS Download C
 Currently undocumented:
 \begin{itemize}
 \item {\tt IF_EVAL}.
-\item {\tt REPLACE_BCS_BLOCK_REGEXP}.
 \item Fred's BCS diff stuff.
 \item {\tt EXTEND_MOS}.
 \end{itemize}
