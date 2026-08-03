@@ -59,23 +59,20 @@ let verify_latest can_spawn = begin
   let this,ext = try split_resref argv_0 with _ -> argv_0,"" in
   let my_real_name = this^(if ext = "" then "" else ".exe") in
 
-  (* head of list is newest element *)
-
-  if (List.length sorted) > 1 then begin
-
-    let newest,newest_t = List.hd sorted in
-    let oldest,oldest_t = List.hd (List.rev sorted) in
-
-    if (newest_t <> oldest_t) then begin
+  match latest_stable_version (List.map snd sorted) with
+  | Some newest_t when List.exists (fun (_, version) ->
+      is_outdated ~latest:newest_t version) sorted ->
+      let newest = fst (List.find (fun (_, version) ->
+        version = newest_t) sorted) in
       (* out-of-synch: time to do updates *)
-      log_and_print "Newest WeiDU is version %d, updating!\n" newest_t ;
+      log_and_print "Newest stable WeiDU is version %d, updating!\n" newest_t ;
       log_and_print "WeiDU files in version order:\n" ;
       List.iter (fun (f,v) -> log_and_print "  [%s] version %d\n" f v ) sorted ;
 
       let newest_buff = load_file newest in
 
       List.iter (fun (target,target_t) ->
-        if (target <> this) && (target_t <> newest_t) then begin
+        if (target <> this) && is_outdated ~latest:newest_t target_t then begin
           (* log_and_print "\tUnlinking [%s]: " target ;        *)
           let unlink_worked = (try Case_ins.unix_unlink target ; true
           with _ -> false) in
@@ -93,16 +90,10 @@ let verify_latest can_spawn = begin
         end
                 ) sorted ;
 
-      if newest_t <> (int_of_string version) then begin
-        let not_this = Case_ins.filename_basename
-            (let file,time = (List.find (fun (f,v) -> f <> this) sorted) in
-            file)
-        in
+      if is_outdated ~latest:newest_t (int_of_string version) then begin
+        let not_this = Case_ins.filename_basename newest in
 
         Sys.argv.(0) <- (Printf.sprintf "\"%s\"" not_this) ;
-
-        let cmd = Array.fold_left (fun acc elt -> acc ^ " " ^ elt)
-            Sys.argv.(0) (Array.sub Sys.argv 1 ((Array.length Sys.argv)-1)) in
 
         let env =
           Array.append [|Printf.sprintf "weiduautoupdate=%s" my_real_name ;
@@ -117,8 +108,8 @@ let verify_latest can_spawn = begin
           exit (return_value StatusSuccess) ;
         end
       end
-    end ;
-  end
+  | Some _
+  | None -> ()
 end
 
 let self () =

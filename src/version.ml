@@ -24,6 +24,20 @@ let release_type version =
   | 1 -> Development
   | v when v > 1 -> Release_Candidate)
 
+let latest_stable_version versions =
+  List.fold_left (fun latest candidate ->
+    match release_type (string_of_int candidate) with
+    | Stable ->
+        (match latest with
+        | Some current when current >= candidate -> latest
+        | _ -> Some candidate)
+    | Release_Candidate
+    | Development -> latest)
+    None versions
+
+let is_outdated ~latest version =
+  version < latest
+
 (* Historical Comments: *)
 (* 7 let comment = "Underdark Army Knife" *)
 (* 8 let comment = "Meta-Circular Evaluator" *)

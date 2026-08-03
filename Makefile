@@ -23,9 +23,12 @@
 include Configuration
 
 # Just a target to be used by default
-.PHONY: weidu doc all
+.PHONY: weidu doc all test-autoupdate-versions
 all : weidu
 # "make weinstall" if you want weinstall
+
+test-autoupdate-versions:
+	cd test && $(OCAMLDIR)/ocaml -noinit autoupdate-versions.ml
 
 ####
 #### OCAML stuff

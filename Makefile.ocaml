@@ -344,8 +344,10 @@ $(DEPENDDIR)/%.di: %.mli
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),doc)
 ifneq ($(MAKECMDGOALS),src_zip)
+ifneq ($(MAKECMDGOALS),test-autoupdate-versions)
 -include $(MODULES:%=$(DEPENDDIR)/%.d)
 -include $(MODULES:%=$(DEPENDDIR)/%.di)
+endif
 endif
 endif
 endif
