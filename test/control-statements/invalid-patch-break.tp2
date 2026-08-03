@@ -1,0 +1,7 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~Invalid patch BREAK~
+OUTER_PATCH ~~ BEGIN
+  BREAK
+END

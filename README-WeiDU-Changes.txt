@@ -1,4 +1,6 @@
 Version 251:
+  * Add structured CONTINUE and BREAK statements to TP2 action and patch code,
+    with statically validated loop scope.
   * CREATE called within CREATE works as expected.
   * CREATE sets SOURCE_* and DEST_* variables.
   * Auto-update does not fail if the filename of the newest WeiDU

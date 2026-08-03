@@ -367,6 +367,8 @@ nonterm(Tp.array_indices_sort_type) Array_Indices_Sort_Type {
 }
 
 nonterm(Tp.tp_action) Tp_Action {
+  -> CONTINUE [ Tp.TP_ActionContinue(Tp.current_control_location ()) ]
+  -> BREAK [ Tp.TP_ActionBreak(Tp.current_control_location ()) ]
   -> ACTION_BASH_FOR e1:Str_Reg_List BEGIN e2:Tp_Action_List END
        [ Tp.TP_ActionBashFor(e1,e2) ]
   -> ACTION_FOR_EACH e1:Patch_String_Right IN e2:String_List BEGIN e3:Tp_Action_List END
@@ -1153,6 +1155,8 @@ nonterm (string option) Optional_File_Version {
 }
 
 nonterm (Tp.tp_patch) Tp_Patch {
+  -> CONTINUE [ Tp.TP_PatchContinue(Tp.current_control_location ()) ]
+  -> BREAK [ Tp.TP_PatchBreak(Tp.current_control_location ()) ]
   -> SAY e1:Patch_Exp e2:Lse [ Tp.TP_PatchStrRef(e1,e2) ]
   -> SAY_EVALUATED e1:Patch_Exp e2:STRING [ Tp.TP_PatchStrRefEvaluated(e1,e2) ]
   -> LAUNCH_PATCH_MACRO e1:STRING [ Tp.TP_Launch_Patch_Macro (e1,true) ]

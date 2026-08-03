@@ -185,8 +185,20 @@ let split_apart str = Str.split many_whitespace_regexp str
 (*************************************************************************
  * process_patch2
  *************************************************************************)
-let rec process_patch2_real process_action tp our_lang patch_filename game buff p =
-  let process_patch2 = process_patch2_real process_action tp our_lang in
+let rec process_patch_list_real process_action tp our_lang
+    patch_filename game buff patches =
+  let process_patch2 =
+    process_patch2_real process_action tp our_lang in
+  List.fold_left
+    (fun current patch -> process_patch2 patch_filename game current patch)
+    buff patches
+
+and process_patch2_real process_action tp our_lang
+    patch_filename game buff p =
+  let process_patch2 =
+    process_patch2_real process_action tp our_lang in
+  let process_patch_list =
+    process_patch_list_real process_action tp our_lang in
   process_patch1 patch_filename game buff p ;
 
   Stats.time "process_patch2" (fun () ->
@@ -202,6 +214,10 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
       ()
     in
     match p with
+    | TP_PatchContinue _ ->
+        raise (Tpcontrol.Patch_flow (Tpcontrol.Continue, buff))
+    | TP_PatchBreak _ ->
+        raise (Tpcontrol.Patch_flow (Tpcontrol.Break, buff))
     | TP_PatchReadByte(_)
     | TP_PatchReadSByte(_)
     | TP_PatchReadShort(_)
@@ -292,8 +308,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
                 old_file ;
               errors_this_component := true;
               buff
-          | Some x -> List.fold_left (fun acc elt ->
-              process_patch2 patch_filename game acc elt) buff x
+          | Some x -> process_patch_list patch_filename game buff x
         end
       end
 
@@ -315,8 +330,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
                 old_file ;
               errors_this_component := true;
               buff
-          | Some x -> List.fold_left (fun acc elt ->
-              process_patch2 patch_filename game acc elt) buff x
+          | Some x -> process_patch_list patch_filename game buff x
         end
       end
 
@@ -406,9 +420,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
     | TP_PatchInnerBuff(buff_var,pl) ->
         let new_buff = Var.get_string buff_var in
         let filename = Printf.sprintf "INNER_PATCH %S" buff_var in
-        let result = List.fold_left (fun acc elt ->
-          process_patch2 filename game acc elt) new_buff pl
-        in
+        let result = process_patch_list filename game new_buff pl in
         (* intentionally throw away the result buff *)
         buff
 
@@ -422,9 +434,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
                     let a,b = split_resref filename in
                     let new_buff, path =
                       Load.load_resource "INNER_PATCH_FILE" game true a b in
-                    let result = List.fold_left (fun acc elt ->
-                      process_patch2 filename game acc elt) new_buff pl
-                    in
+                    let result = process_patch_list filename game new_buff pl in
                     ()
                   end ;
         buff
@@ -432,9 +442,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
     | TP_PatchInnerBuffSave(store_var,buff_var,pl) ->
         let new_buff = Var.get_string buff_var in
         let filename = Printf.sprintf "INNER_PATCH_SAVE %S" buff_var in
-        let result = List.fold_left (fun acc elt ->
-          process_patch2 filename game acc elt) new_buff pl
-        in
+        let result = process_patch_list filename game new_buff pl in
         Var.set_string (eval_pe_str store_var) (Var.get_string result);
         buff
 
@@ -452,11 +460,8 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         buff
 
     | TP_PatchIf(pred,tb,eb) ->
-        let b = ref buff in
-        b := List.fold_left (fun acc elt ->
-          process_patch2 patch_filename game acc elt) !b
-            (if is_true (eval_pe buff game pred) then tb else eb) ;
-        !b
+        process_patch_list patch_filename game buff
+          (if is_true (eval_pe buff game pred) then tb else eb)
 
     | TP_PatchMatch(str,opts) ->
       let str = string_of_pe buff game str in
@@ -467,8 +472,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               let elt = Str.regexp_case_fold elt in
               Str.string_match elt str 0 &&
               Str.match_end () = String.length str) pe_l)) then
-            List.fold_left (fun acc elt ->
-              process_patch2 patch_filename game acc elt) buff pl
+            process_patch_list patch_filename game buff pl
         else walk tl
         | [] -> failwith
               "PATCH_MATCH internal failure: didn't find the default state"
@@ -476,10 +480,10 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
     | TP_PatchTry(pl,opts) ->
       begin
-        try
-          List.fold_left (fun acc elt ->
-            process_patch2 patch_filename game acc elt) buff pl
-        with e ->
+        try process_patch_list patch_filename game buff pl with
+        | (Tpcontrol.Action_flow _ | Tpcontrol.Patch_flow _) as flow ->
+            raise flow
+        | e ->
           current_exception := e;
           let e = printexc_to_string e in
           Var.set_string "ERROR_MESSAGE" e;
@@ -534,8 +538,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               let a = eval_pe_str a in
               if not (Hashtbl.mem done_var_ht a)
               then Var.set_string a (eval_pe_str b)) f_str_args;
-            let buff = List.fold_left (fun acc elt ->
-              process_patch2 patch_filename game acc elt) buff f_code in
+            let buff = process_patch_list patch_filename game buff f_code in
             the_buff := buff ;
             let final_ret_arrays = Hashtbl.create 5 in
             List.iter (fun s ->
@@ -618,9 +621,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               let var = eval_pe_str var in
               let str = Var.get_string (eval_pe_str str) in
               Var.add_local_string var str) decl ;
-        let b = ref buff in
-        b := List.fold_left (fun acc elt ->
-          process_patch2 patch_filename game acc elt) !b actions ;
+        let b = ref (process_patch_list patch_filename game buff actions) in
         List.iter (fun x ->
           match x with
           | TP_LocalSet(var,_)
@@ -631,12 +632,22 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         !b
 
     | TP_PatchWhile(pred,pl) ->
-        let b = ref buff in
-        while is_true (eval_pe buff game pred) do
-          b := List.fold_left (fun acc elt ->
-            process_patch2 patch_filename game acc elt) !b pl
+        let current = ref buff in
+        let keep_running = ref true in
+        while !keep_running && is_true (eval_pe buff game pred) do
+          try
+            current := process_patch_list patch_filename game !current pl
+          with
+          | Tpcontrol.Patch_flow (Tpcontrol.Break, break_buff) ->
+              current := break_buff ;
+              keep_running := false
+          | Tpcontrol.Action_flow Tpcontrol.Break ->
+              keep_running := false
+          | Tpcontrol.Patch_flow (Tpcontrol.Continue, continue_buff) ->
+              current := continue_buff
+          | Tpcontrol.Action_flow Tpcontrol.Continue -> ()
         done ;
-        !b
+        !current
 
     | TP_PatchBashFor(where,pl) ->
         let find_list = ref [] in
@@ -671,19 +682,36 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             Unix.closedir dh ;
           with _ -> ()) where ;
         let the_buff = ref buff in
-        List.iter (fun file ->
-          let directory = Case_ins.filename_dirname file in
-          let filespec = Case_ins.filename_basename file in
-          Var.set_string "BASH_FOR_DIRECTORY" directory ;
-          Var.set_string "BASH_FOR_FILESPEC" file ;
-          Var.set_string "BASH_FOR_FILE" filespec ;
-          let a,b = split_resref filespec in
-          Var.set_string "BASH_FOR_RES" a;
-          Var.set_string "BASH_FOR_EXT" b;
-          Var.set_int "BASH_FOR_SIZE" (file_size file);
-          the_buff := List.fold_left (fun acc elt ->
-            process_patch2 patch_filename game acc elt) !the_buff pl)
-          (List.rev !find_list) ;
+        let keep_running = ref true in
+        let remaining = ref (List.rev !find_list) in
+        while !keep_running && !remaining <> [] do
+          match !remaining with
+          | [] -> ()
+          | file :: tail ->
+              remaining := tail ;
+              let directory = Case_ins.filename_dirname file in
+              let filespec = Case_ins.filename_basename file in
+              Var.set_string "BASH_FOR_DIRECTORY" directory ;
+              Var.set_string "BASH_FOR_FILESPEC" file ;
+              Var.set_string "BASH_FOR_FILE" filespec ;
+              let a,b = split_resref filespec in
+              Var.set_string "BASH_FOR_RES" a;
+              Var.set_string "BASH_FOR_EXT" b;
+              Var.set_int "BASH_FOR_SIZE" (file_size file);
+              (try
+                 the_buff :=
+                   process_patch_list patch_filename game !the_buff pl
+               with
+               | Tpcontrol.Patch_flow (Tpcontrol.Break, break_buff) ->
+                   the_buff := break_buff ;
+                   keep_running := false
+               | Tpcontrol.Action_flow Tpcontrol.Break ->
+                   keep_running := false
+               | Tpcontrol.Patch_flow
+                   (Tpcontrol.Continue, continue_buff) ->
+                   the_buff := continue_buff
+               | Tpcontrol.Action_flow Tpcontrol.Continue -> ())
+        done ;
         !the_buff
 
     | TP_PatchClearArray(arr) ->
@@ -757,10 +785,28 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let var = eval_pe_str var in
         let sl = List.map Var.get_string sl in
         let the_buff = ref buff in
-        List.iter (fun x ->
-          Var.set_string var x ;
-          the_buff := List.fold_left (fun acc elt ->
-            process_patch2 patch_filename game acc elt) !the_buff pl) sl ;
+        let keep_running = ref true in
+        let remaining = ref sl in
+        while !keep_running && !remaining <> [] do
+          match !remaining with
+          | [] -> ()
+          | x :: tail ->
+              remaining := tail ;
+              Var.set_string var x ;
+              (try
+                 the_buff :=
+                   process_patch_list patch_filename game !the_buff pl
+               with
+               | Tpcontrol.Patch_flow (Tpcontrol.Break, break_buff) ->
+                   the_buff := break_buff ;
+                   keep_running := false
+               | Tpcontrol.Action_flow Tpcontrol.Break ->
+                   keep_running := false
+               | Tpcontrol.Patch_flow
+                   (Tpcontrol.Continue, continue_buff) ->
+                   the_buff := continue_buff
+               | Tpcontrol.Action_flow Tpcontrol.Continue -> ())
+        done ;
         !the_buff
 
     | TP_PatchPHPEach(var,invar,outvar,pl) ->
@@ -771,28 +817,69 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let outvar = eval_pe_str outvar in
         let  invar = eval_pe_str  invar in
         let the_buff = ref buff in
-        List.iter (fun x ->
-          let i = ref 0 in
-          List.iter (fun y ->
-            if !i = 0 then Var.set_string invar y;
-            Var.add_local_string (invar ^ "_" ^ string_of_int !i) y;
-            incr i) x;
-          let x = List.map get_pe_string x in
-          let this_value = eval_pe_str (PE_Dollars(var,x,true,false)) in
-          Var.set_string outvar this_value;
-          the_buff := List.fold_left (fun acc elt ->
-            process_patch2 patch_filename game acc elt) !the_buff pl;
-          for j = 0 to (List.length x) - 1 do
-            Var.remove_local (invar ^ "_" ^ string_of_int j)
-          done) (List.rev values);
+        let keep_running = ref true in
+        let remaining = ref (List.rev values) in
+        while !keep_running && !remaining <> [] do
+          match !remaining with
+          | [] -> ()
+          | indices :: tail ->
+              remaining := tail ;
+              let i = ref 0 in
+              List.iter (fun index ->
+                if !i = 0 then Var.set_string invar index;
+                Var.add_local_string (invar ^ "_" ^ string_of_int !i) index;
+                incr i) indices;
+              let cleanup () =
+                for j = 0 to (List.length indices) - 1 do
+                  Var.remove_local (invar ^ "_" ^ string_of_int j)
+                done
+              in
+              let indices = List.map get_pe_string indices in
+              let this_value = eval_pe_str (PE_Dollars(var,indices,true,false)) in
+              Var.set_string outvar this_value;
+              (try
+                 the_buff :=
+                   process_patch_list patch_filename game !the_buff pl ;
+                 cleanup ()
+               with
+               | Tpcontrol.Patch_flow (Tpcontrol.Break, break_buff) ->
+                   cleanup () ;
+                   the_buff := break_buff ;
+                   keep_running := false
+               | Tpcontrol.Action_flow Tpcontrol.Break ->
+                   cleanup () ;
+                   keep_running := false
+               | Tpcontrol.Patch_flow
+                   (Tpcontrol.Continue, continue_buff) ->
+                   cleanup () ;
+                   the_buff := continue_buff
+               | Tpcontrol.Action_flow Tpcontrol.Continue ->
+                   cleanup ()
+               | flow -> cleanup () ; raise flow)
+        done ;
         !the_buff
 
     | TP_PatchFor(init,guard,inc,body) ->
-        let cmd_list = init @ [ TP_PatchWhile(guard,body @ inc) ] in
-        let b = ref buff in
-        b := List.fold_left (fun acc elt ->
-          process_patch2 patch_filename game acc elt) !b cmd_list  ;
-        !b
+        let initial = process_patch_list patch_filename game buff init in
+        let current = ref initial in
+        let keep_running = ref true in
+        while !keep_running && is_true (eval_pe initial game guard) do
+          try
+            current := process_patch_list patch_filename game !current body ;
+            current := process_patch_list patch_filename game !current inc
+          with
+          | Tpcontrol.Patch_flow (Tpcontrol.Break, break_buff) ->
+              current := break_buff ;
+              keep_running := false
+          | Tpcontrol.Action_flow Tpcontrol.Break ->
+              keep_running := false
+          | Tpcontrol.Patch_flow (Tpcontrol.Continue, continue_buff) ->
+              current := continue_buff ;
+              current := process_patch_list patch_filename game !current inc
+          | Tpcontrol.Action_flow Tpcontrol.Continue ->
+              current := process_patch_list patch_filename game !current inc
+        done ;
+        !current
 
     | TP_PatchReinclude(string_list) ->
         let string_list = List.map Var.get_string string_list in
@@ -804,8 +891,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             Hashtbl.replace loaded_tpp file x ;
             x
           in
-          b := List.fold_left (fun acc elt ->
-            process_patch2 patch_filename game acc elt) !b tpp_parsed ;)
+          b := process_patch_list patch_filename game !b tpp_parsed ;)
           string_list ;
         !b
 
@@ -827,8 +913,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             x
           end
           in
-          b := List.fold_left (fun acc elt ->
-            process_patch2 patch_filename game acc elt) !b tpp_parsed ;)
+          b := process_patch_list patch_filename game !b tpp_parsed ;)
           string_list ;
         !b
 
@@ -894,8 +979,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         end
 
     | TP_PrettyPrint2DA(indent) ->
-        List.fold_left (fun acc elt ->
-          process_patch2 patch_filename game acc elt) buff
+        process_patch_list patch_filename game buff
           [TP_PatchSet(get_pe_string "tb#pretty_print_indent", indent, false);
            TP_PatchInclude [".../WEIDU_NAMESPACE/tb#pretty_print.tpp"]]
 
@@ -1147,8 +1231,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               with _ -> ())
             done ;
             let tmp_buff = ref (String.copy !work_buff) in
-            ignore (List.fold_left (fun acc elt ->
-              process_patch2 patch_filename game acc elt) !tmp_buff pl) ;
+            ignore (process_patch_list patch_filename game !tmp_buff pl) ;
             let this_replacement = Var.get_string replace in
             let old_before = Str.string_before !work_buff start_idx in
             let old_after = Str.string_after !work_buff start_idx in
@@ -1724,9 +1807,8 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
           let current = Queue.pop sav in
           Var.set_string "SAV_FILE" current.Sav.filename;
           if allFiles then begin
-            let result = List.fold_left (fun acc elt ->
-              process_patch2 patch_filename game acc elt)
-                current.Sav.contents pl in
+            let result =
+              process_patch_list patch_filename game current.Sav.contents pl in
             Queue.push {Sav.filename = current.Sav.filename;
                         Sav.contents = result}  nsav;
           end else begin
@@ -1739,9 +1821,8 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             ) ([], false) !files in
             if (found) then begin
               files := new_files;
-              let result = List.fold_left (fun acc elt ->
-                process_patch2 patch_filename game acc elt)
-                  current.Sav.contents pl in
+              let result =
+                process_patch_list patch_filename game current.Sav.contents pl in
               Queue.push {Sav.filename = current.Sav.filename;
                           Sav.contents = result}  nsav;
             end else begin
@@ -1758,9 +1839,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
               if is_true (eval_pe "" game (Pred_File_Exists_In_Game (PE_LiteralString(file)))) then
                 Load.load_resource "EDIT_SAV_FILE" game true res ext
               else "", "" in
-            let result = List.fold_left (fun acc elt ->
-                process_patch2 patch_filename game acc elt)
-                  buff pl in
+            let result = process_patch_list patch_filename game buff pl in
               Queue.push {Sav.filename = file;
                           Sav.contents = result}  nsav;
           ) !files;
@@ -2356,10 +2435,8 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
                    "Unknown extension for DECOMPILE_AND_PATCH: %s" ext) in
         let ans =
           process_patch2 patch_filename game
-            (List.fold_left
-               (fun acc elt -> process_patch2 patch_filename game acc elt)
-               (process_patch2 patch_filename game buff dec)
-               pl)
+            (process_patch_list patch_filename game
+               (process_patch2 patch_filename game buff dec) pl)
             com in
         ans
 
@@ -2874,8 +2951,8 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
           Dc.push_copy_trans_modder () ;
           try
             resolve_tra_paths_and_load !our_lang tra_list ;
-            let buff = List.fold_left (fun acc patch ->
-              process_patch2 patch_filename game acc patch) buff patch_list in
+            let buff =
+              process_patch_list patch_filename game buff patch_list in
             Dc.pop_trans () ;
             buff
           with e -> Dc.pop_trans () ; raise e
@@ -2885,8 +2962,8 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         begin
           Var.var_push () ;
           (try
-            let buff = List.fold_left (fun acc patch ->
-              process_patch2 patch_filename game acc patch) buff patch_list in
+            let buff =
+              process_patch_list patch_filename game buff patch_list in
             Var.var_pop () ;
             buff
           with e -> Var.var_pop () ; raise e)
@@ -2896,8 +2973,8 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         begin
           let name = (Var.get_string (eval_pe_str name)) in
           Stats.inclusive_time name (fun () ->
-            let buff = List.fold_left (fun acc patch ->
-              process_patch2 patch_filename game acc patch) buff patch_list in
+            let buff =
+              process_patch_list patch_filename game buff patch_list in
             buff) ()
         end
                               ) () (* end: process_patch2 *)

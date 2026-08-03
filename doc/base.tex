@@ -3909,6 +3909,16 @@ or & \DEFINE{OUTER_WHILE} \ttref{value} \t{BEGIN}
   an infinite loop. See the \ahrefloc{sec-while}{\t{WHILE}} loop tutorial for more
   information.
   \\
+or & \DEFINE{CONTINUE} &
+  Start the next iteration of the innermost enclosing \ttref{OUTER_WHILE},
+  \ttref{OUTER_FOR}, \ttref{ACTION_FOR_EACH}, \ttref{ACTION_PHP_EACH}, or
+  \ttref{ACTION_BASH_FOR} loop. For \ttref{OUTER_FOR}, the increment list is
+  executed before the loop condition is tested again. \\
+or & \DEFINE{BREAK} &
+  End the innermost enclosing \ttref{OUTER_WHILE}, \ttref{OUTER_FOR},
+  \ttref{ACTION_FOR_EACH}, \ttref{ACTION_PHP_EACH}, or
+  \ttref{ACTION_BASH_FOR} loop. For \ttref{OUTER_FOR}, the increment list is
+  not executed after \ttref{BREAK}. \\
 or & \DEFINE{OUTER_FOR} \t{(} \ttref{patch} \Slist \t{;}
                         \ttref{value} \t{;}
                         \ttref{patch} \Slist \t{)}
@@ -4769,6 +4779,16 @@ or & \DEFINE{WHILE} \ttref{value} \t{BEGIN}
   an infinite loop. See the \ahrefloc{sec-while}{\t{WHILE}} loop tutorial for more
   information.
   \\
+or & \ttref{CONTINUE} &
+  Start the next iteration of the innermost enclosing \ttref{WHILE},
+  \ttref{FOR}, \ttref{PATCH_FOR_EACH}, \ttref{PATCH_PHP_EACH}, or
+  \ttref{PATCH_BASH_FOR} loop. For \ttref{FOR}, the increment list is executed
+  before the loop condition is tested again. \\
+or & \ttref{BREAK} &
+  End the innermost enclosing \ttref{WHILE}, \ttref{FOR},
+  \ttref{PATCH_FOR_EACH}, \ttref{PATCH_PHP_EACH}, or
+  \ttref{PATCH_BASH_FOR} loop. For \ttref{FOR}, the increment list is not
+  executed after \ttref{BREAK}. \\
 or & \DEFINE{FOR} \t{(} \ttref{patch} \Slist \t{;}
                         \ttref{value} \t{;}
                         \ttref{patch} \Slist \t{)}
@@ -6029,6 +6049,43 @@ WRITE_LONG  4 ( ~%myvar%~ + 11 )
 The file will contain the two binary integers 33 and 44. \\
 
 \end{tabular}
+
+\label{sec-loop-control}\subsection{Loop-control statements}
+
+The \ttref{CONTINUE} and \ttref{BREAK} statements are available in both action
+and patch code. \ttref{CONTINUE} starts the next iteration of the innermost
+enclosing loop, while \ttref{BREAK} ends that loop. In an \ttref{OUTER_FOR} or
+\ttref{FOR} loop, \ttref{CONTINUE} executes the increment list exactly once;
+\ttref{BREAK} does not execute it.
+
+A loop-control statement must be lexically inside the body of a suitable loop.
+Nested conditionals, matches, exception handlers, and variable or translation
+scopes remain part of the enclosing loop. Function and macro bodies, included
+files, embedded lists of the other kind, and patch lists that operate on a
+separate buffer form new loop-control regions. Initializer and increment lists
+of \ttref{OUTER_FOR} and \ttref{FOR} are not loop bodies. WeiDU rejects a
+\ttref{CONTINUE} or \ttref{BREAK} outside a suitable loop while parsing the
+file, before executing its code.
+
+\ttref{ACTION_TRY} and \ttref{PATCH_TRY} do not catch loop-control transfers.
+Variable-scope cleanup still runs, and patch changes made before a transfer are
+preserved.
+
+For example, \ttref{CONTINUE} can skip an unwanted item without an extra
+conditional level, while \ttref{BREAK} can end the search once a match is
+found:
+
+\begin{verbatim}
+OUTER_FOR (i = 0; i < count; ++i) BEGIN
+  ACTION_IF should_skip BEGIN
+    CONTINUE
+  END
+  ACTION_IF predicate BEGIN
+    BREAK
+  END
+  OUTER_SET processed += 1
+END
+\end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{WeiDU \ttref{TP2} Tutorials}

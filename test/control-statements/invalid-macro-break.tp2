@@ -1,0 +1,9 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~Invalid macro BREAK~
+OUTER_WHILE 0 BEGIN
+  DEFINE_ACTION_MACRO control_macro BEGIN
+    BREAK
+  END
+END

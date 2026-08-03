@@ -1,0 +1,9 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~Invalid cross-domain CONTINUE~
+OUTER_WHILE 0 BEGIN
+  OUTER_PATCH ~~ BEGIN
+    CONTINUE
+  END
+END

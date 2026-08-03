@@ -102,11 +102,15 @@ let parse_tp2_file filename =
     | Tp.Start_From_Tp(a) -> a
     | _ -> failwith "Elkhound internal"
   in
-  try
-    parse_file false filename "Parsing TP2 files"
-      (Toldparser.tp_file Toldlexer.initial)
-  with _ ->
-    parse_file true filename "Parsing TP2 files" tp_file
+  let result =
+    try
+      parse_file false filename "Parsing TP2 files"
+        (Toldparser.tp_file Toldlexer.initial)
+    with _ ->
+      parse_file true filename "Parsing TP2 files" tp_file
+  in
+  Tpcontrol.validate_tp_file result ;
+  result
 
 let parse_tpa_file filename =
   let tpa_file lexbuf =
@@ -115,11 +119,15 @@ let parse_tpa_file filename =
     | Tp.Start_From_Tpa(a) -> a
     | _ -> failwith "Elkhound internal"
   in
-  try
-    parse_file false filename "Parsing TPA files"
-      (Toldparser.tph_file Toldlexer.initial)
-  with _ ->
-    parse_file true filename "Parsing TPA files" tpa_file
+  let result =
+    try
+      parse_file false filename "Parsing TPA files"
+        (Toldparser.tph_file Toldlexer.initial)
+    with _ ->
+      parse_file true filename "Parsing TPA files" tpa_file
+  in
+  Tpcontrol.validate_action_root result ;
+  result
 
 let parse_tpp_file filename =
   let tpp_file lexbuf =
@@ -128,8 +136,12 @@ let parse_tpp_file filename =
     | Tp.Start_From_Tpp(a) -> a
     | _ -> failwith "Elkhound internal"
   in
-  try
-    parse_file false filename "Parsing TPP files"
-      (Toldparser.tpp_file Toldlexer.initial)
-  with _ ->
-    parse_file true filename "Parsing TPP files" tpp_file
+  let result =
+    try
+      parse_file false filename "Parsing TPP files"
+        (Toldparser.tpp_file Toldlexer.initial)
+    with _ ->
+      parse_file true filename "Parsing TPP files" tpp_file
+  in
+  Tpcontrol.validate_patch_root result ;
+  result

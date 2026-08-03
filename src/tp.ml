@@ -39,6 +39,19 @@ let conf : (string, string) Hashtbl.t ref = ref (Hashtbl.create 5)
 
 exception Abort of string
 
+type tp_control_location = {
+  control_filename : string ;
+  control_line : int ;
+  control_column : int ;
+}
+
+let current_control_location () =
+  let context = the_context () in
+  { control_filename = context.filename ;
+    control_line = context.line ;
+    control_column = context.col - context.delta ;
+  }
+
 type tp_flag =
   | Version of Dlg.tlk_string
   | Auto_Tra of string * string option
@@ -145,6 +158,8 @@ and tp_cache_arg =
 | TP_Cache
 
 and tp_action =
+  | TP_ActionContinue of tp_control_location
+  | TP_ActionBreak of tp_control_location
   | TP_ActionBashFor of ((string * (bool option) * string) list) * (tp_action list)
   | TP_ActionDefineArray of tp_pe_string * string list
   | TP_ActionSortArrayIndices of tp_pe_string * array_indices_sort_type
@@ -332,6 +347,8 @@ and tp_local_declaration =
   | TP_LocalTextSprint of tp_pe_string * tp_pe_string
 
 and tp_patch =
+  | TP_PatchContinue of tp_control_location
+  | TP_PatchBreak of tp_control_location
   | TP_PatchBashFor of ((string * (bool option) * string) list) * (tp_patch list)
   | TP_PatchClearArray of tp_pe_string
   | TP_PatchDefineArray of tp_pe_string * string list

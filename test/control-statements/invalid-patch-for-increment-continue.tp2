@@ -1,0 +1,9 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~Invalid FOR increment CONTINUE~
+OUTER_PATCH ~~ BEGIN
+  FOR (control_index = 0; control_index < 1; CONTINUE) BEGIN
+    BREAK
+  END
+END

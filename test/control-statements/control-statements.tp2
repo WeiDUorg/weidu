@@ -1,0 +1,424 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~Control statement correctness~
+
+OUTER_SET action_while_iterations = 0
+OUTER_SET action_while_tail = 0
+OUTER_WHILE action_while_iterations < 3 BEGIN
+  OUTER_SET action_while_iterations += 1
+  ACTION_IF action_while_iterations < 3 BEGIN
+    CONTINUE
+  END
+  OUTER_SET action_while_tail += 1
+END
+ACTION_IF action_while_iterations != 3 OR action_while_tail != 1 BEGIN
+  FAIL ~CONTINUE did not start the next OUTER_WHILE iteration~
+END
+
+OUTER_SET action_for_iterations = 0
+OUTER_SET action_for_tail = 0
+OUTER_FOR
+    (action_continue_index = 0;
+     action_continue_index < 4;
+     ++action_continue_index)
+BEGIN
+  OUTER_SET action_for_iterations += 1
+  ACTION_IF action_continue_index < 3 BEGIN
+    CONTINUE
+  END
+  OUTER_SET action_for_tail += 1
+END
+ACTION_IF action_for_iterations != 4 OR
+          action_for_tail != 1 OR
+          action_continue_index != 4
+BEGIN
+  FAIL ~CONTINUE did not execute the OUTER_FOR increment exactly once~
+END
+
+OUTER_SET action_nested_visits = 0
+OUTER_SET action_nested_tail = 0
+OUTER_SET action_outer_tail = 0
+OUTER_FOR
+    (action_outer_index = 0;
+     action_outer_index < 2;
+     ++action_outer_index)
+BEGIN
+  OUTER_FOR
+      (action_inner_index = 0;
+       action_inner_index < 3;
+       ++action_inner_index)
+  BEGIN
+    OUTER_SET action_nested_visits += 1
+    ACTION_IF action_inner_index < 2 BEGIN
+      CONTINUE
+    END
+    OUTER_SET action_nested_tail += 1
+  END
+  OUTER_SET action_outer_tail += 1
+END
+ACTION_IF action_nested_visits != 6 OR
+          action_nested_tail != 2 OR
+          action_outer_tail != 2
+BEGIN
+  FAIL ~CONTINUE did not select the innermost action loop~
+END
+
+OUTER_SET action_each_iterations = 0
+OUTER_SET action_each_tail = 0
+ACTION_FOR_EACH action_item IN ~alpha~ ~beta~ ~gamma~ BEGIN
+  OUTER_SET action_each_iterations += 1
+  ACTION_IF ~%action_item%~ STRING_EQUAL ~beta~ BEGIN
+    CONTINUE
+  END
+  OUTER_SET action_each_tail += 1
+END
+ACTION_IF action_each_iterations != 3 OR action_each_tail != 2 BEGIN
+  FAIL ~CONTINUE did not start the next ACTION_FOR_EACH iteration~
+END
+
+OUTER_SET $control_items(~alpha~) = 1
+OUTER_SET $control_items(~beta~) = 2
+OUTER_SET action_php_iterations = 0
+OUTER_SET action_php_tail = 0
+ACTION_PHP_EACH control_items AS action_key => action_value BEGIN
+  OUTER_SET action_php_iterations += 1
+  CONTINUE
+  OUTER_SET action_php_tail += 1
+END
+ACTION_IF action_php_iterations != 2 OR action_php_tail != 0 BEGIN
+  FAIL ~CONTINUE did not start the next ACTION_PHP_EACH iteration~
+END
+
+OUTER_SET action_bash_iterations = 0
+OUTER_SET action_bash_tail = 0
+ACTION_BASH_FOR ~fixtures~ ~.*[.]txt$~ BEGIN
+  OUTER_SET action_bash_iterations += 1
+  CONTINUE
+  OUTER_SET action_bash_tail += 1
+END
+ACTION_IF action_bash_iterations != 2 OR action_bash_tail != 0 BEGIN
+  FAIL ~CONTINUE did not start the next ACTION_BASH_FOR iteration~
+END
+
+OUTER_SET action_try_iterations = 0
+OUTER_SET action_try_caught = 0
+OUTER_SET action_try_tail = 0
+OUTER_WHILE action_try_iterations < 1 BEGIN
+  ACTION_TRY
+    OUTER_SET action_try_iterations += 1
+    CONTINUE
+  WITH
+    DEFAULT
+      OUTER_SET action_try_caught = 1
+  END
+  OUTER_SET action_try_tail = 1
+END
+ACTION_IF action_try_iterations != 1 OR
+          action_try_caught != 0 OR
+          action_try_tail != 0
+BEGIN
+  FAIL ~ACTION_TRY caught or corrupted CONTINUE~
+END
+
+OUTER_SET action_scope_probe = 7
+OUTER_SET action_scope_iterations = 0
+OUTER_WHILE action_scope_iterations < 1 BEGIN
+  OUTER_SET action_scope_iterations += 1
+  WITH_SCOPE BEGIN
+    OUTER_SET action_scope_probe = 9
+    CONTINUE
+  END
+END
+ACTION_IF action_scope_probe != 7 BEGIN
+  FAIL ~CONTINUE bypassed WITH_SCOPE cleanup~
+END
+
+OUTER_SET action_while_break_count = 0
+OUTER_WHILE 1 BEGIN
+  OUTER_SET action_while_break_count += 1
+  BREAK
+END
+ACTION_IF action_while_break_count != 1 BEGIN
+  FAIL ~BREAK did not exit OUTER_WHILE~
+END
+
+OUTER_SET action_for_break_count = 0
+OUTER_FOR
+    (action_break_index = 0;
+     action_break_index < 10;
+     ++action_break_index)
+BEGIN
+  OUTER_SET action_for_break_count += 1
+  ACTION_IF action_break_index = 2 BEGIN
+    BREAK
+  END
+END
+ACTION_IF action_for_break_count != 3 OR action_break_index != 2 BEGIN
+  FAIL ~BREAK did not exit OUTER_FOR before its increment~
+END
+
+OUTER_SET action_outer_break_count = 0
+OUTER_SET action_inner_break_count = 0
+OUTER_FOR
+    (action_break_outer_index = 0;
+     action_break_outer_index < 3;
+     ++action_break_outer_index)
+BEGIN
+  OUTER_FOR
+      (action_break_inner_index = 0;
+       action_break_inner_index < 3;
+       ++action_break_inner_index)
+  BEGIN
+    OUTER_SET action_inner_break_count += 1
+    BREAK
+  END
+  OUTER_SET action_outer_break_count += 1
+END
+ACTION_IF action_outer_break_count != 3 OR action_inner_break_count != 3 BEGIN
+  FAIL ~BREAK did not select the innermost action loop~
+END
+
+OUTER_SET action_each_break_count = 0
+ACTION_FOR_EACH action_break_item IN ~alpha~ ~beta~ ~gamma~ BEGIN
+  OUTER_SET action_each_break_count += 1
+  ACTION_IF ~%action_break_item%~ STRING_EQUAL ~beta~ BEGIN
+    BREAK
+  END
+END
+ACTION_IF action_each_break_count != 2 BEGIN
+  FAIL ~BREAK did not exit ACTION_FOR_EACH~
+END
+
+OUTER_SET action_php_break_count = 0
+ACTION_PHP_EACH control_items AS action_break_key => action_break_value BEGIN
+  OUTER_SET action_php_break_count += 1
+  BREAK
+END
+ACTION_IF action_php_break_count != 1 BEGIN
+  FAIL ~BREAK did not exit ACTION_PHP_EACH~
+END
+
+OUTER_SET action_bash_break_count = 0
+ACTION_BASH_FOR ~fixtures~ ~.*[.]txt$~ BEGIN
+  OUTER_SET action_bash_break_count += 1
+  BREAK
+END
+ACTION_IF action_bash_break_count != 1 BEGIN
+  FAIL ~BREAK did not exit ACTION_BASH_FOR~
+END
+
+OUTER_PATCH_SAVE patch_buffer ~A~ BEGIN
+  SET patch_while_iterations = 0
+  SET patch_while_tail = 0
+  WHILE patch_while_iterations < 2 BEGIN
+    SET patch_while_iterations += 1
+    PATCH_IF patch_while_iterations = 1 BEGIN
+      INSERT_BYTES 1 1
+      WRITE_ASCII 1 ~B~
+      CONTINUE
+    END
+    INSERT_BYTES 2 1
+    WRITE_ASCII 2 ~C~
+    SET patch_while_tail += 1
+  END
+
+  SET patch_for_iterations = 0
+  SET patch_for_tail = 0
+  FOR
+      (patch_continue_index = 0;
+       patch_continue_index < 4;
+       ++patch_continue_index)
+  BEGIN
+    SET patch_for_iterations += 1
+    PATCH_IF patch_continue_index < 3 BEGIN
+      CONTINUE
+    END
+    SET patch_for_tail += 1
+  END
+
+  SET patch_nested_visits = 0
+  SET patch_nested_tail = 0
+  SET patch_outer_tail = 0
+  FOR
+      (patch_outer_index = 0;
+       patch_outer_index < 2;
+       ++patch_outer_index)
+  BEGIN
+    FOR
+        (patch_inner_index = 0;
+         patch_inner_index < 3;
+         ++patch_inner_index)
+    BEGIN
+      SET patch_nested_visits += 1
+      PATCH_IF patch_inner_index < 2 BEGIN
+        CONTINUE
+      END
+      SET patch_nested_tail += 1
+    END
+    SET patch_outer_tail += 1
+  END
+
+  SET patch_each_iterations = 0
+  SET patch_each_tail = 0
+  PATCH_FOR_EACH patch_item IN ~alpha~ ~beta~ ~gamma~ BEGIN
+    SET patch_each_iterations += 1
+    PATCH_IF ~%patch_item%~ STRING_EQUAL ~beta~ BEGIN
+      CONTINUE
+    END
+    SET patch_each_tail += 1
+  END
+
+  SET patch_php_iterations = 0
+  SET patch_php_tail = 0
+  PATCH_PHP_EACH control_items AS patch_key => patch_value BEGIN
+    SET patch_php_iterations += 1
+    CONTINUE
+    SET patch_php_tail += 1
+  END
+
+  SET patch_bash_iterations = 0
+  SET patch_bash_tail = 0
+  PATCH_BASH_FOR ~fixtures~ ~.*[.]txt$~ BEGIN
+    SET patch_bash_iterations += 1
+    CONTINUE
+    SET patch_bash_tail += 1
+  END
+
+  SET patch_try_iterations = 0
+  SET patch_try_caught = 0
+  SET patch_try_tail = 0
+  WHILE patch_try_iterations < 1 BEGIN
+    PATCH_TRY
+      SET patch_try_iterations += 1
+      CONTINUE
+    WITH
+      DEFAULT
+        SET patch_try_caught = 1
+    END
+    SET patch_try_tail = 1
+  END
+
+  SET patch_scope_probe = 7
+  SET patch_scope_iterations = 0
+  WHILE patch_scope_iterations < 1 BEGIN
+    SET patch_scope_iterations += 1
+    PATCH_WITH_SCOPE BEGIN
+      SET patch_scope_probe = 9
+      CONTINUE
+    END
+  END
+
+  SET patch_while_break_count = 0
+  WHILE 1 BEGIN
+    SET patch_while_break_count += 1
+    BREAK
+  END
+
+  SET patch_for_break_count = 0
+  FOR
+      (patch_break_index = 0;
+       patch_break_index < 10;
+       ++patch_break_index)
+  BEGIN
+    SET patch_for_break_count += 1
+    PATCH_IF patch_break_index = 2 BEGIN
+      BREAK
+    END
+  END
+
+  SET patch_outer_break_count = 0
+  SET patch_inner_break_count = 0
+  FOR
+      (patch_break_outer_index = 0;
+       patch_break_outer_index < 3;
+       ++patch_break_outer_index)
+  BEGIN
+    FOR
+        (patch_break_inner_index = 0;
+         patch_break_inner_index < 3;
+         ++patch_break_inner_index)
+    BEGIN
+      SET patch_inner_break_count += 1
+      BREAK
+    END
+    SET patch_outer_break_count += 1
+  END
+
+  SET patch_each_break_count = 0
+  PATCH_FOR_EACH patch_break_item IN ~alpha~ ~beta~ ~gamma~ BEGIN
+    SET patch_each_break_count += 1
+    PATCH_IF ~%patch_break_item%~ STRING_EQUAL ~beta~ BEGIN
+      BREAK
+    END
+  END
+
+  SET patch_php_break_count = 0
+  PATCH_PHP_EACH control_items AS patch_break_key => patch_break_value BEGIN
+    SET patch_php_break_count += 1
+    BREAK
+  END
+
+  SET patch_bash_break_count = 0
+  PATCH_BASH_FOR ~fixtures~ ~.*[.]txt$~ BEGIN
+    SET patch_bash_break_count += 1
+    BREAK
+  END
+END
+
+ACTION_IF NOT (~%patch_buffer%~ STRING_EQUAL_CASE ~ABC~) BEGIN
+  FAIL ~patch CONTINUE lost buffer changes~
+END
+ACTION_IF patch_while_iterations != 2 OR patch_while_tail != 1 BEGIN
+  FAIL ~CONTINUE did not start the next WHILE iteration~
+END
+ACTION_IF patch_for_iterations != 4 OR
+          patch_for_tail != 1 OR
+          patch_continue_index != 4
+BEGIN
+  FAIL ~CONTINUE did not execute the FOR increment exactly once~
+END
+ACTION_IF patch_nested_visits != 6 OR
+          patch_nested_tail != 2 OR
+          patch_outer_tail != 2
+BEGIN
+  FAIL ~CONTINUE did not select the innermost patch loop~
+END
+ACTION_IF patch_each_iterations != 3 OR patch_each_tail != 2 BEGIN
+  FAIL ~CONTINUE did not start the next PATCH_FOR_EACH iteration~
+END
+ACTION_IF patch_php_iterations != 2 OR patch_php_tail != 0 BEGIN
+  FAIL ~CONTINUE did not start the next PATCH_PHP_EACH iteration~
+END
+ACTION_IF patch_bash_iterations != 2 OR patch_bash_tail != 0 BEGIN
+  FAIL ~CONTINUE did not start the next PATCH_BASH_FOR iteration~
+END
+ACTION_IF patch_try_iterations != 1 OR
+          patch_try_caught != 0 OR
+          patch_try_tail != 0
+BEGIN
+  FAIL ~PATCH_TRY caught or corrupted CONTINUE~
+END
+ACTION_IF patch_scope_probe != 7 BEGIN
+  FAIL ~CONTINUE bypassed PATCH_WITH_SCOPE cleanup~
+END
+ACTION_IF patch_while_break_count != 1 BEGIN
+  FAIL ~BREAK did not exit WHILE~
+END
+ACTION_IF patch_for_break_count != 3 OR patch_break_index != 2 BEGIN
+  FAIL ~BREAK did not exit FOR before its increment~
+END
+ACTION_IF patch_outer_break_count != 3 OR patch_inner_break_count != 3 BEGIN
+  FAIL ~BREAK did not select the innermost patch loop~
+END
+ACTION_IF patch_each_break_count != 2 BEGIN
+  FAIL ~BREAK did not exit PATCH_FOR_EACH~
+END
+ACTION_IF patch_php_break_count != 1 BEGIN
+  FAIL ~BREAK did not exit PATCH_PHP_EACH~
+END
+ACTION_IF patch_bash_break_count != 1 BEGIN
+  FAIL ~BREAK did not exit PATCH_BASH_FOR~
+END
+
+PRINT ~control-statement tests passed~

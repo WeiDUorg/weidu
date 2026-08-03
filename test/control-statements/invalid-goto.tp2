@@ -1,0 +1,5 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~GOTO is not a TP2 control statement~
+GOTO former_label

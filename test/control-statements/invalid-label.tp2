@@ -1,0 +1,5 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~Labels are not TP2 control statements~
+::former_label::

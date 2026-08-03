@@ -1,0 +1,5 @@
+BACKUP ~backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~Invalid action BREAK~
+BREAK
