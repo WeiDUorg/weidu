@@ -1,0 +1,6 @@
+BACKUP ~issue-288-prerequisite/backup~
+AUTHOR ~WeiDU regression test~
+
+BEGIN ~Prerequisite component~
+
+BEGIN ~Later independent component~

@@ -1,0 +1,7 @@
+BACKUP ~issue-288-dependent/backup~
+AUTHOR ~WeiDU regression test~
+
+BEGIN ~Independent component~
+
+BEGIN ~Component requiring the prerequisite~
+  REQUIRE_COMPONENT ~prerequisite.tp2~ 0 ~Missing prerequisite component~

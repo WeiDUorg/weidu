@@ -729,11 +729,12 @@ let rec handle_tp game this_tp2_filename tp =
 
   let handle_letter_inner tp answer can_uninstall temp_uninst package_name
       m finished i =
+    let tp2_filename = tp.tp_filename in
     let subgroup_already =
       match subcomp_group m with
       | Some(ts) ->
           let res = any_member_of_subcomp_group_installed
-              tp this_tp2_filename ts in
+              tp tp2_filename ts in
           res
       | None ->
           false in
@@ -780,7 +781,7 @@ let rec handle_tp game this_tp2_filename tp =
           log_and_print "\n%s%s%s\n"
             ((get_trans (-1013))) ((Tpstate.subcomp_str game m) ^ package_name)
             ((get_trans (-1014))) ;
-          (if not (uninstall game handle_tp2_filename this_tp2_filename i !interactive) then
+          (if not (uninstall game handle_tp2_filename tp2_filename i !interactive) then
             failwith "uninstallation error");
           log_and_print
             "\n%s [%s]\n\n"
@@ -834,7 +835,7 @@ let rec handle_tp game this_tp2_filename tp =
               (Int32.of_int (if !interactive then 1 else 0)) ;
             let old_silent = !be_silent in
             be_silent := true;
-            process_action_real our_lang game this_tp2_filename tp
+            process_action_real our_lang game tp2_filename tp
               (TP_Include Tph.builtin_definitions);
             be_silent := old_silent;
 
@@ -842,7 +843,7 @@ let rec handle_tp game this_tp2_filename tp =
               !safe_exit then begin
               let old_log = !the_log in
               the_log := !the_log @
-                [((String.uppercase this_tp2_filename), !our_lang_index, i,
+                [((String.uppercase tp2_filename), !our_lang_index, i,
                   Some(package_name), Installed)];
               let old_tp_quick_log = !Tp.quick_log in
               Tp.quick_log := true;
@@ -852,7 +853,7 @@ let rec handle_tp game this_tp2_filename tp =
             end ;
 
             List.iter (fun flag -> match flag with
-            | Always(al) -> List.iter (process_action_real our_lang game this_tp2_filename tp) al
+            | Always(al) -> List.iter (process_action_real our_lang game tp2_filename tp) al
             | TP_No_If_Eval () -> has_if_eval_bug := false ;
             | Define_Action_Macro(str,decl,al) ->
                 Hashtbl.replace macros (str,false) (decl, [TP_PatchInnerAction al])
@@ -869,7 +870,7 @@ let rec handle_tp game this_tp2_filename tp =
                 log_and_print "WARNING: Unable to read readln references from [%s]: %s\n"
                   args_backup_filename (printexc_to_string e)
             end ;
-            List.iter (process_action_real our_lang game this_tp2_filename tp) m.mod_parts ;
+            List.iter (process_action_real our_lang game tp2_filename tp) m.mod_parts ;
             if !interactive then begin
               Mymarshal.write_readln readln_backup_filename (List.rev !readln_strings);
             end ;
@@ -885,7 +886,7 @@ let rec handle_tp game this_tp2_filename tp =
               log_and_print "\n%s%s%s\n"
                 (get_trans (-1064)) ((Tpstate.subcomp_str game m) ^ package_name)
                 (get_trans (-1065)) ;
-              rollback_component game tp this_tp2_filename
+              rollback_component game tp tp2_filename
                 strset_backup_filename tlkpath_backup_filename
                 our_lang_index i m ;
               finished := true ;
@@ -903,7 +904,7 @@ let rec handle_tp game this_tp2_filename tp =
                 ((get_trans (-1017)))
                 ((Tpstate.subcomp_str game m) ^ package_name)
                 ((get_trans (-1018))) ;
-              rollback_component game tp this_tp2_filename
+              rollback_component game tp tp2_filename
                 strset_backup_filename tlkpath_backup_filename
                 our_lang_index i m ;
               raise e
@@ -924,7 +925,7 @@ let rec handle_tp game this_tp2_filename tp =
           begin
             if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] then
               the_log := !the_log @
-                [((String.uppercase this_tp2_filename),!our_lang_index,i,Some(package_name),Installed)]
+                [((String.uppercase tp2_filename),!our_lang_index,i,Some(package_name),Installed)]
             else (* log_and_print "NOT adding a WeiDU.log record. You cannot uninstall this.\n" *) ()
           end ;
           finished := true
@@ -942,7 +943,7 @@ let rec handle_tp game this_tp2_filename tp =
           ((get_trans (-1022)))
           i
           ((get_trans (-1023))) ;
-        (if not (uninstall game handle_tp2_filename this_tp2_filename i !interactive ) then
+        (if not (uninstall game handle_tp2_filename tp2_filename i !interactive ) then
           failwith "uninstallation error" );
         log_and_print "\n\n%s%s%s%d%s\n"
           (* "\n\nSUCCESSFULLY REMOVED [%s] (component #%d)\n\n" *)

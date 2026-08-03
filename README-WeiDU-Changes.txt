@@ -49,6 +49,8 @@ Version 251:
   * Change uninstallation behaviour to prevent re-installation of
     temporarily uninstalled components in another order than the
     original order under certain circumstances.
+  * Do not re-install temporarily uninstalled components whose component
+    requirements are no longer met.
   * Add --unbiff.
   * EXTEND_TOP and friends take when-clauses.
   * --change-log does not fail to resolve, e.g., %MOD_FOLDER% when
