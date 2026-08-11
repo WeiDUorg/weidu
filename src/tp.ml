@@ -39,6 +39,13 @@ let conf : (string, string) Hashtbl.t ref = ref (Hashtbl.create 5)
 
 exception Abort of string
 
+(* Existing TP2 regular expressions always use Legacy_regexp.  Pcre2_regexp
+   is carried explicitly in the AST, so no legacy pattern can be silently
+   reinterpreted by the modern engine. *)
+type regexp_engine =
+  | Legacy_regexp
+  | Pcre2_regexp
+
 type tp_flag =
   | Version of Dlg.tlk_string
   | Auto_Tra of string * string option
@@ -111,6 +118,7 @@ and component = {
 and tp_copy_args = {
     copy_get_existing    : bool ;  (* get from biffs? *)
     copy_use_regexp      : bool ;
+    copy_regexp_engine   : regexp_engine ;
     copy_use_glob        : bool ;
     copy_file_list       : ( string * string ) list ; (* (source,dest) list *)
     copy_patch_list      : tp_patch list ;
@@ -341,9 +349,9 @@ and tp_patch =
   | TP_PatchForEach of tp_pe_string * string list * tp_patch list
   | TP_PatchStrRef of tp_patchexp * Dlg.tlk_string (* offset + text *)
   | TP_PatchStrRefEvaluated of tp_patchexp * string
-  | TP_PatchString of (bool option) * (bool option) * string * Dlg.tlk_string (* regexp + text *)
-  | TP_PatchStringTextually of (bool option) * (bool option) * string * string * (tp_patchexp option) (* regexp + text *)
-  | TP_PatchStringEvaluate of (bool option) * string * (tp_patch list) * string (* see below *)
+  | TP_PatchString of (bool option) * (bool option) * regexp_engine * string * Dlg.tlk_string (* regexp + text *)
+  | TP_PatchStringTextually of (bool option) * (bool option) * regexp_engine * string * string * (tp_patchexp option) (* regexp + text *)
+  | TP_PatchStringEvaluate of (bool option) * regexp_engine * string * (tp_patch list) * string (* see below *)
   | TP_PatchReplaceBCSBlock of string * string * tp_patch list option * bool * (bool option) (* old + new *)
   | TP_PatchReplaceBCSBlockRE of string * string * tp_patch list option (* old + new *)
   | TP_PatchApplyBCSPatch of string (* patch *) * (string option) (* copyover *)
@@ -376,7 +384,7 @@ and tp_patch =
   | TP_Read2DAFormer of string * tp_patchexp * tp_patchexp * string
   | TP_Get2DARows of tp_patchexp * tp_pe_string
   | TP_Get2DACols of tp_pe_string
-  | TP_CountRegexpInstances of (bool option) * (bool option) * string * tp_pe_string
+  | TP_CountRegexpInstances of (bool option) * (bool option) * regexp_engine * string * tp_pe_string
   | TP_PatchPrint of Dlg.tlk_string
   | TP_PatchLog of Dlg.tlk_string
   | TP_PatchReraise
@@ -508,7 +516,7 @@ and tp_patchexp =
   | PE_Int of int
   | PE_String of tp_pe_string
   | PE_StringEqual of tp_pe_string * tp_pe_string * bool * bool (* ignore-case? * returns bool vs. 1,-1,0 *)
-  | PE_StringRegexp of tp_pe_string * tp_pe_string * bool (* match exactly?  *)
+  | PE_StringRegexp of tp_pe_string * tp_pe_string * bool * regexp_engine (* match exactly?  *)
   | PE_Not of tp_patchexp
   | PE_Add of tp_patchexp * tp_patchexp
   | PE_Sub of tp_patchexp * tp_patchexp
@@ -537,7 +545,7 @@ and tp_patchexp =
   | PE_Random of tp_patchexp * tp_patchexp
   | PE_Buffer_Length
   | PE_String_Length of tp_pe_string
-  | PE_Index of bool * bool option * bool option * tp_pe_string * tp_patchexp option * tp_pe_string option
+  | PE_Index of bool * bool option * bool option * regexp_engine * tp_pe_string * tp_patchexp option * tp_pe_string option
   | PE_FileContainsEvaluated of tp_pe_string * tp_pe_string
   | PE_ResourceContains of tp_pe_string * tp_pe_string
 

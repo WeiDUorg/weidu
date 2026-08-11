@@ -1,0 +1,24 @@
+name: Prepare PCRE2
+description: Check out and verify the pinned PCRE2 sources used by WeiDU
+
+runs:
+  using: composite
+  steps:
+    - name: Read pinned PCRE2 revision
+      id: metadata
+      shell: bash
+      run: |
+        . pcre2/version
+        echo "repository=$PCRE2_GITHUB_REPOSITORY" >> "$GITHUB_OUTPUT"
+        echo "commit=$PCRE2_COMMIT" >> "$GITHUB_OUTPUT"
+    - name: Check out pinned PCRE2 revision
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ steps.metadata.outputs.repository }}
+        ref: ${{ steps.metadata.outputs.commit }}
+        path: _deps/pcre2-upstream
+        fetch-depth: 1
+        persist-credentials: false
+    - name: Materialize audited PCRE2 subset
+      shell: bash
+      run: scripts/prepare_pcre2.sh _deps/pcre2-upstream

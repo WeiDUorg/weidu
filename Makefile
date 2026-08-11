@@ -21,6 +21,7 @@
 ############################################################################
 
 include Configuration
+include pcre2/version
 
 # Just a target to be used by default
 .PHONY: weidu doc all
@@ -47,7 +48,14 @@ DEPENDDIR   := obj/.depend
 
 include Depends
 
-CAMLFLAGS      += -I zlib -I xdiff
+PCRE2_SOURCE_DIR   := _deps/pcre2-$(PCRE2_VERSION)
+PCRE2_SOURCE_STAMP := $(PCRE2_SOURCE_DIR)/.prepared
+
+CAMLFLAGS      += -I zlib -I xdiff \
+                  -ccopt -I$(PCRE2_SOURCE_DIR)/src \
+                  -ccopt -DHAVE_CONFIG_H \
+                  -ccopt -DPCRE2_STATIC \
+                  -ccopt -DPCRE2_CODE_UNIT_WIDTH=8
 
 # Now the rule to make WeiDU
 
@@ -61,6 +69,13 @@ endif
 PROJECT_CMODULES   += zlib adler32 inflate uncompr inftrees zutil inffast $(GLOB) xdiff
 PROJECT_CMODULES   += xemit xpatchi xutils xdiffi xprepare $(ARCH_C_FILES)
 PROJECT_CMODULES   += crc32 compress deflate trees
+# sources.list is the audited transitive closure reached by WeiDU's binding.
+# Derive the modules from its prepared paths so a version update has one source
+# of truth and cannot silently compile a different set of translation units.
+PCRE2_CMODULES      = $(patsubst src/%.c,%,\
+                      $(filter src/%.c,\
+                      $(shell awk '!/^\#/ { print $$2 }' pcre2/sources.list)))
+PROJECT_CMODULES   += pcre2_stubs $(PCRE2_CMODULES)
 
 PROJECT_OCAML_LIBS = unix str #OCaml changed libstr into libcamlstr and "you are not supposed to link with -lstr"
 PROJECT_LIBS       = unix camlstr
@@ -163,6 +178,21 @@ clean:
 	src/toldlexer.mll src/tph.ml
 	find obj -type f -exec rm -f {} \; || true
 
+# Materialize the verified PCRE2 subset used by WeiDU. CI supplies a checkout
+# of the pinned upstream commit; local builds fetch that commit on first use.
+.PHONY: pcre2-source
+pcre2-source: $(PCRE2_SOURCE_STAMP)
+
+$(PCRE2_SOURCE_STAMP): pcre2/version pcre2/sources.list \
+                       scripts/prepare_pcre2.sh pcre2/LICENCE.md
+	PCRE2_UPSTREAM_DIR="$(PCRE2_UPSTREAM_DIR)" scripts/prepare_pcre2.sh
+
+PCRE2_OBJECTS = $(PCRE2_CMODULES:%=$(OBJDIR)/%.$(OBJEXT))
+$(PCRE2_OBJECTS): $(OBJDIR)/%.$(OBJEXT): $(PCRE2_SOURCE_STAMP)
+	@$(NARRATIVE) Compiling C file $(PCRE2_SOURCE_DIR)/src/$*.c
+	$(AT)$(CAMLC) -verbose $(CAMLFLAGS) -c $(PCRE2_SOURCE_DIR)/src/$*.c
+	$(AT)mv -f $*.$(OBJEXT) $(OBJDIR)
+
 
 ###
 ### Distro
@@ -186,6 +216,7 @@ windows_zip : weidu weinstall tolower
 	cp README* WeiDU-Windows
 	rm WeiDU-Windows/README.md
 	cp COPYING WeiDU-Windows
+	cp pcre2/LICENCE.md WeiDU-Windows/PCRE2-LICENCE.md
 	cp --preserve=all -r examples WeiDU-Windows
 	#cp windows_manifests/*.manifest WeiDU-Windows
 	zip -9r WeiDU-Windows-$(VER).zip WeiDU-Windows
@@ -205,6 +236,7 @@ linux_zip : weidu weinstall tolower
 	cp README* WeiDU-Linux
 	rm WeiDU-Linux/README.md
 	cp COPYING WeiDU-Linux
+	cp pcre2/LICENCE.md WeiDU-Linux/PCRE2-LICENCE.md
 	cp -r examples WeiDU-Linux
 	zip -9r WeiDU-Linux-$(VER).zip WeiDU-Linux
 osx_zip : weidu weinstall
@@ -218,6 +250,7 @@ osx_zip : weidu weinstall
 	cp README* WeiDU-Mac
 	rm WeiDU-Mac/README.md
 	cp COPYING WeiDU-Mac
+	cp pcre2/LICENCE.md WeiDU-Mac/PCRE2-LICENCE.md
 	cp -r examples WeiDU-Mac
 	#sed -e's/version_plist=.*/version_plist=\"${VERBIG}\"/g'  'WeiDU-Mac/WeiDU Installer.command' > t
 	#mv t WeiDU-Mac/WeiDU\ Installer.command

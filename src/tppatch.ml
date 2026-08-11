@@ -129,7 +129,7 @@ let rec process_patch1 patch_filename game buff p =
         in
         Var.set_int32 var_name (Int32.of_int (num_cols lines 0))
 
-    | TP_CountRegexpInstances(case_sens,match_exact,find, var_name) ->
+    | TP_CountRegexpInstances(case_sens,match_exact,engine,find, var_name) ->
         let find = Var.get_string find in
         let var_name = Var.get_string (eval_pe_str var_name) in
         let case_sens = match case_sens with
@@ -140,15 +140,23 @@ let rec process_patch1 patch_filename game buff p =
         | None -> false
         | Some(x) -> x
         in
-        let my_regexp = match case_sens, match_exact with
-        | false, false -> Str.regexp_case_fold find
-        | true , false -> Str.regexp find
-        | false, true -> Str.regexp_string_case_fold find
-        | true , true -> Str.regexp_string find
+        let count = match engine with
+        | Legacy_regexp ->
+            let my_regexp = match case_sens, match_exact with
+            | false, false -> Str.regexp_case_fold find
+            | true , false -> Str.regexp find
+            | false, true -> Str.regexp_string_case_fold find
+            | true , true -> Str.regexp_string find in
+            let split = Str.split_delim my_regexp buff in
+            (List.length split) - 1
+        | Pcre2_regexp ->
+            if match_exact then
+              failwith "PCRE2_REGEXP cannot be combined with EXACT_MATCH";
+            if buff = "" then -1
+            else Pcre2.count
+              (Pcre2.compile ~case_sensitive:case_sens find) buff
         in
-        let split = Str.split_delim my_regexp buff in
-        let length = List.length split in
-        Var.set_int32 var_name (Int32.of_int (length - 1))
+        Var.set_int32 var_name (Int32.of_int count)
 
     | TP_Read2DA(row, col, req_col, var_name) ->
         let var_name = Var.get_string (eval_pe_str var_name) in
@@ -1077,7 +1085,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
             "" entries
            *)
 
-    | TP_PatchStringTextually(case_sens,match_exact,find,what,length) ->
+    | TP_PatchStringTextually(case_sens,match_exact,engine,find,what,length) ->
         let find = Var.get_string find in
         let what = Var.get_string what in
         let find_ref = ref find in
@@ -1112,55 +1120,113 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         end ;
         end ;
         let find = !find_ref in
-        let my_regexp = match case_sens, match_exact with
-        | false, false -> Str.regexp_case_fold find
-        | true , false -> Str.regexp find
-        | false, true -> Str.regexp_string_case_fold find
-        | true , true -> Str.regexp_string find in
         let what = !what_ref in
-        Str.global_replace my_regexp what buff
+        (match engine with
+        | Legacy_regexp ->
+            let my_regexp = match case_sens, match_exact with
+            | false, false -> Str.regexp_case_fold find
+            | true , false -> Str.regexp find
+            | false, true -> Str.regexp_string_case_fold find
+            | true , true -> Str.regexp_string find in
+            Str.global_replace my_regexp what buff
+        | Pcre2_regexp ->
+            if match_exact then
+              failwith "PCRE2_REGEXP cannot be combined with EXACT_MATCH";
+            let regexp = Pcre2.compile ~case_sensitive:case_sens find in
+            Pcre2.global_replace regexp what buff)
 
-    | TP_PatchStringEvaluate(case_sens,find, pl, replace) ->
+    | TP_PatchStringEvaluate(case_sens,engine,find, pl, replace) ->
         (* REPLACE_EVALUATE ~Give(\([0-9]+\))~
            SET "RESULT" = "%MATCH1%"
            ~Give(%RESULT%)~
            ( "%MATCH%" / 2 ) *)
         let find = Var.get_string find in
-        let my_regexp = match case_sens with
-        | None -> Str.regexp find
-        | Some(true) -> Str.regexp find
-        | Some(false) -> Str.regexp_case_fold find in
-        let i = ref 0 in
-        let work_buff = ref buff in
-        let finished = ref false in
-        while not !finished do
-          let start_idx = try
-            Str.search_forward my_regexp !work_buff !i
-          with
-            Not_found -> finished := true; -1 in
-          if not !finished then begin
-            for j = 0 to 200 do
-              let v = Printf.sprintf "MATCH%d" j in
-              (* Var.remove_var v ;  *)
-              (try let group = Str.matched_group j !work_buff in
-              Var.set_string v group ;
-              with _ -> ())
-            done ;
-            let tmp_buff = ref (String.copy !work_buff) in
-            ignore (List.fold_left (fun acc elt ->
-              process_patch2 patch_filename game acc elt) !tmp_buff pl) ;
-            let this_replacement = Var.get_string replace in
-            let old_before = Str.string_before !work_buff start_idx in
-            let old_after = Str.string_after !work_buff start_idx in
-            let new_after =
-              Str.replace_first my_regexp this_replacement old_after in
-            work_buff := (old_before ^ new_after) ;
-            i := start_idx + String.length this_replacement
-          end
-        done;
-        !work_buff
+        (match engine with
+        | Legacy_regexp ->
+            let my_regexp = match case_sens with
+            | None -> Str.regexp find
+            | Some(true) -> Str.regexp find
+            | Some(false) -> Str.regexp_case_fold find in
+            let i = ref 0 in
+            let work_buff = ref buff in
+            let finished = ref false in
+            while not !finished do
+              let start_idx = try
+                Str.search_forward my_regexp !work_buff !i
+              with
+                Not_found -> finished := true; -1 in
+              if not !finished then begin
+                for j = 0 to 200 do
+                  let v = Printf.sprintf "MATCH%d" j in
+                  (* Preserve the historical behaviour of leaving an
+                     unmatched legacy capture variable unchanged. *)
+                  (try let group = Str.matched_group j !work_buff in
+                  Var.set_string v group ;
+                  with _ -> ())
+                done ;
+                let tmp_buff = ref (String.copy !work_buff) in
+                ignore (List.fold_left (fun acc elt ->
+                  process_patch2 patch_filename game acc elt) !tmp_buff pl) ;
+                let this_replacement = Var.get_string replace in
+                let old_before = Str.string_before !work_buff start_idx in
+                let old_after = Str.string_after !work_buff start_idx in
+                let new_after =
+                  Str.replace_first my_regexp this_replacement old_after in
+                work_buff := (old_before ^ new_after) ;
+                i := start_idx + String.length this_replacement
+              end
+            done;
+            !work_buff
+        | Pcre2_regexp ->
+            let case_sensitive = match case_sens with
+            | None | Some(true) -> true
+            | Some(false) -> false in
+            let regexp = Pcre2.compile ~case_sensitive find in
+            let work_buff = ref buff in
+            let search_offset = ref 0 in
+            let retry_nonempty = ref false in
+            let finished = ref false in
+            while not !finished do
+              match Pcre2.search ~anchored:!retry_nonempty
+                  ~notempty_at_start:!retry_nonempty regexp !work_buff
+                  !search_offset with
+              | None when !retry_nonempty &&
+                          !search_offset < String.length !work_buff ->
+                  search_offset := Pcre2.advance_after_empty regexp
+                    !work_buff !search_offset;
+                  retry_nonempty := false
+              | None -> finished := true
+              | Some matched ->
+                  for j = 0 to Pcre2.capture_count matched do
+                    let value = match Pcre2.group matched j with
+                    | None -> ""
+                    | Some group -> group in
+                    Var.set_string (Printf.sprintf "MATCH%d" j) value
+                  done;
+                  List.iter (fun (name, group) ->
+                    Var.set_string ("MATCH_" ^ name)
+                      (match group with None -> "" | Some value -> value))
+                    (Pcre2.named_groups matched);
+                  let tmp_buff = ref (String.copy !work_buff) in
+                  ignore (List.fold_left (fun acc elt ->
+                    process_patch2 patch_filename game acc elt) !tmp_buff pl);
+                  let this_replacement = Var.get_string replace in
+                  let expanded =
+                    Pcre2.expand_replacement matched this_replacement in
+                  let empty_match =
+                    Pcre2.match_start matched = Pcre2.match_end matched in
+                  work_buff := Pcre2.replace_match matched this_replacement;
+                  search_offset :=
+                    Pcre2.match_start matched + String.length expanded;
+                  (* Retrying at the logical match position is required even
+                     when replacement text was inserted. Otherwise the next
+                     unanchored search can rediscover the same zero-width
+                     match immediately before the original character. *)
+                  retry_nonempty := empty_match
+            done;
+            !work_buff)
 
-    | TP_PatchString(case_sens,match_exact,find,what) ->
+    | TP_PatchString(case_sens,match_exact,engine,find,what) ->
         let find = Var.get_string find in
         let case_sens = match case_sens with
         | None -> false
@@ -1168,11 +1234,6 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         let match_exact = match match_exact with
         | None -> false
         | Some(x) -> x in
-        let my_regexp = match case_sens, match_exact with
-        | false, false -> Str.regexp_case_fold find
-        | true , false -> Str.regexp find
-        | false, true -> Str.regexp_string_case_fold find
-        | true , true -> Str.regexp_string find in
         let what = begin match what with
         | Dlg.Trans_String(a) -> what
         | Dlg.Local_String(lse) ->
@@ -1190,7 +1251,19 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
         | _ -> log_and_print
               "ERROR: cannot resolve REPLACE patch\n" ; failwith "resolve" in
         let new_string = Printf.sprintf "%d" new_index in
-        Str.global_replace my_regexp new_string buff
+        (match engine with
+        | Legacy_regexp ->
+            let my_regexp = match case_sens, match_exact with
+            | false, false -> Str.regexp_case_fold find
+            | true , false -> Str.regexp find
+            | false, true -> Str.regexp_string_case_fold find
+            | true , true -> Str.regexp_string find in
+            Str.global_replace my_regexp new_string buff
+        | Pcre2_regexp ->
+            if match_exact then
+              failwith "PCRE2_REGEXP cannot be combined with EXACT_MATCH";
+            let regexp = Pcre2.compile ~case_sensitive:case_sens find in
+            Pcre2.global_replace regexp new_string buff)
 
     | TP_PatchByte(where',what) ->
         let where = Int32.to_int (eval_pe buff game where') in

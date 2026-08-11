@@ -118,6 +118,7 @@ can be obtained
 
 - Run make. Relevant build targets are
  * clean
+ * pcre2-source
  * weidu
  * weinstall
  * tolower
@@ -130,3 +131,9 @@ can be obtained
 The *_zip targets produce an archive in `..` that is suitable for
 distribution. If you are not developing WeiDU, you probably want one
 of windows_zip, linux_zip or osx_zip.
+
+The first WeiDU build fetches the exact PCRE2 revision recorded in
+`pcre2/version`, verifies it, and prepares only the source files required by
+WeiDU. The `pcre2-source` target performs this step explicitly. To build from
+an existing PCRE2 checkout without network access, set `PCRE2_UPSTREAM_DIR` to
+that checkout when invoking make.

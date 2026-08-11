@@ -383,6 +383,7 @@ nonterm(Tp.tp_action) Tp_Action {
   -> COPY e1:Optional_Backup e2:Optional_Glob e3:Str_Str_List e4:Tp_Patch_List e5:Tp_When_List
        [ Tp.TP_Copy { Tp.copy_get_existing = false;
                       Tp.copy_use_regexp = false;
+                      Tp.copy_regexp_engine = Tp.Legacy_regexp;
                       Tp.copy_use_glob = (match e2 with Some x -> x | None -> false) ;
                       Tp.copy_file_list = e3 ;
                       Tp.copy_patch_list = e4 ;
@@ -403,6 +404,7 @@ nonterm(Tp.tp_action) Tp_Action {
   -> COPY_EXISTING e1:Optional_Backup e3:Str_Str_List e4:Tp_Patch_List e5:Tp_When_List
        [ Tp.TP_Copy { Tp.copy_get_existing = true;
                       Tp.copy_use_regexp = false;
+                      Tp.copy_regexp_engine = Tp.Legacy_regexp;
                       Tp.copy_use_glob = false ;
                       Tp.copy_file_list = e3 ;
                       Tp.copy_patch_list = e4 ;
@@ -411,9 +413,10 @@ nonterm(Tp.tp_action) Tp_Action {
                       Tp.copy_at_end = false ;
                       Tp.copy_save_inlined = (e1 = 2) ;
                     }]
-  -> COPY_EXISTING_REGEXP e1:Optional_Backup e2:Optional_Glob e3:Str_Str_List e4:Tp_Patch_List e5:Tp_When_List
+  -> COPY_EXISTING_REGEXP e0:Optional_Regexp_Engine e1:Optional_Backup e2:Optional_Glob e3:Str_Str_List e4:Tp_Patch_List e5:Tp_When_List
        [ Tp.TP_Copy { Tp.copy_get_existing = true;
                       Tp.copy_use_regexp = true;
+                      Tp.copy_regexp_engine = e0;
                       Tp.copy_use_glob =  (match e2 with Some x -> x | None -> true) ;
                       Tp.copy_file_list = e3 ;
                       Tp.copy_patch_list = e4 ;
@@ -1001,9 +1004,13 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
   -> e1:Patch_String_Right STRING_EQUAL_CASE e2:Patch_String_Right
        [ Tp.PE_StringEqual(e1,e2,true,true) ]
   -> e1:Patch_String_Right STRING_MATCHES_REGEXP e2:Patch_String_Right
-       [ Tp.PE_StringRegexp(e1,e2,true) ]
+       [ Tp.PE_StringRegexp(e1,e2,true,Tp.Legacy_regexp) ]
+  -> e1:Patch_String_Right STRING_MATCHES_REGEXP PCRE2_REGEXP e2:Patch_String_Right
+       [ Tp.PE_StringRegexp(e1,e2,true,Tp.Pcre2_regexp) ]
   -> e1:Patch_String_Right STRING_CONTAINS_REGEXP e2:Patch_String_Right
-       [ Tp.PE_StringRegexp(e1,e2,false) ]
+       [ Tp.PE_StringRegexp(e1,e2,false,Tp.Legacy_regexp) ]
+  -> e1:Patch_String_Right STRING_CONTAINS_REGEXP PCRE2_REGEXP e2:Patch_String_Right
+       [ Tp.PE_StringRegexp(e1,e2,false,Tp.Pcre2_regexp) ]
   -> BYTE_AT e1:Patch_Exp   [ Tp.TP_PE_Byte_At(e1) ]
   -> SBYTE_AT e1:Patch_Exp  [ Tp.TP_PE_SByte_At(e1) ]
   -> SHORT_AT e1:Patch_Exp  [ Tp.TP_PE_Short_At(e1) ]
@@ -1014,10 +1021,10 @@ nonterm (Tp.tp_patchexp) Patch_Exp {
        [ Tp.PE_Random(e1,e2) ]
   -> BUFFER_LENGTH [ Tp.PE_Buffer_Length ]
   -> STRING_LENGTH e1:Patch_String_Right [ Tp.PE_String_Length e1 ]
-  -> INDEX LPAREN e1:Optional_Case_Sensitive e2:Optional_Match_Exact e4:Patch_String_Right e5:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ Tp.PE_Index(false,e1,e2,e4,e3,Some e5) ]
-  -> RINDEX LPAREN e1:Optional_Case_Sensitive e2:Optional_Match_Exact e4:Patch_String_Right e5:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ Tp.PE_Index(true,e1,e2,e4,e3,Some e5) ]
-  -> INDEX_BUFFER LPAREN e1:Optional_Case_Sensitive e2:Optional_Match_Exact e4:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ Tp.PE_Index(false,e1,e2,e4,e3,None) ]
-  -> RINDEX_BUFFER LPAREN e1:Optional_Case_Sensitive e2:Optional_Match_Exact e4:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ Tp.PE_Index(true,e1,e2,e4,e3,None) ]
+  -> INDEX LPAREN e1:Optional_Case_Sensitive e2:Optional_Regexp_Match e4:Patch_String_Right e5:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ let match_exact, engine = e2 in Tp.PE_Index(false,e1,match_exact,engine,e4,e3,Some e5) ]
+  -> RINDEX LPAREN e1:Optional_Case_Sensitive e2:Optional_Regexp_Match e4:Patch_String_Right e5:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ let match_exact, engine = e2 in Tp.PE_Index(true,e1,match_exact,engine,e4,e3,Some e5) ]
+  -> INDEX_BUFFER LPAREN e1:Optional_Case_Sensitive e2:Optional_Regexp_Match e4:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ let match_exact, engine = e2 in Tp.PE_Index(false,e1,match_exact,engine,e4,e3,None) ]
+  -> RINDEX_BUFFER LPAREN e1:Optional_Case_Sensitive e2:Optional_Regexp_Match e4:Patch_String_Right e3:Optional_Patch_Exp RPAREN [ let match_exact, engine = e2 in Tp.PE_Index(true,e1,match_exact,engine,e4,e3,None) ]
   -> FILE_CONTAINS_EVALUATED LPAREN e1:Patch_String_Right e2:Patch_String_Right RPAREN
        [ Tp.PE_FileContainsEvaluated(e1,e2) ]
   -> RESOURCE_CONTAINS e1:Patch_String_Right e2: Patch_String_Right
@@ -1122,6 +1129,18 @@ nonterm (bool option) Optional_Match_Exact {
   -> EVALUATE_REGEXP [ Some false ]
 }
 
+nonterm (bool option * Tp.regexp_engine) Optional_Regexp_Match {
+  -> [ None, Tp.Legacy_regexp ]
+  -> EXACT_MATCH [ Some true, Tp.Legacy_regexp ]
+  -> EVALUATE_REGEXP [ Some false, Tp.Legacy_regexp ]
+  -> PCRE2_REGEXP [ Some false, Tp.Pcre2_regexp ]
+}
+
+nonterm (Tp.regexp_engine) Optional_Regexp_Engine {
+  -> [ Tp.Legacy_regexp ]
+  -> PCRE2_REGEXP [ Tp.Pcre2_regexp ]
+}
+
 nonterm (bool) Optional_Exact {
   -> [ false ]
   -> EXACT [ true ]
@@ -1159,15 +1178,15 @@ nonterm (Tp.tp_patch) Tp_Patch {
   -> LAUNCH_PATCH_FUNCTION e1:STRING e2:LaunchFunctionIntVar
      e3:LaunchFunctionStrVar e4:LaunchFunctionRet e5:LaunchFunctionRetArray END
        [ Tp.TP_Launch_Patch_Function(e1,true,e2,e3,e4,e5) ]
-  -> REPLACE e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:Lse
-       [ Tp.TP_PatchString(e1,e2,e3,e4) ]
-  -> REPLACE_TEXTUALLY e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:STRING
-       [ Tp.TP_PatchStringTextually(e1,e2,e3,e4,None) ]
+  -> REPLACE e1:Optional_Case_Sensitive e2:Optional_Regexp_Match e3:STRING e4:Lse
+       [ let match_exact, engine = e2 in Tp.TP_PatchString(e1,match_exact,engine,e3,e4) ]
+  -> REPLACE_TEXTUALLY e1:Optional_Case_Sensitive e2:Optional_Regexp_Match e3:STRING e4:STRING
+       [ let match_exact, engine = e2 in Tp.TP_PatchStringTextually(e1,match_exact,engine,e3,e4,None) ]
   -> REPLACE_TEXTUALLY e1:Optional_Case_Sensitive ignore:Optional_Match_Exact e2:STRING e3:STRING LPAREN e4:Patch_Exp_Safe RPAREN
-       [ if ignore = Some(false) then failwith "cannot EVALUATE_REGEXP "; Tp.TP_PatchStringTextually(e1,None,e2,e3,Some e4) ]
-  -> REPLACE_EVALUATE e1:Optional_Case_Sensitive e2:STRING BEGIN e3:Tp_Patch_List END
+       [ if ignore = Some(false) then failwith "cannot EVALUATE_REGEXP "; Tp.TP_PatchStringTextually(e1,None,Tp.Legacy_regexp,e2,e3,Some e4) ]
+  -> REPLACE_EVALUATE e1:Optional_Case_Sensitive e0:Optional_Regexp_Engine e2:STRING BEGIN e3:Tp_Patch_List END
        e4:STRING
-       [ Tp.TP_PatchStringEvaluate(e1,e2,e3,e4) ]
+       [ Tp.TP_PatchStringEvaluate(e1,e0,e2,e3,e4) ]
   -> REPLACE_BCS_BLOCK e3:Optional_Evaluate e4:Optional_Case_Sensitive e1:STRING e2:STRING [ Tp.TP_PatchReplaceBCSBlock(e1,e2,None,e3,e4) ]
   -> REPLACE_BCS_BLOCK_REGEXP e1:STRING e2:STRING [ Tp.TP_PatchReplaceBCSBlockRE(e1,e2,None) ]
   -> REPLACE_BCS_BLOCK e4:Optional_Evaluate e5:Optional_Case_Sensitive e1:STRING e2:STRING ON_MISMATCH e3:Tp_Patch_List END [ Tp.TP_PatchReplaceBCSBlock(e1,e2,Some e3,e4,e5) ]
@@ -1364,8 +1383,9 @@ nonterm (Tp.tp_patch) Tp_Patch {
   -> COUNT_2DA_COLS e1:Patch_String_Left [ Tp.TP_Get2DACols(e1) ]
   -> PRETTY_PRINT_2DA LPAREN e1:Patch_Exp RPAREN [ Tp.TP_PrettyPrint2DA(e1) ]
   -> PRETTY_PRINT_2DA [ Tp.TP_PrettyPrint2DA(Tp.get_pe_int "2") ]
-  -> COUNT_REGEXP_INSTANCES e1:Optional_Case_Sensitive e2:Optional_Match_Exact e3:STRING e4:Patch_String_Left
-       [ Tp.TP_CountRegexpInstances(e1,e2,e3,e4) ]
+  -> COUNT_REGEXP_INSTANCES e1:Optional_Case_Sensitive e2:Optional_Regexp_Match e3:STRING e4:Patch_String_Left
+       [ let match_exact, engine = e2 in
+         Tp.TP_CountRegexpInstances(e1,match_exact,engine,e3,e4) ]
   -> READ_2DA_ENTRY e1:Patch_Exp e2:Patch_Exp e3:Patch_Exp e4:Patch_String_Left
        [ Tp.TP_Read2DA(e1,e2,e3,e4) ]
   -> READ_2DA_ENTRIES_NOW e1:STRING e2:Patch_Exp [ Tp.TP_Read2DANow(e1,e2) ]

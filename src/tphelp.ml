@@ -30,9 +30,10 @@ let rec pe_to_str pe = "(" ^ (match pe with
       (pe_str_str s1) (if c then "STRING_EQUAL" else
       "STRING_COMPARE") (if b then "_CASE" else "")
       (pe_str_str s2)
-| PE_StringRegexp(s1,s2,b) -> Printf.sprintf "%s %s %s"
+| PE_StringRegexp(s1,s2,b,engine) -> Printf.sprintf "%s %s %s%s"
       (pe_str_str s1) (if b then "STRING_MATCHES_REGEXP"
       else "STRING_CONTAINS_REGEXP")
+      (if engine = Pcre2_regexp then "PCRE2_REGEXP " else "")
       (pe_str_str s2)
 | PE_Not(e) -> Printf.sprintf "NOT %s" (pe_to_str e)
 | TP_PE_Byte_At(e) -> Printf.sprintf "BYTE_AT %s" (pe_to_str e)
@@ -82,10 +83,11 @@ let rec pe_to_str pe = "(" ^ (match pe with
       (pe_to_str e1) (pe_to_str e2)
 | PE_Buffer_Length -> "BUFFER_LENGTH"
 | PE_String_Length(e1) -> Printf.sprintf "STRING_LENGTH %s" (pe_str_str e1)
-| PE_Index(e0,e1,e2,e3,e4,e5) -> Printf.sprintf "%sINDEX (%s %s %s%s%s)"
+| PE_Index(e0,e1,e2,engine,e3,e4,e5) -> Printf.sprintf "%sINDEX (%s %s %s%s%s)"
       (if e0 then "" else "R")
       (if e1 = Some true then "CASE_SENSITIVE" else "CASE_INSENSITIVE")
-      (if e2 = Some true then "EXACT_MATCH" else "EVALUATE_REGEXP")
+      (if engine = Pcre2_regexp then "PCRE2_REGEXP" else
+       if e2 = Some true then "EXACT_MATCH" else "EVALUATE_REGEXP")
       (pe_str_str e3)
       (match e4 with
       | None -> ""

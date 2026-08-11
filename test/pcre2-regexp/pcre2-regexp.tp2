@@ -1,0 +1,109 @@
+BACKUP ~test/pcre2-regexp/backup~
+AUTHOR ~WeiDU maintainers~
+
+BEGIN ~PCRE2 regexp regression tests~
+
+// Lookbehind, lookahead, bounded repetition, named captures and named
+// replacement references are all unavailable in the legacy Str dialect.
+OUTER_PATCH_SAVE result ~id=12; id=345;~ BEGIN
+  REPLACE_TEXTUALLY CASE_SENSITIVE PCRE2_REGEXP
+    ~(?<=id=)(?<number>\d{2,3})(?=;)~
+    ~[${number}]~
+END
+ACTION_IF ~%result%~ STR_CMP ~id=[12]; id=[345];~ BEGIN
+  FAIL ~PCRE2 named replacement test produced "%result%"~
+END
+
+// REPLACE_EVALUATE exposes both numbered and named captures. Its patch list
+// may derive a distinct replacement for every match.
+OUTER_PATCH_SAVE result ~Give(10) Give(25)~ BEGIN
+  REPLACE_EVALUATE CASE_SENSITIVE PCRE2_REGEXP
+    ~Give\((?<amount>\d+)\)~
+    BEGIN
+      SET doubled = MATCH_amount * 2
+    END
+    ~Take(%doubled%)~
+END
+ACTION_IF ~%result%~ STR_CMP ~Take(20) Take(50)~ BEGIN
+  FAIL ~PCRE2 evaluated replacement test produced "%result%"~
+END
+
+// A zero-width lookahead must advance after every empty match. This both
+// checks COUNT_REGEXP_INSTANCES and guards against an infinite loop.
+OUTER_PATCH ~~ BEGIN
+  COUNT_REGEXP_INSTANCES CASE_SENSITIVE PCRE2_REGEXP ~(?=(aa))~ count
+  PATCH_IF count != 2 BEGIN
+    PATCH_FAIL ~PCRE2 zero-width count was %count%, expected 2~
+  END
+END
+
+// Empty-match advancement respects UTF-8 code-point boundaries when the
+// pattern explicitly enables UTF mode.
+OUTER_PATCH_SAVE result ~é~ BEGIN
+  REPLACE_TEXTUALLY CASE_SENSITIVE PCRE2_REGEXP ~(*UTF)(?=.)~ ~_~
+END
+ACTION_IF ~%result%~ STR_CMP ~_é~ BEGIN
+  FAIL ~PCRE2 UTF empty-match test produced "%result%"~
+END
+
+// REPLACE_EVALUATE must apply the same anchored retry after an empty match
+// even when the evaluated replacement inserts text. Otherwise it can keep
+// matching immediately before the same original character indefinitely.
+OUTER_PATCH_SAVE result ~ab~ BEGIN
+  REPLACE_EVALUATE CASE_SENSITIVE PCRE2_REGEXP ~(?=.)~
+    BEGIN
+    END
+    ~_~
+END
+ACTION_IF ~%result%~ STR_CMP ~_a_b~ BEGIN
+  FAIL ~PCRE2 evaluated empty-match test produced "%result%"~
+END
+
+// STRING_MATCHES_REGEXP remains anchored at offset zero rather than requiring
+// a whole-string match. Named pattern backreferences exercise PCRE2 syntax.
+ACTION_IF ~Test-Test suffix~ STRING_MATCHES_REGEXP PCRE2_REGEXP
+    ~^(?<word>[A-Za-z]+)-\k<word>~ BEGIN
+  FAIL ~PCRE2 STRING_MATCHES_REGEXP did not match at offset zero~
+END
+
+ACTION_IF ~prefix:value:suffix~ STRING_CONTAINS_REGEXP PCRE2_REGEXP
+    ~(?<=:)value(?=:)~ BEGIN
+  FAIL ~PCRE2 STRING_CONTAINS_REGEXP did not find a lookaround match~
+END
+
+OUTER_SET first = INDEX (CASE_SENSITIVE PCRE2_REGEXP
+  ~(?<=:)foo(?=:)~ ~x:foo:y~)
+ACTION_IF first != 2 BEGIN
+  FAIL ~PCRE2 INDEX returned %first%, expected 2~
+END
+
+// Reverse search must retain overlapping-match semantics: /aa/ starts at
+// both offsets zero and one in "aaa".
+OUTER_SET last = RINDEX (CASE_SENSITIVE PCRE2_REGEXP ~aa~ ~aaa~)
+ACTION_IF last != 1 BEGIN
+  FAIL ~PCRE2 RINDEX returned %last%, expected 1~
+END
+
+// Preserve the legacy INDEX convention: an invalid starting offset returns
+// -1 rather than exposing Str's Invalid_argument exception to TP2 code.
+OUTER_SET legacy_invalid_index = INDEX (
+  CASE_SENSITIVE EVALUATE_REGEXP ~x~ ~x~ 2)
+ACTION_IF legacy_invalid_index != -1 BEGIN
+  FAIL ~Legacy INDEX returned %legacy_invalid_index%, expected -1~
+END
+
+// Keep a direct characterization of the established Str replacement path.
+// The modern engine must not reinterpret this escaped-group syntax.
+OUTER_PATCH_SAVE legacy ~foo~ BEGIN
+  REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~\(foo\)~ ~[\1]~
+END
+ACTION_IF ~%legacy%~ STR_CMP ~[foo]~ BEGIN
+  FAIL ~Legacy regexp replacement changed; produced "%legacy%"~
+END
+
+// Parse and construct the PCRE2 resource-selection AST without requiring a
+// game key in this self-contained --nogame test.
+ACTION_IF 0 BEGIN
+  COPY_EXISTING_REGEXP PCRE2_REGEXP GLOB
+    ~^(?<resource>.+)\.ITM$~ ~override/${resource}.ITM~
+END

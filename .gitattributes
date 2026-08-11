@@ -26,3 +26,5 @@
 *.txt text eol=lf
 *.yaml text eol=lf
 *.yml text eol=lf
+pcre2/version text eol=lf
+pcre2/sources.list text eol=lf

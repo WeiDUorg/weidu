@@ -18,6 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@main
+      - uses: ./.github/actions/prepare-pcre2
       - name: fetch elkhound
         run: |
           mkdir -p bin
@@ -40,6 +41,8 @@ jobs:
           opam switch
           eval $(opam env)
           make
+          ./weidu.asm.exe --nogame --noautoupdate --force-install 0 \
+            test/pcre2-regexp/pcre2-regexp.tp2
           make osx_zip
       - uses: actions/upload-artifact@v6
         with:
@@ -51,6 +54,7 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@main
+      - uses: ./.github/actions/prepare-pcre2
       - name: fetch elkhound
         run: |
           mkdir -p bin
@@ -69,6 +73,8 @@ jobs:
           opam switch
           eval $(opam env)
           make
+          ./weidu.asm.exe --nogame --noautoupdate --force-install 0 \
+            test/pcre2-regexp/pcre2-regexp.tp2
           make linux_zip
       - uses: actions/upload-artifact@v6
         with:
@@ -80,6 +86,7 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@main
+      - uses: ./.github/actions/prepare-pcre2
       - name: fetch windows elkhound
         run: |
           curl -Lv https://github.com/The-Mod-Elephant/elkhound/releases/download/1.0.3/elkhound.exe -o elkhound.exe
@@ -95,6 +102,8 @@ jobs:
           opam switch
           (& opam env) -split '\r?\n' | ForEach-Object { Invoke-Expression $_ }
           make
+          .\weidu.asm.exe --nogame --noautoupdate --force-install 0 test/pcre2-regexp/pcre2-regexp.tp2
+          if ($LASTEXITCODE -ne 0) { throw 'PCRE2 regexp regression test failed' }
           make windows_zip
       - name: upload windows artifact
         uses: actions/upload-artifact@v6

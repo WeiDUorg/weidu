@@ -98,6 +98,7 @@ open Load
   %token NOTEQUALS
   %token EQUALSGREATER
   %token EVALUATE_REGEXP
+  %token PCRE2_REGEXP
   %token EXACT_MATCH
   %token EXTEND_BOTTOM
   %token EXTEND_BOTTOM_REGEXP
@@ -473,6 +474,7 @@ optional_evaluate :
     { Tp.TP_Copy(
       { Tp.copy_get_existing = false;
         Tp.copy_use_regexp = false;
+        Tp.copy_regexp_engine = Tp.Legacy_regexp;
         Tp.copy_use_glob = $3 ;
         Tp.copy_file_list = $4 ;
         Tp.copy_patch_list = $5 ;
@@ -494,6 +496,7 @@ optional_evaluate :
     { Tp.TP_Copy(
       { Tp.copy_get_existing = true;
         Tp.copy_use_regexp = false;
+        Tp.copy_regexp_engine = Tp.Legacy_regexp;
         Tp.copy_use_glob = false;
         Tp.copy_file_list = $3 ;
         Tp.copy_patch_list = $4 ;
@@ -502,17 +505,18 @@ optional_evaluate :
         Tp.copy_at_end = false ;
         Tp.copy_save_inlined = ($2 = 2) ;
       } ) }
-| COPY_EXISTING_REGEXP optional_backup optional_glob str_str_list tp_patch_list tp_when_list
+| COPY_EXISTING_REGEXP optional_regexp_engine optional_backup optional_glob str_str_list tp_patch_list tp_when_list
     { Tp.TP_Copy(
       { Tp.copy_get_existing = true;
         Tp.copy_use_regexp = true;
+        Tp.copy_regexp_engine = $2;
         Tp.copy_use_glob = true;
-        Tp.copy_file_list = $4 ;
-        Tp.copy_patch_list = $5 ;
-        Tp.copy_constraint_list = $6 ;
-        Tp.copy_backup = not ($2 = 1) ;
+        Tp.copy_file_list = $5 ;
+        Tp.copy_patch_list = $6 ;
+        Tp.copy_constraint_list = $7 ;
+        Tp.copy_backup = not ($3 = 1) ;
         Tp.copy_at_end = false ;
-        Tp.copy_save_inlined = ($2 = 2) ;
+        Tp.copy_save_inlined = ($3 = 2) ;
       } ) }
 | COPY_RANDOM copy_random_string_list tp_patch_list tp_when_list { Tp.TP_CopyRandom($2,$3,$4) }
 | COPY_RANDOM STRING string_list tp_patch_list tp_when_list { Tp.TP_CopyRandom([$2::$3],$4,$5) }
@@ -704,8 +708,10 @@ optional_evaluate :
 | patch_STRING_right STRING_COMPARE_CASE patch_STRING_right    { Tp.PE_StringEqual($1,$3,true,false) }
 | patch_STRING_right STRING_EQUAL patch_STRING_right    { Tp.PE_StringEqual($1,$3,false,true) }
 | patch_STRING_right STRING_EQUAL_CASE patch_STRING_right    { Tp.PE_StringEqual($1,$3,true,true) }
-| patch_STRING_right STRING_MATCHES_REGEXP patch_STRING_right { Tp.PE_StringRegexp($1,$3,true) }
-| patch_STRING_right STRING_CONTAINS_REGEXP patch_STRING_right { Tp.PE_StringRegexp($1,$3,false) }
+| patch_STRING_right STRING_MATCHES_REGEXP patch_STRING_right { Tp.PE_StringRegexp($1,$3,true,Tp.Legacy_regexp) }
+| patch_STRING_right STRING_MATCHES_REGEXP PCRE2_REGEXP patch_STRING_right { Tp.PE_StringRegexp($1,$4,true,Tp.Pcre2_regexp) }
+| patch_STRING_right STRING_CONTAINS_REGEXP patch_STRING_right { Tp.PE_StringRegexp($1,$3,false,Tp.Legacy_regexp) }
+| patch_STRING_right STRING_CONTAINS_REGEXP PCRE2_REGEXP patch_STRING_right { Tp.PE_StringRegexp($1,$4,false,Tp.Pcre2_regexp) }
 | RANDOM LPAREN patch_exp patch_exp RPAREN { Tp.PE_Random($3,$4) }
 | FILE_CONTAINS_EVALUATED LPAREN patch_STRING_right patch_STRING_right RPAREN
     { Tp.PE_FileContainsEvaluated($3,$4) }
@@ -778,6 +784,16 @@ optional_evaluate :
 | EVALUATE_REGEXP      { Some(false) }
     ;
 
+  optional_regexp_match : { (None, Tp.Legacy_regexp) }
+| EXACT_MATCH          { (Some(true), Tp.Legacy_regexp) }
+| EVALUATE_REGEXP      { (Some(false), Tp.Legacy_regexp) }
+| PCRE2_REGEXP         { (Some(false), Tp.Pcre2_regexp) }
+    ;
+
+  optional_regexp_engine : { Tp.Legacy_regexp }
+| PCRE2_REGEXP              { Tp.Pcre2_regexp }
+    ;
+
   optional_null_terminated : { false }
 | NULL { true }
 
@@ -785,13 +801,14 @@ optional_evaluate :
 | SAY patch_exp lse { Tp.TP_PatchStrRef($2,$3) }
 | SAY_EVALUATED patch_exp STRING { Tp.TP_PatchStrRefEvaluated($2,$3) }
 | LAUNCH_PATCH_MACRO STRING { Tp.TP_Launch_Patch_Macro ($2,true) }
-| REPLACE optional_case_sensitive optional_match_exact STRING lse { Tp.TP_PatchString($2,$3,$4,$5) }
-| REPLACE_TEXTUALLY optional_case_sensitive optional_match_exact STRING STRING
-    { Tp.TP_PatchStringTextually($2,$3,$4,$5,None) }
+| REPLACE optional_case_sensitive optional_regexp_match STRING lse
+    { let match_exact, engine = $3 in Tp.TP_PatchString($2,match_exact,engine,$4,$5) }
+| REPLACE_TEXTUALLY optional_case_sensitive optional_regexp_match STRING STRING
+    { let match_exact, engine = $3 in Tp.TP_PatchStringTextually($2,match_exact,engine,$4,$5,None) }
 | REPLACE_TEXTUALLY optional_case_sensitive optional_match_exact STRING STRING LPAREN patch_exp RPAREN
-    { Tp.TP_PatchStringTextually($2,Some(false),$4,$5,Some($7)) }
-| REPLACE_EVALUATE optional_case_sensitive STRING BEGIN tp_patch_list END STRING
-    { Tp.TP_PatchStringEvaluate($2,$3,$5,$7) }
+    { Tp.TP_PatchStringTextually($2,Some(false),Tp.Legacy_regexp,$4,$5,Some($7)) }
+| REPLACE_EVALUATE optional_case_sensitive optional_regexp_engine STRING BEGIN tp_patch_list END STRING
+    { Tp.TP_PatchStringEvaluate($2,$3,$4,$6,$8) }
 | REPLACE_BCS_BLOCK STRING STRING { Tp.TP_PatchReplaceBCSBlock($2,$3,None,false,None) }
 | REPLACE_BCS_BLOCK_REGEXP STRING STRING { Tp.TP_PatchReplaceBCSBlockRE($2,$3,None) }
 | REPLACE_CRE_ITEM STRING string_ref_or_pe  string_ref_or_pe  string_ref_or_pe  STRING  STRING  optional_equip  optional_2h
@@ -937,8 +954,9 @@ optional_evaluate :
 | COUNT_2DA_COLS STRING { Tp.TP_Get2DACols(Tp.PE_LiteralString $2) }
 | PRETTY_PRINT_2DA patch_exp { Tp.TP_PrettyPrint2DA($2) }
 | PRETTY_PRINT_2DA { Tp.TP_PrettyPrint2DA(Tp.get_pe_int "2") }
-| COUNT_REGEXP_INSTANCES optional_case_sensitive optional_match_exact STRING STRING
-    { Tp.TP_CountRegexpInstances($2,$3,$4,Tp.PE_LiteralString $5) }
+| COUNT_REGEXP_INSTANCES optional_case_sensitive optional_regexp_match STRING STRING
+    { let match_exact, engine = $3 in
+      Tp.TP_CountRegexpInstances($2,match_exact,engine,$4,Tp.PE_LiteralString $5) }
 | READ_2DA_ENTRY patch_exp patch_exp patch_exp STRING { Tp.TP_Read2DA($2,$3,$4,Tp.PE_LiteralString $5) }
 | READ_2DA_ENTRIES_NOW STRING patch_exp { Tp.TP_Read2DANow($2,$3) }
 | READ_2DA_ENTRY_FORMER STRING patch_exp patch_exp STRING { Tp.TP_Read2DAFormer($2,$3,$4,$5) }

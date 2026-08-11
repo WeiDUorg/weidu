@@ -3093,6 +3093,11 @@ global option to your \ttref{TP2} file. \\
        in the game \ttref{BIFF}s will be copied there. Otherwise, toDirOrFile
        will be treated as a file.
 
+       Put \ttref{PCRE2_REGEXP} immediately after
+       \ttref{COPY_EXISTING_REGEXP} to use the opt-in PCRE2 dialect. In that
+       mode, destination captures use \verb+$1+ or \verb+${name}+ rather than
+       the legacy $\backslash$1 form.
+
 
        If \ttref{GLOB} is specified, matching files in \t{override} will
        also be patched and copied. If a file appears in both the
@@ -4239,6 +4244,9 @@ is  & & Uses the WeiDU default (which is undocumented and varies with the action
 or & \DEFINE{EXACT_MATCH} & only the given string is searched for. \\
 or & \DEFINE{EVALUATE_REGEXP} & matching is evaluated following the usual regexp
       conventions. \\
+or & \DEFINE{PCRE2_REGEXP} & where documented, opt in to the bundled PCRE2
+      regexp engine. Existing regexp syntax continues to use WeiDU's legacy
+      engine unless this keyword is present. \\
 
 \\
 
@@ -5193,6 +5201,10 @@ COPY ~nice.baf~ ~mean.baf~
   This \ttref{COPY} \ttref{TP2 Action} would replace \t{Give(10,20)}
   with \t{Take(15)}.  optcase allows you to decide if the matching is
   case-sensitive or not. Matching is case-sensitive by default.  \\
+
+  Insert \ttref{PCRE2_REGEXP} after \ttref{optcase} to use PCRE2 syntax.
+  Named captures are then available as \t{MATCH\_name}; see the regular
+  expression section for replacement syntax and exact capture semantics. \\
 
   or & \DEFINE{ADD_GAM_NPC} npcCRE npcARE xCoord yCoord &
     See the \ahrefloc{sec-add-gam-npc}{\t{ADD_GAM_NPC} tutorial} for more information about this
@@ -10755,6 +10767,61 @@ The following constructs are recognized:
 So spe.* matches "sper01.itm" and "sper.eff" and "special".
 
 Hopefully this is understandable to most people.
+
+\subsection{Opt-in PCRE2 regular expressions}
+
+WeiDU also bundles PCRE2 10.47 for regular expressions that explicitly use
+\DEFINE{PCRE2_REGEXP}. This is an opt-in dialect: omitting the keyword always
+retains the GNU Emacs-style syntax and behaviour described above. In
+particular, existing mod code is never reinterpreted as PCRE2.
+
+PCRE2 mode supports Perl-compatible constructs such as unescaped capture and
+non-capture groups, unescaped alternation, bounded and lazy quantifiers,
+lookahead and lookbehind, atomic groups, pattern backreferences and named
+captures. Refer to the PCRE2 pattern documentation for the complete syntax.
+
+\t{PCRE2_REGEXP} is accepted by the following operations:
+\begin{itemize}
+\item \ttref{REPLACE}, \ttref{REPLACE_TEXTUALLY},
+  \ttref{REPLACE_EVALUATE} and \ttref{COUNT_REGEXP_INSTANCES}, in the
+  \ttref{optexact} position;
+\item \ttref{INDEX}, \ttref{RINDEX}, \ttref{INDEX_BUFFER} and
+  \ttref{RINDEX_BUFFER}, in the \ttref{optexact} position;
+\item \ttref{STRING_MATCHES_REGEXP} and \ttref{STRING_CONTAINS_REGEXP},
+  between the operator and its right-hand pattern;
+\item \ttref{COPY_EXISTING_REGEXP}, immediately after the command name.
+\end{itemize}
+
+For example:
+\begin{verbatim}
+OUTER_PATCH_SAVE result ~Give(10) DestroyItem("gold")~ BEGIN
+  REPLACE_TEXTUALLY CASE_SENSITIVE PCRE2_REGEXP
+    ~Give\((?<amount>\d+)\)(?!\s*TakePartyItem)~
+    ~Take(${amount})~
+END
+
+ACTION_IF ~AR1005~ STRING_MATCHES_REGEXP PCRE2_REGEXP ~^AR\d{4}$~ BEGIN
+  // The comparison matched at offset zero.
+END
+\end{verbatim}
+
+PCRE2 replacement strings use \verb+$0+, \verb+$1+, and so on for numbered
+captures, \verb+${name}+ for named captures, and \verb+$$+ for a literal
+dollar sign. A capture that exists but did not participate expands to the
+empty string; referring to a capture that does not exist is an error.
+\ttref{COPY_EXISTING_REGEXP} uses the same replacement syntax in its
+destination argument when PCRE2 mode is selected.
+
+In PCRE2-mode \ttref{REPLACE_EVALUATE}, numbered captures are exposed as
+\t{MATCH0}, \t{MATCH1}, and so on, and named captures are additionally exposed
+as \t{MATCH_name}. Unmatched captures are set to the empty string. The whole
+match is \t{MATCH0}, as in legacy mode.
+
+WeiDU buffers are byte strings, so PCRE2 matching is byte-oriented by default.
+A pattern may explicitly enable PCRE2 UTF and Unicode-property modes when its
+input is known to be valid UTF-8. PCRE2's built-in match, depth and heap limits
+remain enabled, and JIT is not enabled in the bundled build, so all matching
+uses the bounded interpreter.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec-constant}\section{WeiDU \DEFINE{constant}s}

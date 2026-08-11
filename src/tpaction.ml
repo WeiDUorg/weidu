@@ -107,6 +107,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                           get_pe_int unused_class)], []) in
         TP_Copy ({copy_get_existing = true ;
                   copy_use_regexp = false ;
+                  copy_regexp_engine = Legacy_regexp ;
                   copy_use_glob = false ;
                   copy_file_list = ["kitlist.2da", "override"] ;
                   copy_patch_list = [patch] ;
@@ -636,6 +637,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let copy_args = {
               copy_get_existing = true;
               copy_use_regexp = false;
+              copy_regexp_engine = Legacy_regexp;
               copy_use_glob = false;
               copy_file_list = sdlist ;
               copy_patch_list = plist ;
@@ -651,6 +653,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           let my_copy_args = {
             copy_get_existing = true;
             copy_use_regexp = false;
+            copy_regexp_engine = Legacy_regexp;
             copy_use_glob = false ;
             copy_file_list = [ ("baldur.gam", "override") ] ;
             copy_patch_list = pl ;
@@ -680,6 +683,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           let my_copy_args = {
             copy_get_existing = false;
             copy_use_regexp = false;
+            copy_regexp_engine = Legacy_regexp;
             copy_use_glob = false ;
             copy_file_list = gam_list ;
             copy_patch_list = pl ;
@@ -720,25 +724,39 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
               (if get_existing = true && use_reg = true then begin
                 let files_in_chitin = Key.list_of_key_resources game.Load.key use_glob in
                 let new_list = List.map (fun (s,p) ->
-                  let regexp = Str.regexp_case_fold s in
                   let matches = ref [] in
-                  List.iter (fun possible ->
-                    if Str.string_match regexp possible 0 then begin
-                      (try
-                        let dest = (Arch.backslash_to_slash
-                                      (Str.replace_matched p possible)) in
-                        let file_pattern = (Str.regexp ".+\\..+$") in
-                        if not (Str.string_match file_pattern dest 0) ||
-                        is_directory dest then begin
-                          matches :=
-                            (possible, dest ^ "/" ^ possible) :: !matches
-                        end else begin
-                          matches := (possible, dest) :: !matches
-                        end
-                      with | Failure s ->
-                        failwith (Printf.sprintf
-                                    "COPY_EXISTING_REGEXP failed: %s" s)) ;
-                    end) files_in_chitin;
+                  let add_match possible dest =
+                    let dest = Arch.backslash_to_slash dest in
+                    let file_pattern = Str.regexp ".+\\..+$" in
+                    if not (Str.string_match file_pattern dest 0) ||
+                    is_directory dest then
+                      matches := (possible, dest ^ "/" ^ possible) :: !matches
+                    else
+                      matches := (possible, dest) :: !matches
+                  in
+                  (match copy_args.copy_regexp_engine with
+                  | Legacy_regexp ->
+                      let regexp = Str.regexp_case_fold s in
+                      List.iter (fun possible ->
+                        if Str.string_match regexp possible 0 then
+                          (try add_match possible (Str.replace_matched p possible)
+                           with Failure message ->
+                             failwith (Printf.sprintf
+                               "COPY_EXISTING_REGEXP failed: %s" message)))
+                        files_in_chitin
+                  | Pcre2_regexp ->
+                      let regexp = Pcre2.compile ~case_sensitive:false s in
+                      List.iter (fun possible ->
+                        match Pcre2.search ~anchored:true regexp possible 0 with
+                        | None -> ()
+                        | Some matched ->
+                            (try add_match possible
+                                   (Pcre2.expand_replacement matched p)
+                             with Invalid_argument message ->
+                               failwith (Printf.sprintf
+                                 "COPY_EXISTING_REGEXP PCRE2_REGEXP failed: %s"
+                                 message)))
+                        files_in_chitin);
                   let matches = List.sort compare !matches in
                   if (matches = []) then
                     [(s,p)]
@@ -964,6 +982,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                 let copy_args = {
                   copy_get_existing = false;
                   copy_use_regexp = false;
+                  copy_regexp_engine = Legacy_regexp;
                   copy_use_glob = use_glob;
                   copy_file_list = [(src,dest)] ;
                   copy_patch_list = [] ;
@@ -1038,6 +1057,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let a2 = TP_Copy(
               {copy_get_existing = false;
                 copy_use_regexp = false;
+                copy_regexp_engine = Legacy_regexp;
                 copy_use_glob = false;
                 copy_file_list = [(mus_file,dest_music_file)] ;
                 copy_patch_list = [] ;
@@ -1149,6 +1169,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let a2 = TP_Copy(
               {copy_get_existing = false;
                 copy_use_regexp = false;
+                copy_regexp_engine = Legacy_regexp;
                 copy_use_glob = false;
                 copy_file_list = [(p.pro_file, dest_pro_file)] ;
                 copy_patch_list = [] ;
@@ -1242,6 +1263,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let a = TP_Copy(
               {copy_get_existing = true ;
                 copy_use_regexp = false;
+                copy_regexp_engine = Legacy_regexp;
                 copy_use_glob = false;
                 copy_file_list = [(which ^ ".2da","override")] ;
                 copy_patch_list = [] ;
@@ -1351,6 +1373,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let a7 = TP_Copy(
               {copy_get_existing = false ;
                 copy_use_regexp = false;
+                copy_regexp_engine = Legacy_regexp;
                 copy_use_glob = false;
                 copy_file_list = [(k.ability_file,dest_abil_file)] ;
                 copy_patch_list = [] ;
@@ -1405,6 +1428,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let fix2da1 =
               TP_Copy ({copy_get_existing = true;
                          copy_use_regexp = false;
+                         copy_regexp_engine = Legacy_regexp;
                          copy_use_glob = false;
                          copy_file_list = ["weapprof.2da", "override";
                                             "25stweap.2da", "override";] ;
@@ -1428,6 +1452,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let fix2da1a =
               TP_Copy ({copy_get_existing = true;
                          copy_use_regexp = false;
+                         copy_regexp_engine = Legacy_regexp;
                          copy_use_glob = false;
                          copy_file_list = ["kitlist.2da", "override"] ;
                          copy_patch_list =
@@ -1454,6 +1479,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let fix2da2 =
               TP_Copy ({copy_get_existing = true;
                          copy_use_regexp = false;
+                         copy_regexp_engine = Legacy_regexp;
                          copy_use_glob = false;
                          copy_file_list = ["weapprof.2da", "override";
                                             "25stweap.2da", "override";] ;
@@ -1462,7 +1488,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                              (PE_GT
                                 (get_pe_int "%SOURCE_SIZE%", get_pe_int "0"),[
                               TP_PatchStringTextually
-                                (None,None,"^%tb#kit_temp2%",
+                                (None,None,Legacy_regexp,"^%tb#kit_temp2%",
                                  String.make
                                    (String.length
                                       (Var.get_string_exact "%tb#kit_temp2%")) ' ',None);],[])] ;
@@ -1474,6 +1500,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
             let fix2da2a =
               TP_Copy ({copy_get_existing = true;
                          copy_use_regexp = false;
+                         copy_regexp_engine = Legacy_regexp;
                          copy_use_glob = false;
                          copy_file_list = ["kitlist.2da", "override"] ;
                          copy_patch_list =
@@ -1481,7 +1508,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                              (PE_GT
                                 (get_pe_int "%SOURCE_SIZE%", get_pe_int "0"),[
                               TP_PatchStringTextually
-                                (None,None,"^%tb#kit_temp2a%",
+                                (None,None,Legacy_regexp,"^%tb#kit_temp2a%",
                                  String.make
                                    (String.length
                                       (Var.get_string_exact "%tb#kit_temp2a%")) ' ',None);],[])] ;

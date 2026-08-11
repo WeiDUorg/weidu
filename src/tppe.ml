@@ -194,7 +194,7 @@ let rec eval_pe buff game p =
   | PE_Buffer_Length ->
       Int32.of_int (String.length buff)
 
-  | PE_Index(from_end,case_sens,match_exact,what,start,where) ->
+  | PE_Index(from_end,case_sens,match_exact,engine,what,start,where) ->
       let case_sens = match case_sens with
       | None -> false
       | Some(x) -> x
@@ -204,12 +204,6 @@ let rec eval_pe buff game p =
       | Some(x) -> x
       in
       let find = Var.get_string (eval_pe_str what) in
-      let my_regexp = match case_sens, match_exact with
-      | false, false -> Str.regexp_case_fold        find
-      | true , false -> Str.regexp                  find
-      | false, true  -> Str.regexp_string_case_fold find
-      | true , true  -> Str.regexp_string           find
-      in
       let where = match where with
       | None -> buff
       | Some x -> Var.get_string (eval_pe_str x)
@@ -219,8 +213,29 @@ let rec eval_pe buff game p =
       | true, None -> String.length where
       | _, Some x -> Int32.to_int (eval_pe where game x)
       in
-      Int32.of_int (try (if from_end then Str.search_backward else
-      Str.search_forward) my_regexp where start with _ -> 0 - 1)
+      let index = match engine with
+      | Legacy_regexp ->
+          let my_regexp = match case_sens, match_exact with
+          | false, false -> Str.regexp_case_fold        find
+          | true , false -> Str.regexp                  find
+          | false, true  -> Str.regexp_string_case_fold find
+          | true , true  -> Str.regexp_string           find in
+          (try (if from_end then Str.search_backward else
+            Str.search_forward) my_regexp where start
+           with _ -> -1)
+      | Pcre2_regexp ->
+          if match_exact then
+            failwith "PCRE2_REGEXP cannot be combined with EXACT_MATCH";
+          let regexp = Pcre2.compile ~case_sensitive:case_sens find in
+          let result = if from_end then
+            Pcre2.search_backward regexp where start
+          else
+            Pcre2.search regexp where start in
+          (match result with
+          | None -> -1
+          | Some matched -> Pcre2.match_start matched)
+      in
+      Int32.of_int index
 
   | PE_FileContainsEvaluated(filename, reg) ->
       begin
@@ -333,18 +348,24 @@ let rec eval_pe buff game p =
         true
       with Not_found -> false)
 
-  | PE_StringRegexp(s1,s2,exact) ->
+  | PE_StringRegexp(s1,s2,exact,engine) ->
       let s1 = eval_pe_str s1 in
       let s2 = eval_pe_str s2 in
       let s1 = Var.get_string s1 in
       let s2 = Var.get_string s2 in
-      let r = Str.regexp_case_fold s2 in
-      let b =
-        if exact then Str.string_match r s1 0
-        else try
-          let _ = Str.search_forward r s1 0 in
-          true
-        with _ -> false
+      let b = match engine with
+      | Legacy_regexp ->
+          let r = Str.regexp_case_fold s2 in
+          if exact then Str.string_match r s1 0
+          else (try
+            let _ = Str.search_forward r s1 0 in
+            true
+          with _ -> false)
+      | Pcre2_regexp ->
+          let regexp = Pcre2.compile ~case_sensitive:false s2 in
+          (match Pcre2.search ~anchored:exact regexp s1 0 with
+          | None -> false
+          | Some _ -> true)
       in
       if b then 0l else 1l
 

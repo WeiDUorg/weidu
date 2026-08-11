@@ -99,6 +99,7 @@ let _ = List.iter
       ("END", END) ;
       ("EQUIP", EQUIP);
       ("EVALUATE_REGEXP", EVALUATE_REGEXP);
+      ("PCRE2_REGEXP", PCRE2_REGEXP);
       ("EXACT_MATCH", EXACT_MATCH);
       ("EXTEND",EXTEND_BOTTOM) ;
       ("EXTEND_BOTTOM", EXTEND_BOTTOM) ;

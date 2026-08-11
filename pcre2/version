@@ -1,0 +1,6 @@
+# Single source of truth for local and CI dependency preparation.
+PCRE2_VERSION=10.47
+PCRE2_TAG=pcre2-10.47
+PCRE2_COMMIT=f454e231fe5006dd7ff8f4693fd2b8eb94333429
+PCRE2_GITHUB_REPOSITORY=PCRE2Project/pcre2
+PCRE2_REPOSITORY=https://github.com/PCRE2Project/pcre2.git
