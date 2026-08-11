@@ -614,3 +614,18 @@ let the_tp () = match !saved_tp with
 	is_auto_eval_string = false;
 }
 | Some x -> x
+
+(* Evaluation helpers consult [the_tp] for TP2-specific behavior such as
+ * AUTO_EVAL_STRINGS. Preserve the previous value so nested operations (most
+ * notably stack uninstalls) can temporarily select their own TP2 without
+ * corrupting the caller's evaluation context. *)
+let with_tp_context tp f =
+  let previous_tp = !saved_tp in
+  saved_tp := Some tp ;
+  try
+    let result = f () in
+    saved_tp := previous_tp ;
+    result
+  with e ->
+    saved_tp := previous_tp ;
+    raise e

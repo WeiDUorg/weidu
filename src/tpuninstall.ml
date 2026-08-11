@@ -93,6 +93,20 @@ let record_tlk_path_info game filename =
  * Uninstall a TP2 component
  ************************************************************************)
 let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
+  let rec has_uninstall_effect al =
+    List.exists (fun action ->
+      match action with
+      | TP_At_Interactive_Uninstall _
+      | TP_At_Interactive_Uninstall_Exit _ -> do_interactive_uninstall
+      | TP_At_Uninstall _
+      | TP_At_Uninstall_Exit _ -> do_uninstall
+      | TP_Biff _
+      | TP_Include _
+      | TP_Reinclude _ -> true
+      | TP_If(_, al1, al2) ->
+          has_uninstall_effect al1 || has_uninstall_effect al2
+      | _ -> false) al
+  in
   let rec handle_al al =
     List.iter (fun a ->
       match a with
@@ -135,17 +149,19 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
                 execute_at_exit := (Command(str,exact)) :: !execute_at_exit
           end
       | TP_If(p,al1,al2) ->
-          begin try
+          if has_uninstall_effect al1 || has_uninstall_effect al2 then begin
+            let previous_eval_pe_warn = !eval_pe_warn in
             eval_pe_warn := false ;
-            let res = is_true (eval_pe "" game p) in
-            (* log_or_print "IF evaluates to %b\n" res ; *)
-            if res then begin
-              handle_al al1
-            end else begin
-              handle_al al2
-            end
-          with _ -> () ;
-            eval_pe_warn := true ;
+            (try
+              let res = is_true (eval_pe "" game p) in
+              (* log_or_print "IF evaluates to %b\n" res ; *)
+              if res then begin
+                handle_al al1
+              end else begin
+                handle_al al2
+              end
+            with _ -> ()) ;
+            eval_pe_warn := previous_eval_pe_warn
           end
       | TP_Biff _ ->
           (* re-load the chitin *)
@@ -202,8 +218,9 @@ let handle_at_uninstall tp2 m do_uninstall do_interactive_uninstall game =
       | _ -> ()
               ) fl
   in
-  handle_flag tp2.flags ;
-  handle_al m.mod_parts
+  with_tp_context tp2 (fun () ->
+    handle_flag tp2.flags ;
+    handle_al m.mod_parts)
 
 let validate_uninstall_order tp2 =
   let order = Queue.create() in

@@ -1,0 +1,20 @@
+BACKUP ~uninstall_action_if_context/inner-backup~
+AUTHOR ~WeiDU regression tests~
+
+ALWAYS
+  // This installation-only predicate has no uninstall-time behavior and
+  // depends on state that is intentionally not reconstructed on uninstall.
+  OUTER_SPRINT target_game ~BG1~
+  ACTION_IF GAME_INCLUDES ~%target_game%~ BEGIN
+    PRINT ~The null test game unexpectedly includes BG1.~
+  END
+
+  // A predicate that selects uninstall-time behavior must still be evaluated.
+  ACTION_IF GAME_INCLUDES ~BG1~ BEGIN
+    AT_UNINSTALL ~touch wrong-branch-ran~ EXACT
+  END ELSE BEGIN
+    AT_UNINSTALL ~touch uninstall-branch-ran~ EXACT
+  END
+END
+
+BEGIN ~Inner component~

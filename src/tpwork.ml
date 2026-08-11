@@ -956,14 +956,9 @@ let rec handle_tp game this_tp2_filename tp =
   in
 
   let handle_letter tp answer can_uninstall temp_uninst package_name m finished i =
-    saved_tp := Some tp;
-    try
-      let ans = handle_letter_inner tp answer can_uninstall temp_uninst package_name m finished i in
-      saved_tp := None;
-      ans
-    with e ->
-      saved_tp := None;
-      raise e
+    with_tp_context tp (fun () ->
+      handle_letter_inner tp answer can_uninstall temp_uninst package_name
+        m finished i)
   in
 
   let specify = ref false in

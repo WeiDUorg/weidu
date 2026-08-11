@@ -1,0 +1,4 @@
+BACKUP ~uninstall_action_if_context/outer-backup~
+AUTHOR ~WeiDU regression tests~
+
+BEGIN ~Outer component~

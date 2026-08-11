@@ -25,3 +25,7 @@ traify/*
 
 tp2/tp2_regression_tests/*
         A collection of tests for TP2 functionality. Install as a WeiDU mod.
+
+tp2/uninstall_action_if_context/run.sh
+        Verifies that stack uninstalls skip installation-only ACTION_IF
+        predicates while still evaluating guarded AT_UNINSTALL actions.
