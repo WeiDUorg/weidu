@@ -46,10 +46,16 @@ let module_groups_ok m =
     | _ -> false) m.mod_flags
   else true
 
+let label_is_installed label =
+  Tpstate.label_is_installed
+    (fun filename -> handle_tp2_filename_caching filename true) label
+
 let comp_flag_p tp m =
   List.exists (fun f -> match f with
   | TPM_RequireComponent(s, i, warn) -> not (already_installed s i)
   | TPM_ForbidComponent(s, i, warn) -> (already_installed s i)
+  | TPM_RequireLabel(label, warn) -> not (label_is_installed label)
+  | TPM_ForbidLabel(label, warn) -> label_is_installed label
   | TPM_Deprecated(warn) -> true
   | TPM_RequirePredicate(p,warn) ->
       not (is_true (eval_pe "" (Load.the_game ()) p))
@@ -1336,6 +1342,19 @@ let rec handle_tp game this_tp2_filename tp =
           begin
             if already_installed s i &&
               not (temporarily_uninstalled s i) then
+              preproc_fail "SKIPPING" warn can_uninstall true
+            else
+              () (* good! *)
+          end
+      | TPM_RequireLabel(label,warn) ->
+          begin
+            if label_is_installed label then
+              () (* good! *)
+            else preproc_fail "SKIPPING" warn can_uninstall false
+          end
+      | TPM_ForbidLabel(label,warn) ->
+          begin
+            if label_is_installed label then
               preproc_fail "SKIPPING" warn can_uninstall true
             else
               () (* good! *)

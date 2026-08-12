@@ -2980,6 +2980,20 @@ global option to your \ttref{TP2} file. \\
       component is \emph{not} installed. This does the opposite of
       \ttref{REQUIRE_COMPONENT}.  \\
 
+  or & \DEFINE{REQUIRE_LABEL} componentLabel \ttref{String} &
+      Make this component so that it can only be installed if at least one
+      currently installed component has a \ttref{LABEL} equal to
+      componentLabel. If no matching component is installed, the
+      \ttref{String} will be displayed and the user will not get a chance
+      to install this component. WeiDU resolves labels from the TP2 files
+      named in \t{WeiDU.log}; the same label may therefore be provided by
+      components in different mods. Label matching is case-sensitive. \\
+
+  or & \DEFINE{FORBID_LABEL} componentLabel \ttref{String} &
+      Make this component so that it can only be installed if no currently
+      installed component has a \ttref{LABEL} equal to componentLabel. This
+      does the opposite of \ttref{REQUIRE_LABEL}. \\
+
   or & \DEFINE{REQUIRE_PREDICATE} \ttref{value} \ttref{String} &
       This component can only be installed if the \ttref{value}
       evaluates to true (non-zero). \\

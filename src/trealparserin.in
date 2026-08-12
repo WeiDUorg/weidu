@@ -274,6 +274,8 @@ nonterm(Tp.tp_mod_flag) Tp_Mod_Flag {
   -> REQUIRE_COMPONENT e1:STRING e2:STRING e3:Lse [ Tp.TPM_RequireComponent(e1,my_int_of_string e2,e3) ]
   -> INSTALL_BY_DEFAULT [ Tp.TPM_InstallByDefault ]
   -> FORBID_COMPONENT e1:STRING e2:STRING e3:Lse [ Tp.TPM_ForbidComponent(e1,my_int_of_string e2,e3) ]
+  -> REQUIRE_LABEL e1:STRING e2:Lse [ Tp.TPM_RequireLabel(e1,e2) ]
+  -> FORBID_LABEL e1:STRING e2:Lse [ Tp.TPM_ForbidLabel(e1,e2) ]
   -> REQUIRE_PREDICATE e1:Patch_Exp e2:Lse [ Tp.TPM_RequirePredicate(e1,e2) ]
   -> GROUP e1:Lse e2:Patch_Exp [ Tp.TPM_Group (e1,e2) ]
   -> GROUP e1:Lse [ Tp.TPM_Group (e1,Tp.Pred_True) ]

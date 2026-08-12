@@ -1,0 +1,14 @@
+BACKUP ~issue-319-consumer/backup~
+AUTHOR ~WeiDU regression test~
+
+BEGIN ~Requires the shared feature~
+  REQUIRE_LABEL ~issue-319-shared-feature~ ~The shared feature is required~
+
+BEGIN ~Requires an absent feature~
+  REQUIRE_LABEL ~issue-319-absent-feature~ ~The absent feature is required~
+
+BEGIN ~Forbids the shared feature~
+  FORBID_LABEL ~issue-319-shared-feature~ ~The shared feature is forbidden~
+
+BEGIN ~Forbids an absent feature~
+  FORBID_LABEL ~issue-319-absent-feature~ ~The absent feature is forbidden~

@@ -25,3 +25,8 @@ traify/*
 
 tp2/tp2_regression_tests/*
         A collection of tests for TP2 functionality. Install as a WeiDU mod.
+
+tp2/issue-319-label-requirements/run.sh
+        Verifies REQUIRE_LABEL and FORBID_LABEL against missing labels and
+        equivalent labels provided by different mods. Pass the path to a
+        built WeiDU executable as the only argument.

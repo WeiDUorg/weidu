@@ -1,4 +1,6 @@
 Version 251:
+  * Add REQUIRE_LABEL and FORBID_LABEL component flags for testing whether
+    any installed component provides a LABEL.
   * CREATE called within CREATE works as expected.
   * CREATE sets SOURCE_* and DEST_* variables.
   * Auto-update does not fail if the filename of the newest WeiDU

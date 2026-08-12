@@ -1,0 +1,5 @@
+BACKUP ~issue-319-provider-b/backup~
+AUTHOR ~WeiDU regression test~
+
+BEGIN ~Alternative provider~
+  LABEL ~issue-319-shared-feature~

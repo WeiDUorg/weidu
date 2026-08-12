@@ -228,6 +228,32 @@ let already_installed tp2 i =
   | hd :: tl -> is_installed tl
   in is_installed !the_log
 
+let label_is_installed handle_tp2_filename label =
+  let component_has_label tp2_filename component =
+    try
+      let base_name =
+        Util.tp2_name
+          (Case_ins.filename_basename
+             (try Case_ins.filename_chop_extension tp2_filename
+              with _ -> tp2_filename)) in
+      (* Prefer the path recorded in WeiDU.log. The conventional alternatives
+         preserve the same setup-/directory compatibility as component checks
+         when an installed mod has subsequently moved its TP2 file. *)
+      let candidates = tp2_filename :: Util.all_possible_tp2s base_name in
+      let filename = List.find Util.file_exists candidates in
+      let tp2 = handle_tp2_filename filename in
+      let tp_mod = get_nth_module tp2 component false in
+      List.exists (fun flag -> match flag with
+      | TPM_Label candidate -> candidate = label
+      | _ -> false) tp_mod.mod_flags
+    with _ ->
+      false in
+  (* Temporarily uninstalled components must not satisfy a requirement: they
+     are absent while WeiDU decides whether dependent components may return. *)
+  List.exists (fun (tp2_filename,_,component,_,status) ->
+    status = Installed && component_has_label tp2_filename component)
+    !the_log
+
 let installed_lang_index tp2 =
   let rec is_installed lst = match lst with
   | [] -> None

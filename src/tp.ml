@@ -87,6 +87,8 @@ and tp_mod_flag =
   | TPM_Deprecated of Dlg.tlk_string (* should be uninstalled when encountered *)
   | TPM_RequireComponent of string * int * Dlg.tlk_string
   | TPM_ForbidComponent of string * int * Dlg.tlk_string
+  | TPM_RequireLabel of string * Dlg.tlk_string
+  | TPM_ForbidLabel of string * Dlg.tlk_string
   | TPM_RequirePredicate of tp_patchexp * Dlg.tlk_string
   | TPM_SubComponents of Dlg.tlk_string * tp_patchexp * bool (* is forced? *)
   | TPM_Designated of int
