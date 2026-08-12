@@ -3236,7 +3236,7 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
   or & \DEFINE{CLEAR_IDS_MAP} & force WeiDU to remove all loaded IDSes in memory
       (otherwise, if you compile a script, append to an IDS and compile another script, WeiDU
       will not handle the new IDS entry). \\
-  or & \DEFINE{ACTION_CLEAR_ARRAY} \ttref{String} &
+  or & \DEFINE{ACTION_CLEAR_ARRAY} \ttref{patch string} &
     `Forgets' that the array \t{string} exists until its values are recalled.
     The actual variables' values are kept, the only effect is that \t{*PHP_EACH}
     will not consider old values.
@@ -3929,22 +3929,23 @@ or & \DEFINE{ACTION_BASH_FOR} \ttref{directory-file-regexp} \t{BEGIN} \ttref{TP2
 "%BASH_FOR_SIZE%" = <size of somedir/yourfile.cre>
 \end{verbatim}                                           \\
 
-or & \DEFINE{ACTION_DEFINE_ARRAY} \t{\ttref{String}1 BEGIN \ttref{String}2} \Slist \t{END} &
+or & \DEFINE{ACTION_DEFINE_ARRAY} \t{\ttref{patch string}1 BEGIN
+\ttref{String}2} \Slist \t{END} &
 	Sets the array \verb+$string1(0)+,\verb+$string1(1)+ etc. to the various elements in string2.
 \\
-or & \DEFINE{ACTION_SORT_ARRAY_INDICES} \t{\ttref{String}}
+or & \DEFINE{ACTION_SORT_ARRAY_INDICES} \t{\ttref{patch string}}
   \Ob \ttref{ArrayIndicesSortType} \Oe &
 
-  Sorts the indices of the array given by String according to the
-  order \ttref{ArrayIndicesSortType}. String is evaluated for
+  Sorts the indices of the array given by the patch string according to the
+  order \ttref{ArrayIndicesSortType}. The patch string is evaluated for
   variables and you can use the array construct.\\
 
-or & \DEFINE{GET_FILE_ARRAY} \ttref{String} path \ttref{regexp} &
+or & \DEFINE{GET_FILE_ARRAY} \ttref{patch string} path \ttref{regexp} &
   The array \verb+$string(0)+, \verb+$string(1)+ etc is set to the file names, including path, that match regexp in path. The path is relative to the installation directory (e.g. save/000000000-Auto-Save).\\
-or & \DEFINE{GET_DIRECTORY_ARRAY} \ttref{String} path \ttref{regexp} &
+or & \DEFINE{GET_DIRECTORY_ARRAY} \ttref{patch string} path \ttref{regexp} &
   Like \ttref{GET_FILE_ARRAY} except regexp is matched against directories instead of files.\\
 
-or & \DEFINE{GET_RESOURCE_ARRAY} \ttref{String} \ttref{regexp} &
+or & \DEFINE{GET_RESOURCE_ARRAY} \ttref{patch string} \ttref{regexp} &
 
   The array \verb+$String(0)+, \verb+$String(1)+ etc is set to a
   sorted list of resource references that match the regexp
@@ -3953,7 +3954,8 @@ or & \DEFINE{GET_RESOURCE_ARRAY} \ttref{String} \ttref{regexp} &
   not include any file paths. Both the string and the regexp are
   evaluated for variables and the array construct. \\
 
-or & \DEFINE{ACTION_DEFINE_ASSOCIATIVE_ARRAY} \t{\ttref{String} BEGIN key1 \Ob , key2 ... \Oe => result1} \Slist \t{END} &
+or & \DEFINE{ACTION_DEFINE_ASSOCIATIVE_ARRAY} \t{\ttref{patch string}
+BEGIN key1 \Ob , key2 ... \Oe => result1} \Slist \t{END} &
   Sets the array \verb+$string+, indexed by the keys, to the corresponding results. The results can either be \ttref{String}s or \ttref{value}s.
   Example:
 \begin{verbatim}
@@ -3962,11 +3964,12 @@ ACTION_DEFINE_ASSOCIATIVE_ARRAY mix_with_blue BEGIN
   yellow => green
 END
 \end{verbatim}\\
-or & \DEFINE{ACTION_FOR_EACH} \t{\ttref{String}1 IN \ttref{String}} \Slist
+or & \DEFINE{ACTION_FOR_EACH} \t{\ttref{patch string}1 IN \ttref{String}} \Slist
                               \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
     will set the string1 variable to each value in string list and process each action. \\
 
-or & \DEFINE{ACTION_PHP_EACH} \t{\ttref{String}1 AS \ttref{String}2 => \ttref{String}3} \Slist
+or & \DEFINE{ACTION_PHP_EACH} \t{\ttref{patch string}1 AS
+\ttref{patch string}2 => \ttref{patch string}3} \Slist
                               \t{BEGIN} \ttref{TP2 Action} \Slist \t{END} &
     For every value of the string1 array that has been created or read, sets
     \verb+string2_0+ to the first array parameter, \verb+string2_1+ to the second array
@@ -4099,7 +4102,7 @@ or & \DEFINE{DEFINE_PATCH_MACRO} \ttref{String} \t{BEGIN}
   additional information. \\
 or & \DEFINE{DEFINE_ACTION_FUNCTION} \ttref{String}
      \Ob \t{INT_VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
-     \Ob \t{STR_VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe
+     \Ob \t{STR_VAR} \ttref{variable} \t{=} \ttref{patch string} ... \Oe
      \Ob \t{RET} \ttref{variable} ... \Oe
      \Ob \t{RET_ARRAY} \ttref{variable} ... \Oe
      \t{BEGIN} \ttref{TP2 Action} \Slist
@@ -4109,7 +4112,7 @@ or & \DEFINE{DEFINE_ACTION_FUNCTION} \ttref{String}
 
 or & \DEFINE{DEFINE_DIMORPHIC_FUNCTION} \ttref{String}
      \Ob \t{INT_VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
-     \Ob \t{STR_VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe
+     \Ob \t{STR_VAR} \ttref{variable} \t{=} \ttref{patch string} ... \Oe
      \Ob \t{RET} \ttref{variable} ... \Oe
      \Ob \t{RET_ARRAY} \ttref{variable} ... \Oe
      \t{BEGIN} \ttref{TP2 Action} \Slist
@@ -4120,7 +4123,7 @@ or & \DEFINE{DEFINE_DIMORPHIC_FUNCTION} \ttref{String}
 
 or & \DEFINE{DEFINE_PATCH_FUNCTION} \ttref{String}
      \Ob \t{INT_VAR} \ttref{variable} \t{=} \ttref{value} ... \Oe
-     \Ob \t{STR_VAR} \ttref{variable} \t{=} \ttref{String} ... \Oe
+     \Ob \t{STR_VAR} \ttref{variable} \t{=} \ttref{patch string} ... \Oe
      \Ob \t{RET} \ttref{variable} ... \Oe
      \Ob \t{RET_ARRAY} \ttref{variable} ... \Oe
      \t{BEGIN} \ttref{patch} \Slist
@@ -4133,22 +4136,22 @@ or & \DEFINE{LAUNCH_ACTION_MACRO} \ttref{String} &
   \ttref{LAUNCH_ACTION_MACRO}.\\
 or & \DEFINE{LAUNCH_ACTION_FUNCTION} \ttref{String}
      \Ob \t{INT_VAR} \ttref{variable} \Ob \t{=} \ttref{value} \Oe ... \Oe
-     \Ob \t{STR_VAR} \ttref{variable} \Ob \t{=} \Ob \ttref{EVALUATE_BUFFER}
-     \Oe \ttref{String} \Oe ... \Oe
-     \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
-     \Ob \t{RET_ARRAY} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
+     \Ob \t{STR_VAR} \ttref{variable} \Ob \t{=} \ttref{patch string}
+     \Oe ... \Oe
+     \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{patch string} \Oe ... \Oe
+     \Ob \t{RET_ARRAY} \ttref{variable} \Ob \t{=} \ttref{patch string} \Oe ... \Oe
      \t{END} &
   Launch an action function. Refer to the \ahrefloc{sec-functions}{\t{Functions}} section for
   additional information. You may use \DEFINE{LAF} as a synonym for
   \ttref{LAUNCH_ACTION_FUNCTION}.\\
-or & \DEFINE{ACTION_TIME} \ttref{String} \t{BEGIN} \ttref{TP2 Action}
+or & \DEFINE{ACTION_TIME} \ttref{patch string} \t{BEGIN} \ttref{TP2 Action}
      \Slist \t{END} &
   Measure the time taken to execute the \ttref{TP2 Action}s and report
-  it under the label \ttref{String} together with the other time
+  it under the label given by the patch string together with the other time
   measurements at the end of the mod's debug file.\\
-or & \DEFINE{REGISTER_UNINSTALL} \ttref{String} &
-  \t{String} should be a file name, including directory, if
-  any. \t{String} is evaluated for variables and the array
+or & \DEFINE{REGISTER_UNINSTALL} \ttref{patch string} &
+  The patch string should be a file name, including directory, if
+  any. It is evaluated for variables and the array
   construct. This action generates uninstall information equivalent to
   a \ttref{COPY} with the file name as the target (toFile). \\
 
@@ -4612,7 +4615,7 @@ or & \DEFINE{READ_STRREF_FS} \ttref{offset} \ttref{variable} \Ob \t{ELSE} \t{str
   is used instead. If the string has no sound, the empty string is
   used instead. \\
 
-or & \DEFINE{GET_OFFSET_ARRAY} \ttref{String} \t{seven \ttref{value}s} &
+or & \DEFINE{GET_OFFSET_ARRAY} \ttref{patch string} \t{seven \ttref{value}s} &
   The seven values are:
 \begin{verbatim}
 1. Offset
@@ -4659,7 +4662,7 @@ WMP_LINKS (0x38 4 0x3c 4 0 0 0xd8)
 
 \t{GET_OFFSET_ARRAY} performs "Iterations" number of reads and sets the array \verb+$string(0)+, \verb+$string(1)+ etc to the result of these reads. A more detailed explanation can be had in the \ahrefloc{sec-get-offset-array12}{\t{GET_OFFSET_ARRAY} and \t{GET_OFFSET_ARRAY2} tutorial}.\\
 
-or & \DEFINE{GET_OFFSET_ARRAY2} \ttref{String} \t{eight \ttref{value}s} &
+or & \DEFINE{GET_OFFSET_ARRAY2} \ttref{patch string} \t{eight \ttref{value}s} &
   The eight values are:
 \begin{verbatim}
 1. Offset2
@@ -4697,7 +4700,8 @@ As you can see, the value for Offset2 isn't included in the sets, since it varie
 
 "Offset2" corresponds to the result from \ttref{GET_OFFSET_ARRAY}. "Offset" is read from the start of the file. "Iterations" and "Index" are read from Offset2 + value. Apart from that \t{GET_OFFSET_ARRAY2} functions like \ttref{GET_OFFSET_ARRAY}. A more detailed explanation can be had in the \ahrefloc{sec-get-offset-array12}{\t{GET_OFFSET_ARRAY} and \t{GET_OFFSET_ARRAY2} tutorial}.\\
 
-or & \DEFINE{DEFINE_ASSOCIATIVE_ARRAY} \t{\ttref{String} BEGIN key1 \Ob , key2 ... \Oe => result1} \Slist \t{END} &
+or & \DEFINE{DEFINE_ASSOCIATIVE_ARRAY} \t{\ttref{patch string} BEGIN
+key1 \Ob , key2 ... \Oe => result1} \Slist \t{END} &
   Sets the array \verb+$string+, indexed by the keys, to the corresponding results. The results can either be \ttref{String}s or \ttref{value}s.
   Example:
 \begin{verbatim}
@@ -4789,24 +4793,27 @@ or & \DEFINE{PATCH_BASH_FOR} \ttref{directory-file-regexp} \t{BEGIN} \ttref{patc
 "%BASH_FOR_SIZE%" = <size of somedir/yourfile.cre>
 \end{verbatim}            \\
 
-or & \DEFINE{DEFINE_ARRAY} \t{\ttref{String}1 BEGIN \ttref{String}2} \Slist \t{END} &
+or & \DEFINE{DEFINE_ARRAY} \t{\ttref{patch string}1 BEGIN
+\ttref{String}2} \Slist \t{END} &
 	Sets the array \verb+$string1(0)+,\verb+$string1(1)+ etc. to the various elements in string2.
 \\
 
-or & \DEFINE{PATCH_DEFINE_ARRAY} \t{\ttref{String}1 BEGIN \ttref{String}2 \Slist END} &
+or & \DEFINE{PATCH_DEFINE_ARRAY} \t{\ttref{patch string}1 BEGIN
+\ttref{String}2 \Slist END} &
 	Same as \ttref{DEFINE_ARRAY}.
 \\
 
-or & \DEFINE{SORT_ARRAY_INDICES} \t{\ttref{String}}
+or & \DEFINE{SORT_ARRAY_INDICES} \t{\ttref{patch string}}
   \Ob \ttref{ArrayIndicesSortType} \Oe &
 
   Semantically identical to \ttref{ACTION_SORT_ARRAY_INDICES}\\
 
-or & \DEFINE{PATCH_FOR_EACH} \t{\ttref{String}1 IN \ttref{String}} \Slist
+or & \DEFINE{PATCH_FOR_EACH} \t{\ttref{patch string}1 IN \ttref{String}} \Slist
                              \t{BEGIN} \ttref{patch} \Slist \t{END} &
     will set the string1 variable to each value in string list and process each patch. \\
 
-or & \DEFINE{PHP_EACH} \t{\ttref{String}1 AS \ttref{String}2 => \ttref{String}3} \Slist
+or & \DEFINE{PHP_EACH} \t{\ttref{patch string}1 AS
+\ttref{patch string}2 => \ttref{patch string}3} \Slist
                        \t{BEGIN} \ttref{patch} \Slist \t{END} &
     For every value of the string1 array that has been created or read, sets
     string2_0 to the first array parameter, string2_1 to the second array
@@ -4815,18 +4822,19 @@ or & \DEFINE{PHP_EACH} \t{\ttref{String}1 AS \ttref{String}2 => \ttref{String}3}
     patches listed. More exhaustive documentation will be provided by SConrad.
 \\
 
-or & \DEFINE{PATCH_PHP_EACH} \t{\ttref{String}1 AS \ttref{String}2 => \ttref{String}3} \Slist
+or & \DEFINE{PATCH_PHP_EACH} \t{\ttref{patch string}1 AS
+\ttref{patch string}2 => \ttref{patch string}3} \Slist
                              \t{BEGIN} \ttref{patch} \Slist \t{END} &
     A synonym of \ttref{PHP_EACH}.
 \\
 
-or & \DEFINE{CLEAR_ARRAY} \ttref{String} &
+or & \DEFINE{CLEAR_ARRAY} \ttref{patch string} &
     `Forgets' that the array \t{string} exists until its values are recalled.
     The actual variables' values are kept, the only effect is that \t{*PHP_EACH}
     will not consider old values.
 \\
 
-or & \DEFINE{PATCH_CLEAR_ARRAY} \ttref{String} &
+or & \DEFINE{PATCH_CLEAR_ARRAY} \ttref{patch string} &
     A synonym of \ttref{CLEAR_ARRAY}.
 \\
 
@@ -5007,11 +5015,11 @@ or & \DEFINE{ADD_STORE_ITEM} \Ob \t{+} \Oe itemName \Ob position \Oe
   existing instance of the same item. The item's number of charges are
   given by the respective charge argument, which must take the form of
   \t{\#}integer or \t{(} \ttref{value} \t{)}. The optional position
-  argument must be one of \t{AFTER} \ttref{String}, \t{BEFORE}
-  \ttref{String}, \t{LAST}, \t{FIRST} or \t{AT}
+  argument must be one of \t{AFTER} \ttref{patch string}, \t{BEFORE}
+  \ttref{patch string}, \t{LAST}, \t{FIRST} or \t{AT}
   \ttref{value}. \t{AFTER} will place the new item behind the item
-  given by \ttref{String}. \t{BEFORE} will place the item before the
-  item provided by \ttref{String}. \t{LAST} will place the new item
+  given by the patch string. \t{BEFORE} will place the item before the
+  item provided by the patch string. \t{LAST} will place the new item
   after all existing items. \t{FIRST} will place the new item as the
   first item in the store. \t{AT} will place the new item at the
   position given by \ttref{value}, with the first item having position
@@ -5448,19 +5456,19 @@ or & \DEFINE{LAUNCH_PATCH_MACRO} \ttref{String} &
 \\
 or & \DEFINE{LAUNCH_PATCH_FUNCTION} \ttref{String}
      \Ob \t{INT_VAR} \ttref{variable} \Ob \t{=} \ttref{value} \Oe ... \Oe
-     \Ob \t{STR_VAR} \ttref{variable} \Ob \t{=} \Ob \ttref{EVALUATE_BUFFER}
-     \Oe \ttref{String} \Oe ... \Oe
-     \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
-     \Ob \t{RET_ARRAY} \ttref{variable} \Ob \t{=} \ttref{String} \Oe ... \Oe
+     \Ob \t{STR_VAR} \ttref{variable} \Ob \t{=} \ttref{patch string}
+     \Oe ... \Oe
+     \Ob \t{RET} \ttref{variable} \Ob \t{=} \ttref{patch string} \Oe ... \Oe
+     \Ob \t{RET_ARRAY} \ttref{variable} \Ob \t{=} \ttref{patch string} \Oe ... \Oe
      \t{END} &
         Launch a patch function. Refer to the \ahrefloc{sec-functions}{\t{Functions}} section for
         additional information. You may use \DEFINE{LPF} as a synonym
         for \ttref{LAUNCH_PATCH_FUNCTION}.
 \\
-or & \DEFINE{PATCH_TIME} \ttref{String} \t{BEGIN} \ttref{patch}
+or & \DEFINE{PATCH_TIME} \ttref{patch string} \t{BEGIN} \ttref{patch}
      \Slist \t{END} &
   Measure the time taken to execute the \ttref{patch}es and report
-  it under the label \ttref{String} together with the other time
+  it under the label given by the patch string together with the other time
   measurements at the end of the mod's debug file.
 \\
 \\
@@ -5608,7 +5616,7 @@ An expression-valued conditional.  If the first value is not 0 then the
 second value is evaluated and returned, otherwise the third value is
 evaluated and returned.  \\
 
-or & \ttref{String} \DEFINE{STRING_COMPARE} \ttref{String} &
+or & \ttref{patch string} \DEFINE{STRING_COMPARE} \ttref{patch string} &
 This expression evaluates to 0 if and only if its two string arguments
 are equal (have the same length and the same contents). Both strings
 are evaluated for variables and the array construct. Otherwise it will
@@ -5623,13 +5631,13 @@ Note also that \ttref{STRING_EQUAL} and \ttref{STRING_COMPARE} are
 similar, but \ttref{STRING_EQUAL} returns logical true, rather than
 false, on a string match. \\
 
-or & \ttref{String} \DEFINE{STRING_COMPARE_CASE} \ttref{String} &
+or & \ttref{patch string} \DEFINE{STRING_COMPARE_CASE} \ttref{patch string} &
 As \ttref{STRING_COMPARE}, but the comparison ignores case. That is,
 \t{"ANOMEN"} and \t{"aNoMeN"} are considered equal. Note that
 \ttref{STRING_EQUAL_CASE} relates to \t{STRING_COMPARE_CASE} like
 \ttref{STRING_EQUAL} relates to \ttref{STRING_COMPARE}. \\
 
-or & \ttref{String} \DEFINE{STRING_EQUAL} \ttref{String} &
+or & \ttref{patch string} \DEFINE{STRING_EQUAL} \ttref{patch string} &
 This expression evaluates to 1 if and only if its two string arguments are
 equal (have the same length and the same contents), otherwise it values to 0.
 \ttref{variable}s within the strings (e.g., ``\t{\%mykit\%}'') are replaced
@@ -5640,12 +5648,12 @@ Note also that \ttref{STRING_EQUAL} and \ttref{STRING_COMPARE} are
 similar, but \ttref{STRING_EQUAL} returns logical true, rather than
 false, on a string match. \\
 
-or & \ttref{String} \DEFINE{STRING_EQUAL_CASE} \ttref{String} &
+or & \ttref{patch string} \DEFINE{STRING_EQUAL_CASE} \ttref{patch string} &
 As \ttref{STRING_EQUAL}, but the comparison ignores case. That is,
 \t{"ANOMEN"} and \t{"aNoMeN"} are considered equal. You may use
 \DEFINE{STR_EQ} as a synonym for \ttref{STRING_EQUAL_CASE}.\\
 
-or & \ttref{String} \DEFINE{STRING_MATCHES_REGEXP} \ttref{String} &
+or & \ttref{patch string} \DEFINE{STRING_MATCHES_REGEXP} \ttref{patch string} &
 
 Compares a string to a regexp and returns results like
 \ttref{STRING_COMPARE_CASE}. The left-hand string is evaluated for
@@ -5656,7 +5664,7 @@ STRING_MATCHES_REGEXP "AR[0-9]+"} evaluates to 0 (``no
   difference''). You may use \DEFINE{STRING_COMPARE_REGEXP} as a
   synonym. \\
 
-or & \ttref{String} \DEFINE{STRING_CONTAINS_REGEXP} \ttref{String} &
+or & \ttref{patch string} \DEFINE{STRING_CONTAINS_REGEXP} \ttref{patch string} &
 As \ttref{STRING_MATCHES_REGEXP}, but it evaluates to 0 if the first string
 contains the second \ttref{regexp}. Thus \t{"AR1005" STRING_CONTAINS_REGEXP
 "[w-z]"} evaluates to 1 (``mismatch'').
@@ -5703,23 +5711,24 @@ or & \DEFINE{IDS_OF_SYMBOL} \t{(} File \ttref{String} \t{)} &
 Will return the number associated with String in File.ids,
 or -1 if String is not associated in File.ids. \\
 
-or & \DEFINE{VARIABLE_IS_SET} \ttref{String} &
-Returns true if the variable String is set (there's a variable called either
-\verb+String+ or \verb+%String%+, regardless of whether it is a string or an
-integer).  \\
+or & \DEFINE{VARIABLE_IS_SET} \ttref{patch string} &
+Returns true if the variable named by the patch string is set (there's a
+variable called either \verb+name+ or \verb+%name%+, regardless of whether
+it is a string or an integer).  \\
 
 or & \DEFINE{VARIABLE_IS_IN_ARRAY} \ttref{array construct} &
 Returns true if the array variable is set, as per
 \ttref{VARIABLE_IS_SET}, and if it is a member of an array, in the way
 that has it, for example, iterared over by \ttref{PHP_EACH}. \\
 
-or & \DEFSYN{IS_AN_INT} \ttref{String} &
-Returns true if the variable String is set to an integer (there's a variable called either
-\verb+String+ or \verb+%String%+ with integer value).  \\
-or & \DEFINE{TRA_ENTRY_EXISTS} \t{(} \ttref{String} \ttref{String} \Slist \t{)} &
-	returns true if the variable String maps to a valid TRA entry.
-	If the \ttref{String} list is empty the tra entry is looked for into the loaded TRAs,
-	otherwise it's looked for into the listed TRA files.
+or & \DEFSYN{IS_AN_INT} \ttref{patch string} &
+Returns true if the patch string is an integer or names a variable whose
+value is an integer.  \\
+or & \DEFINE{TRA_ENTRY_EXISTS} \t{(} \ttref{patch string}
+\ttref{patch string} \Slist \t{)} &
+	Returns true if the first patch string maps to a valid TRA entry.
+	If the trailing patch-string list is empty, the TRA entry is looked up in
+	the loaded TRA files; otherwise, it is looked up in the listed TRA files.
 \\
 or & \DEFSYN{IS_SILENT} &
 Returns true if the output is currently silenced, false otherwise.  \\
@@ -5820,8 +5829,8 @@ the searching should begin (instead of \ttref{BUFFER_LENGTH}).
 \\
 
 
-or & \DEFINE{STRING_LENGTH} \ttref{String} &
-Returns the length of the argument \ttref{String} (after variable evaluation). \\
+or & \DEFINE{STRING_LENGTH} \ttref{patch string} &
+Returns the length of the patch string after variable evaluation. \\
 
 or & \DEFINE{FILE_CONTAINS} fileName \ttref{regexp} &
 
@@ -6010,12 +6019,28 @@ works as well. \\
 
 \\
 
+% Patch_String_Left, Patch_String_Name and Patch_String_Right accept the
+% same surface grammar; their surrounding commands determine the result's use.
+\DEFINE{patch string} & & A patch string is a string expression accepted by
+\ttref{TP2 Action}s and \ttref{patch}es. Its context determines whether the
+result is used as a destination variable, a variable name, or an evaluated
+string value. \\
+is & \ttref{String} & The literal string is used. \\
+or & \ttref{EVALUATE_BUFFER} \ttref{patch string} & Variables in the nested patch
+string are evaluated one additional time. \\
+or & \ttref{array construct} & Depending on context, the construct identifies
+an array element or retrieves its value. \\
+
+\\
+
 \DEFINE{variable} & & A variable is a textual name that holds a
 \ttref{value}. Variables are usually set with \ttref{READ_BYTE},
 \ttref{SET} or \ttref{SPRINT}. \\
-is & \ttref{String} & You may name the variable whatever you like, but stay
-away from the special characters used in \ttref{regexp}s. When you want to
-obtain the value of a variable, enclose it in \t{\%}s.
+is & \ttref{patch string} & A literal \ttref{String} names a scalar variable;
+an \ttref{array construct} identifies an array element. Stay away from the
+special characters used in \ttref{regexp}s when naming scalar variables.
+When you want to obtain the value of a scalar variable, enclose its name in
+\t{\%}s.
 
 
 Example: If a file contains the two binary integers 33 and 77, then after
