@@ -41,11 +41,15 @@ DEFINE_ACTION_FUNCTION test_resource_exists BEGIN
 END
 
 DEFINE_ACTION_FUNCTION test_resource_fail BEGIN
+  COPY ~%MOD_FOLDER%/resources/file_structure/fl#a.file~ ~fl#cwd.fake~
+
   ACTION_FOR_EACH file IN ~fl#obviously.fake~
                           ~fl#fail.ARE~
+                          ~fl#cwd.fake~
+                          ~%MOD_FOLDER%/resources/file_structure/fl#a.file~
   BEGIN
     ACTION_IF FILE_EXISTS_IN_GAME ~%file%~ BEGIN
-      FAIL "test_resource_exists: intended fake file had return value true"
+      FAIL "test_resource_exists: non-resource file %file% had return value true"
     END
   END
 END

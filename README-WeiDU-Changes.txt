@@ -1,4 +1,6 @@
 Version 251:
+  * FILE_EXISTS_IN_GAME only searches game resource locations, rather
+    than also accepting files from unrelated filesystem locations.
   * CREATE called within CREATE works as expected.
   * CREATE sets SOURCE_* and DEST_* variables.
   * Auto-update does not fail if the filename of the newest WeiDU
