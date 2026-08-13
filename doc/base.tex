@@ -7995,6 +7995,54 @@ The array construct can have any number of keys but only a single result.
 The construct is formed as follows:
 \verb+$variable(key list)+
 
+The array name and every key use normal WeiDU string syntax. String
+delimiters are optional for bare words, so \verb+$~table~(~key~)+ and
+\verb+$table(key)+ are equivalent. Variables in the name and keys are
+evaluated before the array entry is accessed. An array construct may
+therefore use variable substitution in the name or key position. For
+example:
+
+\begin{verbatim}
+OUTER_SPRINT table_name labels
+OUTER_SPRINT selected_key high
+OUTER_SPRINT $labels(low)  "Low priority"
+OUTER_SPRINT $labels(high) "High priority"
+
+OUTER_SPRINT label $"%table_name%"("%selected_key%")
+PRINT "%label%" // Prints "High priority"
+\end{verbatim}
+
+An empty string is a valid key. Since array constructs are represented
+as underscore-separated WeiDU variables, \verb+$selection(~~)+ refers
+to the same value as \verb+%selection_%+. Assigning through the array
+construct additionally registers the empty key with array-aware
+operations such as \ttref{ACTION_PHP_EACH}, \ttref{VARIABLE_IS_IN_ARRAY}
+and \ttref{RET_ARRAY}. Defining \verb+selection_+ directly makes its value
+readable through \verb+$selection(~~)+, but does not by itself register an
+array entry. The backing variable should therefore not be used independently
+for a different purpose.
+
+Empty keys are also useful as a nested source of a dynamic key:
+
+\begin{verbatim}
+OUTER_SPRINT selection_ high
+OUTER_SPRINT $labels($selection(~~)) "High priority"
+\end{verbatim}
+
+Here \verb+selection_+ is an ordinary scalar variable. In the left-hand
+array construct, \verb+$selection(~~)+ is evaluated first, so the assignment
+is equivalent to \verb+OUTER_SPRINT $labels(high) "High priority"+.
+
+Nested constructs are context-sensitive. In a right-hand array lookup,
+use an intermediate variable and normal variable substitution for a
+dynamic key:
+
+\begin{verbatim}
+OUTER_SPRINT selected_key $selection(~~)
+OUTER_SPRINT label $labels("%selected_key%")
+PRINT "%label%" // Prints "High priority"
+\end{verbatim}
+
 The construct can be used to store a result when used on the left-hand
 side of an expression or to retrieve a result when used on the
 right-hand side. For example, the following code snippet illustrates

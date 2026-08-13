@@ -7,12 +7,94 @@ BEGIN
   PRINT "%message%"
   ACTION_TRY
     LAF test_clear_array END
+    LAF test_empty_and_nested_array_keys END
     OUTER_SET success = 1
   WITH
     DEFAULT
       OUTER_SET success = 0
       OUTER_SPRINT message "tests failed in array_tests: %ERROR_MESSAGE%"
   END
+END
+
+DEFINE_ACTION_FUNCTION test_empty_and_nested_array_keys BEGIN
+  ACTION_CLEAR_ARRAY fl#array_syntax#selector
+  ACTION_CLEAR_ARRAY fl#array_syntax#values
+  ACTION_CLEAR_ARRAY fl#array_syntax#observed
+
+  // The empty-key construct can read a scalar with the corresponding
+  // trailing-underscore name, as in the EE Fixpack usage that prompted this
+  // regression test. A direct scalar assignment does not create array metadata.
+  OUTER_SPRINT fl#array_syntax#direct_ "alpha"
+  OUTER_SPRINT direct $~fl#array_syntax#direct~(~~)
+  ACTION_IF !("%direct%" STR_EQ "alpha") BEGIN
+    FAIL "test_empty_and_nested_array_keys: empty key did not read the backing variable"
+  END
+  ACTION_IF VARIABLE_IS_IN_ARRAY $~fl#array_syntax#direct~(~~) BEGIN
+    FAIL "test_empty_and_nested_array_keys: scalar assignment unexpectedly registered an array entry"
+  END
+
+  // An empty key is retained as array metadata and maps to the trailing-
+  // underscore variable that backs the entry.
+  OUTER_SPRINT $~fl#array_syntax#selector~(~~) "beta"
+  ACTION_IF !("%fl#array_syntax#selector_%" STR_EQ "beta") BEGIN
+    FAIL "test_empty_and_nested_array_keys: empty key did not map to the expected variable"
+  END
+  ACTION_IF !VARIABLE_IS_IN_ARRAY $~fl#array_syntax#selector~(~~) BEGIN
+    FAIL "test_empty_and_nested_array_keys: empty key was not registered as an array entry"
+  END
+
+  LAF return_empty_key_array RET_ARRAY "fl#array_syntax#returned" END
+  ACTION_IF !("%fl#array_syntax#returned_%" STR_EQ "returned") BEGIN
+    FAIL "test_empty_and_nested_array_keys: RET_ARRAY did not preserve the empty-key entry"
+  END
+
+  // String delimiters are valid around array names and keys. In a left-hand
+  // construct, the nested empty-key lookup supplies the value used as the key.
+  OUTER_SPRINT $~fl#array_syntax#values~(~alpha~) "first"
+  OUTER_SPRINT $~fl#array_syntax#values~(~beta~) "second"
+  OUTER_SET $~fl#array_syntax#observed~($~fl#array_syntax#direct~(~~)) = 1
+  ACTION_IF !VARIABLE_IS_IN_ARRAY $~fl#array_syntax#observed~(~alpha~) BEGIN
+    FAIL "test_empty_and_nested_array_keys: nested left-hand array key did not resolve"
+  END
+
+  // Right-hand dynamic lookup uses ordinary variable substitution after the
+  // empty-key value has been read into an intermediate scalar.
+  OUTER_SPRINT selected_key $~fl#array_syntax#selector~(~~)
+  OUTER_SPRINT selected $~fl#array_syntax#values~("%selected_key%")
+  ACTION_IF !("%selected%" STR_EQ "second") BEGIN
+    FAIL "test_empty_and_nested_array_keys: variable-substituted array key did not resolve"
+  END
+
+  OUTER_SPRINT array_name "fl#array_syntax#values"
+  OUTER_SPRINT selected $"%array_name%"("%selected_key%")
+  ACTION_IF !("%selected%" STR_EQ "second") BEGIN
+    FAIL "test_empty_and_nested_array_keys: variable-substituted array name did not resolve"
+  END
+
+  // Iteration must expose the empty string as the key, not merely find the
+  // flattened backing variable by name.
+  OUTER_SET entries = 0
+  ACTION_PHP_EACH fl#array_syntax#selector AS key => value BEGIN
+    ACTION_IF !("%key%" STR_EQ "") BEGIN
+      FAIL "test_empty_and_nested_array_keys: iteration returned an unexpected key"
+    END
+    ACTION_IF !("%value%" STR_EQ "beta") BEGIN
+      FAIL "test_empty_and_nested_array_keys: iteration returned an unexpected value"
+    END
+    OUTER_SET ++entries
+  END
+  ACTION_IF entries != 1 BEGIN
+    FAIL "test_empty_and_nested_array_keys: iteration did not return exactly one entry"
+  END
+END
+
+DEFINE_ACTION_FUNCTION return_empty_key_array
+  RET_ARRAY
+    "fl#array_syntax#returned"
+BEGIN
+  // Defining the entry inside the function verifies that RET_ARRAY carries
+  // both its flattened value and its empty-key array metadata to the caller.
+  OUTER_SPRINT $~fl#array_syntax#returned~(~~) "returned"
 END
 
 DEFINE_ACTION_FUNCTION test_clear_array BEGIN
