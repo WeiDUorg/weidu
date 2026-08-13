@@ -1,0 +1,52 @@
+/*
+ * Verify that EVAL/EVALUATE_BUFFER prefixes can be nested without a
+ * language-defined fixed limit and that every prefix adds one substitution
+ * pass.
+ */
+DEFINE_ACTION_FUNCTION test_repeated_eval BEGIN
+  // Assign each reference before its target exists. This preserves the
+  // indirection chain despite OUTER_SPRINT's normal evaluation pass.
+  OUTER_SPRINT eval_level_1 "%eval_level_2%"
+  OUTER_SPRINT eval_level_2 "%eval_level_3%"
+  OUTER_SPRINT eval_level_3 "eval_target"
+  OUTER_SET eval_target = 41
+
+  // Three passes resolve the variable name at the end of the chain.
+  OUTER_SET EVAL EVAL EVAL "%eval_level_1%" += 1
+  ACTION_IF eval_target != 42 BEGIN
+    FAIL "test_repeated_eval failed to evaluate a variable name three times"
+  END
+
+  OUTER_SPRINT eval_result EVAL EVAL EVAL "%eval_level_1%"
+  ACTION_IF "%eval_result%" STRING_COMPARE_CASE "eval_target" BEGIN
+    FAIL "test_repeated_eval produced an unexpected nested EVAL result"
+  END
+
+  // A longer sequence guards against imposing a small fixed nesting limit.
+  OUTER_SPRINT eval_long_result EVAL EVAL EVAL EVAL EVAL EVAL EVAL EVAL "%eval_level_1%"
+  ACTION_IF "%eval_long_result%" STRING_COMPARE_CASE "eval_target" BEGIN
+    FAIL "test_repeated_eval failed to accept eight EVAL prefixes"
+  END
+
+  OUTER_SPRINT eval_long_name EVALUATE_BUFFER EVALUATE_BUFFER EVALUATE_BUFFER "%eval_level_1%"
+  ACTION_IF "%eval_long_name%" STRING_COMPARE_CASE "eval_target" BEGIN
+    FAIL "test_repeated_eval failed with the EVALUATE_BUFFER spelling"
+  END
+END
+
+DEFINE_ACTION_FUNCTION run
+  RET
+    success
+    message
+BEGIN
+  OUTER_SPRINT message "test_repeated_eval"
+  PRINT "%message%"
+  ACTION_TRY
+    LAF test_repeated_eval END
+    OUTER_SET success = 1
+  WITH
+    DEFAULT
+      OUTER_SET success = 0
+      OUTER_SPRINT message "tests failed in repeated_eval: %ERROR_MESSAGE%"
+  END
+END

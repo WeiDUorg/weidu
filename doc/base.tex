@@ -4427,7 +4427,9 @@ EXTEND_TOP ~sola.bcs~ ~.../mymod-inlined/script.baf~
 or & \DEFINE{EVALUATE_BUFFER} &
   Any WeiDU variables (like \t{\%myvar\%}) inside the current file (which
   should probably be a plain text file in order for this to make much sense)
-  are replaced by their values. Example:
+  are replaced by their values. This patch operation performs one substitution
+  pass. Consecutive instances perform consecutive passes over the result of the
+  preceding instance. Example:
 \begin{verbatim}
 <<<<<<<< .../mymod-inlined/script.baf
 IF
@@ -4444,8 +4446,10 @@ EXTEND_TOP ~sola.bcs~ ~.../mymod-inlined/script.baf~
   Those two actions extend the top of \t{sola.bcs} with the script
   block \t{IF See("Anomen") THEN RESPONSE \#100 Kill("Anomen") END}.
   You can also use \ttref{EVALUATE_BUFFER} in \ttref{COMPILE} actions
-  or before strings in \ttref{value}s. You may use \DEFINE{EVAL} as
-  a synonym for \t{EVALUATE_BUFFER}.
+  or as a prefix before strings in \ttref{value}s. In the prefix form,
+  successive \t{EVALUATE_BUFFER} or \t{EVAL} keywords request successive
+  substitution passes; see the \ttref{value} entry for details and examples.
+  You may use \DEFINE{EVAL} as a synonym for \t{EVALUATE_BUFFER}.
   \\
 
 or & \DEFINE{APPLY_BCS_PATCH} patchFile &
@@ -5956,8 +5960,26 @@ SET EVALUATE_BUFFER "%x%" += 77
 PATCH_PRINT "y is %y% ; z is %z%"
 \end{verbatim}
     This prints out \t{y is 82 ; z is tricky 5}. You may also do hackery like
-    \t{FILE_SIZE "myfile" "\%\%indirection\%\%"}. Be very careful with this
-    feature. \\
+    \t{FILE_SIZE "myfile" "\%\%indirection\%\%"}.
+
+    The prefix may be repeated as many times as required. Each occurrence
+    adds exactly one substitution pass, and nested prefixes are evaluated from
+    the innermost occurrence outwards. For example:
+\begin{verbatim}
+OUTER_SPRINT first  "%second%"
+OUTER_SPRINT second "%third%"
+OUTER_SPRINT third  "finished"
+
+OUTER_SPRINT result EVAL EVAL EVAL "%first%"
+PRINT "%result%" // prints: finished
+\end{verbatim}
+    There is no language-defined maximum nesting depth, although source files
+    remain subject to ordinary parser and runtime resource limits. Repetition
+    does not mean ``evaluate until stable'': the number of passes is fixed by
+    the number of prefixes. Unset variables remain unchanged during a pass,
+    and cyclic references are not detected or followed automatically. The
+    long \t{EVALUATE_BUFFER} spelling and the \t{EVAL} alias may be mixed.
+    Be very careful with this feature. \\
 or & \label{array construct}\verb+$array(index list)+ &
     The so-called \emph{array construct}. See the \ahrefloc{sec-array-construct}{tutorial}.
 \\
