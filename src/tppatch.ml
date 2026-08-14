@@ -10,6 +10,11 @@ open Tpstate
 open Tphelp
 open Tppe
 
+let get_installed_mod_version mod_tp2 component =
+  match installed_component_version mod_tp2 component with
+  | Some version -> version
+  | None -> ""
+
 (************************************************************************
  * change location "where" in "buff" to point to str-ref "what"
  ************************************************************************)
@@ -30,6 +35,12 @@ let rec process_patch1 patch_filename game buff p =
           end
     in
     match p with
+    | TP_PatchGetModVersion(mod_tp2,component,variable) ->
+        let mod_tp2 = Var.get_string (eval_pe_str mod_tp2) in
+        let component = Int32.to_int (eval_pe buff game component) in
+        let variable = eval_pe_str variable in
+        Var.set_string variable (get_installed_mod_version mod_tp2 component)
+
     | TP_PatchReadByte(where,name,eo) ->
         let where = Int32.to_int (eval_pe buff game where) in
         let name = Var.get_string (eval_pe_str name) in
@@ -203,6 +214,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
     in
     match p with
     | TP_PatchReadByte(_)
+    | TP_PatchGetModVersion(_)
     | TP_PatchReadSByte(_)
     | TP_PatchReadShort(_)
     | TP_PatchReadSShort(_)

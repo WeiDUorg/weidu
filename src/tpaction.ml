@@ -1652,6 +1652,12 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                              false,true)))
               res) matches)
 
+      | TP_ActionGetModVersion(mod_tp2,component,variable) ->
+          let mod_tp2 = Var.get_string (eval_pe_str mod_tp2) in
+          let component = Int32.to_int (eval_pe "" game component) in
+          let variable = eval_pe_str variable in
+          Var.set_string variable (get_installed_mod_version mod_tp2 component)
+
       | TP_Mkdir(str_l) -> begin
           let str_l = List.map (fun x -> Arch.backslash_to_slash x) str_l in
           let numdir = List.length str_l in

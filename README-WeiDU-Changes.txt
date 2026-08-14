@@ -1,4 +1,6 @@
 Version 251:
+  * Add ACTION_GET_MOD_VERSION and GET_MOD_VERSION for retrieving the
+    install-time VERSION of a specific installed mod component.
   * CREATE called within CREATE works as expected.
   * CREATE sets SOURCE_* and DEST_* variables.
   * Auto-update does not fail if the filename of the newest WeiDU

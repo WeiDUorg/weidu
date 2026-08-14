@@ -1,0 +1,9 @@
+BACKUP ~provider/backup~
+AUTHOR ~WeiDU regression test~
+VERSION @1
+
+LANGUAGE ~English~ ~en~ ~provider/english.tra~
+LANGUAGE ~Test language~ ~test~ ~provider/test.tra~
+
+BEGIN @2
+BEGIN @3

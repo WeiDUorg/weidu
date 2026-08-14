@@ -122,6 +122,7 @@ open Load
   %token GET_STRREF
   %token GET_DIRECTORY_ARRAY
   %token GET_FILE_ARRAY
+  %token GET_MOD_VERSION
   %token GROUP
   %token GT GTE LT LTE
   %token BAND BOR BXOR
@@ -525,6 +526,8 @@ optional_evaluate :
 | AT_INTERACTIVE_NOW STRING { Tp.TP_At_Now(None,$2,false) }
 | BIFF STRING BEGIN str_reg_list END { Tp.TP_Biff($2,$4) }
 | INLINED_FILE { Tp.TP_Inlined_File($1) }
+| GET_MOD_VERSION patch_STRING_right patch_exp patch_STRING_left
+    { Tp.TP_ActionGetModVersion($2,$3,$4) }
 | DEFINE_ACTION_MACRO STRING BEGIN tp_local_declaration_list tp_action_list END
     { Tp.TP_Define_Action_Macro($2,$4,$5) }
 | DEFINE_PATCH_MACRO STRING BEGIN tp_local_declaration_list tp_patch_list END
@@ -905,6 +908,8 @@ optional_evaluate :
 | PATCH_INCLUDE string_list { Tp.TP_PatchInclude($2) }
 | PATCH_REINCLUDE string_list { Tp.TP_PatchReinclude($2) }
 | PATCH_RANDOM_SEED patch_exp { Tp.TP_PatchRandomSeed($2) }
+| GET_MOD_VERSION patch_STRING_right patch_exp patch_STRING_left
+    { Tp.TP_PatchGetModVersion($2,$3,$4) }
 | PATCH_IF patch_exp optional_then BEGIN tp_patch_list END { Tp.TP_PatchIf($2,$5,[]) }
 | PATCH_READLN patch_STRING_left { Tp.TP_PatchReadLN($2) }
 | PATCH_SILENT { Tp.TP_PatchSilent }

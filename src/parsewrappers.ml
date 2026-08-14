@@ -9,10 +9,19 @@ let tp2_cache = Hashtbl.create 5
 
 let load_log () =
   try
+    let versions = Tpstate.read_log_versions (load_file Tp.log_name) in
     let result = parse_file true (File Tp.log_name) "parsing .log files"
         (Dparser.log_file Dlexer.initial) in
-    Tp.the_log := List.map (fun (a,b,c,d) ->
-      ((String.uppercase a),b,c,d,Tp.Installed)) result
+    let versions =
+      if List.length versions = List.length result then versions
+      else begin
+        log_or_print
+          "WARNING: ignoring inconsistent component-version metadata in [%s]\n"
+          Tp.log_name ;
+        List.map (fun _ -> None) result
+      end in
+    Tp.the_log := List.map2 (fun (a,b,c,d) version ->
+      ((String.uppercase a),b,c,d,version,Tp.Installed)) result versions
   with e ->
     log_or_print "WARNING: parsing log [%s]: %s\n" Tp.log_name
       (printexc_to_string e) ;

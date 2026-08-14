@@ -1,0 +1,78 @@
+BACKUP ~consumer/backup~
+AUTHOR ~WeiDU regression test~
+VERSION ~consumer version must remain isolated~
+
+BEGIN ~Installed-component version queries~
+
+REQUIRE_PREDICATE MOD_IS_INSTALLED ~provider/provider.tp2~ 0
+  ~Both provider components must already be installed.~
+REQUIRE_PREDICATE MOD_IS_INSTALLED ~provider/provider.tp2~ 1
+  ~Both provider components must already be installed.~
+
+OUTER_SPRINT caller_version_before ~%MOD_VERSION%~
+
+// Use the conventional setup- prefix to exercise the same TP2-name matching
+// semantics as MOD_IS_INSTALLED, independently of the path stored in the log.
+ACTION_GET_MOD_VERSION ~setup-provider.tp2~ 0 provider_version_zero
+ACTION_GET_MOD_VERSION ~provider/provider.tp2~ 1 provider_version_one
+
+ACTION_IF NOT (~%provider_version_zero%~ STR_EQ
+               ~provider installed-language version one~) BEGIN
+  FAIL ~ACTION_GET_MOD_VERSION returned "%provider_version_zero%" for component zero.~
+END
+
+ACTION_IF NOT (~%provider_version_one%~ STR_EQ
+               ~provider installed-language version two~) BEGIN
+  FAIL ~ACTION_GET_MOD_VERSION returned "%provider_version_one%" for component one.~
+END
+
+ACTION_IF NOT (~%MOD_VERSION%~ STR_EQ ~%caller_version_before%~) BEGIN
+  FAIL ~ACTION_GET_MOD_VERSION changed the calling mod's MOD_VERSION.~
+END
+
+ACTION_GET_MOD_VERSION ~setup-provider.tp2~ 2 missing_version
+
+ACTION_IF NOT (~%missing_version%~ STR_EQ ~~) BEGIN
+  FAIL ~ACTION_GET_MOD_VERSION returned a value for a component that is not installed.~
+END
+
+COPY ~consumer/input.txt~ ~consumer/output.txt~
+  SPRINT patch_caller_version_before ~%MOD_VERSION%~
+
+  GET_MOD_VERSION ~provider/provider.tp2~ 0 patch_version_zero
+  GET_MOD_VERSION ~provider/provider.tp2~ 1 patch_version_one
+
+  PATCH_IF NOT (~%patch_version_zero%~ STR_EQ
+                ~provider installed-language version one~) BEGIN
+    PATCH_FAIL ~GET_MOD_VERSION returned "%patch_version_zero%" for component zero.~
+  END
+
+  PATCH_IF NOT (~%patch_version_one%~ STR_EQ
+                ~provider installed-language version two~) BEGIN
+    PATCH_FAIL ~GET_MOD_VERSION returned "%patch_version_one%" for component one.~
+  END
+
+  PATCH_IF NOT (~%MOD_VERSION%~ STR_EQ ~%patch_caller_version_before%~) BEGIN
+    PATCH_FAIL ~GET_MOD_VERSION changed the calling mod's MOD_VERSION.~
+  END
+
+  GET_MOD_VERSION ~missing-provider/missing-provider.tp2~ 0 patch_missing_version
+
+  PATCH_IF NOT (~%patch_missing_version%~ STR_EQ ~~) BEGIN
+    PATCH_FAIL ~GET_MOD_VERSION returned a value for a component that is not installed.~
+  END
+
+BEGIN ~Legacy-log version queries~
+
+ACTION_GET_MOD_VERSION ~provider/provider.tp2~ 0 legacy_action_version
+
+ACTION_IF NOT (~%legacy_action_version%~ STR_EQ ~~) BEGIN
+  FAIL ~ACTION_GET_MOD_VERSION invented a version for a metadata-free log entry.~
+END
+
+COPY ~consumer/input.txt~ ~consumer/legacy-output.txt~
+  GET_MOD_VERSION ~provider/provider.tp2~ 1 legacy_patch_version
+
+  PATCH_IF NOT (~%legacy_patch_version%~ STR_EQ ~~) BEGIN
+    PATCH_FAIL ~GET_MOD_VERSION invented a version for a metadata-free log entry.~
+  END

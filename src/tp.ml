@@ -178,6 +178,7 @@ and tp_action =
   | TP_Inlined_File of (string * string)
   | TP_GetFileArray of tp_pe_string * tp_pe_string * tp_pe_string * bool
   | TP_GetResourceArray of tp_pe_string * tp_pe_string
+  | TP_ActionGetModVersion of tp_pe_string * tp_patchexp * tp_pe_string
   | TP_Define_Action_Macro of string * tp_local_declaration list * tp_action list
   | TP_Define_Patch_Macro of string * tp_local_declaration list * tp_patch list
   | TP_Define_Patch_Function of string * (tp_pe_string * tp_patchexp) list *
@@ -333,6 +334,7 @@ and tp_local_declaration =
 
 and tp_patch =
   | TP_PatchBashFor of ((string * (bool option) * string) list) * (tp_patch list)
+  | TP_PatchGetModVersion of tp_pe_string * tp_patchexp * tp_pe_string
   | TP_PatchClearArray of tp_pe_string
   | TP_PatchDefineArray of tp_pe_string * string list
   | TP_DefineAssociativeArray of tp_pe_string * ((tp_pe_string list) * tp_pe_string) list
@@ -593,8 +595,9 @@ let get_pe_tlk_string a_string =
 
 type status = Installed | Temporarily_Uninstalled | Permanently_Uninstalled
 
-type installed_mods = (string * int * int * (string option) * status) list
-      (* module : language : component : status *)
+type installed_mods =
+  (string * int * int * (string option) * (string option) * status) list
+      (* module : language : component : name : installed version : status *)
 let log_name = "WeiDU.log"
 
 let the_log : installed_mods ref = ref []

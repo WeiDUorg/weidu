@@ -215,7 +215,7 @@ let log_match a b =
 let any_installed tp2 =
   let rec is_installed lst = match lst with
   | [] -> false
-  | (a,b,c,sopt,d) :: tl when log_match a tp2
+  | (a,b,c,sopt,version,d) :: tl when log_match a tp2
         && d <> Permanently_Uninstalled -> true
   | hd :: tl -> is_installed tl
   in is_installed !the_log
@@ -223,7 +223,7 @@ let any_installed tp2 =
 let already_installed tp2 i =
   let rec is_installed lst = match lst with
   | [] -> false
-  | (a,b,c,sopt,d) :: tl when log_match a tp2
+  | (a,b,c,sopt,version,d) :: tl when log_match a tp2
         && c = i && d <> Permanently_Uninstalled -> true
   | hd :: tl -> is_installed tl
   in is_installed !the_log
@@ -231,17 +231,26 @@ let already_installed tp2 i =
 let installed_lang_index tp2 =
   let rec is_installed lst = match lst with
   | [] -> None
-  | (a,b,c,sopt,d) :: tl when log_match a tp2
+  | (a,b,c,sopt,version,d) :: tl when log_match a tp2
         && d <> Permanently_Uninstalled -> Some(b)
   | hd :: tl -> is_installed tl
   in is_installed !the_log
 
+let installed_component_version tp2 component =
+  let rec find = function
+  | [] -> None
+  | (filename,_,number,_,version,Installed) :: _
+      when number = component && log_match filename tp2 -> version
+  | _ :: tl -> find tl
+  in
+  find !the_log
+
 let temporarily_uninstalled tp2 i =
   let rec is_installed lst = match lst with
   | [] -> false
-  | (a,b,c,sopt,d) :: tl when log_match a tp2
+  | (a,b,c,sopt,version,d) :: tl when log_match a tp2
         && c = i && d = Temporarily_Uninstalled -> true
-  | (a,b,c,sopt,d) :: tl when log_match a tp2
+  | (a,b,c,sopt,version,d) :: tl when log_match a tp2
         && c = i && d = Installed -> false
   | hd :: tl -> is_installed tl
   in is_installed !the_log
@@ -249,7 +258,7 @@ let temporarily_uninstalled tp2 i =
 let installed_after tp21 i1 tp22 i2 =
   let rec walk lst tp2 i = match lst with
   | [] -> None
-  | (a,b,c,sopt,d) :: tl when log_match a tp2
+  | (a,b,c,sopt,version,d) :: tl when log_match a tp2
         && c = i && d = Installed -> Some tl
   | hd :: tl -> walk tl tp2 i
   in
@@ -264,6 +273,54 @@ let str_of_str_opt sopt = match sopt with
 | Some(str) -> " ~" ^ str ^ "~"
 | None -> ""
 
+let hex_digits = "0123456789abcdef"
+
+let hex_of_string str =
+  let result = Bytes.create (String.length str * 2) in
+  String.iteri (fun index ch ->
+    let value = Char.code ch in
+    Bytes.set result (index * 2) hex_digits.[value lsr 4] ;
+    Bytes.set result ((index * 2) + 1) hex_digits.[value land 0xf]) str ;
+  Bytes.to_string result
+
+let int_of_hex_digit ch = match ch with
+| '0' .. '9' -> Char.code ch - Char.code '0'
+| 'a' .. 'f' -> Char.code ch - Char.code 'a' + 10
+| 'A' .. 'F' -> Char.code ch - Char.code 'A' + 10
+| _ -> raise (Invalid_argument "invalid hexadecimal digit")
+
+let string_of_hex str =
+  if String.length str mod 2 <> 0 then None
+  else
+    try
+      let result = Bytes.create (String.length str / 2) in
+      for index = 0 to Bytes.length result - 1 do
+        let high = int_of_hex_digit str.[index * 2] in
+        let low = int_of_hex_digit str.[(index * 2) + 1] in
+        Bytes.set result index (Char.chr ((high lsl 4) lor low))
+      done ;
+      Some(Bytes.to_string result)
+    with Invalid_argument _ -> None
+
+let log_entry_regexp =
+  Str.regexp "^[ \t]*~.*~[ \t]+#[0-9]+[ \t]+#[0-9]+"
+
+let log_version_regexp =
+  Str.regexp "// #WEIDU_VERSION \\([0-9A-Fa-f]*\\)"
+
+let read_log_versions contents =
+  List.fold_left (fun versions line ->
+    if Str.string_match log_entry_regexp line 0 then begin
+      let version =
+        try
+          ignore (Str.search_forward log_version_regexp line 0) ;
+          string_of_hex (Str.matched_group 1 line)
+        with Not_found -> None in
+      version :: versions
+    end else versions) []
+    (Str.split_delim (Str.regexp "\n") contents)
+  |> List.rev
+
 let str_of_game_type game_type = match game_type with
 | BGEE -> "BG:EE"
 | BG2EE -> "BG2:EE"
@@ -272,7 +329,7 @@ let str_of_game_type game_type = match game_type with
 | GENERIC -> "Classic"
 
 let print_log () =
-  List.iter (fun (n,i1,i2,sopt,st) ->
+  List.iter (fun (n,i1,i2,sopt,version,st) ->
     log_or_print "%s %2d %2d %s%s\n" n i1 i2 (match st with
     | Installed -> "Installed"
     | Temporarily_Uninstalled -> "Temporarily_Uninstalled"
@@ -307,7 +364,10 @@ let sprintf_log game handle_tp2_filename get_tra_list_filename log
       (if !quick_log then "\n" else " // [Subcomponent Name -> ] Component Name [ : Version]\n") ;
   end;
   let newline_regexp = one_newline_or_cr_regexp in
-  List.iter (fun (a,b,c,sopt,d) ->
+  List.iter (fun (a,b,c,sopt,installed_version,d) ->
+    let version_metadata = match installed_version with
+    | Some version -> " // #WEIDU_VERSION " ^ hex_of_string version
+    | None -> "" in
     let str =
       if not !quick_log then begin
         let component_name, subcomponent_name, version =
@@ -343,12 +403,10 @@ let sprintf_log game handle_tp2_filename get_tra_list_filename log
             let m = get_nth_module tp2 c true in
             let comp_str = Dc.single_string_of_tlk_string_safe game m.mod_name in
             let subcomp_str = subcomp_str game m in
-            let rec get_version lst = match lst with
-            | Version(lse) :: _ -> ": " ^ Dc.single_string_of_tlk_string_safe game lse
-            |   _ :: tl -> get_version tl
-            | [] -> ""
-            in
-            let version = get_version tp2.flags in
+            let version = match installed_version with
+            | Some version when version <> "" -> ": " ^ version
+            | Some _
+            | None -> "" in
             Dc.clear_state () ;
             Dc.pop_trans ();
             Var.var_pop () ;
@@ -358,12 +416,14 @@ let sprintf_log game handle_tp2_filename get_tra_list_filename log
         in
         let component_name = Str.global_replace newline_regexp " " component_name in
         let subcomponent_name = Str.global_replace newline_regexp " " subcomponent_name in
-        Printf.sprintf "~%s~ #%d #%d // %s%s%s\n"
-          (String.uppercase a) b c subcomponent_name component_name version
+        let version = Str.global_replace newline_regexp " " version in
+        Printf.sprintf "~%s~ #%d #%d%s // %s%s%s\n"
+          (String.uppercase a) b c version_metadata
+          subcomponent_name component_name version
       end
       else begin
-        Printf.sprintf "~%s~ #%d #%d\n"
-          (String.uppercase a) b c
+        Printf.sprintf "~%s~ #%d #%d%s\n"
+          (String.uppercase a) b c version_metadata
       end
     in
     match d with
@@ -395,8 +455,8 @@ let safe_to_handle tp2 i =
     | [] -> true (* end of the line *)
 
           (* this is the entry in the list *)
-    | (a,b,c,sopt,d) :: tl when log_match a tp2 && c = i -> true
-    | (a,b,c,sopt,d) :: tl ->
+    | (a,b,c,sopt,version,d) :: tl when log_match a tp2 && c = i -> true
+    | (a,b,c,sopt,version,d) :: tl ->
         begin match d with
         | Permanently_Uninstalled
         | Temporarily_Uninstalled -> (* keep going *)

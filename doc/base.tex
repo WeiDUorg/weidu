@@ -3953,6 +3953,46 @@ or & \DEFINE{GET_RESOURCE_ARRAY} \ttref{String} \ttref{regexp} &
   not include any file paths. Both the string and the regexp are
   evaluated for variables and the array construct. \\
 
+or & \DEFINE{ACTION_GET_MOD_VERSION} modTp2Name componentNumber \ttref{variable} &
+
+  Sets variable to the install-time \ttref{VERSION} of the specified component
+  of an already-installed mod. modTp2Name is matched against the entries loaded
+  from \t{WeiDU.log} using the same TP2-name rules as
+  \ttref{MOD_IS_INSTALLED}; componentNumber is a \ttref{value} and identifies
+  the component whose version is requested. Components of one mod may have
+  been installed from different releases, so the component number is required
+  and no mod-wide version is inferred.
+
+  When installing a component, WeiDU evaluates \ttref{VERSION} in the selected
+  language and stores the resulting arbitrary string as machine-readable
+  metadata in that component's \t{WeiDU.log} comment. This comment remains
+  syntactically invisible to older WeiDU versions. Replacing the retained TP2
+  or its TRA files later does not change the recorded install-time value, and
+  querying it does not evaluate either file or alter the calling mod's
+  \ttref{MOD_VERSION}.
+
+  The result is the empty string if the specified component is not currently
+  installed, declared no \ttref{VERSION}, or has no version metadata in its log
+  entry. Metadata-free entries include those written before this feature and
+  entries whose comments were later rewritten by a WeiDU version that does not
+  preserve the metadata. Such an entry is deliberately reported as unknown
+  rather than being assigned the version of whichever TP2 file happens to be
+  present now. Reinstalling that component with a supporting WeiDU version
+  records its version for future queries.
+
+  \ttref{ACTION_GET_MOD_VERSION} does not interpret or normalise any
+  version-number format. \ttref{GET_MOD_VERSION} provides the same lookup in a
+  \ttref{TP2 Patch}.
+
+  For example:
+\begin{verbatim}
+ACTION_IF MOD_IS_INSTALLED ~example/setup-example.tp2~ 0 BEGIN
+  ACTION_GET_MOD_VERSION ~example/setup-example.tp2~ 0 installed_example_version
+  PRINT ~Installed Example version: %installed_example_version%~
+END
+\end{verbatim}
+  \\
+
 or & \DEFINE{ACTION_DEFINE_ASSOCIATIVE_ARRAY} \t{\ttref{String} BEGIN key1 \Ob , key2 ... \Oe => result1} \Slist \t{END} &
   Sets the array \verb+$string+, indexed by the keys, to the corresponding results. The results can either be \ttref{String}s or \ttref{value}s.
   Example:
@@ -4997,6 +5037,12 @@ or & \DEFINE{PATCH_READLN} \ttref{variable} &
   Waits for the user to provided an enter-terminated string and store it in
   variable. Said string will be stored and re-used during non-interactive reinstalls. See the
   \ahrefloc{sec-readln}{\t{READLN} tutorial}. \\
+or & \DEFINE{GET_MOD_VERSION} modTp2Name componentNumber \ttref{variable} &
+  The \ttref{TP2 Patch} equivalent of \ttref{ACTION_GET_MOD_VERSION}. Sets
+  variable to the recorded install-time \ttref{VERSION} of componentNumber of
+  another installed mod. It has the same component-specific matching,
+  compatibility and empty-result semantics as
+  \ttref{ACTION_GET_MOD_VERSION}; the current file buffer is not modified. \\
 or & \DEFINE{PATCH_RANDOM_SEED} \ttref{value} &
   See \ttref{RANDOM_SEED}. \\
 or & \DEFINE{ADD_STORE_ITEM} \Ob \t{+} \Oe itemName \Ob position \Oe

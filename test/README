@@ -25,3 +25,10 @@ traify/*
 
 tp2/tp2_regression_tests/*
         A collection of tests for TP2 functionality. Install as a WeiDU mod.
+
+mod-version/test.sh
+        Installs two translated components from different provider versions,
+        then verifies that ACTION_GET_MOD_VERSION and GET_MOD_VERSION return
+        each component's recorded install-time version, preserve the patch
+        buffer and caller state, and do not invent versions for metadata-free
+        log entries.

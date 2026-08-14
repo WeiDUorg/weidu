@@ -439,6 +439,8 @@ nonterm(Tp.tp_action) Tp_Action {
        [ Tp.TP_GetFileArray(e1,e2,e3,true) ]
   -> GET_RESOURCE_ARRAY e1:Patch_String_Right e2:Patch_String_Right
        [ Tp.TP_GetResourceArray(e1,e2) ]
+  -> GET_MOD_VERSION e1:Patch_String_Right e2:Patch_Exp e3:Patch_String_Left
+       [ Tp.TP_ActionGetModVersion(e1,e2,e3) ]
   -> DEFINE_ACTION_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Action_List END
        [ Tp.TP_Define_Action_Macro(e1,e2,e3) ]
   -> DEFINE_PATCH_MACRO e1:STRING BEGIN e2:Tp_Local_Declaration_List e3:Tp_Patch_List END
@@ -1314,6 +1316,8 @@ nonterm (Tp.tp_patch) Tp_Patch {
   -> PATCH_INCLUDE e1:String_List [ Tp.TP_PatchInclude(e1) ]
   -> PATCH_REINCLUDE e1:String_List [ Tp.TP_PatchReinclude(e1) ]
   -> PATCH_RANDOM_SEED e1:Patch_Exp [ Tp.TP_PatchRandomSeed(e1) ]
+  -> GET_MOD_VERSION e1:Patch_String_Right e2:Patch_Exp e3:Patch_String_Left
+       [ Tp.TP_PatchGetModVersion(e1,e2,e3) ]
   -> PATCH_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Patch_List END
        [ Tp.TP_PatchIf(e1,e2,[]) ]
   -> PATCH_IF e1:Patch_Exp Optional_Then BEGIN e2:Tp_Patch_List END ELSE BEGIN e3:Tp_Patch_List END

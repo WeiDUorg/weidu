@@ -49,7 +49,7 @@ let process_log log file_list game =
       tra) in
     ignore (Stats.time "adding translation strings" Dc.add_trans_strings tra) in
   ignore (List.iter (fun cur_mod ->
-    let (tpfile, lang_num, comp_num, _, _) = cur_mod in
+    let (tpfile, lang_num, comp_num, _, installed_version, _) = cur_mod in
     let tp2 = parse_tp2 tpfile in
     let backup_dir = tp2.Tp.backup in
     ignore (Tpstate.set_prelang_tp2_vars tp2) ;
@@ -78,10 +78,9 @@ let process_log log file_list game =
             | Tp.TPM_SubComponents(ts, _, _) ->
                 Dc.single_string_of_tlk_string_safe game ts
             | _ -> acc) "" comp.Tp.mod_flags in
-            let version = List.fold_left (fun acc flag -> match flag with
-            | Tp.Version lse ->
-                Dc.single_string_of_tlk_string_safe game lse
-            | _ -> acc) "" tp2.Tp.flags in
+            let version = match installed_version with
+            | Some version -> version
+            | None -> "" in
             Dc.pop_trans () ;
             let record = { tpfile = tpfile ; lang_num = lang_num ;
                            comp_num = comp_num ; comp_name = comp_name ;

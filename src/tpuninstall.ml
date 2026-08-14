@@ -410,7 +410,7 @@ let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
   my_unlink marker;
   let rec is_installed lst = match lst with
   | [] -> []
-  | (a,b,c,sopt,d) :: tl when log_match a tp2
+  | (a,b,c,sopt,version,d) :: tl when log_match a tp2
         && c = i && d = Temporarily_Uninstalled ->
           (* if there were any "at_uninstall" actions here, do them! *)
           let tp_file = a in
@@ -441,7 +441,7 @@ let temp_to_perm_uninstalled tp2 i handle_tp2_filename game =
             if (Array.length (Case_ins.sys_readdir tp2.backup) = 0) then
               my_rmdir tp2.backup
           end;
-          (a,b,c,sopt,Permanently_Uninstalled) :: tl
+          (a,b,c,sopt,version,Permanently_Uninstalled) :: tl
   | hd :: tl -> hd :: (is_installed tl)
   in the_log := is_installed !the_log
 
@@ -472,12 +472,12 @@ let uninstall game handle_tp2_filename tp2 i interactive =
   end else begin
     let rec prepare lst = match lst with
     | [] -> [] (* end of the line *)
-    | (a,b,c,sopt,d) :: tl when log_match a tp2 && c = i ->
+    | (a,b,c,sopt,version,d) :: tl when log_match a tp2 && c = i ->
         begin match d with
         | Permanently_Uninstalled -> (* some sort of error *)
-            log_and_print "Internal Error: mod component [%s] %d already uninstalled\n" tp2 i;(try assert false with Assert_failure(file,line,col) -> set_errors file line) ; (a,b,c,sopt,Permanently_Uninstalled) :: tl
+            log_and_print "Internal Error: mod component [%s] %d already uninstalled\n" tp2 i;(try assert false with Assert_failure(file,line,col) -> set_errors file line) ; (a,b,c,sopt,version,Permanently_Uninstalled) :: tl
         | Temporarily_Uninstalled -> (* we just won't restore it! *)
-            (a,b,c,sopt,Permanently_Uninstalled) :: tl
+            (a,b,c,sopt,version,Permanently_Uninstalled) :: tl
         | Installed ->
             begin
               try
@@ -488,7 +488,7 @@ let uninstall game handle_tp2_filename tp2 i interactive =
                     l.lang_dir_name ;
                   with _ -> "" ) in
                 uninstall_tp2_component game (handle_tp2_filename best) a c interactive lang_name;
-                (a,b,c,sopt,Permanently_Uninstalled) :: tl
+                (a,b,c,sopt,version,Permanently_Uninstalled) :: tl
               with _ ->
                 log_and_print "ERROR: This Mod is too old (or too new) to uninstall that component for you.\nUpgrade to the newest versions of this mod and that one and try again.\n" ;(try assert false with Assert_failure(file,line,col) -> set_errors file line);
                 worked := false ;
@@ -496,11 +496,11 @@ let uninstall game handle_tp2_filename tp2 i interactive =
             end
         end
 
-    | (a,b,c,sopt,d) :: tl ->
+    | (a,b,c,sopt,version,d) :: tl ->
         begin match d with
         | Permanently_Uninstalled
         | Temporarily_Uninstalled -> (* keep going *)
-            (a,b,c,sopt,d) :: (prepare tl)
+            (a,b,c,sopt,version,d) :: (prepare tl)
         | Installed ->
             if (!safe_exit) then
               failwith "Cannot perform stack uninstalls in --safe-exit mode";
@@ -515,7 +515,7 @@ let uninstall game handle_tp2_filename tp2 i interactive =
                     l.lang_dir_name ;
                   with _ -> "" ) in
                 uninstall_tp2_component game (handle_tp2_filename best) a c false  lang_name;
-                (a,b,c,sopt,Temporarily_Uninstalled) :: (prepare tl)
+                (a,b,c,sopt,version,Temporarily_Uninstalled) :: (prepare tl)
               with e ->
                 log_and_print "ERROR: This Mod is too old (or too new) to uninstall that component for you.\nUpgrade to the newest versions of this mod and that one and try again.\n[%s]\n"
                   (printexc_to_string e);(try assert false with Assert_failure(file,line,col) -> set_errors file line);

@@ -625,7 +625,7 @@ let list_components list_comp list_comp_lang game =
       for i = 0 to Tpstate.get_highest_module_number tp2.Tp.module_list + 1 do
         try
           ignore (Tpstate.get_nth_module tp2 i false);
-          fake_log := (x,lang,i,None,Tp.Installed) :: !fake_log;
+          fake_log := (x,lang,i,None,None,Tp.Installed) :: !fake_log;
         with _ -> ()
       done;
       output_theout (Tpstate.sprintf_log game handle_tp2_filename

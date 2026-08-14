@@ -843,7 +843,8 @@ let rec handle_tp game this_tp2_filename tp =
               let old_log = !the_log in
               the_log := !the_log @
                 [((String.uppercase this_tp2_filename), !our_lang_index, i,
-                  Some(package_name), Installed)];
+                  Some(package_name), Some(Var.get_string "%MOD_VERSION%"),
+                  Installed)];
               let old_tp_quick_log = !Tp.quick_log in
               Tp.quick_log := true;
               Tpstate.save_log game handle_tp2_filename get_tra_list_filename;
@@ -924,7 +925,9 @@ let rec handle_tp game this_tp2_filename tp =
           begin
             if List.find_all (fun x -> x = TPM_NotInLog) m.mod_flags = [] then
               the_log := !the_log @
-                [((String.uppercase this_tp2_filename),!our_lang_index,i,Some(package_name),Installed)]
+                [((String.uppercase this_tp2_filename),!our_lang_index,i,
+                  Some(package_name),Some(Var.get_string "%MOD_VERSION%"),
+                  Installed)]
             else (* log_and_print "NOT adding a WeiDU.log record. You cannot uninstall this.\n" *) ()
           end ;
           finished := true
@@ -1444,9 +1447,9 @@ let rec handle_tp game this_tp2_filename tp =
   let re_installed = ref [] in
   let rec process lst = match lst with
   | [] -> []
-  | (_,_,_,_,Installed) as head :: tl -> head :: (process tl)
-  | (_,_,_,_,Permanently_Uninstalled) as head :: tl -> head :: (process tl)
-  | (a,b,c,sopt,Temporarily_Uninstalled) as head :: tl ->
+  | (_,_,_,_,_,Installed) as head :: tl -> head :: (process tl)
+  | (_,_,_,_,_,Permanently_Uninstalled) as head :: tl -> head :: (process tl)
+  | (a,b,c,sopt,version,Temporarily_Uninstalled) as head :: tl ->
      begin try
           (* we must re-install it! *)
           begin
@@ -1490,12 +1493,14 @@ let rec handle_tp game this_tp2_filename tp =
                 temp_to_perm_uninstalled tp2.tp_filename c handle_tp2_filename
                   game ;
                 re_installed := !re_installed @
-                                  [(a,b,c,sopt,Permanently_Uninstalled)] ;
-                the_log := (a,b,c,sopt,Permanently_Uninstalled) :: !the_log;
+                                  [(a,b,c,sopt,version,Permanently_Uninstalled)] ;
+                the_log :=
+                  (a,b,c,sopt,version,Permanently_Uninstalled) :: !the_log;
               end else begin
                 handle_letter tp2 "I" false false package_name m (ref false) c ;
-                re_installed := !re_installed @ [(a,b,c,sopt,Installed)] ;
-                the_log := (a,b,c,sopt,Installed) :: !the_log;
+                let version = Some(Var.get_string "%MOD_VERSION%") in
+                re_installed := !re_installed @ [(a,b,c,sopt,version,Installed)] ;
+                the_log := (a,b,c,sopt,version,Installed) :: !the_log;
               end ;
             Dc.clear_state () ;
             Dc.pop_trans ();
@@ -1507,7 +1512,7 @@ let rec handle_tp game this_tp2_filename tp =
           log_and_print "ERROR Re-Installing [%s] component %d %s\nTry to re-install it manually.\n%s\n"
             a c (str_of_str_opt sopt) (printexc_to_string e) ;
           exit_status := StatusInstallFailure ;
-          (a,b,c,sopt,Permanently_Uninstalled) :: (process tl)
+          (a,b,c,sopt,version,Permanently_Uninstalled) :: (process tl)
      end
   in
   let result = process !the_log in
