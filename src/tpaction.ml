@@ -1666,6 +1666,10 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
       end
 
       | TP_Compile(eval,dlg_l,pl,tra_l) -> begin
+          (* AUTO_EVAL_STRINGS makes COMPILE follow the same buffer pipeline as
+           * its explicit EVALUATE_BUFFER form: evaluate first, then apply the
+           * action's ordinary patches. *)
+          let eval = eval || tp.is_auto_eval_string in
           let dlg_l =  List.map (fun x -> Var.get_string x) dlg_l in
           let tra_l =  List.map (fun x -> Var.get_string x) tra_l in
           let dlg_l =  List.map (fun x -> Arch.backslash_to_slash x) dlg_l in
@@ -2057,6 +2061,12 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                  setup.tra\n" src) ;
           let src_script =
             let src_buff = load_file src in
+            (* As with COMPILE, automatic evaluation belongs before the
+             * caller-supplied patch list so both forms have identical
+             * ordering semantics. *)
+            let src_buff =
+              if tp.is_auto_eval_string then Var.get_string src_buff
+              else src_buff in
             if (!has_if_eval_bug) then begin
               (try
                 List.iter (fun p -> process_patch1 src game src_buff p) pl ;

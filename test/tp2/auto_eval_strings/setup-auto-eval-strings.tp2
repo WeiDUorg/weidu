@@ -1,0 +1,24 @@
+BACKUP ~auto-eval-strings/backup~
+AUTHOR ~WeiDU.org~
+
+AUTO_EVAL_STRINGS
+
+BEGIN ~AUTO_EVAL_STRINGS source-buffer evaluation~
+
+OUTER_SPRINT issue_75_compile_body ~issue-75-compile~
+OUTER_SPRINT issue_75_extend_body ~issue-75-extend~
+
+COMPILE ~auto-eval-strings/compile.baf~
+  REPLACE_TEXTUALLY EXACT_MATCH ~issue-75-compile~ ~// evaluated compile source~
+
+EXTEND_TOP ~issue75-top.bcs~ ~auto-eval-strings/extend.baf~
+  REPLACE_TEXTUALLY EXACT_MATCH ~issue-75-extend~ ~// evaluated extend source~
+
+EXTEND_BOTTOM ~issue75-bottom.bcs~ ~auto-eval-strings/extend.baf~
+  REPLACE_TEXTUALLY EXACT_MATCH ~issue-75-extend~ ~// evaluated extend source~
+
+EXTEND_TOP_REGEXP ~issue75-regexp-top.bcs~ ~auto-eval-strings/extend.baf~
+  REPLACE_TEXTUALLY EXACT_MATCH ~issue-75-extend~ ~// evaluated extend source~
+
+EXTEND_BOTTOM_REGEXP ~issue75-regexp-bottom.bcs~ ~auto-eval-strings/extend.baf~
+  REPLACE_TEXTUALLY EXACT_MATCH ~issue-75-extend~ ~// evaluated extend source~

@@ -2912,7 +2912,11 @@ global option to your \ttref{TP2} file. \\
 
     \t{EVALUATE_BUFFER} is used whenever variables are evaluated. In
     particular, you can now "forget" about using it in FUNCTIONs and
-    arrays. Note, TP2 defines multiple instances of
+    arrays. It also implicitly evaluates the source buffers of
+    \ttref{COMPILE}, \ttref{EXTEND_TOP (TP2)},
+    \ttref{EXTEND_BOTTOM (TP2)}, \ttref{EXTEND_TOP_REGEXP}, and
+    \ttref{EXTEND_BOTTOM_REGEXP} before any patches supplied to those
+    actions are applied. Note, TP2 defines multiple instances of
     \t{EVALUATE_BUFFER}, like \ttref{EVALUATE_BUFFER}, but these are
     not affected by \ttref{AUTO_EVAL_STRINGS}. \emph{N.B.} This adds
     an additional level of \t{EVAL} to \ttref{OUTER_TEXT_SPRINT} and
@@ -3204,6 +3208,7 @@ MOVE (~sourceDirectory~ ~^[A-M].*\.itm$~) ~destinationDirectory
       sourceFile is a directory, all \ttref{D} and \ttref{BAF} files within
       that directory are processed individually. If there is \ttref{EVALUATE_BUFFER},
       all \verb+%variables%+ in the files are substituted with their values.
+      \ttref{AUTO_EVAL_STRINGS} performs the same substitution implicitly.
 
       After the special \ttref{EVALUATE_BUFFER} is executed, all other patches are executed.
 
@@ -3339,7 +3344,8 @@ P Q R 3
     folder. User variables in the filenames existingFile and newFile
     are replaced by their values.  Use \ttref{EVALUATE_BUFFER} if you
     want to evaluate variables inside the body of newFile before
-    parsing it. \\
+    parsing it; \ttref{AUTO_EVAL_STRINGS} performs this evaluation
+    implicitly. \\
 
   or & \t{\textbf{EXTEND_BOTTOM}}\index{EXTEND_BOTTOM (TP2)}
   \label{EXTEND_BOTTOM (TP2)} existingBCS newFile \ttref{patch}

@@ -25,3 +25,7 @@ traify/*
 
 tp2/tp2_regression_tests/*
         A collection of tests for TP2 functionality. Install as a WeiDU mod.
+
+tp2/auto_eval_strings/run.sh
+        Verifies that AUTO_EVAL_STRINGS evaluates COMPILE and EXTEND source
+        buffers before their ordinary patch lists.

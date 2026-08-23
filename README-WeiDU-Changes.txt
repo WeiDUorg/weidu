@@ -1,4 +1,6 @@
 Version 251:
+  * AUTO_EVAL_STRINGS evaluates source buffers used by COMPILE and the
+    EXTEND_TOP/EXTEND_BOTTOM action family before applying their patches.
   * CREATE called within CREATE works as expected.
   * CREATE sets SOURCE_* and DEST_* variables.
   * Auto-update does not fail if the filename of the newest WeiDU
