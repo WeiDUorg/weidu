@@ -68,7 +68,8 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   // spawns
   fj_spawn_num         = 0
   fj_difficulty        = 0
-  fj_delay             = 10
+  // Shared by spawn points and ambients. Keep one effective function default.
+  fj_delay             = 0
   fj_method            = 0
   fj_duration          = 1000
   fj_wander_dist_spawn = 1000
@@ -111,7 +112,6 @@ DEFINE_PATCH_FUNCTION fj_are_structure
   fj_volume_variance   = 0
   fj_volume            = 80
   fj_sound_num         = 0
-  fj_delay             = 0
   fj_variation         = 0
 
   // variables
@@ -268,8 +268,9 @@ DEFINE_PATCH_FUNCTION fj_are_structure
 
 BEGIN
 
-// we must set $num(0) == num_0 when using function input
-// otherwise WeiDU won't recognize that they're synonymous
+// Convert contiguous caller-scope series into the arrays used below. These
+// dynamically named values are not formal function arguments and must be set
+// before launching fj_are_structure.
 PATCH_FOR_EACH value IN
   vertex door_open_vert door_closed_vert cell_open_vert cell_closed_vert
 BEGIN
