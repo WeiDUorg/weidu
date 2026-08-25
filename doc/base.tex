@@ -1234,8 +1234,11 @@ commands of the form \t{STRING_SET "Hello" @1} instead of \t{STRING_SET \#1
 \multicolumn{2}{c}{ \color{red} Automatic Module Packaging Options} \\
 \DEFINE{--automate} \t{X}&   Automatically create a \ttref{TP2} file for resources in folder \t{X}. See \ttref{--out}. \\
 \DEFINE{--automate-min} \t{X}& Only \ttref{--automate} string references above \t{X}. If not specified, it is assumed as 62169 (that is, the number of strings in unmodded SoA). \\
-\DEFINE{--extract-kits} \t{X} & Extract all kits starting with kit \#\t{X}
-and create \ttref{TP2} actions to install those kits as part of a module.  \\
+\DEFINE{--extract-kits} \t{X} & Extract all kits whose numeric
+\t{KITLIST.2DA} row is greater than or equal to the positive integer \t{X},
+and create \ttref{ADD_KIT} actions to install those kits as part of a module.
+The extraction covers the data represented by \ttref{ADD_KIT}; other
+engine-specific kit metadata is not copied.  \\
 \\
 \multicolumn{2}{c}{ \color{red} Logging Options } \\
 

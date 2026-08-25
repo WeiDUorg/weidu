@@ -1414,7 +1414,7 @@ let main () =
   let tlk_merge = ref [] in
 
   let extract_tlk = ref false in
-  let extract_kits = ref (0) in
+  let extract_kits = ref None in
 
   let tp_list = ref [] in
 
@@ -1598,7 +1598,7 @@ let main () =
     "--out", Myarg.String (set_theout false), "X\temit to file or directory X" ;
     "--append", Myarg.String (set_theout true), "X\tappend to file or directory X" ;
     "--backup", Myarg.String (fun s -> backup_dir := Some(s)), "X\tbackup files to directory X before overwriting" ;
-    "--extract-kits", Myarg.Int (fun d -> extract_kits := d), "X\textract all kits starting with kit #X";
+    "--extract-kits", Myarg.Int (fun d -> extract_kits := Some d), "X\textract all kits starting with kit #X";
     "--tlkout", Myarg.String (fun s -> output_dialog := Some(s) ; test_output_tlk_p := true), "X\temit X as new DIALOG.TLK" ;
     "--ftlkout", Myarg.String (fun s -> output_dialogf := Some(s) ; test_output_tlk_p := true), "X\temit X as new DIALOGF.TLK" ;
 
@@ -1868,8 +1868,13 @@ let main () =
   end);
 
 
-  (if !extract_kits > 0 then Kit.extract game (output_string (Lazy.force theout.chan)) theout.dir
-      !extract_kits) ;
+  (match !extract_kits with
+  | Some min_kit ->
+      if_bgee_check_lang_or_fail game ;
+      Kit.extract game
+        (fun string -> output_string (Lazy.force theout.chan) string)
+        theout.dir min_kit
+  | None -> ()) ;
 
 
   if !cmp_dest <> None then

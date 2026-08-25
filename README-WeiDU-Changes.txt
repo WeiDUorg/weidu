@@ -1,4 +1,8 @@
 Version 251:
+  * Fix --extract-kits on Enhanced Edition games. Table lookups are now
+    case-insensitive, WEAPPROF and 25STWEAP columns follow KITLIST's
+    PROFICIENCY value, optional kit tables are supported, and missing
+    ability tables are reported instead of being silently substituted.
   * CREATE called within CREATE works as expected.
   * CREATE sets SOURCE_* and DEST_* variables.
   * Auto-update does not fail if the filename of the newest WeiDU
