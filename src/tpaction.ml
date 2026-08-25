@@ -2251,7 +2251,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
           ignore (log_and_print "Decompressing %i biff file%s\n" length (if length = 1 then "" else "s")) ;
           ignore (List.iter decompress biff_path_list) ;
 
-      | TP_AddJournal(existing,managed,title,ref_list,tra_list) ->
+      | TP_AddJournal(existing,_managed,title,ref_list,tra_list) ->
           (match game.Load.game_type with
           | Util.BGEE
           | Util.BG2EE
@@ -2265,31 +2265,6 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                   Dlg.TLK_Index i -> i
                 | _ -> failwith "ERROR: ADD_JOURNAL cannot resolve reference"
               in
-              let isolate_title_and_resolve index =
-                let isolate_title string =
-                  if Str.string_match (Str.regexp "\\(.+\\)$") string 0 then begin
-                    let title = Str.matched_group 1 string in
-                    let trim = (Str.regexp "[ \t\\.]+$") in
-                    Str.global_replace trim "" title
-                  end
-                  else
-                    failwith "ERROR: ADD_JOURNAL was unable to isolate a journal title and none was provided"
-                in
-
-                let male = Dc.pretty_print_no_quote
-                    (Load.get_active_dialog game)
-                    index false false in
-                let female = Dc.pretty_print_no_quote
-                    (Load.get_active_dialogf_fallback game)
-                    index true false in
-                let lse = Dlg.Local_String(
-                  {lse_male = (isolate_title male);
-                    lse_male_sound = "";
-                    lse_female = (isolate_title female);
-                    lse_female_sound = "";}) in
-                resolve_string lse
-              in
-
               let tra_list = List.map Arch.backslash_to_slash tra_list in
 
               Dc.push_copy_trans_modder ();
@@ -2304,7 +2279,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
 
                 let indices = List.map resolve_string ref_list in
 
-                if is_true (eval_pe "" game (Pred_File_Exists_In_Game (PE_LiteralString "bgee.lua"))) then begin
+                begin
                   try
                     Var.var_push () ;
 
@@ -2340,99 +2315,7 @@ let rec process_action_real our_lang game this_tp2_filename tp a =
                     ignore (process_action tp (TP_Launch_Action_Macro "fl#ADD_JOURNAL_LUA")) ;
                     Var.var_pop () ;
                   with e -> Var.var_pop () ; raise e
-                end else begin (* code path for legacy SQL format *)
-
-                  let titled_indices = (match title with
-                    Some(t) ->
-                      let title = resolve_string t in
-                      List.map (fun index ->
-                        title,index) indices
-                  | None ->
-                      List.map (fun index ->
-                        let title = isolate_title_and_resolve index in
-                        title,index) indices) in
-
-                  let quests,journals_quests = Sql.get_quests_data "ADD_JOURNAL" in
-                  let highest_quest_id = ref (List.fold_left (fun acc record ->
-                    max acc record.Sql.quest_id) 1 quests) in
-
-                  let quest_id_table = Hashtbl.create
-                      (if not existing then (List.length titled_indices)
-                      else ((List.length quests) + (List.length titled_indices))) in
-
-                  let journal_id_table = Hashtbl.create
-                      (if not existing then (List.length titled_indices)
-                      else ((List.length journals_quests) + (List.length titled_indices))) in
-
-                  if existing then begin
-                    ignore (List.iter (fun record ->
-                      Hashtbl.add quest_id_table record.Sql.quest_strref record.Sql.quest_id)
-                              quests) ;
-                    ignore (List.iter (fun record ->
-                      Hashtbl.add journal_id_table (record.Sql.journal_id,
-                                                    record.Sql.journal_quest_id) 0)
-                              journals_quests) ;
-                  end;
-
-                  let get_quest_id strref =
-                    if not (Hashtbl.mem quest_id_table strref) then begin
-                      let id = !highest_quest_id + 1 in
-                      Hashtbl.add quest_id_table strref id ;
-                      highest_quest_id := id ;
-                      id ;
-                    end
-                    else
-                      Hashtbl.find quest_id_table strref ;
-                  in
-
-                  let new_quests = List.fold_left (fun acc (title,index) ->
-                    if not (Hashtbl.mem quest_id_table title) then
-                      List.append acc
-                        [(Sql.make_quests_record (get_quest_id title) "" title 0 0 0
-                            ~quest_MC1:(Some (-1)) ())]
-                    else
-                      acc) [] titled_indices in
-
-                  (* this can be optimised *)
-                  let highest_quest_group = ref (List.fold_left (fun acc record ->
-                    (match record.Sql.journal_quest_group with
-                      None -> (-1)
-                    | Some i -> max acc i))
-                                                   0 journals_quests) in
-
-                  let new_journals = List.fold_left (fun acc (title,index) ->
-                    let quest_id = get_quest_id title in
-                    if not (Hashtbl.mem journal_id_table (index,quest_id)) then begin
-                      Hashtbl.add journal_id_table (index,quest_id) 0 ;
-                      List.append acc
-                        [(Sql.make_journals_record index quest_id 0
-                            ~quest_group:(if managed then
-                              (Some (!highest_quest_group + 1))
-                            else
-                              (Some 0)) ~date:(Some "") ~journal_MC1:(Some (-1)) ())]
-                    end
-                    else
-                      acc) [] titled_indices in
-
-                  if existing && managed then
-                    ignore (List.iter (fun (title,index) ->
-                      List.iter (fun record ->
-                        (try
-                          if (Hashtbl.mem quest_id_table title) &&
-                            (Hashtbl.find quest_id_table title) = record.Sql.journal_quest_id &&
-                            (match record.Sql.journal_quest_group with
-                              Some 0 -> true
-                            | _ -> false) then
-                            record.Sql.journal_quest_group <- (Some (!highest_quest_group + 1))
-                        with Not_found -> ())) journals_quests)
-                              (match title,titled_indices with
-                                Some t, [] -> [(resolve_string t),0]
-                              | _,_ -> titled_indices)) ;
-
-                  let quests = List.append new_quests quests in
-                  let journals_quests = List.append new_journals journals_quests in
-                  ignore (Sql.set_quests_data (quests,journals_quests)) ;
-                end ; (* end legacy SQL path *)
+                end ;
 
                 Dc.pop_trans ();
               with e -> Dc.pop_trans () ; raise e)

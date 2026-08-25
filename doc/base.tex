@@ -3723,17 +3723,16 @@ COPY ~MyMod/MYDART.ITM~ ~override/MYDART.ITM~
        \t{USING} traFile \Slist \Oe &
 
     If the game is not of an EE-type, this action does nothing.  If
-    the game is of an EE-type, this action patches BGEE.SQL or
-    BGEE.LUA (depending on game version) with the provided quests and
-    journal entries, so they will work with the EE-type journal
-    system.
+    the game is of an EE-type, this action patches BGEE.LUA with the
+    provided quests and journal entries, so they will work with the
+    EE-type journal system.
 
     For each of the provided \ttref{reference}s, which are taken to be
     journal entries, the first line of text, up to a newline character, is
     taken to be the title of the journal entry. Titles isolated in this way
     have any trailing whitespace and full stops trimmed. The title is added
     as a separate string to the TLK, together with the complete journal entry.
-    The game files patched with the strrefs of the title and journal entry.
+    BGEE.LUA is patched with the strrefs of the title and journal entry.
     Each unique title is given a unique quest id and journal entries that
     share titles end up sharing quest ids.
 
