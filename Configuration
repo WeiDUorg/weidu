@@ -5,33 +5,29 @@
 
 # Autodetection:
 # We try to auto-detect X86/Windows/Cygwin, X86/Linux and OSX10.4.
-ifdef WINDIR
-	# (0) X86 / Windows / Cygwin, using MINGW as the C compiler
-	export ARCHOS       = x86_WIN32
-	export OBJEXT       = o
-	export ARCH_FILE    = arch_mingw
-	export CASE_FILE    = case_ins_win
-	export ARCH_C_FILES = createprocess_win32
-	export OCAMLDIR     = $(shell dirname $(shell which ocaml.exe))
-	export ELKHOUND_BIN = elkhound.exe
-	# Selects on the arch of the Cygwin environment
-	ifeq "$(shell uname -m)" "x86_64"
-		export WEIDU_ARCH  = amd64
-		export WINDRES_BIN = x86_64-w64-mingw32-windres
-	else
-		export WEIDU_ARCH  = x86
-		export WINDRES_BIN = i686-w64-mingw32-windres
-	endif
-	export WEIDU_OS   = win32
-	PROJECT_CMODULES  = reg
-	PROJECT2_CMODULES = reg
-	PROJECT3_CMODULES = reg
-	export GLOB       = glob_win32
-	export USEOPT     = .opt
-else
-	uname=$(shell uname)
-	ifeq "$(uname)" "Linux"
-		# (1) X86 / Linux, using GCC as the C Compiler
+ifneq ($(strip $(WEIDU_TARGET)),)
+	ifeq ($(WEIDU_TARGET),windows)
+		export ARCHOS       = x86_WIN32
+		export OBJEXT       = o
+		export ARCH_FILE    = arch_mingw
+		export CASE_FILE    = case_ins_win
+		export ARCH_C_FILES = createprocess_win32
+		export OCAMLDIR     = $(shell dirname $(shell which ocaml))
+		export ELKHOUND_BIN = elkhound.exe
+		ifeq "$(shell uname -m)" "x86_64"
+			export WEIDU_ARCH  = amd64
+			export WINDRES_BIN ?= x86_64-w64-mingw32-windres
+		else
+			export WEIDU_ARCH  = x86
+			export WINDRES_BIN ?= i686-w64-mingw32-windres
+		endif
+		export WEIDU_OS   = win32
+		PROJECT_CMODULES  = reg
+		PROJECT2_CMODULES = reg
+		PROJECT3_CMODULES = reg
+		export GLOB       = glob_win32
+		export USEOPT     = .opt
+	else ifeq ($(WEIDU_TARGET),linux)
 		export ARCHOS    = x86_LINUX
 		export OCAMLDIR  = $(shell dirname $(shell which ocaml))
 		export OBJEXT    = o
@@ -39,8 +35,6 @@ else
 		export CASE_FILE = case_ins_linux
 		export CASE_C_FILES = fcase
 		export GLOB      = glob_unix
-		# Very simplistic arch test
-		# Does not account for e.g., PPC machines
 		ifeq "$(shell uname -m)" "x86_64"
 			export WEIDU_ARCH = amd64
 		else ifeq "$(shell uname -m)" "aarch64"
@@ -52,30 +46,122 @@ else
 		export ELKHOUND_BIN = elkhound
 		export USEOPT       = .opt
 		PROJECT_CMODULES    = nix fcase
+	else ifeq ($(WEIDU_TARGET),mac)
+		export ARCHOS    = x86_LINUX
+		export OCAMLDIR  = $(shell dirname $(shell which ocaml))
+		export OBJEXT    = o
+		export CASE_FILE = case_ins_mac
+		export GLOB      = glob_unix
+		export ARCH_FILE = arch_osx
+		ifeq "$(shell uname -m)" "x86_64"
+			export WEIDU_ARCH = amd64
+		else ifeq "$(shell uname -m)" "aarch64"
+			export WEIDU_ARCH = arm64
+		else ifeq "$(shell uname -m)" "i386"
+			export WEIDU_ARCH = x86
+		else
+			export WEIDU_ARCH = mac
+			export ARCH_FILE = arch_legacy_osx
+		endif
+		export WEIDU_OS = osx
+		export ELKHOUND_BIN = elkhound
+		export USEOPT = .opt
+		PROJECT_CMODULES = nix
+	else ifeq ($(WEIDU_TARGET),osx)
+		export ARCHOS    = x86_LINUX
+		export OCAMLDIR  = $(shell dirname $(shell which ocaml))
+		export OBJEXT    = o
+		export CASE_FILE = case_ins_mac
+		export GLOB      = glob_unix
+		export ARCH_FILE = arch_osx
+		ifeq "$(shell uname -m)" "x86_64"
+			export WEIDU_ARCH = amd64
+		else ifeq "$(shell uname -m)" "aarch64"
+			export WEIDU_ARCH = arm64
+		else ifeq "$(shell uname -m)" "i386"
+			export WEIDU_ARCH = x86
+		else
+			export WEIDU_ARCH = mac
+			export ARCH_FILE = arch_legacy_osx
+		endif
+		export WEIDU_OS = osx
+		export ELKHOUND_BIN = elkhound
+		export USEOPT = .opt
+		PROJECT_CMODULES = nix
+	endif
+else
+	ifdef WINDIR
+		# (0) X86 / Windows / Cygwin, using MINGW as the C compiler
+		export ARCHOS       = x86_WIN32
+		export OBJEXT       = o
+		export ARCH_FILE    = arch_mingw
+		export CASE_FILE    = case_ins_win
+		export ARCH_C_FILES = createprocess_win32
+		export OCAMLDIR     = $(shell dirname $(shell which ocaml.exe))
+		export ELKHOUND_BIN = elkhound.exe
+		# Selects on the arch of the Cygwin environment
+		ifeq "$(shell uname -m)" "x86_64"
+			export WEIDU_ARCH  = amd64
+			export WINDRES_BIN = x86_64-w64-mingw32-windres
+		else
+			export WEIDU_ARCH  = x86
+			export WINDRES_BIN = i686-w64-mingw32-windres
+		endif
+		export WEIDU_OS   = win32
+		PROJECT_CMODULES  = reg
+		PROJECT2_CMODULES = reg
+		PROJECT3_CMODULES = reg
+		export GLOB       = glob_win32
+		export USEOPT     = .opt
 	else
-		ifeq "$(uname)" "Darwin"
-			# (2) Mac OS X, using GCC as the C compiler
+		uname=$(shell uname)
+		ifeq "$(uname)" "Linux"
+			# (1) X86 / Linux, using GCC as the C Compiler
 			export ARCHOS    = x86_LINUX
 			export OCAMLDIR  = $(shell dirname $(shell which ocaml))
 			export OBJEXT    = o
-			export CASE_FILE = case_ins_mac
+			export ARCH_FILE = arch_unix
+			export CASE_FILE = case_ins_linux
+			export CASE_C_FILES = fcase
 			export GLOB      = glob_unix
-			export ARCH_FILE = arch_osx
 			# Very simplistic arch test
+			# Does not account for e.g., PPC machines
 			ifeq "$(shell uname -m)" "x86_64"
 				export WEIDU_ARCH = amd64
 			else ifeq "$(shell uname -m)" "aarch64"
 				export WEIDU_ARCH = arm64
-			else ifeq "$(shell uname -m)" "i386"
-				export WEIDU_ARCH = x86
 			else
-				export WEIDU_ARCH = mac # PPC
-				export ARCH_FILE = arch_legacy_osx
+				export WEIDU_ARCH = x86
 			endif
-			export WEIDU_OS = osx
+			export WEIDU_OS     = unix
 			export ELKHOUND_BIN = elkhound
-			export USEOPT = .opt
-			PROJECT_CMODULES = nix
+			export USEOPT       = .opt
+			PROJECT_CMODULES    = nix fcase
+		else
+			ifeq "$(uname)" "Darwin"
+				# (2) Mac OS X, using GCC as the C compiler
+				export ARCHOS    = x86_LINUX
+				export OCAMLDIR  = $(shell dirname $(shell which ocaml))
+				export OBJEXT    = o
+				export CASE_FILE = case_ins_mac
+				export GLOB      = glob_unix
+				export ARCH_FILE = arch_osx
+				# Very simplistic arch test
+				ifeq "$(shell uname -m)" "x86_64"
+					export WEIDU_ARCH = amd64
+				else ifeq "$(shell uname -m)" "aarch64"
+					export WEIDU_ARCH = arm64
+				else ifeq "$(shell uname -m)" "i386"
+					export WEIDU_ARCH = x86
+				else
+					export WEIDU_ARCH = mac # PPC
+					export ARCH_FILE = arch_legacy_osx
+				endif
+				export WEIDU_OS = osx
+				export ELKHOUND_BIN = elkhound
+				export USEOPT = .opt
+				PROJECT_CMODULES = nix
+			endif
 		endif
 	endif
 endif
