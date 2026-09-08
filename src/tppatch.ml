@@ -14,7 +14,7 @@ open Tppe
  * change location "where" in "buff" to point to str-ref "what"
  ************************************************************************)
 let rec process_patch1 patch_filename game buff p =
-  Stats.time "READ_*" (fun () ->
+  Stats.time_detail "READ_*" (fun () ->
     let bounds_check idx size retfun eo ef =
       let len = String.length buff in
       let out_of_bounds = (idx < 0 || (idx + size) > len) in
@@ -189,7 +189,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
   let process_patch2 = process_patch2_real process_action tp our_lang in
   process_patch1 patch_filename game buff p ;
 
-  Stats.time "process_patch2" (fun () ->
+  Stats.time_detail "process_patch2" (fun () ->
     let bounds_check_write idx size (str : string) =
       let len = String.length buff in
       let out_of_bounds = (idx < 0 || (idx + size) > len) in
@@ -490,7 +490,7 @@ let rec process_patch2_real process_action tp our_lang patch_filename game buff 
 
     | TP_Launch_Patch_Function (str,is_patch,int_var,str_var,rets,retas) ->
         let the_buff = ref buff in
-        Stats.time "function overhead" (fun () ->
+        Stats.time_detail "function overhead" (fun () ->
           let str = Var.get_string str in
           let (f_int_args,f_str_args,f_rets,f_retas,f_code) = try
             Hashtbl.find functions (str, is_patch)

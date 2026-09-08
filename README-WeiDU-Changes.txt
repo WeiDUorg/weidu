@@ -1,3 +1,8 @@
+Unreleased:
+  * Fine-grained interpreter timings are opt-in to reduce patching
+    overhead. Use --debug-timings to include them in the debug log.
+    Coarse operation timings and explicit mod timings remain enabled.
+
 Version 251:
   * CREATE called within CREATE works as expected.
   * CREATE sets SOURCE_* and DEST_* variables.

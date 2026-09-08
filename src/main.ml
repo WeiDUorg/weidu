@@ -1682,6 +1682,7 @@ let main () =
     "--log-extern", Myarg.Set log_extern,"\talso log output from commands invoked by WeiDU " ;
     "--debug-assign", Myarg.Set Var.debug_assign,"\tPrint out all values assigned to TP2 variables" ;
     "--debug-value", Myarg.Set Tp.debug_pe,"\tPrint out all value expressions" ;
+    "--debug-timings", Myarg.Set Stats.debug_timings,"\tInclude fine-grained interpreter timings in the debug log (slows patching)" ;
     "--continue", Myarg.Set Tp.continue_on_error,"\tcontinue despite TP2 action errors" ;
 
     "", Myarg.Unit (fun a -> a), "\nHelp Options:\n" ;
