@@ -20,6 +20,10 @@ let stack : t list ref = ref [top]
 let record = Hashtbl.create 127
 let extra = Hashtbl.create 10
 
+(* Per-expression and per-patch measurements are expensive in tight loops.
+   Coarse operation timings and explicit mod timings remain enabled. *)
+let debug_timings = ref false
+
 let update_table table name duration =
   let sofar =
     if Hashtbl.mem table name then
@@ -52,6 +56,9 @@ let time name f a =
     update_table record name duration ;
     raise e
   end
+
+let time_detail name f a =
+  if !debug_timings then time name f a else f a
 
 let inclusive_time name f a =
   let now = (Unix.times ()).Unix.tms_utime in

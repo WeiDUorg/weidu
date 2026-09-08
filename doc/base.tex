@@ -1058,6 +1058,15 @@ but in WeiDU.log with case-folding. \\
 previously been used (Linux only). This option is saved in the file
 weidu.conf, located in the root game directory. Note caveats described
 under \ttref{--lowercase}. \\
+\DEFINE{--debug-timings} & Include fine-grained interpreter timings
+(\t{READ\_*}, \t{process\_patch2}, \t{eval\_pe}, and
+\t{function overhead}) in the debug log. These measurements can
+substantially slow patching and are disabled by default. Coarse
+operation timings and explicit mod timings remain enabled; without
+this option, interpreter time is included in the enclosing operation.
+Timings measure user CPU time, not elapsed time or time waiting for
+I/O. Use \ttref{--log} to select a debug log when one is not opened
+automatically. \\
 \DEFINE{--debug-assign} & Print out all values assigned to \ttref{TP2}
 variables (even implicit ones created by \t{WeiDU}). \\
 \DEFINE{--debug-value} & Print out all \ttref{value}s encountered in
